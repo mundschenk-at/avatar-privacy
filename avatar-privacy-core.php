@@ -403,13 +403,13 @@ class AvatarPrivacyCore {
     }
     $email = strtolower(trim($email));
     if (array_key_exists($email, $this->validate_gravatar_cache)) {
-      return $this->validate_gravatar_cache['$email'];
+      return $this->validate_gravatar_cache[$email];
     }
     $hash = md5($email);
     $uri = 'http://www.gravatar.com/avatar/' . $hash . '?d=404';
     $headers = @get_headers($uri);
     $result = is_array($headers) && preg_match("|200|", $headers[0]);
-    $this->validate_gravatar_cache['$email'] = $result;
+    $this->validate_gravatar_cache[$email] = $result;
     return $result;
   }
   
