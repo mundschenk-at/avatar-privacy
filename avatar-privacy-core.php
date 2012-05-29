@@ -288,7 +288,7 @@ class AvatarPrivacyCore {
     }
     
     // make sure that the E-Mail address does not belong to a registered user
-    if (get_user_by_email($comment->comment_author_email)) {
+    if (get_user_by('email', $comment->comment_author_email)) {
       // This is either a comment with a fake identity or a user who didn't sign in
       // and rather entered their details manually. Either way, don't save anything.
       return;
