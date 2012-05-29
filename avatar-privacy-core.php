@@ -401,6 +401,7 @@ class AvatarPrivacyCore {
     if (strlen($email) == 0) {
       return false;
     }
+    $email = strtolower(trim($email));
     if (array_key_exists($email, $this->validate_gravatar_cache)) {
       return $this->validate_gravatar_cache['$email'];
     }
