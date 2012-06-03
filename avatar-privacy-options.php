@@ -44,22 +44,24 @@ class AvatarPrivacyOptions {
    * @return array The cleaned-up array of user input.
    */
   public function validate_settings($input) {
-    // check if the headers function works on the server (use MD5 of mystery default image)
-    $uri = 'http://www.gravatar.com/avatar/ad516503a11cd5ca435acc9bb6523536?s=32&d=404';
-    $headers = @get_headers($uri);
-    if (!is_array($headers)) {
-      add_settings_error(AvatarPrivacyCore::SETTINGS_NAME, 'get-headers-failed',
-        __("The get_headers() function seems to be disabled on your system! To check if a gravatar exists for an E-Mail address,"
-          . " this PHP function is needed. It seems this function is either disabled on your system or the gravatar.com"
-          . " servers can not be reached for another reason. Check with your server admin if you don't see gravatars for your own"
-          . " gravatar account and this message keeps popping up after saving the plugin settings.", 'avatar-privacy'),
-        'error');
-    }
     // validate the settings
     $newinput['mode_checkforgravatar'] = (isset($input['mode_checkforgravatar']) && ($input['mode_checkforgravatar'] === '1')) ? '1' : '0';
     $newinput['mode_optin'] = (isset($input['mode_optin']) && ($input['mode_optin'] === '1')) ? '1' : '0';
     $newinput['checkbox_default'] = (isset($input['checkbox_default']) && ($input['checkbox_default'] === '1')) ? '1' : '0';
     $newinput['default_show'] = (isset($input['default_show']) && ($input['default_show'] === '1')) ? '1' : '0';
+    // check if the headers function works on the server (use MD5 of mystery default image)
+    if ($newinput['mode_checkforgravatar'] == '1') {
+      $uri = 'http://www.gravatar.com/avatar/ad516503a11cd5ca435acc9bb6523536?s=32&d=404';
+      $headers = @get_headers($uri);
+      if (!is_array($headers)) {
+        add_settings_error(AvatarPrivacyCore::SETTINGS_NAME, 'get-headers-failed',
+          __("The get_headers() function seems to be disabled on your system! To check if a gravatar exists for an E-Mail address,"
+            . " this PHP function is needed. It seems this function is either disabled on your system or the gravatar.com"
+            . " servers can not be reached for another reason. Check with your server admin if you don't see gravatars for your own"
+            . " gravatar account and this message keeps popping up after saving the plugin settings.", 'avatar-privacy'),
+          'error');
+      }
+    }
     return $newinput;
   }
   
