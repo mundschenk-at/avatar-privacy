@@ -3,9 +3,9 @@ Ideas for future development (ideas only, no promises, tell me if you'd like any
 * display a gravatar.com sign-up link
 * add a caching mechanism for the gravatar checks, clear cache every x hours
 * let the admin upload a different local default image
-* let users upload an image in their user profile, check for interoperability with "User Photo" and "Simple Local Avatars" plugins
-* check if the plugin works together with the "Twitter User Icon" plugin
 * check if not storing the checkbox value for spam comments works with other anti-spam plugins
-* test the plugin with more themes (Twenty Ten, Twenty Eleven, some common frameworks)
-* search for other user photo plugins and check the interoperability
+* test the plugin with more themes (some common frameworks)
+* search for further user photo plugins and check the interoperability
+** "Simple Local Avatars"
 * add automated tests
+* just maybe: let users upload an image in their user profile

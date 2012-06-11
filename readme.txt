@@ -6,7 +6,8 @@ Author URI: http://code.freudendahl.net/
 Tags: gravatar, avatar, privacy
 Requires at least: 3.2
 Tested up to: 3.3
-Stable tag: 0.1
+Stable tag: 0.2
+License: GPLv2
 
 Adds options to enhance the privacy when using avatars.
 
@@ -154,6 +155,8 @@ No, for registered users the user profile is checked, not the table for the comm
 I used Avatar Privacy together with these plugins:
 
 * [AntiSpam Bee](http://wordpress.org/extend/plugins/antispam-bee/)
+* [Twitter Avatar Reloaded](http://wordpress.org/extend/plugins/twitter-avatar-reloaded/)
+* [User Photo](http://wordpress.org/extend/plugins/user-photo/) (worked on normal WP installation, haven't tried MultiSite; the plugin is a bit outdated and needs some general fixes)
 
 If you find any problems with particular plugins, please tell me!
 
@@ -161,9 +164,15 @@ If you find any problems with particular plugins, please tell me!
 == Changelog ==
 
 = 0.2 (2012-06-01) =
+* Bugfix: lower-case and trim E-Mail addresses before hashing to produce a gravatar URL (otherwise gravatars are not displayed if the address is entered with mixed case) -- thanks to "Schokokäse" for finding the problem and solution
+* Bugfix: repaired a bug so that the plugin actually caches the results of a gravatar check and uses these cached results if the same E-Mail address appears twice on a page
+* Bugfix: corrected image name of the "Media Artist" image (large version)
+* removed the check for the get_headers PHP function unless the "Don't publish encrypted E-Mail addresses for non-members of gravatar.com." option is enabled to not annaoy other users -- thanks to Scott for finding the problem
 * added some simple inline CSS to fix the display of the checkbox in the comment form with TwentyTen theme
+* fixed notice for deprecated function get_user_by_email
 * added screenshots
 * tested with WP 3.4
+* tested with plugins User Photo and Twitter Avatar Reloaded
 
 = 0.1 (2012-02-14) =
 * initial release
