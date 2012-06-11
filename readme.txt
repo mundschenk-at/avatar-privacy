@@ -5,7 +5,7 @@ Plugin URI: http://wordpress.org/extend/plugins/avatar-privacy/
 Author URI: http://code.freudendahl.net/
 Tags: gravatar, avatar, privacy
 Requires at least: 3.2
-Tested up to: 3.3
+Tested up to: 3.4
 Stable tag: 0.2
 License: GPLv2
 
@@ -164,7 +164,7 @@ If you find any problems with particular plugins, please tell me!
 == Changelog ==
 
 = 0.2 (2012-06-01) =
-* Bugfix: lower-case and trim E-Mail addresses before hashing to produce a gravatar URL (otherwise gravatars are not displayed if the address is entered with mixed case) -- thanks to "Schokokäse" for finding the problem and solution
+* Bugfix: lower-case and trim E-Mail addresses before hashing to produce a gravatar URL (otherwise gravatars are not displayed if the address is entered with mixed case) -- thanks to "Schokokaese" for finding the problem and solution
 * Bugfix: repaired a bug so that the plugin actually caches the results of a gravatar check and uses these cached results if the same E-Mail address appears twice on a page
 * Bugfix: corrected image name of the "Media Artist" image (large version)
 * removed the check for the get_headers PHP function unless the "Don't publish encrypted E-Mail addresses for non-members of gravatar.com." option is enabled to not annaoy other users -- thanks to Scott for finding the problem
