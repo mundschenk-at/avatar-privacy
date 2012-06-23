@@ -80,6 +80,12 @@ class AvatarPrivacyCore {
         add_action('edit_user_profile_update', array(&$this, 'save_user_profile_fields'));
       }
     }
+    
+    // load the validate_gravatar_cache from the transients
+    $this->validate_gravatar_cache = get_site_transient('avapr_validate_gravatar_cache');
+    if (!$this->validate_gravatar_cache) {
+      $this->validate_gravatar_cache = array();
+    }
   }
   
   
@@ -399,18 +405,28 @@ class AvatarPrivacyCore {
    * answered with a different errror code or if no E-Mail address was given.
    */
   public function validate_gravatar($email = '') {
+    // make sure we have a real address to check
     if (strlen($email) == 0) {
       return false;
     }
+    
+    // build the hash of the E-Mail address
     $email = strtolower(trim($email));
-    if (array_key_exists($email, $this->validate_gravatar_cache)) {
-      return $this->validate_gravatar_cache[$email];
-    }
     $hash = md5($email);
+    
+    // try to find something in the cache
+    if (array_key_exists($hash, $this->validate_gravatar_cache)) {
+      error_log('validate_gravatar(' . $email . ') -- found in local cache'); // TODO remove
+      return $this->validate_gravatar_cache[$hash];
+    }
+    
+    // ask gravatar.com and cache the result
     $uri = 'http://www.gravatar.com/avatar/' . $hash . '?d=404';
     $headers = @get_headers($uri);
     $result = is_array($headers) && preg_match("|200|", $headers[0]);
-    $this->validate_gravatar_cache[$email] = $result;
+    error_log('validate_gravatar(' . $email . ') -- GET request to gravatar.com'); // TODO remove
+    $this->validate_gravatar_cache[$hash] = $result;
+    set_site_transient('avapr_validate_gravatar_cache', $this->validate_gravatar_cache, 600); // cache this across all blogs for 10 minutes
     return $result;
   }
   
