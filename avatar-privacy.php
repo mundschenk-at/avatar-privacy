@@ -3,7 +3,7 @@
 Plugin Name: Avatar Privacy
 Plugin URI: http://code.freudendahl.net/avatar-privacy
 Description: Adds options to enhance the privacy when using avatars.
-Version: 0.1
+Version: 0.2
 Author: Johannes Freudendahl
 Author URI: http://code.freudendahl.net/
 License: GPL2 (or later)
