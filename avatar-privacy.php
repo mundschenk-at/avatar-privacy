@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Avatar Privacy
-Plugin URI: http://code.freudendahl.net/avatar-privacy
+Plugin URI: http://wordpress.org/extend/plugins/avatar-privacy/
 Description: Adds options to enhance the privacy when using avatars.
 Version: 0.2
 Author: Johannes Freudendahl
