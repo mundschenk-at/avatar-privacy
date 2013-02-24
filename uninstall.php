@@ -12,7 +12,9 @@ if (!defined('ABSPATH') && !defined('WP_UNINSTALL_PLUGIN')) {
   exit();
 }
 
-// drop the avatar_privacy table
+/**
+ * Uninstalls all the plugin's information from the database.
+ */
 function avapr_uninstall() {
   global $wpdb;
   
@@ -37,6 +39,15 @@ function avapr_uninstall() {
       $wpdb->query('UPDATE ' . $wpdb->get_blog_prefix($blog_id) . 'options SET option_value = "mystery" WHERE option_name = "avatar_default"'
           . ' AND option_value IN ("comment", "im-user-offline", "view-media-artist");');
     }
+  }
+  
+  // delete transients from sitemeta or options table
+  if (is_multisite()) {
+    // stored in sitemeta
+    $wpdb->query('DELETE FROM ' . $wpdb->sitemeta . ' WHERE meta_key LIKE "_site_transient_timeout_avapr_validate_gravatar_%" OR meta_key LIKE "_site_transient_avapr_validate_gravatar_%";');
+  } else {
+    // stored in wp_options
+    $wpdb->query('DELETE FROM ' . $wpdb->options . ' WHERE option_name LIKE "_transient_timeout_avapr_check_%" OR option_name LIKE "_transient_avapr_check_%";');
   }
 }
 

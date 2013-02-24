@@ -5,8 +5,8 @@ Plugin URI: http://wordpress.org/extend/plugins/avatar-privacy/
 Author URI: http://code.freudendahl.net/
 Tags: gravatar, avatar, privacy
 Requires at least: 3.2
-Tested up to: 3.4
-Stable tag: 0.2
+Tested up to: 3.5.1
+Stable tag: 0.3
 License: GPLv2
 
 Adds options to enhance the privacy when using avatars.
@@ -71,7 +71,7 @@ Be sure to visit the discussion settings page and configure the plugin. It won't
 
 There is a difference between deactivating the plugin and uninstalling it. The plugin gets deactivated if you do so on the plugins page or if you simply delete the plugin files via FTP. No uninstallation tasks are performed then, so you can activate and deactivate the plugin as you want without losing the plugin's settings.
 
-If you deactivate the plugin und have gravatars turned on, they will again show up for everybody, even those commenters and users who opted out of displaying gravatars. If you changed the default avatar to one of the new local avatar images, the default avatar image on your blog will revert to the gravatar logo.
+If you deactivate the plugin und have gravatars turned on, they will again show up for everybody, even those commenters and users who opted out of displaying gravatars. If you changed the default avatar to one of the new local avatar images, the gravatars will not be displayed until you change the default avatar image back.
 
 If you want to completely uninstall the plugin and get rid of any data in the database, you should properly uninstall it: Deactivate the plugin first via the WordPress plugin page and then click 'delete' (same page, next to the plugin). For multisite installations, this has to be done by the network administrator on the network plugins page.
 
@@ -80,13 +80,14 @@ The plugin saves additional data about whether commenters and users want to disp
 * global table [prefix]_avatar_privacy
 * usermeta value per user: use_gravatar
 * option per blog: avatar_privacy_settings
+* transient option per commenter: avapr_check_[mail hash]
 
 The default avatar image is set to the mystery man if you selected one of the new local default avatar images.
 
 
 == Screenshots ==
 
-1. The new options on bottom of the Discussion Settings page.
+1. The new options at the bottom of the Discussion Settings page.
 2. The new default gravatars added by the plugin.
 3. The option added to the comment form.
 4. The option added to the user profile.
@@ -97,7 +98,7 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 = I activated the plugin and don't see any change!? =
 
-Did you remember to visit the discussion settings page, tick some or all of the checkboxes in the "Avatar Privacy" section and save the changes? On a multisite installation, this has to be done for every blog that wants to use the plugin. You also have to enable the use of gravatars first.
+Did you remember to visit the discussion settings page, activate some or all of the checkboxes in the "Avatar Privacy" section and save the changes? On a multisite installation, this has to be done for every blog that wants to use the plugin. You also have to enable the use of gravatars first.
 
 = I saved the settings and still don't see any changes. How do I know the plugin works? =
 
@@ -126,7 +127,7 @@ Last, scroll up a bit and select one of the local default avatar icons added to 
 
 The plugin saves additional data about whether commenters and users want to display a gravatar or not (if you select that mode in the settings). These data are deleted when you properly uninstall the plugin.
 
-Apart from that, the plugin only filters data, but does not permanently change them. Especially, if you deactivate the plugin und have gravatars turned on, they will again show up for everybody, even those commenters and users who opted out of displaying gravatars.
+Apart from that, the plugin only filters data, but does not permanently change them. Especially, if you deactivate the plugin und have gravatars turned on, they will again show up for everybody, even those commenters and users who opted out of displaying gravatars. You do have to change the default gravatar back manually, though.
 
 = Can this plugin be used together with cache plugins? =
 
@@ -163,14 +164,17 @@ If you find any problems with particular plugins, please tell me!
 
 == Changelog ==
 
-= 0.3 (2012-XX-XX) =
+= 0.3 (2013-02-24) =
 * used transients API to cache results of requests to gravatar.com for a small amount of time
+* added two previously untranslated strings to the translation files
+* added a link to the label of the checkbox in the comment and user profile forms
+* checked compatibility with WP 3.5.1
 
 = 0.2 (2012-06-11) =
 * Bugfix: lower-case and trim E-Mail addresses before hashing to produce a gravatar URL (otherwise gravatars are not displayed if the address is entered with mixed case) -- thanks to "Schokokaese" for finding the problem and solution
 * Bugfix: repaired a bug so that the plugin actually caches the results of a gravatar check and uses these cached results if the same E-Mail address appears twice on a page
 * Bugfix: corrected image name of the "Media Artist" image (large version)
-* removed the check for the get_headers PHP function unless the "Don't publish encrypted E-Mail addresses for non-members of gravatar.com." option is enabled to not annaoy other users -- thanks to Scott for finding the problem
+* removed the check for the get_headers PHP function unless the "Don't publish encrypted E-Mail addresses for non-members of gravatar.com." option is enabled to not annoy other users -- thanks to Scott for finding the problem
 * added some simple inline CSS to fix the display of the checkbox in the comment form with TwentyTen theme
 * fixed notice for deprecated function get_user_by_email
 * added screenshots

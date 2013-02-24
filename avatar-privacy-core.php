@@ -73,18 +73,12 @@ class AvatarPrivacyCore {
       // handle the checkbox data upon saving the comment
       add_action('comment_post', array(&$this, 'comment_post'), 10, 2);
       if (is_admin()) {
-        // add the checkbox to the user profile form
+        // add the checkbox to the user profile form if we're in the WP backend
         add_action('show_user_profile', array(&$this, 'add_user_profile_fields'));
         add_action('edit_user_profile', array(&$this, 'add_user_profile_fields'));
         add_action('personal_options_update', array(&$this, 'save_user_profile_fields'));
         add_action('edit_user_profile_update', array(&$this, 'save_user_profile_fields'));
       }
-    }
-    
-    // load the validate_gravatar_cache from the transients
-    $this->validate_gravatar_cache = get_site_transient('avapr_validate_gravatar_cache');
-    if (!$this->validate_gravatar_cache) {
-      $this->validate_gravatar_cache = array();
     }
   }
   
@@ -125,8 +119,8 @@ class AvatarPrivacyCore {
    * Before displaying an avatar image, checks that displaying the gravatar
    * for this E-Mail address has not been disabled (opted out, option 2).
    * Also, if option 1 is selected ("Don't publish encrypted E-Mail addresses
-   * for non-members of Gravatar."), the function checks for the E-Mail address
-   * if a gravatar is available and if not displays the default image
+   * for non-members of Gravatar."), the function checks if a gravatar is
+   * available for the E-Mail address and if not, it displays the default image
    * directly.
    * 
    * @param string $avatar The avatar image HTML fragment as built by the
@@ -143,7 +137,8 @@ class AvatarPrivacyCore {
     $show_avatar = true; // since this filter function has been called, WP option 'show_avatars' must be set to true
     
     // don't change anything on the discussion settings page, except for our own new gravatars
-    if (($pagenow == 'options-discussion.php') && !array_key_exists($default, $this->default_avatars())) {
+    $on_settings_page = $pagenow == 'options-discussion.php';
+    if ($on_settings_page && !array_key_exists($default, $this->default_avatars())) {
       return $avatar;
     }
     
@@ -219,7 +214,8 @@ class AvatarPrivacyCore {
     }
     
     // modify the avatar URL
-    if (!$show_avatar) {
+    $settings_page_first_load = $on_settings_page && empty($this->settings);
+    if (!$show_avatar || $settings_page_first_load) {
       // display the default avatar instead of the avatar for the E-Mail address
       $avatar = $this->replace_avatar_url($avatar, $default, $size, $email);
     } else if ($default_changed) {
@@ -255,7 +251,7 @@ class AvatarPrivacyCore {
     $checked = $is_checked ? ' checked="checked"' : '';
     $new_field = '<p class="comment-form-use-gravatar">'
         . '<input id="' . self::CHECKBOX_FIELD_NAME . '" name="' . self::CHECKBOX_FIELD_NAME . '" type="checkbox" value="true"' . $checked . ' style="width: auto; margin-right: 5px;" />'
-        . '<label for="' . self::CHECKBOX_FIELD_NAME . '">' . __('Display a gravatar for my comment', 'avatar-privacy') . '</label> '
+        . '<label for="' . self::CHECKBOX_FIELD_NAME . '">' . __('Display a <a href="http://gravatar.com">gravatar</a> image next to my comments', 'avatar-privacy') . '</label> '
         . '</p>';
     // either add the new field after the E-Mail field or at the end of the array
     if (is_array($fields) && array_key_exists('email', $fields)) {
@@ -348,13 +344,13 @@ class AvatarPrivacyCore {
       $checked = ($options['checkbox_default'] == '1') ? ' checked="checked"' : '';
     }
 ?>
-    <h3>Use Gravatar</h3>
+    <h3><?php _e("Use Gravatar", 'avatar-privacy'); ?></h3>
     <table class="form-table">
       <tr>
-        <th scope="row">Gravatars</th>
+        <th scope="row"><?php _e("Gravatars", 'avatar-privacy'); ?></th>
         <td>
           <input id="<?php echo self::CHECKBOX_FIELD_NAME; ?>" name="<?php echo self::CHECKBOX_FIELD_NAME; ?>" type="checkbox" value="true"<?php echo $checked; ?> />
-          <label for="<?php echo self::CHECKBOX_FIELD_NAME; ?>"><?php _e('Display a gravatar for my E-Mail address', 'avatar-privacy'); ?></label><br />
+          <label for="<?php echo self::CHECKBOX_FIELD_NAME; ?>"><?php _e('Display a <a href="http://gravatar.com">gravatar</a> image for my E-Mail address', 'avatar-privacy'); ?></label><br />
           <span class="description"><?php _e("Uncheck this box if you don't want to display a gravatar for your E-Mail address.", 'avatar-privacy'); ?></span>
         </td>
       </tr>
@@ -416,17 +412,31 @@ class AvatarPrivacyCore {
     
     // try to find something in the cache
     if (array_key_exists($hash, $this->validate_gravatar_cache)) {
-      error_log('validate_gravatar(' . $email . ') -- found in local cache'); // TODO remove
       return $this->validate_gravatar_cache[$hash];
     }
     
-    // ask gravatar.com and cache the result
+    // try to find it via transient cache
+    // (maximum length of the key = 45 characters because of wp_options limitation on non-multisite pages, the MD5 hash needs space too)
+    $transient_key = 'avapr_check_';
+    $is_multisite = is_multisite();
+    $transient_function = $is_multisite ? 'get_site_transient' : 'get_transient';
+    $result = $transient_function($transient_key . $hash);
+    if ($result !== false) {
+      $result = $result == 1;
+      $this->validate_gravatar_cache[$hash] = $result;
+      return $result;
+    }
+    
+    // ask gravatar.com
     $uri = 'http://www.gravatar.com/avatar/' . $hash . '?d=404';
     $headers = @get_headers($uri);
     $result = is_array($headers) && preg_match("|200|", $headers[0]);
-    error_log('validate_gravatar(' . $email . ') -- GET request to gravatar.com'); // TODO remove
+    
+    // cache the result across all blogs (a YES for 1 day, a NO for 10 minutes
+    // -- since a YES basically shouldn't change, but a NO might change when the user signs up with gravatar.com)
+    $transient_function = $is_multisite ? 'set_site_transient' : 'set_transient';
+    $transient_function($transient_key . $hash, $result ? 1 : 0, $result ? 86400 : 600);
     $this->validate_gravatar_cache[$hash] = $result;
-    set_site_transient('avapr_validate_gravatar_cache', $this->validate_gravatar_cache, 600); // cache this across all blogs for 10 minutes
     return $result;
   }
   
