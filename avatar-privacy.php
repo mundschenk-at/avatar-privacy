@@ -4,6 +4,8 @@ Plugin Name: Avatar Privacy
 Plugin URI: http://wordpress.org/extend/plugins/avatar-privacy/
 Description: Adds options to enhance the privacy when using avatars.
 Version: 0.3
+Text Domain: avatar-privacy
+Domain Path: /lang
 Author: Johannes Freudendahl
 Author URI: http://code.freudendahl.net/
 License: GPL2 (or later)
@@ -132,7 +134,7 @@ function avapr_add_error_wp() {
 
 // call the init function unless this file was called directly
 if (defined('ABSPATH') && defined('WPINC') && !class_exists("AvatarPrivacyCore", false)) {
-  avapr_init();
+  add_action('plugins_loaded', 'avapr_init');
 }
 
 /**
