@@ -99,15 +99,7 @@ class Avatar_Privacy_Controller {
 	 * Outputs a short explanation on the discussion settings page.
 	 */
 	public function output_settings_header() {
-	?>
-		<p><?php _e( "The 'Avatar Privacy' plugin modifies the display of avatars. You have not enabled avatars, so this plugin can't do anything for you. :-)", 'avatar-privacy' ); ?></p>
-		<p>
-			<?php
-			_e( "You can enable gravatars above by selecting 'show avatars'. Save the settings and after the page has reloaded you'll see" .
-				" the 'Avatar Privacy' plugin options here. There will also be more default avatars, so don't worry about them too much now.", 'avatar-privacy' );
-			?>
-		</p>
-	<?php
+		require dirname( __DIR__ ) . '/admin/partials/sections/avatars-disabled.php';
 	}
 }
 
