@@ -5,3 +5,5 @@ composer.lock
 # Grunt
 node_modules/
 
+# Build artifacts
+build/
