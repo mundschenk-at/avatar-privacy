@@ -31,19 +31,19 @@
  *
  * @author Johannes Freudendahl, wordpress@freudendahl.net
  */
-class AvatarPrivacyOptions {
+class Avatar_Privacy_Options {
 
 	private $core = null;
 
 	/**
-	* Creates a AvatarPrivacyOptions instance and registers all necessary
-	* hooks and filters for the settings.
-	*
-	* @param object $core_instance An AvatarPrivacyCore instance.
-	*/
+	 * Creates a Avatar_Privacy_Options instance and registers all necessary
+	 * hooks and filters for the settings.
+	 *
+	 * @param object $core_instance An Avatar_Privacy_Core instance.
+	 */
 	public function __construct( &$core_instance ) {
 		$this->core = $core_instance;
-		// register the settings to be displayed
+		// Register the settings to be displayed.
 		add_action( 'admin_init', array( &$this, 'register_settings' ) );
 	}
 
@@ -51,52 +51,53 @@ class AvatarPrivacyOptions {
 	 * Registers the settings with the settings API.
 	 */
 	public function register_settings() {
-		// add a section for the 'check for gravatar' mode to the avatar options
+		// Add a section for the 'check for gravatar' mode to the avatar options.
 		add_settings_section( 'avatar_privacy_section', __( 'Avatar Privacy', 'avatar-privacy' ) . '<span id="section_avatar_privacy"></span>', array( &$this, 'output_settings_header' ), 'discussion' );
 		add_settings_field( 'avatar_privacy_checkforgravatar', __( 'Check for gravatars', 'avatar-privacy' ), array( &$this, 'output_checkforgravatar_setting' ), 'discussion', 'avatar_privacy_section' );
 		add_settings_field( 'avatar_privacy_optin', __( 'Opt in or out of gravatars', 'avatar-privacy' ), array( &$this, 'output_optin_setting' ), 'discussion', 'avatar_privacy_section' );
 		add_settings_field( 'avatar_privacy_checkbox_default', __( 'The checkbox is...', 'avatar-privacy' ), array( &$this, 'output_checkbox_default_setting' ), 'discussion', 'avatar_privacy_section' );
 		add_settings_field( 'avatar_privacy_default_show', __( 'Default value', 'avatar-privacy' ), array( &$this, 'output_default_show_setting' ), 'discussion', 'avatar_privacy_section' );
-		// we save all settings in one variable in the database table; also adds a validation method
-		register_setting( 'discussion', AvatarPrivacyCore::SETTINGS_NAME, array( &$this, 'validate_settings' ) );
+		// We save all settings in one variable in the database table; also adds a validation method.
+		register_setting( 'discussion', Avatar_Privacy_Core::SETTINGS_NAME, array( &$this, 'validate_settings' ) );
 	}
 
-  /**
-   * Validates the plugin's settings, rejects any invalid data.
-   *
-   * @param array $input The array of settings values to save.
-   * @return array The cleaned-up array of user input.
-   */
-  public function validate_settings( $input ) {
-		// validate the settings
+	/**
+	 * Validates the plugin's settings, rejects any invalid data.
+	 *
+	 * @param array $input The array of settings values to save.
+	 * @return array The cleaned-up array of user input.
+	 */
+	public function validate_settings( $input ) {
+		// Validate the settings.
 		$newinput['mode_checkforgravatar'] = ( isset( $input['mode_checkforgravatar'] ) && ( $input['mode_checkforgravatar'] === '1' ) ) ? '1' : '0';
 		$newinput['mode_optin']            = ( isset( $input['mode_optin'] ) && ( $input['mode_optin'] === '1' ) ) ? '1' : '0';
 		$newinput['checkbox_default']      = ( isset( $input['checkbox_default'] ) && ( $input['checkbox_default'] === '1' ) ) ? '1' : '0';
 		$newinput['default_show']          = ( isset( $input['default_show'] ) && ( $input['default_show'] === '1' ) ) ? '1' : '0';
-		// check if the headers function works on the server (use MD5 of mystery default image)
+		// Check if the headers function works on the server (use MD5 of mystery default image).
 		if ( $newinput['mode_checkforgravatar'] == '1' ) {
 			$uri     = 'http://www.gravatar.com/avatar/ad516503a11cd5ca435acc9bb6523536?s=32&d=404';
 			$headers = @get_headers( $uri );
 			if ( ! is_array( $headers ) ) {
 				add_settings_error(
-			  AvatarPrivacyCore::SETTINGS_NAME, 'get-headers-failed',
-				__(
-				'The get_headers() function seems to be disabled on your system! To check if a gravatar exists for an E-Mail address,'
-				  . ' this PHP function is needed. It seems this function is either disabled on your system or the gravatar.com'
-				  . " servers can not be reached for another reason. Check with your server admin if you don't see gravatars for your own"
-				  . ' gravatar account and this message keeps popping up after saving the plugin settings.', 'avatar-privacy'
-				),
-				'error'
+				  Avatar_Privacy_Core::SETTINGS_NAME, 'get-headers-failed',
+					__(
+					'The get_headers() function seems to be disabled on your system! To check if a gravatar exists for an E-Mail address,'
+					  . ' this PHP function is needed. It seems this function is either disabled on your system or the gravatar.com'
+					  . " servers can not be reached for another reason. Check with your server admin if you don't see gravatars for your own"
+					  . ' gravatar account and this message keeps popping up after saving the plugin settings.', 'avatar-privacy'
+					),
+					'error'
 			  );
 			}
-			}
-		return $newinput;
-  }
+		}
 
-  /**
-   * Outputs the header of the Avatar Privacy settings section.
-   */
-  public function output_settings_header() {
+		return $newinput;
+	}
+
+	/**
+	 * Outputs the header of the Avatar Privacy settings section.
+	 */
+	public function output_settings_header() {
 		?>
 		<p>
 		<?php
@@ -108,13 +109,13 @@ class AvatarPrivacyOptions {
 		?>
 		</p>
 		<?php
-  }
+	}
 
-  /**
-   * Outputs the elements for the 'check for gravatar' setting.
-   */
-  public function output_checkforgravatar_setting() {
-		$options = get_option( AvatarPrivacyCore::SETTINGS_NAME );
+	/**
+	 * Outputs the elements for the 'check for gravatar' setting.
+	 */
+	public function output_checkforgravatar_setting() {
+		$options = get_option( Avatar_Privacy_Core::SETTINGS_NAME );
 		if ( ( $options === false ) || ! isset( $options['mode_checkforgravatar'] ) ) {
 			$options['mode_checkforgravatar'] = false;
 			}
@@ -169,19 +170,19 @@ class AvatarPrivacyOptions {
 			<?php
   }
 
-  /**
-   * Outputs the elements for the 'optin' setting.
-   */
-  public function output_optin_setting() {
-		$options = get_option( AvatarPrivacyCore::SETTINGS_NAME );
+	/**
+	 * Outputs the elements for the 'optin' setting.
+	 */
+	public function output_optin_setting() {
+		$options = get_option( Avatar_Privacy_Core::SETTINGS_NAME );
 		if ( ( $options === false ) || ! isset( $options['mode_optin'] ) ) {
 			$options['mode_optin'] = false;
-			}
+		}
 		?>
 		<input id="avatar_privacy_optin" name="avatar_privacy_settings[mode_optin]" type="checkbox" value="1"
 		<?php
 		if ( $options['mode_optin'] === '1' ) {
-	echo ' checked="checked"';}
+			echo ' checked="checked"';}
 		?>
 		 />
 		<label for="avatar_privacy_optin"><strong><?php _e( 'Let users and commenters opt in or out of using gravatars.', 'avatar-privacy' ); ?></strong></label><br />
@@ -197,7 +198,7 @@ class AvatarPrivacyOptions {
 		  ?>
 	</p>
 	<?php } ?>
-			<p class="description">
+		<p class="description">
 			<?php _e( 'Commenters will see a checkbox to enable or disable the use of gravatars for their comments. Users will have the same option in their user profile.', 'avatar-privacy' ); ?>
 			<?php
 			_e(
@@ -205,8 +206,8 @@ class AvatarPrivacyOptions {
 			. " can't be enabled/disabled on a per-comment basis. For commenters, the decision is saved in a cookie.", 'avatar-privacy'
 			);
 			?>
-			</p>
-			<p class="description">
+		</p>
+		<p class="description">
 			<span style="font-weight: bold;"><?php _e( 'Advantage:', 'avatar-privacy' ); ?></span>
 			<?php
 			_e(
@@ -214,15 +215,15 @@ class AvatarPrivacyOptions {
 			. ' by leaving another comment, users can change the setting in their user profile.', 'avatar-privacy'
 			);
 			?>
-			</p>
-			<?php
-  }
+		</p>
+		<?php
+	}
 
-  /**
-   * Outputs the elements for the 'checkbox default' setting.
-   */
-  public function output_checkbox_default_setting() {
-		$options = get_option( AvatarPrivacyCore::SETTINGS_NAME );
+	/**
+	 * Outputs the elements for the 'checkbox default' setting.
+	 */
+	public function output_checkbox_default_setting() {
+		$options = get_option( Avatar_Privacy_Core::SETTINGS_NAME );
 		if ( ( $options === false ) || ! isset( $options['checkbox_default'] ) ) {
 			$options['checkbox_default'] = false;
 			}
@@ -242,13 +243,13 @@ class AvatarPrivacyOptions {
 		 />
 		<label for="avatar_privacy_checkbox_default_false"><?php _e( 'not checked by default', 'avatar-privacy' ); ?></label> <span class="description">(<?php _e( 'commenters and users can opt in by checking it', 'avatar-privacy' ); ?>)</span><br />
 		 <?php
-  }
+	 }
 
-  /**
-   * Outputs the elements for the 'default show' setting.
-   */
-  public function output_default_show_setting() {
-		$options = get_option( AvatarPrivacyCore::SETTINGS_NAME );
+	/**
+	 * Outputs the elements for the 'default show' setting.
+	 */
+	public function output_default_show_setting() {
+		$options = get_option( Avatar_Privacy_Core::SETTINGS_NAME );
 		if ( ( $options === false ) || ! isset( $options['default_show'] ) ) {
 			$options['default_show'] = false;
 			}
@@ -276,6 +277,5 @@ class AvatarPrivacyOptions {
 		?>
 		</p>
 		<?php
-  }
-
+	}
 }

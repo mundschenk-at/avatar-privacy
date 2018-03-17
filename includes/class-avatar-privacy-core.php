@@ -30,7 +30,7 @@
  *
  * @author Johannes Freudendahl, wordpress@freudendahl.net
  */
-class AvatarPrivacyCore {
+class Avatar_Privacy_Core {
 
 	// --------------------------------------------------------------------------
 	// constants
@@ -76,7 +76,7 @@ class AvatarPrivacyCore {
 	// constructor
 	// --------------------------------------------------------------------------
 	/**
-	 * Creates a AvatarPrivacyCore instance and registers all necessary hooks
+	 * Creates a Avatar_Privacy_Core instance and registers all necessary hooks
 	 * and filters for the plugin.
 	 */
 	public function __construct() {
@@ -120,11 +120,14 @@ class AvatarPrivacyCore {
 	 */
 	public function default_avatars() {
 		if ( empty( $this->default_avatars ) ) {
-			$this->default_avatars = array(
+			$this->default_avatars = [
+				/* translators: Icon set URL */
 				'comment'           => sprintf( __( 'Comment (loaded from your server, part of <a href="%s">NDD Icon Set</a>, under LGPL)', 'avatar-privacy' ), 'http://www.nddesign.de/news/2007/10/15/NDD_Icon_Set_1_0_-_Free_Icon_Set' ),
+				/* translators: Icon set URL */
 				'im-user-offline'   => sprintf( __( 'User Offline (loaded from your server, part of <a href="%s">Oxygen Icons</a>, under LGPL)', 'avatar-privacy' ), 'http://www.oxygen-icons.org/' ),
+				/* translators: Icon set URL */
 				'view-media-artist' => sprintf( __( 'Media Artist (loaded from your server, part of <a href="%s">Oxygen Icons</a>, under LGPL)', 'avatar-privacy' ), 'http://www.oxygen-icons.org/' ),
-			);
+			];
 		}
 		return $this->default_avatars;
 	}
@@ -163,7 +166,7 @@ class AvatarPrivacyCore {
 		$show_avatar = true; // Since this filter function has been called, WP option 'show_avatars' must be set to true.
 
 		// Don't change anything on the discussion settings page, except for our own new gravatars.
-		$on_settings_page = $pagenow == 'options-discussion.php';
+		$on_settings_page = 'options-discussion.php' === $pagenow;
 		if ( $on_settings_page && ! array_key_exists( $default, $this->default_avatars() ) ) {
 			return $avatar;
 		}
@@ -172,7 +175,7 @@ class AvatarPrivacyCore {
 		$email   = '';
 		$user_id = false;
 		if ( is_numeric( $id_or_email ) ) {
-			// load from user via ID
+			// Load from user via ID.
 			$user_id = (int) $id_or_email;
 			$user    = get_userdata( $user_id );
 			if ( $user ) {
@@ -180,58 +183,58 @@ class AvatarPrivacyCore {
 			}
 			} elseif ( is_object( $id_or_email ) ) {
 			if ( ! empty( $id_or_email->user_id ) ) {
-				// load from either a user or an author comment object
+				// Load from either a user or an author comment object.
 				$user_id = (int) $id_or_email->user_id;
 				$user    = get_userdata( $user_id );
 				if ( $user ) {
 					$email = $user->user_email;
 				}
 			} elseif ( ! empty( $id_or_email->comment_author_email ) ) {
-				// load from comment
+				// Load from comment.
 				$email = $id_or_email->comment_author_email;
 			}
 		} else {
-			// load string directly
+			// Load string directly.
 			$email = $id_or_email;
 		}
 
-		// mode 2: find out if the user opted out of displaying a gravatar
+		// Mode 2: find out if the user opted out of displaying a gravatar.
 		if ( isset( $this->settings['mode_optin'] ) && ( $this->settings['mode_optin'] === '1' ) && ( $user_id || $email ) ) {
 			$use_default = false;
 			if ( $user_id ) {
-				// for users get the value from the usermeta table
+				// For users get the value from the usermeta table.
 				$show_avatar = get_user_meta( $user_id, 'use_gravatar', true ) === 'true';
 				$use_default = ( $show_avatar === '' );
 			} else {
-				// for comments get the value from the plugin's table
-				$this->maybe_create_table(); // make sure our database table exists
+				// For comments get the value from the plugin's table.
+				$this->maybe_create_table(); // Make sure our database table exists.
 				$current_value = $this->load_data( $email );
-				$show_avatar   = $current_value && ( $current_value->use_gravatar === '1' );
+				$show_avatar   = $current_value && ( '1' === $current_value->use_gravatar );
 				$use_default   = ( $current_value == null );
 			}
 			if ( $use_default ) {
-				$options     = get_option( AvatarPrivacyCore::SETTINGS_NAME );
-				$show_avatar = ( isset( $options['default_show'] ) && ( $options['default_show'] === '1' ) ); // false as fallback if the default option is not set
+				$options     = get_option( Avatar_Privacy_Core::SETTINGS_NAME );
+				$show_avatar = ( isset( $options['default_show'] ) && ( '1' === $options['default_show'] ) ); // false as fallback if the default option is not set
 			}
 		}
 
-		// mode 1: check if a gravatar exists for the E-Mail address
-		if ( $show_avatar && isset( $this->settings['mode_checkforgravatar'] ) && ( $this->settings['mode_checkforgravatar'] === '1' )
+		// Mode 1: check if a gravatar exists for the E-Mail address.
+		if ( $show_avatar && isset( $this->settings['mode_checkforgravatar'] ) && ( '1' === $this->settings['mode_checkforgravatar'] )
 			&& $email && ! $this->validate_gravatar( $email ) ) {
 			$show_avatar = false;
 		} elseif ( ! $email ) {
-		  	$show_avatar = false;
+			$show_avatar = false;
 		}
 
-		// mode 1 + 2: change the default image if dynamic defaults are configured
+		// Mode 1 + 2: change the default image if dynamic defaults are configured.
 		if ( ! $show_avatar && $this->is_default_avatar_dynamic()
-			&& ( ( isset( $this->settings['mode_checkforgravatar'] ) && ( $this->settings['mode_checkforgravatar'] === '1' ) )
-			|| ( isset( $this->settings['mode_optin'] ) && ( $this->settings['mode_optin'] === '1' ) ) ) ) {
-			// use blank image here, dynamic default images would leak the MD5
+			&& ( ( isset( $this->settings['mode_checkforgravatar'] ) && ( '1' === $this->settings['mode_checkforgravatar'] ) )
+			|| ( isset( $this->settings['mode_optin'] ) && ( '1' === $this->settings['mode_optin'] ) ) ) ) {
+			// Use blank image here, dynamic default images would leak the MD5.
 			$default = includes_url( 'images/blank.gif' );
 		}
 
-		// new default avatars: replace avatar name with image URL
+		// New default avatars: replace avatar name with image URL.
 		$default_name    = preg_match( '#http://\d+.gravatar.com/avatar/\?d=([^&]+)&#', $default, $matches ) ? $matches[1] : $default;
 		$default_changed = array_key_exists( $default_name, $this->default_avatars() );
 		if ( $default_changed ) {
@@ -239,235 +242,238 @@ class AvatarPrivacyCore {
 			$default     = $this->get_default_avatar_url( $default_name, $size );
 		}
 
-		// modify the avatar URL
+		// Modify the avatar URL.
 		$settings_page_first_load = $on_settings_page && empty( $this->settings );
 		if ( ! $show_avatar || $settings_page_first_load ) {
-			// display the default avatar instead of the avatar for the E-Mail address
+			// Display the default avatar instead of the avatar for the E-Mail address.
 			$avatar = $this->replace_avatar_url( $avatar, $default, $size, $email );
 		} elseif ( $default_changed ) {
-			// change the default avatar in the given URL (for users who opted in to gravatars but don't have one)
+			// Change the default avatar in the given URL (for users who opted in to gravatars but don't have one).
 			$avatar = str_replace( 'd=' . $old_default, 'd=' . $default, $avatar );
 		}
 
 		return $avatar;
 	}
 
-  /**
-   * Adds the 'use gravatar' checkbox to the comment form. The checkbox value
-   * is read from a cookie if available.
-   *
-   * @param array $fields The array of default comment fields.
-   * @return array The modified array of comment fields.
-   */
-  public function comment_form_default_fields( $fields ) {
-		// don't change the form if a user is logged-in
+	/**
+	 * Adds the 'use gravatar' checkbox to the comment form. The checkbox value
+	 * is read from a cookie if available.
+	 *
+	 * @param array $fields The array of default comment fields.
+	 *
+	 * @return array The modified array of comment fields.
+	 */
+	public function comment_form_default_fields( $fields ) {
+		// Don't change the form if a user is logged-in.
 		if ( is_user_logged_in() ) {
 			return $fields;
-			}
-		// define the new checkbox field
+		}
+		// Define the new checkbox field.
 		if ( isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) ) {
-			// re-displaying the comment form with validation errors
+			// Re-displaying the comment form with validation errors.
 			$is_checked = ( $_POST[ self::CHECKBOX_FIELD_NAME ] == '1' );
-			} elseif ( isset( $_COOKIE[ 'comment_use_gravatar_' . COOKIEHASH ] ) ) {
-			// read the value from the cookie, saved with previous comment
+		} elseif ( isset( $_COOKIE[ 'comment_use_gravatar_' . COOKIEHASH ] ) ) {
+			// Read the value from the cookie, saved with previous comment.
 			$is_checked = ( $_COOKIE[ 'comment_use_gravatar_' . COOKIEHASH ] == '1' );
-			} else {
-		  // read the value from the options
-		  $is_checked = ( isset( $this->settings['checkbox_default'] ) && ( $this->settings['checkbox_default'] === '1' ) );
-			}
-		  $checked   = $is_checked ? ' checked="checked"' : '';
-		  $new_field = '<p class="comment-form-use-gravatar">'
-		  . '<input id="' . self::CHECKBOX_FIELD_NAME . '" name="' . self::CHECKBOX_FIELD_NAME . '" type="checkbox" value="true"' . $checked . ' style="width: auto; margin-right: 5px;" />'
-		  . '<label for="' . self::CHECKBOX_FIELD_NAME . '">' . __( 'Display a <a href="http://gravatar.com">gravatar</a> image next to my comments', 'avatar-privacy' ) . '</label> '
-		  . '</p>';
-		  // either add the new field after the E-Mail field or at the end of the array
-		  if ( is_array( $fields ) && array_key_exists( 'email', $fields ) ) {
+		} else {
+			// Read the value from the options.
+			$is_checked = ( isset( $this->settings['checkbox_default'] ) && ( $this->settings['checkbox_default'] === '1' ) );
+		}
+		$checked   = $is_checked ? ' checked="checked"' : '';
+		$new_field = '<p class="comment-form-use-gravatar">'
+		. '<input id="' . self::CHECKBOX_FIELD_NAME . '" name="' . self::CHECKBOX_FIELD_NAME . '" type="checkbox" value="true"' . $checked . ' style="width: auto; margin-right: 5px;" />'
+		. '<label for="' . self::CHECKBOX_FIELD_NAME . '">' . __( 'Display a <a href="http://gravatar.com">gravatar</a> image next to my comments', 'avatar-privacy' ) . '</label> '
+		. '</p>';
+		// Either add the new field after the E-Mail field or at the end of the array.
+		if ( is_array( $fields ) && array_key_exists( 'email', $fields ) ) {
 			$result = array();
 			foreach ( $fields as $key => $value ) {
 				$result[ $key ] = $value;
-				if ( $key == 'email' ) {
+				if ( 'email' === $key ) {
 					$result['use_gravatar'] = $new_field;
-					}
 				}
-			$fields = $result;
-			} else {
-		  $fields['use_gravatar'] = $new_field;
 			}
-		  return $fields;
-  }
+			$fields = $result;
+		} else {
+			$fields['use_gravatar'] = $new_field;
+		}
 
-  /**
-   * Saves the value of the 'use gravatar' checkbox from the comment form in
-   * the database, but only for non-spam comments.
-   *
-   * @param string $comment_id The ID of the comment that has just been saved.
-   * @param string $comment_approved Whether the comment has been approved (1)
-   * or not (0) or is marked as spam (spam).
-   */
-  public function comment_post( $comment_id, $comment_approved ) {
+		return $fields;
+	}
+
+	/**
+	 * Saves the value of the 'use gravatar' checkbox from the comment form in
+	 * the database, but only for non-spam comments.
+	 *
+	 * @param string $comment_id       The ID of the comment that has just been saved.
+	 * @param string $comment_approved Whether the comment has been approved (1)
+	 *                                 or not (0) or is marked as spam (spam).
+	 */
+	public function comment_post( $comment_id, $comment_approved ) {
 		global $wpdb;
 
-		// don't save anything for spam comments, trackbacks/pingbacks, and registered user's comments
+		// Don't save anything for spam comments, trackbacks/pingbacks, and registered user's comments.
 		if ( 'spam' === $comment_approved ) {
 			return;
-			}
+		}
 		$comment = get_comment( $comment_id );
-		if ( ! $comment || ( $comment->comment_type != '' ) || ( $comment->comment_author_email == '' ) ) {
+		if ( ! $comment || ( '' !== $comment->comment_type ) || ( '' === $comment->comment_author_email ) ) {
 			return;
-			}
+		}
 
-		// make sure that the E-Mail address does not belong to a registered user
+		// Make sure that the E-Mail address does not belong to a registered user.
 		if ( get_user_by( 'email', $comment->comment_author_email ) ) {
 			// This is either a comment with a fake identity or a user who didn't sign in
 			// and rather entered their details manually. Either way, don't save anything.
 			return;
-			}
+		}
 
-		// make sure the database table exists
+		// Make sure the database table exists.
 		$this->maybe_create_table();
 
-		// save the 'use gravatar' value
+		// Save the 'use gravatar' value.
 		$use_gravatar  = ( isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) && ( $_POST[ self::CHECKBOX_FIELD_NAME ] == 'true' ) ) ? '1' : '0';
 		$current_value = $this->load_data( $comment->comment_author_email );
 		if ( ! $current_value ) {
-			// nothing found in the database, insert the dataset
+			// Nothing found in the database, insert the dataset.
 			$wpdb->insert(
-			$wpdb->avatar_privacy, array(
-				'email'        => $comment->comment_author_email,
-				'use_gravatar' => $use_gravatar,
-				'last_updated' => current_time( 'mysql' ),
-				'log_message'  => 'set with comment ' . $comment_id . ( is_multisite() ? ' (site: ' . $wpdb->siteid . ', blog: ' . $wpdb->blogid . ')' : '' ),
-			), array( '%s', '%d', '%s', '%s' )
+				$wpdb->avatar_privacy, array(
+					'email'        => $comment->comment_author_email,
+					'use_gravatar' => $use_gravatar,
+					'last_updated' => current_time( 'mysql' ),
+					'log_message'  => 'set with comment ' . $comment_id . ( is_multisite() ? ' (site: ' . $wpdb->siteid . ', blog: ' . $wpdb->blogid . ')' : '' ),
+				), array( '%s', '%d', '%s', '%s' )
 			);
-			} elseif ( $current_value->use_gravatar != $use_gravatar ) {
-			// dataset found but with different value, update it
+		} elseif ( $current_value->use_gravatar !== $use_gravatar ) {
+			// Dataset found but with different value, update it.
 			$wpdb->update(
-			$wpdb->avatar_privacy, array(
-				'use_gravatar' => $use_gravatar,
-				'last_updated' => current_time( 'mysql' ),
-				'log_message'  => 'set with comment ' . $comment_id . ( is_multisite() ? ' (site: ' . $wpdb->siteid . ', blog: ' . $wpdb->blogid . ')' : '' ),
-			),
-			array( 'id' => $current_value->id ),
-			array( '%d', '%s', '%s' ),
-			array( '%d' )
+				$wpdb->avatar_privacy, array(
+					'use_gravatar' => $use_gravatar,
+					'last_updated' => current_time( 'mysql' ),
+					'log_message'  => 'set with comment ' . $comment_id . ( is_multisite() ? ' (site: ' . $wpdb->siteid . ', blog: ' . $wpdb->blogid . ')' : '' ),
+				),
+				array( 'id' => $current_value->id ),
+				array( '%d', '%s', '%s' ),
+				array( '%d' )
 			);
-			}
+		}
 
-		  // set a cookie for the 'use gravatar' value
-		  $comment_cookie_lifetime = apply_filters( 'comment_cookie_lifetime', 30000000 );
-		  setcookie( 'comment_use_gravatar_' . COOKIEHASH, $use_gravatar, time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
-  }
+		// Set a cookie for the 'use gravatar' value.
+		$comment_cookie_lifetime = apply_filters( 'comment_cookie_lifetime', 30000000 );
+		setcookie( 'comment_use_gravatar_' . COOKIEHASH, $use_gravatar, time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
+	}
 
-  /**
-   * Adds the 'use gravatar' checkbox to the user profile form.
-   *
-   * @param object $user The current user whose profile to modify.
-   */
-  function add_user_profile_fields( $user ) {
+	/**
+	 * Adds the 'use gravatar' checkbox to the user profile form.
+	 *
+	 * @param object $user The current user whose profile to modify.
+	 */
+	public function add_user_profile_fields( $user ) {
 		$val = get_the_author_meta( self::CHECKBOX_FIELD_NAME, $user->ID );
 		if ( $val == 'true' ) {
 			$checked = ' checked="checked"';
-			} elseif ( $val == 'false' ) {
+		} elseif ( $val == 'false' ) {
 			$checked = '';
-			} else {
-		  $options = get_option( self::SETTINGS_NAME );
-		  $checked = ( $options['checkbox_default'] == '1' ) ? ' checked="checked"' : '';
-			}
+		} else {
+			$options = get_option( self::SETTINGS_NAME );
+			$checked = ( $options['checkbox_default'] == '1' ) ? ' checked="checked"' : '';
+		}
 		?>
 		<h3><?php _e( 'Use Gravatar', 'avatar-privacy' ); ?></h3>
 		<table class="form-table">
-		<tr>
-		<th scope="row"><?php _e( 'Gravatars', 'avatar-privacy' ); ?></th>
-		<td>
-		  <input id="<?php echo self::CHECKBOX_FIELD_NAME; ?>" name="<?php echo self::CHECKBOX_FIELD_NAME; ?>" type="checkbox" value="true"<?php echo $checked; ?> />
-		  <label for="<?php echo self::CHECKBOX_FIELD_NAME; ?>"><?php _e( 'Display a <a href="http://gravatar.com">gravatar</a> image for my E-Mail address', 'avatar-privacy' ); ?></label><br />
-		  <span class="description"><?php _e( "Uncheck this box if you don't want to display a gravatar for your E-Mail address.", 'avatar-privacy' ); ?></span>
-		</td>
-		</tr>
+			<tr>
+				<th scope="row"><?php _e( 'Gravatars', 'avatar-privacy' ); ?></th>
+				<td>
+					<input id="<?php echo self::CHECKBOX_FIELD_NAME; ?>" name="<?php echo self::CHECKBOX_FIELD_NAME; ?>" type="checkbox" value="true"<?php echo $checked; ?> />
+					<label for="<?php echo self::CHECKBOX_FIELD_NAME; ?>"><?php _e( 'Display a <a href="http://gravatar.com">gravatar</a> image for my E-Mail address', 'avatar-privacy' ); ?></label><br />
+					<span class="description"><?php _e( "Uncheck this box if you don't want to display a gravatar for your E-Mail address.", 'avatar-privacy' ); ?></span>
+				</td>
+			</tr>
 		</table>
 		<?php
-  }
+	}
 
-  /**
-   * Saves the value of the 'use gravatar' checkbox from the user profile in
-   * the database.
-   *
-   * @param string $user_id The ID of the user that has just been saved.
-   */
-  function save_user_profile_fields( $user_id ) {
+	/**
+	 * Saves the value of the 'use gravatar' checkbox from the user profile in
+	 * the database.
+	 *
+	 * @param string $user_id The ID of the user that has just been saved.
+	 */
+	public function save_user_profile_fields( $user_id ) {
 		if ( ! current_user_can( 'edit_user', $user_id ) ) {
 			return false;
-			}
-		// use true/false instead of 1/0 since a '0' value is removed from the database and then
-		// we can't differentiate between opted-out and never saved a value
+		}
+		// Use true/false instead of 1/0 since a '0' value is removed from the database and then
+		// we can't differentiate between opted-out and never saved a value.
 		$value = array_key_exists( self::CHECKBOX_FIELD_NAME, $_POST ) && ( $_POST[ self::CHECKBOX_FIELD_NAME ] == 'true' ) ? 'true' : 'false';
 		update_user_meta( $user_id, self::CHECKBOX_FIELD_NAME, $value );
-  }
+	}
 
 
-  // --------------------------------------------------------------------------
-  // public helper functions
-  // --------------------------------------------------------------------------
-  /**
-   * Checks if the currently selected default avatar is dynamically generated
-   * out of an E-Mail address or not.
-   *
-   * @return bool True if the current default avatar is dynamic, false if it
-   * is a static image.
-   */
-  public function is_default_avatar_dynamic() {
+	// --------------------------------------------------------------------------
+	// public helper functions
+	// --------------------------------------------------------------------------
+	/**
+	 * Checks if the currently selected default avatar is dynamically generated
+	 * out of an E-Mail address or not.
+	 *
+	 * @return bool True if the current default avatar is dynamic, false if it
+	 * is a static image.
+	 */
+	public function is_default_avatar_dynamic() {
 		$default_avatar = get_option( 'avatar_default' );
 		return ( $default_avatar == 'identicon' ) || ( $default_avatar == 'wavatar' ) || ( $default_avatar == 'monsterid' ) || ( $default_avatar == 'retro' );
-  }
+	}
 
-  /**
-   * Validates if a gravatar exists for the given E-Mail address. Function
-   * taken from: http://codex.wordpress.org/Using_Gravatars
-   *
-   * @param string $email The E-Mail address to check.
-   * @return bool True if a gravatar exists for the given E-Mail address,
-   * false otherwise, including if gravatar.com could not be reached or
-   * answered with a different errror code or if no E-Mail address was given.
-   */
-  public function validate_gravatar( $email = '' ) {
-		// make sure we have a real address to check
-		if ( strlen( $email ) == 0 ) {
+	/**
+	 * Validates if a gravatar exists for the given E-Mail address. Function
+	 * taken from: http://codex.wordpress.org/Using_Gravatars
+	 *
+	 * @param string $email The E-Mail address to check.
+	 * @return bool True if a gravatar exists for the given E-Mail address,
+	 * false otherwise, including if gravatar.com could not be reached or
+	 * answered with a different errror code or if no E-Mail address was given.
+	 */
+	public function validate_gravatar( $email = '' ) {
+		// Make sure we have a real address to check.
+		if ( 0 === strlen( $email ) ) {
 			return false;
-			}
+		}
 
-		// build the hash of the E-Mail address
+		// Build the hash of the E-Mail address.
 		$email = strtolower( trim( $email ) );
 		$hash  = md5( $email );
 
-		// try to find something in the cache
+		// Try to find something in the cache.
 		if ( array_key_exists( $hash, $this->validate_gravatar_cache ) ) {
 			return $this->validate_gravatar_cache[ $hash ];
-			}
+		}
 
-		// try to find it via transient cache
-		// (maximum length of the key = 45 characters because of wp_options limitation on non-multisite pages, the MD5 hash needs space too)
+		// Try to find it via transient cache
+		// (maximum length of the key = 45 characters because of wp_options limitation on non-multisite pages, the MD5 hash needs space too).
 		$transient_key      = 'avapr_check_';
 		$is_multisite       = is_multisite();
 		$transient_function = $is_multisite ? 'get_site_transient' : 'get_transient';
 		$result             = $transient_function( $transient_key . $hash );
-		if ( $result !== false ) {
-			$result                                 = $result == 1;
+		if ( false !== $result ) {
+			$result                                 = $result === 1;
 			$this->validate_gravatar_cache[ $hash ] = $result;
 			return $result;
-			}
+		}
 
-		// ask gravatar.com
+		// Ask gravatar.com.
 		$uri     = 'http://www.gravatar.com/avatar/' . $hash . '?d=404';
 		$headers = @get_headers( $uri );
 		$result  = is_array( $headers ) && preg_match( '|200|', $headers[0] );
 
-		// cache the result across all blogs (a YES for 1 day, a NO for 10 minutes
-		// -- since a YES basically shouldn't change, but a NO might change when the user signs up with gravatar.com)
+		// Cache the result across all blogs (a YES for 1 day, a NO for 10 minutes
+		// -- since a YES basically shouldn't change, but a NO might change when the user signs up with gravatar.com).
 		$transient_function = $is_multisite ? 'set_site_transient' : 'set_transient';
 		$transient_function( $transient_key . $hash, $result ? 1 : 0, $result ? 86400 : 600 );
 		$this->validate_gravatar_cache[ $hash ] = $result;
+
 		return $result;
-  }
+	}
 
 
 	// --------------------------------------------------------------------------
@@ -478,23 +484,23 @@ class AvatarPrivacyCore {
 	 * table is created as a global table for multisite installations. Makes the
 	 * name of the table available through $wpdb->avatar_privacy.
 	 */
-	 private function maybe_create_table() {
+	private function maybe_create_table() {
 		global $wpdb, $charset_collate;
 
-		// check if the table exists
+		// Check if the table exists.
 		if ( property_exists( $wpdb, 'avatar_privacy' ) ) {
 			return;
-			}
+		}
 		$table_name = $wpdb->base_prefix . 'avatar_privacy';
-		if ( $wpdb->get_var( 'SHOW tables LIKE "' . $table_name . '"' ) == $table_name ) {
+		if ( $wpdb->get_var( 'SHOW tables LIKE "' . $table_name . '"' ) === $table_name ) {
 			$wpdb->avatar_privacy = $table_name;
 			return;
-			}
+		}
 
-		// load upgrade.php for the dbDelta function
+		// Load upgrade.php for the dbDelta function.
 		require_once ABSPATH . '/wp-admin/includes/upgrade.php';
 
-		// create the plugin's table
+		// Create the plugin's table.
 		$sql    = 'CREATE TABLE ' . $table_name . ' ('
 		. 'id mediumint(9) NOT NULL AUTO_INCREMENT,'
 		. 'email VARCHAR(100) NOT NULL UNIQUE,'
@@ -519,7 +525,7 @@ class AvatarPrivacyCore {
 	private function load_data( $email ) {
 		global $wpdb;
 
-		if ( $email === '' ) {
+		if ( '' === $email ) {
 			return null;
 		}
 		$sql = $wpdb->prepare( 'SELECT * FROM ' . $wpdb->avatar_privacy . ' WHERE email LIKE "%s"', $email );

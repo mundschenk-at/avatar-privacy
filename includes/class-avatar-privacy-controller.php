@@ -56,11 +56,11 @@ class Avatar_Privacy_Controller {
 		// Load the plugin core.
 		if ( ! $failed ) {
 			// Frontend.
-			$core       = new AvatarPrivacyCore();
+			$core       = new Avatar_Privacy_Core();
 			$avapr_core = $core; // save in global variable so that the template function avapr_get_avatar_checkbox works
 			// Backend.
 			if ( is_admin() ) {
-				new AvatarPrivacyOptions( $core );
+				new Avatar_Privacy_Options( $core );
 				$settings_page = true;
 			}
 		}
@@ -120,17 +120,17 @@ class Avatar_Privacy_Controller {
 function avapr_get_avatar_checkbox() {
 	global $avapr_core;
 
-	if ( ! class_exists( 'AvatarPrivacyCore', false ) || ! isset( $avapr_core ) ) {
+	if ( ! class_exists( 'Avatar_Privacy_Core', false ) || ! isset( $avapr_core ) ) {
 		return;
 	}
-	$settings = get_option( AvatarPrivacyCore::SETTINGS_NAME );
+	$settings = get_option( Avatar_Privacy_Core::SETTINGS_NAME );
 	if ( ! $settings || ! is_array( $settings ) || ( count( $settings ) === 0 ) ) {
 		return;
 	}
 	if ( isset( $settings['mode_optin'] ) && ( '1' === $settings['mode_optin'] ) ) {
 		$result = $avapr_core->comment_form_default_fields( null );
-		if ( is_array( $result ) && array_key_exists( AvatarPrivacyCore::CHECKBOX_FIELD_NAME, $result ) ) {
-			return $result[ AvatarPrivacyCore::CHECKBOX_FIELD_NAME ];
+		if ( is_array( $result ) && array_key_exists( Avatar_Privacy_Core::CHECKBOX_FIELD_NAME, $result ) ) {
+			return $result[ Avatar_Privacy_Core::CHECKBOX_FIELD_NAME ];
 		}
 	}
 }
