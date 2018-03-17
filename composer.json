@@ -41,7 +41,7 @@
 
     "scripts": {
       "phpcs": [
-          "phpcs -p -s *.php --extensions=php"
+          "phpcs -p -s *.php includes/ --extensions=php"
       ]
     }
 }

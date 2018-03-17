@@ -89,12 +89,12 @@ function avapr_init() {
 	// load the plugin core
 	if ( ! $failed ) {
 		// frontend
-		require trailingslashit( dirname( __FILE__ ) ) . 'avatar-privacy-core.php';
+		require trailingslashit( dirname( __FILE__ ) ) . 'includes/class-avatar-privacy-core.php';
 		$core       = new AvatarPrivacyCore();
 		$avapr_core = $core; // save in global variable so that the template function avapr_get_avatar_checkbox works
 		// backend
 		if ( is_admin() ) {
-			require trailingslashit( dirname( __FILE__ ) ) . 'avatar-privacy-options.php';
+			require trailingslashit( dirname( __FILE__ ) ) . 'includes/class-avatar-privacy-options.php';
 			new AvatarPrivacyOptions( $core );
 			$settings_page = true;
 			}
