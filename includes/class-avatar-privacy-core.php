@@ -530,7 +530,7 @@ class AvatarPrivacyCore {
 
 	/**
 	 * Returns an image URL for the given default avatar identifier. The images
-	 * are taken from the "icons" sub-folder in the plugin folder.
+	 * are taken from the "images" sub-folder in the plugin folder.
 	 *
 	 * @param string $default The default avatar image identifier.
 	 * @param int    $size    The size of the avatar image in pixels.
@@ -539,7 +539,7 @@ class AvatarPrivacyCore {
 	 */
 	private function get_default_avatar_url( $default, $size ) {
 		$use_size = ( $size > 64 ) ? '128' : '64';
-		return plugins_url( '/icons/' . $default . '-' . $use_size . '.png', __FILE__ ) . '?s=' . $size;
+		return plugins_url( '../public/images/' . $default . '-' . $use_size . '.png', __FILE__ ) . '?s=' . $size;
 	}
 
 	/**
