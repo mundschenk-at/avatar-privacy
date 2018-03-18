@@ -24,6 +24,10 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
+use Mundschenk\Data_Storage\Cache;
+use Mundschenk\Data_Storage\Options;
+use Mundschenk\Data_Storage\Transients;
+
 /**
  * Core class of the Avatar Privacy plugin. Contains all the actual code
  * except the options page.
@@ -71,6 +75,48 @@ class Avatar_Privacy_Core {
 	 */
 	private $default_avatars = array();
 
+	/**
+	 * The singleton instance.
+	 *
+	 * @var Avatar_Privacy_Core
+	 */
+	private static $_instance;
+
+	/**
+	 * Retrieves (and if necessary creates) the API instance. Should not be called outside of plugin set-up.
+	 *
+	 * @internal
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param Avatar_Privacy_Core $instance Only used for plugin initialization. Don't ever pass a value in user code.
+	 *
+	 * @throws BadMethodCallException Thrown when WP_Typography::set_instance after plugin initialization.
+	 */
+	public static function set_instance( Avatar_Privacy_Core $instance ) {
+		if ( null === self::$_instance ) {
+			self::$_instance = $instance;
+		} else {
+			throw new BadMethodCallException( 'WP_Typography::set_instance called more than once.' );
+		}
+	}
+
+	/**
+	 * Retrieves the plugin instance.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @throws BadMethodCallException Thrown when WP_Typography::get_instance is called before plugin initialization.
+	 *
+	 * @return Avatar_Privacy_Core
+	 */
+	public static function get_instance() {
+		if ( null === self::$_instance ) {
+			throw new BadMethodCallException( 'Avatar_Privacy_Core::get_instance called without prior plugin intialization.' );
+		}
+
+		return self::$_instance;
+	}
 
 	// --------------------------------------------------------------------------
 	// constructor
@@ -78,8 +124,13 @@ class Avatar_Privacy_Core {
 	/**
 	 * Creates a Avatar_Privacy_Core instance and registers all necessary hooks
 	 * and filters for the plugin.
+	 *
+	 * @param string     $version     The full plugin version string (e.g. "3.0.0-beta.2").
+	 * @param Transients $transients  Required.
+	 * @param Cache      $cache       Required.
+	 * @param Options    $options     Required.
 	 */
-	public function __construct() {
+	public function __construct( $version, Transients $transients, Cache $cache, Options $options ) {
 		// Add new default avatars.
 		add_filter( 'avatar_defaults', array( &$this, 'avatar_defaults' ) );
 

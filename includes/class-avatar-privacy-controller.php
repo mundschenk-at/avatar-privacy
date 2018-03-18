@@ -32,9 +32,41 @@
 class Avatar_Privacy_Controller {
 
 	/**
+	 * The settings page handler.
+	 *
+	 * @var Avatar_Privacy\Component[]
+	 */
+	private $components = [];
+
+	/**
+	 * The core plugin API.
+	 *
+	 * @var Avatar_Privacy_Core
+	 */
+	private $core;
+
+	/**
+	 * Creates an instance of the plugin controller.
+	 *
+	 * @param Avatar_Privacy_Core    $core     The core API.
+	 * @param Avatar_Privacy_Options $settings The settings page.
+	 */
+	public function __construct( Avatar_Privacy_Core $core, Avatar_Privacy_Options $settings ) {
+		$this->core         = $core;
+		$this->components[] = $settings;
+	}
+
+	/**
 	 * Starts the plugin for real.
 	 */
 	public function run() {
+		// Set plugin singleton.
+		\Avatar_Privacy_Core::set_instance( $this->core );
+
+		foreach ( $this->components as $component ) {
+			$component->run( $this->core );
+		}
+
 		add_action( 'plugins_loaded', [ $this, 'plugins_loaded' ] );
 	}
 
@@ -42,27 +74,14 @@ class Avatar_Privacy_Controller {
 	 * Checks some requirements and then loads the plugin core.
 	 */
 	public function plugins_loaded() {
-		global $avapr_core;
-		$failed        = false;
 		$settings_page = false;
 
 		// If the admin selected not to display avatars at all, just add a note to the discussions settings page.
 		if ( ! get_option( 'show_avatars' ) ) {
 			add_action( 'admin_init', [ $this, 'register_settings' ] );
-			$failed        = true;
 			$settings_page = true;
-		}
-
-		// Load the plugin core.
-		if ( ! $failed ) {
-			// Frontend.
-			$core       = new Avatar_Privacy_Core();
-			$avapr_core = $core; // save in global variable so that the template function avapr_get_avatar_checkbox works
-			// Backend.
-			if ( is_admin() ) {
-				new Avatar_Privacy_Options( $core );
-				$settings_page = true;
-			}
+		} elseif ( is_admin() ) {
+			$settings_page = true;
 		}
 
 		// Display a settings link on the plugin page.
@@ -110,17 +129,24 @@ class Avatar_Privacy_Controller {
  * @return string The HTML code for the checkbox or an empty string.
  */
 function avapr_get_avatar_checkbox() {
-	global $avapr_core;
+	$core = null;
 
-	if ( ! class_exists( 'Avatar_Privacy_Core', false ) || ! isset( $avapr_core ) ) {
+	if ( ! class_exists( 'Avatar_Privacy_Core', false ) ) {
 		return;
+	} else {
+		$core = Avatar_Privacy_Core::get_instance();
+
+		if ( empty( $core ) ) {
+			return;
+		}
 	}
+
 	$settings = get_option( Avatar_Privacy_Core::SETTINGS_NAME );
 	if ( ! $settings || ! is_array( $settings ) || ( count( $settings ) === 0 ) ) {
 		return;
 	}
 	if ( isset( $settings['mode_optin'] ) && ( '1' === $settings['mode_optin'] ) ) {
-		$result = $avapr_core->comment_form_default_fields( null );
+		$result = $core->comment_form_default_fields( null );
 		if ( is_array( $result ) && array_key_exists( Avatar_Privacy_Core::CHECKBOX_FIELD_NAME, $result ) ) {
 			return $result[ Avatar_Privacy_Core::CHECKBOX_FIELD_NAME ];
 		}

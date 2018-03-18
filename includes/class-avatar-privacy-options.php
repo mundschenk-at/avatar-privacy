@@ -31,7 +31,7 @@
  *
  * @author Johannes Freudendahl, wordpress@freudendahl.net
  */
-class Avatar_Privacy_Options {
+class Avatar_Privacy_Options implements \Avatar_Privacy\Component {
 
 	/**
 	 * The plugin core.
@@ -43,11 +43,20 @@ class Avatar_Privacy_Options {
 	/**
 	 * Creates a Avatar_Privacy_Options instance and registers all necessary
 	 * hooks and filters for the settings.
-	 *
-	 * @param object $core_instance An Avatar_Privacy_Core instance.
 	 */
-	public function __construct( $core_instance ) {
-		$this->core = $core_instance;
+	public function __construct() {
+	}
+
+	/**
+	 * Sets up the various hooks for the plugin component.
+	 *
+	 * @param \Avatar_Privacy_Core $core The plugin instance.
+	 *
+	 * @return void
+	 */
+	public function run( \Avatar_Privacy_Core $core ) {
+		$this->core = $core;
+
 		// Register the settings to be displayed.
 		add_action( 'admin_init', [ $this, 'register_settings' ] );
 	}
