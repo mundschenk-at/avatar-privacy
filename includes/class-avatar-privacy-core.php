@@ -369,28 +369,11 @@ class Avatar_Privacy_Core {
 	 * @param object $user The current user whose profile to modify.
 	 */
 	public function add_user_profile_fields( $user ) {
-		$val = get_the_author_meta( self::CHECKBOX_FIELD_NAME, $user->ID );
-		if ( $val == 'true' ) {
-			$checked = ' checked="checked"';
-		} elseif ( $val == 'false' ) {
-			$checked = '';
-		} else {
-			$options = get_option( self::SETTINGS_NAME );
-			$checked = ( $options['checkbox_default'] == '1' ) ? ' checked="checked"' : '';
-		}
-		?>
-		<h3><?php _e( 'Use Gravatar', 'avatar-privacy' ); ?></h3>
-		<table class="form-table">
-			<tr>
-				<th scope="row"><?php _e( 'Gravatars', 'avatar-privacy' ); ?></th>
-				<td>
-					<input id="<?php echo self::CHECKBOX_FIELD_NAME; ?>" name="<?php echo self::CHECKBOX_FIELD_NAME; ?>" type="checkbox" value="true"<?php echo $checked; ?> />
-					<label for="<?php echo self::CHECKBOX_FIELD_NAME; ?>"><?php _e( 'Display a <a href="http://gravatar.com">gravatar</a> image for my E-Mail address', 'avatar-privacy' ); ?></label><br />
-					<span class="description"><?php _e( "Uncheck this box if you don't want to display a gravatar for your E-Mail address.", 'avatar-privacy' ); ?></span>
-				</td>
-			</tr>
-		</table>
-		<?php
+		$options = get_option( self::SETTINGS_NAME );
+		$val     = get_the_author_meta( self::CHECKBOX_FIELD_NAME, $user->ID );
+		$val     = '' !== $val ? (bool) $val : ! empty( $options['checkbox_default'] );
+
+		require dirname( __DIR__ ) . '/admin/partials/profile/use-gravatar.php';
 	}
 
 	/**
