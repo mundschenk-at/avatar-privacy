@@ -33,6 +33,11 @@
  */
 class Avatar_Privacy_Options {
 
+	/**
+	 * The plugin core.
+	 *
+	 * @var Avatar_Privacy_Core
+	 */
 	private $core = null;
 
 	/**
@@ -41,10 +46,10 @@ class Avatar_Privacy_Options {
 	 *
 	 * @param object $core_instance An Avatar_Privacy_Core instance.
 	 */
-	public function __construct( &$core_instance ) {
+	public function __construct( $core_instance ) {
 		$this->core = $core_instance;
 		// Register the settings to be displayed.
-		add_action( 'admin_init', array( &$this, 'register_settings' ) );
+		add_action( 'admin_init', [ $this, 'register_settings' ] );
 	}
 
 	/**
@@ -52,13 +57,13 @@ class Avatar_Privacy_Options {
 	 */
 	public function register_settings() {
 		// Add a section for the 'check for gravatar' mode to the avatar options.
-		add_settings_section( 'avatar_privacy_section', __( 'Avatar Privacy', 'avatar-privacy' ) . '<span id="section_avatar_privacy"></span>', array( &$this, 'output_settings_header' ), 'discussion' );
-		add_settings_field( 'avatar_privacy_checkforgravatar', __( 'Check for gravatars', 'avatar-privacy' ), array( &$this, 'output_checkforgravatar_setting' ), 'discussion', 'avatar_privacy_section' );
-		add_settings_field( 'avatar_privacy_optin', __( 'Opt in or out of gravatars', 'avatar-privacy' ), array( &$this, 'output_optin_setting' ), 'discussion', 'avatar_privacy_section' );
-		add_settings_field( 'avatar_privacy_checkbox_default', __( 'The checkbox is...', 'avatar-privacy' ), array( &$this, 'output_checkbox_default_setting' ), 'discussion', 'avatar_privacy_section' );
-		add_settings_field( 'avatar_privacy_default_show', __( 'Default value', 'avatar-privacy' ), array( &$this, 'output_default_show_setting' ), 'discussion', 'avatar_privacy_section' );
+		add_settings_section( 'avatar_privacy_section', __( 'Avatar Privacy', 'avatar-privacy' ) . '<span id="section_avatar_privacy"></span>', [ $this, 'output_settings_header' ], 'discussion' );
+		add_settings_field( 'avatar_privacy_checkforgravatar', __( 'Check for gravatars', 'avatar-privacy' ),        [ $this, 'output_checkforgravatar_setting' ], 'discussion', 'avatar_privacy_section' );
+		add_settings_field( 'avatar_privacy_optin',            __( 'Opt in or out of gravatars', 'avatar-privacy' ), [ $this, 'output_optin_setting' ],            'discussion', 'avatar_privacy_section' );
+		add_settings_field( 'avatar_privacy_checkbox_default', __( 'The checkbox is...', 'avatar-privacy' ),         [ $this, 'output_checkbox_default_setting' ], 'discussion', 'avatar_privacy_section' );
+		add_settings_field( 'avatar_privacy_default_show',     __( 'Default value', 'avatar-privacy' ),              [ $this, 'output_default_show_setting' ],     'discussion', 'avatar_privacy_section' );
 		// We save all settings in one variable in the database table; also adds a validation method.
-		register_setting( 'discussion', Avatar_Privacy_Core::SETTINGS_NAME, array( &$this, 'validate_settings' ) );
+		register_setting( 'discussion', Avatar_Privacy_Core::SETTINGS_NAME, [ $this, 'validate_settings' ] );
 	}
 
 	/**
