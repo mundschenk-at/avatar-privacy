@@ -145,7 +145,7 @@ function avapr_get_avatar_checkbox() {
 	if ( ! $settings || ! is_array( $settings ) || ( count( $settings ) === 0 ) ) {
 		return;
 	}
-	if ( isset( $settings['mode_optin'] ) && ( '1' === $settings['mode_optin'] ) ) {
+	if ( ! empty( $settings['mode_optin'] ) ) {
 		$result = $core->comment_form_default_fields( null );
 		if ( is_array( $result ) && array_key_exists( Avatar_Privacy_Core::CHECKBOX_FIELD_NAME, $result ) ) {
 			return $result[ Avatar_Privacy_Core::CHECKBOX_FIELD_NAME ];
