@@ -48,7 +48,7 @@ class Avatar_Privacy_Core {
 	/**
 	 * The name of the combined settings in the database.
 	 */
-	const SETTINGS_NAME = 'avatar_privacy_settings';
+	const SETTINGS_NAME = 'settings';
 
 
 	// --------------------------------------------------------------------------
@@ -74,6 +74,34 @@ class Avatar_Privacy_Core {
 	 * @var array
 	 */
 	private $default_avatars = array();
+
+	/**
+	 * The plugin version.
+	 *
+	 * @var string
+	 */
+	private $version;
+
+	/**
+	 * The cache handler.
+	 *
+	 * @var Cache
+	 */
+	private $cache;
+
+	/**
+	 * The options handler.
+	 *
+	 * @var Options
+	 */
+	private $options;
+
+	/**
+	 * The transients handler.
+	 *
+	 * @var Transients
+	 */
+	private $transients;
 
 	/**
 	 * The singleton instance.
@@ -131,20 +159,26 @@ class Avatar_Privacy_Core {
 	 * @param Options    $options     Required.
 	 */
 	public function __construct( $version, Transients $transients, Cache $cache, Options $options ) {
+		$this->version    = $version;
+		$this->transients = $transients;
+		$this->cache      = $cache;
+		$this->options    = $options;
+
+		add_action( 'plugins_loaded', [ $this, 'plugins_loaded' ] );
+	}
+
+	public function plugins_loaded() {
 		// Add new default avatars.
 		add_filter( 'avatar_defaults', array( &$this, 'avatar_defaults' ) );
 
 		// Read the plugin settings.
-		$this->settings = get_option( self::SETTINGS_NAME );
-		if ( ! $this->settings || ! is_array( $this->settings ) || ( 0 === count( $this->settings ) ) ) {
-			$this->settings = array();
-		}
+		$this->settings = $this->options->get( self::SETTINGS_NAME, [] );
 
 		// Mode 1 + mode 2 + new default image display: filter the gravatar image upon display.
 		add_filter( 'get_avatar', array( &$this, 'get_avatar' ), 10, 5 );
 
 		// Mode 2.
-		if ( isset( $this->settings['mode_optin'] ) && ( 1 === $this->settings['mode_optin'] ) ) {
+		if ( ! empty( $this->settings['mode_optin'] ) ) {
 			// Add the checkbox to the comment form.
 			add_filter( 'comment_form_default_fields', array( &$this, 'comment_form_default_fields' ) );
 			// Handle the checkbox data upon saving the comment.
@@ -158,7 +192,6 @@ class Avatar_Privacy_Core {
 			}
 		}
 	}
-
 
 	// --------------------------------------------------------------------------
 	// public functions
@@ -250,7 +283,7 @@ class Avatar_Privacy_Core {
 		}
 
 		// Mode 2: find out if the user opted out of displaying a gravatar.
-		if ( isset( $this->settings['mode_optin'] ) && ( $this->settings['mode_optin'] === '1' ) && ( $user_id || $email ) ) {
+		if ( ! empty( $this->settings['mode_optin'] ) && ( $user_id || $email ) ) {
 			$use_default = false;
 			if ( $user_id ) {
 				// For users get the value from the usermeta table.
@@ -264,14 +297,12 @@ class Avatar_Privacy_Core {
 				$use_default   = ( $current_value == null );
 			}
 			if ( $use_default ) {
-				$options     = get_option( Avatar_Privacy_Core::SETTINGS_NAME );
-				$show_avatar = ( isset( $options['default_show'] ) && ( '1' === $options['default_show'] ) ); // false as fallback if the default option is not set
+				$show_avatar = ! empty( $this->settings['default_show'] ); // false as fallback if the default option is not set
 			}
 		}
 
 		// Mode 1: check if a gravatar exists for the E-Mail address.
-		if ( $show_avatar && isset( $this->settings['mode_checkforgravatar'] ) && ( '1' === $this->settings['mode_checkforgravatar'] )
-			&& $email && ! $this->validate_gravatar( $email ) ) {
+		if ( $show_avatar && ! empty( $this->settings['mode_checkforgravatar'] ) && $email && ! $this->validate_gravatar( $email ) ) {
 			$show_avatar = false;
 		} elseif ( ! $email ) {
 			$show_avatar = false;
@@ -279,8 +310,7 @@ class Avatar_Privacy_Core {
 
 		// Mode 1 + 2: change the default image if dynamic defaults are configured.
 		if ( ! $show_avatar && $this->is_default_avatar_dynamic()
-			&& ( ( isset( $this->settings['mode_checkforgravatar'] ) && ( '1' === $this->settings['mode_checkforgravatar'] ) )
-			|| ( isset( $this->settings['mode_optin'] ) && ( '1' === $this->settings['mode_optin'] ) ) ) ) {
+			&& ( ! empty( $this->settings['mode_checkforgravatar'] ) || ! empty( $this->settings['mode_optin'] ) ) ) {
 			// Use blank image here, dynamic default images would leak the MD5.
 			$default = includes_url( 'images/blank.gif' );
 		}
@@ -328,7 +358,7 @@ class Avatar_Privacy_Core {
 			$is_checked = ( $_COOKIE[ 'comment_use_gravatar_' . COOKIEHASH ] == '1' );
 		} else {
 			// Read the value from the options.
-			$is_checked = ( isset( $this->settings['checkbox_default'] ) && ( $this->settings['checkbox_default'] === '1' ) );
+			$is_checked = ! empty( $this->settings['checkbox_default'] );
 		}
 		$checked   = $is_checked ? ' checked="checked"' : '';
 		$new_field = '<p class="comment-form-use-gravatar">'
@@ -420,9 +450,9 @@ class Avatar_Privacy_Core {
 	 * @param object $user The current user whose profile to modify.
 	 */
 	public function add_user_profile_fields( $user ) {
-		$options = get_option( self::SETTINGS_NAME );
-		$val     = get_the_author_meta( self::CHECKBOX_FIELD_NAME, $user->ID );
-		$val     = '' !== $val ? (bool) $val : ! empty( $options['checkbox_default'] );
+		$val = get_the_author_meta( self::CHECKBOX_FIELD_NAME, $user->ID );
+		$val = '' !== $val ? (bool) $val : ! empty( $this->settings['checkbox_default'] );
+
 
 		require dirname( __DIR__ ) . '/admin/partials/profile/use-gravatar.php';
 	}

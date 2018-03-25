@@ -24,6 +24,8 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
+use Mundschenk\Data_Storage\Options;
+
 /**
  * Options class of the Avatar Privacy plugin. Contains all code for the
  * options page. The plugin's options are displayed on the discussion settings
@@ -41,18 +43,26 @@ class Avatar_Privacy_Options implements \Avatar_Privacy\Component {
 	private $core = null;
 
 	/**
+	 * The options handler.
+	 *
+	 * @var Options
+	 */
+	private $options;
+
+	/**
 	 * Creates a Avatar_Privacy_Options instance and registers all necessary
 	 * hooks and filters for the settings.
+	 *
+	 * @param Options $options Required.
 	 */
-	public function __construct() {
+	public function __construct( Options $options ) {
+		$this->options = $options;
 	}
 
 	/**
 	 * Sets up the various hooks for the plugin component.
 	 *
 	 * @param \Avatar_Privacy_Core $core The plugin instance.
-	 *
-	 * @return void
 	 */
 	public function run( \Avatar_Privacy_Core $core ) {
 		$this->core = $core;
@@ -72,7 +82,7 @@ class Avatar_Privacy_Options implements \Avatar_Privacy\Component {
 		add_settings_field( 'avatar_privacy_checkbox_default', __( 'The checkbox is...', 'avatar-privacy' ),         [ $this, 'output_checkbox_default_setting' ], 'discussion', 'avatar_privacy_section' );
 		add_settings_field( 'avatar_privacy_default_show',     __( 'Default value', 'avatar-privacy' ),              [ $this, 'output_default_show_setting' ],     'discussion', 'avatar_privacy_section' );
 		// We save all settings in one variable in the database table; also adds a validation method.
-		register_setting( 'discussion', Avatar_Privacy_Core::SETTINGS_NAME, [ $this, 'validate_settings' ] );
+		register_setting( 'discussion', $this->options->get_name( Avatar_Privacy_Core::SETTINGS_NAME ), [ $this, 'validate_settings' ] );
 	}
 
 	/**
@@ -93,7 +103,7 @@ class Avatar_Privacy_Options implements \Avatar_Privacy\Component {
 			$headers = @get_headers( $uri );
 			if ( ! is_array( $headers ) ) {
 				add_settings_error(
-				  Avatar_Privacy_Core::SETTINGS_NAME, 'get-headers-failed',
+				  $this->options->get_name( Avatar_Privacy_Core::SETTINGS_NAME ), 'get-headers-failed',
 					__(
 					'The get_headers() function seems to be disabled on your system! To check if a gravatar exists for an E-Mail address,'
 					  . ' this PHP function is needed. It seems this function is either disabled on your system or the gravatar.com'
@@ -119,10 +129,7 @@ class Avatar_Privacy_Options implements \Avatar_Privacy\Component {
 	 * Outputs the elements for the 'check for gravatar' setting.
 	 */
 	public function output_checkforgravatar_setting() {
-		$options = get_option( Avatar_Privacy_Core::SETTINGS_NAME );
-		if ( ( $options === false ) || ! isset( $options['mode_checkforgravatar'] ) ) {
-			$options['mode_checkforgravatar'] = false;
-		}
+		$options = $this->options->get( Avatar_Privacy_Core::SETTINGS_NAME, [ 'mode_checkforgravatar' => false ] );
 
 		require dirname( __DIR__ ) . '/admin/partials/settings/check-for-gravatar.php';
 	}
@@ -131,10 +138,7 @@ class Avatar_Privacy_Options implements \Avatar_Privacy\Component {
 	 * Outputs the elements for the 'optin' setting.
 	 */
 	public function output_optin_setting() {
-		$options = get_option( Avatar_Privacy_Core::SETTINGS_NAME );
-		if ( ( $options === false ) || ! isset( $options['mode_optin'] ) ) {
-			$options['mode_optin'] = false;
-		}
+		$options = $this->options->get( Avatar_Privacy_Core::SETTINGS_NAME, [ 'mode_optin' => false ] );
 
 		require dirname( __DIR__ ) . '/admin/partials/settings/optin.php';
 	}
@@ -143,10 +147,7 @@ class Avatar_Privacy_Options implements \Avatar_Privacy\Component {
 	 * Outputs the elements for the 'checkbox default' setting.
 	 */
 	public function output_checkbox_default_setting() {
-		$options = get_option( Avatar_Privacy_Core::SETTINGS_NAME );
-		if ( ( $options === false ) || ! isset( $options['checkbox_default'] ) ) {
-			$options['checkbox_default'] = false;
-		}
+		$options = $this->options->get( Avatar_Privacy_Core::SETTINGS_NAME, [ 'checkbox_default' => false ] );
 
 		require dirname( __DIR__ ) . '/admin/partials/settings/checkbox-default.php';
 	}
@@ -155,10 +156,7 @@ class Avatar_Privacy_Options implements \Avatar_Privacy\Component {
 	 * Outputs the elements for the 'default show' setting.
 	 */
 	public function output_default_show_setting() {
-		$options = get_option( Avatar_Privacy_Core::SETTINGS_NAME );
-		if ( ( $options === false ) || ! isset( $options['default_show'] ) ) {
-			$options['default_show'] = false;
-		}
+		$options = $this->options->get( Avatar_Privacy_Core::SETTINGS_NAME, [ 'default_show' => false ] );
 
 		require dirname( __DIR__ ) . '/admin/partials/settings/default-show.php';
 	}

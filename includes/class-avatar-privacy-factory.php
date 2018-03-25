@@ -37,6 +37,8 @@ use Mundschenk\Data_Storage\Transients;
  * @author Peter Putzer <github@mundschenk.at>
  */
 abstract class Avatar_Privacy_Factory {
+	const PREFIX      = 'avatar_privacy_';
+	const CACHE_GROUP = 'avatar_privacy';
 
 	/**
 	 * The factory instance.
@@ -58,13 +60,16 @@ abstract class Avatar_Privacy_Factory {
 
 			// Shared helpers.
 			self::$factory->addRule( Cache::class, [
-				'shared' => true,
+				'shared'          => true,
+				'constructParams' => [ self::PREFIX, self::CACHE_GROUP ],
 			] );
 			self::$factory->addRule( Transients::class, [
-				'shared' => true,
+				'shared'          => true,
+				'constructParams' => [ self::PREFIX ],
 			] );
 			self::$factory->addRule( Options::class, [
-				'shared' => true,
+				'shared'          => true,
+				'constructParams' => [ self::PREFIX ],
 			] );
 
 			// Load version from plugin data.
