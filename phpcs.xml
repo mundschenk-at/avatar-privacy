@@ -17,6 +17,8 @@
 	</rule>
 	<rule ref="WordPress-VIP">
 		<exclude name="WordPress.VIP.RestrictedFunctions.error_log" />
+		<exclude name="WordPress.VIP.RestrictedFunctions.cookies_setcookie" />
+		<exclude name="WordPress.VIP.RestrictedVariables.cache_constraints___COOKIE" />
 	</rule>
 	<rule ref="Squiz.Commenting.LongConditionClosingComment">
 		<exclude name="Squiz.Commenting.LongConditionClosingComment" />
