@@ -353,22 +353,23 @@ class Avatar_Privacy_Core {
 		if ( is_user_logged_in() ) {
 			return $fields;
 		}
+
 		// Define the new checkbox field.
-		if ( isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) ) {
+		if ( isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) ) { // WPCS: CSRF ok, Input var okay.
 			// Re-displaying the comment form with validation errors.
-			$is_checked = ( $_POST[ self::CHECKBOX_FIELD_NAME ] == '1' );
-		} elseif ( isset( $_COOKIE[ 'comment_use_gravatar_' . COOKIEHASH ] ) ) {
+			$is_checked = ! empty( $_POST[ self::CHECKBOX_FIELD_NAME ] ); // WPCS: CSRF ok, Input var okay.
+		} elseif ( isset( $_COOKIE[ 'comment_use_gravatar_' . COOKIEHASH ] ) ) { // Input var okay.
 			// Read the value from the cookie, saved with previous comment.
-			$is_checked = ( $_COOKIE[ 'comment_use_gravatar_' . COOKIEHASH ] == '1' );
+			$is_checked = ! empty( $_COOKIE[ 'comment_use_gravatar_' . COOKIEHASH ] ); // Input var okay.
 		} else {
 			// Read the value from the options.
 			$is_checked = ! empty( $this->settings['checkbox_default'] );
 		}
-		$checked   = $is_checked ? ' checked="checked"' : '';
 		$new_field = '<p class="comment-form-use-gravatar">'
-		. '<input id="' . self::CHECKBOX_FIELD_NAME . '" name="' . self::CHECKBOX_FIELD_NAME . '" type="checkbox" value="true"' . $checked . ' style="width: auto; margin-right: 5px;" />'
+		. '<input id="' . self::CHECKBOX_FIELD_NAME . '" name="' . self::CHECKBOX_FIELD_NAME . '" type="checkbox" value="true"' . checked( $is_checked, true, false ) . ' style="width: auto; margin-right: 5px;" />'
 		. '<label for="' . self::CHECKBOX_FIELD_NAME . '">' . __( 'Display a <a href="http://gravatar.com">gravatar</a> image next to my comments', 'avatar-privacy' ) . '</label> '
 		. '</p>';
+
 		// Either add the new field after the E-Mail field or at the end of the array.
 		if ( is_array( $fields ) && array_key_exists( 'email', $fields ) ) {
 			$result = array();
@@ -417,7 +418,7 @@ class Avatar_Privacy_Core {
 		$this->maybe_create_table();
 
 		// Save the 'use gravatar' value.
-		$use_gravatar  = ( isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) && ( $_POST[ self::CHECKBOX_FIELD_NAME ] == 'true' ) ) ? '1' : '0';
+		$use_gravatar  = ( isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) && ( 'true' === $_POST[ self::CHECKBOX_FIELD_NAME ] ) ) ? '1' : '0'; // WPCS: CSRF ok, Input var okay.
 		$current_value = $this->load_data( $comment->comment_author_email );
 		if ( ! $current_value ) {
 			// Nothing found in the database, insert the dataset.
