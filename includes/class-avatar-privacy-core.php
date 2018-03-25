@@ -449,7 +449,8 @@ class Avatar_Privacy_Core {
 
 		// Set a cookie for the 'use gravatar' value.
 		$comment_cookie_lifetime = apply_filters( 'comment_cookie_lifetime', 30000000 );
-		setcookie( 'comment_use_gravatar_' . COOKIEHASH, $use_gravatar, time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
+		$secure                  = ( 'https' === wp_parse_url( home_url(), PHP_URL_SCHEME ) );
+		setcookie( 'comment_use_gravatar_' . COOKIEHASH, $use_gravatar, time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN, $secure );
 	}
 
 	/**
