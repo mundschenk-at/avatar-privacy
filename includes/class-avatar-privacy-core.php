@@ -292,16 +292,16 @@ class Avatar_Privacy_Core {
 			if ( $user_id ) {
 				// For users get the value from the usermeta table.
 				$show_avatar = get_user_meta( $user_id, 'use_gravatar', true ) === 'true';
-				$use_default = ( $show_avatar === '' );
+				$use_default = '' === $show_avatar;
 			} else {
 				// For comments get the value from the plugin's table.
 				$this->maybe_create_table(); // Make sure our database table exists.
 				$current_value = $this->load_data( $email );
 				$show_avatar   = $current_value && ( '1' === $current_value->use_gravatar );
-				$use_default   = ( $current_value == null );
+				$use_default   = empty( $current_value );
 			}
 			if ( $use_default ) {
-				$show_avatar = ! empty( $this->settings['default_show'] ); // false as fallback if the default option is not set
+				$show_avatar = ! empty( $this->settings['default_show'] ); // false as fallback if the default option is not set.
 			}
 		}
 
@@ -477,7 +477,7 @@ class Avatar_Privacy_Core {
 		}
 		// Use true/false instead of 1/0 since a '0' value is removed from the database and then
 		// we can't differentiate between opted-out and never saved a value.
-		$value = array_key_exists( self::CHECKBOX_FIELD_NAME, $_POST ) && ( $_POST[ self::CHECKBOX_FIELD_NAME ] == 'true' ) ? 'true' : 'false';
+		$value = array_key_exists( self::CHECKBOX_FIELD_NAME, $_POST ) && ( 'true' === $_POST[ self::CHECKBOX_FIELD_NAME ] ) ? 'true' : 'false';
 		update_user_meta( $user_id, self::CHECKBOX_FIELD_NAME, $value );
 	}
 
@@ -536,7 +536,7 @@ class Avatar_Privacy_Core {
 		$transient_function = $is_multisite ? 'get_site_transient' : 'get_transient';
 		$result             = $transient_function( $transient_key . $hash );
 		if ( false !== $result ) {
-			$result                                 = $result === 1;
+			$result                                 = 1 === $result;
 			$this->validate_gravatar_cache[ $hash ] = $result;
 			return $result;
 		}
