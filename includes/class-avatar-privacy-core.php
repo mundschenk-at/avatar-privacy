@@ -490,11 +490,19 @@ class Avatar_Privacy_Core {
 	 * out of an E-Mail address or not.
 	 *
 	 * @return bool True if the current default avatar is dynamic, false if it
-	 * is a static image.
+	 *              is a static image.
 	 */
 	public function is_default_avatar_dynamic() {
-		$default_avatar = get_option( 'avatar_default' );
-		return ( $default_avatar == 'identicon' ) || ( $default_avatar == 'wavatar' ) || ( $default_avatar == 'monsterid' ) || ( $default_avatar == 'retro' );
+		switch ( get_option( 'avatar_default' ) ) {
+			case 'identicon':
+			case 'wavatar':
+			case 'monsterid':
+			case 'retro':
+				return true;
+
+			default:
+				return false;
+		}
 	}
 
 	/**
