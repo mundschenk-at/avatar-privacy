@@ -556,14 +556,19 @@ class Avatar_Privacy_Core {
 	 * name of the table available through $wpdb->avatar_privacy.
 	 */
 	private function maybe_create_table() {
-		global $wpdb, $charset_collate;
+		global $wpdb;
 
 		// Check if the table exists.
 		if ( property_exists( $wpdb, 'avatar_privacy' ) ) {
 			return;
 		}
+
+		// Set up table name.
 		$table_name = $wpdb->base_prefix . 'avatar_privacy';
-		if ( $wpdb->get_var( 'SHOW tables LIKE "' . $table_name . '"' ) === $table_name ) {
+
+		// Fix $wpdb object if table already exists.
+		$result = $wpdb->get_var( $wpdb->prepare( 'SHOW tables LIKE %s', $table_name ) ); // WPCS: db call ok, cache ok.
+		if ( $result === $table_name ) {
 			$wpdb->avatar_privacy = $table_name;
 			return;
 		}
@@ -572,15 +577,17 @@ class Avatar_Privacy_Core {
 		require_once ABSPATH . '/wp-admin/includes/upgrade.php';
 
 		// Create the plugin's table.
-		$sql    = 'CREATE TABLE ' . $table_name . ' ('
-		. 'id mediumint(9) NOT NULL AUTO_INCREMENT,'
-		. 'email VARCHAR(100) NOT NULL UNIQUE,'
-		. 'use_gravatar tinyint(2) NOT NULL,'
-		. 'last_updated datetime DEFAULT "0000-00-00 00:00:00" NOT NULL,'
-		. 'log_message VARCHAR(255),'
-		. 'PRIMARY KEY  (id)) ' . $charset_collate . ';'; // Why does wpdb need two spaces here???
+		$sql = "CREATE TABLE {$table_name} (
+				id mediumint(9) NOT NULL AUTO_INCREMENT,
+				email VARCHAR(100) NOT NULL UNIQUE,
+				use_gravatar tinyint(2) NOT NULL,
+				last_updated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+				log_message VARCHAR(255),
+				PRIMARY KEY  (id)
+			) {$wpdb->get_charset_collate()};"; // Why does wpdb need two spaces here???
+
 		$result = dbDelta( $sql );
-		if ( is_array( $result ) && array_key_exists( $table_name, $result ) ) {
+		if ( ! empty( $result ) && ! empty( $result[ $table_name ] ) ) {
 			$wpdb->avatar_privacy = $table_name;
 		}
 	}
