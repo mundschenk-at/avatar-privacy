@@ -104,15 +104,10 @@ class Avatar_Privacy_Options implements \Avatar_Privacy\Component {
 			$headers = @get_headers( $uri );
 			if ( ! is_array( $headers ) ) {
 				add_settings_error(
-				  $this->options->get_name( Avatar_Privacy_Core::SETTINGS_NAME ), 'get-headers-failed',
-					__(
-					'The get_headers() function seems to be disabled on your system! To check if a gravatar exists for an E-Mail address,'
-					  . ' this PHP function is needed. It seems this function is either disabled on your system or the gravatar.com'
-					  . " servers can not be reached for another reason. Check with your server admin if you don't see gravatars for your own"
-					  . ' gravatar account and this message keeps popping up after saving the plugin settings.', 'avatar-privacy'
-					),
+					$this->options->get_name( Avatar_Privacy_Core::SETTINGS_NAME ), 'get-headers-failed',
+					__( "The get_headers() function seems to be disabled on your system! To check if a gravatar exists for an E-Mail address, this PHP function is needed. It seems this function is either disabled on your system or the gravatar.com servers can not be reached for another reason. Check with your server admin if you don't see gravatars for your own Gravatar account and this message keeps popping up after saving the plugin settings.", 'avatar-privacy' ),
 					'error'
-			  );
+				);
 			}
 		}
 
