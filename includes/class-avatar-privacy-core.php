@@ -50,6 +50,10 @@ class Avatar_Privacy_Core {
 	 */
 	const SETTINGS_NAME = 'settings';
 
+	/**
+	 * Prefix for caching avatar privacy for non-logged-in users.
+	 */
+	const EMAIL_CACHE_PREFIX = 'email_';
 
 	// --------------------------------------------------------------------------
 	// variables
@@ -402,7 +406,7 @@ class Avatar_Privacy_Core {
 			return;
 		}
 
-		// Make sure that the E-Mail address does not belong to a registered user.
+		// Make sure that the e-mail address does not belong to a registered user.
 		if ( get_user_by( 'email', $comment->comment_author_email ) ) {
 			// This is either a comment with a fake identity or a user who didn't sign in
 			// and rather entered their details manually. Either way, don't save anything.
@@ -424,7 +428,7 @@ class Avatar_Privacy_Core {
 					'last_updated' => current_time( 'mysql' ),
 					'log_message'  => 'set with comment ' . $comment_id . ( is_multisite() ? ' (site: ' . $wpdb->siteid . ', blog: ' . $wpdb->blogid . ')' : '' ),
 				), array( '%s', '%d', '%s', '%s' )
-			);
+			); // WPCS: db call ok.
 		} elseif ( $current_value->use_gravatar !== $use_gravatar ) {
 			// Dataset found but with different value, update it.
 			$wpdb->update(
@@ -436,7 +440,10 @@ class Avatar_Privacy_Core {
 				array( 'id' => $current_value->id ),
 				array( '%d', '%s', '%s' ),
 				array( '%d' )
-			);
+			); // WPCS: db call ok, db cache ok.
+
+			// Clear any previously cached value.
+			$this->cache->delete( self::EMAIL_CACHE_PREFIX . md5( $comment->comment_author_email ) );
 		}
 
 		// Set a cookie for the 'use gravatar' value.
@@ -452,7 +459,6 @@ class Avatar_Privacy_Core {
 	public function add_user_profile_fields( $user ) {
 		$val = get_the_author_meta( self::CHECKBOX_FIELD_NAME, $user->ID );
 		$val = '' !== $val ? (bool) $val : ! empty( $this->settings['checkbox_default'] );
-
 
 		require dirname( __DIR__ ) . '/admin/partials/profile/use-gravatar.php';
 	}
@@ -589,11 +595,21 @@ class Avatar_Privacy_Core {
 	private function load_data( $email ) {
 		global $wpdb;
 
-		if ( '' === $email ) {
+		if ( empty( $email ) ) {
 			return null;
 		}
-		$sql = $wpdb->prepare( 'SELECT * FROM ' . $wpdb->avatar_privacy . ' WHERE email LIKE "%s"', $email );
-		$res = $wpdb->get_row( $sql, OBJECT );
+
+		$key = self::EMAIL_CACHE_PREFIX . md5( $email );
+		$res = $this->cache->get( $key );
+
+		if ( empty( $res ) ) {
+			$res = $wpdb->get_row(
+				$wpdb->prepare( "SELECT * FROM {$wpdb->avatar_privacy} WHERE email LIKE %s", $email ),
+				OBJECT
+			); // WPCS: db call ok, cache ok.
+
+			$this->cache->set( $key, $res, 5 * MINUTE_IN_SECONDS );
+		}
 
 		return $res;
 	}
