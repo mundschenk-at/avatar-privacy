@@ -367,7 +367,7 @@ class Avatar_Privacy_Core {
 		}
 		$new_field = '<p class="comment-form-use-gravatar">'
 		. '<input id="' . self::CHECKBOX_FIELD_NAME . '" name="' . self::CHECKBOX_FIELD_NAME . '" type="checkbox" value="true"' . checked( $is_checked, true, false ) . ' style="width: auto; margin-right: 5px;" />'
-		. '<label for="' . self::CHECKBOX_FIELD_NAME . '">' . __( 'Display a <a href="http://gravatar.com">gravatar</a> image next to my comments', 'avatar-privacy' ) . '</label> '
+		. '<label for="' . self::CHECKBOX_FIELD_NAME . '">' . sprintf( /* translators: gravatar.com URL */ __( 'Display a <a href="%s">Gravatar</a> image next to my comments.', 'avatar-privacy' ), 'https://gravatar.com' ) . '</label> '
 		. '</p>';
 
 		// Either add the new field after the E-Mail field or at the end of the array.
