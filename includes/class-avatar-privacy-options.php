@@ -93,12 +93,13 @@ class Avatar_Privacy_Options implements \Avatar_Privacy\Component {
 	 */
 	public function validate_settings( $input ) {
 		// Validate the settings.
-		$newinput['mode_checkforgravatar'] = ( isset( $input['mode_checkforgravatar'] ) && ( $input['mode_checkforgravatar'] === '1' ) ) ? '1' : '0';
-		$newinput['mode_optin']            = ( isset( $input['mode_optin'] ) && ( $input['mode_optin'] === '1' ) ) ? '1' : '0';
-		$newinput['checkbox_default']      = ( isset( $input['checkbox_default'] ) && ( $input['checkbox_default'] === '1' ) ) ? '1' : '0';
-		$newinput['default_show']          = ( isset( $input['default_show'] ) && ( $input['default_show'] === '1' ) ) ? '1' : '0';
+		$newinput['mode_checkforgravatar'] = (int) ! empty( $input['mode_checkforgravatar'] );
+		$newinput['mode_optin']            = (int) ! empty( $input['mode_optin'] );
+		$newinput['checkbox_default']      = (int) ! empty( $input['checkbox_default'] );
+		$newinput['default_show']          = (int) ! empty( $input['default_show'] );
+
 		// Check if the headers function works on the server (use MD5 of mystery default image).
-		if ( $newinput['mode_checkforgravatar'] == '1' ) {
+		if ( ! empty( $newinput['mode_checkforgravatar'] ) ) {
 			$uri     = 'http://www.gravatar.com/avatar/ad516503a11cd5ca435acc9bb6523536?s=32&d=404';
 			$headers = @get_headers( $uri );
 			if ( ! is_array( $headers ) ) {
