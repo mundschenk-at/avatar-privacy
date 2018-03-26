@@ -58,9 +58,7 @@ function avapr_uninstall() {
 
 	// Delete/change options for all other blogs (multisite).
 	if ( is_multisite() ) {
-		$sql   = 'SELECT blog_id FROM ' . $wpdb->blogs . ' WHERE site_id = %d ORDER BY registered DESC';
-		$blogs = $wpdb->get_col( $wpdb->prepare( $sql, $wpdb->siteid ) );
-		foreach ( $blogs as $blog_id ) {
+		foreach ( get_sites( [ 'fields' => 'ids' ] ) as $blog_id ) {
 			$wpdb->query( 'DELETE FROM ' . $wpdb->get_blog_prefix( $blog_id ) . 'options WHERE option_name = "avatar_privacy_settings";' );
 			$wpdb->query(
 				'UPDATE ' . $wpdb->get_blog_prefix( $blog_id ) . 'options SET option_value = "mystery" WHERE option_name = "avatar_default"' .
