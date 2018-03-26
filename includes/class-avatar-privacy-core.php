@@ -542,9 +542,8 @@ class Avatar_Privacy_Core {
 		}
 
 		// Ask gravatar.com.
-		$uri     = 'http://www.gravatar.com/avatar/' . $hash . '?d=404';
-		$headers = @get_headers( $uri );
-		$result  = is_array( $headers ) && preg_match( '|200|', $headers[0] );
+		$uri    = 'https://gravatar.com/avatar/' . $hash . '?d=404';
+		$result = 200 === wp_remote_retrieve_response_code( wp_remote_head( $uri ) );
 
 		// Cache the result across all blogs (a YES for 1 day, a NO for 10 minutes
 		// -- since a YES basically shouldn't change, but a NO might change when the user signs up with gravatar.com).

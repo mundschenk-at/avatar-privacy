@@ -100,12 +100,13 @@ class Avatar_Privacy_Options implements \Avatar_Privacy\Component {
 
 		// Check if the headers function works on the server (use MD5 of mystery default image).
 		if ( ! empty( $newinput['mode_checkforgravatar'] ) ) {
-			$uri     = 'http://www.gravatar.com/avatar/ad516503a11cd5ca435acc9bb6523536?s=32&d=404';
-			$headers = @get_headers( $uri );
-			if ( ! is_array( $headers ) ) {
+			$uri      = 'https://www.gravatar.com/avatar/ad516503a11cd5ca435acc9bb6523536?s=32&d=404';
+			$response = wp_remote_head( $uri );
+
+			if ( is_wp_error( $response ) || empty( $response['headers'] ) ) {
 				add_settings_error(
 					$this->options->get_name( Avatar_Privacy_Core::SETTINGS_NAME ), 'get-headers-failed',
-					__( "The get_headers() function seems to be disabled on your system! To check if a gravatar exists for an E-Mail address, this PHP function is needed. It seems this function is either disabled on your system or the gravatar.com servers can not be reached for another reason. Check with your server admin if you don't see gravatars for your own Gravatar account and this message keeps popping up after saving the plugin settings.", 'avatar-privacy' ),
+					__( "The gravatar.com servers cannot be reached for some reason (this might be a temporary issue). Check with your server admin if you don't see gravatars for your own Gravatar account and this message keeps popping up after saving the plugin settings.", 'avatar-privacy' ),
 					'error'
 				);
 			}
