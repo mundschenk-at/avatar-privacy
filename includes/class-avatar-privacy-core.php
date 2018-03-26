@@ -171,6 +171,9 @@ class Avatar_Privacy_Core {
 		add_action( 'plugins_loaded', [ $this, 'plugins_loaded' ] );
 	}
 
+	/**
+	 * Enable various hooks.
+	 */
 	public function plugins_loaded() {
 		// Add new default avatars.
 		add_filter( 'avatar_defaults', array( &$this, 'avatar_defaults' ) );
