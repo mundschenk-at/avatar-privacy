@@ -4,10 +4,11 @@ Plugin Name: Avatar Privacy
 Plugin URI: http://wordpress.org/extend/plugins/avatar-privacy/
 Author URI: http://code.freudendahl.net/
 Tags: gravatar, avatar, privacy
-Requires at least: 3.2
-Tested up to: 3.5.1
+Requires at least: 4.6
+Requires PHP: 5.6
+Tested up to: 4.9
 Stable tag: 0.3
-License: GPLv2
+License: GPLv2 or later
 
 Adds options to enhance the privacy when using avatars.
 
@@ -46,7 +47,7 @@ To display an avatar image, you publish an encrypted version (MD5) of the E-Mail
 
 The plugin offers some measures to deal with these problems. It's not perfect or a complete solution, but some of the above points can be addressed sufficiently:
 
-1. If you want gravatars, you don't really have a choice but to **publish the MD5 tokens** of the E-Mail adresses. If you want to have dynamic default images like the identicons, you also don't have a choice but to publish the MD5 tokens of all users, not only the users who actually signed up with gravatar.com (because the images are generated out of the E-Mail addresses). For gravatar.com users, you could of course request the images server-side and then cache them, but in my opinion that is a bit overkill. If somebody signs up with gravatar.com, they probably know that this means their E-Mail adresses will be published in encrypted form. The bad part is that this happens for everyone, even users who haven't ever heard of gravatar.com. That is an aspect that this plugin fixes with the 'Don't publish encrypted E-Mail addresses for non-members of gravatar.com' option. Why is this optional? The additional calls to gravatar.com from your server could in theory stress your server or make the page loading too slow. Please check this on a page with many comments. 
+1. If you want gravatars, you don't really have a choice but to **publish the MD5 tokens** of the E-Mail adresses. If you want to have dynamic default images like the identicons, you also don't have a choice but to publish the MD5 tokens of all users, not only the users who actually signed up with gravatar.com (because the images are generated out of the E-Mail addresses). For gravatar.com users, you could of course request the images server-side and then cache them, but in my opinion that is a bit overkill. If somebody signs up with gravatar.com, they probably know that this means their E-Mail adresses will be published in encrypted form. The bad part is that this happens for everyone, even users who haven't ever heard of gravatar.com. That is an aspect that this plugin fixes with the 'Don't publish encrypted E-Mail addresses for non-members of gravatar.com' option. Why is this optional? The additional calls to gravatar.com from your server could in theory stress your server or make the page loading too slow. Please check this on a page with many comments.
 2. The problem of **tying comments throughout the web together** is addressed by the plugin in two ways: You can let commenters opt in or out of using gravatars with their E-Mail address. Aditionally, you can use a local default image and display the default image directly instead of as a redirect. This way the page optically looks identical, but comments of users who didn't sign up with gravatar.com are not linked through a unique avatar image URL anymore. For users who did sign up with gravatar.com, you should display a short message to the user somwhere around the comment form.
 3. That gravatar.com is able to create **profiles of what websites you visited** is something that the plugin can't fix. Personally, I trust Auttomatic not to misuse this kind of data. I'm not even saying that they do create profiles, but technically they could. The profiles would be anonym unless they are connected with other data, like a provider's data who used a certain IP address at a certain point in time. Unfortunately, there is nothing that the plugin can really do about it, apart from complete caching solutions. This particular problem needs to be addressed by concerned visitors on their side, e.g. by using a TOR server to go online. Also, the whole modern web works this way, it's not a problem specific to gravatar.com. ;-)
 4. The plugin does nothing against the **fake identity** problem. It's questionable if any countermeasures would even be possible without changing the way that gravatar.com works. Stealing identities is always possible, you can do it with a comment form without gravatars just as well. So that's not really the focus of this plugin.
