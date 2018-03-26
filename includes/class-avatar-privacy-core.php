@@ -480,7 +480,7 @@ class Avatar_Privacy_Core {
 		}
 		// Use true/false instead of 1/0 since a '0' value is removed from the database and then
 		// we can't differentiate between opted-out and never saved a value.
-		$value = array_key_exists( self::CHECKBOX_FIELD_NAME, $_POST ) && ( 'true' === $_POST[ self::CHECKBOX_FIELD_NAME ] ) ? 'true' : 'false';
+		$value = isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) && ( 'true' === $_POST[ self::CHECKBOX_FIELD_NAME ] ) ? 'true' : 'false'; // WPCS: CSRF ok, Input var okay.
 		update_user_meta( $user_id, self::CHECKBOX_FIELD_NAME, $value );
 	}
 
