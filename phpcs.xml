@@ -18,6 +18,10 @@
 	<rule ref="WordPress-VIP">
 		<exclude name="WordPress.VIP.RestrictedFunctions.error_log" />
 		<exclude name="WordPress.VIP.RestrictedFunctions.cookies_setcookie" />
+		<exclude name="WordPress.VIP.RestrictedFunctions.user_meta_get_user_meta" />
+		<exclude name="WordPress.VIP.RestrictedFunctions.user_meta_add_user_meta" />
+		<exclude name="WordPress.VIP.RestrictedFunctions.user_meta_update_user_meta" />
+		<exclude name="WordPress.VIP.RestrictedFunctions.user_meta_delete_user_meta" />
 		<exclude name="WordPress.VIP.RestrictedVariables.cache_constraints___COOKIE" />
 	</rule>
 	<rule ref="Squiz.Commenting.LongConditionClosingComment">
