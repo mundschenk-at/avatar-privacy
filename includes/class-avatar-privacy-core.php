@@ -269,7 +269,7 @@ class Avatar_Privacy_Core {
 			if ( $user ) {
 				$email = $user->user_email;
 			}
-			} elseif ( is_object( $id_or_email ) ) {
+		} elseif ( is_object( $id_or_email ) ) {
 			if ( ! empty( $id_or_email->user_id ) ) {
 				// Load from either a user or an author comment object.
 				$user_id = (int) $id_or_email->user_id;
@@ -525,18 +525,18 @@ class Avatar_Privacy_Core {
 		$hash  = md5( $email );
 
 		// Try to find something in the cache.
-		if ( array_key_exists( $hash, $this->validate_gravatar_cache ) ) {
+		if ( isset( $this->validate_gravatar_cache[ $hash ] ) ) {
 			return $this->validate_gravatar_cache[ $hash ];
 		}
 
 		// Try to find it via transient cache
 		// (maximum length of the key = 45 characters because of wp_options limitation on non-multisite pages, the MD5 hash needs space too).
-		$transient_key      = 'avapr_check_';
+		$transient_key      = "avapr_check_{$hash}";
 		$is_multisite       = is_multisite();
 		$transient_function = $is_multisite ? 'get_site_transient' : 'get_transient';
-		$result             = $transient_function( $transient_key . $hash );
+		$result             = $transient_function( $transient_key );
 		if ( false !== $result ) {
-			$result                                 = 1 === $result;
+			$result                                 = ! empty( $result );
 			$this->validate_gravatar_cache[ $hash ] = $result;
 			return $result;
 		}
@@ -548,7 +548,7 @@ class Avatar_Privacy_Core {
 		// Cache the result across all blogs (a YES for 1 day, a NO for 10 minutes
 		// -- since a YES basically shouldn't change, but a NO might change when the user signs up with gravatar.com).
 		$transient_function = $is_multisite ? 'set_site_transient' : 'set_transient';
-		$transient_function( $transient_key . $hash, $result ? 1 : 0, $result ? 86400 : 600 );
+		$transient_function( $transient_key, $result ? 1 : 0, $result ? DAY_IN_SECONDS : 10 * MINUTE_IN_SECONDS );
 		$this->validate_gravatar_cache[ $hash ] = $result;
 
 		return $result;
