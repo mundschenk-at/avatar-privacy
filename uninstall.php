@@ -44,26 +44,39 @@ function avapr_uninstall() {
 
 	// Drop global table.
 	$table_name = $wpdb->base_prefix . 'avatar_privacy';
-	$wpdb->query( 'DROP TABLE IF EXISTS ' . $table_name . ';' );
+	$wpdb->query( "DROP TABLE IF EXISTS {$table_name};" );
 
 	// Delete usermeta for all users.
-	$wpdb->query( 'DELETE FROM ' . $wpdb->usermeta . ' WHERE meta_key = "use_gravatar";' );
+	delete_metadata( 'user', 0, 'use_gravatar', null, true );
 
 	// Delete/change options for main blog.
-	$wpdb->query( 'DELETE FROM ' . $wpdb->options . ' WHERE option_name = "avatar_privacy_settings";' );
-	$wpdb->query(
-		'UPDATE ' . $wpdb->options . ' SET option_value = "mystery" WHERE option_name = "avatar_default"' .
-		' AND option_value IN ("comment", "im-user-offline", "view-media-artist");'
-	);
+	delete_option( 'avatar_privacy_settings' );
+	switch ( get_option( 'avatar_default' ) ) {
+		case 'comment':
+		case 'im-user-offline':
+		case 'view-media-artist':
+			update_option( 'avatar_default', 'mystery' );
+			break;
+	}
 
 	// Delete/change options for all other blogs (multisite).
 	if ( is_multisite() ) {
 		foreach ( get_sites( [ 'fields' => 'ids' ] ) as $blog_id ) {
-			$wpdb->query( 'DELETE FROM ' . $wpdb->get_blog_prefix( $blog_id ) . 'options WHERE option_name = "avatar_privacy_settings";' );
-			$wpdb->query(
-				'UPDATE ' . $wpdb->get_blog_prefix( $blog_id ) . 'options SET option_value = "mystery" WHERE option_name = "avatar_default"' .
-				' AND option_value IN ("comment", "im-user-offline", "view-media-artist");'
-			);
+			switch_to_blog( $blog_id );
+
+			// Delete our settings.
+			delete_option( 'avatar_privacy_settings' );
+
+			// Reset avatar_default to working value if necessary.
+			switch ( get_option( 'avatar_default' ) ) {
+				case 'comment':
+				case 'im-user-offline':
+				case 'view-media-artist':
+					update_option( 'avatar_default', 'mystery' );
+					break;
+			}
+
+			restore_current_blog();
 		}
 	}
 
