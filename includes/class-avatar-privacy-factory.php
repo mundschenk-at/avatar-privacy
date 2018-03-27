@@ -27,7 +27,11 @@ use Dice\Dice;
 
 use Mundschenk\Data_Storage\Cache;
 use Mundschenk\Data_Storage\Options;
+use Mundschenk\Data_Storage\Network_Options;
 use Mundschenk\Data_Storage\Transients;
+use Mundschenk\Data_Storage\Site_Transients;
+
+use Avatar_Privacy\Components\Setup;
 
 /**
  * A factory for creating Avatar_Privacy instances via dependency injection.
@@ -67,7 +71,15 @@ abstract class Avatar_Privacy_Factory {
 				'shared'          => true,
 				'constructParams' => [ self::PREFIX ],
 			] );
+			self::$factory->addRule( Site_Transients::class, [
+				'shared'          => true,
+				'constructParams' => [ self::PREFIX ],
+			] );
 			self::$factory->addRule( Options::class, [
+				'shared'          => true,
+				'constructParams' => [ self::PREFIX ],
+			] );
+			self::$factory->addRule( Network_Options::class, [
 				'shared'          => true,
 				'constructParams' => [ self::PREFIX ],
 			] );
@@ -81,10 +93,9 @@ abstract class Avatar_Privacy_Factory {
 			] );
 
 			// Additional parameters for components.
-			// $plugin_basename = \plugin_basename( $full_plugin_path );
-			// self::$factory->addRule( Admin_Interface::class, [
-			// 	'constructParams' => [ $plugin_basename, $full_plugin_path ],
-			// ] );
+			self::$factory->addRule( Setup::class, [
+				'constructParams' => [ $full_plugin_path ],
+			] );
 		}
 
 		return self::$factory;

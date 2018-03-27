@@ -24,6 +24,8 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
+use Avatar_Privacy\Components\Setup;
+
 /**
  * Initialize Avatar Privacy plugin.
  *
@@ -50,9 +52,11 @@ class Avatar_Privacy_Controller {
 	 *
 	 * @param Avatar_Privacy_Core    $core     The core API.
 	 * @param Avatar_Privacy_Options $settings The settings page.
+	 * @param Setup                  $setup    The (de-)activation/uninstallation handling.
 	 */
-	public function __construct( Avatar_Privacy_Core $core, Avatar_Privacy_Options $settings ) {
+	public function __construct( Avatar_Privacy_Core $core, Avatar_Privacy_Options $settings, Setup $setup ) {
 		$this->core         = $core;
+		$this->components[] = $setup;
 		$this->components[] = $settings;
 	}
 
