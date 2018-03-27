@@ -22,6 +22,7 @@
 		<exclude name="WordPress.VIP.RestrictedFunctions.user_meta_add_user_meta" />
 		<exclude name="WordPress.VIP.RestrictedFunctions.user_meta_update_user_meta" />
 		<exclude name="WordPress.VIP.RestrictedFunctions.user_meta_delete_user_meta" />
+		<exclude name="WordPress.VIP.RestrictedFunctions.switch_to_blog_switch_to_blog" />
 		<exclude name="WordPress.VIP.RestrictedVariables.cache_constraints___COOKIE" />
 	</rule>
 	<rule ref="Squiz.Commenting.LongConditionClosingComment">
