@@ -590,12 +590,13 @@ class Avatar_Privacy_Core {
 		// Create the plugin's table.
 		$sql = "CREATE TABLE {$table_name} (
 				id mediumint(9) NOT NULL AUTO_INCREMENT,
-				email VARCHAR(100) NOT NULL UNIQUE,
+				email VARCHAR(100) NOT NULL,
 				use_gravatar tinyint(2) NOT NULL,
 				last_updated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
 				log_message VARCHAR(255),
-				PRIMARY KEY  (id)
-			) {$wpdb->get_charset_collate()};"; // Why does wpdb need two spaces here???
+				PRIMARY KEY (id),
+				UNIQUE email (email)
+			) {$wpdb->get_charset_collate()};";
 
 		$result = dbDelta( $sql );
 		if ( ! empty( $result ) && ! empty( $result[ $table_name ] ) ) {
