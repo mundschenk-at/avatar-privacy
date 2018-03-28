@@ -107,7 +107,7 @@ class Setup implements \Avatar_Privacy\Component {
 	 * Handles plugin deactivation.
 	 */
 	public function deactivate() {
-
+		self::reset_avatar_default( $this->options );
 	}
 
 	/**
@@ -127,13 +127,7 @@ class Setup implements \Avatar_Privacy\Component {
 
 		// Delete/change options for main blog.
 		$options->delete( \Avatar_Privacy_Core::SETTINGS_NAME );
-		switch ( $options->get( 'avatar_default', null, true ) ) {
-			case 'comment':
-			case 'im-user-offline':
-			case 'view-media-artist':
-				$options->set( 'avatar_default', 'mystery', true, true );
-				break;
-		}
+		self::reset_avatar_default( $options );
 
 		// Delete/change options for all other blogs (multisite).
 		if ( is_multisite() ) {
@@ -144,13 +138,7 @@ class Setup implements \Avatar_Privacy\Component {
 				$options->delete( \Avatar_Privacy_Core::SETTINGS_NAME );
 
 				// Reset avatar_default to working value if necessary.
-				switch ( $options->get( 'avatar_default', null, true ) ) {
-					case 'comment':
-					case 'im-user-offline':
-					case 'view-media-artist':
-						$options->set( 'avatar_default', 'mystery', true, true );
-						break;
-				}
+				self::reset_avatar_default( $options );
 
 				restore_current_blog();
 			}
@@ -169,6 +157,21 @@ class Setup implements \Avatar_Privacy\Component {
 			foreach ( $transients->get_keys_from_database() as $key ) {
 				$transients->delete( $key, true );
 			}
+		}
+	}
+
+	/**
+	 * Resets the `avatar_default` option to a safe value.
+	 *
+	 * @param Options $options The Options handler.
+	 */
+	private static function reset_avatar_default( Options $options ) {
+		switch ( $options->get( 'avatar_default', null, true ) ) {
+			case 'comment':
+			case 'im-user-offline':
+			case 'view-media-artist':
+				$options->set( 'avatar_default', 'mystery', true, true );
+				break;
 		}
 	}
 }
