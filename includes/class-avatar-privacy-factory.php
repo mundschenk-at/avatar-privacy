@@ -25,13 +25,13 @@
 
 use Dice\Dice;
 
-use Mundschenk\Data_Storage\Cache;
-use Mundschenk\Data_Storage\Options;
-use Mundschenk\Data_Storage\Network_Options;
-use Mundschenk\Data_Storage\Transients;
-use Mundschenk\Data_Storage\Site_Transients;
-
 use Avatar_Privacy\Components\Setup;
+
+use Avatar_Privace\Data_Storage\Cache;
+use Avatar_Privace\Data_Storage\Options;
+use Avatar_Privace\Data_Storage\Network_Options;
+use Avatar_Privace\Data_Storage\Transients;
+use Avatar_Privace\Data_Storage\Site_Transients;
 
 /**
  * A factory for creating Avatar_Privacy instances via dependency injection.
@@ -41,9 +41,6 @@ use Avatar_Privacy\Components\Setup;
  * @author Peter Putzer <github@mundschenk.at>
  */
 abstract class Avatar_Privacy_Factory {
-	const PREFIX      = 'avatar_privacy_';
-	const CACHE_GROUP = 'avatar_privacy';
-
 	/**
 	 * The factory instance.
 	 *
@@ -64,24 +61,19 @@ abstract class Avatar_Privacy_Factory {
 
 			// Shared helpers.
 			self::$factory->addRule( Cache::class, [
-				'shared'          => true,
-				'constructParams' => [ self::PREFIX, self::CACHE_GROUP ],
+				'shared' => true,
 			] );
 			self::$factory->addRule( Transients::class, [
-				'shared'          => true,
-				'constructParams' => [ self::PREFIX ],
+				'shared' => true,
 			] );
 			self::$factory->addRule( Site_Transients::class, [
-				'shared'          => true,
-				'constructParams' => [ self::PREFIX ],
+				'shared' => true,
 			] );
 			self::$factory->addRule( Options::class, [
-				'shared'          => true,
-				'constructParams' => [ self::PREFIX ],
+				'shared' => true,
 			] );
 			self::$factory->addRule( Network_Options::class, [
-				'shared'          => true,
-				'constructParams' => [ self::PREFIX ],
+				'shared' => true,
 			] );
 
 			// Load version from plugin data.

@@ -24,9 +24,9 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-use Mundschenk\Data_Storage\Cache;
-use Mundschenk\Data_Storage\Options;
-use Mundschenk\Data_Storage\Transients;
+use Avatar_Privacy\Data_Storage\Cache;
+use Avatar_Privacy\Data_Storage\Options;
+use Avatar_Privacy\Data_Storage\Transients;
 
 /**
  * Core class of the Avatar Privacy plugin. Contains all the actual code

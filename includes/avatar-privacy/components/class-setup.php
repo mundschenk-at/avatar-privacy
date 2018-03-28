@@ -26,9 +26,9 @@
 
 namespace Avatar_Privacy\Components;
 
-use Mundschenk\Data_Storage\Options;
-use Mundschenk\Data_Storage\Site_Transients;
-use Mundschenk\Data_Storage\Transients;
+use Avatar_Privacy\Data_Storage\Options;
+use Avatar_Privacy\Data_Storage\Site_Transients;
+use Avatar_Privacy\Data_Storage\Transients;
 
 /**
  * Handles plugin activation, deactivation and uninstallation.

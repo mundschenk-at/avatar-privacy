@@ -24,7 +24,7 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-use Mundschenk\Data_Storage\Options;
+use Avatar_Privacy\Data_Storage\Options;
 
 /**
  * Options class of the Avatar Privacy plugin. Contains all code for the
