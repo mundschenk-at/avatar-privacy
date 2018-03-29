@@ -298,7 +298,6 @@ class Avatar_Privacy_Core {
 				$use_default = '' === $show_avatar;
 			} else {
 				// For comments get the value from the plugin's table.
-				$this->maybe_create_table(); // Make sure our database table exists.
 				$current_value = $this->load_data( $email );
 				$show_avatar   = $current_value && ( '1' === $current_value->use_gravatar );
 				$use_default   = empty( $current_value );
@@ -416,9 +415,6 @@ class Avatar_Privacy_Core {
 			// and rather entered their details manually. Either way, don't save anything.
 			return;
 		}
-
-		// Make sure the database table exists.
-		$this->maybe_create_table();
 
 		// Save the 'use gravatar' value.
 		$use_gravatar  = ( isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) && ( 'true' === $_POST[ self::CHECKBOX_FIELD_NAME ] ) ) ? '1' : '0'; // WPCS: CSRF ok, Input var okay.
@@ -557,53 +553,18 @@ class Avatar_Privacy_Core {
 		return $result;
 	}
 
+	/**
+	 * Retrieves the plugin version.
+	 *
+	 * @var string
+	 */
+	public function get_version() {
+		return $this->version;
+	}
 
 	// --------------------------------------------------------------------------
 	// private functions
 	// --------------------------------------------------------------------------
-	/**
-	 * Creates the plugin's database table if it doesn't already exist. The
-	 * table is created as a global table for multisite installations. Makes the
-	 * name of the table available through $wpdb->avatar_privacy.
-	 */
-	private function maybe_create_table() {
-		global $wpdb;
-
-		// Check if the table exists.
-		if ( property_exists( $wpdb, 'avatar_privacy' ) ) {
-			return;
-		}
-
-		// Set up table name.
-		$table_name = $wpdb->base_prefix . 'avatar_privacy';
-
-		// Fix $wpdb object if table already exists.
-		$result = $wpdb->get_var( $wpdb->prepare( 'SHOW tables LIKE %s', $table_name ) ); // WPCS: db call ok, cache ok.
-		if ( $result === $table_name ) {
-			$wpdb->avatar_privacy = $table_name;
-			return;
-		}
-
-		// Load upgrade.php for the dbDelta function.
-		require_once ABSPATH . '/wp-admin/includes/upgrade.php';
-
-		// Create the plugin's table.
-		$sql = "CREATE TABLE {$table_name} (
-				id mediumint(9) NOT NULL AUTO_INCREMENT,
-				email VARCHAR(100) NOT NULL,
-				use_gravatar tinyint(2) NOT NULL,
-				last_updated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-				log_message VARCHAR(255),
-				PRIMARY KEY (id),
-				UNIQUE email (email)
-			) {$wpdb->get_charset_collate()};";
-
-		$result = dbDelta( $sql );
-		if ( ! empty( $result ) && ! empty( $result[ $table_name ] ) ) {
-			$wpdb->avatar_privacy = $table_name;
-		}
-	}
-
 	/**
 	 * Returns the dataset from the 'use gravatar' table for the given E-Mail
 	 * address.

@@ -94,6 +94,16 @@ class Setup implements \Avatar_Privacy\Component {
 		\register_activation_hook( $this->plugin_file,   [ $this, 'activate' ] );
 		\register_deactivation_hook( $this->plugin_file, [ $this, 'deactivate' ] );
 		\register_uninstall_hook( $this->plugin_file,    [ __CLASS__, 'uninstall' ] );
+
+		// Update settings and database if necessary.
+		\add_action( 'plugins_loaded', [ $this, 'update_check' ] );
+	}
+
+	/**
+	 * Checks if the default settings or database schema need to be upgraded.
+	 */
+	public function update_check() {
+		$this->maybe_create_table();
 	}
 
 	/**
@@ -172,6 +182,49 @@ class Setup implements \Avatar_Privacy\Component {
 			case 'view-media-artist':
 				$options->set( 'avatar_default', 'mystery', true, true );
 				break;
+		}
+	}
+
+	/**
+	 * Creates the plugin's database table if it doesn't already exist. The
+	 * table is created as a global table for multisite installations. Makes the
+	 * name of the table available through $wpdb->avatar_privacy.
+	 */
+	private function maybe_create_table() {
+		global $wpdb;
+
+		// Check if the table exists.
+		if ( property_exists( $wpdb, 'avatar_privacy' ) ) {
+			return;
+		}
+
+		// Set up table name.
+		$table_name = $wpdb->base_prefix . 'avatar_privacy';
+
+		// Fix $wpdb object if table already exists.
+		$result = $wpdb->get_var( $wpdb->prepare( 'SHOW tables LIKE %s', $table_name ) ); // WPCS: db call ok, cache ok.
+		if ( $result === $table_name ) {
+			$wpdb->avatar_privacy = $table_name;
+			return;
+		}
+
+		// Load upgrade.php for the dbDelta function.
+		require_once ABSPATH . '/wp-admin/includes/upgrade.php';
+
+		// Create the plugin's table.
+		$sql = "CREATE TABLE {$table_name} (
+				id mediumint(9) NOT NULL AUTO_INCREMENT,
+				email VARCHAR(100) NOT NULL,
+				use_gravatar tinyint(2) NOT NULL,
+				last_updated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+				log_message VARCHAR(255),
+				PRIMARY KEY (id),
+				UNIQUE email (email)
+			) {$wpdb->get_charset_collate()};";
+
+		$result = dbDelta( $sql );
+		if ( ! empty( $result ) && ! empty( $result[ $table_name ] ) ) {
+			$wpdb->avatar_privacy = $table_name;
 		}
 	}
 }
