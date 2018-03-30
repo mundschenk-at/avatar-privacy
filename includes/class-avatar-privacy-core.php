@@ -176,25 +176,25 @@ class Avatar_Privacy_Core {
 	 */
 	public function plugins_loaded() {
 		// Add new default avatars.
-		add_filter( 'avatar_defaults', array( &$this, 'avatar_defaults' ) );
+		add_filter( 'avatar_defaults', [ $this, 'avatar_defaults' ] );
 
 		// Read the plugin settings.
 		$this->settings = $this->options->get( self::SETTINGS_NAME, [] );
 
 		// New default image display: filter the gravatar image upon display.
-		add_filter( 'get_avatar', array( &$this, 'get_avatar' ), 10, 5 );
+		add_filter( 'get_avatar', [ $this, 'get_avatar' ], 10, 5 );
 
 		// Add the checkbox to the comment form.
-		add_filter( 'comment_form_default_fields', array( &$this, 'comment_form_default_fields' ) );
+		add_filter( 'comment_form_default_fields', [ $this, 'comment_form_default_fields' ] );
 
 		// Handle the checkbox data upon saving the comment.
-		add_action( 'comment_post', array( &$this, 'comment_post' ), 10, 2 );
+		add_action( 'comment_post', [ $this, 'comment_post' ], 10, 2 );
 		if ( is_admin() ) {
 			// Add the checkbox to the user profile form if we're in the WP backend.
-			add_action( 'show_user_profile', array( &$this, 'add_user_profile_fields' ) );
-			add_action( 'edit_user_profile', array( &$this, 'add_user_profile_fields' ) );
-			add_action( 'personal_options_update', array( &$this, 'save_user_profile_fields' ) );
-			add_action( 'edit_user_profile_update', array( &$this, 'save_user_profile_fields' ) );
+			add_action( 'show_user_profile', [ $this, 'add_user_profile_fields' ] );
+			add_action( 'edit_user_profile', [ $this, 'add_user_profile_fields' ] );
+			add_action( 'personal_options_update', [ $this, 'save_user_profile_fields' ] );
+			add_action( 'edit_user_profile_update', [ $this, 'save_user_profile_fields' ] );
 		}
 	}
 
