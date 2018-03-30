@@ -146,7 +146,7 @@ function avapr_get_avatar_checkbox() {
 	}
 
 	$settings = get_option( Avatar_Privacy_Core::SETTINGS_NAME );
-	if ( ! $settings || ! is_array( $settings ) || ( count( $settings ) === 0 ) ) {
+	if ( empty( $settings ) ) {
 		return;
 	}
 	$result = $core->comment_form_default_fields( null );

@@ -256,7 +256,8 @@ class Avatar_Privacy_Core {
 
 		// Don't change anything on the discussion settings page, except for our own new gravatars.
 		$on_settings_page = 'options-discussion.php' === $pagenow;
-		if ( $on_settings_page && ! array_key_exists( $default, $this->default_avatars() ) ) {
+		$default_avatars  = $this->default_avatars();
+		if ( $on_settings_page && ! isset( $default_avatars[ $default ] ) ) {
 			return $avatar;
 		}
 
@@ -320,7 +321,7 @@ class Avatar_Privacy_Core {
 
 		// New default avatars: replace avatar name with image URL.
 		$default_name    = preg_match( '#http://\d+.gravatar.com/avatar/\?d=([^&]+)&#', $default, $matches ) ? $matches[1] : $default;
-		$default_changed = array_key_exists( $default_name, $this->default_avatars() );
+		$default_changed = isset( $default_avatars[ $default_name ] );
 		if ( $default_changed ) {
 			$old_default = $default_name;
 			$default     = $this->get_default_avatar_url( $default_name, $size );
@@ -368,8 +369,8 @@ class Avatar_Privacy_Core {
 		. '</p>';
 
 		// Either add the new field after the E-Mail field or at the end of the array.
-		if ( is_array( $fields ) && array_key_exists( 'email', $fields ) ) {
-			$result = array();
+		if ( isset( $fields['email'] ) ) {
+			$result = [];
 			foreach ( $fields as $key => $value ) {
 				$result[ $key ] = $value;
 				if ( 'email' === $key ) {
