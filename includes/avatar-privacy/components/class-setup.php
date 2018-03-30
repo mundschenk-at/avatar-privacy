@@ -67,6 +67,13 @@ class Setup implements \Avatar_Privacy\Component {
 	private $site_transients;
 
 	/**
+	 * The plugin version.
+	 *
+	 * @var string
+	 */
+	private $version;
+
+	/**
 	 * Creates a new Setup instance.
 	 *
 	 * @param string          $plugin_file     The full path to the base plugin file.
@@ -89,6 +96,7 @@ class Setup implements \Avatar_Privacy\Component {
 	 * @return void
 	 */
 	public function run( \Avatar_Privacy_Core $core ) {
+		$this->version = $core->get_version();
 
 		// Register various hooks.
 		\register_activation_hook( $this->plugin_file,   [ $this, 'activate' ] );
@@ -103,7 +111,28 @@ class Setup implements \Avatar_Privacy\Component {
 	 * Checks if the default settings or database schema need to be upgraded.
 	 */
 	public function update_check() {
-		$this->maybe_create_table();
+		$settings = $this->options->get( \Avatar_Privacy_Core::SETTINGS_NAME );
+
+		// We can ignore errors here, just carry on as if for a new installation.
+		$installed_version = empty( $settings['installed_version'] ) ? '' : $settings['installed_version'];
+
+		if ( $this->version !== $installed_version ) {
+			$this->plugin_updated( $installed_version );
+		}
+
+		$this->maybe_create_table( $installed_version );
+	}
+
+	/**
+	 * Upgrade plugin data.
+	 *
+	 * @param string $previous_version The version we are upgrading from.
+	 */
+	private function plugin_updated( $previous_version ) {
+		// Upgrade from version 0.3 or lower.
+		if ( \version_compare( $previous_version, '0.4', '<' ) ) {
+			// Run upgrade command.
+		}
 	}
 
 	/**
@@ -189,8 +218,10 @@ class Setup implements \Avatar_Privacy\Component {
 	 * Creates the plugin's database table if it doesn't already exist. The
 	 * table is created as a global table for multisite installations. Makes the
 	 * name of the table available through $wpdb->avatar_privacy.
+	 *
+	 * @param string $previous_version The previously installed plugin version.
 	 */
-	private function maybe_create_table() {
+	private function maybe_create_table( $previous_version ) {
 		global $wpdb;
 
 		// Check if the table exists.
