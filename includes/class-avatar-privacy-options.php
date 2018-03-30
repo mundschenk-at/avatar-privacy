@@ -78,9 +78,6 @@ class Avatar_Privacy_Options implements \Avatar_Privacy\Component {
 		// Add a section for the 'check for gravatar' mode to the avatar options.
 		add_settings_section( 'avatar_privacy_section', __( 'Avatar Privacy', 'avatar-privacy' ) . '<span id="section_avatar_privacy"></span>', [ $this, 'output_settings_header' ], 'discussion' );
 		add_settings_field( 'avatar_privacy_checkforgravatar', __( 'Check for gravatars', 'avatar-privacy' ),        [ $this, 'output_checkforgravatar_setting' ], 'discussion', 'avatar_privacy_section' );
-		add_settings_field( 'avatar_privacy_optin',            __( 'Opt in or out of gravatars', 'avatar-privacy' ), [ $this, 'output_optin_setting' ],            'discussion', 'avatar_privacy_section' );
-		add_settings_field( 'avatar_privacy_checkbox_default', __( 'The checkbox is...', 'avatar-privacy' ),         [ $this, 'output_checkbox_default_setting' ], 'discussion', 'avatar_privacy_section' );
-		add_settings_field( 'avatar_privacy_default_show',     __( 'Default value', 'avatar-privacy' ),              [ $this, 'output_default_show_setting' ],     'discussion', 'avatar_privacy_section' );
 		// We save all settings in one variable in the database table; also adds a validation method.
 		register_setting( 'discussion', $this->options->get_name( Avatar_Privacy_Core::SETTINGS_NAME ), [ $this, 'validate_settings' ] );
 	}
@@ -94,9 +91,6 @@ class Avatar_Privacy_Options implements \Avatar_Privacy\Component {
 	public function validate_settings( $input ) {
 		// Validate the settings.
 		$newinput['mode_checkforgravatar'] = (int) ! empty( $input['mode_checkforgravatar'] );
-		$newinput['mode_optin']            = (int) ! empty( $input['mode_optin'] );
-		$newinput['checkbox_default']      = (int) ! empty( $input['checkbox_default'] );
-		$newinput['default_show']          = (int) ! empty( $input['default_show'] );
 
 		// Check if the headers function works on the server (use MD5 of mystery default image).
 		if ( ! empty( $newinput['mode_checkforgravatar'] ) ) {
@@ -129,32 +123,5 @@ class Avatar_Privacy_Options implements \Avatar_Privacy\Component {
 		$options = $this->options->get( Avatar_Privacy_Core::SETTINGS_NAME, [ 'mode_checkforgravatar' => false ] );
 
 		require dirname( __DIR__ ) . '/admin/partials/settings/check-for-gravatar.php';
-	}
-
-	/**
-	 * Outputs the elements for the 'optin' setting.
-	 */
-	public function output_optin_setting() {
-		$options = $this->options->get( Avatar_Privacy_Core::SETTINGS_NAME, [ 'mode_optin' => false ] );
-
-		require dirname( __DIR__ ) . '/admin/partials/settings/optin.php';
-	}
-
-	/**
-	 * Outputs the elements for the 'checkbox default' setting.
-	 */
-	public function output_checkbox_default_setting() {
-		$options = $this->options->get( Avatar_Privacy_Core::SETTINGS_NAME, [ 'checkbox_default' => false ] );
-
-		require dirname( __DIR__ ) . '/admin/partials/settings/checkbox-default.php';
-	}
-
-	/**
-	 * Outputs the elements for the 'default show' setting.
-	 */
-	public function output_default_show_setting() {
-		$options = $this->options->get( Avatar_Privacy_Core::SETTINGS_NAME, [ 'default_show' => false ] );
-
-		require dirname( __DIR__ ) . '/admin/partials/settings/default-show.php';
 	}
 }

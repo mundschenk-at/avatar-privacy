@@ -181,22 +181,20 @@ class Avatar_Privacy_Core {
 		// Read the plugin settings.
 		$this->settings = $this->options->get( self::SETTINGS_NAME, [] );
 
-		// Mode 1 + mode 2 + new default image display: filter the gravatar image upon display.
+		// New default image display: filter the gravatar image upon display.
 		add_filter( 'get_avatar', array( &$this, 'get_avatar' ), 10, 5 );
 
-		// Mode 2.
-		if ( ! empty( $this->settings['mode_optin'] ) ) {
-			// Add the checkbox to the comment form.
-			add_filter( 'comment_form_default_fields', array( &$this, 'comment_form_default_fields' ) );
-			// Handle the checkbox data upon saving the comment.
-			add_action( 'comment_post', array( &$this, 'comment_post' ), 10, 2 );
-			if ( is_admin() ) {
-				// Add the checkbox to the user profile form if we're in the WP backend.
-				add_action( 'show_user_profile', array( &$this, 'add_user_profile_fields' ) );
-				add_action( 'edit_user_profile', array( &$this, 'add_user_profile_fields' ) );
-				add_action( 'personal_options_update', array( &$this, 'save_user_profile_fields' ) );
-				add_action( 'edit_user_profile_update', array( &$this, 'save_user_profile_fields' ) );
-			}
+		// Add the checkbox to the comment form.
+		add_filter( 'comment_form_default_fields', array( &$this, 'comment_form_default_fields' ) );
+
+		// Handle the checkbox data upon saving the comment.
+		add_action( 'comment_post', array( &$this, 'comment_post' ), 10, 2 );
+		if ( is_admin() ) {
+			// Add the checkbox to the user profile form if we're in the WP backend.
+			add_action( 'show_user_profile', array( &$this, 'add_user_profile_fields' ) );
+			add_action( 'edit_user_profile', array( &$this, 'add_user_profile_fields' ) );
+			add_action( 'personal_options_update', array( &$this, 'save_user_profile_fields' ) );
+			add_action( 'edit_user_profile_update', array( &$this, 'save_user_profile_fields' ) );
 		}
 	}
 
@@ -289,8 +287,8 @@ class Avatar_Privacy_Core {
 			$email = $id_or_email;
 		}
 
-		// Mode 2: find out if the user opted out of displaying a gravatar.
-		if ( ! empty( $this->settings['mode_optin'] ) && ( $user_id || $email ) ) {
+		// Find out if the user opted out of displaying a gravatar.
+		if ( $user_id || $email ) {
 			$use_default = false;
 			if ( $user_id ) {
 				// For users get the value from the usermeta table.
@@ -303,20 +301,19 @@ class Avatar_Privacy_Core {
 				$use_default   = empty( $current_value );
 			}
 			if ( $use_default ) {
-				$show_avatar = ! empty( $this->settings['default_show'] ); // false as fallback if the default option is not set.
+				$show_avatar = ! empty( $this->settings['default_show'] ); // Default settings are legacy-only.
 			}
 		}
 
-		// Mode 1: check if a gravatar exists for the E-Mail address.
+		// Check if a gravatar exists for the E-Mail address.
 		if ( $show_avatar && ! empty( $this->settings['mode_checkforgravatar'] ) && $email && ! $this->validate_gravatar( $email ) ) {
 			$show_avatar = false;
 		} elseif ( ! $email ) {
 			$show_avatar = false;
 		}
 
-		// Mode 1 + 2: change the default image if dynamic defaults are configured.
-		if ( ! $show_avatar && $this->is_default_avatar_dynamic()
-			&& ( ! empty( $this->settings['mode_checkforgravatar'] ) || ! empty( $this->settings['mode_optin'] ) ) ) {
+		// Change the default image if dynamic defaults are configured.
+		if ( ! $show_avatar && $this->is_default_avatar_dynamic() ) {
 			// Use blank image here, dynamic default images would leak the MD5.
 			$default = includes_url( 'images/blank.gif' );
 		}
@@ -357,15 +354,13 @@ class Avatar_Privacy_Core {
 		}
 
 		// Define the new checkbox field.
+		$is_checked = false;
 		if ( isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) ) { // WPCS: CSRF ok, Input var okay.
 			// Re-displaying the comment form with validation errors.
 			$is_checked = ! empty( $_POST[ self::CHECKBOX_FIELD_NAME ] ); // WPCS: CSRF ok, Input var okay.
 		} elseif ( isset( $_COOKIE[ 'comment_use_gravatar_' . COOKIEHASH ] ) ) { // Input var okay.
 			// Read the value from the cookie, saved with previous comment.
 			$is_checked = ! empty( $_COOKIE[ 'comment_use_gravatar_' . COOKIEHASH ] ); // Input var okay.
-		} else {
-			// Read the value from the options.
-			$is_checked = ! empty( $this->settings['checkbox_default'] );
 		}
 		$new_field = '<p class="comment-form-use-gravatar">'
 		. '<input id="' . self::CHECKBOX_FIELD_NAME . '" name="' . self::CHECKBOX_FIELD_NAME . '" type="checkbox" value="true"' . checked( $is_checked, true, false ) . ' style="width: auto; margin-right: 5px;" />'
@@ -458,8 +453,7 @@ class Avatar_Privacy_Core {
 	 * @param object $user The current user whose profile to modify.
 	 */
 	public function add_user_profile_fields( $user ) {
-		$val = get_the_author_meta( self::CHECKBOX_FIELD_NAME, $user->ID );
-		$val = '' !== $val ? (bool) $val : ! empty( $this->settings['checkbox_default'] );
+		$val = (bool) get_the_author_meta( self::CHECKBOX_FIELD_NAME, $user->ID );
 
 		require dirname( __DIR__ ) . '/admin/partials/profile/use-gravatar.php';
 	}
