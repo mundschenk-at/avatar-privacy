@@ -42,4 +42,19 @@ class Options extends \Mundschenk\Data_Storage\Options {
 	public function __construct() {
 		parent::__construct( self::PREFIX );
 	}
+
+	/**
+	 * Retrieves the default settings.
+	 *
+	 * @return array
+	 */
+	public static function get_default_settings() {
+		return [
+			'mode_optin'            => true,
+			'use_gravatar'          => true,
+			'mode_checkforgravatar' => true,
+			'default_show'          => false,
+			'checkbox_default'      => false,
+		];
+	}
 }
