@@ -66,6 +66,13 @@ class Avatar_Privacy_Core {
 	private $settings = array();
 
 	/**
+	 * The full path to the main plugin file.
+	 *
+	 * @var string
+	 */
+	private $plugin_file;
+
+	/**
 	 * A cache for the results of the validate_gravatar function.
 	 *
 	 * @var array
@@ -157,16 +164,18 @@ class Avatar_Privacy_Core {
 	 * Creates a Avatar_Privacy_Core instance and registers all necessary hooks
 	 * and filters for the plugin.
 	 *
+	 * @param string     $plugin_file The full path to the base plugin file.
 	 * @param string     $version     The full plugin version string (e.g. "3.0.0-beta.2").
 	 * @param Transients $transients  Required.
 	 * @param Cache      $cache       Required.
 	 * @param Options    $options     Required.
 	 */
-	public function __construct( $version, Transients $transients, Cache $cache, Options $options ) {
-		$this->version    = $version;
-		$this->transients = $transients;
-		$this->cache      = $cache;
-		$this->options    = $options;
+	public function __construct( $plugin_file, $version, Transients $transients, Cache $cache, Options $options ) {
+		$this->plugin_file = $plugin_file;
+		$this->version     = $version;
+		$this->transients  = $transients;
+		$this->cache       = $cache;
+		$this->options     = $options;
 
 		add_action( 'plugins_loaded', [ $this, 'plugins_loaded' ] );
 	}
@@ -594,7 +603,7 @@ class Avatar_Privacy_Core {
 	 */
 	private function get_default_avatar_url( $default, $size ) {
 		$use_size = ( $size > 64 ) ? '128' : '64';
-		return plugins_url( '../public/images/' . $default . '-' . $use_size . '.png', __FILE__ ) . '?s=' . $size;
+		return plugins_url( 'public/images/' . $default . '-' . $use_size . '.png', $this->plugin_file ) . '?s=' . $size;
 	}
 
 	/**
