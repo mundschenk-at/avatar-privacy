@@ -182,7 +182,7 @@ class Avatar_Privacy_Core {
 		$this->settings = $this->options->get( self::SETTINGS_NAME, [] );
 
 		// New default image display: filter the gravatar image upon display.
-		add_filter( 'get_avatar', [ $this, 'get_avatar' ], 10, 5 );
+		add_filter( 'get_avatar_url', [ $this, 'get_avatar_url' ], 10, 3 );
 
 		// Add the checkbox to the comment form.
 		add_filter( 'comment_form_default_fields', [ $this, 'comment_form_default_fields' ] );
@@ -234,58 +234,56 @@ class Avatar_Privacy_Core {
 
 	/**
 	 * Before displaying an avatar image, checks that displaying the gravatar
-	 * for this E-Mail address has not been disabled (opted out, option 2).
-	 * Also, if option 1 is selected ("Don't publish encrypted E-Mail addresses
-	 * for non-members of Gravatar."), the function checks if a gravatar is
-	 * available for the E-Mail address and if not, it displays the default image
-	 * directly.
+	 * for this e-mail address has been enabled (opted-in). Also, if the option
+	 * "Don't publish encrypted E-Mail addresses for non-members of Gravatar." is
+	 * enabled, the function checks if a gravatar is actually available for the
+	 * e-mail address. If not, it displays the default image directly.
 	 *
-	 * @param string            $avatar The avatar image HTML fragment as built by the
-	 *                          WordPress function.
-	 * @param int|string|object $id_or_email Either a user ID, a user object, a
-	 *                          comment object, or an E-Mail address.
-	 * @param int               $size The size of the avatar image in pixels.
-	 * @param string            $default The URL of the default image.
-	 * @param string            $alt The alternate text to use in the image tag.
+	 * @param  string            $url         The URL of the avatar.
+	 * @param  int|string|object $id_or_email The Gravatar to retrieve. Accepts a user_id, gravatar md5 hash, user email, WP_User object, WP_Post object, or WP_Comment object.
+	 * @param  array             $args        Arguments passed to get_avatar_data(), after processing.
 	 *
-	 * @return string The avatar image HTML code for the user's avatar.
+	 * @return string
 	 */
-	public function get_avatar( $avatar, $id_or_email, $size, $default, $alt ) {
+	public function get_avatar_url( $url, $id_or_email, $args ) {
 		global $pagenow;
-		$show_avatar = true; // Since this filter function has been called, WP option 'show_avatars' must be set to true.
 
 		// Don't change anything on the discussion settings page, except for our own new gravatars.
 		$on_settings_page = 'options-discussion.php' === $pagenow;
 		$default_avatars  = $this->default_avatars();
-		if ( $on_settings_page && ! isset( $default_avatars[ $default ] ) ) {
-			return $avatar;
-		}
 
-		// Get the E-Mail address and the user ID to display the gravatar for.
+		// Process the user identifier.
 		$email   = '';
 		$user_id = false;
 		if ( is_numeric( $id_or_email ) ) {
-			// Load from user via ID.
-			$user_id = (int) $id_or_email;
-			$user    = get_userdata( $user_id );
-			if ( $user ) {
-				$email = $user->user_email;
+			$user_id = absint( $id_or_email );
+		} elseif ( is_string( $id_or_email ) ) {
+			if ( strpos( $id_or_email, '@md5.gravatar.com' ) ) {
+				// MD5 hash.
+				list( $email_hash ) = explode( '@', $id_or_email );
+			} else {
+				// Email address.
+				$email = $id_or_email;
 			}
-		} elseif ( is_object( $id_or_email ) ) {
+		} elseif ( $id_or_email instanceof WP_User ) {
+			// User object.
+			$user_id = $id_or_email->ID;
+		} elseif ( $id_or_email instanceof WP_Post ) {
+			// Post object.
+			$user_id = (int) $id_or_email->post_author;
+		} elseif ( $id_or_email instanceof WP_Comment ) {
+			/** This filter is documented in wp-includes/pluggable.php */
+			$allowed_comment_types = apply_filters( 'get_avatar_comment_types', [ 'comment' ] );
+			if ( ! empty( $id_or_email->comment_type ) && ! in_array( $id_or_email->comment_type, (array) $allowed_comment_types, true ) ) {
+				return $url;
+			}
+
 			if ( ! empty( $id_or_email->user_id ) ) {
-				// Load from either a user or an author comment object.
 				$user_id = (int) $id_or_email->user_id;
-				$user    = get_userdata( $user_id );
-				if ( $user ) {
-					$email = $user->user_email;
-				}
-			} elseif ( ! empty( $id_or_email->comment_author_email ) ) {
-				// Load from comment.
+			}
+			if ( ! $user_id && ! empty( $id_or_email->comment_author_email ) ) {
 				$email = $id_or_email->comment_author_email;
 			}
-		} else {
-			// Load string directly.
-			$email = $id_or_email;
 		}
 
 		// Find out if the user opted out of displaying a gravatar.
@@ -320,24 +318,19 @@ class Avatar_Privacy_Core {
 		}
 
 		// New default avatars: replace avatar name with image URL.
-		$default_name    = preg_match( '#http://\d+.gravatar.com/avatar/\?d=([^&]+)&#', $default, $matches ) ? $matches[1] : $default;
-		$default_changed = isset( $default_avatars[ $default_name ] );
-		if ( $default_changed ) {
-			$old_default = $default_name;
-			$default     = $this->get_default_avatar_url( $default_name, $size );
-		}
+		$is_avatar_privacy_default = isset( $default_avatars[ $args['default'] ] );
+		$new_url                   = $this->get_default_avatar_url( $args['default'], $args['size'] );
 
 		// Modify the avatar URL.
-		$settings_page_first_load = $on_settings_page && empty( $this->settings );
-		if ( ! $show_avatar || $settings_page_first_load ) {
-			// Display the default avatar instead of the avatar for the E-Mail address.
-			$avatar = $this->replace_avatar_url( $avatar, $default, $size, $email );
-		} elseif ( $default_changed ) {
+		if ( ! $on_settings_page && ! $show_avatar || $on_settings_page && $is_avatar_privacy_default ) {
+			// Display the default avatar instead of the avatar for the e-mail address.
+			$url = $new_url;
+		} elseif ( $is_avatar_privacy_default ) {
 			// Change the default avatar in the given URL (for users who opted in to gravatars but don't have one).
-			$avatar = str_replace( 'd=' . $old_default, 'd=' . $default, $avatar );
+			$url = str_replace( "d={$args['default']}", "d={$new_url}", $url );
 		}
 
-		return $avatar;
+		return $url;
 	}
 
 	/**
