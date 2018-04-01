@@ -81,6 +81,6 @@ abstract class Abstract_Icon_Provider implements Icon_Provider {
 	 * @return string
 	 */
 	public function hash( $email, $salt = '' ) {
-		return \hash( 'sha256', "{$salt}{$hash}" );
+		return \hash( 'sha256', "{$salt}{$email}" );
 	}
 }
