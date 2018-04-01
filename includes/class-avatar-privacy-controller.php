@@ -25,6 +25,7 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
+use Avatar_Privacy\Components\Default_Icons;
 use Avatar_Privacy\Components\Setup;
 
 /**
@@ -54,11 +55,13 @@ class Avatar_Privacy_Controller {
 	 * @param Avatar_Privacy_Core    $core     The core API.
 	 * @param Avatar_Privacy_Options $settings The settings page.
 	 * @param Setup                  $setup    The (de-)activation/uninstallation handling.
+	 * @param Default_Icons          $icons    The default icon handler.
 	 */
-	public function __construct( Avatar_Privacy_Core $core, Avatar_Privacy_Options $settings, Setup $setup ) {
+	public function __construct( Avatar_Privacy_Core $core, Avatar_Privacy_Options $settings, Setup $setup, Default_Icons $icons ) {
 		$this->core         = $core;
 		$this->components[] = $setup;
 		$this->components[] = $settings;
+		$this->components[] = $icons;
 	}
 
 	/**

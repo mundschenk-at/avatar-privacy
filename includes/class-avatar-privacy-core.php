@@ -329,7 +329,7 @@ class Avatar_Privacy_Core {
 
 		// New default avatars: replace avatar name with image URL.
 		$is_avatar_privacy_default = isset( $default_avatars[ $args['default'] ] );
-		$new_url                   = $this->get_default_avatar_url( $args['default'], $args['size'] );
+		$new_url                   = $this->get_default_avatar_url( $email, $args['default'], $args['size'] );
 
 		// Modify the avatar URL.
 		if ( ! $on_settings_page && ! $show_avatar || $on_settings_page && $is_avatar_privacy_default ) {
@@ -606,14 +606,14 @@ class Avatar_Privacy_Core {
 	 * Returns an image URL for the given default avatar identifier. The images
 	 * are taken from the "images" sub-folder in the plugin folder.
 	 *
-	 * @param string $default The default avatar image identifier.
-	 * @param int    $size    The size of the avatar image in pixels.
+	 * @param  string $email   The mail address used to generate the identity hash.
+	 * @param  string $default The default avatar image identifier.
+	 * @param  int    $size    The size of the avatar image in pixels.
 	 *
 	 * @return string The full default avatar image URL.
 	 */
-	private function get_default_avatar_url( $default, $size ) {
-		$use_size = ( $size > 64 ) ? '128' : '64';
-		return plugins_url( 'public/images/' . $default . '-' . $use_size . '.png', $this->plugin_file ) . '?s=' . $size;
+	private function get_default_avatar_url( $email, $default, $size ) {
+		return apply_filters( 'avatar_privay_default_icon_url', \includes_url( 'images/blank.gif' ), $email, $default, $size );
 	}
 
 	/**
