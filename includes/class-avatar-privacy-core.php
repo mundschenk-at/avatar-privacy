@@ -560,6 +560,15 @@ class Avatar_Privacy_Core {
 		return $this->version;
 	}
 
+	/**
+	 * Retrieves the full path to the main plugin file.
+	 *
+	 * @return string
+	 */
+	public function get_plugin_file() {
+		return $this->plugin_file;
+	}
+
 	// --------------------------------------------------------------------------
 	// private functions
 	// --------------------------------------------------------------------------
