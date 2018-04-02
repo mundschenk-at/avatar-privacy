@@ -156,7 +156,7 @@ class Setup implements \Avatar_Privacy\Component {
 	public static function uninstall() {
 		global $wpdb;
 
-		$options = new Options( 'avatar_privacy_' );
+		$options = new Options();
 
 		// Drop global table.
 		$table_name = $wpdb->base_prefix . 'avatar_privacy';
@@ -187,13 +187,13 @@ class Setup implements \Avatar_Privacy\Component {
 		// Delete transients from sitemeta or options table.
 		if ( is_multisite() ) {
 			// Stored in sitemeta.
-			$site_transients = new Site_Transients( 'avatar_privacy_' );
+			$site_transients = new Site_Transients();
 			foreach ( $site_transients->get_keys_from_database() as $key ) {
 				$site_transients->delete( $key, true );
 			}
 		} else {
 			// Stored in wp_options.
-			$transients = new Transients( 'avatar_privacy_' );
+			$transients = new Transients();
 			foreach ( $transients->get_keys_from_database() as $key ) {
 				$transients->delete( $key, true );
 			}
