@@ -28,6 +28,7 @@
 use Avatar_Privacy\Data_Storage\Cache;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Transients;
+use Avatar_Privacy\Data_Storage\Site_Transients;
 
 /**
  * Core class of the Avatar Privacy plugin. Contains all the actual code
@@ -81,13 +82,6 @@ class Avatar_Privacy_Core {
 	private $validate_gravatar_cache = array();
 
 	/**
-	 * A cache for the default avatars.
-	 *
-	 * @var array
-	 */
-	private $default_avatars = array();
-
-	/**
 	 * The plugin version.
 	 *
 	 * @var string
@@ -116,11 +110,40 @@ class Avatar_Privacy_Core {
 	private $transients;
 
 	/**
+	 * The site transients handler.
+	 *
+	 * @var Site_Transients
+	 */
+	private $site_transients;
+
+	/**
 	 * The singleton instance.
 	 *
 	 * @var Avatar_Privacy_Core
 	 */
 	private static $_instance;
+
+	/**
+	 * Creates a Avatar_Privacy_Core instance and registers all necessary hooks
+	 * and filters for the plugin.
+	 *
+	 * @param string          $plugin_file      The full path to the base plugin file.
+	 * @param string          $version          The plugin version string (e.g. "3.0.0-beta.2").
+	 * @param Transients      $transients       Required.
+	 * @param Site_Transients $site_transients  Required.
+	 * @param Cache           $cache            Required.
+	 * @param Options         $options          Required.
+	 */
+	public function __construct( $plugin_file, $version, Transients $transients, Site_Transients $site_transients, Cache $cache, Options $options ) {
+		$this->plugin_file     = $plugin_file;
+		$this->version         = $version;
+		$this->transients      = $transients;
+		$this->site_transients = $site_transients;
+		$this->cache           = $cache;
+		$this->options         = $options;
+
+		add_action( 'plugins_loaded', [ $this, 'plugins_loaded' ] );
+	}
 
 	/**
 	 * Retrieves (and if necessary creates) the API instance. Should not be called outside of plugin set-up.
@@ -158,29 +181,6 @@ class Avatar_Privacy_Core {
 		return self::$_instance;
 	}
 
-	// --------------------------------------------------------------------------
-	// constructor
-	// --------------------------------------------------------------------------
-	/**
-	 * Creates a Avatar_Privacy_Core instance and registers all necessary hooks
-	 * and filters for the plugin.
-	 *
-	 * @param string     $plugin_file The full path to the base plugin file.
-	 * @param string     $version     The full plugin version string (e.g. "3.0.0-beta.2").
-	 * @param Transients $transients  Required.
-	 * @param Cache      $cache       Required.
-	 * @param Options    $options     Required.
-	 */
-	public function __construct( $plugin_file, $version, Transients $transients, Cache $cache, Options $options ) {
-		$this->plugin_file = $plugin_file;
-		$this->version     = $version;
-		$this->transients  = $transients;
-		$this->cache       = $cache;
-		$this->options     = $options;
-
-		add_action( 'plugins_loaded', [ $this, 'plugins_loaded' ] );
-	}
-
 	/**
 	 * Enable various hooks.
 	 */
@@ -201,11 +201,6 @@ class Avatar_Privacy_Core {
 			add_action( 'edit_user_profile_update', [ $this, 'save_user_profile_fields' ] );
 		}
 	}
-
-	// --------------------------------------------------------------------------
-	// public functions
-	// --------------------------------------------------------------------------
-	// If anything gets changed here, modify uninstall.php too.
 
 	/**
 	 * Adds the 'use gravatar' checkbox to the comment form. The checkbox value
@@ -377,7 +372,7 @@ class Avatar_Privacy_Core {
 		}
 
 		// Ask gravatar.com.
-		$result = 200 === wp_remote_retrieve_response_code( wp_remote_head( "https://gravatar.com/avatar/{$hash}?d=404" ) );
+		$result = 200 === wp_remote_retrieve_response_code( /* @scrutinizer ignore-type */ wp_remote_head( "https://gravatar.com/avatar/{$hash}?d=404" ) );
 
 		// Cache the result across all blogs (a YES for 1 day, a NO for 10 minutes
 		// -- since a YES basically shouldn't change, but a NO might change when the user signs up with gravatar.com).
