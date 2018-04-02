@@ -28,12 +28,12 @@ use Dice\Dice;
 
 use Avatar_Privacy\Components\Setup;
 
-use Avatar_Privace\Data_Storage\Cache;
-use Avatar_Privace\Data_Storage\Filesystem_Cache;
-use Avatar_Privace\Data_Storage\Options;
-use Avatar_Privace\Data_Storage\Network_Options;
-use Avatar_Privace\Data_Storage\Transients;
-use Avatar_Privace\Data_Storage\Site_Transients;
+use Avatar_Privacy\Data_Storage\Cache;
+use Avatar_Privacy\Data_Storage\Filesystem_Cache;
+use Avatar_Privacy\Data_Storage\Options;
+use Avatar_Privacy\Data_Storage\Network_Options;
+use Avatar_Privacy\Data_Storage\Transients;
+use Avatar_Privacy\Data_Storage\Site_Transients;
 
 /**
  * A factory for creating Avatar_Privacy instances via dependency injection.
