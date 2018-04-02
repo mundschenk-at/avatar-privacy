@@ -91,7 +91,9 @@ class Avatar_Privacy_Options implements \Avatar_Privacy\Component {
 	 */
 	public function validate_settings( $input ) {
 		// Validate the settings.
-		$newinput['mode_checkforgravatar'] = (int) ! empty( $input['mode_checkforgravatar'] );
+		$newinput = [
+			'mode_checkforgravatar' => (int) ! empty( $input['mode_checkforgravatar'] ),
+		];
 
 		// Check if the headers function works on the server (use MD5 of mystery default image).
 		if ( ! empty( $newinput['mode_checkforgravatar'] ) ) {
