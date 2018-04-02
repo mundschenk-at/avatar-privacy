@@ -41,17 +41,29 @@ use Bitverse\Identicon\Generator\RingsGenerator;
 class Rings_Icon_Provider extends Abstract_Icon_Provider {
 
 	/**
+	 * The filesystem cache handler.
+	 *
+	 * @var Filesystem_Cache
+	 */
+	private $file_cache;
+
+	/**
+	 * The icon generator.
+	 *
+	 * @var \Bitverse\Identicon\Generator\GeneratorInterface
+	 */
+	private $generator;
+
+	/**
 	 * Creates a new instance.
 	 *
-	 * @param string           $plugin_file The full path to the base plugin file.
 	 * @param Filesystem_Cache $file_cache  The file cache handler.
 	 */
-	public function __construct( $plugin_file, Filesystem_Cache $file_cache ) {
+	public function __construct( Filesystem_Cache $file_cache ) {
 		parent::__construct( [ 'rings' ] );
 
-		$this->plugin_file = $plugin_file;
-		$this->file_cache  = $file_cache;
-		$this->generator   = new RingsGenerator();
+		$this->file_cache = $file_cache;
+		$this->generator  = new RingsGenerator();
 	}
 
 	/**
