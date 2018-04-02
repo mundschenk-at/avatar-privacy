@@ -134,8 +134,8 @@ class Default_Icons implements \Avatar_Privacy\Component {
 			$this->icon_providers[] = new SVG_Icon_Provider( $types, $file, $core->get_plugin_file() );
 		}
 
-		$this->icon_providers[] = new Retro_Icon_Provider( $file, $this->file_cache );
-		$this->icon_providers[] = new Rings_Icon_Provider( $file, $this->file_cache );
+		$this->icon_providers[] = new Retro_Icon_Provider( $this->file_cache );
+		$this->icon_providers[] = new Rings_Icon_Provider( $this->file_cache );
 		\add_filter( 'avatar_privacy_default_icon_url', [ $this, 'default_icon_url' ], 10, 4 );
 	}
 
