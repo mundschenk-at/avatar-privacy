@@ -32,6 +32,8 @@ use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Data_Storage\Transients;
 
 use Avatar_Privacy\Default_Icons\Icon_Provider;
+use Avatar_Privacy\Default_Icons\Retro_Icon_Provider;
+use Avatar_Privacy\Default_Icons\Rings_Icon_Provider;
 use Avatar_Privacy\Default_Icons\Static_Icon_Provider;
 
 /**
@@ -120,7 +122,9 @@ class Default_Icons implements \Avatar_Privacy\Component {
 			$this->icon_providers[] = new Static_Icon_Provider( $types, $file, $core->get_plugin_file() );
 		}
 
-		\add_filter( 'avatar_privay_default_icon_url', [ $this, 'default_icon_url' ], 10, 4 );
+		$this->icon_providers[] = new Retro_Icon_Provider( $file, $this->file_cache );
+		$this->icon_providers[] = new Rings_Icon_Provider( $file, $this->file_cache );
+		\add_filter( 'avatar_privacy_default_icon_url', [ $this, 'default_icon_url' ], 10, 4 );
 	}
 
 	/**
