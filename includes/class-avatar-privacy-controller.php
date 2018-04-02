@@ -139,8 +139,6 @@ class Avatar_Privacy_Controller {
  * @return string The HTML code for the checkbox or an empty string.
  */
 function avapr_get_avatar_checkbox() {
-	$core = null;
-
 	if ( ! class_exists( 'Avatar_Privacy_Core', false ) ) {
 		return;
 	} else {
