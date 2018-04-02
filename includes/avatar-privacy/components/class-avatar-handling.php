@@ -226,7 +226,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			if ( ! empty( $id_or_email->user_id ) ) {
 				$user_id = (int) $id_or_email->user_id;
 			}
-			if ( ! $user_id && ! empty( $id_or_email->comment_author_email ) ) {
+			if ( empty( $user_id ) && ! empty( $id_or_email->comment_author_email ) ) {
 				$email = $id_or_email->comment_author_email;
 			}
 		}
