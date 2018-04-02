@@ -185,14 +185,8 @@ class Avatar_Privacy_Core {
 	 * Enable various hooks.
 	 */
 	public function plugins_loaded() {
-		// Add new default avatars.
-		add_filter( 'avatar_defaults', [ $this, 'avatar_defaults' ] );
-
 		// Read the plugin settings.
 		$this->settings = $this->options->get( self::SETTINGS_NAME, [] );
-
-		// New default image display: filter the gravatar image upon display.
-		add_filter( 'get_avatar_url', [ $this, 'get_avatar_url' ], 10, 3 );
 
 		// Add the checkbox to the comment form.
 		add_filter( 'comment_form_default_fields', [ $this, 'comment_form_default_fields' ] );
@@ -212,136 +206,6 @@ class Avatar_Privacy_Core {
 	// public functions
 	// --------------------------------------------------------------------------
 	// If anything gets changed here, modify uninstall.php too.
-	/**
-	 * Returns the array of new default avatars defined by this plugin.
-	 *
-	 * @return array The array of default avatars.
-	 */
-	public function default_avatars() {
-		if ( empty( $this->default_avatars ) ) {
-			$this->default_avatars = [
-				/* translators: Icon set URL */
-				'comment'           => sprintf( __( 'Comment (loaded from your server, part of <a href="%s">NDD Icon Set</a>, under LGPL)', 'avatar-privacy' ), 'http://www.nddesign.de/news/2007/10/15/NDD_Icon_Set_1_0_-_Free_Icon_Set' ),
-				/* translators: Icon set URL */
-				'im-user-offline'   => sprintf( __( 'User Offline (loaded from your server, part of <a href="%s">Oxygen Icons</a>, under LGPL)', 'avatar-privacy' ), 'http://www.oxygen-icons.org/' ),
-				/* translators: Icon set URL */
-				'view-media-artist' => sprintf( __( 'Media Artist (loaded from your server, part of <a href="%s">Oxygen Icons</a>, under LGPL)', 'avatar-privacy' ), 'http://www.oxygen-icons.org/' ),
-			];
-		}
-		return $this->default_avatars;
-	}
-
-	/**
-	 * Adds new images to the list of default avatar images.
-	 *
-	 * @param array $avatar_defaults The list of default avatar images.
-	 * @return array The modified default avatar array.
-	 */
-	public function avatar_defaults( $avatar_defaults ) {
-		$avatar_defaults = array_merge( $avatar_defaults, $this->default_avatars() );
-		return $avatar_defaults;
-	}
-
-	/**
-	 * Before displaying an avatar image, checks that displaying the gravatar
-	 * for this e-mail address has been enabled (opted-in). Also, if the option
-	 * "Don't publish encrypted E-Mail addresses for non-members of Gravatar." is
-	 * enabled, the function checks if a gravatar is actually available for the
-	 * e-mail address. If not, it displays the default image directly.
-	 *
-	 * @param  string            $url         The URL of the avatar.
-	 * @param  int|string|object $id_or_email The Gravatar to retrieve. Accepts a user_id, gravatar md5 hash, user email, WP_User object, WP_Post object, or WP_Comment object.
-	 * @param  array             $args        Arguments passed to get_avatar_data(), after processing.
-	 *
-	 * @return string
-	 */
-	public function get_avatar_url( $url, $id_or_email, $args ) {
-		global $pagenow;
-
-		// Don't change anything on the discussion settings page, except for our own new gravatars.
-		$on_settings_page = 'options-discussion.php' === $pagenow;
-		$default_avatars  = $this->default_avatars();
-
-		// Process the user identifier.
-		$email   = '';
-		$user_id = false;
-		if ( is_numeric( $id_or_email ) ) {
-			$user_id = absint( $id_or_email );
-		} elseif ( is_string( $id_or_email ) ) {
-			if ( strpos( $id_or_email, '@md5.gravatar.com' ) ) {
-				// MD5 hash.
-				list( $email_hash ) = explode( '@', $id_or_email );
-			} else {
-				// Email address.
-				$email = $id_or_email;
-			}
-		} elseif ( $id_or_email instanceof WP_User ) {
-			// User object.
-			$user_id = $id_or_email->ID;
-		} elseif ( $id_or_email instanceof WP_Post ) {
-			// Post object.
-			$user_id = (int) $id_or_email->post_author;
-		} elseif ( $id_or_email instanceof WP_Comment ) {
-			/** This filter is documented in wp-includes/pluggable.php */
-			$allowed_comment_types = apply_filters( 'get_avatar_comment_types', [ 'comment' ] );
-			if ( ! empty( $id_or_email->comment_type ) && ! in_array( $id_or_email->comment_type, (array) $allowed_comment_types, true ) ) {
-				return $url;
-			}
-
-			if ( ! empty( $id_or_email->user_id ) ) {
-				$user_id = (int) $id_or_email->user_id;
-			}
-			if ( ! $user_id && ! empty( $id_or_email->comment_author_email ) ) {
-				$email = $id_or_email->comment_author_email;
-			}
-		}
-
-		// Find out if the user opted out of displaying a gravatar.
-		if ( $user_id || $email ) {
-			$use_default = false;
-			if ( $user_id ) {
-				// For users get the value from the usermeta table.
-				$show_avatar = get_user_meta( $user_id, 'use_gravatar', true ) === 'true';
-				$use_default = '' === $show_avatar;
-			} else {
-				// For comments get the value from the plugin's table.
-				$current_value = $this->load_data( $email );
-				$show_avatar   = $current_value && ( '1' === $current_value->use_gravatar );
-				$use_default   = empty( $current_value );
-			}
-			if ( $use_default ) {
-				$show_avatar = ! empty( $this->settings['default_show'] ); // Default settings are legacy-only.
-			}
-		}
-
-		// Check if a gravatar exists for the E-Mail address.
-		if ( $show_avatar && ! empty( $this->settings['mode_checkforgravatar'] ) && $email && ! $this->validate_gravatar( $email ) ) {
-			$show_avatar = false;
-		} elseif ( ! $email ) {
-			$show_avatar = false;
-		}
-
-		// Change the default image if dynamic defaults are configured.
-		if ( ! $show_avatar && $this->is_default_avatar_dynamic() ) {
-			// Use blank image here, dynamic default images would leak the MD5.
-			$default = includes_url( 'images/blank.gif' );
-		}
-
-		// New default avatars: replace avatar name with image URL.
-		$is_avatar_privacy_default = isset( $default_avatars[ $args['default'] ] );
-		$new_url                   = $this->get_default_avatar_url( $email, $args['default'], $args['size'] );
-
-		// Modify the avatar URL.
-		if ( ! $on_settings_page && ! $show_avatar || $on_settings_page && $is_avatar_privacy_default ) {
-			// Display the default avatar instead of the avatar for the e-mail address.
-			$url = $new_url;
-		} elseif ( $is_avatar_privacy_default ) {
-			// Change the default avatar in the given URL (for users who opted in to gravatars but don't have one).
-			$url = str_replace( "d={$args['default']}", "d={$new_url}", $url );
-		}
-
-		return $url;
-	}
 
 	/**
 	 * Adds the 'use gravatar' checkbox to the comment form. The checkbox value
@@ -478,60 +342,34 @@ class Avatar_Privacy_Core {
 		update_user_meta( $user_id, self::CHECKBOX_FIELD_NAME, $value );
 	}
 
-
-	// --------------------------------------------------------------------------
-	// public helper functions
-	// --------------------------------------------------------------------------
 	/**
-	 * Checks if the currently selected default avatar is dynamically generated
-	 * out of an E-Mail address or not.
-	 *
-	 * @return bool True if the current default avatar is dynamic, false if it
-	 *              is a static image.
-	 */
-	public function is_default_avatar_dynamic() {
-		switch ( get_option( 'avatar_default' ) ) {
-			case 'identicon':
-			case 'wavatar':
-			case 'monsterid':
-			case 'retro':
-				return true;
-
-			default:
-				return false;
-		}
-	}
-
-	/**
-	 * Validates if a gravatar exists for the given E-Mail address. Function
+	 * Validates if a gravatar exists for the given e-mail address. Function originally
 	 * taken from: http://codex.wordpress.org/Using_Gravatars
 	 *
-	 * @param string $email The E-Mail address to check.
-	 * @return bool True if a gravatar exists for the given E-Mail address,
-	 * false otherwise, including if gravatar.com could not be reached or
-	 * answered with a different errror code or if no E-Mail address was given.
+	 * @param string $email The e-mail address to check.
+	 * @return bool         True if a gravatar exists for the given e-mail address,
+	 *                      false otherwise, including if gravatar.com could not be
+	 *                      reached or answered with a different error code or if
+	 *                      no e-mail address was given.
 	 */
 	public function validate_gravatar( $email = '' ) {
 		// Make sure we have a real address to check.
-		if ( 0 === strlen( $email ) ) {
+		if ( empty( $email ) ) {
 			return false;
 		}
 
-		// Build the hash of the E-Mail address.
-		$email = strtolower( trim( $email ) );
-		$hash  = md5( $email );
+		// Build the hash of the e-mail address.
+		$hash = md5( strtolower( trim( $email ) ) );
 
 		// Try to find something in the cache.
 		if ( isset( $this->validate_gravatar_cache[ $hash ] ) ) {
 			return $this->validate_gravatar_cache[ $hash ];
 		}
 
-		// Try to find it via transient cache
-		// (maximum length of the key = 45 characters because of wp_options limitation on non-multisite pages, the MD5 hash needs space too).
-		$transient_key      = "avapr_check_{$hash}";
-		$is_multisite       = is_multisite();
-		$transient_function = $is_multisite ? 'get_site_transient' : 'get_transient';
-		$result             = $transient_function( $transient_key );
+		// Try to find it via transient cache. On multisite, we use site transients.
+		$transient_key = "check_{$hash}";
+		$transients    = is_multisite() ? $this->site_transients : $this->transients;
+		$result        = $transients->get( $transient_key );
 		if ( false !== $result ) {
 			$result                                 = ! empty( $result );
 			$this->validate_gravatar_cache[ $hash ] = $result;
@@ -539,13 +377,11 @@ class Avatar_Privacy_Core {
 		}
 
 		// Ask gravatar.com.
-		$uri    = 'https://gravatar.com/avatar/' . $hash . '?d=404';
-		$result = 200 === wp_remote_retrieve_response_code( wp_remote_head( $uri ) );
+		$result = 200 === wp_remote_retrieve_response_code( wp_remote_head( "https://gravatar.com/avatar/{$hash}?d=404" ) );
 
 		// Cache the result across all blogs (a YES for 1 day, a NO for 10 minutes
 		// -- since a YES basically shouldn't change, but a NO might change when the user signs up with gravatar.com).
-		$transient_function = $is_multisite ? 'set_site_transient' : 'set_transient';
-		$transient_function( $transient_key, $result ? 1 : 0, $result ? DAY_IN_SECONDS : 10 * MINUTE_IN_SECONDS );
+		$transients->set( $transient_key, $result ? 1 : 0, $result ? DAY_IN_SECONDS : 10 * MINUTE_IN_SECONDS );
 		$this->validate_gravatar_cache[ $hash ] = $result;
 
 		return $result;
@@ -569,16 +405,53 @@ class Avatar_Privacy_Core {
 		return $this->plugin_file;
 	}
 
-	// --------------------------------------------------------------------------
-	// private functions
-	// --------------------------------------------------------------------------
+	/**
+	 * Retrieves the plugin settings.
+	 *
+	 * @return array
+	 */
+	public function get_settings() {
+		if ( empty( $this->settings ) ) {
+			$this->settings = $this->options->get( self::SETTINGS_NAME, [] );
+		}
+
+		return $this->settings;
+	}
+
+	/**
+	 * Checks whether an anonymous comment author has opted-in to Gravatar usage.
+	 *
+	 * @param  string $email The comment author's email address.
+	 *
+	 * @return bool
+	 */
+	public function comment_author_allows_gravatar_use( $email ) {
+		$data = $this->load_data( $email );
+
+		return ! empty( $data ) && ! empty( $data->use_gravatar );
+	}
+
+	/**
+	 * Checks whether an anonymous comment author is in our Gravatar policy database.
+	 *
+	 * @param  string $email The comment author's email address.
+	 *
+	 * @return bool
+	 */
+	public function comment_author_has_gravatar_policy( $email ) {
+		$data = $this->load_data( $email );
+
+		return ! empty( $data );
+	}
+
+
 	/**
 	 * Returns the dataset from the 'use gravatar' table for the given E-Mail
 	 * address.
 	 *
-	 * @param string $email The E-Mail address to check.
+	 * @param  string $email The e-mail address to check.
 	 *
-	 * @return object The dataset as an object or null.
+	 * @return object        The dataset as an object or null.
 	 */
 	private function load_data( $email ) {
 		global $wpdb;
@@ -600,41 +473,5 @@ class Avatar_Privacy_Core {
 		}
 
 		return $res;
-	}
-
-	/**
-	 * Returns an image URL for the given default avatar identifier. The images
-	 * are taken from the "images" sub-folder in the plugin folder.
-	 *
-	 * @param  string $email   The mail address used to generate the identity hash.
-	 * @param  string $default The default avatar image identifier.
-	 * @param  int    $size    The size of the avatar image in pixels.
-	 *
-	 * @return string The full default avatar image URL.
-	 */
-	private function get_default_avatar_url( $email, $default, $size ) {
-		return apply_filters( 'avatar_privay_default_icon_url', \includes_url( 'images/blank.gif' ), $email, $default, $size );
-	}
-
-	/**
-	 * Replaces the avatar URL in the given HTML fragment.
-	 *
-	 * @param string $avatar  The avatar image HTML fragment.
-	 * @param string $new_url The new URL to insert.
-	 * @param int    $size    The size of the avatar image in pixels.
-	 * @param string $email   Required.
-	 *
-	 * @return string The modified avatar HTML fragment.
-	 */
-	private function replace_avatar_url( $avatar, $new_url, $size, $email ) {
-		if ( '' === $new_url ) {
-			if ( is_ssl() ) {
-				$host = 'https://secure.gravatar.com';
-			} else {
-				$host = empty( $email ) ? 'http://0.gravatar.com' : sprintf( 'http://%d.gravatar.com', ( hexdec( $email_hash[0] ) % 2 ) );
-			}
-			$new_url = "$host/avatar/?s={$size}";
-		}
-		return preg_replace( '/(src=["\'])[^"\']+(["\'])/i', '$1' . $new_url . '$2', $avatar );
 	}
 }

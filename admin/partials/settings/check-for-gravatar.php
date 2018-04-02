@@ -34,12 +34,6 @@
 	<?php checked( $options['mode_checkforgravatar'] ); ?>
 />
 <label for="avatar_privacy_checkforgravatar"><strong><?php esc_html_e( "Don't publish encrypted e-mail addresses for non-members of gravatar.com.", 'avatar-privacy' ); ?></strong></label><br />
-<?php if ( $this->core->is_default_avatar_dynamic() ) : ?>
-<p>
-	<strong style="font-color: #FF0000;"><?php esc_html_e( 'Warning:', 'avatar-privacy' ); ?></strong>
-	<?php esc_html_e( 'This option does not work with dynamic default avatars since these images are generated out of the encrypted e-mail address. Please change to a static default image, otherwise only blank images will be displayed as default avatar image.', 'avatar-privacy' ); ?>
-</p>
-<?php endif; ?>
 <p class="description">
 	<?php esc_html_e( 'The plugin will check if a gravatar exists for a given e-mail address. If a gravatar exists, it is displayed as usual. If no gravatar exists, the default image is displayed directly instead of as a redirect from the non-existing gravatar image.', 'avatar-privacy' ); ?>
 	<?php esc_html_e( "The check is done on your server, not in the visitor's browser. If your site has many visitors, you should keep an eye on whether your server is ok with the calls to gravatar.com.", 'avatar-privacy' ); ?>

@@ -26,6 +26,7 @@
 
 namespace Avatar_Privacy\Components;
 
+use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Data_Storage\Transients;
@@ -79,6 +80,13 @@ class Default_Icons implements \Avatar_Privacy\Component {
 	private $site_transients;
 
 	/**
+	 * The file system caching handler.
+	 *
+	 * @var Filesystem_Cache
+	 */
+	private $file_cache;
+
+	/**
 	 * A list of icon providers.
 	 *
 	 * @var Icon_Provider[]
@@ -88,14 +96,16 @@ class Default_Icons implements \Avatar_Privacy\Component {
 	/**
 	 * Creates a new Setup instance.
 	 *
-	 * @param Transients      $transients      The transients handler.
-	 * @param Site_Transients $site_transients The site transients handler.
-	 * @param Options         $options         The options handler.
+	 * @param Transients       $transients      The transients handler.
+	 * @param Site_Transients  $site_transients The site transients handler.
+	 * @param Options          $options         The options handler.
+	 * @param Filesystem_Cache $file_cache      The filesystem cache handler.
 	 */
-	public function __construct( Transients $transients, Site_Transients $site_transients, Options $options ) {
+	public function __construct( Transients $transients, Site_Transients $site_transients, Options $options, Filesystem_Cache $file_cache ) {
 		$this->transients      = $transients;
 		$this->site_transients = $site_transients;
 		$this->options         = $options;
+		$this->file_cache      = $file_cache;
 	}
 
 	/**
