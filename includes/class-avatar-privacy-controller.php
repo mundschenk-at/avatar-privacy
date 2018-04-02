@@ -57,6 +57,7 @@ class Avatar_Privacy_Controller {
 	 * @param Avatar_Privacy_Options $settings The settings page.
 	 * @param Setup                  $setup    The (de-)activation/uninstallation handling.
 	 * @param Default_Icons          $icons    The default icon handler.
+	 * @param Avatar_Handling        $avatars  The avatar handler.
 	 */
 	public function __construct( Avatar_Privacy_Core $core, Avatar_Privacy_Options $settings, Setup $setup, Default_Icons $icons, Avatar_Handling $avatars ) {
 		$this->core         = $core;
