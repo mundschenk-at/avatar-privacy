@@ -35,6 +35,7 @@ use Avatar_Privacy\Default_Icons\Icon_Provider;
 use Avatar_Privacy\Default_Icons\Retro_Icon_Provider;
 use Avatar_Privacy\Default_Icons\Rings_Icon_Provider;
 use Avatar_Privacy\Default_Icons\Static_Icon_Provider;
+use Avatar_Privacy\Default_Icons\SVG_Icon_Provider;
 
 /**
  * Handles the various default icon providers.
@@ -42,7 +43,7 @@ use Avatar_Privacy\Default_Icons\Static_Icon_Provider;
  * @since 1.0.0
  */
 class Default_Icons implements \Avatar_Privacy\Component {
-
+	const MYSTERY          = 'mystery';
 	const COMMENT_BUBBLE   = 'comment';
 	const SHADED_CONE      = 'im-user-offline';
 	const BLACK_SILHOUETTE = 'view-media-artist';
@@ -51,6 +52,14 @@ class Default_Icons implements \Avatar_Privacy\Component {
 		self::COMMENT_BUBBLE   => self::COMMENT_BUBBLE,
 		self::SHADED_CONE      => self::SHADED_CONE,
 		self::BLACK_SILHOUETTE => self::BLACK_SILHOUETTE,
+	];
+
+	const SVG_ICONS = [
+		self::MYSTERY => [
+			'mystery',
+			'mystery-man',
+			'mm',
+		],
 	];
 
 	/**
@@ -120,6 +129,9 @@ class Default_Icons implements \Avatar_Privacy\Component {
 	public function run( \Avatar_Privacy_Core $core ) {
 		foreach ( self::STATIC_ICONS as $file => $types ) {
 			$this->icon_providers[] = new Static_Icon_Provider( $types, $file, $core->get_plugin_file() );
+		}
+		foreach ( self::SVG_ICONS as $file => $types ) {
+			$this->icon_providers[] = new SVG_Icon_Provider( $types, $file, $core->get_plugin_file() );
 		}
 
 		$this->icon_providers[] = new Retro_Icon_Provider( $file, $this->file_cache );

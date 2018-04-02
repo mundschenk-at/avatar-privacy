@@ -27,41 +27,13 @@
 namespace Avatar_Privacy\Default_Icons;
 
 /**
- * A default icon provider implementation using static images.
+ * A default icon provider implementation using static SVG images.
  *
  * @since 1.0.0
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Static_Icon_Provider extends Abstract_Icon_Provider {
-
-	/**
-	 * The basename of the icon files residing in `public/images`.
-	 *
-	 * @var string
-	 */
-	protected $icon_basename;
-
-	/**
-	 * The full path to the main plugin file.
-	 *
-	 * @var string
-	 */
-	protected $plugin_file;
-
-	/**
-	 * Creates a new instance.
-	 *
-	 * @param string[]|string $types       Either a single identifier string or an array thereof.
-	 * @param string          $basename    The icon basename (without extension or size suffix).
-	 * @param string          $plugin_file The full path to the base plugin file.
-	 */
-	public function __construct( $types, $basename, $plugin_file ) {
-		parent::__construct( (array) $types );
-
-		$this->icon_basename = $basename;
-		$this->plugin_file   = $plugin_file;
-	}
+class SVG_Icon_Provider extends Static_Icon_Provider {
 
 	/**
 	 * Retrieves the default icon.
@@ -72,8 +44,6 @@ class Static_Icon_Provider extends Abstract_Icon_Provider {
 	 * @return string
 	 */
 	public function get_icon_url( $identity, $size ) {
-		$use_size = ( $size > 64 ) ? '128' : '64';
-
-		return plugins_url( "public/images/{$this->icon_basename}-{$use_size}.png", $this->plugin_file ) . "?s={$size}";
+		return \plugins_url( "public/images/{$this->icon_basename}.svg", $this->plugin_file ) . "?s={$size}";
 	}
 }
