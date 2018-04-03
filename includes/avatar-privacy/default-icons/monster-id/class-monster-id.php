@@ -396,23 +396,6 @@ class Monster_ID {
 		$imgw = imagesx( $im );
 		$imgh = imagesy( $im );
 
-		/*
-		//DOESN'T PRESERVE ALPHA SO DOESN'T WORK
-		imagetruecolortopalette($im,true,1000);
-		$numColors=imagecolorstotal($im);
-		for($i=0;$i<$numColors;$i++){
-			$color=imagecolorsforindex($im,$i);
-			$lightness=($color['red']+$color['green']+$color['blue'])/3/255;
-			var_dump($color);
-			if($color['alpha']!=0){
-				var_dump("|||||||||||||||||||||||");
-			}
-			if($lightness>.1&&$lightness<.99&&$color['alpha']<115){
-				$newrgb=$this->hsl_2_rgb([$hue,$saturation,$lightness]);
-				imagecolorset ($im, $i, $newrgb[0],$newrgb[1],$newrgb[2]);
-			}
-		}*/
-
 		imagealphablending( $im, false );
 		if ( isset( self::PART_OPTIMIZATION[ $part ] ) ) {
 			$optimize = self::PART_OPTIMIZATION[ $part ];
