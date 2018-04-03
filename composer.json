@@ -29,6 +29,7 @@
     "require": {
         "php": ">=5.6.0",
         "level-2/dice": "^2.0.3",
+        "bcncommerce/stream-wrapper": "^1.0",
         "mundschenk-at/check-wp-requirements": "^0.4",
         "mundschenk-at/wp-data-storage": "dev-master",
         "bitverse/identicon": "^1.1"
