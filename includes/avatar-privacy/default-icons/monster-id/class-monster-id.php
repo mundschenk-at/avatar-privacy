@@ -206,8 +206,7 @@ class Monster_ID {
 	 */
 	private function locate_parts( array $parts ) {
 		$noparts = true;
-		$dh      = opendir( $this->monster_parts_dir );
-		if ( $dh ) {
+		if ( false !== ( $dh = opendir( $this->monster_parts_dir ) ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found,WordPress.CodeAnalysis.AssignmentInCondition.Found
 			while ( false !== ( $file = readdir( $dh ) ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found,WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 				if ( is_file( "{$this->monster_parts_dir}/{$file}" ) ) {
 					list( $partname, ) = explode( '_', $file );
@@ -217,8 +216,10 @@ class Monster_ID {
 					}
 				}
 			}
+
+			closedir( $dh );
 		}
-		closedir( $dh );
+
 		if ( $noparts ) {
 			throw new \RuntimeException( "Could not find parts images in {$this->monster_parts_dir}" );
 		}
@@ -368,7 +369,7 @@ class Monster_ID {
 		imagedestroy( $monster );
 
 		$stream = new \Bcn\Component\StreamWrapper\Stream();
-		$wrote  = @imagepng( $out, fopen( $stream, 'w' ) );
+		$wrote  = @imagepng( $out, fopen( $stream, 'w' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
 		if ( ! $wrote ) {
 			return false; // Something went wrong but don't want to mess up blog layout.
 		}
