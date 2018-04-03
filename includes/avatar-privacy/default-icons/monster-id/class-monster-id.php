@@ -198,20 +198,19 @@ class Monster_ID {
 	/**
 	 * Finds all the monster parts images.
 	 *
-	 * @param  [type] $partsarray [description]
-	 * @return [type]             [description]
+	 * @param  array $parts An array of arrays indexed by body parts.
+	 * @return array
 	 */
-	private function findparts( array $partsarray ) {
+	private function locate_parts( array $parts ) {
 		$noparts = true;
 		$dh      = opendir( $this->monster_parts_dir );
 		if ( $dh ) {
 			while ( false !== ( $file = readdir( $dh ) ) ) {
 				if ( is_file( "{$this->monster_parts_dir}/{$file}" ) ) {
-					$partname = explode( '_', $file );
-					$partname = $partname[0];
-					if ( array_key_exists( $partname, $partsarray ) ) {
-						array_push( $partsarray[ $partname ], $file );
-						$noparts = false;
+					list( $partname, ) = explode( '_', $file );
+					if ( isset( $parts[ $partname ] ) ) {
+						$parts[ $partname ][] = $file;
+						$noparts              = false;
 					}
 				}
 			}
@@ -222,11 +221,11 @@ class Monster_ID {
 		}
 
 		// Sort for consistency across servers.
-		foreach ( $partsarray as $key => $value ) {
-			sort( $partsarray[ $key ] );
+		foreach ( $parts as $key => $value ) {
+			sort( $parts[ $key ], SORT_NATURAL );
 		}
 
-		return $partsarray;
+		return $parts;
 	}
 
 	/**
@@ -245,7 +244,7 @@ class Monster_ID {
 			'eyes'  => [],
 			'mouth' => [],
 		];
-		$parts       = $this->findparts( $parts_array );
+		$parts       = $this->locate_parts( $parts_array );
 		$bounds      = [];
 
 		foreach ( $parts as $key => $value ) {
@@ -317,8 +316,7 @@ class Monster_ID {
 		$parts_order = array_keys( $parts_array );
 
 		// Get possible parts files.
-		$parts_array = $this->findparts( $parts_array );
-
+		$parts_array = $this->locate_parts( $parts_array );
 		if ( ! $parts_array ) {
 			return false;
 		}
