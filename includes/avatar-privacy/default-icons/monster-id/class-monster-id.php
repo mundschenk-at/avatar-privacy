@@ -199,13 +199,16 @@ class Monster_ID {
 	 * Finds all the monster parts images.
 	 *
 	 * @param  array $parts An array of arrays indexed by body parts.
+	 *
 	 * @return array
+	 *
+	 * @throws RuntimeException The part files could not be found.
 	 */
 	private function locate_parts( array $parts ) {
 		$noparts = true;
 		$dh      = opendir( $this->monster_parts_dir );
 		if ( $dh ) {
-			while ( false !== ( $file = readdir( $dh ) ) ) {
+			while ( false !== ( $file = readdir( $dh ) ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found,WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 				if ( is_file( "{$this->monster_parts_dir}/{$file}" ) ) {
 					list( $partname, ) = explode( '_', $file );
 					if ( isset( $parts[ $partname ] ) ) {
@@ -217,7 +220,7 @@ class Monster_ID {
 		}
 		closedir( $dh );
 		if ( $noparts ) {
-			return false;
+			throw new RuntimeException( "Could not find parts images in {$this->monster_parts_dir}" );
 		}
 
 		// Sort for consistency across servers.
