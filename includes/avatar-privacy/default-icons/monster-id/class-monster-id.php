@@ -303,19 +303,15 @@ class Monster_ID {
 		// Check if transparent.
 		$transparent = true;
 
-		$parts_array = [
+		// Get possible parts files.
+		$parts_array = $this->locate_parts( [
 			'legs'  => [],
 			'hair'  => [],
 			'arms'  => [],
 			'body'  => [],
 			'eyes'  => [],
 			'mouth' => [],
-		];
-
-		$parts_order = array_keys( $parts_array );
-
-		// Get possible parts files.
-		$parts_array = $this->locate_parts( $parts_array );
+		] );
 		if ( ! $parts_array ) {
 			return false;
 		}
@@ -324,13 +320,12 @@ class Monster_ID {
 		mt_srand( hexdec( $id ) );
 
 		// Throw the dice for body parts.
-		foreach ( $parts_order as $part ) {
-			$parts_array[ $part ] = $parts_array[ $part ][ mt_rand( 0, count( $parts_array[ $part ] ) - 1 ) ];
+		foreach ( $parts_array as $part => $files ) {
+			$parts_array[ $part ] = $files[ mt_rand( 0, count( $files ) - 1 ) ];
 		}
 
-		// Create backgound.
-		$file    = $this->monster_parts_dir . '/back.png';
-		$monster = @imagecreatefrompng( $file );
+		// Create background.
+		$monster = @imagecreatefrompng( "{$this->monster_parts_dir}/back.png" );
 		if ( ! $monster ) {
 			return false; // Something went wrong but don't want to mess up blog layout.
 		}
@@ -347,26 +342,23 @@ class Monster_ID {
 		//
 
 		// Add parts.
-		foreach ( $parts_order as $part ) {
-			$file = $parts_array[ $part ];
-			$file = "{$this->monster_parts_dir}/{$file}";
-			$im   = @imagecreatefrompng( $file );
+		foreach ( $parts_array as $part => $file ) {
+			$im = @imagecreatefrompng( "{$this->monster_parts_dir}/{$file}" );
 			if ( ! $im ) {
 				return false; // Something went wrong but don't want to mess up blog layout.
 			}
 			imageSaveAlpha( $im, true );
 			// Randomly color body parts.
 			if ( 'body' === $part ) {
-				// imagefill($monster,60,60,$body);
-				$this->image_colorize( $im, $hue, $saturation, $parts_array[ $part ] );
-			} elseif ( in_array( $parts_array[ $part ], self::SAME_COLOR_PARTS, true ) ) {
-				$this->image_colorize( $im, $hue, $saturation, $parts_array[ $part ] );
-			} elseif ( in_array( $parts_array[ $part ], self::RANDOM_COLOR_PARTS, true ) ) {
-				$this->image_colorize( $im,( mt_rand( 1, $max_rand ) - 1 ) / $max_rand, mt_rand( 25000, 100000 ) / 100000, $parts_array[ $part ] );
-			} elseif ( array_key_exists( $parts_array[ $part ], self::SPECIFIC_COLOR_PARTS ) ) {
-				$low  = self::SPECIFIC_COLOR_PARTS[ $parts_array[ $part ] ][0] * 10000;
-				$high = self::SPECIFIC_COLOR_PARTS[ $parts_array[ $part ] ][1] * 10000;
-				$this->image_colorize( $im, mt_rand( $low, $high ) / 10000, mt_rand( 25000, 100000 ) / 100000, $parts_array[ $part ] );
+				$this->image_colorize( $im, $hue, $saturation, $file );
+			} elseif ( in_array( $file, self::SAME_COLOR_PARTS, true ) ) {
+				$this->image_colorize( $im, $hue, $saturation, $file );
+			} elseif ( in_array( $file, self::RANDOM_COLOR_PARTS, true ) ) {
+				$this->image_colorize( $im,( mt_rand( 1, $max_rand ) - 1 ) / $max_rand, mt_rand( 25000, 100000 ) / 100000, $file );
+			} elseif ( array_key_exists( $file, self::SPECIFIC_COLOR_PARTS ) ) {
+				$low  = self::SPECIFIC_COLOR_PARTS[ $file ][0] * 10000;
+				$high = self::SPECIFIC_COLOR_PARTS[ $file ][1] * 10000;
+				$this->image_colorize( $im, mt_rand( $low, $high ) / 10000, mt_rand( 25000, 100000 ) / 100000, $file );
 			}
 			imagecopy( $monster, $im, 0, 0, 0, 0, 120, 120 );
 			imagedestroy( $im );
