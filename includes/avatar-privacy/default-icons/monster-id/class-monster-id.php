@@ -374,6 +374,9 @@ class Monster_ID {
 		}
 		imagedestroy( $out );
 
+		// Reset randomness.
+		mt_srand();
+
 		// Return image.
 		return $stream->getContent();
 	}
