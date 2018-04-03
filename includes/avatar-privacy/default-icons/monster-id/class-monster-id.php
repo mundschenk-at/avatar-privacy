@@ -293,15 +293,11 @@ class Monster_ID {
 	public function build_monster( $seed, $size = 0 ) {
 
 		// Init random seed.
-		//$id = substr( sha1( $seed ), 0, 8 );
 		$id = substr( $seed, 0, 8 );
 
 		if ( empty( $size ) ) {
 			$size = 400; // px.
 		}
-
-		// Check if transparent.
-		$transparent = true;
 
 		// Get possible parts files.
 		$parts_array = $this->locate_parts( [
@@ -333,13 +329,6 @@ class Monster_ID {
 		$max_rand   = mt_getrandmax();
 		$hue        = ( mt_rand( 1, $max_rand ) - 1 ) / $max_rand; // real_halfopen.
 		$saturation = mt_rand( 25000, 100000 ) / 100000;
-		// Pick a back color even if transparent to preserve random draws across servers.
-		//$back      = imagecolorallocate( $monster, $twister->rand( $monsterID_options['backr'][0], $monsterID_options['backr'][1] ), $twister->rand( $monsterID_options['backg'][0],$monsterID_options['backg'][1] ), $twister->rand( $monsterID_options['backb'][0],$monsterID_options['backb'][1] ) );
-		//$lightness = mt_rand( 25000, 90000 ) / 100000; // Don't actually use this if artistic but preserves randomness.
-		//if ( ! $transparent ) {
-		//		imagefill( $monster, 0, 0, $back );
-		//	}
-		//
 
 		// Add parts.
 		foreach ( $parts_array as $part => $file ) {
@@ -370,11 +359,12 @@ class Monster_ID {
 			return false; // Something went wrong but don't want to mess up blog layout.
 		}
 
-		if ( $transparent ) {
-			imageSaveAlpha( $out,true );
-			imageAlphaBlending( $out, false );
-		}
-		imagecopyresampled( $out,$monster,0,0,0,0,$size,$size,120,120 );
+		// Save transparent background.
+		imageSaveAlpha( $out, true );
+		imageAlphaBlending( $out, false );
+
+		// Resize final image.
+		imagecopyresampled( $out, $monster, 0, 0, 0, 0, $size, $size, 120, 120 );
 		imagedestroy( $monster );
 
 		$stream = new \Bcn\Component\StreamWrapper\Stream();
@@ -384,6 +374,7 @@ class Monster_ID {
 		}
 		imagedestroy( $out );
 
+		// Return image.
 		return $stream->getContent();
 	}
 
