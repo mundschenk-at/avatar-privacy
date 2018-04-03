@@ -83,7 +83,7 @@ class Monster_ID {
 		'mouth_10.png',
 		'mouth_S6.png',
 	];
-	// Generated from find_parts_dimensions.
+	// Generated from get_parts_dimensions.
 	const PART_OPTIMIZATION = [
 		'legs_1.png'   => [ [ 17, 99 ], [ 58, 119 ] ],
 		'legs_2.png'   => [ [ 25, 94 ], [ 54, 119 ] ],
@@ -235,17 +235,16 @@ class Monster_ID {
 	 *
 	 * @return string|array
 	 */
-	private function find_parts_dimensions( $text = false ) {
-		$parts_array = [
+	private function get_parts_dimensions( $text = false ) {
+		$parts  = $this->locate_parts( [
 			'legs'  => [],
 			'hair'  => [],
 			'arms'  => [],
 			'body'  => [],
 			'eyes'  => [],
 			'mouth' => [],
-		];
-		$parts       = $this->locate_parts( $parts_array );
-		$bounds      = [];
+		] );
+		$bounds = [];
 
 		foreach ( $parts as $key => $value ) {
 			foreach ( $value as $part ) {
