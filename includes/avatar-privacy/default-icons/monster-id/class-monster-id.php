@@ -202,7 +202,7 @@ class Monster_ID {
 	 *
 	 * @return array
 	 *
-	 * @throws RuntimeException The part files could not be found.
+	 * @throws \RuntimeException The part files could not be found.
 	 */
 	private function locate_parts( array $parts ) {
 		$noparts = true;
@@ -220,7 +220,7 @@ class Monster_ID {
 		}
 		closedir( $dh );
 		if ( $noparts ) {
-			throw new RuntimeException( "Could not find parts images in {$this->monster_parts_dir}" );
+			throw new \RuntimeException( "Could not find parts images in {$this->monster_parts_dir}" );
 		}
 
 		// Sort for consistency across servers.
@@ -311,9 +311,6 @@ class Monster_ID {
 			'eyes'  => [],
 			'mouth' => [],
 		] );
-		if ( ! $parts_array ) {
-			return false;
-		}
 
 		// Set randomness.
 		mt_srand( hexdec( $id ) );
