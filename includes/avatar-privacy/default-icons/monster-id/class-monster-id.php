@@ -291,7 +291,7 @@ class Monster_ID {
 	 * @param  string $seed The seed data (hash).
 	 * @param  int    $size Options. Size in pixels. Default maximum size (400 px).
 	 *
-	 * @return string
+	 * @return string|false
 	 */
 	public function build_monster( $seed, $size = 0 ) {
 
@@ -313,7 +313,7 @@ class Monster_ID {
 		] );
 
 		// Set randomness.
-		mt_srand( hexdec( $id ) );
+		mt_srand( (int) hexdec( $id ) );
 
 		// Throw the dice for body parts.
 		foreach ( $parts_array as $part => $files ) {
@@ -322,7 +322,7 @@ class Monster_ID {
 
 		// Create background.
 		$monster = @imagecreatefrompng( "{$this->monster_parts_dir}/back.png" );
-		if ( ! $monster ) {
+		if ( false === $monster ) {
 			return false; // Something went wrong but don't want to mess up blog layout.
 		}
 
@@ -355,7 +355,7 @@ class Monster_ID {
 
 		// Going to resize always for now.
 		$out = @imagecreatetruecolor( $size, $size );
-		if ( ! $out ) {
+		if ( false === $out ) {
 			return false; // Something went wrong but don't want to mess up blog layout.
 		}
 
