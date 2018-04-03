@@ -366,7 +366,7 @@ class Monster_ID {
 			} elseif ( array_key_exists( $parts_array[ $part ], self::SPECIFIC_COLOR_PARTS ) ) {
 				$low  = self::SPECIFIC_COLOR_PARTS[ $parts_array[ $part ] ][0] * 10000;
 				$high = self::SPECIFIC_COLOR_PARTS[ $parts_array[ $part ] ][1] * 10000;
-				$this->image_colorize( $im, $twister->rand( $low,$high ) / 10000, mt_rand( 25000, 100000 ) / 100000, $parts_array[ $part ] );
+				$this->image_colorize( $im, mt_rand( $low, $high ) / 10000, mt_rand( 25000, 100000 ) / 100000, $parts_array[ $part ] );
 			}
 			imagecopy( $monster, $im, 0, 0, 0, 0, 120, 120 );
 			imagedestroy( $im );
