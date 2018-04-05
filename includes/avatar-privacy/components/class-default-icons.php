@@ -37,6 +37,7 @@ use Avatar_Privacy\Default_Icons\Rings_Icon_Provider;
 use Avatar_Privacy\Default_Icons\Static_Icon_Provider;
 use Avatar_Privacy\Default_Icons\SVG_Icon_Provider;
 use Avatar_Privacy\Default_Icons\Monster_ID_Icon_Provider;
+use Avatar_Privacy\Default_Icons\Wavatars_Icon_Provider;
 
 /**
  * Handles the various default icon providers.
@@ -138,6 +139,8 @@ class Default_Icons implements \Avatar_Privacy\Component {
 		$this->icon_providers[] = new Retro_Icon_Provider( $this->file_cache );
 		$this->icon_providers[] = new Rings_Icon_Provider( $this->file_cache );
 		$this->icon_providers[] = new Monster_ID_Icon_Provider( $this->file_cache );
+		$this->icon_providers[] = new Wavatars_Icon_Provider( $this->file_cache );
+
 		\add_filter( 'avatar_privacy_default_icon_url', [ $this, 'default_icon_url' ], 10, 4 );
 	}
 
