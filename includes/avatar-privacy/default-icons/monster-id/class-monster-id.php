@@ -34,8 +34,6 @@ namespace Avatar_Privacy\Default_Icons\Monster_ID;
  * @since 1.0.0
  */
 class Monster_ID {
-	const WP_MONSTERID_MAXWAIT = 5;
-
 	const SAME_COLOR_PARTS     = [
 		'arms_S8.png',
 		'legs_S5.png',
@@ -189,10 +187,17 @@ class Monster_ID {
 	];
 
 	/**
+	 * The path to the monster parts image files.
+	 *
+	 * @var string
+	 */
+	private $monster_parts_dir;
+
+	/**
 	 * Creates a new instance.
 	 */
 	public function __construct() {
-		$this->monster_parts_dir = dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/public/images/monster-id/parts';
+		$this->monster_parts_dir = dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/public/images/monster-id';
 	}
 
 	/**
@@ -252,7 +257,7 @@ class Monster_ID {
 
 		foreach ( $parts as $key => $value ) {
 			foreach ( $value as $part ) {
-				$file    = $this->monster_parts_dir . $part;
+				$file    = "{$this->monster_parts_dir}/{$part}";
 				$im      = imagecreatefrompng( $file );
 				$imgw    = imagesx( $im );
 				$imgh    = imagesy( $im );
