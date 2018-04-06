@@ -76,7 +76,7 @@ class Monster_ID_Icon_Provider extends Abstract_Icon_Provider {
 
 		$icon = $this->generator->build_monster( $identity, $size );
 
-		$this->file_cache->set( $filename, $icon, true );
+		$this->file_cache->set( $filename, $icon );
 
 		return $this->file_cache->get_url( $filename );
 	}
