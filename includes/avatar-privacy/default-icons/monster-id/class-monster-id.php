@@ -28,6 +28,8 @@
 
 namespace Avatar_Privacy\Default_Icons\Monster_ID;
 
+use function Scriptura\Color\Helpers\HSLtoRGB;
+
 /**
  * A monster generator.
  *
@@ -186,6 +188,10 @@ class Monster_ID {
 		'mouth_S7.png' => [ [ 999999, 0 ], [ 999999, 0 ] ],
 	];
 
+	// Units used in HSL colors.
+	const PERCENT = 100;
+	const DEGREE  = 360;
+
 	/**
 	 * The path to the monster parts image files.
 	 *
@@ -245,7 +251,7 @@ class Monster_ID {
 	 * @return string|array
 	 */
 	private function get_parts_dimensions( $text = false ) {
-		$parts  = $this->locate_parts( [
+		$parts = $this->locate_parts( [
 			'legs'  => [],
 			'hair'  => [],
 			'arms'  => [],
@@ -253,7 +259,9 @@ class Monster_ID {
 			'eyes'  => [],
 			'mouth' => [],
 		] );
-		$bounds = [];
+
+		$bounds      = [];
+		$result_text = '';
 
 		foreach ( $parts as $key => $value ) {
 			foreach ( $value as $part ) {
@@ -270,8 +278,8 @@ class Monster_ID {
 						$g         = ( $rgb >> 8 ) & 0xFF;
 						$b         = $rgb & 0xFF;
 						$alpha     = ( $rgb & 0x7F000000 ) >> 24;
-						$lightness = ( $r + $g + $b ) / 3 / 255;
-						if ( $lightness > .1 && $lightness < .99 && $alpha < 115 ) {
+						$lightness = ( $r + $g + $b ) / 3 / 255 * self::PERCENT;
+						if ( $lightness > 10 && $lightness < 99 && $alpha < 115 ) {
 							$xbounds[0] = min( $xbounds[0],$i );
 							$xbounds[1] = max( $xbounds[1],$i );
 							$ybounds[0] = min( $ybounds[0],$j );
@@ -279,13 +287,13 @@ class Monster_ID {
 						}
 					}
 				}
-				$text           .= "'$part' => [[${xbounds[0]},${xbounds[1]}],[${ybounds[0]},${ybounds[1]}]], ";
+				$result_text    .= "'$part' => [[${xbounds[0]},${xbounds[1]}],[${ybounds[0]},${ybounds[1]}]], ";
 				$bounds[ $part ] = [ $xbounds, $ybounds ];
 			}
 		}
 
 		if ( $text ) {
-			return $text;
+			return $result_text;
 		} else {
 			return $bounds;
 		}
@@ -333,8 +341,8 @@ class Monster_ID {
 		}
 
 		$max_rand   = mt_getrandmax();
-		$hue        = ( mt_rand( 1, $max_rand ) - 1 ) / $max_rand; // real_halfopen.
-		$saturation = mt_rand( 25000, 100000 ) / 100000;
+		$hue        = ( ( mt_rand( 1, $max_rand ) - 1 ) / $max_rand ) * self::DEGREE; // real_halfopen.
+		$saturation = mt_rand( 25000, 100000 ) / 100000 * self::PERCENT;
 
 		// Add parts.
 		foreach ( $parts_array as $part => $file ) {
@@ -343,17 +351,18 @@ class Monster_ID {
 				return false; // Something went wrong but don't want to mess up blog layout.
 			}
 			imageSaveAlpha( $im, true );
+
 			// Randomly color body parts.
 			if ( 'body' === $part ) {
 				$this->image_colorize( $im, $hue, $saturation, $file );
 			} elseif ( in_array( $file, self::SAME_COLOR_PARTS, true ) ) {
 				$this->image_colorize( $im, $hue, $saturation, $file );
 			} elseif ( in_array( $file, self::RANDOM_COLOR_PARTS, true ) ) {
-				$this->image_colorize( $im,( mt_rand( 1, $max_rand ) - 1 ) / $max_rand, mt_rand( 25000, 100000 ) / 100000, $file );
+				$this->image_colorize( $im, ( mt_rand( 1, $max_rand ) - 1 ) / $max_rand * self::DEGREE, mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
 			} elseif ( array_key_exists( $file, self::SPECIFIC_COLOR_PARTS ) ) {
 				$low  = self::SPECIFIC_COLOR_PARTS[ $file ][0] * 10000;
 				$high = self::SPECIFIC_COLOR_PARTS[ $file ][1] * 10000;
-				$this->image_colorize( $im, mt_rand( $low, $high ) / 10000, mt_rand( 25000, 100000 ) / 100000, $file );
+				$this->image_colorize( $im, mt_rand( $low, $high ) / 10000 * self::DEGREE, mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
 			}
 			imagecopy( $monster, $im, 0, 0, 0, 0, 120, 120 );
 			imagedestroy( $im );
@@ -391,15 +400,18 @@ class Monster_ID {
 	 * Adds color to the given image.
 	 *
 	 * @param  resource $im         The image. Passed by reference.
-	 * @param  int      $hue        The hue.
-	 * @param  int      $saturation The saturation.
+	 * @param  int      $hue        The hue (0-360).
+	 * @param  int      $saturation The saturation (0-100).
 	 * @param  string   $part       The part name.
 	 *
 	 * @return resource             The image, for chaining.
 	 */
-	private function image_colorize( &$im, $hue = 1, $saturation = 1, $part = '' ) {
+	private function image_colorize( &$im, $hue = 360, $saturation = 100, $part = '' ) {
 		$imgw = imagesx( $im );
 		$imgh = imagesy( $im );
+
+		// Ensure non-negative hue.
+		$hue = $hue < 0 ? self::DEGREE + $hue : $hue;
 
 		imagealphablending( $im, false );
 		if ( isset( self::PART_OPTIMIZATION[ $part ] ) ) {
@@ -422,75 +434,18 @@ class Monster_ID {
 				$g         = ( $rgb >> 8 ) & 0xFF;
 				$b         = $rgb & 0xFF;
 				$alpha     = ( $rgb & 0x7F000000 ) >> 24;
-				$lightness = ( $r + $g + $b ) / 3 / 255;
-				if ( $lightness > .1 && $lightness < .99 && $alpha < 115 ) {
-					$newrgb = $this->hsl_2_rgb( [ $hue, $saturation, $lightness ] );
-					$color  = imagecolorallocatealpha( $im, $newrgb[0],$newrgb[1],$newrgb[2],$alpha );
-					imagesetpixel( $im,$i,$j,$color );
+				$lightness = ( $r + $g + $b ) / 3 / 255 * self::PERCENT;
+				if ( $lightness > 10 && $lightness < 99 && $alpha < 115 ) {
+					$newrgb = HSLtoRGB( $hue, $saturation, $lightness );
+					// The green and blue were switched in the original hsl_2_rgb function, so we keep
+					// the same behavior for backwards compatibility reasons.
+					$color = imagecolorallocatealpha( $im, $newrgb[0], $newrgb[2], $newrgb[1], $alpha );
+					imagesetpixel( $im, $i, $j, $color );
 				}
 			}
 		}
 		imagealphablending( $im, true );
 
 		return $im;
-	}
-
-	/**
-	 * Convertes a HSL color to RGB.
-	 *
-	 * @param  array $hsl The HSL array.
-	 *
-	 * @return array      The RGB array.
-	 */
-	private function hsl_2_rgb( $hsl ) {
-		$hue        = $hsl[0];
-		$saturation = $hsl[1];
-		$lightness  = $hsl[2];
-
-		if ( empty( $saturation ) ) {
-			$red   = $lightness * 255;
-			$green = $lightness * 255;
-			$blue  = $lightness * 255;
-		} else {
-			if ( $lightness < 0.5 ) {
-				$var_2 = $lightness * ( 1 + $saturation );
-			} else {
-				$var_2 = ( $lightness + $saturation ) - ( $saturation * $lightness );
-			}
-
-			$var_1 = 2 * $lightness - $var_2;
-			$red   = 255 * $this->hue_2_rgb( $var_1, $var_2, $hue + ( 1 / 3 ) );
-			$green = 255 * $this->hue_2_rgb( $var_1, $var_2, $hue - ( 1 / 3 ) );
-			$blue  = 255 * $this->hue_2_rgb( $var_1, $var_2, $hue );
-		}
-
-		return [ $red, $green, $blue ];
-	}
-
-	/**
-	 * Converts individual color channels from HSL to RGB.
-	 *
-	 * @param  float $v1 S/L part 1.
-	 * @param  float $v2 S/L part 2.
-	 * @param  float $vh Hue part.
-	 *
-	 * @return float
-	 */
-	private function hue_2_rgb( $v1, $v2, $vh ) {
-		if ( $vh < 0 ) {
-			$vh++;
-		} elseif ( $vh > 1 ) {
-			$vh--;
-		}
-		if ( ( 6 * $vh ) < 1 ) {
-			$output = $v1 + ( $v2 - $v1 ) * 6 * $vh;
-		} elseif ( ( 2 * $vh ) < 1 ) {
-			$output = $v2;
-		} elseif ( ( 3 * $vh ) < 2 ) {
-			$output = $v1 + ( $v2 - $v1 ) * ( ( 2 / 3 - $vh ) * 6 );
-		} else {
-			$output = $v1;
-		}
-		return( $output );
 	}
 }
