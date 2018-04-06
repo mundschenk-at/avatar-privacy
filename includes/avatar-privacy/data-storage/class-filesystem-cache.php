@@ -148,6 +148,19 @@ class Filesystem_Cache {
 	}
 
 	/**
+	 * Removes a file from the cache.
+	 *
+	 * @param  string $filename The filename (including any sub directory).
+	 *
+	 * @return bool             True if the file was successfully removed from the cache, false otherwise.
+	 */
+	public function delete( $filename ) {
+		$file = $this->get_base_dir() . $filename;
+
+		return \is_writable( $file ) && \unlink( $file ); // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow
+	}
+
+	/**
 	 * Invalidate all cached elements by recursively deleting all files and directories.
 	 */
 	public function invalidate() {
