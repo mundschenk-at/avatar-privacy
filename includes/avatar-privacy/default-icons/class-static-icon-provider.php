@@ -67,7 +67,7 @@ class Static_Icon_Provider extends Abstract_Icon_Provider {
 	 * Retrieves the default icon.
 	 *
 	 * @param  string $identity The identity (mail address) hash. Ignored.
-	 * @param  string $size     The requested size in pixels.
+	 * @param  int    $size     The requested size in pixels.
 	 *
 	 * @return string
 	 */

@@ -150,7 +150,7 @@ class Default_Icons implements \Avatar_Privacy\Component {
 	 * @param  string $url   The fallback default icon URL.
 	 * @param  string $email The mail address used to generate the identity hash.
 	 * @param  string $type  The default icon type.
-	 * @param  string $size  The requested size in pixels.
+	 * @param  int    $size  The requested size in pixels.
 	 *
 	 * @return string
 	 */
