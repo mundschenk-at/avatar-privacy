@@ -113,11 +113,6 @@ Yes, the plugin can be used on a multisite installation. You can either activate
 I develop and use this plugin on a multisite installation with three blogs. Any network with a comparatively small number of blogs should be fine. I haven't really thought about the implications of using the plugin on a network with many 'sites' (as opposed to 'blogs'). Does anybody even do that with WordPress?!
 
 
-### Why is a minimal WordPress version of 3.2 required? Will it work with older WordPress installations?
-
-I chose WP 3.2 since that was the release that dropped support for PHP 4 and I didn't want to support that. While I'm writing the initial release of this plugin, WP 3.3 is the current release. I will be testing with WP 3.2, but not with older versions. It's reasonable to assume that it works with versions since WP 3.0 at least if you use PHP 5. There is a check in the main plugin file that checks for PHP and WP versions and doesn't load the plugin on older versions. If you absolutely must use it with older WP versions, comment out the lines after the 'check minimum WP requirements' comment.
-
-
 ### Won't spam comments flood the database table with useless entries for the checkbox in the comment form?
 
 The plugin doesn't save the value of the "use gravatar" checkbox for comments by registered users (see below), trackbacks/pingbacks (there is no e-mail address) and comments that are marked as spam when they are saved. If you mark a comment as spam later, the table entry is not removed, since the same e-mail address might also be used by non-spam comments. If a comment is marked as spam by Akismet or similar plugins and you later manually mark it as non-spam, what the user selected when submitting the comment will already be lost. This only happens with spam comments, not comments who just need to be moderated, e.g. because of the 'needs at least one published comment' rule.
