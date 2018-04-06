@@ -37,11 +37,11 @@ use function Scriptura\Color\Helpers\HSLtoRGB;
  */
 class Monster_ID {
 	const SAME_COLOR_PARTS     = [
-		'arms_S8.png',
-		'legs_S5.png',
-		'legs_S13.png',
-		'mouth_S5.png',
-		'mouth_S4.png',
+		'arms_S8.png'  => true,
+		'legs_S5.png'  => true,
+		'legs_S13.png' => true,
+		'mouth_S5.png' => true,
+		'mouth_S4.png' => true,
 	];
 	const SPECIFIC_COLOR_PARTS = [
 		'hair_S4.png'  => [ .6, .75 ],
@@ -52,36 +52,36 @@ class Monster_ID {
 		'mouth_S2.png' => [ -.05, .05 ],
 	];
 	const RANDOM_COLOR_PARTS   = [
-		'arms_3.png',
-		'arms_4.png',
-		'arms_5.png',
-		'arms_S1.png',
-		'arms_S3.png',
-		'arms_S5.png',
-		'arms_S6.png',
-		'arms_S7.png',
-		'arms_S9.png',
-		'hair_S1.png',
-		'hair_S2.png',
-		'hair_S3.png',
-		'hair_S5.png',
-		'legs_1.png',
-		'legs_2.png',
-		'legs_3.png',
-		'legs_5.png',
-		'legs_S1.png',
-		'legs_S2.png',
-		'legs_S3.png',
-		'legs_S4.png',
-		'legs_S6.png',
-		'legs_S7.png',
-		'legs_S10.png',
-		'legs_S12.png',
-		'mouth_3.png',
-		'mouth_4.png',
-		'mouth_7.png',
-		'mouth_10.png',
-		'mouth_S6.png',
+		'arms_3.png'   => true,
+		'arms_4.png'   => true,
+		'arms_5.png'   => true,
+		'arms_S1.png'  => true,
+		'arms_S3.png'  => true,
+		'arms_S5.png'  => true,
+		'arms_S6.png'  => true,
+		'arms_S7.png'  => true,
+		'arms_S9.png'  => true,
+		'hair_S1.png'  => true,
+		'hair_S2.png'  => true,
+		'hair_S3.png'  => true,
+		'hair_S5.png'  => true,
+		'legs_1.png'   => true,
+		'legs_2.png'   => true,
+		'legs_3.png'   => true,
+		'legs_5.png'   => true,
+		'legs_S1.png'  => true,
+		'legs_S2.png'  => true,
+		'legs_S3.png'  => true,
+		'legs_S4.png'  => true,
+		'legs_S6.png'  => true,
+		'legs_S7.png'  => true,
+		'legs_S10.png' => true,
+		'legs_S12.png' => true,
+		'mouth_3.png'  => true,
+		'mouth_4.png'  => true,
+		'mouth_7.png'  => true,
+		'mouth_10.png' => true,
+		'mouth_S6.png' => true,
 	];
 	// Generated from get_parts_dimensions.
 	const PART_OPTIMIZATION = [
@@ -355,11 +355,11 @@ class Monster_ID {
 			// Randomly color body parts.
 			if ( 'body' === $part ) {
 				$this->image_colorize( $im, $hue, $saturation, $file );
-			} elseif ( in_array( $file, self::SAME_COLOR_PARTS, true ) ) {
+			} elseif ( isset( self::SAME_COLOR_PARTS[ $file ] ) ) {
 				$this->image_colorize( $im, $hue, $saturation, $file );
-			} elseif ( in_array( $file, self::RANDOM_COLOR_PARTS, true ) ) {
+			} elseif ( isset( self::RANDOM_COLOR_PARTS[ $file ] ) ) {
 				$this->image_colorize( $im, ( mt_rand( 1, $max_rand ) - 1 ) / $max_rand * self::DEGREE, mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
-			} elseif ( array_key_exists( $file, self::SPECIFIC_COLOR_PARTS ) ) {
+			} elseif ( isset( self::SPECIFIC_COLOR_PARTS[ $file ] ) ) {
 				$low  = self::SPECIFIC_COLOR_PARTS[ $file ][0] * 10000;
 				$high = self::SPECIFIC_COLOR_PARTS[ $file ][1] * 10000;
 				$this->image_colorize( $im, mt_rand( $low, $high ) / 10000 * self::DEGREE, mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
