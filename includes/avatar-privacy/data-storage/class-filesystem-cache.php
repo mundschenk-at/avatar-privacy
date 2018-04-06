@@ -129,7 +129,7 @@ class Filesystem_Cache {
 			return true;
 		}
 
-		if ( ! \wp_mkdir_p( $path ) || false === \file_put_contents( $file, $data, LOCK_EX ) ) { // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+		if ( ! \wp_mkdir_p( $path ) || false === \file_put_contents( $file, $data, LOCK_EX ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
 			return false;
 		} else {
 			return true;
