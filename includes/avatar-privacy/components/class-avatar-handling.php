@@ -199,14 +199,8 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		if ( is_numeric( $id_or_email ) ) {
 			$user_id = absint( $id_or_email );
 		} elseif ( is_string( $id_or_email ) ) {
-			if ( strpos( $id_or_email, '@md5.gravatar.com' ) ) {
-				// MD5 hash.
-				// FIXME: unused.
-				list( $email_hash ) = explode( '@', $id_or_email );
-			} else {
-				// E-mail address.
-				$email = $id_or_email;
-			}
+			// E-mail address.
+			$email = $id_or_email;
 		} elseif ( $id_or_email instanceof \WP_User ) {
 			// User object.
 			$user_id = $id_or_email->ID;
