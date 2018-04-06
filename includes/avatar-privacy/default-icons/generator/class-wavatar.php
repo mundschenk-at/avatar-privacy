@@ -25,7 +25,7 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons\Wavatars;
+namespace Avatar_Privacy\Default_Icons\Generator;
 
 use function Scriptura\Color\Helpers\HSLtoRGB;
 
@@ -34,7 +34,7 @@ use function Scriptura\Color\Helpers\HSLtoRGB;
  *
  * @since 1.0.0
  */
-class Wavatars {
+class Wavatar {
 
 	const SIZE                = 80;
 	const WAVATAR_BACKGROUNDS = 4;

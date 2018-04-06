@@ -28,16 +28,14 @@ namespace Avatar_Privacy\Default_Icons;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
-use Avatar_Privacy\Default_Icons\Wavatars\Wavatars;
-
 /**
- * An icon provider for "monsterid" style icons.
+ * An icon provider for "wavatar" style icons.
  *
  * @since 1.0.0
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Wavatars_Icon_Provider extends Abstract_Icon_Provider {
+class Wavatar_Icon_Provider extends Abstract_Icon_Provider {
 
 	/**
 	 * The filesystem cache handler.
@@ -49,7 +47,7 @@ class Wavatars_Icon_Provider extends Abstract_Icon_Provider {
 	/**
 	 * The icon generator.
 	 *
-	 * @var \Bitverse\Identicon\Generator\GeneratorInterface
+	 * @var Generator\Wavatar
 	 */
 	private $generator;
 
@@ -62,7 +60,7 @@ class Wavatars_Icon_Provider extends Abstract_Icon_Provider {
 		parent::__construct( [ 'wavatar' ] );
 
 		$this->file_cache = $file_cache;
-		$this->generator  = new Wavatars();
+		$this->generator  = new Generator\Wavatar();
 	}
 
 	/**

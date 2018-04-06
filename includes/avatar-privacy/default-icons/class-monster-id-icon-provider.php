@@ -28,8 +28,6 @@ namespace Avatar_Privacy\Default_Icons;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
-use Avatar_Privacy\Default_Icons\Monster_ID\Monster_ID;
-
 /**
  * An icon provider for "monsterid" style icons.
  *
@@ -49,7 +47,7 @@ class Monster_ID_Icon_Provider extends Abstract_Icon_Provider {
 	/**
 	 * The icon generator.
 	 *
-	 * @var \Bitverse\Identicon\Generator\GeneratorInterface
+	 * @var Generator\Monster_ID
 	 */
 	private $generator;
 
@@ -62,7 +60,7 @@ class Monster_ID_Icon_Provider extends Abstract_Icon_Provider {
 		parent::__construct( [ 'monsterid' ] );
 
 		$this->file_cache = $file_cache;
-		$this->generator  = new Monster_ID();
+		$this->generator  = new Generator\Monster_ID();
 	}
 
 	/**

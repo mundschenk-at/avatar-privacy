@@ -26,7 +26,7 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons\Monster_ID;
+namespace Avatar_Privacy\Default_Icons\Generator;
 
 use function Scriptura\Color\Helpers\HSLtoRGB;
 
