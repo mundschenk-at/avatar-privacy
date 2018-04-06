@@ -191,13 +191,13 @@ class Monster_ID {
 	 *
 	 * @var string
 	 */
-	private $monster_parts_dir;
+	private $parts_dir;
 
 	/**
 	 * Creates a new instance.
 	 */
 	public function __construct() {
-		$this->monster_parts_dir = dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/public/images/monster-id';
+		$this->parts_dir = dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/public/images/monster-id';
 	}
 
 	/**
@@ -211,9 +211,9 @@ class Monster_ID {
 	 */
 	private function locate_parts( array $parts ) {
 		$noparts = true;
-		if ( false !== ( $dh = opendir( $this->monster_parts_dir ) ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found,WordPress.CodeAnalysis.AssignmentInCondition.Found
+		if ( false !== ( $dh = opendir( $this->parts_dir ) ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found,WordPress.CodeAnalysis.AssignmentInCondition.Found
 			while ( false !== ( $file = readdir( $dh ) ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found,WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-				if ( is_file( "{$this->monster_parts_dir}/{$file}" ) ) {
+				if ( is_file( "{$this->parts_dir}/{$file}" ) ) {
 					list( $partname, ) = explode( '_', $file );
 					if ( isset( $parts[ $partname ] ) ) {
 						$parts[ $partname ][] = $file;
@@ -226,7 +226,7 @@ class Monster_ID {
 		}
 
 		if ( $noparts ) {
-			throw new \RuntimeException( "Could not find parts images in {$this->monster_parts_dir}" );
+			throw new \RuntimeException( "Could not find parts images in {$this->parts_dir}" );
 		}
 
 		// Sort for consistency across servers.
@@ -257,7 +257,7 @@ class Monster_ID {
 
 		foreach ( $parts as $key => $value ) {
 			foreach ( $value as $part ) {
-				$file    = "{$this->monster_parts_dir}/{$part}";
+				$file    = "{$this->parts_dir}/{$part}";
 				$im      = imagecreatefrompng( $file );
 				$imgw    = imagesx( $im );
 				$imgh    = imagesy( $im );
@@ -327,7 +327,7 @@ class Monster_ID {
 		}
 
 		// Create background.
-		$monster = @imagecreatefrompng( "{$this->monster_parts_dir}/back.png" );
+		$monster = @imagecreatefrompng( "{$this->parts_dir}/back.png" );
 		if ( false === $monster ) {
 			return false; // Something went wrong but don't want to mess up blog layout.
 		}
@@ -338,7 +338,7 @@ class Monster_ID {
 
 		// Add parts.
 		foreach ( $parts_array as $part => $file ) {
-			$im = @imagecreatefrompng( "{$this->monster_parts_dir}/{$file}" );
+			$im = @imagecreatefrompng( "{$this->parts_dir}/{$file}" );
 			if ( ! $im ) {
 				return false; // Something went wrong but don't want to mess up blog layout.
 			}
