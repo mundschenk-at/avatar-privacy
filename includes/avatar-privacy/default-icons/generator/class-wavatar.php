@@ -73,10 +73,10 @@ class Wavatar {
 
 		$file = "{$this->parts_dir}/{$part}.png";
 		$im   = @imagecreatefrompng( $file );
-		if ( ! $im ) {
-			return;
+		if ( false === $im ) {
+			return; // Abort.
 		}
-		imagecopy( $base,$im, 0, 0, 0, 0, self::SIZE, self::SIZE );
+		imagecopy( $base, $im, 0, 0, 0, 0, self::SIZE, self::SIZE );
 		imagedestroy( $im );
 	}
 
