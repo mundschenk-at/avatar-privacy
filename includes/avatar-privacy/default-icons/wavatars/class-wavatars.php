@@ -48,7 +48,7 @@ class Wavatars {
 	 * Creates a new Wavatars generator.
 	 */
 	public function __construct() {
-		$this->monster_parts_dir = dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/public/images/wavatars';
+		$this->parts_dir = dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/public/images/wavatars';
 	}
 
 	/**
@@ -60,7 +60,7 @@ class Wavatars {
 	 */
 	private function apply_image( $base, $part ) {
 
-		$file = "{$this->monster_parts_dir}/{$part}.png";
+		$file = "{$this->parts_dir}/{$part}.png";
 		$im   = @imagecreatefrompng( $file );
 		if ( ! $im ) {
 			return;
