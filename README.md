@@ -9,7 +9,7 @@ The plugin works without changing your theme files if you use a modern theme, an
 
 The plugin's features summed up. See following sections for longer explanations:
 
-*   Don't publish encrypted E-Mail addresses for non-members of gravatar.com.
+*   Don't publish encrypted e-mail addresses for non-members of gravatar.com.
 *   Let users and commenters opt in or out of using Gravatars.
 *   Use default avatar images hosted on your server rather than gravatar.com.
 
@@ -23,20 +23,20 @@ Contact me if you want to provide translations for other languages.
 
 ### In what way are avatars a privacy risk?
 
-To display an avatar image, you publish an encrypted version (MD5) of the E-Mail address in the gravatar's image URL. Gravatar.com then decides if there is an avatar image to deliver, otherwise the default image is delivered. The default image's address is also part of the overall gravatar image URL. Normally, both the avatar image and the default image are requested from gravatar.com servers. This process has the following problems:
+To display an avatar image, you publish an encrypted version (MD5) of the e-mail address in the gravatar's image URL. Gravatar.com then decides if there is an avatar image to deliver, otherwise the default image is delivered. The default image's address is also part of the overall gravatar image URL. Normally, both the avatar image and the default image are requested from gravatar.com servers. This process has the following problems:
 
-1.  MD5 is theoretically secure, but research has shown that it is possible to guess the E-Mail address from the MD5 token in the gravatar URL: [Gravatars: why publishing your email's hash is not a good idea](http://www.developer.it/post/gravatars-why-publishing-your-email-s-hash-is-not-a-good-idea). So there is a chance that you make your commenter's E-Mail addresses public.
-2.  The published avatar URL ties all comments made with the same (privately entered) E-Mail address together (publicly). The user might use different pseudonyms and web addresses with the comment, they even might want to stay anonym. But if the web site admin enables gravatars, even at a later point, all this user's comments can be recognized as being made by the same person. Creating such a comment profile for an E-Mail address is easiest for gravatar.com, they just have to look into their log files from where a particular image was requested (request header). That works for everyone, not only gravatar.com registered users. And of course, anybody else can program a bot to find occurences of a particular avatar URL throughout the web. The commenter most likely does not know what entering an E-Mail address means, usually is not told and has no control over whether a gravatar is displayed for his address or not.
+1.  MD5 is theoretically secure, but research has shown that it is possible to guess the e-mail address from the MD5 token in the gravatar URL: [Gravatars: why publishing your email's hash is not a good idea](http://www.developer.it/post/gravatars-why-publishing-your-email-s-hash-is-not-a-good-idea). So there is a chance that you make your commenter's e-mail addresses public.
+2.  The published avatar URL ties all comments made with the same (privately entered) e-mail address together (publicly). The user might use different pseudonyms and web addresses with the comment, they even might want to stay anonym. But if the web site admin enables gravatars, even at a later point, all this user's comments can be recognized as being made by the same person. Creating such a comment profile for an e-mail address is easiest for gravatar.com, they just have to look into their log files from where a particular image was requested (request header). That works for everyone, not only gravatar.com registered users. And of course, anybody else can program a bot to find occurences of a particular avatar URL throughout the web. The commenter most likely does not know what entering an e-mail address means, usually is not told and has no control over whether a gravatar is displayed for his address or not.
 3.  Whenever someone visits the page, the avatar images are loaded from the gravatar.com servers into the visitor's browser. By doing so, gravatar.com gets all kind of data, e.g. the visitor's IP address, the browser version, and the URL of the page containing the avatar images. Since gravatars are used on many websites, if the visitor visits a lot of blogs while using the same IP address, the gravatar.com log files show exactly where the person using this IP address went.
-4.  If somebody wants to create fake comments using someone else's identity, this looks all the better with the matching gravatar image next to it. If you know the E-Mail address used for the comment, great. If not just create a new gravatar acount and upload the same picture.
+4.  If somebody wants to create fake comments using someone else's identity, this looks all the better with the matching gravatar image next to it. If you know the e-mail address used for the comment, great. If not just create a new gravatar acount and upload the same picture.
 
 
 ### How does Avatar Privacy help with these problems?
 
 The plugin offers some measures to deal with these problems. It's not perfect or a complete solution, but some of the above points can be addressed sufficiently:
 
-1.  If you want gravatars, you don't really have a choice but to **publish the MD5 tokens** of the E-Mail adresses. If you want to have dynamic default images like the identicons, you also don't have a choice but to publish the MD5 tokens of all users, not only the users who actually signed up with gravatar.com (because the images are generated out of the E-Mail addresses). For gravatar.com users, you could of course request the images server-side and then cache them, but in my opinion that is a bit overkill. If somebody signs up with gravatar.com, they probably know that this means their E-Mail adresses will be published in encrypted form. The bad part is that this happens for everyone, even users who haven't ever heard of gravatar.com. That is an aspect that this plugin fixes with the 'Don't publish encrypted E-Mail addresses for non-members of gravatar.com' option. Why is this optional? The additional calls to gravatar.com from your server could in theory stress your server or make the page loading too slow. Please check this on a page with many comments.
-2.  The problem of **tying comments throughout the web together** is addressed by the plugin in two ways: You can let commenters opt in or out of using gravatars with their E-Mail address. Aditionally, you can use a local default image and display the default image directly instead of as a redirect. This way the page optically looks identical, but comments of users who didn't sign up with gravatar.com are not linked through a unique avatar image URL anymore. For users who did sign up with gravatar.com, you should display a short message to the user somwhere around the comment form.
+1.  If you want gravatars, you don't really have a choice but to **publish the MD5 tokens** of the e-mail adresses. If you want to have dynamic default images like the identicons, you also don't have a choice but to publish the MD5 tokens of all users, not only the users who actually signed up with gravatar.com (because the images are generated out of the e-mail addresses). For gravatar.com users, you could of course request the images server-side and then cache them, but in my opinion that is a bit overkill. If somebody signs up with gravatar.com, they probably know that this means their e-mail adresses will be published in encrypted form. The bad part is that this happens for everyone, even users who haven't ever heard of gravatar.com. That is an aspect that this plugin fixes with the 'Don't publish encrypted e-mail addresses for non-members of gravatar.com' option. Why is this optional? The additional calls to gravatar.com from your server could in theory stress your server or make the page loading too slow. Please check this on a page with many comments.
+2.  The problem of **tying comments throughout the web together** is addressed by the plugin in two ways: You can let commenters opt in or out of using gravatars with their e-mail address. Aditionally, you can use a local default image and display the default image directly instead of as a redirect. This way the page optically looks identical, but comments of users who didn't sign up with gravatar.com are not linked through a unique avatar image URL anymore. For users who did sign up with gravatar.com, you should display a short message to the user somwhere around the comment form.
 3.  That gravatar.com is able to create **profiles of what websites you visited** is something that the plugin can't fix. Personally, I trust Auttomatic not to misuse this kind of data. I'm not even saying that they do create profiles, but technically they could. The profiles would be anonym unless they are connected with other data, like a provider's data who used a certain IP address at a certain point in time. Unfortunately, there is nothing that the plugin can really do about it, apart from complete caching solutions. This particular problem needs to be addressed by concerned visitors on their side, e.g. by using a TOR server to go online. Also, the whole modern web works this way, it's not a problem specific to gravatar.com. ;-)
 4.  The plugin does nothing against the **fake identity** problem. It's questionable if any countermeasures would even be possible without changing the way that gravatar.com works. Stealing identities is always possible, you can do it with a comment form without gravatars just as well. So that's not really the focus of this plugin.
 
@@ -70,7 +70,7 @@ Did you remember to visit the discussion settings page, activate some or all of 
 
 Depending on which options you selected, you wouldn't see a change in the way the page looks. The changes are visible in the source code though:
 
-*   Don't publish encrypted E-Mail addresses for non-members of gravatar.com: Look at the gravatar image URL of a user without a gravatar. The plugin works if the URL looks like "http://1.gravatar.com/avatar/[long MD5 token]?s=68" instead of "http://1.gravatar.com/avatar/[other long MD5 token]?s=68&d=http%3A%2F%2F1.gravatar.com%2Favatar%2F[long MD5 token]%3Fs%3D68&r=PG". There aren't two URLs in there anymore, only one, and the default URL looks the same for two comments without a gravatar.
+*   Don't publish encrypted e-mail addresses for non-members of gravatar.com: Look at the gravatar image URL of a user without a gravatar. The plugin works if the URL looks like "http://1.gravatar.com/avatar/[long MD5 token]?s=68" instead of "http://1.gravatar.com/avatar/[other long MD5 token]?s=68&d=http%3A%2F%2F1.gravatar.com%2Favatar%2F[long MD5 token]%3Fs%3D68&r=PG". There aren't two URLs in there anymore, only one, and the default URL looks the same for two comments without a gravatar.
 *   Let users and commenters opt in or out of using Gravatars: You should see the checkbox on the comment form. You need to log out though to see it. If you are logged in, you should see a similar checkbox in your user profile in the WordPress backend.
 
 
@@ -85,7 +85,7 @@ Then you probably don't use a modern theme which makes use of the function comme
 
 ### I'm confused by all the settings. What should I select?
 
-For a maximum effect, check both "Don't publish encrypted E-Mail addresses for non-members of gravatar.com." and "Let users and commenters opt in or out of using gravatars.". Whether you want to enable the latter or not depends on whether you think this will demand too much from your potential commenters.
+For a maximum effect, check both "Don't publish encrypted e-mail addresses for non-members of gravatar.com." and "Let users and commenters opt in or out of using gravatars.". Whether you want to enable the latter or not depends on whether you think this will demand too much from your potential commenters.
 
 For a maximum privacy effect, select "The checkbox is... not checked by default". Then people wanting to use gravatars would actively have to tick this box. If you just want to give concerned visitors the chance not to display gravatars, but want to use gravatars for everyone els as a default, select "The checkbox is... checked by default".
 
@@ -103,7 +103,7 @@ Apart from that, the plugin only filters data, but does not permanently change t
 
 ### Can this plugin be used together with cache plugins?
 
-Yes, it certainly can. You have to be careful though which plugin options you select and how you cache your content. The first plugin option checks if a gravatar exists for a given E-Mail address and, if not, displays the default image directly. If you cache the output of this check, the gravatar will not be displayed if the user later decides to sign up with gravatar.com. If you're using this option, you should invalidate cached pages with gravatars on them (mostly the single view of entries) regularly.
+Yes, it certainly can. You have to be careful though which plugin options you select and how you cache your content. The first plugin option checks if a gravatar exists for a given e-mail address and, if not, displays the default image directly. If you cache the output of this check, the gravatar will not be displayed if the user later decides to sign up with gravatar.com. If you're using this option, you should invalidate cached pages with gravatars on them (mostly the single view of entries) regularly.
 
 
 ### Can this plugin be used on a multisite installation?
@@ -120,7 +120,7 @@ I chose WP 3.2 since that was the release that dropped support for PHP 4 and I d
 
 ### Won't spam comments flood the database table with useless entries for the checkbox in the comment form?
 
-The plugin doesn't save the value of the "use gravatar" checkbox for comments by registered users (see below), trackbacks/pingbacks (there is no E-Mail address) and comments that are marked as spam when they are saved. If you mark a comment as spam later, the table entry is not removed, since the same E-Mail address might also be used by non-spam comments. If a comment is marked as spam by Akismet or similar plugins and you later manually mark it as non-spam, what the user selected when submitting the comment will already be lost. This only happens with spam comments, not comments who just need to be moderated, e.g. because of the 'needs at least one published comment' rule.
+The plugin doesn't save the value of the "use gravatar" checkbox for comments by registered users (see below), trackbacks/pingbacks (there is no e-mail address) and comments that are marked as spam when they are saved. If you mark a comment as spam later, the table entry is not removed, since the same e-mail address might also be used by non-spam comments. If a comment is marked as spam by Akismet or similar plugins and you later manually mark it as non-spam, what the user selected when submitting the comment will already be lost. This only happens with spam comments, not comments who just need to be moderated, e.g. because of the 'needs at least one published comment' rule.
 
 
 ### Can commenters override a registered user's choice whether to display a gravatar by creating fake comments?
@@ -133,7 +133,5 @@ No, for registered users the user profile is checked, not the table for the comm
 I used Avatar Privacy together with these plugins:
 
 *   [AntiSpam Bee](http://wordpress.org/extend/plugins/antispam-bee/)
-*   [Twitter Avatar Reloaded](http://wordpress.org/extend/plugins/twitter-avatar-reloaded/)
-*   [User Photo](http://wordpress.org/extend/plugins/user-photo/) (worked on normal WP installation, haven't tried MultiSite; the plugin is a bit outdated and needs some general fixes)
 
 If you find any problems with particular plugins, please tell me!
