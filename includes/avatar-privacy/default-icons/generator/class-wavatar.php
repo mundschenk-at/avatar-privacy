@@ -49,6 +49,13 @@ class Wavatar {
 	const DEGREE  = 360;
 
 	/**
+	 * The path to the monster parts image files.
+	 *
+	 * @var string
+	 */
+	private $parts_dir;
+
+	/**
 	 * Creates a new Wavatars generator.
 	 */
 	public function __construct() {
