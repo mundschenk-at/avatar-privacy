@@ -146,4 +146,25 @@ class Filesystem_Cache {
 	public function get_url( $filename ) {
 		return $this->get_base_url() . $filename;
 	}
+
+	/**
+	 * Invalidate all cached elements by recursively deleting all files and directories.
+	 */
+	public function invalidate() {
+		$files = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator( $this->get_base_dir(), \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS ),
+			\RecursiveIteratorIterator::CHILD_FIRST
+		);
+
+		foreach ( $files as $path => $file ) {
+			if ( $file->isWritable() ) {
+
+				if ( $file->isDir() ) {
+					\rmdir( $path ); // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow
+				} else {
+					\unlink( $path ); // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow
+				}
+			}
+		}
+	}
 }
