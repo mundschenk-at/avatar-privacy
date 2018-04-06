@@ -27,7 +27,7 @@
 
 namespace Avatar_Privacy\Default_Icons\Wavatars;
 
-use Scriptura\Color\Types\HSL;
+use function Scriptura\Color\Helpers\HSLtoRGB;
 
 /**
  * A wavatar generator.
@@ -43,6 +43,10 @@ class Wavatars {
 	const WAVATAR_EYES        = 13;
 	const WAVATAR_PUPILS      = 11;
 	const WAVATAR_MOUTHS      = 19;
+
+	// Units used in HSL colors.
+	const PERCENT = 100;
+	const DEGREE  = 360;
 
 	/**
 	 * Creates a new Wavatars generator.
@@ -81,9 +85,9 @@ class Wavatars {
 		// Look at the seed (an md5 hash) and use pairs of digits to determine our
 		// "random" parts and colors.
 		$face      = 1 + ( hexdec( substr( $seed,  1, 2 ) ) % ( self::WAVATAR_FACES ) );
-		$bg_color  = ( ( hexdec( substr( $seed,  3, 2 ) ) % 240 ) / 255 * 360 );
+		$bg_color  = ( ( hexdec( substr( $seed,  3, 2 ) ) % 240 ) / 255 * self::DEGREE );
 		$fade      = 1 + ( hexdec( substr( $seed,  5, 2 ) ) % ( self::WAVATAR_BACKGROUNDS ) );
-		$wav_color = ( ( hexdec( substr( $seed,  7, 2 ) ) % 240 ) / 255 * 360 );
+		$wav_color = ( ( hexdec( substr( $seed,  7, 2 ) ) % 240 ) / 255 * self::DEGREE );
 		$brow      = 1 + ( hexdec( substr( $seed,  9, 2 ) ) % ( self::WAVATAR_BROWS ) );
 		$eyes      = 1 + ( hexdec( substr( $seed, 11, 2 ) ) % ( self::WAVATAR_EYES ) );
 		$pupil     = 1 + ( hexdec( substr( $seed, 13, 2 ) ) % ( self::WAVATAR_PUPILS ) );
@@ -93,11 +97,11 @@ class Wavatars {
 		$avatar = imagecreatetruecolor( self::SIZE, self::SIZE );
 
 		// Pick a random color for the background.
-		$c  = ( new HSL( $bg_color, 94, 20 ) )->toRGB();
-		$bg = imagecolorallocate( $avatar, $c->red(), $c->green(), $c->blue() );
+		$c  = HSLtoRGB( $bg_color, 94, 20 );
+		$bg = imagecolorallocate( $avatar, $c[0], $c[1], $c[2] );
 		imagefill( $avatar, 1, 1, $bg );
-		$c  = ( new HSL( $wav_color, 94, 66 ) )->toRGB();
-		$bg = imagecolorallocate( $avatar, $c->red(), $c->green(), $c->blue() );
+		$c  = HSLtoRGB( $wav_color, 94, 66 );
+		$bg = imagecolorallocate( $avatar, $c[0], $c[1], $c[2] );
 
 		// Now add the various layers onto the image.
 		$this->apply_image( $avatar, "fade$fade" );
