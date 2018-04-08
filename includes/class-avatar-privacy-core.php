@@ -458,7 +458,7 @@ class Avatar_Privacy_Core {
 		$key = self::EMAIL_CACHE_PREFIX . md5( $email );
 		$res = $this->cache->get( $key );
 
-		if ( empty( $res ) ) {
+		if ( false === $res ) {
 			$res = $wpdb->get_row(
 				$wpdb->prepare( "SELECT * FROM {$wpdb->avatar_privacy} WHERE email LIKE %s", $email ),
 				OBJECT
