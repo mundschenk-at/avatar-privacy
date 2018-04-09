@@ -213,41 +213,6 @@ class Avatar_Privacy_Core {
 	public function plugins_loaded() {
 		// Read the plugin settings.
 		$this->settings = $this->options->get( self::SETTINGS_NAME, [] );
-
-		if ( is_admin() ) {
-			// Add the checkbox to the user profile form if we're in the WP backend.
-			add_action( 'show_user_profile', [ $this, 'add_user_profile_fields' ] );
-			add_action( 'edit_user_profile', [ $this, 'add_user_profile_fields' ] );
-			add_action( 'personal_options_update', [ $this, 'save_user_profile_fields' ] );
-			add_action( 'edit_user_profile_update', [ $this, 'save_user_profile_fields' ] );
-		}
-	}
-
-	/**
-	 * Adds the 'use gravatar' checkbox to the user profile form.
-	 *
-	 * @param object $user The current user whose profile to modify.
-	 */
-	public function add_user_profile_fields( $user ) {
-		$val = (bool) get_the_author_meta( self::CHECKBOX_FIELD_NAME, $user->ID );
-
-		require dirname( __DIR__ ) . '/admin/partials/profile/use-gravatar.php';
-	}
-
-	/**
-	 * Saves the value of the 'use gravatar' checkbox from the user profile in
-	 * the database.
-	 *
-	 * @param string $user_id The ID of the user that has just been saved.
-	 */
-	public function save_user_profile_fields( $user_id ) {
-		if ( ! current_user_can( 'edit_user', $user_id ) ) {
-			return false;
-		}
-		// Use true/false instead of 1/0 since a '0' value is removed from the database and then
-		// we can't differentiate between opted-out and never saved a value.
-		$value = isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) && ( 'true' === $_POST[ self::CHECKBOX_FIELD_NAME ] ) ? 'true' : 'false'; // WPCS: CSRF ok, Input var okay.
-		update_user_meta( $user_id, self::CHECKBOX_FIELD_NAME, $value );
 	}
 
 	/**

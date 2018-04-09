@@ -27,6 +27,7 @@
 use Dice\Dice;
 
 use Avatar_Privacy\Components\Setup;
+use Avatar_Privacy\Components\User_Profile;
 
 use Avatar_Privacy\Data_Storage\Cache;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
@@ -94,6 +95,9 @@ abstract class Avatar_Privacy_Factory {
 
 			// Additional parameters for components.
 			self::$factory->addRule( Setup::class, [
+				'constructParams' => [ $full_plugin_path ],
+			] );
+			self::$factory->addRule( User_Profile::class, [
 				'constructParams' => [ $full_plugin_path ],
 			] );
 		}

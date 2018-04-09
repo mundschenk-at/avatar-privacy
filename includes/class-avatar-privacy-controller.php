@@ -29,6 +29,7 @@ use Avatar_Privacy\Components\Avatar_Handling;
 use Avatar_Privacy\Components\Comments;
 use Avatar_Privacy\Components\Default_Icons;
 use Avatar_Privacy\Components\Setup;
+use Avatar_Privacy\Components\User_Profile;
 
 /**
  * Initialize Avatar Privacy plugin.
@@ -60,14 +61,16 @@ class Avatar_Privacy_Controller {
 	 * @param Default_Icons          $icons    The default icon handler.
 	 * @param Avatar_Handling        $avatars  The avatar handler.
 	 * @param Comments               $comments The comments handler.
+	 * @param User_Profile           $profile  The user profile handler.
 	 */
-	public function __construct( Avatar_Privacy_Core $core, Avatar_Privacy_Options $settings, Setup $setup, Default_Icons $icons, Avatar_Handling $avatars, Comments $comments ) {
+	public function __construct( Avatar_Privacy_Core $core, Avatar_Privacy_Options $settings, Setup $setup, Default_Icons $icons, Avatar_Handling $avatars, Comments $comments, User_Profile $profile ) {
 		$this->core         = $core;
 		$this->components[] = $setup;
 		$this->components[] = $settings;
 		$this->components[] = $avatars;
 		$this->components[] = $icons;
 		$this->components[] = $comments;
+		$this->components[] = $profile;
 	}
 
 	/**
