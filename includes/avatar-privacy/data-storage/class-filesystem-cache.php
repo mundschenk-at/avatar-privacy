@@ -72,7 +72,7 @@ class Filesystem_Cache {
 	 *
 	 * @return string
 	 */
-	protected function get_base_dir() {
+	public function get_base_dir() {
 		if ( empty( $this->base_dir ) ) {
 			$upload_dir     = $this->get_upload_dir();
 			$this->base_dir = "{$upload_dir['basedir']}/" . self::CACHE_DIR;
@@ -90,7 +90,7 @@ class Filesystem_Cache {
 	 *
 	 * @return string
 	 */
-	protected function get_base_url() {
+	public function get_base_url() {
 		if ( empty( $this->base_url ) ) {
 			$upload_dir     = $this->get_upload_dir();
 			$this->base_url = "{$upload_dir['baseurl']}/" . self::CACHE_DIR;
