@@ -24,6 +24,7 @@
 		<exclude name="WordPress.VIP.RestrictedFunctions.user_meta_update_user_meta" />
 		<exclude name="WordPress.VIP.RestrictedFunctions.user_meta_delete_user_meta" />
 		<exclude name="WordPress.VIP.RestrictedFunctions.switch_to_blog_switch_to_blog" />
+		<exclude name="WordPress.VIP.RestrictedFunctions.wp_remote_get_wp_remote_get" />
 		<exclude name="WordPress.VIP.RestrictedVariables.cache_constraints___COOKIE" />
 		<exclude name="WordPress.VIP.FileSystemWritesDisallow.file_ops_file_put_contents" />
 	</rule>
