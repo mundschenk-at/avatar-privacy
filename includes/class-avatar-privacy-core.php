@@ -214,11 +214,6 @@ class Avatar_Privacy_Core {
 		// Read the plugin settings.
 		$this->settings = $this->options->get( self::SETTINGS_NAME, [] );
 
-		// Add the checkbox to the comment form.
-		add_filter( 'comment_form_default_fields', [ $this, 'comment_form_default_fields' ] );
-
-		// Handle the checkbox data upon saving the comment.
-		add_action( 'comment_post', [ $this, 'comment_post' ], 10, 2 );
 		if ( is_admin() ) {
 			// Add the checkbox to the user profile form if we're in the WP backend.
 			add_action( 'show_user_profile', [ $this, 'add_user_profile_fields' ] );
@@ -226,107 +221,6 @@ class Avatar_Privacy_Core {
 			add_action( 'personal_options_update', [ $this, 'save_user_profile_fields' ] );
 			add_action( 'edit_user_profile_update', [ $this, 'save_user_profile_fields' ] );
 		}
-	}
-
-	/**
-	 * Adds the 'use gravatar' checkbox to the comment form. The checkbox value
-	 * is read from a cookie if available.
-	 *
-	 * @param array $fields The array of default comment fields.
-	 *
-	 * @return array The modified array of comment fields.
-	 */
-	public function comment_form_default_fields( $fields ) {
-		// Don't change the form if a user is logged-in.
-		if ( is_user_logged_in() ) {
-			return $fields;
-		}
-
-		// Define the new checkbox field.
-		$is_checked = false;
-		if ( isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) ) { // WPCS: CSRF ok, Input var okay.
-			// Re-displaying the comment form with validation errors.
-			$is_checked = ! empty( $_POST[ self::CHECKBOX_FIELD_NAME ] ); // WPCS: CSRF ok, Input var okay.
-		} elseif ( isset( $_COOKIE[ 'comment_use_gravatar_' . COOKIEHASH ] ) ) { // Input var okay.
-			// Read the value from the cookie, saved with previous comment.
-			$is_checked = ! empty( $_COOKIE[ 'comment_use_gravatar_' . COOKIEHASH ] ); // Input var okay.
-		}
-		$new_field = '<p class="comment-form-use-gravatar">'
-		. '<input id="' . self::CHECKBOX_FIELD_NAME . '" name="' . self::CHECKBOX_FIELD_NAME . '" type="checkbox" value="true"' . checked( $is_checked, true, false ) . ' style="width: auto; margin-right: 5px;" />'
-		. '<label for="' . self::CHECKBOX_FIELD_NAME . '">' . sprintf( /* translators: gravatar.com URL */ __( 'Display a <a href="%s">Gravatar</a> image next to my comments.', 'avatar-privacy' ), 'https://gravatar.com' ) . '</label> '
-		. '</p>';
-
-		// Either add the new field after the E-Mail field or at the end of the array.
-		if ( isset( $fields['email'] ) ) {
-			$result = [];
-			foreach ( $fields as $key => $value ) {
-				$result[ $key ] = $value;
-				if ( 'email' === $key ) {
-					$result['use_gravatar'] = $new_field;
-				}
-			}
-			$fields = $result;
-		} else {
-			$fields['use_gravatar'] = $new_field;
-		}
-
-		return $fields;
-	}
-
-	/**
-	 * Saves the value of the 'use gravatar' checkbox from the comment form in
-	 * the database, but only for non-spam comments.
-	 *
-	 * @param string $comment_id       The ID of the comment that has just been saved.
-	 * @param string $comment_approved Whether the comment has been approved (1)
-	 *                                 or not (0) or is marked as spam (spam).
-	 */
-	public function comment_post( $comment_id, $comment_approved ) {
-		global $wpdb;
-
-		// Don't save anything for spam comments, trackbacks/pingbacks, and registered user's comments.
-		if ( 'spam' === $comment_approved ) {
-			return;
-		}
-		$comment = get_comment( $comment_id );
-		if ( ! $comment || ( '' !== $comment->comment_type ) || ( '' === $comment->comment_author_email ) ) {
-			return;
-		}
-
-		// Make sure that the e-mail address does not belong to a registered user.
-		if ( get_user_by( 'email', $comment->comment_author_email ) ) {
-			// This is either a comment with a fake identity or a user who didn't sign in
-			// and rather entered their details manually. Either way, don't save anything.
-			return;
-		}
-
-		// Save the 'use gravatar' value.
-		$use_gravatar  = ( isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) && ( 'true' === $_POST[ self::CHECKBOX_FIELD_NAME ] ) ) ? '1' : '0'; // WPCS: CSRF ok, Input var okay.
-		$current_value = $this->load_data( $comment->comment_author_email );
-		if ( ! $current_value ) {
-			// Nothing found in the database, insert the dataset.
-			$this->insert_comment_author_data( $comment->comment_author_email, $use_gravatar, current_time( 'mysql' ),
-				'set with comment ' . $comment_id . ( is_multisite() ? ' (site: ' . $wpdb->siteid . ', blog: ' . $wpdb->blogid . ')' : '' )
-			);
-		} else {
-			if ( $current_value->use_gravatar !== $use_gravatar ) {
-				// Dataset found but with different value, update it.
-				$this->update_comment_author_data( $current_value->id, $current_value->email, [
-					'use_gravatar' => $use_gravatar,
-					'last_updated' => current_time( 'mysql' ),
-					'log_message'  => 'set with comment ' . $comment_id . ( is_multisite() ? ' (site: ' . $wpdb->siteid . ', blog: ' . $wpdb->blogid . ')' : '' ),
-					'hash'         => $this->get_hash( $comment->comment_author_email ),
-				] );
-			} elseif ( empty( $current_value->hash ) ) {
-				// Just add the hash.
-				$this->update_comment_author_data( $current_value->id, $current_value->email, [ 'hash' => $this->get_hash( $comment->comment_author_email ) ] );
-			}
-		}
-
-		// Set a cookie for the 'use gravatar' value.
-		$comment_cookie_lifetime = apply_filters( 'comment_cookie_lifetime', 30000000 );
-		$secure                  = ( 'https' === wp_parse_url( home_url(), PHP_URL_SCHEME ) );
-		setcookie( 'comment_use_gravatar_' . COOKIEHASH, $use_gravatar, time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN, $secure );
 	}
 
 	/**
@@ -642,6 +536,38 @@ class Avatar_Privacy_Core {
 		$this->cache->delete( self::EMAIL_CACHE_PREFIX . $hash );
 
 		return $wpdb->insert( $wpdb->avatar_privacy, $columns, $this->get_format_strings( $columns ) ); // WPCS: db call ok, db cache ok.
+	}
+
+	/**
+	 * Ensures that the comment author gravatar policy is updated.
+	 *
+	 * @param  string $email        The comment author's mail address.
+	 * @param  int    $comment_id   The comment ID.
+	 * @param  int    $use_gravatar 1 if Gravatar.com is enabled, 0 otherwise.
+	 */
+	public function update_comment_author_gravatar_use( $email, $comment_id, $use_gravatar ) {
+		global $wpdb;
+
+		$data = $this->load_data( $email );
+		if ( ! $data ) {
+			// Nothing found in the database, insert the dataset.
+			$this->insert_comment_author_data( $email, $use_gravatar, current_time( 'mysql' ),
+				'set with comment ' . $comment_id . ( \is_multisite() ? ' (site: ' . $wpdb->siteid . ', blog: ' . $wpdb->blogid . ')' : '' )
+			);
+		} else {
+			if ( $data->use_gravatar !== $use_gravatar ) {
+				// Dataset found but with different value, update it.
+				$this->update_comment_author_data( $data->id, $data->email, [
+					'use_gravatar' => $use_gravatar,
+					'last_updated' => current_time( 'mysql' ),
+					'log_message'  => 'set with comment ' . $comment_id . ( \is_multisite() ? ' (site: ' . $wpdb->siteid . ', blog: ' . $wpdb->blogid . ')' : '' ),
+					'hash'         => $this->get_hash( $email ),
+				] );
+			} elseif ( empty( $data->hash ) ) {
+				// Just add the hash.
+				$this->update_comment_author_data( $data->id, $data->email, [ 'hash' => $this->get_hash( $email ) ] );
+			}
+		}
 	}
 
 	/**

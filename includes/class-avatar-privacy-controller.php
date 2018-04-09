@@ -26,6 +26,7 @@
  */
 
 use Avatar_Privacy\Components\Avatar_Handling;
+use Avatar_Privacy\Components\Comments;
 use Avatar_Privacy\Components\Default_Icons;
 use Avatar_Privacy\Components\Setup;
 
@@ -58,13 +59,15 @@ class Avatar_Privacy_Controller {
 	 * @param Setup                  $setup    The (de-)activation/uninstallation handling.
 	 * @param Default_Icons          $icons    The default icon handler.
 	 * @param Avatar_Handling        $avatars  The avatar handler.
+	 * @param Comments               $comments The comments handler.
 	 */
-	public function __construct( Avatar_Privacy_Core $core, Avatar_Privacy_Options $settings, Setup $setup, Default_Icons $icons, Avatar_Handling $avatars ) {
+	public function __construct( Avatar_Privacy_Core $core, Avatar_Privacy_Options $settings, Setup $setup, Default_Icons $icons, Avatar_Handling $avatars, Comments $comments ) {
 		$this->core         = $core;
 		$this->components[] = $setup;
 		$this->components[] = $settings;
 		$this->components[] = $avatars;
 		$this->components[] = $icons;
+		$this->components[] = $comments;
 	}
 
 	/**
