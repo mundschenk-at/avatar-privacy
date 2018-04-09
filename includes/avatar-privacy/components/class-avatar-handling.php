@@ -27,6 +27,7 @@
 
 namespace Avatar_Privacy\Components;
 
+use Avatar_Privacy\Gravatar_Cache;
 use Avatar_Privacy\Data_Storage\Options;
 
 /**
@@ -60,12 +61,14 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param string  $plugin_file The full path to the base plugin file.
-	 * @param Options $options     The options handler.
+	 * @param string         $plugin_file The full path to the base plugin file.
+	 * @param Options        $options     The options handler.
+	 * @param Gravatar_Cache $gravatar    The local Gravatar cache.
 	 */
-	public function __construct( $plugin_file, Options $options ) {
-		$this->plugin_file = $plugin_file;
-		$this->options     = $options;
+	public function __construct( $plugin_file, Options $options, Gravatar_Cache $gravatar ) {
+		$this->plugin_file    = $plugin_file;
+		$this->options        = $options;
+		$this->gravatar_cache = $gravatar;
 	}
 
 	/**
@@ -167,19 +170,23 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		 * Filters the default icon URL for the given e-mail.
 		 *
 		 * @param  string $url     The fallback icon (a blank GIF).
-		 * @param  string $email   The mail address used to generate the identity hash.
+		 * @param  string $hash    The hashed mail address.
 		 * @param  string $default The default avatar image identifier.
 		 * @param  int    $size    The size of the avatar image in pixels.
 		 */
-		$new_url = \apply_filters( 'avatar_privacy_default_icon_url', \includes_url( 'images/blank.gif' ), $email, $args['default'], $args['size'] );
+		$url = \apply_filters( 'avatar_privacy_default_icon_url', \includes_url( 'images/blank.gif' ), $this->core->get_hash( $email ), $args['default'], $args['size'] );
 
-		// Modify the avatar URL.
-		if ( $on_settings_page || ! $show_avatar ) {
-			// Display the default avatar instead of the avatar for the e-mail address.
-			$url = $new_url;
-		} else {
-			// Change the default avatar in the given URL (for users who opted in to gravatars but don't have one).
-			$url = \str_replace( "d={$args['default']}", "d={$new_url}", $url );
+		// Maybe display a Gravatar.
+		if ( $show_avatar && ! $on_settings_page ) {
+			/**
+			 * Filters the Gravatar.com URL for the given e-mail.
+			 *
+			 * @param  string    $url     The fallback default icon URL.
+			 * @param  string    $email   The mail address used to generate the identity hash.
+			 * @param  int       $size    The size of the avatar image in pixels.
+			 * @param  int]false $user_id A WordPress user ID (or false).
+			 */
+			$url = \apply_filters( 'avatar_privacy_gravatar_icon_url', $url, $email, $args['size'], $user_id );
 		}
 
 		return $url;

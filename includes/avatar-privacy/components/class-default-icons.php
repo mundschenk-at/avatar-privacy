@@ -26,6 +26,8 @@
 
 namespace Avatar_Privacy\Components;
 
+use Avatar_Privacy\Gravatar_Cache;
+
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Site_Transients;
@@ -107,18 +109,34 @@ class Default_Icons implements \Avatar_Privacy\Component {
 	private $icon_providers = [];
 
 	/**
+	 * The Gravatar.com icon provider.
+	 *
+	 * @var Gravatar_Cache
+	 */
+	private $gravatar_cache;
+
+	/**
+	 * The core API.
+	 *
+	 * @var \Avatar_Privacy_Core
+	 */
+	private $core;
+
+	/**
 	 * Creates a new Setup instance.
 	 *
 	 * @param Transients       $transients      The transients handler.
 	 * @param Site_Transients  $site_transients The site transients handler.
 	 * @param Options          $options         The options handler.
 	 * @param Filesystem_Cache $file_cache      The filesystem cache handler.
+	 * @param Gravatar_Cache   $gravatar        The Gravatar.com icon provider.
 	 */
-	public function __construct( Transients $transients, Site_Transients $site_transients, Options $options, Filesystem_Cache $file_cache ) {
+	public function __construct( Transients $transients, Site_Transients $site_transients, Options $options, Filesystem_Cache $file_cache, Gravatar_Cache $gravatar ) {
 		$this->transients      = $transients;
 		$this->site_transients = $site_transients;
 		$this->options         = $options;
 		$this->file_cache      = $file_cache;
+		$this->gravatar_cache  = $gravatar;
 	}
 
 	/**
@@ -129,6 +147,8 @@ class Default_Icons implements \Avatar_Privacy\Component {
 	 * @return void
 	 */
 	public function run( \Avatar_Privacy_Core $core ) {
+		$this->core = $core;
+
 		foreach ( self::STATIC_ICONS as $file => $types ) {
 			$this->icon_providers[] = new Static_Icon_Provider( $types, $file, $core->get_plugin_file() );
 		}
@@ -142,26 +162,173 @@ class Default_Icons implements \Avatar_Privacy\Component {
 		$this->icon_providers[] = new Wavatar_Icon_Provider( $this->file_cache );
 
 		\add_filter( 'avatar_privacy_default_icon_url', [ $this, 'default_icon_url' ], 10, 4 );
+		\add_filter( 'avatar_privacy_gravatar_icon_url', [ $this, 'gravatar_icon_url' ], 10, 4 );
+
+		\add_action( 'init',          [ $this, 'add_cache_rewrite_rules' ] );
+		\add_action( 'parse_request', [ $this, 'load_cached_avatar' ] );
+	}
+
+	/**
+	 * Add rewrite rules for nice avatar caching.
+	 */
+	public function add_cache_rewrite_rules() {
+		/**
+		 * The global WordPress instance.
+		 *
+		 * @var \WP
+		 */
+		global $wp;
+		$wp->add_query_var( 'avatar-privacy-file' );
+
+		$basedir = str_replace( ABSPATH, '', $this->file_cache->get_base_dir() );
+		\add_rewrite_rule( "^{$basedir}(.*)", 'index.php?avatar-privacy-file=$matches[1]', 'top' );
+	}
+
+	/**
+	 * Short-circuits WordPress initialization and load displays the cached avatar image.
+	 *
+	 * @param \WP $wp The WordPress global object.
+	 */
+	public function load_cached_avatar( \WP $wp ) {
+		if ( ! empty( $wp->query_vars['avatar-privacy-file'] ) && preg_match( '#^([a-z]+)/(?:([a-z]+)/)?([a-f0-9]{64})-([0-9]+)\.(png|svg)$#i', $wp->query_vars['avatar-privacy-file'], $matches ) ) {
+			list( , $type, $subdir, $hash, $size, $extension ) = $matches;
+
+			$file = "{$this->file_cache->get_base_dir()}{$type}/" . ( empty( $subdir ) ? '' : "{$subdir}/" ) . "{$hash}-{$size}.{$extension}";
+
+			if ( ! \file_exists( $file ) ) {
+				if ( 'gravatar' === $type ) {
+					$success = $this->retrieve_gravatar_icon( $hash, $subdir, $size );
+				} else {
+					$success = $this->generate_default_icon( $hash, $type, $size );
+				}
+
+				if ( ! $success ) {
+					/* translators: $file path */
+					wp_die( esc_html( sprintf( __( 'Error generating avatar file %s.', 'avatar-privacy' ), $file ) ) );
+				}
+			}
+
+			$this->send_image( $file, DAY_IN_SECONDS );
+
+			// We're done.
+			exit( 0 );
+		}
+	}
+
+	/**
+	 * Sends an image file to the browser.
+	 *
+	 * @param  string $file       The full path to the image.
+	 * @param  int    $cache_time The time the image should be cached by the brwoser (in seconds).
+	 */
+	private function send_image( $file, $cache_time ) {
+		$image = @file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_get_contents, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, Generic.PHP.NoSilencedErrors.Discouraged
+
+		if ( ! empty( $image ) ) {
+			// Let's set some HTTP headers.
+			\header( 'Content-Type: image/png' );
+			\header( 'Content-Length: ' . \strlen( $image ) );
+			\header( 'Expires: ' . \gmdate( 'D, d M Y H:i:s \G\M\T', \time() + $cache_time ) );
+
+			// Here comes the content.
+			echo $image; // WPCS: XSS ok.
+		} else {
+			/* translators: $file path */
+			\wp_die( \esc_html( \sprintf( \__( 'Error generating avatar file %s.', 'avatar-privacy' ), $file ) ) );
+		}
+	}
+
+	/**
+	 * Generates the default icon for the given hash.
+	 *
+	 * @param  string $hash The hashed mail address.
+	 * @param  string $type The default icon type.
+	 * @param  int    $size The requested size in pixels.
+	 *
+	 * @return bool
+	 */
+	private function generate_default_icon( $hash, $type, $size ) {
+		foreach ( $this->icon_providers as $provider ) {
+			if ( $provider->provides( $type ) ) {
+				return ! empty( $provider->get_icon_url( $hash, $size ) );
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Retrieves the Gravatar.com icon for the given hash.
+	 *
+	 * @param  string $hash The hashed mail address (including some special information).
+	 * @param  string $type The address type (`a` if linked to user, `b` if comment author).
+	 * @param  int    $size The requested size in pixels.
+	 *
+	 * @return bool
+	 */
+	private function retrieve_gravatar_icon( $hash, $type, $size ) {
+		if ( ! 'a' !== $type && 'b' !== $type ) {
+			return false;
+		}
+
+		if ( 'a' === $type ) {
+			list( $user ) = \get_users( [
+				'number'       => 1,
+				'meta_key'     => 'avatar_privacy_hash',
+				'meta_value'   => $hash,
+				'meta_compare' => '=',
+			] );
+
+			if ( ! empty( $user ) ) {
+				$user_id = $user->ID;
+				$email   = ! empty( $user->user_email ) ? $user->user_email : '';
+			}
+		} else {
+			$user_id = false;
+			$email   = $this->core->get_comment_author_email( $hash );
+		}
+
+		// Could not find user/comment author.
+		if ( empty( $email ) ) {
+			return false;
+		}
+
+		// Try to cache the icon.
+		return ! empty( $this->gravatar_icon_url( $email, $size, $user_id ) );
 	}
 
 	/**
 	 * Retrieves the URL for the given default icon type.
 	 *
-	 * @param  string $url   The fallback default icon URL.
-	 * @param  string $email The mail address used to generate the identity hash.
-	 * @param  string $type  The default icon type.
-	 * @param  int    $size  The requested size in pixels.
+	 * @param  string $url  The fallback default icon URL.
+	 * @param  string $hash The hashed mail address.
+	 * @param  string $type The default icon type.
+	 * @param  int    $size The requested size in pixels.
 	 *
 	 * @return string
 	 */
-	public function default_icon_url( $url, $email, $type, $size ) {
+	public function default_icon_url( $url, $hash, $type, $size ) {
 		foreach ( $this->icon_providers as $provider ) {
 			if ( $provider->provides( $type ) ) {
-				return $provider->get_icon_url( $provider->hash( $email ), $size );
+				return $provider->get_icon_url( $hash, $size );
 			}
 		}
 
 		// Return the fallback default icon URL.
 		return $url;
+	}
+
+	/**
+	 * Retrieves the URL for the given default icon type.
+	 *
+	 * @param  string    $url     The fallback default icon URL.
+	 * @param  string    $email   The mail address used to generate the identity hash.
+	 * @param  int       $size    The requested size in pixels.
+	 * @param  int|false $user_id Optional. A WordPress user ID, or false. Default false.
+	 *
+	 * @return string
+	 */
+	public function gravatar_icon_url( $url, $email, $size, $user_id = false ) {
+		return $this->gravatar_cache->get_icon_url( $url, $email, $size, $user_id, $this->core );
 	}
 }

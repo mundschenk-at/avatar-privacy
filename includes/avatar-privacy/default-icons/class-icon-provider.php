@@ -53,14 +53,4 @@ interface Icon_Provider {
 	 * @return string
 	 */
 	public function get_icon_url( $identity, $size );
-
-	/**
-	 * Creates a hash from the given mail address.
-	 *
-	 * @param  string $email An email address.
-	 * @param  string $salt  Optional. A salt value for the hash function. Default ''.
-	 *
-	 * @return string
-	 */
-	public function hash( $email, $salt = '' );
 }

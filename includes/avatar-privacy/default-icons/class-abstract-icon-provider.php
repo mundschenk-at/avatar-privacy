@@ -71,16 +71,4 @@ abstract class Abstract_Icon_Provider implements Icon_Provider {
 	 * @return string
 	 */
 	abstract public function get_icon_url( $identity, $size );
-
-	/**
-	 * Creates a hash from the given mail address using the SHA-256 algorithm.
-	 *
-	 * @param  string $email An email address.
-	 * @param  string $salt  Optional. A salt value for the hash function. Default ''.
-	 *
-	 * @return string
-	 */
-	public function hash( $email, $salt = '' ) {
-		return \hash( 'sha256', "{$salt}{$email}" );
-	}
 }

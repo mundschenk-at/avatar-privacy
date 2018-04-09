@@ -27,6 +27,7 @@
 
 use Avatar_Privacy\Data_Storage\Cache;
 use Avatar_Privacy\Data_Storage\Options;
+use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Transients;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 
@@ -56,6 +57,14 @@ class Avatar_Privacy_Core {
 	 * Prefix for caching avatar privacy for non-logged-in users.
 	 */
 	const EMAIL_CACHE_PREFIX = 'email_';
+
+	const COLUMN_FORMAT_STRINGS = [
+		'email'        => '%s',
+		'last_updated' => '%s',
+		'log_message'  => '%s',
+		'hash'         => '%s',
+		'use_gravatar' => '%d',
+	];
 
 	// --------------------------------------------------------------------------
 	// variables
@@ -103,11 +112,26 @@ class Avatar_Privacy_Core {
 	private $options;
 
 	/**
+	 * The network options handler.
+	 *
+	 * @var Network_Options
+	 */
+	private $network_options;
+
+	/**
 	 * The transients handler.
 	 *
 	 * @var Transients
 	 */
 	private $transients;
+
+	/**
+	 * The salt used for the get_hash() method.
+	 *
+	 * @var string
+	 */
+	private $salt;
+
 
 	/**
 	 * The site transients handler.
@@ -133,14 +157,16 @@ class Avatar_Privacy_Core {
 	 * @param Site_Transients $site_transients  Required.
 	 * @param Cache           $cache            Required.
 	 * @param Options         $options          Required.
+	 * @param Network_Options $network_options  Required.
 	 */
-	public function __construct( $plugin_file, $version, Transients $transients, Site_Transients $site_transients, Cache $cache, Options $options ) {
+	public function __construct( $plugin_file, $version, Transients $transients, Site_Transients $site_transients, Cache $cache, Options $options, Network_Options $network_options ) {
 		$this->plugin_file     = $plugin_file;
 		$this->version         = $version;
 		$this->transients      = $transients;
 		$this->site_transients = $site_transients;
 		$this->cache           = $cache;
 		$this->options         = $options;
+		$this->network_options = $network_options;
 
 		add_action( 'plugins_loaded', [ $this, 'plugins_loaded' ] );
 	}
@@ -279,29 +305,22 @@ class Avatar_Privacy_Core {
 		$current_value = $this->load_data( $comment->comment_author_email );
 		if ( ! $current_value ) {
 			// Nothing found in the database, insert the dataset.
-			$wpdb->insert(
-				$wpdb->avatar_privacy, array(
-					'email'        => $comment->comment_author_email,
+			$this->insert_comment_author_data( $comment->comment_author_email, $use_gravatar, current_time( 'mysql' ),
+				'set with comment ' . $comment_id . ( is_multisite() ? ' (site: ' . $wpdb->siteid . ', blog: ' . $wpdb->blogid . ')' : '' )
+			);
+		} else {
+			if ( $current_value->use_gravatar !== $use_gravatar ) {
+				// Dataset found but with different value, update it.
+				$this->update_comment_author_data( $current_value->id, $current_value->email, [
 					'use_gravatar' => $use_gravatar,
 					'last_updated' => current_time( 'mysql' ),
 					'log_message'  => 'set with comment ' . $comment_id . ( is_multisite() ? ' (site: ' . $wpdb->siteid . ', blog: ' . $wpdb->blogid . ')' : '' ),
-				), array( '%s', '%d', '%s', '%s' )
-			); // WPCS: db call ok.
-		} elseif ( $current_value->use_gravatar !== $use_gravatar ) {
-			// Dataset found but with different value, update it.
-			$wpdb->update(
-				$wpdb->avatar_privacy, array(
-					'use_gravatar' => $use_gravatar,
-					'last_updated' => current_time( 'mysql' ),
-					'log_message'  => 'set with comment ' . $comment_id . ( is_multisite() ? ' (site: ' . $wpdb->siteid . ', blog: ' . $wpdb->blogid . ')' : '' ),
-				),
-				array( 'id' => $current_value->id ),
-				array( '%d', '%s', '%s' ),
-				array( '%d' )
-			); // WPCS: db call ok, db cache ok.
-
-			// Clear any previously cached value.
-			$this->cache->delete( self::EMAIL_CACHE_PREFIX . md5( $comment->comment_author_email ) );
+					'hash'         => $this->get_hash( $comment->comment_author_email ),
+				] );
+			} elseif ( empty( $current_value->hash ) ) {
+				// Just add the hash.
+				$this->update_comment_author_data( $current_value->id, $current_value->email, [ 'hash' => $this->get_hash( $comment->comment_author_email ) ] );
+			}
 		}
 
 		// Set a cookie for the 'use gravatar' value.
@@ -416,12 +435,12 @@ class Avatar_Privacy_Core {
 	/**
 	 * Checks whether an anonymous comment author has opted-in to Gravatar usage.
 	 *
-	 * @param  string $email The comment author's email address.
+	 * @param  string $email_or_hash The comment author's e-mail address or the unique hash.
 	 *
 	 * @return bool
 	 */
-	public function comment_author_allows_gravatar_use( $email ) {
-		$data = $this->load_data( $email );
+	public function comment_author_allows_gravatar_use( $email_or_hash ) {
+		$data = $this->load_data( $email_or_hash );
 
 		return ! empty( $data ) && ! empty( $data->use_gravatar );
 	}
@@ -429,44 +448,257 @@ class Avatar_Privacy_Core {
 	/**
 	 * Checks whether an anonymous comment author is in our Gravatar policy database.
 	 *
-	 * @param  string $email The comment author's email address.
+	 * @param  string $email_or_hash The comment author's e-mail address or the unique hash.
 	 *
 	 * @return bool
 	 */
-	public function comment_author_has_gravatar_policy( $email ) {
-		$data = $this->load_data( $email );
+	public function comment_author_has_gravatar_policy( $email_or_hash ) {
+		$data = $this->load_data( $email_or_hash );
 
 		return ! empty( $data );
 	}
 
+	/**
+	 * Retrieves the database primary key for the given email address.
+	 *
+	 * @param  string $email_or_hash The comment author's e-mail address or the unique hash.
+	 *
+	 * @return int                   The database key for the given email address (or 0).
+	 */
+	public function get_comment_author_key( $email_or_hash ) {
+		$data = $this->load_data( $email_or_hash );
+
+		if ( isset( $data->id ) ) {
+			return $data->id;
+		}
+
+		return 0;
+	}
 
 	/**
 	 * Returns the dataset from the 'use gravatar' table for the given E-Mail
 	 * address.
 	 *
-	 * @param  string $email The e-mail address to check.
+	 * @param  string $email_or_hash The comment author's e-mail address or the unique hash.
+	 *
+	 * @return object                The dataset as an object or null.
+	 */
+	private function load_data( $email_or_hash ) {
+		if ( false === \strpos( $email_or_hash, '@' ) ) {
+			return $this->load_data_by_hash( $email_or_hash );
+		} else {
+			return $this->load_data_by_email( $email_or_hash );
+		}
+	}
+
+	/**
+	 * Returns the dataset from the 'use gravatar' table for the given database key.
+	 *
+	 * @param  string $email The mail address.
 	 *
 	 * @return object        The dataset as an object or null.
 	 */
-	private function load_data( $email ) {
+	private function load_data_by_email( $email ) {
 		global $wpdb;
 
+		$email = \strtolower( \trim( $email ) );
 		if ( empty( $email ) ) {
 			return null;
 		}
 
-		$key = self::EMAIL_CACHE_PREFIX . md5( $email );
-		$res = $this->cache->get( $key );
+		$key  = self::EMAIL_CACHE_PREFIX . $this->get_hash( $email );
+		$data = $this->cache->get( $key );
 
-		if ( false === $res ) {
-			$res = $wpdb->get_row(
-				$wpdb->prepare( "SELECT * FROM {$wpdb->avatar_privacy} WHERE email LIKE %s", $email ),
+		if ( false === $data ) {
+			$data = $wpdb->get_row(
+				$wpdb->prepare( "SELECT * FROM {$wpdb->avatar_privacy} WHERE email = %s", $email ),
 				OBJECT
 			); // WPCS: db call ok, cache ok.
 
-			$this->cache->set( $key, $res, 5 * MINUTE_IN_SECONDS );
+			$this->cache->set( $key, $data, 5 * MINUTE_IN_SECONDS );
 		}
 
-		return $res;
+		return $data;
+	}
+
+	/**
+	 * Returns the dataset from the 'use gravatar' table for the given database key.
+	 *
+	 * @param  string $hash The hashed mail address.
+	 *
+	 * @return object       The dataset as an object or null.
+	 */
+	private function load_data_by_hash( $hash ) {
+		global $wpdb;
+
+		if ( empty( $hash ) ) {
+			return null;
+		}
+
+		$key  = self::EMAIL_CACHE_PREFIX . $hash;
+		$data = $this->cache->get( $key );
+
+		if ( false === $data ) {
+			$data = $wpdb->get_row(
+				$wpdb->prepare( "SELECT * FROM {$wpdb->avatar_privacy} WHERE hash = %s", $hash ),
+				OBJECT
+			); // WPCS: db call ok, cache ok.
+
+			$this->cache->set( $key, $data, 5 * MINUTE_IN_SECONDS );
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Generates a random, 3 byte long salt.
+	 *
+	 * @return int
+	 */
+	private function generate_salt() {
+		return \mt_rand( 1, 16777215 );
+	}
+
+	/**
+	 * Retrieves the hash for the given user ID. If there currently is no hash,
+	 * a new one is generated.
+	 *
+	 * @param  int $user_id The user ID.
+	 *
+	 * @return string
+	 */
+	public function get_user_hash( $user_id ) {
+		$hash = \get_user_meta( $user_id, 'avatar_privacy_hash', true );
+
+		if ( empty( $hash ) ) {
+			$user = \get_user_by( 'ID', $user_id );
+			$hash = $this->get_hash( $user->user_email );
+			\update_user_meta( $user_id, 'avatar_privacy_hash', $hash );
+		}
+
+		return $hash;
+	}
+
+	/**
+	 * Retrieves the email for the given comment author database key.
+	 *
+	 * @param  string $hash The hashed mail address.
+	 *
+	 * @return string
+	 */
+	public function get_comment_author_email( $hash ) {
+		$data = $this->load_data_by_hash( $hash );
+
+		return ! empty( $data->email ) ? $data->email : '';
+	}
+
+	/**
+	 * Updates the Avatar Privacy table.
+	 *
+	 * @param  int    $id      The row ID.
+	 * @param  string $email   The mail address.
+	 * @param  array  $columns An array of values index by column name.
+	 *
+	 * @return int|false      The number of rows updated, or false on error.
+	 *
+	 * @throws \RuntimeException A \RuntimeException is raised when invalid column names are used.
+	 */
+	private function update_comment_author_data( $id, $email, array $columns ) {
+		global $wpdb;
+
+		$result = $wpdb->update( $wpdb->avatar_privacy, $columns, [ 'id' => $id ], $this->get_format_strings( $columns ), [ '%d' ] ); // WPCS: db call ok, db cache ok.
+
+		if ( false !== $result && $result > 0 ) {
+			// Clear any previously cached value.
+			$this->cache->delete( self::EMAIL_CACHE_PREFIX . $this->get_hash( $email ) );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Updates the Avatar Privacy table.
+	 *
+	 * @param  string $email        The mail address.
+	 * @param  int    $use_gravatar A flag indicating if gravatar use is allowed.
+	 * @param  string $last_updated A date/time in MySQL format.
+	 * @param  string $log_message  The log message.
+	 *
+	 * @return int|false      The number of rows updated, or false on error.
+	 */
+	private function insert_comment_author_data( $email, $use_gravatar, $last_updated, $log_message ) {
+		global $wpdb;
+
+		$hash    = $this->get_hash( $email );
+		$columns = [
+			'email'        => $email,
+			'hash'         => $hash,
+			'use_gravatar' => $use_gravatar,
+			'last_updated' => $last_updated,
+			'log_message'  => $log_message,
+		];
+
+		// Clear any previously cached value, just in case.
+		$this->cache->delete( self::EMAIL_CACHE_PREFIX . $hash );
+
+		return $wpdb->insert( $wpdb->avatar_privacy, $columns, $this->get_format_strings( $columns ) ); // WPCS: db call ok, db cache ok.
+	}
+
+	/**
+	 * Retrieves the salt for current the site/network.
+	 *
+	 * @return string
+	 */
+	public function get_salt() {
+		if ( empty( $this->salt ) ) {
+			// FIXME: Add filter hook.
+			$this->salt = $this->network_options->get( 'salt' );
+
+			if ( empty( $this->salt ) ) {
+				$this->salt = \mt_rand();
+
+				$this->network_options->set( 'salt', $this->salt );
+			}
+		}
+
+		return $this->salt;
+	}
+
+	/**
+	 * Generates a salted SHA-256 hash for the given e-mail address.
+	 *
+	 * @param  string $email The mail address.
+	 *
+	 * @return string
+	 */
+	public function get_hash( $email ) {
+		$email = \strtolower( \trim( $email ) );
+
+		return \hash( 'sha256', "{$this->get_salt()}{$email}" );
+	}
+
+	/**
+	 * Retrieves the correct format strings for the given columns.
+	 *
+	 * @param  array $columns An array of values index by column name.
+	 *
+	 * @return string[]
+	 *
+	 * @throws \RuntimeException A \RuntimeException is raised when invalid column names are used.
+	 */
+	private function get_format_strings( array $columns ) {
+		$format_strings = [];
+
+		foreach ( $columns as $key => $value ) {
+			if ( ! empty( self::COLUMN_FORMAT_STRINGS[ $key ] ) ) {
+				$format_strings[] = self::COLUMN_FORMAT_STRINGS[ $key ];
+			}
+		}
+
+		if ( count( $columns ) !== count( $format_strings ) ) {
+			throw new \RuntimeException( 'Invalid database update string.' );
+		}
+
+		return $format_strings;
 	}
 }

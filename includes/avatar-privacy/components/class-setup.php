@@ -134,13 +134,16 @@ class Setup implements \Avatar_Privacy\Component {
 		if ( \version_compare( $previous_version, '0.4', '<' ) ) {
 			// Run upgrade command.
 		}
+
+		// To be safe, let's flush the rewrite rules if there has been an update.
+		\add_action( 'init', [ __CLASS__, 'flush_rewrite_rules' ] );
 	}
 
 	/**
 	 * Handles plugin activation.
 	 */
 	public function activate() {
-
+		self::flush_rewrite_rules();
 	}
 
 	/**
@@ -148,6 +151,7 @@ class Setup implements \Avatar_Privacy\Component {
 	 */
 	public function deactivate() {
 		self::reset_avatar_default( $this->options );
+		self::flush_rewrite_rules();
 	}
 
 	/**
@@ -216,6 +220,14 @@ class Setup implements \Avatar_Privacy\Component {
 	}
 
 	/**
+	 * Flushes the rewrite rules.
+	 */
+	public static function flush_rewrite_rules() {
+		global $wp_rewrite;
+		$wp_rewrite->flush_rules();
+	}
+
+	/**
 	 * Creates the plugin's database table if it doesn't already exist. The
 	 * table is created as a global table for multisite installations. Makes the
 	 * name of the table available through $wpdb->avatar_privacy.
@@ -225,9 +237,11 @@ class Setup implements \Avatar_Privacy\Component {
 	private function maybe_create_table( $previous_version ) {
 		global $wpdb;
 
+		// FIXME: Proper update check and hash adding.
+
 		// Check if the table exists.
 		if ( property_exists( $wpdb, 'avatar_privacy' ) ) {
-			return;
+			//return;
 		}
 
 		// Set up table name.
@@ -237,7 +251,7 @@ class Setup implements \Avatar_Privacy\Component {
 		$result = $wpdb->get_var( $wpdb->prepare( 'SHOW tables LIKE %s', $table_name ) ); // WPCS: db call ok, cache ok.
 		if ( $result === $table_name ) {
 			$wpdb->avatar_privacy = $table_name;
-			return;
+			//return;
 		}
 
 		// Load upgrade.php for the dbDelta function.
@@ -250,8 +264,10 @@ class Setup implements \Avatar_Privacy\Component {
 				use_gravatar tinyint(2) NOT NULL,
 				last_updated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
 				log_message VARCHAR(255),
+				hash varchar(64),
 				PRIMARY KEY (id),
-				UNIQUE email (email)
+				UNIQUE KEY email (email),
+				UNIQUE KEY hash (hash)
 			) {$wpdb->get_charset_collate()};";
 
 		$result = dbDelta( $sql );
