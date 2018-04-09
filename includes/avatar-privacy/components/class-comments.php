@@ -37,20 +37,6 @@ use Avatar_Privacy\Data_Storage\Options;
 class Comments implements \Avatar_Privacy\Component {
 
 	/**
-	 * The full path to the main plugin file.
-	 *
-	 * @var   string
-	 */
-	private $plugin_file;
-
-	/**
-	 * The options handler.
-	 *
-	 * @var Options
-	 */
-	private $options;
-
-	/**
 	 * The core API.
 	 *
 	 * @var \Avatar_Privacy_Core
@@ -59,13 +45,8 @@ class Comments implements \Avatar_Privacy\Component {
 
 	/**
 	 * Creates a new instance.
-	 *
-	 * @param string         $plugin_file The full path to the base plugin file.
-	 * @param Options        $options     The options handler.
 	 */
-	public function __construct( $plugin_file, Options $options ) {
-		$this->plugin_file = $plugin_file;
-		$this->options     = $options;
+	public function __construct() {
 	}
 
 	/**
