@@ -72,7 +72,7 @@ class Wavatar_Icon_Provider extends Abstract_Icon_Provider {
 	 * @return string
 	 */
 	public function get_icon_url( $identity, $size ) {
-		$filename = "wavatars/$identity-$size.png";
+		$filename = "wavatar/$identity-$size.png";
 
 		$icon = $this->generator->build( $identity, $size );
 
