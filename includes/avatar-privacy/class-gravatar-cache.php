@@ -68,7 +68,7 @@ class Gravatar_Cache {
 		$type         = false !== $user_id ? 'a' : 'b';
 		$filename     = "gravatar/{$type}/{$core->get_hash( $email )}-{$size}.png";
 		$gravatar_url = "https://secure.gravatar.com/avatar/{$this->get_gravatar_hash( $email )}.png?s={$size}&d=404";
-		$icon         = \wp_remote_retrieve_body( \wp_remote_get( $gravatar_url ) );
+		$icon         = \wp_remote_retrieve_body( /* @scrutinizer ignore-type */ \wp_remote_get( $gravatar_url ) );
 
 		if ( ! empty( $icon ) && $this->file_cache->set( $filename, $icon ) ) {
 			$url = $this->file_cache->get_url( $filename );
