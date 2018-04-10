@@ -67,13 +67,6 @@ class Default_Icons implements \Avatar_Privacy\Component {
 	];
 
 	/**
-	 * The full path to the main plugin file.
-	 *
-	 * @var   string
-	 */
-	private $plugin_file;
-
-	/**
 	 * The options handler.
 	 *
 	 * @var Options
