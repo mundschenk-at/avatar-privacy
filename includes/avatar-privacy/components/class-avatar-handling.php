@@ -59,6 +59,13 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	private $core;
 
 	/**
+	 * The gravatar cache..
+	 *
+	 * @var Gravatar_Cache
+	 */
+	private $gravatar_cache;
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param string         $plugin_file The full path to the base plugin file.
