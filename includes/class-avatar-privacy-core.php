@@ -40,11 +40,6 @@ use Avatar_Privacy\Data_Storage\Site_Transients;
 class Avatar_Privacy_Core {
 
 	/**
-	 * The name of the checkbox field in the comment form.
-	 */
-	const CHECKBOX_FIELD_NAME = 'use_gravatar';
-
-	/**
 	 * The name of the combined settings in the database.
 	 */
 	const SETTINGS_NAME = 'settings';

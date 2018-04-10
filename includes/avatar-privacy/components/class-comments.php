@@ -37,6 +37,11 @@ use Avatar_Privacy\Data_Storage\Options;
 class Comments implements \Avatar_Privacy\Component {
 
 	/**
+	 * The name of the checkbox field in the comment form.
+	 */
+	const CHECKBOX_FIELD_NAME = 'use_gravatar';
+
+	/**
 	 * The core API.
 	 *
 	 * @var \Avatar_Privacy_Core
@@ -89,16 +94,16 @@ class Comments implements \Avatar_Privacy\Component {
 
 		// Define the new checkbox field.
 		$is_checked = false;
-		if ( isset( $_POST[ \Avatar_Privacy_Core::CHECKBOX_FIELD_NAME ] ) ) { // WPCS: CSRF ok, Input var okay.
+		if ( isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) ) { // WPCS: CSRF ok, Input var okay.
 			// Re-displaying the comment form with validation errors.
-			$is_checked = ! empty( $_POST[ \Avatar_Privacy_Core::CHECKBOX_FIELD_NAME ] ); // WPCS: CSRF ok, Input var okay.
+			$is_checked = ! empty( $_POST[ self::CHECKBOX_FIELD_NAME ] ); // WPCS: CSRF ok, Input var okay.
 		} elseif ( isset( $_COOKIE[ 'comment_use_gravatar_' . COOKIEHASH ] ) ) { // Input var okay.
 			// Read the value from the cookie, saved with previous comment.
 			$is_checked = ! empty( $_COOKIE[ 'comment_use_gravatar_' . COOKIEHASH ] ); // Input var okay.
 		}
 		$new_field = '<p class="comment-form-use-gravatar">'
-		. '<input id="' . \Avatar_Privacy_Core::CHECKBOX_FIELD_NAME . '" name="' . \Avatar_Privacy_Core::CHECKBOX_FIELD_NAME . '" type="checkbox" value="true"' . checked( $is_checked, true, false ) . ' " />'
-		. '<label for="' . \Avatar_Privacy_Core::CHECKBOX_FIELD_NAME . '">' . sprintf( /* translators: gravatar.com URL */ __( 'Display a <a href="%s">Gravatar</a> image next to my comments.', 'avatar-privacy' ), 'https://gravatar.com' ) . '</label> '
+		. '<input id="' . self::CHECKBOX_FIELD_NAME . '" name="' . self::CHECKBOX_FIELD_NAME . '" type="checkbox" value="true"' . checked( $is_checked, true, false ) . ' " />'
+		. '<label for="' . self::CHECKBOX_FIELD_NAME . '">' . sprintf( /* translators: gravatar.com URL */ __( 'Display a <a href="%s">Gravatar</a> image next to my comments.', 'avatar-privacy' ), 'https://gravatar.com' ) . '</label> '
 		. '</p>';
 
 		// Either add the new field after the E-Mail field or at the end of the array.
@@ -144,7 +149,7 @@ class Comments implements \Avatar_Privacy\Component {
 		}
 
 		// Save the 'use gravatar' value.
-		$use_gravatar = ( isset( $_POST[ \Avatar_Privacy_Core::CHECKBOX_FIELD_NAME ] ) && ( 'true' === $_POST[ \Avatar_Privacy_Core::CHECKBOX_FIELD_NAME ] ) ) ? 1 : 0; // WPCS: CSRF ok, Input var okay.
+		$use_gravatar = ( isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) && ( 'true' === $_POST[ self::CHECKBOX_FIELD_NAME ] ) ) ? 1 : 0; // WPCS: CSRF ok, Input var okay.
 		$this->core->update_comment_author_gravatar_use( $comment->comment_author_email, $comment_id, $use_gravatar );
 
 		// Set a cookie for the 'use gravatar' value.
