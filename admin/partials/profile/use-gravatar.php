@@ -36,7 +36,7 @@
 				name="<?php echo esc_attr( \Avatar_Privacy_Core::CHECKBOX_FIELD_NAME ); ?>"
 				type="checkbox"
 				value="true"
-				<?php checked( $val ); ?>
+				<?php checked( $value ); ?>
 			/>
 			<label for="<?php echo esc_attr( \Avatar_Privacy_Core::CHECKBOX_FIELD_NAME ); ?>"><?php echo wp_kses( __( 'Display a <a href="https://gravatar.com">gravatar</a> image for my e-mail address', 'avatar-privacy' ), [ 'a' => [ 'href' => true ] ] ); ?></label><br />
 			<span class="description"><?php esc_html_e( "Uncheck this box if you don't want to display a gravatar for your E-Mail address.", 'avatar-privacy' ); ?></span>

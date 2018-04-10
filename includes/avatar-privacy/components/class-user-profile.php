@@ -80,7 +80,7 @@ class User_Profile implements \Avatar_Privacy\Component {
 	 * @param \WP_User $user The current user whose profile to modify.
 	 */
 	public function add_user_profile_fields( \WP_User $user ) {
-		$val = (bool) \get_the_author_meta( \Avatar_Privacy_Core::CHECKBOX_FIELD_NAME, $user->ID );
+		$value = 'true' === \get_user_meta( $user->ID, \Avatar_Privacy_Core::CHECKBOX_FIELD_NAME, true );
 
 		require \dirname( $this->plugin_file ) . '/admin/partials/profile/use-gravatar.php';
 	}
