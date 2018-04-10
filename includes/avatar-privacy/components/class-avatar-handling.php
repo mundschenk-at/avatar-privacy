@@ -28,7 +28,10 @@
 namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Gravatar_Cache;
+
 use Avatar_Privacy\Data_Storage\Options;
+use Avatar_Privacy\Data_Storage\Transients;
+use Avatar_Privacy\Data_Storage\Site_Transients;
 
 /**
  * Handles the display of avatars in WordPress.
@@ -52,6 +55,20 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	private $options;
 
 	/**
+	 * The transients handler.
+	 *
+	 * @var Transients
+	 */
+	private $transients;
+
+	/**
+	 * The site transients handler.
+	 *
+	 * @var Site_Transients
+	 */
+	private $site_transients;
+
+	/**
 	 * The core API.
 	 *
 	 * @var \Avatar_Privacy_Core
@@ -66,16 +83,27 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	private $gravatar_cache;
 
 	/**
+	 * A cache for the results of the validate_gravatar function.
+	 *
+	 * @var array
+	 */
+	private $validate_gravatar_cache = [];
+
+	/**
 	 * Creates a new instance.
 	 *
-	 * @param string         $plugin_file The full path to the base plugin file.
-	 * @param Options        $options     The options handler.
-	 * @param Gravatar_Cache $gravatar    The local Gravatar cache.
+	 * @param string          $plugin_file      The full path to the base plugin file.
+	 * @param Options         $options          The options handler.
+	 * @param Transients      $transients       The transients handler.
+	 * @param Site_Transients $site_transients  The site transients handler.
+	 * @param Gravatar_Cache  $gravatar         The local Gravatar cache.
 	 */
-	public function __construct( $plugin_file, Options $options, Gravatar_Cache $gravatar ) {
-		$this->plugin_file    = $plugin_file;
-		$this->options        = $options;
-		$this->gravatar_cache = $gravatar;
+	public function __construct( $plugin_file, Options $options, Transients $transients, Site_Transients $site_transients, Gravatar_Cache $gravatar ) {
+		$this->plugin_file     = $plugin_file;
+		$this->options         = $options;
+		$this->transients      = $transients;
+		$this->site_transients = $site_transients;
+		$this->gravatar_cache  = $gravatar;
 	}
 
 	/**
@@ -178,7 +206,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			 * @param int]false $user_id      A WordPress user ID (or false).
 			 */
 			if ( \apply_filters( 'avatar_privacy_enable_gravatar_check', true, $email, $user_id ) ) {
-				$show_avatar = $this->core->validate_gravatar( $email );
+				$show_avatar = $this->validate_gravatar( $email );
 			}
 		}
 
@@ -253,5 +281,51 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		}
 
 		return [ $user_id, $email ];
+	}
+
+	/**
+	 * Validates if a gravatar exists for the given e-mail address. Function originally
+	 * taken from: http://codex.wordpress.org/Using_Gravatars
+	 *
+	 * @param string $email The e-mail address to check.
+	 * @return bool         True if a gravatar exists for the given e-mail address,
+	 *                      false otherwise, including if gravatar.com could not be
+	 *                      reached or answered with a different error code or if
+	 *                      no e-mail address was given.
+	 */
+	public function validate_gravatar( $email = '' ) {
+		// Make sure we have a real address to check.
+		if ( empty( $email ) ) {
+			return false;
+		}
+
+		// Build the hash of the e-mail address.
+		$hash = \md5( \strtolower( \trim( $email ) ) );
+
+		// Try to find something in the cache.
+		if ( isset( $this->validate_gravatar_cache[ $hash ] ) ) {
+			return $this->validate_gravatar_cache[ $hash ];
+		}
+
+		// Try to find it via transient cache. On multisite, we use site transients.
+		$transient_key = "check_{$hash}";
+		$transients    = \is_multisite() ? $this->site_transients : $this->transients;
+		$result        = $transients->get( $transient_key );
+		if ( false !== $result ) {
+			$result                                 = ! empty( $result );
+			$this->validate_gravatar_cache[ $hash ] = $result;
+
+			return $result;
+		}
+
+		// Ask gravatar.com.
+		$result = 200 === \wp_remote_retrieve_response_code( /* @scrutinizer ignore-type */ \wp_remote_head( "https://gravatar.com/avatar/{$hash}?d=404" ) );
+
+		// Cache the result across all blogs (a YES for 1 day, a NO for 10 minutes
+		// -- since a YES basically shouldn't change, but a NO might change when the user signs up with gravatar.com).
+		$transients->set( $transient_key, $result ? 1 : 0, $result ? DAY_IN_SECONDS : 10 * MINUTE_IN_SECONDS );
+		$this->validate_gravatar_cache[ $hash ] = $result;
+
+		return $result;
 	}
 }

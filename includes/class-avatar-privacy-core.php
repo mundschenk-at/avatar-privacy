@@ -86,13 +86,6 @@ class Avatar_Privacy_Core {
 	private $plugin_file;
 
 	/**
-	 * A cache for the results of the validate_gravatar function.
-	 *
-	 * @var array
-	 */
-	private $validate_gravatar_cache = array();
-
-	/**
 	 * The plugin version.
 	 *
 	 * @var string
@@ -215,51 +208,6 @@ class Avatar_Privacy_Core {
 	public function plugins_loaded() {
 		// Read the plugin settings.
 		$this->settings = $this->options->get( self::SETTINGS_NAME, [] );
-	}
-
-	/**
-	 * Validates if a gravatar exists for the given e-mail address. Function originally
-	 * taken from: http://codex.wordpress.org/Using_Gravatars
-	 *
-	 * @param string $email The e-mail address to check.
-	 * @return bool         True if a gravatar exists for the given e-mail address,
-	 *                      false otherwise, including if gravatar.com could not be
-	 *                      reached or answered with a different error code or if
-	 *                      no e-mail address was given.
-	 */
-	public function validate_gravatar( $email = '' ) {
-		// Make sure we have a real address to check.
-		if ( empty( $email ) ) {
-			return false;
-		}
-
-		// Build the hash of the e-mail address.
-		$hash = md5( strtolower( trim( $email ) ) );
-
-		// Try to find something in the cache.
-		if ( isset( $this->validate_gravatar_cache[ $hash ] ) ) {
-			return $this->validate_gravatar_cache[ $hash ];
-		}
-
-		// Try to find it via transient cache. On multisite, we use site transients.
-		$transient_key = "check_{$hash}";
-		$transients    = is_multisite() ? $this->site_transients : $this->transients;
-		$result        = $transients->get( $transient_key );
-		if ( false !== $result ) {
-			$result                                 = ! empty( $result );
-			$this->validate_gravatar_cache[ $hash ] = $result;
-			return $result;
-		}
-
-		// Ask gravatar.com.
-		$result = 200 === wp_remote_retrieve_response_code( /* @scrutinizer ignore-type */ wp_remote_head( "https://gravatar.com/avatar/{$hash}?d=404" ) );
-
-		// Cache the result across all blogs (a YES for 1 day, a NO for 10 minutes
-		// -- since a YES basically shouldn't change, but a NO might change when the user signs up with gravatar.com).
-		$transients->set( $transient_key, $result ? 1 : 0, $result ? DAY_IN_SECONDS : 10 * MINUTE_IN_SECONDS );
-		$this->validate_gravatar_cache[ $hash ] = $result;
-
-		return $result;
 	}
 
 	/**
