@@ -410,15 +410,6 @@ class Avatar_Privacy_Core {
 	}
 
 	/**
-	 * Generates a random, 3 byte long salt.
-	 *
-	 * @return int
-	 */
-	private function generate_salt() {
-		return \mt_rand( 1, 16777215 );
-	}
-
-	/**
 	 * Retrieves the hash for the given user ID. If there currently is no hash,
 	 * a new one is generated.
 	 *
