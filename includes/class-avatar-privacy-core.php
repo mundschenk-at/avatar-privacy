@@ -32,10 +32,10 @@ use Avatar_Privacy\Data_Storage\Transients;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 
 /**
- * Core class of the Avatar Privacy plugin. Contains all the actual code
- * except the options page.
+ * The core database API of the Avatar Privacy plugin.
  *
- * @author Johannes Freudendahl, wordpress@freudendahl.net
+ * @author Peter Putzer <github@mundschenk.at>
+ * @author Johannes Freudendahl <wordpress@freudendahl.net>
  */
 class Avatar_Privacy_Core {
 
