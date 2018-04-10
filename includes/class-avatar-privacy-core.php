@@ -340,7 +340,7 @@ class Avatar_Privacy_Core {
 	 *
 	 * @param  string $email_or_hash The comment author's e-mail address or the unique hash.
 	 *
-	 * @return object                The dataset as an object or null.
+	 * @return object|null           The dataset as an object or null.
 	 */
 	private function load_data( $email_or_hash ) {
 		if ( false === \strpos( $email_or_hash, '@' ) ) {
@@ -355,7 +355,7 @@ class Avatar_Privacy_Core {
 	 *
 	 * @param  string $email The mail address.
 	 *
-	 * @return object        The dataset as an object or null.
+	 * @return object|null   The dataset as an object or null.
 	 */
 	private function load_data_by_email( $email ) {
 		global $wpdb;
@@ -505,7 +505,7 @@ class Avatar_Privacy_Core {
 		global $wpdb;
 
 		$data = $this->load_data( $email );
-		if ( ! $data ) {
+		if ( empty( $data ) ) {
 			// Nothing found in the database, insert the dataset.
 			$this->insert_comment_author_data( $email, $use_gravatar, current_time( 'mysql' ),
 				'set with comment ' . $comment_id . ( \is_multisite() ? ' (site: ' . $wpdb->siteid . ', blog: ' . $wpdb->blogid . ')' : '' )
