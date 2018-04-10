@@ -169,8 +169,17 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		// Check if a gravatar exists for the e-mail address.
 		if ( empty( $email ) ) {
 			$show_avatar = false;
-		} elseif ( $show_avatar && ! empty( $settings['mode_checkforgravatar'] ) ) {
-			$show_avatar = $this->core->validate_gravatar( $email );
+		} elseif ( $show_avatar ) {
+			/**
+			 * Filters whether we check if opting-in users and commenters actually have a Gravatar.com account.
+			 *
+			 * @param bool      $enable_check Defaults to true.
+			 * @param string    $email        The email address.
+			 * @param int]false $user_id      A WordPress user ID (or false).
+			 */
+			if ( \apply_filters( 'avatar_privacy_enable_gravatar_check', true, $email, $user_id ) ) {
+				$show_avatar = $this->core->validate_gravatar( $email );
+			}
 		}
 
 		/**

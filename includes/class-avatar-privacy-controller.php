@@ -55,18 +55,16 @@ class Avatar_Privacy_Controller {
 	/**
 	 * Creates an instance of the plugin controller.
 	 *
-	 * @param Avatar_Privacy_Core    $core     The core API.
-	 * @param Avatar_Privacy_Options $settings The settings page.
-	 * @param Setup                  $setup    The (de-)activation/uninstallation handling.
-	 * @param Default_Icons          $icons    The default icon handler.
-	 * @param Avatar_Handling        $avatars  The avatar handler.
-	 * @param Comments               $comments The comments handler.
-	 * @param User_Profile           $profile  The user profile handler.
+	 * @param Avatar_Privacy_Core $core     The core API.
+	 * @param Setup               $setup    The (de-)activation/uninstallation handling.
+	 * @param Default_Icons       $icons    The default icon handler.
+	 * @param Avatar_Handling     $avatars  The avatar handler.
+	 * @param Comments            $comments The comments handler.
+	 * @param User_Profile        $profile  The user profile handler.
 	 */
-	public function __construct( Avatar_Privacy_Core $core, Avatar_Privacy_Options $settings, Setup $setup, Default_Icons $icons, Avatar_Handling $avatars, Comments $comments, User_Profile $profile ) {
+	public function __construct( Avatar_Privacy_Core $core, Setup $setup, Default_Icons $icons, Avatar_Handling $avatars, Comments $comments, User_Profile $profile ) {
 		$this->core         = $core;
 		$this->components[] = $setup;
-		$this->components[] = $settings;
 		$this->components[] = $avatars;
 		$this->components[] = $icons;
 		$this->components[] = $comments;
@@ -91,36 +89,10 @@ class Avatar_Privacy_Controller {
 	 * Checks some requirements and then loads the plugin core.
 	 */
 	public function plugins_loaded() {
-		$settings_page = false;
-
 		// If the admin selected not to display avatars at all, just add a note to the discussions settings page.
 		if ( ! get_option( 'show_avatars' ) ) {
 			add_action( 'admin_init', [ $this, 'register_settings' ] );
-			$settings_page = true;
-		} elseif ( is_admin() ) {
-			$settings_page = true;
 		}
-
-		// Display a settings link on the plugin page.
-		if ( $settings_page ) {
-			add_filter( 'plugin_row_meta', [ $this, 'display_settings_link' ], 10, 2 );
-		}
-	}
-
-	/**
-	 * Displays a settings link next to the plugin on the plugins page.
-	 *
-	 * @param array  $links The array of links.
-	 * @param string $file The current plugin file.
-	 *
-	 * @return array The modified array or links.
-	 */
-	public function display_settings_link( $links, $file ) {
-		if ( plugin_basename( __FILE__ ) === $file ) {
-			$links[] = '<a href="' . admin_url( 'options-discussion.php#section_avatar_privacy' ) . '">' . __( 'Settings', 'avatar-privacy' ) . '</a>';
-		}
-
-		return $links;
 	}
 
 	/**
