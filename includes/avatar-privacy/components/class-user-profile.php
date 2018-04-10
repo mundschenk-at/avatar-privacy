@@ -77,9 +77,9 @@ class User_Profile implements \Avatar_Privacy\Component {
 	/**
 	 * Adds the 'use gravatar' checkbox to the user profile form.
 	 *
-	 * @param object $user The current user whose profile to modify.
+	 * @param \WP_User $user The current user whose profile to modify.
 	 */
-	public function add_user_profile_fields( $user ) {
+	public function add_user_profile_fields( \WP_User $user ) {
 		$val = (bool) \get_the_author_meta( \Avatar_Privacy_Core::CHECKBOX_FIELD_NAME, $user->ID );
 
 		require \dirname( $this->plugin_file ) . '/admin/partials/profile/use-gravatar.php';
@@ -89,7 +89,7 @@ class User_Profile implements \Avatar_Privacy\Component {
 	 * Saves the value of the 'use gravatar' checkbox from the user profile in
 	 * the database.
 	 *
-	 * @param string $user_id The ID of the user that has just been saved.
+	 * @param int $user_id The ID of the user that has just been saved.
 	 */
 	public function save_user_profile_fields( $user_id ) {
 		if ( ! \current_user_can( 'edit_user', $user_id ) ) {
