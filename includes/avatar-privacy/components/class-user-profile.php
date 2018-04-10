@@ -80,7 +80,7 @@ class User_Profile implements \Avatar_Privacy\Component {
 	 * @param \WP_User $user The current user whose profile to modify.
 	 */
 	public function add_user_profile_fields( \WP_User $user ) {
-		$value = 'true' === \get_user_meta( $user->ID, \Avatar_Privacy_Core::CHECKBOX_FIELD_NAME, true );
+		$value = 'true' === \get_user_meta( $user->ID, \Avatar_Privacy_Core::GRAVATAR_USE_META_KEY, true );
 
 		require \dirname( $this->plugin_file ) . '/admin/partials/profile/use-gravatar.php';
 	}
@@ -99,7 +99,7 @@ class User_Profile implements \Avatar_Privacy\Component {
 		// Use true/false instead of 1/0 since a '0' value is removed from the database and then
 		// we can't differentiate between opted-out and never saved a value.
 		$value = isset( $_POST[ \Avatar_Privacy_Core::CHECKBOX_FIELD_NAME ] ) && ( 'true' === $_POST[ \Avatar_Privacy_Core::CHECKBOX_FIELD_NAME ] ) ? 'true' : 'false'; // WPCS: CSRF ok, Input var okay.
-		\update_user_meta( $user_id, \Avatar_Privacy_Core::CHECKBOX_FIELD_NAME, $value );
+		\update_user_meta( $user_id, \Avatar_Privacy_Core::GRAVATAR_USE_META_KEY, $value );
 	}
 
 }

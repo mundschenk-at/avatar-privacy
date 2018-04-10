@@ -50,6 +50,20 @@ class Avatar_Privacy_Core {
 	const SETTINGS_NAME = 'settings';
 
 	/**
+	 * The meta key for the hashed email.
+	 *
+	 * @var string
+	 */
+	const EMAIL_HASH_META_KEY = 'avatar_privacy_hash';
+
+	/**
+	 * The meta key for the gravatar use flag.
+	 *
+	 * @var string
+	 */
+	const GRAVATAR_USE_META_KEY = 'use_gravatar';
+
+	/**
 	 * Prefix for caching avatar privacy for non-logged-in users.
 	 */
 	const EMAIL_CACHE_PREFIX = 'email_';
@@ -411,12 +425,12 @@ class Avatar_Privacy_Core {
 	 * @return string
 	 */
 	public function get_user_hash( $user_id ) {
-		$hash = \get_user_meta( $user_id, 'avatar_privacy_hash', true );
+		$hash = \get_user_meta( $user_id, self::EMAIL_HASH_META_KEY, true );
 
 		if ( empty( $hash ) ) {
 			$user = \get_user_by( 'ID', $user_id );
 			$hash = $this->get_hash( $user->user_email );
-			\update_user_meta( $user_id, 'avatar_privacy_hash', $hash );
+			\update_user_meta( $user_id, self::EMAIL_HASH_META_KEY, $hash );
 		}
 
 		return $hash;

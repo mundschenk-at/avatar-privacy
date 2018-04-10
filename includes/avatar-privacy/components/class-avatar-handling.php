@@ -154,7 +154,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			$use_default = false;
 			if ( $user_id ) {
 				// For users get the value from the usermeta table.
-				$show_avatar = \get_user_meta( $user_id, 'use_gravatar', true ) === 'true';
+				$show_avatar = \get_user_meta( $user_id, \Avatar_Privacy_Core::GRAVATAR_USE_META_KEY, true ) === 'true';
 				$use_default = '' === $show_avatar;
 			} else {
 				// For comments get the value from the plugin's table.

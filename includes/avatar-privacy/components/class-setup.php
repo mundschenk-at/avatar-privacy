@@ -167,7 +167,7 @@ class Setup implements \Avatar_Privacy\Component {
 		$wpdb->query( "DROP TABLE IF EXISTS {$table_name};" ); // phpcs:ignore WordPress.VIP.DirectDatabaseQuery,WordPress.WP.PreparedSQL.NotPrepared
 
 		// Delete usermeta for all users.
-		delete_metadata( 'user', 0, 'use_gravatar', null, true );
+		delete_metadata( 'user', 0, \Avatar_Privacy_Core::GRAVATAR_USE_META_KEY, null, true );
 
 		// Delete/change options for main blog.
 		$options->delete( \Avatar_Privacy_Core::SETTINGS_NAME );
