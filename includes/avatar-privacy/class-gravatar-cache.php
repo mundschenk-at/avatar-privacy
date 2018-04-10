@@ -61,16 +61,24 @@ class Gravatar_Cache {
 	 * @param  int                  $size    The requested size in pixels.
 	 * @param  int|false            $user_id A WordPress user ID, or false.
 	 * @param  \Avatar_Privacy_Core $core    The core API.
+	 * @param  bool                 $force   Optional. Whether to force the regeneration of the icon. Default false.
 	 *
 	 * @return string
 	 */
-	public function get_icon_url( $url, $email, $size, $user_id, \Avatar_Privacy_Core $core ) {
+	public function get_icon_url( $url, $email, $size, $user_id, \Avatar_Privacy_Core $core, $force = false ) {
 		$type         = false !== $user_id ? 'a' : 'b';
 		$filename     = "gravatar/{$type}/{$core->get_hash( $email )}-{$size}.png";
 		$gravatar_url = "https://secure.gravatar.com/avatar/{$this->get_gravatar_hash( $email )}.png?s={$size}&d=404";
-		$icon         = \wp_remote_retrieve_body( /* @scrutinizer ignore-type */ \wp_remote_get( $gravatar_url ) );
 
-		if ( ! empty( $icon ) && $this->file_cache->set( $filename, $icon ) ) {
+		// Only retrieve new Gravatar if necessary.
+		if ( ! \file_exists( "{$this->file_cache->get_base_dir()}{$filename}" ) || $force ) {
+			$icon = \wp_remote_retrieve_body( /* @scrutinizer ignore-type */ \wp_remote_get( $gravatar_url ) );
+
+			// Store icon.
+			if ( ! empty( $icon ) && $this->file_cache->set( $filename, $icon ) ) {
+				$url = $this->file_cache->get_url( $filename );
+			}
+		} else {
 			$url = $this->file_cache->get_url( $filename );
 		}
 

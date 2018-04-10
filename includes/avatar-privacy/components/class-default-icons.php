@@ -320,10 +320,11 @@ class Default_Icons implements \Avatar_Privacy\Component {
 	 * @param  string    $email   The mail address used to generate the identity hash.
 	 * @param  int       $size    The requested size in pixels.
 	 * @param  int|false $user_id Optional. A WordPress user ID, or false. Default false.
+	 * @param  bool      $force   Optional. Whether to force the regeneration of the icon. Default false.
 	 *
 	 * @return string
 	 */
-	public function gravatar_icon_url( $url, $email, $size, $user_id = false ) {
-		return $this->gravatar_cache->get_icon_url( $url, $email, $size, $user_id, $this->core );
+	public function gravatar_icon_url( $url, $email, $size, $user_id = false, $force = false ) {
+		return $this->gravatar_cache->get_icon_url( $url, $email, $size, $user_id, $this->core, $force );
 	}
 }
