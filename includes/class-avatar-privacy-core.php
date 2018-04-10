@@ -534,13 +534,14 @@ class Avatar_Privacy_Core {
 	public function get_salt() {
 		if ( empty( $this->salt ) ) {
 			// FIXME: Add filter hook.
-			$this->salt = $this->network_options->get( 'salt' );
+			$salt = $this->network_options->get( 'salt' );
+			if ( empty( $salt ) ) {
+				$salt = \mt_rand();
 
-			if ( empty( $this->salt ) ) {
-				$this->salt = \mt_rand();
-
-				$this->network_options->set( 'salt', $this->salt );
+				$this->network_options->set( 'salt', $salt );
 			}
+
+			$this->salt = $salt;
 		}
 
 		return $this->salt;
