@@ -39,10 +39,6 @@ use Avatar_Privacy\Data_Storage\Site_Transients;
  */
 class Avatar_Privacy_Core {
 
-	// --------------------------------------------------------------------------
-	// constants
-	// --------------------------------------------------------------------------
-	// If anything changes here, modify uninstall.php too!
 	/**
 	 * The name of the checkbox field in the comment form.
 	 */
@@ -66,9 +62,6 @@ class Avatar_Privacy_Core {
 		'use_gravatar' => '%d',
 	];
 
-	// --------------------------------------------------------------------------
-	// variables
-	// --------------------------------------------------------------------------
 	/**
 	 * The user's settings.
 	 *
