@@ -35,21 +35,7 @@ use Avatar_Privacy\Data_Storage\Filesystem_Cache;
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Wavatar_Icon_Provider extends Abstract_Icon_Provider {
-
-	/**
-	 * The filesystem cache handler.
-	 *
-	 * @var Filesystem_Cache
-	 */
-	private $file_cache;
-
-	/**
-	 * The icon generator.
-	 *
-	 * @var Generator\Wavatar
-	 */
-	private $generator;
+class Wavatar_Icon_Provider extends Generating_Icon_Provider {
 
 	/**
 	 * Creates a new instance.
@@ -57,27 +43,18 @@ class Wavatar_Icon_Provider extends Abstract_Icon_Provider {
 	 * @param Filesystem_Cache $file_cache  The file cache handler.
 	 */
 	public function __construct( Filesystem_Cache $file_cache ) {
-		parent::__construct( [ 'wavatar' ] );
-
-		$this->file_cache = $file_cache;
-		$this->generator  = new Generator\Wavatar();
+		parent::__construct( new Generator\Wavatar(), $file_cache, [ 'wavatar' ] );
 	}
 
 	/**
-	 * Retrieves the default icon.
+	 * Retrieves the filename (including the sub-directory and file extension).
 	 *
 	 * @param  string $identity The identity (mail address) hash. Ignored.
 	 * @param  int    $size     The requested size in pixels.
 	 *
 	 * @return string
 	 */
-	public function get_icon_url( $identity, $size ) {
-		$filename = "wavatar/$identity-$size.png";
-
-		$icon = $this->generator->build( $identity, $size );
-
-		$this->file_cache->set( $filename, $icon );
-
-		return $this->file_cache->get_url( $filename );
+	protected function get_filename( $identity, $size ) {
+		return "wavatar/{$identity}-{$size}.png";
 	}
 }

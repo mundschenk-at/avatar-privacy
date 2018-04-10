@@ -35,7 +35,7 @@ use function Scriptura\Color\Helpers\HSLtoRGB;
  *
  * @since 1.0.0
  */
-class Monster_ID {
+class Monster_ID implements Generator {
 	const SAME_COLOR_PARTS     = [
 		'arms_S8.png'  => true,
 		'legs_S5.png'  => true,
@@ -303,11 +303,11 @@ class Monster_ID {
 	 * Builds a monster icon and returns the image data.
 	 *
 	 * @param  string $seed The seed data (hash).
-	 * @param  int    $size Options. Size in pixels. Default maximum size (400 px).
+	 * @param  int    $size The size in pixels.
 	 *
 	 * @return string|false
 	 */
-	public function build_monster( $seed, $size = 0 ) {
+	public function build( $seed, $size ) {
 
 		// Init random seed.
 		$id = substr( $seed, 0, 8 );

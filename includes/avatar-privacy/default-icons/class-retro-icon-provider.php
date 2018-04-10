@@ -27,10 +27,6 @@
 namespace Avatar_Privacy\Default_Icons;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
-
-use Bitverse\Identicon\Color\Color;
-use Bitverse\Identicon\Generator\PixelsGenerator;
-
 /**
  * An icon provider for "retro" 8-bit style icons.
  *
@@ -38,21 +34,7 @@ use Bitverse\Identicon\Generator\PixelsGenerator;
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Retro_Icon_Provider extends Abstract_Icon_Provider {
-
-	/**
-	 * The filesystem cache handler.
-	 *
-	 * @var Filesystem_Cache
-	 */
-	private $file_cache;
-
-	/**
-	 * The icon generator.
-	 *
-	 * @var \Bitverse\Identicon\Generator\GeneratorInterface
-	 */
-	private $generator;
+class Retro_Icon_Provider extends Generating_Icon_Provider {
 
 	/**
 	 * Creates a new instance.
@@ -60,28 +42,18 @@ class Retro_Icon_Provider extends Abstract_Icon_Provider {
 	 * @param Filesystem_Cache $file_cache  The file cache handler.
 	 */
 	public function __construct( Filesystem_Cache $file_cache ) {
-		parent::__construct( [ 'retro' ] );
-
-		$this->file_cache = $file_cache;
-		$this->generator  = new PixelsGenerator();
+		parent::__construct( new Generator\Retro(), $file_cache, [ 'retro' ] );
 	}
 
 	/**
-	 * Retrieves the default icon.
+	 * Retrieves the filename (including the sub-directory and file extension).
 	 *
 	 * @param  string $identity The identity (mail address) hash. Ignored.
 	 * @param  int    $size     The requested size in pixels.
 	 *
 	 * @return string
 	 */
-	public function get_icon_url( $identity, $size ) {
-		$filename = "retro/$identity.svg";
-
-		$this->generator->setBackgroundColor( Color::parseHex( '#' . \substr( md5( $identity ), 0, 6 ) ) );
-		$icon = $this->generator->generate( $identity );
-
-		$this->file_cache->set( $filename, $icon );
-
-		return $this->file_cache->get_url( $filename );
+	protected function get_filename( $identity, $size ) {
+		return "retro/{$identity}.svg";
 	}
 }

@@ -34,7 +34,7 @@ use function Scriptura\Color\Helpers\HSLtoRGB;
  *
  * @since 1.0.0
  */
-class Wavatar {
+class Wavatar implements Generator {
 
 	const SIZE                = 80;
 	const WAVATAR_BACKGROUNDS = 4;
@@ -83,12 +83,12 @@ class Wavatar {
 	/**
 	 * Build the avatar icon.
 	 *
-	 * @param  string $seed The hashed mail address.
-	 * @param  int    $size The icon size in pixels.
+	 * @param  string $seed The seed data (hash).
+	 * @param  int    $size The size in pixels.
 	 *
 	 * @return string       The image data.
 	 */
-	public function build( $seed, $size = 80 ) {
+	public function build( $seed, $size ) {
 		// Look at the seed (an md5 hash) and use pairs of digits to determine our
 		// "random" parts and colors.
 		$face      = 1 + ( hexdec( substr( $seed,  1, 2 ) ) % ( self::WAVATAR_FACES ) );
