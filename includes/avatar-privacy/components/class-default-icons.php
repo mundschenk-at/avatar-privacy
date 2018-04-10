@@ -282,6 +282,8 @@ class Default_Icons implements \Avatar_Privacy\Component {
 			if ( ! empty( $user ) ) {
 				$user_id = $user->ID;
 				$email   = ! empty( $user->user_email ) ? $user->user_email : '';
+			} else {
+				return false;
 			}
 		} else {
 			$user_id = false;
