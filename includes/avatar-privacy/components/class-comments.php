@@ -144,7 +144,7 @@ class Comments implements \Avatar_Privacy\Component {
 		}
 
 		// Save the 'use gravatar' value.
-		$use_gravatar = ( isset( $_POST[ \Avatar_Privacy_Core::CHECKBOX_FIELD_NAME ] ) && ( 'true' === $_POST[ \Avatar_Privacy_Core::CHECKBOX_FIELD_NAME ] ) ) ? '1' : '0'; // WPCS: CSRF ok, Input var okay.
+		$use_gravatar = ( isset( $_POST[ \Avatar_Privacy_Core::CHECKBOX_FIELD_NAME ] ) && ( 'true' === $_POST[ \Avatar_Privacy_Core::CHECKBOX_FIELD_NAME ] ) ) ? 1 : 0; // WPCS: CSRF ok, Input var okay.
 		$this->core->update_comment_author_gravatar_use( $comment->comment_author_email, $comment_id, $use_gravatar );
 
 		// Set a cookie for the 'use gravatar' value.
