@@ -130,7 +130,7 @@ class Wavatar {
 
 		// Convert image to PNG format.
 		$stream = new \Bcn\Component\StreamWrapper\Stream();
-		imagepng( $out, \fopen( $stream, 'w' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+		imagepng( $out, /* @scrutinizer ignore-type */ \fopen( $stream, 'w' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
 
 		// Clean up.
 		imagedestroy( $out );

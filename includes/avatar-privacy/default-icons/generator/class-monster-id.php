@@ -383,7 +383,7 @@ class Monster_ID {
 		imagedestroy( $monster );
 
 		$stream = new \Bcn\Component\StreamWrapper\Stream();
-		$wrote  = @imagepng( $out, fopen( $stream, 'w' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+		$wrote  = @imagepng( $out, /* @scrutinizer ignore-type */ fopen( $stream, 'w' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
 		if ( ! $wrote ) {
 			return false; // Something went wrong but don't want to mess up blog layout.
 		}
