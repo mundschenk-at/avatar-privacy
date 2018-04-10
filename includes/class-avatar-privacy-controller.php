@@ -138,30 +138,3 @@ class Avatar_Privacy_Controller {
 		require dirname( __DIR__ ) . '/admin/partials/sections/avatars-disabled.php';
 	}
 }
-
-/**
- * Template function for older themes: Returns the 'use gravatar' checkbox for
- * the comment form. Output the result with echo or print!
- *
- * @return string The HTML code for the checkbox or an empty string.
- */
-function avapr_get_avatar_checkbox() {
-	if ( ! class_exists( 'Avatar_Privacy_Core', false ) ) {
-		return;
-	} else {
-		$core = Avatar_Privacy_Core::get_instance();
-
-		if ( empty( $core ) ) {
-			return;
-		}
-	}
-
-	$settings = get_option( Avatar_Privacy_Core::SETTINGS_NAME );
-	if ( empty( $settings ) ) {
-		return;
-	}
-	$result = $core->comment_form_default_fields( null );
-	if ( is_array( $result ) && isset( $result[ Avatar_Privacy_Core::CHECKBOX_FIELD_NAME ] ) ) {
-		return $result[ Avatar_Privacy_Core::CHECKBOX_FIELD_NAME ];
-	}
-}
