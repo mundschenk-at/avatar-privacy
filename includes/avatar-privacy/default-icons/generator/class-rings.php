@@ -26,7 +26,7 @@
 
 namespace Avatar_Privacy\Default_Icons\Generator;
 
-use Bitverse\Identicon\Color\Color;
+use Colors\RandomColor;
 
 /**
  * An icon generator.
@@ -44,8 +44,18 @@ class Rings extends \Bitverse\Identicon\Generator\RingsGenerator implements Gene
 	 * @return string|false
 	 */
 	public function build( $seed, $size ) {
-		$this->setBackgroundColor( Color::parseHex( '#' . \substr( md5( $seed ), 0, 6 ) ) );
+		// Initialize random number with seed.
+		\mt_srand( (int) hexdec( substr( $seed, 0, 8 ) ) );
 
-		return $this->generate( $seed );
+		$this->setBackgroundColor( RandomColor::one( [ 'luminosity' => 'light' ] ) );
+		$this->setForegroundColor( RandomColor::one( [ 'luminosity' => 'bright' ] ) );
+
+		$result = $this->generate( $seed );
+
+		// Restore randomness.
+		\mt_srand();
+
+		// Return result.
+		return $result;
 	}
 }
