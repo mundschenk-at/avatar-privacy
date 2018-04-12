@@ -67,6 +67,11 @@ class Images implements \Avatar_Privacy\Component {
 		],
 	];
 
+	const CONTENT_TYPE = [
+		'png' => 'image/png',
+		'svg' => 'image/svg+xml',
+	];
+
 	/**
 	 * The options handler.
 	 *
@@ -189,12 +194,15 @@ class Images implements \Avatar_Privacy\Component {
 	 * @param \WP $wp The WordPress global object.
 	 */
 	public function load_cached_avatar( \WP $wp ) {
-		if ( ! empty( $wp->query_vars['avatar-privacy-file'] ) && preg_match( '#^([a-z]+)/(?:([a-z]+)/)?([a-f0-9]{64})-([0-9]+)\.(png|svg)$#i', $wp->query_vars['avatar-privacy-file'], $matches ) ) {
+		if ( ! empty( $wp->query_vars['avatar-privacy-file'] ) && preg_match( '#^([a-z]+)/(?:([a-z]+)/)?([a-f0-9]{64})(?:-([0-9]+))?\.(png|svg)$#i', $wp->query_vars['avatar-privacy-file'], $matches ) ) {
 			list( , $type, $subdir, $hash, $size, $extension ) = $matches;
 
-			$file = "{$this->file_cache->get_base_dir()}{$type}/" . ( empty( $subdir ) ? '' : "{$subdir}/" ) . "{$hash}-{$size}.{$extension}";
+			$file = "{$this->file_cache->get_base_dir()}{$type}/" . ( empty( $subdir ) ? '' : "{$subdir}/" ) . $hash . ( empty( $size ) ? '' : "-{$size}" ) . ".{$extension}";
 
 			if ( ! \file_exists( $file ) ) {
+				// Default size (for SVGs mainly, which ignore it).
+				$size = $size ?: 100;
+
 				if ( 'gravatar' === $type ) {
 					$success = $this->retrieve_gravatar_icon( $hash, $subdir, $size );
 				} else {
@@ -207,7 +215,7 @@ class Images implements \Avatar_Privacy\Component {
 				}
 			}
 
-			$this->send_image( $file, DAY_IN_SECONDS );
+			$this->send_image( $file, DAY_IN_SECONDS, self::CONTENT_TYPE[ $extension ] );
 
 			// We're done.
 			exit( 0 );
@@ -217,15 +225,16 @@ class Images implements \Avatar_Privacy\Component {
 	/**
 	 * Sends an image file to the browser.
 	 *
-	 * @param  string $file       The full path to the image.
-	 * @param  int    $cache_time The time the image should be cached by the brwoser (in seconds).
+	 * @param  string $file         The full path to the image.
+	 * @param  int    $cache_time   The time the image should be cached by the brwoser (in seconds).
+	 * @param  string $content_type The content MIME type.
 	 */
-	private function send_image( $file, $cache_time ) {
+	private function send_image( $file, $cache_time, $content_type ) {
 		$image = @file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_get_contents, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, Generic.PHP.NoSilencedErrors.Discouraged
 
 		if ( ! empty( $image ) ) {
 			// Let's set some HTTP headers.
-			\header( 'Content-Type: image/png' );
+			\header( "Content-Type: {$content_type}" );
 			\header( 'Content-Length: ' . \strlen( $image ) );
 			\header( 'Expires: ' . \gmdate( 'D, d M Y H:i:s \G\M\T', \time() + $cache_time ) );
 
