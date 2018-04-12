@@ -46,7 +46,7 @@ use Avatar_Privacy\Default_Icons\Wavatar_Icon_Provider;
  *
  * @since 1.0.0
  */
-class Default_Icons implements \Avatar_Privacy\Component {
+class Images implements \Avatar_Privacy\Component {
 	const MYSTERY          = 'mystery';
 	const COMMENT_BUBBLE   = 'comment';
 	const SHADED_CONE      = 'im-user-offline';
