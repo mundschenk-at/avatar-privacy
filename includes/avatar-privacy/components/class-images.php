@@ -155,11 +155,16 @@ class Images implements \Avatar_Privacy\Component {
 		$this->icon_providers[] = new Monster_ID_Icon_Provider( $this->file_cache );
 		$this->icon_providers[] = new Wavatar_Icon_Provider( $this->file_cache );
 
+		// Generate the correct avatar images.
 		\add_filter( 'avatar_privacy_default_icon_url', [ $this, 'default_icon_url' ], 10, 4 );
 		\add_filter( 'avatar_privacy_gravatar_icon_url', [ $this, 'gravatar_icon_url' ], 10, 5 );
 
+		// Automatically regenerate missing image files.
 		\add_action( 'init',          [ $this, 'add_cache_rewrite_rules' ] );
 		\add_action( 'parse_request', [ $this, 'load_cached_avatar' ] );
+
+		// Clean up cache once per day.
+		\add_action( 'init', [ $this, 'enable_image_cache_cleanup' ] );
 	}
 
 	/**
@@ -328,5 +333,27 @@ class Images implements \Avatar_Privacy\Component {
 	 */
 	public function gravatar_icon_url( $url, $email, $size, $user_id = false, $rating = 'g', $force = false ) {
 		return $this->gravatar_cache->get_icon_url( $url, $email, $size, $user_id, $rating, $this->core, $force );
+	}
+
+	/**
+	 * Schedules a cron job to clean up the image cache once per day. Otherwise the
+	 * cache would grow unchecked and new avatar images uploaded to Gravatar.com
+	 * would not be picked up.
+	 */
+	public function enable_image_cache_cleanup() {
+		\add_action( 'avatar_privacy_daily', [ $this, 'trim_image_cache' ] );
+		\wp_schedule_event( \time(), 'daily', 'avatar_privacy_daily' );
+	}
+
+	/**
+	 * Deletes cached image files that are too old. Uses a site transient to ensure
+	 * that the clean-up happens only once per day on multisite installations.
+	 */
+	public function trim_image_cache() {
+		if ( ! $this->site_transients->get( 'cron_job_lock' ) ) {
+			$this->file_cache->invalidate_files_older_than( 2 * DAY_IN_SECONDS );
+
+			$this->site_transients->set( 'cron_job_lock', 'wewantprivacy', DAY_IN_SECONDS );
+		}
 	}
 }

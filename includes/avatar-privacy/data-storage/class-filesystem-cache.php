@@ -180,4 +180,23 @@ class Filesystem_Cache {
 			}
 		}
 	}
+
+	/**
+	 * Invalidate all cached elements older than the given age.
+	 *
+	 * @param  int $age The maximum file age in seconds.
+	 */
+	public function invalidate_files_older_than( $age ) {
+		$now   = \time();
+		$files = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator( $this->get_base_dir(), \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS ),
+			\RecursiveIteratorIterator::CHILD_FIRST
+		);
+
+		foreach ( $files as $path => $file ) {
+			if ( $file->isWritable() && ! $file->isDir() && $now - $file->getMTime() > $age ) {
+				\unlink( $path ); // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow
+			}
+		}
+	}
 }
