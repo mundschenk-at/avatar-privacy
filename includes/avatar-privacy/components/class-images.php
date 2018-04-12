@@ -42,7 +42,8 @@ use Avatar_Privacy\Default_Icons\Monster_ID_Icon_Provider;
 use Avatar_Privacy\Default_Icons\Wavatar_Icon_Provider;
 
 /**
- * Handles the various default icon providers.
+ * Handles the creation and caching of avatar images. Default icons are created by
+ * Icon_Provider instances, remote Gravatar.com avatars by a Gravatar_Cache.
  *
  * @since 1.0.0
  */
@@ -116,7 +117,7 @@ class Images implements \Avatar_Privacy\Component {
 	private $core;
 
 	/**
-	 * Creates a new Setup instance.
+	 * Creates a new instance.
 	 *
 	 * @param Transients       $transients      The transients handler.
 	 * @param Site_Transients  $site_transients The site transients handler.
