@@ -155,7 +155,7 @@ class Default_Icons implements \Avatar_Privacy\Component {
 		$this->icon_providers[] = new Wavatar_Icon_Provider( $this->file_cache );
 
 		\add_filter( 'avatar_privacy_default_icon_url', [ $this, 'default_icon_url' ], 10, 4 );
-		\add_filter( 'avatar_privacy_gravatar_icon_url', [ $this, 'gravatar_icon_url' ], 10, 4 );
+		\add_filter( 'avatar_privacy_gravatar_icon_url', [ $this, 'gravatar_icon_url' ], 10, 5 );
 
 		\add_action( 'init',          [ $this, 'add_cache_rewrite_rules' ] );
 		\add_action( 'parse_request', [ $this, 'load_cached_avatar' ] );
@@ -174,7 +174,7 @@ class Default_Icons implements \Avatar_Privacy\Component {
 		$wp->add_query_var( 'avatar-privacy-file' );
 
 		$basedir = str_replace( ABSPATH, '', $this->file_cache->get_base_dir() );
-		\add_rewrite_rule( "^{$basedir}(.*)", 'index.php?avatar-privacy-file=$matches[1]', 'top' );
+		\add_rewrite_rule( "^{$basedir}(.*)", [ 'avatar-privacy-file' => '$matches[1]' ], 'top' );
 	}
 
 	/**
@@ -289,7 +289,7 @@ class Default_Icons implements \Avatar_Privacy\Component {
 		}
 
 		// Try to cache the icon.
-		return ! empty( $this->gravatar_icon_url( $email, $size, $user_id ) );
+		return ! empty( $this->gravatar_icon_url( '', $email, $size, $user_id, $this->options->get( 'avatar_rating', 'g', true ) ) );
 	}
 
 	/**
@@ -320,11 +320,12 @@ class Default_Icons implements \Avatar_Privacy\Component {
 	 * @param  string    $email   The mail address used to generate the identity hash.
 	 * @param  int       $size    The requested size in pixels.
 	 * @param  int|false $user_id Optional. A WordPress user ID, or false. Default false.
+	 * @param  string    $rating  Optional. The audience rating (e.g. 'g', 'pg', 'r', 'x'). Default 'g'.
 	 * @param  bool      $force   Optional. Whether to force the regeneration of the icon. Default false.
 	 *
 	 * @return string
 	 */
-	public function gravatar_icon_url( $url, $email, $size, $user_id = false, $force = false ) {
-		return $this->gravatar_cache->get_icon_url( $url, $email, $size, $user_id, $this->core, $force );
+	public function gravatar_icon_url( $url, $email, $size, $user_id = false, $rating = 'g', $force = false ) {
+		return $this->gravatar_cache->get_icon_url( $url, $email, $size, $user_id, $rating, $this->core, $force );
 	}
 }

@@ -229,8 +229,9 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			 * @param  string    $email   The mail address used to generate the identity hash.
 			 * @param  int       $size    The size of the avatar image in pixels.
 			 * @param  int]false $user_id A WordPress user ID (or false).
+			 * @param  string    $rating  The audience rating (e.g. 'g', 'pg', 'r', 'x').
 			 */
-			$url = \apply_filters( 'avatar_privacy_gravatar_icon_url', $url, $email, $args['size'], $user_id );
+			$url = \apply_filters( 'avatar_privacy_gravatar_icon_url', $url, $email, $args['size'], $user_id, $args['rating'] );
 		}
 
 		return $url;
