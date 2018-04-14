@@ -40,6 +40,7 @@ use Avatar_Privacy\Default_Icons\Static_Icon_Provider;
 use Avatar_Privacy\Default_Icons\SVG_Icon_Provider;
 use Avatar_Privacy\Default_Icons\Monster_ID_Icon_Provider;
 use Avatar_Privacy\Default_Icons\Wavatar_Icon_Provider;
+use Avatar_Privacy\Default_Icons\Identicon_Icon_Provider;
 
 /**
  * Handles the creation and caching of avatar images. Default icons are created by
@@ -159,6 +160,7 @@ class Images implements \Avatar_Privacy\Component {
 		$this->icon_providers[] = new Rings_Icon_Provider( $this->file_cache );
 		$this->icon_providers[] = new Monster_ID_Icon_Provider( $this->file_cache );
 		$this->icon_providers[] = new Wavatar_Icon_Provider( $this->file_cache );
+		$this->icon_providers[] = new Identicon_Icon_Provider( $this->file_cache );
 
 		// Generate the correct avatar images.
 		\add_filter( 'avatar_privacy_default_icon_url', [ $this, 'default_icon_url' ], 10, 4 );
