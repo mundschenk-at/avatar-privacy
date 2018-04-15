@@ -127,7 +127,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		\add_filter( 'avatar_defaults', [ $this, 'avatar_defaults' ] );
 
 		// New default image display: filter the gravatar image upon display.
-		\add_filter( 'get_avatar_url', [ $this, 'get_avatar_url' ], 10, 3 );
+		\add_filter( 'pre_get_avatar_data', [ $this, 'get_avatar_data' ], 10, 2 );
 	}
 
 	/**
@@ -156,29 +156,25 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	/**
 	 * Before displaying an avatar image, checks that displaying the gravatar
 	 * for this e-mail address has been enabled (opted-in). Also, if the option
-	 * "Don't publish encrypted E-Mail addresses for non-members of Gravatar." is
+	 * "Don't publish encrypted e-mail addresses for non-members of Gravatar." is
 	 * enabled, the function checks if a gravatar is actually available for the
 	 * e-mail address. If not, it displays the default image directly.
 	 *
-	 * @param  string            $url         The URL of the avatar.
-	 * @param  int|string|object $id_or_email The Gravatar to retrieve. Accepts a user_id, gravatar md5 hash, user email, WP_User object, WP_Post object, or WP_Comment object.
 	 * @param  array             $args        Arguments passed to get_avatar_data(), after processing.
+	 * @param  int|string|object $id_or_email The Gravatar to retrieve. Accepts a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
 	 *
 	 * @return string
 	 */
-	public function get_avatar_url( $url, $id_or_email, $args ) {
-		global $pagenow;
-
-		// Don't change anything on the discussion settings page, except for our own new gravatars.
-		$on_settings_page = 'options-discussion.php' === $pagenow;
-		$show_avatar      = false;
-		$settings         = $this->core->get_settings();
+	public function get_avatar_data( $args, $id_or_email ) {
+		$show_avatar   = false;
+		$settings      = $this->core->get_settings();
+		$force_default = ! empty( $args['force_default'] );
 
 		// Process the user identifier.
 		list( $user_id, $email ) = $this->parse_id_or_email( $id_or_email );
 
 		// Find out if the user opted out of displaying a gravatar.
-		if ( $user_id || $email ) {
+		if ( ! $force_default && ( $user_id || $email ) ) {
 			$use_default = false;
 			if ( $user_id ) {
 				// For users get the value from the usermeta table.
@@ -221,7 +217,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		$url = \apply_filters( 'avatar_privacy_default_icon_url', \includes_url( 'images/blank.gif' ), $this->core->get_hash( $email ), $args['default'], $args['size'] );
 
 		// Maybe display a Gravatar.
-		if ( $show_avatar && ! $on_settings_page ) {
+		if ( $show_avatar ) {
 			/**
 			 * Filters the Gravatar.com URL for the given e-mail.
 			 *
@@ -234,13 +230,15 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			$url = \apply_filters( 'avatar_privacy_gravatar_icon_url', $url, $email, $args['size'], $user_id, $args['rating'] );
 		}
 
-		return $url;
+		$args['url'] = $url;
+
+		return $args;
 	}
 
 	/**
 	 * Parses e-mail address and/or user ID from $id_or_email.
 	 *
-	 * @param  int|string|object $id_or_email The Gravatar to retrieve. Accepts a user_id, gravatar md5 hash, user email, WP_User object, WP_Post object, or WP_Comment object.
+	 * @param  int|string|object $id_or_email The Gravatar to retrieve. Accepts a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
 	 *
 	 * @return array                          The tuple [ $user_id, $email ],
 	 */
