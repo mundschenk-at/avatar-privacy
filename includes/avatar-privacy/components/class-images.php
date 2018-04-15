@@ -284,8 +284,8 @@ class Images implements \Avatar_Privacy\Component {
 		if ( 'a' === $type ) {
 			list( $user ) = \get_users( [
 				'number'       => 1,
-				'meta_key'     => 'avatar_privacy_hash', // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key
-				'meta_value'   => $hash,                 // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_value
+				'meta_key'     => \Avatar_Privacy_Core::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key
+				'meta_value'   => $hash, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_value
 				'meta_compare' => '=',
 			] );
 
