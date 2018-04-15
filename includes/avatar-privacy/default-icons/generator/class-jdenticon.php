@@ -26,11 +26,6 @@
 
 namespace Avatar_Privacy\Default_Icons\Generator;
 
-use Avatar_Privacy\Default_Icons\Generator\Jdenticon\Icon_Generator;
-use Avatar_Privacy\Default_Icons\Generator\Jdenticon\SVG_Renderer;
-use Avatar_Privacy\Default_Icons\Generator\Jdenticon\SVG_Writer;
-
-
 /**
  * Generates an SVG icon based on a hash.
  *
@@ -44,6 +39,20 @@ use Avatar_Privacy\Default_Icons\Generator\Jdenticon\SVG_Writer;
 class Jdenticon implements Generator {
 
 	/**
+	 * The identicon instance.
+	 *
+	 * @var \Jdenticon\Identicon
+	 */
+	private $identicon;
+
+	/**
+	 * Creates a new instance.
+	 */
+	public function __construct() {
+		$this->identicon = new \Jdenticon\Identicon();
+	}
+
+	/**
 	 * Builds an icon based on the given seed returns the image data.
 	 *
 	 * @param  string $seed The seed data (hash).
@@ -52,10 +61,10 @@ class Jdenticon implements Generator {
 	 * @return string
 	 */
 	public function build( $seed, $size = 128 ) {
-		$writer    = new SVG_Writer( $size );
-		$generator = new Icon_Generator( new SVG_Renderer( $writer ), $seed, 0, 0, $size, 0 );
+		$this->identicon->hash = $seed;
+		$this->identicon->size = $size;
 
-		return (string) $writer;
+		return $this->identicon->getImageData( 'svg' );
 	}
 
 }
