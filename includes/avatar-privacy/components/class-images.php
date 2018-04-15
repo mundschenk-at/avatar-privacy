@@ -306,7 +306,7 @@ class Images implements \Avatar_Privacy\Component {
 		}
 
 		// Try to cache the icon.
-		return ! empty( $this->gravatar_icon_url( '', $email, $size, $user_id, $this->options->get( 'avatar_rating', 'g', true ) ) );
+		return ! empty( $this->gravatar_icon_url( '', $email, $size, $user_id, /* @scrutinizer ignore-type */ $this->options->get( 'avatar_rating', 'g', true ) ) );
 	}
 
 	/**
