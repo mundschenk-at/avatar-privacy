@@ -76,7 +76,7 @@ class Avatar_Privacy_Core {
 	 *
 	 * @var array
 	 */
-	private $settings = array();
+	private $settings = [];
 
 	/**
 	 * The full path to the main plugin file.
@@ -471,9 +471,19 @@ class Avatar_Privacy_Core {
 				] );
 			} elseif ( empty( $data->hash ) ) {
 				// Just add the hash.
-				$this->update_comment_author_data( $data->id, $data->email, [ 'hash' => $this->get_hash( $email ) ] );
+				$this->update_comment_author_hash( $data->id, $data->email );
 			}
 		}
+	}
+
+	/**
+	 * Updates the hash using the ID and email.
+	 *
+	 * @param  int    $id    The database key.
+	 * @param  string $email The email.
+	 */
+	public function update_comment_author_hash( $id, $email ) {
+		$this->update_comment_author_data( $id, $email, [ 'hash' => $this->get_hash( $email ) ] );
 	}
 
 	/**

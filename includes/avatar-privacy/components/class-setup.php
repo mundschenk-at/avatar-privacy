@@ -38,7 +38,6 @@ use Avatar_Privacy\Data_Storage\Transients;
  */
 class Setup implements \Avatar_Privacy\Component {
 
-
 	/**
 	 * The full path to the main plugin file.
 	 *
@@ -75,6 +74,13 @@ class Setup implements \Avatar_Privacy\Component {
 	private $version;
 
 	/**
+	 * The core API.
+	 *
+	 * @var \Avatar_Privacy_Core
+	 */
+	private $core;
+
+	/**
 	 * Creates a new Setup instance.
 	 *
 	 * @param string          $plugin_file     The full path to the base plugin file.
@@ -97,6 +103,7 @@ class Setup implements \Avatar_Privacy\Component {
 	 * @return void
 	 */
 	public function run( \Avatar_Privacy_Core $core ) {
+		$this->core    = $core;
 		$this->version = $core->get_version();
 
 		// Register various hooks.
@@ -121,7 +128,15 @@ class Setup implements \Avatar_Privacy\Component {
 			$this->plugin_updated( $installed_version );
 		}
 
-		$this->maybe_create_table( $installed_version );
+		// Check if our database table needs to created or updated.
+		if ( $this->maybe_create_table( $installed_version ) ) {
+			// We may need to update the contents as well.
+			$this->maybe_update_table_data( $installed_version );
+		}
+
+		// Update 'installed_version'.
+		$settings['installed_version'] = $this->version;
+		$this->options->set( \Avatar_Privacy_Core::SETTINGS_NAME, $settings );
 	}
 
 	/**
@@ -133,6 +148,7 @@ class Setup implements \Avatar_Privacy\Component {
 		// Upgrade from version 0.3 or lower.
 		if ( \version_compare( $previous_version, '0.4', '<' ) ) {
 			// Run upgrade command.
+			$this->maybe_update_user_hashes();
 		}
 
 		// To be safe, let's flush the rewrite rules if there has been an update.
@@ -233,25 +249,27 @@ class Setup implements \Avatar_Privacy\Component {
 	 * name of the table available through $wpdb->avatar_privacy.
 	 *
 	 * @param string $previous_version The previously installed plugin version.
+	 *
+	 * @return bool                    Returns true if the table was created/updated.
 	 */
 	private function maybe_create_table( $previous_version ) {
 		global $wpdb;
 
-		// FIXME: Proper update check and hash adding.
+		// Force DB update?
+		$db_needs_update = \version_compare( $previous_version, '0.4', '<' );
 
 		// Check if the table exists.
-		if ( property_exists( $wpdb, 'avatar_privacy' ) ) {
-			//return;
+		if ( ! $db_needs_update && property_exists( $wpdb, 'avatar_privacy' ) ) {
+			return false;
 		}
 
 		// Set up table name.
 		$table_name = $wpdb->base_prefix . 'avatar_privacy';
 
-		// Fix $wpdb object if table already exists.
-		$result = $wpdb->get_var( $wpdb->prepare( 'SHOW tables LIKE %s', $table_name ) ); // WPCS: db call ok, cache ok.
-		if ( $result === $table_name ) {
+		// Fix $wpdb object if table already exists, unless we need an update.
+		if ( ! $db_needs_update && $this->table_exists( $table_name ) ) {
 			$wpdb->avatar_privacy = $table_name;
-			//return;
+			return false;
 		}
 
 		// Load upgrade.php for the dbDelta function.
@@ -260,10 +278,10 @@ class Setup implements \Avatar_Privacy\Component {
 		// Create the plugin's table.
 		$sql = "CREATE TABLE {$table_name} (
 				id mediumint(9) NOT NULL AUTO_INCREMENT,
-				email VARCHAR(100) NOT NULL,
+				email varchar(100) NOT NULL,
 				use_gravatar tinyint(2) NOT NULL,
 				last_updated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-				log_message VARCHAR(255),
+				log_message varchar(255),
 				hash varchar(64),
 				PRIMARY KEY (id),
 				UNIQUE KEY email (email),
@@ -271,8 +289,57 @@ class Setup implements \Avatar_Privacy\Component {
 			) {$wpdb->get_charset_collate()};";
 
 		$result = dbDelta( $sql );
-		if ( ! empty( $result ) && ! empty( $result[ $table_name ] ) ) {
+
+		if ( $this->table_exists( $table_name ) ) {
 			$wpdb->avatar_privacy = $table_name;
+			return true;
+		}
+
+		// Should not ever happen.
+		return false;
+	}
+
+	/**
+	 * Sometimes, the table data needs to updated when upgrading.
+	 *
+	 * @param string $previous_version The previously installed plugin version.
+	 */
+	private function maybe_update_table_data( $previous_version ) {
+		global $wpdb;
+
+		if ( \version_compare( $previous_version, '0.4', '<' ) ) {
+			$rows = $wpdb->get_results( "SELECT id, email FROM {$wpdb->avatar_privacy} WHERE hash is null" ); // WPCS: db call ok, cache ok.
+			foreach ( $rows as $r ) {
+				$this->core->update_comment_author_hash( $r->id, $r->email );
+			}
 		}
 	}
+
+	/**
+	 * Updates user hashes where they don't exist yet.
+	 */
+	private function maybe_update_user_hashes() {
+		$users = \get_users( [
+			'meta_key'     => \Avatar_Privacy_Core::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key
+			'meta_compare' => 'NOT EXISTS',
+		] );
+
+		foreach ( $users as $user ) {
+			\update_user_meta( $user->ID, \Avatar_Privacy_Core::EMAIL_HASH_META_KEY, $this->core->get_hash( $user->user_email ) );
+		}
+	}
+
+	/**
+	 * Checks if the given table exists.
+	 *
+	 * @param  string $table_name A table name.
+	 *
+	 * @return bool
+	 */
+	private function table_exists( $table_name ) {
+		global $wpdb;
+
+		return $table_name === $wpdb->get_var( $wpdb->prepare( 'SHOW tables LIKE %s', $table_name ) ); // WPCS: db call ok, cache ok.
+	}
+
 }
