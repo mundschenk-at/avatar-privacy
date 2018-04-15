@@ -24,37 +24,38 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons;
+namespace Avatar_Privacy\Default_Icons\Generator;
 
-use Avatar_Privacy\Data_Storage\Filesystem_Cache;
+use Avatar_Privacy\Default_Icons\Generator\Jdenticon\Icon_Generator;
+use Avatar_Privacy\Default_Icons\Generator\Jdenticon\SVG_Renderer;
+use Avatar_Privacy\Default_Icons\Generator\Jdenticon\SVG_Writer;
+
 
 /**
- * An icon provider for "aleavatar" icons.
+ * Generates an SVG icon based on a hash.
+ *
+ * This is a partial PHP port of Jdenticon by Daniel Mester Pirttijärvi
+ * (https://github.com/aurora/identicon).
  *
  * @since 1.0.0
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Identicon_Icon_Provider extends Generating_Icon_Provider {
+class Jdenticon implements Generator {
 
 	/**
-	 * Creates a new instance.
+	 * Builds an icon based on the given seed returns the image data.
 	 *
-	 * @param Filesystem_Cache $file_cache  The file cache handler.
-	 */
-	public function __construct( Filesystem_Cache $file_cache ) {
-		parent::__construct( new Generator\Jdenticon(), $file_cache, [ 'identicon' ] );
-	}
-
-	/**
-	 * Retrieves the filename (including the sub-directory and file extension).
-	 *
-	 * @param  string $identity The identity (mail address) hash. Ignored.
-	 * @param  int    $size     The requested size in pixels.
+	 * @param  string $seed The seed data (hash).
+	 * @param  int    $size Optional. The size in pixels. Default 128 (but really ignored).
 	 *
 	 * @return string
 	 */
-	protected function get_filename( $identity, $size ) {
-		return "identicon/{$identity}.svg";
+	public function build( $seed, $size = 128 ) {
+		$writer    = new SVG_Writer( $size );
+		$generator = new Icon_Generator( new SVG_Renderer( $writer ), $seed, 0, 0, $size, 0 );
+
+		return (string) $writer;
 	}
+
 }

@@ -24,37 +24,41 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons;
+namespace Avatar_Privacy\Default_Icons\Generator\Jdenticon\Shapes\Outer;
 
-use Avatar_Privacy\Data_Storage\Filesystem_Cache;
+use Avatar_Privacy\Default_Icons\Generator\Jdenticon\Context;
+use Avatar_Privacy\Default_Icons\Generator\Jdenticon\Point;
+use Avatar_Privacy\Default_Icons\Generator\Jdenticon\Shape;
 
 /**
- * An icon provider for "aleavatar" icons.
- *
- * @since 1.0.0
- *
- * @author Peter Putzer <github@mundschenk.at>
+ * A center shape.
  */
-class Identicon_Icon_Provider extends Generating_Icon_Provider {
+class Triangle implements Shape {
 
 	/**
-	 * Creates a new instance.
+	 * The corner orientation.
 	 *
-	 * @param Filesystem_Cache $file_cache  The file cache handler.
+	 * @var int
 	 */
-	public function __construct( Filesystem_Cache $file_cache ) {
-		parent::__construct( new Generator\Jdenticon(), $file_cache, [ 'identicon' ] );
+	private $corner;
+
+	/**
+	 * Creates a new triangle.
+	 *
+	 * @param int $corner The corner orientation.
+	 */
+	public function __construct( $corner = 0 ) {
+		$this->corner = $corner;
 	}
 
 	/**
-	 * Retrieves the filename (including the sub-directory and file extension).
+	 * Render the shape in the given graphics context.
 	 *
-	 * @param  string $identity The identity (mail address) hash. Ignored.
-	 * @param  int    $size     The requested size in pixels.
-	 *
-	 * @return string
+	 * @param  Context $graphics The drawing context.
+	 * @param  int     $cell     The cell size.
+	 * @param  int     $index    The current index.
 	 */
-	protected function get_filename( $identity, $size ) {
-		return "identicon/{$identity}.svg";
+	public function render( Context $graphics, $cell, $index ) {
+		$graphics->add_triangle( new Point( 0, 0 ), $cell, $cell, $this->corner );
 	}
 }

@@ -24,37 +24,35 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons;
-
-use Avatar_Privacy\Data_Storage\Filesystem_Cache;
+namespace Avatar_Privacy\Default_Icons\Generator\Jdenticon;
 
 /**
- * An icon provider for "aleavatar" icons.
- *
- * @since 1.0.0
- *
- * @author Peter Putzer <github@mundschenk.at>
+ * A point.
  */
-class Identicon_Icon_Provider extends Generating_Icon_Provider {
+class Point {
 
 	/**
-	 * Creates a new instance.
+	 * The x coordinate..
 	 *
-	 * @param Filesystem_Cache $file_cache  The file cache handler.
+	 * @var float
 	 */
-	public function __construct( Filesystem_Cache $file_cache ) {
-		parent::__construct( new Generator\Jdenticon(), $file_cache, [ 'identicon' ] );
-	}
+	public $x;
 
 	/**
-	 * Retrieves the filename (including the sub-directory and file extension).
+	 * The y coordinate..
 	 *
-	 * @param  string $identity The identity (mail address) hash. Ignored.
-	 * @param  int    $size     The requested size in pixels.
-	 *
-	 * @return string
+	 * @var float
 	 */
-	protected function get_filename( $identity, $size ) {
-		return "identicon/{$identity}.svg";
+	public $y;
+
+	/**
+	 * Creates a new point instance.
+	 *
+	 * @param float $x The horizontal coordinate.
+	 * @param float $y The vertical coordinate.
+	 */
+	public function __construct( $x, $y ) {
+		$this->x = $x;
+		$this->y = $y;
 	}
 }

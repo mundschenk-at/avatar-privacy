@@ -24,37 +24,19 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons;
-
-use Avatar_Privacy\Data_Storage\Filesystem_Cache;
+namespace Avatar_Privacy\Default_Icons\Generator\Jdenticon;
 
 /**
- * An icon provider for "aleavatar" icons.
- *
- * @since 1.0.0
- *
- * @author Peter Putzer <github@mundschenk.at>
+ * An SVG shape.
  */
-class Identicon_Icon_Provider extends Generating_Icon_Provider {
+interface Shape {
 
 	/**
-	 * Creates a new instance.
+	 * Render the shape in the given graphics context.
 	 *
-	 * @param Filesystem_Cache $file_cache  The file cache handler.
+	 * @param  Context $graphics The drawing context.
+	 * @param  int     $cell     The cell size.
+	 * @param  int     $index    The current index.
 	 */
-	public function __construct( Filesystem_Cache $file_cache ) {
-		parent::__construct( new Generator\Jdenticon(), $file_cache, [ 'identicon' ] );
-	}
-
-	/**
-	 * Retrieves the filename (including the sub-directory and file extension).
-	 *
-	 * @param  string $identity The identity (mail address) hash. Ignored.
-	 * @param  int    $size     The requested size in pixels.
-	 *
-	 * @return string
-	 */
-	protected function get_filename( $identity, $size ) {
-		return "identicon/{$identity}.svg";
-	}
+	public function render( Context $graphics, $cell, $index );
 }
