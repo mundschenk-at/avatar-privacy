@@ -57,7 +57,7 @@ class Avatar_Privacy_Controller {
 	 *
 	 * @param Avatar_Privacy_Core $core     The core API.
 	 * @param Setup               $setup    The (de-)activation/uninstallation handling.
-	 * @param Images       $icons    The default icon handler.
+	 * @param Images              $icons    The default icon handler.
 	 * @param Avatar_Handling     $avatars  The avatar handler.
 	 * @param Comments            $comments The comments handler.
 	 * @param User_Profile        $profile  The user profile handler.
