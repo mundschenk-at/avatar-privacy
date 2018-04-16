@@ -287,8 +287,7 @@ class Setup implements \Avatar_Privacy\Component {
 				UNIQUE KEY email (email),
 				UNIQUE KEY hash (hash)
 			) {$wpdb->get_charset_collate()};";
-
-		$result = dbDelta( $sql );
+		dbDelta( $sql );
 
 		if ( $this->table_exists( $table_name ) ) {
 			$wpdb->avatar_privacy = $table_name;
