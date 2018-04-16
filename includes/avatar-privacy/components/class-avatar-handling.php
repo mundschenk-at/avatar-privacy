@@ -163,7 +163,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 * @param  array             $args        Arguments passed to get_avatar_data(), after processing.
 	 * @param  int|string|object $id_or_email The Gravatar to retrieve. Accepts a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
 	 *
-	 * @return string
+	 * @return array
 	 */
 	public function get_avatar_data( $args, $id_or_email ) {
 		$show_avatar   = false;
