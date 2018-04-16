@@ -64,7 +64,9 @@ class Retro implements Generator {
 		\mt_srand( (int) hexdec( substr( $seed, 0, 8 ) ) );
 
 		// Generate icon.
-		$result = $this->identicon->getImageData( $seed, $size, RandomColor::one( [ 'luminosity' => 'bright' ] ), RandomColor::one( [ 'luminosity' => 'light' ] ) );
+		$result = $this->identicon->getImageData( $seed, $size,
+			/* @scrutinizer ignore-type */ RandomColor::one( [ 'luminosity' => 'bright' ] ),
+			/* @scrutinizer ignore-type */ RandomColor::one( [ 'luminosity' => 'light' ] ) );
 
 		// Restore randomness.
 		\mt_srand();
