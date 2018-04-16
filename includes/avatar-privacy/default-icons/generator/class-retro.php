@@ -29,33 +29,47 @@ namespace Avatar_Privacy\Default_Icons\Generator;
 use Colors\RandomColor;
 
 /**
- * An icon generator.
+ * Generates a "retro" SVG icon based on a hash.
  *
  * @since 1.0.0
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
-class Retro extends \Bitverse\Identicon\Generator\PixelsGenerator implements Generator {
+class Retro implements Generator {
+
+	/**
+	 * The identicon instance.
+	 *
+	 * @var \Identicon\Identicon
+	 */
+	private $identicon;
+
+	/**
+	 * Creates a new instance.
+	 */
+	public function __construct() {
+		$this->identicon = new \Identicon\Identicon( new \Identicon\Generator\SvgGenerator() );
+	}
 
 	/**
 	 * Builds an icon based on the given seed returns the image data.
 	 *
 	 * @param  string $seed The seed data (hash).
-	 * @param  int    $size The size in pixels.
+	 * @param  int    $size Optional. The size in pixels. Default 128 (but really ignored).
 	 *
-	 * @return string|false
+	 * @return string
 	 */
-	public function build( $seed, $size ) {
+	public function build( $seed, $size = 128 ) {
 		// Initialize random number with seed.
 		\mt_srand( (int) hexdec( substr( $seed, 0, 8 ) ) );
 
-		$this->setBackgroundColor( RandomColor::one( [ 'luminosity' => 'light' ] ) );
-		$this->setForegroundColor( RandomColor::one( [ 'luminosity' => 'bright' ] ) );
-
-		$result = $this->generate( $seed );
+		// Generate icon.
+		$result = $this->identicon->getImageData( $seed, $size, RandomColor::one( [ 'luminosity' => 'bright' ] ), RandomColor::one( [ 'luminosity' => 'light' ] ) );
 
 		// Restore randomness.
 		\mt_srand();
 
-		// Return result.
 		return $result;
 	}
+
 }

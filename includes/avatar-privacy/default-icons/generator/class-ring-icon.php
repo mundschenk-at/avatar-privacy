@@ -31,20 +31,16 @@ namespace Avatar_Privacy\Default_Icons\Generator;
  *
  * @since 1.0.0
  */
-class Rings implements Generator {
+class Ring_Icon extends \splitbrain\RingIcon\RingIconSVG {
 
 	/**
-	 * Builds an icon based on the given seed returns the image data.
+	 * Retrieves the complete ring SVG suitable for saving to a file.
 	 *
-	 * @param  string $seed The seed data (hash).
-	 * @param  int    $size The size in pixels.
+	 * @param  string $seed The email hash.
 	 *
-	 * @return string|false
+	 * @return string
 	 */
-	public function build( $seed, $size ) {
-		$ring_icon = new Ring_Icon( $size, 3 );
-		$ring_icon->setMono( true );
-
-		return $ring_icon->get_svg_image_data( $seed );
+	public function get_svg_image_data( $seed ) {
+		return $this->generateSVGImage( $seed, true );
 	}
 }
