@@ -175,13 +175,13 @@ class Avatar_Privacy_Core {
 	 *
 	 * @param Avatar_Privacy_Core $instance Only used for plugin initialization. Don't ever pass a value in user code.
 	 *
-	 * @throws BadMethodCallException Thrown when WP_Typography::set_instance after plugin initialization.
+	 * @throws BadMethodCallException Thrown when Avatar_Privacy_Core::set_instance after plugin initialization.
 	 */
 	public static function set_instance( Avatar_Privacy_Core $instance ) {
 		if ( null === self::$_instance ) {
 			self::$_instance = $instance;
 		} else {
-			throw new BadMethodCallException( 'WP_Typography::set_instance called more than once.' );
+			throw new BadMethodCallException( 'Avatar_Privacy_Core::set_instance called more than once.' );
 		}
 	}
 
@@ -190,7 +190,7 @@ class Avatar_Privacy_Core {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @throws BadMethodCallException Thrown when WP_Typography::get_instance is called before plugin initialization.
+	 * @throws BadMethodCallException Thrown when Avatar_Privacy_Core::get_instance is called before plugin initialization.
 	 *
 	 * @return Avatar_Privacy_Core
 	 */
