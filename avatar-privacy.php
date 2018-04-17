@@ -27,7 +27,7 @@
  * Plugin Name: Avatar Privacy
  * Plugin URI: https://code.mundschenk.at/avatar-privacy/
  * Description: Adds options to enhance the privacy when using avatars.
- * Author: Peter Putzer, Johannes Freudenthal
+ * Author: Peter Putzer, Johannes Freudendahl
  * Author URI: https://code.mundschenk.at
  * Version: 0.4
  * License: GNU General Public License v2 or later
