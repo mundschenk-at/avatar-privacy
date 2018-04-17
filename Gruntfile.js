@@ -60,7 +60,16 @@ module.exports = function( grunt ) {
 						'vendor/composer/**',
 						'vendor/mundschenk-at/check-wp-requirements/*.php',
 						'vendor/mundschenk-at/check-wp-requirements/partials/*.php',
-						'!**/scss/**'
+						'vendor/mundschenk-at/wp-data-storage/src/**/*.php',
+						'vendor/mistic100/randomcolor/src/**/*.php',
+						'vendor/level-2/dice/**/*.php',
+						'vendor/jdenticon/jdenticon/src/**/*.php',
+						'vendor/bcncommerce/stream-wrapper/**/*.php',
+						'vendor/splitbrain/php-ringicon/src/**/*.php',
+						'vendor/scripturadesign/color/src/**/*.php',
+						'vendor/yzalis/identicon/src/**/*.php',
+						'!**/scss/**',
+						'!**/tests/**'
 					],
 					dest: 'build/'
 				}	],
@@ -70,11 +79,11 @@ module.exports = function( grunt ) {
 					expand: true,
 					nonull: false,
 					src: [
-						'vendor/{composer,mundschenk-at}/**/LICENSE*',
-						'vendor/{composer,mundschenk-at}/**/README*',
-						'vendor/{composer,mundschenk-at}/**/CREDITS*',
-						'vendor/{composer,mundschenk-at}/**/COPYING*',
-						'vendor/{composer,mundschenk-at}/**/CHANGE*',
+						'vendor/{composer,mundschenk-at,level-2,mistic-100,bcncommerce,jdenticon,splitbrain,scripturadesign,yzalis}/**/LICENSE*',
+						'vendor/{composer,mundschenk-at,level-2,mistic-100,bcncommerce,jdenticon,splitbrain,scripturadesign,yzalis}/**/README*',
+						'vendor/{composer,mundschenk-at,level-2,mistic-100,bcncommerce,jdenticon,splitbrain,scripturadesign,yzalis}/**/CREDITS*',
+						'vendor/{composer,mundschenk-at,level-2,mistic-100,bcncommerce,jdenticon,splitbrain,scripturadesign,yzalis}/**/COPYING*',
+						'vendor/{composer,mundschenk-at,level-2,mistic-100,bcncommerce,jdenticon,splitbrain,scripturadesign,yzalis}/**/CHANGE*',
 					],
 					dest: 'build/'
 				} ],
