@@ -49,7 +49,9 @@ class Jdenticon implements Generator {
 	 * Creates a new instance.
 	 */
 	public function __construct() {
-		$this->identicon = new \Jdenticon\Identicon();
+		$this->identicon = new \Jdenticon\Identicon( [
+			'style' => new \Jdenticon\IdenticonStyle( [ 'padding' => 0 ] ),
+		] );
 	}
 
 	/**
