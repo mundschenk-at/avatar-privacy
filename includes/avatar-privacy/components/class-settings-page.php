@@ -27,6 +27,8 @@
 
 namespace Avatar_Privacy\Components;
 
+use Avatar_Privacy\Data_Storage\Options;
+
 /**
  * Handles privacy-specific additions to the "Discussion" settings page.
  *
@@ -42,12 +44,21 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	private $plugin_file;
 
 	/**
+	 * The options handler.
+	 *
+	 * @var Options
+	 */
+	private $options;
+
+	/**
 	 * Creates a new instance.
 	 *
-	 * @param string $plugin_file The full path to the base plugin file.
+	 * @param string  $plugin_file The full path to the base plugin file.
+	 * @param Options $options     The options handler.
 	 */
-	public function __construct( $plugin_file ) {
+	public function __construct( $plugin_file, Options $options ) {
 		$this->plugin_file = $plugin_file;
+		$this->options     = $options;
 	}
 
 	/**
@@ -59,18 +70,20 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	 */
 	public function run( \Avatar_Privacy_Core $core ) {
 		if ( \is_admin() ) {
-			\add_action( 'plugins_loaded', [ $this, 'add_settings' ] );
+			\add_action( 'admin_init', [ $this, 'register_settings' ] );
+			\add_action( 'admin_footer', [ $this, 'add_settings_toggle' ] );
 		}
 	}
 
 	/**
 	 * Initialize additional plugin hooks.
 	 */
-	public function add_settings() {
-		// If the admin selected not to display avatars at all, just add a note to the discussions settings page.
-		if ( ! get_option( 'show_avatars' ) ) {
-			add_action( 'admin_init', [ $this, 'register_settings' ] );
-		}
+	public function add_settings_toggle() {
+		$screen = \get_current_screen();
+
+		if ( ! empty( $screen->base ) && 'options-discussion' === $screen->base && \wp_script_is( 'jquery', 'done' ) ) {
+			require dirname( $this->plugin_file ) . '/admin/partials/sections/avatars-disabled-script.php';
+	    }
 	}
 
 	/**
@@ -78,13 +91,16 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	 * an explanation of the wrong gravatar settings.
 	 */
 	public function register_settings() {
-		add_settings_section( 'avatar_privacy_section', __( 'Avatar Privacy', 'avatar-privacy' ), [ $this, 'output_settings_header' ], 'discussion' );
+		\add_settings_field( 'avatar-privacy', __( 'Avatar Privacy', 'avatar-privacy' ), [ $this, 'output_settings_header' ], 'discussion', 'avatars' );
 	}
 
 	/**
 	 * Outputs a short explanation on the discussion settings page.
 	 */
 	public function output_settings_header() {
+		$show_avatars = $this->options->get( 'show_avatars', false, true );
+
 		require dirname( $this->plugin_file ) . '/admin/partials/sections/avatars-disabled.php';
+		require dirname( $this->plugin_file ) . '/admin/partials/sections/avatars-enabled.php';
 	}
 }

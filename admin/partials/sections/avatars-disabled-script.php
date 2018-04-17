@@ -3,7 +3,6 @@
  * This file is part of Avatar Privacy.
  *
  * Copyright 2018 Peter Putzer.
- * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,15 +24,16 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-$show_avatars_class = empty( $show_avatars ) ? '' : ' hide-if-js';
-
 ?>
-<div class="avatar-settings-disabled<?php echo $show_avatars_class; // WPCS: XSS ok. ?>">
-	<p>
-		<?php esc_html_e( "The Avatar Privacy plugin modifies the display of avatars. You have not enabled avatars, so this plugin can't do anything for you. :-)", 'avatar-privacy' ); ?>
-	</p>
-	<p>
-		<?php esc_html_e( "You can enable gravatars above by selecting 'Show Avatars'. Save the settings and after the page has reloaded you'll see the features of the Avatar Privacy plugin options here. There will also be more default avatars, so don't worry about them too much now.", 'avatar-privacy' ); ?>
-	</p>
-</div>
+<script type="text/javascript">
+	(function($){
+		var parent = $( '#show_avatars' ),
+			hideChildren = $( '.avatar-settings-disabled' ),
+			showChildren = $( '.avatar-settings-enabled' );
+		parent.change(function(){
+			hideChildren.toggleClass( 'hide-if-js', this.checked );
+			showChildren.toggleClass( 'hide-if-js', ! this.checked );
+		});
+	})(jQuery);
+</script>
 <?php
