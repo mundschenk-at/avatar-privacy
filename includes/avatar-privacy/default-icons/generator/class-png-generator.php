@@ -87,9 +87,9 @@ abstract class PNG_Generator implements Generator {
 	/**
 	 * Retrieves the image data in PNG format. The image resource is freed.
 	 *
-	 * @param  resource $image The image.
+	 * @param  resource|false $image The image.
 	 *
-	 * @return string          A binary string containing PNG data (or '').
+	 * @return string                A binary string containing PNG data (or '').
 	 */
 	protected function get_png_data( $image ) {
 

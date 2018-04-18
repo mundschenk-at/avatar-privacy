@@ -365,7 +365,7 @@ class Monster_ID extends PNG_Generator {
 		// Reset randomness.
 		\mt_srand();
 
-		// Return image.
+		// Convert image to PNG format.
 		return $this->get_png_data( $out );
 	}
 

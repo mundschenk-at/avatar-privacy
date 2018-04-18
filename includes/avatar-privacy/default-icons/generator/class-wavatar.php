@@ -51,6 +51,20 @@ class Wavatar extends PNG_Generator {
 	}
 
 	/**
+	 * Extract a "random" value from the seed string.
+	 *
+	 * @param  string $seed   The seed.
+	 * @param  int    $index  The index.
+	 * @param  int    $length The number of bytes.
+	 * @param  int    $modulo The maximum value of the result.
+	 *
+	 * @return int
+	 */
+	private function seed( $seed, $index, $length, $modulo ) {
+		return \hexdec( \substr( $seed, $index, $length ) ) % $modulo;
+	}
+
+	/**
 	 * Build the avatar icon.
 	 *
 	 * @param  string $seed The seed data (hash).
@@ -61,14 +75,14 @@ class Wavatar extends PNG_Generator {
 	public function build( $seed, $size ) {
 		// Look at the seed (an md5 hash) and use pairs of digits to determine our
 		// "random" parts and colors.
-		$face      = 1 + ( hexdec( substr( $seed,  1, 2 ) ) % ( self::WAVATAR_FACES ) );
-		$bg_color  = ( ( hexdec( substr( $seed,  3, 2 ) ) % 240 ) / 255 * self::DEGREE );
-		$fade      = 1 + ( hexdec( substr( $seed,  5, 2 ) ) % ( self::WAVATAR_BACKGROUNDS ) );
-		$wav_color = ( ( hexdec( substr( $seed,  7, 2 ) ) % 240 ) / 255 * self::DEGREE );
-		$brow      = 1 + ( hexdec( substr( $seed,  9, 2 ) ) % ( self::WAVATAR_BROWS ) );
-		$eyes      = 1 + ( hexdec( substr( $seed, 11, 2 ) ) % ( self::WAVATAR_EYES ) );
-		$pupil     = 1 + ( hexdec( substr( $seed, 13, 2 ) ) % ( self::WAVATAR_PUPILS ) );
-		$mouth     = 1 + ( hexdec( substr( $seed, 15, 2 ) ) % ( self::WAVATAR_MOUTHS ) );
+		$face      = 1 + $this->seed( $seed, 1, 2, self::WAVATAR_FACES );
+		$bg_color  = ( $this->seed( $seed, 3, 2, 240 ) / 255 * self::DEGREE );
+		$fade      = 1 + $this->seed( $seed, 5, 2, self::WAVATAR_BACKGROUNDS );
+		$wav_color = $this->seed( $seed, 7, 2, 240 ) / 255 * self::DEGREE;
+		$brow      = 1 + $this->seed( $seed, 9, 2, self::WAVATAR_BROWS );
+		$eyes      = 1 + $this->seed( $seed, 11, 2, self::WAVATAR_EYES );
+		$pupil     = 1 + $this->seed( $seed, 13, 2, self::WAVATAR_PUPILS );
+		$mouth     = 1 + $this->seed( $seed, 15, 2, self::WAVATAR_MOUTHS );
 
 		// Create backgound.
 		$avatar = \imagecreatetruecolor( self::SIZE, self::SIZE );
@@ -79,7 +93,7 @@ class Wavatar extends PNG_Generator {
 		// Now add the various layers onto the image.
 		$this->apply_image( $avatar, "fade{$fade}.png", self::SIZE, self::SIZE );
 		$this->apply_image( $avatar, "mask{$face}.png", self::SIZE, self::SIZE );
-		$this->fill( $avatar, $wav_color, 94, 66, \round( self::SIZE / 2 ), \round( self::SIZE / 2 ) );
+		$this->fill( $avatar, $wav_color, 94, 66, (int) ( self::SIZE / 2 ), (int) ( self::SIZE / 2 ) );
 		$this->apply_image( $avatar, "shine{$face}.png", self::SIZE, self::SIZE );
 		$this->apply_image( $avatar, "brow${brow}.png", self::SIZE, self::SIZE );
 		$this->apply_image( $avatar, "eyes{$eyes}.png", self::SIZE, self::SIZE );
