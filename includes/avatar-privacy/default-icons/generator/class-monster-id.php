@@ -35,7 +35,9 @@ use function Scriptura\Color\Helpers\HSLtoRGB;
  *
  * @since 1.0.0
  */
-class Monster_ID implements Generator {
+class Monster_ID extends PNG_Generator {
+	const SIZE = 120;
+
 	const SAME_COLOR_PARTS     = [
 		'arms_S8.png'  => true,
 		'legs_S5.png'  => true,
@@ -188,22 +190,11 @@ class Monster_ID implements Generator {
 		'mouth_S7.png' => [ [ 999999, 0 ], [ 999999, 0 ] ],
 	];
 
-	// Units used in HSL colors.
-	const PERCENT = 100;
-	const DEGREE  = 360;
-
-	/**
-	 * The path to the monster parts image files.
-	 *
-	 * @var string
-	 */
-	private $parts_dir;
-
 	/**
 	 * Creates a new instance.
 	 */
 	public function __construct() {
-		$this->parts_dir = dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/public/images/monster-id';
+		parent::__construct( \dirname( \dirname( \dirname( \dirname( __DIR__ ) ) ) ) . '/public/images/monster-id' );
 	}
 
 	/**
@@ -217,10 +208,10 @@ class Monster_ID implements Generator {
 	 */
 	private function locate_parts( array $parts ) {
 		$noparts = true;
-		if ( false !== ( $dh = opendir( $this->parts_dir ) ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found,WordPress.CodeAnalysis.AssignmentInCondition.Found
-			while ( false !== ( $file = readdir( $dh ) ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found,WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-				if ( is_file( "{$this->parts_dir}/{$file}" ) ) {
-					list( $partname, ) = explode( '_', $file );
+		if ( false !== ( $dh = \opendir( $this->parts_dir ) ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found,WordPress.CodeAnalysis.AssignmentInCondition.Found
+			while ( false !== ( $file = \readdir( $dh ) ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found,WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+				if ( \is_file( "{$this->parts_dir}/{$file}" ) ) {
+					list( $partname, ) = \explode( '_', $file );
 					if ( isset( $parts[ $partname ] ) ) {
 						$parts[ $partname ][] = $file;
 						$noparts              = false;
@@ -228,7 +219,7 @@ class Monster_ID implements Generator {
 				}
 			}
 
-			closedir( $dh );
+			\closedir( $dh );
 		}
 
 		if ( $noparts ) {
@@ -237,7 +228,7 @@ class Monster_ID implements Generator {
 
 		// Sort for consistency across servers.
 		foreach ( $parts as $key => $value ) {
-			sort( $parts[ $key ], SORT_NATURAL );
+			\sort( $parts[ $key ], SORT_NATURAL );
 		}
 
 		return $parts;
@@ -310,7 +301,7 @@ class Monster_ID implements Generator {
 	public function build( $seed, $size ) {
 
 		// Init random seed.
-		$id = substr( $seed, 0, 8 );
+		$id = \substr( $seed, 0, 8 );
 
 		if ( empty( $size ) ) {
 			$size = 400; // px.
@@ -327,30 +318,30 @@ class Monster_ID implements Generator {
 		] );
 
 		// Set randomness.
-		mt_srand( (int) hexdec( $id ) );
+		\mt_srand( (int) \hexdec( $id ) );
 
 		// Throw the dice for body parts.
 		foreach ( $parts_array as $part => $files ) {
-			$parts_array[ $part ] = $files[ mt_rand( 0, count( $files ) - 1 ) ];
+			$parts_array[ $part ] = $files[ \mt_rand( 0, \count( $files ) - 1 ) ];
 		}
 
 		// Create background.
-		$monster = @imagecreatefrompng( "{$this->parts_dir}/back.png" );
+		$monster = @\imagecreatefrompng( "{$this->parts_dir}/back.png" ); // phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
 		if ( false === $monster ) {
 			return false; // Something went wrong but don't want to mess up blog layout.
 		}
 
-		$max_rand   = mt_getrandmax();
-		$hue        = ( ( mt_rand( 1, $max_rand ) - 1 ) / $max_rand ) * self::DEGREE; // real_halfopen.
-		$saturation = mt_rand( 25000, 100000 ) / 100000 * self::PERCENT;
+		$max_rand   = \mt_getrandmax();
+		$hue        = ( ( \mt_rand( 1, $max_rand ) - 1 ) / $max_rand ) * self::DEGREE; // real_halfopen.
+		$saturation = \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT;
 
 		// Add parts.
 		foreach ( $parts_array as $part => $file ) {
-			$im = @imagecreatefrompng( "{$this->parts_dir}/{$file}" );
+			$im = @\imagecreatefrompng( "{$this->parts_dir}/{$file}" ); // phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
 			if ( ! $im ) {
 				return false; // Something went wrong but don't want to mess up blog layout.
 			}
-			imageSaveAlpha( $im, true );
+			\imageSaveAlpha( $im, true );
 
 			// Randomly color body parts.
 			if ( 'body' === $part ) {
@@ -358,68 +349,49 @@ class Monster_ID implements Generator {
 			} elseif ( isset( self::SAME_COLOR_PARTS[ $file ] ) ) {
 				$this->image_colorize( $im, $hue, $saturation, $file );
 			} elseif ( isset( self::RANDOM_COLOR_PARTS[ $file ] ) ) {
-				$this->image_colorize( $im, ( mt_rand( 1, $max_rand ) - 1 ) / $max_rand * self::DEGREE, mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
+				$this->image_colorize( $im, ( \mt_rand( 1, $max_rand ) - 1 ) / $max_rand * self::DEGREE, \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
 			} elseif ( isset( self::SPECIFIC_COLOR_PARTS[ $file ] ) ) {
 				$low  = self::SPECIFIC_COLOR_PARTS[ $file ][0] * 10000;
 				$high = self::SPECIFIC_COLOR_PARTS[ $file ][1] * 10000;
-				$this->image_colorize( $im, mt_rand( $low, $high ) / 10000 * self::DEGREE, mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
+				$this->image_colorize( $im, \mt_rand( $low, $high ) / 10000 * self::DEGREE, \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
 			}
-			imagecopy( $monster, $im, 0, 0, 0, 0, 120, 120 );
-			imagedestroy( $im );
+
+			$this->apply_image( $monster, $im, self::SIZE, self::SIZE );
 		}
 
 		// Going to resize always for now.
-		$out = @imagecreatetruecolor( $size, $size );
-		if ( false === $out ) {
-			return false; // Something went wrong but don't want to mess up blog layout.
-		}
-
-		// Save transparent background.
-		imageSaveAlpha( $out, true );
-		imageAlphaBlending( $out, false );
-
-		// Resize final image.
-		imagecopyresampled( $out, $monster, 0, 0, 0, 0, $size, $size, 120, 120 );
-		imagedestroy( $monster );
-
-		$stream = new \Bcn\Component\StreamWrapper\Stream();
-		$wrote  = @imagepng( $out, /* @scrutinizer ignore-type */ fopen( $stream, 'w' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
-		if ( ! $wrote ) {
-			return false; // Something went wrong but don't want to mess up blog layout.
-		}
-		imagedestroy( $out );
+		$out = $this->resize_image( $monster, $size, $size, self::SIZE, self::SIZE );
 
 		// Reset randomness.
-		mt_srand();
+		\mt_srand();
 
 		// Return image.
-		return $stream->getContent();
+		return $this->get_png_data( $out );
 	}
 
 	/**
 	 * Adds color to the given image.
 	 *
-	 * @param  resource $im         The image. Passed by reference.
+	 * @param  resource $image      The image.
 	 * @param  int      $hue        The hue (0-360).
 	 * @param  int      $saturation The saturation (0-100).
 	 * @param  string   $part       The part name.
 	 *
 	 * @return resource             The image, for chaining.
 	 */
-	private function image_colorize( &$im, $hue = 360, $saturation = 100, $part = '' ) {
-		$imgw = imagesx( $im );
-		$imgh = imagesy( $im );
+	private function image_colorize( $image, $hue = 360, $saturation = 100, $part = '' ) {
+		$imgw = \imagesx( $image );
+		$imgh = \imagesy( $image );
 
 		// Ensure non-negative hue.
 		$hue = $hue < 0 ? self::DEGREE + $hue : $hue;
 
-		imagealphablending( $im, false );
+		\imagealphablending( $image, false );
 		if ( isset( self::PART_OPTIMIZATION[ $part ] ) ) {
-			$optimize = self::PART_OPTIMIZATION[ $part ];
-			$xmin     = $optimize[0][0];
-			$xmax     = $optimize[0][1];
-			$ymin     = $optimize[1][0];
-			$ymax     = $optimize[1][1];
+			$xmin = self::PART_OPTIMIZATION[ $part ][0][0];
+			$xmax = self::PART_OPTIMIZATION[ $part ][0][1];
+			$ymin = self::PART_OPTIMIZATION[ $part ][1][0];
+			$ymax = self::PART_OPTIMIZATION[ $part ][1][1];
 		} else {
 			$xmin = 0;
 			$xmax = $imgw - 1;
@@ -429,7 +401,7 @@ class Monster_ID implements Generator {
 
 		for ( $i = $xmin; $i <= $xmax; $i++ ) {
 			for ( $j = $ymin; $j <= $ymax; $j++ ) {
-				$rgb       = ImageColorAt( $im, $i, $j );
+				$rgb       = \imagecolorat( $image, $i, $j );
 				$r         = ( $rgb >> 16 ) & 0xFF;
 				$g         = ( $rgb >> 8 ) & 0xFF;
 				$b         = $rgb & 0xFF;
@@ -439,13 +411,13 @@ class Monster_ID implements Generator {
 					$newrgb = HSLtoRGB( $hue, $saturation, $lightness );
 					// The green and blue were switched in the original hsl_2_rgb function, so we keep
 					// the same behavior for backwards compatibility reasons.
-					$color = imagecolorallocatealpha( $im, $newrgb[0], $newrgb[2], $newrgb[1], $alpha );
-					imagesetpixel( $im, $i, $j, $color );
+					$color = \imagecolorallocatealpha( $image, $newrgb[0], $newrgb[2], $newrgb[1], $alpha );
+					\imagesetpixel( $image, $i, $j, $color );
 				}
 			}
 		}
-		imagealphablending( $im, true );
+		\imagealphablending( $image, true );
 
-		return $im;
+		return $image;
 	}
 }

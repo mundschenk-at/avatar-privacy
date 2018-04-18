@@ -27,16 +27,15 @@
 
 namespace Avatar_Privacy\Default_Icons\Generator;
 
-use function Scriptura\Color\Helpers\HSLtoRGB;
-
 /**
  * A wavatar generator.
  *
  * @since 1.0.0
  */
-class Wavatar implements Generator {
+class Wavatar extends PNG_Generator {
 
-	const SIZE                = 80;
+	const SIZE = 80;
+
 	const WAVATAR_BACKGROUNDS = 4;
 	const WAVATAR_FACES       = 11;
 	const WAVATAR_BROWS       = 8;
@@ -44,40 +43,11 @@ class Wavatar implements Generator {
 	const WAVATAR_PUPILS      = 11;
 	const WAVATAR_MOUTHS      = 19;
 
-	// Units used in HSL colors.
-	const PERCENT = 100;
-	const DEGREE  = 360;
-
-	/**
-	 * The path to the monster parts image files.
-	 *
-	 * @var string
-	 */
-	private $parts_dir;
-
 	/**
 	 * Creates a new Wavatars generator.
 	 */
 	public function __construct() {
-		$this->parts_dir = dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/public/images/wavatars';
-	}
-
-	/**
-	 * Helper function for building a wavatar. This loads an image and adds it to
-	 * our composite using the given color values.
-	 *
-	 * @param  resource $base The wavatar image resource.
-	 * @param  string   $part The name of the body part image file (without the `.png` extension).
-	 */
-	private function apply_image( $base, $part ) {
-
-		$file = "{$this->parts_dir}/{$part}.png";
-		$im   = @imagecreatefrompng( $file );
-		if ( false === $im ) {
-			return; // Abort.
-		}
-		imagecopy( $base, $im, 0, 0, 0, 0, self::SIZE, self::SIZE );
-		imagedestroy( $im );
+		parent::__construct( \dirname( \dirname( \dirname( \dirname( __DIR__ ) ) ) ) . '/public/images/wavatars' );
 	}
 
 	/**
@@ -101,41 +71,25 @@ class Wavatar implements Generator {
 		$mouth     = 1 + ( hexdec( substr( $seed, 15, 2 ) ) % ( self::WAVATAR_MOUTHS ) );
 
 		// Create backgound.
-		$avatar = imagecreatetruecolor( self::SIZE, self::SIZE );
+		$avatar = \imagecreatetruecolor( self::SIZE, self::SIZE );
 
 		// Pick a random color for the background.
-		$c  = HSLtoRGB( $bg_color, 94, 20 );
-		$bg = imagecolorallocate( $avatar, $c[0], $c[1], $c[2] );
-		imagefill( $avatar, 1, 1, $bg );
-		$c  = HSLtoRGB( $wav_color, 94, 66 );
-		$bg = imagecolorallocate( $avatar, $c[0], $c[1], $c[2] );
+		$this->fill( $avatar, $bg_color, 94, 20, 1, 1 );
 
 		// Now add the various layers onto the image.
-		$this->apply_image( $avatar, "fade$fade" );
-		$this->apply_image( $avatar, "mask$face" );
-		imagefill( $avatar, (int) ( self::SIZE / 2 ), (int) ( self::SIZE / 2 ), $bg );
-		$this->apply_image( $avatar, "shine$face" );
-		$this->apply_image( $avatar, "brow$brow" );
-		$this->apply_image( $avatar, "eyes$eyes" );
-		$this->apply_image( $avatar, "pupils$pupil" );
-		$this->apply_image( $avatar, "mouth$mouth" );
+		$this->apply_image( $avatar, "fade{$fade}.png", self::SIZE, self::SIZE );
+		$this->apply_image( $avatar, "mask{$face}.png", self::SIZE, self::SIZE );
+		$this->fill( $avatar, $wav_color, 94, 66, \round( self::SIZE / 2 ), \round( self::SIZE / 2 ) );
+		$this->apply_image( $avatar, "shine{$face}.png", self::SIZE, self::SIZE );
+		$this->apply_image( $avatar, "brow${brow}.png", self::SIZE, self::SIZE );
+		$this->apply_image( $avatar, "eyes{$eyes}.png", self::SIZE, self::SIZE );
+		$this->apply_image( $avatar, "pupils{$pupil}.png", self::SIZE, self::SIZE );
+		$this->apply_image( $avatar, "mouth{$mouth}.png", self::SIZE, self::SIZE );
 
 		// Resize if needed.
-		$out = $avatar;
-		if ( self::SIZE !== $size ) {
-			$out = imagecreatetruecolor( $size, $size );
-			imagecopyresampled( $out, $avatar, 0, 0, 0, 0, $size, $size, self::SIZE, self::SIZE );
-			imagedestroy( $avatar );
-		}
+		$out = $this->resize_image( $avatar, $size, $size, self::SIZE, self::SIZE );
 
 		// Convert image to PNG format.
-		$stream = new \Bcn\Component\StreamWrapper\Stream();
-		imagepng( $out, /* @scrutinizer ignore-type */ \fopen( $stream, 'w' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
-
-		// Clean up.
-		imagedestroy( $out );
-
-		// Return image.
-		return $stream->getContent();
+		return $this->get_png_data( $out );
 	}
 }
