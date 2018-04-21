@@ -142,7 +142,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		unset( $avatar_defaults['gravatar_default'] );
 
 		$avatar_defaults = array_merge( $avatar_defaults, [
-			'rings'             => __( 'Rings (automatically generated)', 'avatar-privacy' ),
+			'rings'             => __( 'Rings (Generated)', 'avatar-privacy' ),
 			/* translators: Icon set URL */
 			'comment'           => sprintf( __( 'Comment (loaded from your server, part of <a href="%s">NDD Icon Set</a>, under LGPL)', 'avatar-privacy' ), 'http://www.nddesign.de/news/2007/10/15/NDD_Icon_Set_1_0_-_Free_Icon_Set' ),
 			/* translators: Icon set URL */
