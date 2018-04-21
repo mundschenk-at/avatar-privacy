@@ -186,7 +186,7 @@ class Images implements \Avatar_Privacy\Component {
 		global $wp;
 		$wp->add_query_var( 'avatar-privacy-file' );
 
-		$basedir = str_replace( ABSPATH, '', $this->file_cache->get_base_dir() );
+		$basedir = \str_replace( ABSPATH, '', $this->file_cache->get_base_dir() );
 		\add_rewrite_rule( "^{$basedir}(.*)", [ 'avatar-privacy-file' => '$matches[1]' ], 'top' );
 	}
 
@@ -213,7 +213,7 @@ class Images implements \Avatar_Privacy\Component {
 
 				if ( ! $success ) {
 					/* translators: $file path */
-					wp_die( esc_html( sprintf( __( 'Error generating avatar file %s.', 'avatar-privacy' ), $file ) ) );
+					\wp_die( \esc_html( \sprintf( \__( 'Error generating avatar file %s.', 'avatar-privacy' ), $file ) ) );
 				}
 			}
 
@@ -232,7 +232,7 @@ class Images implements \Avatar_Privacy\Component {
 	 * @param  string $content_type The content MIME type.
 	 */
 	private function send_image( $file, $cache_time, $content_type ) {
-		$image = @file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_get_contents, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, Generic.PHP.NoSilencedErrors.Discouraged
+		$image = @\file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_get_contents, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, Generic.PHP.NoSilencedErrors.Discouraged
 
 		if ( ! empty( $image ) ) {
 			// Let's set some HTTP headers.
