@@ -123,13 +123,12 @@ class Filesystem_Cache {
 	 */
 	public function set( $filename, $data, $force = false ) {
 		$file = $this->get_base_dir() . $filename;
-		$path = \dirname( $file );
 
 		if ( \file_exists( $file ) && ! $force ) {
 			return true;
 		}
 
-		if ( ! \wp_mkdir_p( $path ) || false === \file_put_contents( $file, $data, LOCK_EX ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+		if ( ! \wp_mkdir_p( \dirname( $file ) ) || false === \file_put_contents( $file, $data, LOCK_EX ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
 			return false;
 		} else {
 			return true;
