@@ -38,8 +38,8 @@
 				value="true"
 				<?php checked( $value ); ?>
 			/>
-			<label for="<?php echo esc_attr( self::CHECKBOX_FIELD_NAME ); ?>"><?php echo wp_kses( __( 'Display a <a href="https://gravatar.com">gravatar</a> image for my e-mail address', 'avatar-privacy' ), [ 'a' => [ 'href' => true ] ] ); ?></label><br />
-			<span class="description"><?php esc_html_e( "Uncheck this box if you don't want to display a gravatar for your E-Mail address.", 'avatar-privacy' ); ?></span>
+			<label for="<?php echo esc_attr( self::CHECKBOX_FIELD_NAME ); ?>"><?php echo wp_kses( __( 'Display a <a href="https://gravatar.com">Gravatar</a> image for my e-mail address.', 'avatar-privacy' ), [ 'a' => [ 'href' => true ] ] ); ?></label><br />
+			<span class="description"><?php esc_html_e( "Uncheck this box if you don't want to display the gravatar for your e-mail address (or don't have an account on Gravatar.com).", 'avatar-privacy' ); ?></span>
 		</td>
 	</tr>
 </table>
