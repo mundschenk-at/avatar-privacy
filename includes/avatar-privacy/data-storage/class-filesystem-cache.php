@@ -35,7 +35,7 @@ namespace Avatar_Privacy\Data_Storage;
  */
 class Filesystem_Cache {
 
-	const CACHE_DIR = 'avatar-privacy/';
+	const CACHE_DIR = 'avatar-privacy/cache/';
 
 	/**
 	 * The base directory for the filesystem cache.
