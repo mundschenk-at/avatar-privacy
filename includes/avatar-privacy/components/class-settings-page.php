@@ -83,7 +83,7 @@ class Settings_Page implements \Avatar_Privacy\Component {
 
 		if ( ! empty( $screen->base ) && 'options-discussion' === $screen->base && \wp_script_is( 'jquery', 'done' ) ) {
 			require dirname( $this->plugin_file ) . '/admin/partials/sections/avatars-disabled-script.php';
-	    }
+		}
 	}
 
 	/**
