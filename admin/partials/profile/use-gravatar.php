@@ -31,7 +31,7 @@
 	<tr>
 		<th scope="row"><?php esc_html_e( 'Gravatars', 'avatar-privacy' ); ?></th>
 		<td>
-			<?php \wp_nonce_field( self::ACTION_EDIT_USE_GRAVATAR, self::NONCE_USE_GRAVATAR ); ?>
+			<?php \wp_nonce_field( self::ACTION_EDIT_USE_GRAVATAR, self::NONCE_USE_GRAVATAR . $user->ID ); ?>
 			<input
 				id="<?php echo esc_attr( self::CHECKBOX_FIELD_NAME ); ?>"
 				name="<?php echo esc_attr( self::CHECKBOX_FIELD_NAME ); ?>"

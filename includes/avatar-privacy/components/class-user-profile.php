@@ -47,7 +47,7 @@ class User_Profile implements \Avatar_Privacy\Component {
 	/**
 	 * The nonce used for updating the 'use_gravatar' meta field.
 	 */
-	const NONCE_USE_GRAVATAR = 'avatar_privacy_use_gravatar_nonce';
+	const NONCE_USE_GRAVATAR = 'avatar_privacy_use_gravatar_nonce_';
 
 	/**
 	 * The full path to the main plugin file.
@@ -113,7 +113,7 @@ class User_Profile implements \Avatar_Privacy\Component {
 
 		// Use true/false instead of 1/0 since a '0' value is removed from the database and then
 		// we can't differentiate between opted-out and never saved a value.
-		if ( isset( $_POST[ self::NONCE_USE_GRAVATAR ] ) && \wp_verify_nonce( \sanitize_key( $_POST[ self::NONCE_USE_GRAVATAR ] ), self::ACTION_EDIT_USE_GRAVATAR ) ) {
+		if ( isset( $_POST[ self::NONCE_USE_GRAVATAR . $user_id ] ) && \wp_verify_nonce( \sanitize_key( $_POST[ self::NONCE_USE_GRAVATAR . $user_id ] ), self::ACTION_EDIT_USE_GRAVATAR ) ) {
 			$value = isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) && ( 'true' === $_POST[ self::CHECKBOX_FIELD_NAME ] ) ? 'true' : 'false'; // WPCS:  Input var okay.
 			\update_user_meta( $user_id, \Avatar_Privacy_Core::GRAVATAR_USE_META_KEY, $value );
 		}
