@@ -27,7 +27,6 @@
 
 namespace Avatar_Privacy\Components;
 
-use Avatar_Privacy\Gravatar_Cache;
 
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Transients;
@@ -76,13 +75,6 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	private $core;
 
 	/**
-	 * The gravatar cache..
-	 *
-	 * @var Gravatar_Cache
-	 */
-	private $gravatar_cache;
-
-	/**
 	 * A cache for the results of the validate_gravatar function.
 	 *
 	 * @var array
@@ -96,14 +88,12 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 * @param Options         $options          The options handler.
 	 * @param Transients      $transients       The transients handler.
 	 * @param Site_Transients $site_transients  The site transients handler.
-	 * @param Gravatar_Cache  $gravatar         The local Gravatar cache.
 	 */
-	public function __construct( $plugin_file, Options $options, Transients $transients, Site_Transients $site_transients, Gravatar_Cache $gravatar ) {
+	public function __construct( $plugin_file, Options $options, Transients $transients, Site_Transients $site_transients ) {
 		$this->plugin_file     = $plugin_file;
 		$this->options         = $options;
 		$this->transients      = $transients;
 		$this->site_transients = $site_transients;
-		$this->gravatar_cache  = $gravatar;
 	}
 
 	/**
