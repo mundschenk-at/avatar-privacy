@@ -85,8 +85,8 @@ class User_Profile implements \Avatar_Privacy\Component {
 		// Add the checkbox to the user profile form if we're in the WP backend.
 		\add_action( 'show_user_profile',        [ $this, 'add_user_profile_fields' ] );
 		\add_action( 'edit_user_profile',        [ $this, 'add_user_profile_fields' ] );
-		\add_action( 'personal_options_update',  [ $this, 'save_user_profile_fields' ] );
-		\add_action( 'edit_user_profile_update', [ $this, 'save_user_profile_fields' ] );
+		\add_action( 'personal_options_update',  [ $this, 'save_use_gravatar_checkbox' ] );
+		\add_action( 'edit_user_profile_update', [ $this, 'save_use_gravatar_checkbox' ] );
 	}
 
 	/**
@@ -106,7 +106,7 @@ class User_Profile implements \Avatar_Privacy\Component {
 	 *
 	 * @param int $user_id The ID of the user that has just been saved.
 	 */
-	public function save_user_profile_fields( $user_id ) {
+	public function save_use_gravatar_checkbox( $user_id ) {
 		if ( ! \current_user_can( 'edit_user', $user_id ) ) {
 			return false;
 		}
