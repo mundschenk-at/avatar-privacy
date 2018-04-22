@@ -207,37 +207,40 @@ class Images implements \Avatar_Privacy\Component {
 	 * @param \WP $wp The WordPress global object.
 	 */
 	public function load_cached_avatar( \WP $wp ) {
-		if ( ! empty( $wp->query_vars['avatar-privacy-file'] ) && preg_match( '#^([a-z]+)/(?:([a-z]+)/)?([a-f0-9]{64})(?:-([0-9]+))?\.(png|svg)$#i', $wp->query_vars['avatar-privacy-file'], $matches ) ) {
-			list( , $type, $subdir, $hash, $size, $extension ) = $matches;
+		if ( empty( $wp->query_vars['avatar-privacy-file'] ) || ! \preg_match( '#^([a-z]+)/(?:([a-z]+)/)?([a-f0-9]{64})(?:-([0-9]+))?\.(png|svg)$#i', $wp->query_vars['avatar-privacy-file'], $parts ) ) {
+			// Abort early.
+			return;
+		}
 
-			$file = "{$this->file_cache->get_base_dir()}{$type}/" . ( empty( $subdir ) ? '' : "{$subdir}/" ) . $hash . ( empty( $size ) ? '' : "-{$size}" ) . ".{$extension}";
+		list(, $type, $subdir, $hash, $size, $extension ) = $parts;
 
-			if ( ! \file_exists( $file ) ) {
-				// Default size (for SVGs mainly, which ignore it).
-				$size = $size ?: 100;
+		$file = "{$this->file_cache->get_base_dir()}{$type}/" . ( empty( $subdir ) ? '' : "{$subdir}/" ) . $hash . ( empty( $size ) ? '' : "-{$size}" ) . ".{$extension}";
 
-				switch ( $type ) {
-					case 'user':
-						$success = $this->retrieve_user_avatar_icon( $hash, $size );
-						break;
-					case 'gravatar':
-						$success = $this->retrieve_gravatar_icon( $hash, $subdir, $size );
-						break;
-					default:
-						$success = $this->generate_default_icon( $hash, $type, $size );
-				}
+		if ( ! \file_exists( $file ) ) {
+			// Default size (for SVGs mainly, which ignore it).
+			$size = $size ?: 100;
 
-				if ( ! $success ) {
-					/* translators: $file path */
-					\wp_die( \esc_html( \sprintf( \__( 'Error generating avatar file %s.', 'avatar-privacy' ), $file ) ) );
-				}
+			switch ( $type ) {
+				case 'user':
+					$success = $this->retrieve_user_avatar_icon( $hash, $size );
+					break;
+				case 'gravatar':
+					$success = $this->retrieve_gravatar_icon( $hash, $subdir, $size );
+					break;
+				default:
+					$success = $this->generate_default_icon( $hash, $type, $size );
 			}
 
-			$this->send_image( $file, DAY_IN_SECONDS, self::CONTENT_TYPE[ $extension ] );
-
-			// We're done.
-			exit( 0 );
+			if ( ! $success ) {
+				/* translators: $file path */
+				\wp_die( \esc_html( \sprintf( \__( 'Error generating avatar file %s.', 'avatar-privacy' ), $file ) ) );
+			}
 		}
+
+		$this->send_image( $file, DAY_IN_SECONDS, self::CONTENT_TYPE[ $extension ] );
+
+		// We're done.
+		exit( 0 );
 	}
 
 	/**
