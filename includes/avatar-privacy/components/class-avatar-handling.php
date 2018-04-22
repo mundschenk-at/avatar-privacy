@@ -157,7 +157,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 * @return array
 	 */
 	public function get_avatar_data( $args, $id_or_email ) {
-		$show_avatar   = false;
+		$show_gravatar = false;
 		$force_default = ! empty( $args['force_default'] );
 
 		// Process the user identifier.
@@ -189,12 +189,12 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 				}
 
 				// For users get the value from the usermeta table.
-				$show_avatar = \get_user_meta( $user_id, \Avatar_Privacy_Core::GRAVATAR_USE_META_KEY, true ) === 'true';
-				$use_default = '' === $show_avatar;
+				$show_gravatar = \get_user_meta( $user_id, \Avatar_Privacy_Core::GRAVATAR_USE_META_KEY, true ) === 'true';
+				$use_default   = '' === $show_gravatar;
 			} else {
 				// For comments get the value from the plugin's table.
-				$show_avatar = $this->core->comment_author_allows_gravatar_use( $email );
-				$use_default = ! $this->core->comment_author_has_gravatar_policy( $email );
+				$show_gravatar = $this->core->comment_author_allows_gravatar_use( $email );
+				$use_default   = ! $this->core->comment_author_has_gravatar_policy( $email );
 			}
 			if ( $use_default ) {
 				/**
@@ -207,14 +207,14 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 				 * @param  bool              $show        Default false.
 				 * @param  int|string|object $id_or_email The Gravatar to retrieve. Can be a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
 				 */
-				$show_avatar = \apply_filters( 'avatar_privacy_gravatar_use_default', false, $id_or_email );
+				$show_gravatar = \apply_filters( 'avatar_privacy_gravatar_use_default', false, $id_or_email );
 			}
 		}
 
 		// Check if a gravatar exists for the e-mail address.
 		if ( empty( $email ) ) {
-			$show_avatar = false;
-		} elseif ( $show_avatar ) {
+			$show_gravatar = false;
+		} elseif ( $show_gravatar ) {
 			/**
 			 * Filters whether we check if opting-in users and commenters actually have a Gravatar.com account.
 			 *
@@ -223,7 +223,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			 * @param int]false $user_id      A WordPress user ID (or false).
 			 */
 			if ( \apply_filters( 'avatar_privacy_enable_gravatar_check', true, $email, $user_id ) ) {
-				$show_avatar = $this->validate_gravatar( $email );
+				$show_gravatar = $this->validate_gravatar( $email );
 			}
 		}
 
@@ -238,7 +238,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		$url = \apply_filters( 'avatar_privacy_default_icon_url', \includes_url( 'images/blank.gif' ), $this->core->get_hash( $email ), $args['default'], $args['size'] );
 
 		// Maybe display a Gravatar.
-		if ( $show_avatar ) {
+		if ( $show_gravatar ) {
 			/**
 			 * Filters the Gravatar.com URL for the given e-mail.
 			 *
