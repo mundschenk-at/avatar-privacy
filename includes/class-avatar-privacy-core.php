@@ -162,8 +162,6 @@ class Avatar_Privacy_Core {
 		$this->cache           = $cache;
 		$this->options         = $options;
 		$this->network_options = $network_options;
-
-		\add_action( 'plugins_loaded', [ $this, 'plugins_loaded' ] );
 	}
 
 	/**
@@ -200,14 +198,6 @@ class Avatar_Privacy_Core {
 		}
 
 		return self::$_instance;
-	}
-
-	/**
-	 * Enable various hooks.
-	 */
-	public function plugins_loaded() {
-		// Read the plugin settings.
-		$this->settings = $this->options->get( self::SETTINGS_NAME, [] );
 	}
 
 	/**
