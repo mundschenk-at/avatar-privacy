@@ -163,7 +163,7 @@ class Avatar_Privacy_Core {
 		$this->options         = $options;
 		$this->network_options = $network_options;
 
-		add_action( 'plugins_loaded', [ $this, 'plugins_loaded' ] );
+		\add_action( 'plugins_loaded', [ $this, 'plugins_loaded' ] );
 	}
 
 	/**
@@ -173,15 +173,15 @@ class Avatar_Privacy_Core {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Avatar_Privacy_Core $instance Only used for plugin initialization. Don't ever pass a value in user code.
+	 * @param \Avatar_Privacy_Core $instance Only used for plugin initialization. Don't ever pass a value in user code.
 	 *
-	 * @throws BadMethodCallException Thrown when Avatar_Privacy_Core::set_instance after plugin initialization.
+	 * @throws \BadMethodCallException Thrown when Avatar_Privacy_Core::set_instance after plugin initialization.
 	 */
 	public static function set_instance( Avatar_Privacy_Core $instance ) {
 		if ( null === self::$_instance ) {
 			self::$_instance = $instance;
 		} else {
-			throw new BadMethodCallException( 'Avatar_Privacy_Core::set_instance called more than once.' );
+			throw new \BadMethodCallException( 'Avatar_Privacy_Core::set_instance called more than once.' );
 		}
 	}
 
@@ -190,13 +190,13 @@ class Avatar_Privacy_Core {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @throws BadMethodCallException Thrown when Avatar_Privacy_Core::get_instance is called before plugin initialization.
+	 * @throws \BadMethodCallException Thrown when Avatar_Privacy_Core::get_instance is called before plugin initialization.
 	 *
-	 * @return Avatar_Privacy_Core
+	 * @return \Avatar_Privacy_Core
 	 */
 	public static function get_instance() {
 		if ( null === self::$_instance ) {
-			throw new BadMethodCallException( 'Avatar_Privacy_Core::get_instance called without prior plugin intialization.' );
+			throw new \BadMethodCallException( 'Avatar_Privacy_Core::get_instance called without prior plugin intialization.' );
 		}
 
 		return self::$_instance;
@@ -554,7 +554,7 @@ class Avatar_Privacy_Core {
 			}
 		}
 
-		if ( count( $columns ) !== count( $format_strings ) ) {
+		if ( \count( $columns ) !== \count( $format_strings ) ) {
 			throw new \RuntimeException( 'Invalid database update string.' );
 		}
 
