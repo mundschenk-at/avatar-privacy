@@ -41,7 +41,7 @@ if ( ! defined( 'ABSPATH' ) || ! defined( 'WPINC' ) ) {
 	die();
 }
 
-require_once dirname( __FILE__ ) . '/vendor/mundschenk-at/check-wp-requirements/class-mundschenk-wp-requirements.php';
+require_once dirname( __FILE__ ) . '/includes/class-avatar-privacy-requirements.php';
 
 /**
  * Load the plugin after checking for the necessary PHP version.
@@ -50,11 +50,7 @@ require_once dirname( __FILE__ ) . '/vendor/mundschenk-at/check-wp-requirements/
  */
 function run_avatar_privacy() {
 
-	$requirements = new Mundschenk_WP_Requirements( 'Avatar Privacy', __FILE__, 'avatar-privacy', array(
-		'php'       => '5.6.0',
-		'multibyte' => false,
-		'utf-8'     => false,
-	) );
+	$requirements = new Avatar_Privacy_Requirements( __FILE__ );
 
 	if ( $requirements->check() ) {
 		// Autoload the rest of your classes.
