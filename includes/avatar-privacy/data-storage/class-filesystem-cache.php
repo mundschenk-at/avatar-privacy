@@ -161,14 +161,12 @@ class Filesystem_Cache {
 
 	/**
 	 * Invalidate all cached elements by recursively deleting all files and directories.
+	 *
+	 * @param string $subdir Optional. Limit invalidation to the given subdirectory. Default ''.
+	 * @param string $regex  Optional. Limit invalidation to files matching the given regular expression. Default ''.
 	 */
-	public function invalidate() {
-		$files = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $this->get_base_dir(), \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS ),
-			\RecursiveIteratorIterator::CHILD_FIRST
-		);
-
-		foreach ( $files as $path => $file ) {
+	public function invalidate( $subdir = '', $regex = '' ) {
+		foreach ( $this->get_recursive_file_iterator( $subdir, $regex ) as $path => $file ) {
 			if ( $file->isWritable() ) {
 
 				if ( $file->isDir() ) {
@@ -181,21 +179,40 @@ class Filesystem_Cache {
 	}
 
 	/**
-	 * Invalidate all cached elements older than the given age.
+	 * Invalidate all cached files older than the given age.
 	 *
-	 * @param  int $age The maximum file age in seconds.
+	 * @param  int    $age    The maximum file age in seconds.
+	 * @param  string $subdir Optional. Limit invalidation to the given subdirectory. Default ''.
+	 * @param  string $regex  Optional. Limit invalidation to files matching the given regular expression. Default ''.
 	 */
-	public function invalidate_files_older_than( $age ) {
-		$now   = \time();
-		$files = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $this->get_base_dir(), \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS ),
-			\RecursiveIteratorIterator::CHILD_FIRST
-		);
+	public function invalidate_files_older_than( $age, $subdir = '', $regex = '' ) {
+		$now = \time();
 
-		foreach ( $files as $path => $file ) {
+		foreach ( $this->get_recursive_file_iterator( $subdir, $regex ) as $path => $file ) {
 			if ( $file->isWritable() && ! $file->isDir() && $now - $file->getMTime() > $age ) {
 				\unlink( $path ); // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow
 			}
 		}
+	}
+
+	/**
+	 * Retrieves a recursive iterator for all files in the cache.
+	 *
+	 * @param  string $subdir Optional. Limit invalidation to the given subdirectory. Default ''.
+	 * @param  string $regex  Optional. Limit invalidation to files matching the given regular expression. Default ''.
+	 *
+	 * @return \RecursiveIterator
+	 */
+	private function get_recursive_file_iterator( $subdir = '', $regex = '' ) {
+		$files = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator( "{$this->get_base_dir()}{$subdir}", \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS ),
+			\RecursiveIteratorIterator::CHILD_FIRST
+		);
+
+		if ( ! empty( $regex ) ) {
+			$files = new \RegexIterator( $files, $regex, \RecursiveRegexIterator::MATCH );
+		}
+
+		return $files;
 	}
 }
