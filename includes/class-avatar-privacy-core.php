@@ -493,12 +493,28 @@ class Avatar_Privacy_Core {
 	 */
 	public function get_salt() {
 		if ( empty( $this->salt ) ) {
-			// FIXME: Add filter hook.
-			$salt = $this->network_options->get( 'salt' );
-			if ( empty( $salt ) ) {
-				$salt = \mt_rand();
+			/**
+			 * Filters the salt used for generating this sites email hashes.
+			 *
+			 * If a non-empty string is returned, this value is used instead of
+			 * the one stored in the network options. On first activation, a random
+			 * value is generated and stored in the option.
+			 *
+			 * @param string $salt Default ''.
+			 */
+			$salt = \apply_filters( 'avatar_privacy_salt', '' );
 
-				$this->network_options->set( 'salt', $salt );
+			if ( empty( $salt ) ) {
+				// Let's try the network option next.
+				$salt = $this->network_options->get( 'salt' );
+
+				if ( empty( $salt ) ) {
+					// Still nothing? Generate a random value.
+					$salt = \mt_rand();
+
+					// Save the generated salt.
+					$this->network_options->set( 'salt', $salt );
+				}
 			}
 
 			$this->salt = $salt;
