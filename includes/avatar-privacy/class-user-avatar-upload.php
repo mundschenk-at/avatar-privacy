@@ -207,7 +207,7 @@ class User_Avatar_Upload {
 				break;
 
 			default:
-				\add_action( 'user_profile_update_errors', function( \WP_Error $errors ) {
+				\add_action( 'user_profile_update_errors', function( \WP_Error $errors ) use ( $result ) {
 					$errors->add( 'avatar_error', \sprintf( '<strong>%s</strong> %s', \__( 'There was an error uploading the avatar: ', 'avatar-privacy' ), \esc_attr( $result['error'] ) ) );
 				} );
 		}

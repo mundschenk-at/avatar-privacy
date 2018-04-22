@@ -201,7 +201,7 @@ class Filesystem_Cache {
 	 * @param  string $subdir Optional. Limit invalidation to the given subdirectory. Default ''.
 	 * @param  string $regex  Optional. Limit invalidation to files matching the given regular expression. Default ''.
 	 *
-	 * @return \RecursiveIterator
+	 * @return \OuterIterator
 	 */
 	private function get_recursive_file_iterator( $subdir = '', $regex = '' ) {
 		$files = new \RecursiveIteratorIterator(

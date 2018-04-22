@@ -57,7 +57,7 @@ if ( $current_user_can_upload_files ) {
 <tr class"avatar-privacy-user-avatar-upload">
 	<th scope="row"><?php \esc_html_e( 'Profile Picture', 'avatar-privacy' ); ?><0/th>
 	<td>
-		<?php echo \get_avatar( $user->ID ); ?>
+		<?php echo /* @scrutinizer ignore-type */ \get_avatar( $user->ID ); ?>
 
 		<?php if ( $current_user_can_upload_files ) : ?>
 			<p class="avatar-privacy-upload-fields">
