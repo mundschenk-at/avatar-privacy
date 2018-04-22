@@ -149,7 +149,7 @@ class Setup implements \Avatar_Privacy\Component {
 	 */
 	private function plugin_updated( $previous_version ) {
 		// Upgrade from version 0.3 or lower.
-		if ( \version_compare( $previous_version, '0.4', '<' ) ) {
+		if ( \version_compare( $previous_version, '0.5', '<' ) ) {
 			// Run upgrade command.
 			$this->maybe_update_user_hashes();
 		}
@@ -321,7 +321,7 @@ class Setup implements \Avatar_Privacy\Component {
 		global $wpdb;
 
 		// Force DB update?
-		$db_needs_update = \version_compare( $previous_version, '0.4', '<' );
+		$db_needs_update = \version_compare( $previous_version, '0.5', '<' );
 
 		// Check if the table exists.
 		if ( ! $db_needs_update && property_exists( $wpdb, 'avatar_privacy' ) ) {
@@ -371,7 +371,7 @@ class Setup implements \Avatar_Privacy\Component {
 	private function maybe_update_table_data( $previous_version ) {
 		global $wpdb;
 
-		if ( \version_compare( $previous_version, '0.4', '<' ) ) {
+		if ( \version_compare( $previous_version, '0.5', '<' ) ) {
 			$rows = $wpdb->get_results( "SELECT id, email FROM {$wpdb->avatar_privacy} WHERE hash is null" ); // WPCS: db call ok, cache ok.
 			foreach ( $rows as $r ) {
 				$this->core->update_comment_author_hash( $r->id, $r->email );
