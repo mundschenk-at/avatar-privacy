@@ -158,7 +158,6 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 */
 	public function get_avatar_data( $args, $id_or_email ) {
 		$show_avatar   = false;
-		$settings      = $this->core->get_settings();
 		$force_default = ! empty( $args['force_default'] );
 
 		// Process the user identifier.
@@ -198,7 +197,17 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 				$use_default = ! $this->core->comment_author_has_gravatar_policy( $email );
 			}
 			if ( $use_default ) {
-				$show_avatar = ! empty( $settings['default_show'] ); // Default settings are legacy-only.
+				/**
+				 * Filters the default policy for showing gravatars.
+				 *
+				 * The result only applies if a user or comment author has not
+				 * explicitely set a value for `use_gravatar` (i.e. for comments
+				 * created  before the plugin was installed).
+				 *
+				 * @param  bool              $show        Default false.
+				 * @param  int|string|object $id_or_email The Gravatar to retrieve. Can be a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
+				 */
+				$show_avatar = \apply_filters( 'avatar_privacy_gravatar_use_default', false, $id_or_email );
 			}
 		}
 
