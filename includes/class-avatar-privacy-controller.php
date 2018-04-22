@@ -35,7 +35,7 @@ use Avatar_Privacy\Components\User_Profile;
 /**
  * Initialize Avatar Privacy plugin.
  *
- * @since 0.4
+ * @since 1.0.0
  */
 class Avatar_Privacy_Controller {
 
