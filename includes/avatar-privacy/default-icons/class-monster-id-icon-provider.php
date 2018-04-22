@@ -55,6 +55,6 @@ class Monster_ID_Icon_Provider extends Generating_Icon_Provider {
 	 * @return string
 	 */
 	protected function get_filename( $identity, $size ) {
-		return "monsterid/{$identity}-{$size}.png";
+		return "monsterid/{$this->get_sub_dir( $identity )}/{$identity}-{$size}.png";
 	}
 }

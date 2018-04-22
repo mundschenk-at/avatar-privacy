@@ -87,9 +87,20 @@ abstract class Generating_Icon_Provider extends Abstract_Icon_Provider {
 	}
 
 	/**
+	 * Calculates the subdirectory from the given identity hash.
+	 *
+	 * @param  string $identity The identity (mail address) hash.
+	 *
+	 * @return string
+	 */
+	protected function get_sub_dir( $identity ) {
+		return \implode( '/', \str_split( \substr( $identity, 0, 2 ) ) );
+	}
+
+	/**
 	 * Retrieves the filename (including the sub-directory and file extension).
 	 *
-	 * @param  string $identity The identity (mail address) hash. Ignored.
+	 * @param  string $identity The identity (mail address) hash.
 	 * @param  int    $size     The requested size in pixels.
 	 *
 	 * @return string

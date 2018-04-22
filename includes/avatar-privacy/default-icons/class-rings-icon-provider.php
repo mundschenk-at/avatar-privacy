@@ -55,6 +55,6 @@ class Rings_Icon_Provider extends Generating_Icon_Provider {
 	 * @return string
 	 */
 	protected function get_filename( $identity, $size ) {
-		return "rings/{$identity}.svg";
+		return "rings/{$this->get_sub_dir( $identity )}/{$identity}.svg";
 	}
 }

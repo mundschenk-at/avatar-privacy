@@ -207,14 +207,14 @@ class Images implements \Avatar_Privacy\Component {
 	 * @param \WP $wp The WordPress global object.
 	 */
 	public function load_cached_avatar( \WP $wp ) {
-		if ( empty( $wp->query_vars['avatar-privacy-file'] ) || ! \preg_match( '#^([a-z]+)/(?:([a-z]+)/)?([a-f0-9]{64})(?:-([0-9]+))?\.(png|svg)$#i', $wp->query_vars['avatar-privacy-file'], $parts ) ) {
+		if ( empty( $wp->query_vars['avatar-privacy-file'] ) || ! \preg_match( '#^([a-z]+)/((?:[0-9a-z]/)*)([a-f0-9]{64})(?:-([0-9]+))?\.(png|svg)$#i', $wp->query_vars['avatar-privacy-file'], $parts ) ) {
 			// Abort early.
 			return;
 		}
 
 		list(, $type, $subdir, $hash, $size, $extension ) = $parts;
 
-		$file = "{$this->file_cache->get_base_dir()}{$type}/" . ( empty( $subdir ) ? '' : "{$subdir}/" ) . $hash . ( empty( $size ) ? '' : "-{$size}" ) . ".{$extension}";
+		$file = "{$this->file_cache->get_base_dir()}{$type}/" . ( $subdir ?: '' ) . $hash . ( empty( $size ) ? '' : "-{$size}" ) . ".{$extension}";
 
 		if ( ! \file_exists( $file ) ) {
 			// Default size (for SVGs mainly, which ignore it).
@@ -289,24 +289,30 @@ class Images implements \Avatar_Privacy\Component {
 	/**
 	 * Retrieves the Gravatar.com icon for the given hash.
 	 *
-	 * @param  string $hash The hashed mail address (including some special information).
-	 * @param  string $type The address type (`a` if linked to user, `b` if comment author).
-	 * @param  int    $size The requested size in pixels.
+	 * @param  string $hash   The hashed mail address.
+	 * @param  string $subdir The first level is mapped to the address type (user or comment author).
+	 * @param  int    $size   The requested size in pixels.
 	 *
 	 * @return bool
 	 */
-	private function retrieve_gravatar_icon( $hash, $type, $size ) {
-		if ( ! 'a' !== $type && 'b' !== $type ) {
+	private function retrieve_gravatar_icon( $hash, $subdir, $size ) {
+		$type = \explode( '/', $subdir )[0];
+		if ( empty( $type ) || ! isset( Gravatar_Cache::TYPE_MAPPING[ $type ] ) ) {
 			return false;
 		}
 
-		if ( 'a' === $type ) {
-			list( $user ) = \get_users( [
+		if ( Gravatar_Cache::TYPE_USER === Gravatar_Cache::TYPE_MAPPING[ $type ] ) {
+			$user = \get_users( [
 				'number'       => 1,
 				'meta_key'     => \Avatar_Privacy_Core::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key
 				'meta_value'   => $hash, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_value
 				'meta_compare' => '=',
 			] );
+
+			if ( empty( $user ) ) {
+				return;
+			}
+			$user = $user[0];
 
 			if ( ! empty( $user ) ) {
 				$user_id = $user->ID;

@@ -55,6 +55,6 @@ class Identicon_Icon_Provider extends Generating_Icon_Provider {
 	 * @return string
 	 */
 	protected function get_filename( $identity, $size ) {
-		return "identicon/{$identity}.svg";
+		return "identicon/{$this->get_sub_dir( $identity )}/{$identity}.svg";
 	}
 }

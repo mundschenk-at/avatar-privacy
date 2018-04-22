@@ -271,7 +271,8 @@ class User_Avatar_Upload {
 			$this->base_dir = $uploads['basedir'];
 		}
 
-		$target = "{$this->file_cache->get_base_dir()}user/{$core->get_hash($email)}-{$size}.png";
+		$hash   = $core->get_hash( $email );
+		$target = "{$this->file_cache->get_base_dir()}user/{$this->get_sub_dir( $hash )}/{$hash}-{$size}.png";
 
 		if ( $force || ! \file_exists( $target ) ) {
 			$image = \wp_get_image_editor( \str_replace( $this->base_url, $this->base_dir, $file ) );
@@ -287,5 +288,16 @@ class User_Avatar_Upload {
 		}
 
 		return \str_replace( $this->base_dir, $this->base_url, $target );
+	}
+
+	/**
+	 * Calculates the subdirectory from the given identity hash.
+	 *
+	 * @param  string $identity The identity (mail address) hash.
+	 *
+	 * @return string
+	 */
+	private function get_sub_dir( $identity ) {
+		return \implode( '/', \str_split( \substr( $identity, 0, 2 ) ) );
 	}
 }

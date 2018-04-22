@@ -55,6 +55,6 @@ class Wavatar_Icon_Provider extends Generating_Icon_Provider {
 	 * @return string
 	 */
 	protected function get_filename( $identity, $size ) {
-		return "wavatar/{$identity}-{$size}.png";
+		return "wavatar/{$this->get_sub_dir( $identity )}/{$identity}-{$size}.png";
 	}
 }
