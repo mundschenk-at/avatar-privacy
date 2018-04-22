@@ -177,9 +177,8 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 					 * @param  string    $file    The path to the full-size avatar image.
 					 * @param  string    $email   The mail address used to generate the identity hash.
 					 * @param  int       $size    The size of the avatar image in pixels.
-					 * @param  int       $user_id A WordPress user ID.
 					 */
-					$url = \apply_filters( 'avatar_privacy_user_avatar_icon_url', $local_avatar, $email, $args['size'], $user_id );
+					$url = \apply_filters( 'avatar_privacy_user_avatar_icon_url', $local_avatar, $email, $args['size'] );
 
 					if ( ! empty( $url ) ) {
 						// Great, we have got a local avatar.

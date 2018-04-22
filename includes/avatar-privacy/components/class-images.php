@@ -175,7 +175,7 @@ class Images implements \Avatar_Privacy\Component {
 		// Generate the correct avatar images.
 		\add_filter( 'avatar_privacy_default_icon_url',     [ $this, 'default_icon_url' ], 10, 4 );
 		\add_filter( 'avatar_privacy_gravatar_icon_url',    [ $this, 'gravatar_icon_url' ], 10, 5 );
-		\add_filter( 'avatar_privacy_user_avatar_icon_url', [ $this, 'user_avatar_icon_url' ], 10, 4 );
+		\add_filter( 'avatar_privacy_user_avatar_icon_url', [ $this, 'user_avatar_icon_url' ], 10, 3 );
 
 		// Automatically regenerate missing image files.
 		\add_action( 'init',          [ $this, 'add_cache_rewrite_rules' ] );
@@ -342,12 +342,9 @@ class Images implements \Avatar_Privacy\Component {
 		] );
 
 		if ( ! empty( $user ) ) {
-			$user_id = $user->ID;
-			$email   = ! empty( $user->user_email ) ? $user->user_email : '';
+			$email        = ! empty( $user->user_email ) ? $user->user_email : '';
+			$local_avatar = \get_user_meta( $user->ID, User_Avatar_Upload::USER_META_KEY, true );
 		}
-
-		// Look for local avatar for this user.
-		$local_avatar = \get_user_meta( $user_id, User_Avatar_Upload::USER_META_KEY, true );
 
 		// Could not find user/comment author or uploaded avatar.
 		if ( empty( $email ) || empty( $local_avatar ) ) {
@@ -355,7 +352,7 @@ class Images implements \Avatar_Privacy\Component {
 		}
 
 		// Try to cache the icon.
-		return ! empty( $this->user_avatar_icon_url( $local_avatar, $email, $size, $user_id ) );
+		return ! empty( $this->user_avatar_icon_url( $local_avatar, $email, $size ) );
 	}
 
 	/**
@@ -398,16 +395,15 @@ class Images implements \Avatar_Privacy\Component {
 	/**
 	 * Retrieves the URL for the given default icon type.
 	 *
-	 * @param  string $file    The path to the full-size avatar image.
-	 * @param  string $email   The mail address used to generate the identity hash.
-	 * @param  int    $size    The requested size in pixels.
-	 * @param  int    $user_id Optional. A WordPress user ID, or false. Default false.
-	 * @param  bool   $force   Optional. Whether to force the regeneration of the icon. Default false.
+	 * @param  string $file  The path to the full-size avatar image.
+	 * @param  string $email The mail address used to generate the identity hash.
+	 * @param  int    $size  The requested size in pixels.
+	 * @param  bool   $force Optional. Whether to force the regeneration of the icon. Default false.
 	 *
 	 * @return string
 	 */
-	public function user_avatar_icon_url( $file, $email, $size, $user_id, $force = false ) {
-		return $this->user_avatar->get_icon_url( $file, $email, $size, $user_id, $this->core, $force );
+	public function user_avatar_icon_url( $file, $email, $size, $force = false ) {
+		return $this->user_avatar->get_icon_url( $file, $email, $size, $this->core, $force );
 	}
 
 

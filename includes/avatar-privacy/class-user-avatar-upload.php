@@ -259,13 +259,12 @@ class User_Avatar_Upload {
 	 * @param  string               $file    The path to the full-size avatar image.
 	 * @param  string               $email   The mail address used to generate the identity hash.
 	 * @param  int                  $size    The requested size in pixels.
-	 * @param  int                  $user_id Optional. A WordPress user ID, or false. Default false.
 	 * @param  \Avatar_Privacy_Core $core    The core API.
 	 * @param  bool                 $force   Optional. Whether to force the regeneration of the icon. Default false.
 	 *
 	 * @return string
 	 */
-	public function get_icon_url( $file, $email, $size, $user_id, \Avatar_Privacy_Core $core, $force = false ) {
+	public function get_icon_url( $file, $email, $size, \Avatar_Privacy_Core $core, $force = false ) {
 		if ( empty( $this->base_dir ) || empty( $this->base_url ) ) {
 			$uploads        = \wp_get_upload_dir();
 			$this->base_url = $uploads['baseurl'];
