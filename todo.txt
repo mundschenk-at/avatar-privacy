@@ -3,7 +3,4 @@ Ideas for future development (ideas only, no promises, tell me if you'd like any
 * let the admin upload a different local default image
 * check if not storing the checkbox value for spam comments works with other anti-spam plugins
 * test the plugin with more themes (some common frameworks)
-* search for further user photo plugins and check the interoperability
-** "Simple Local Avatars"
 * add automated tests
-* just maybe: let users upload an image in their user profile
