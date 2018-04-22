@@ -27,6 +27,7 @@
 
 namespace Avatar_Privacy\Components;
 
+use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Data_Storage\Transients;
@@ -174,25 +175,61 @@ class Setup implements \Avatar_Privacy\Component {
 	 * Uninstalls all the plugin's information from the database.
 	 */
 	public static function uninstall() {
-		global $wpdb;
+		// Delete cached files.
+		self::delete_cached_files();
 
-		$options = new Options();
-
-		// Drop global table.
-		$table_name = $wpdb->base_prefix . 'avatar_privacy';
-		$wpdb->query( "DROP TABLE IF EXISTS {$table_name};" ); // phpcs:ignore WordPress.VIP.DirectDatabaseQuery,WordPress.WP.PreparedSQL.NotPrepared
 
 		// Delete usermeta for all users.
-		delete_metadata( 'user', 0, \Avatar_Privacy_Core::GRAVATAR_USE_META_KEY, null, true );
+		self::delete_user_meta();
+
+		// Delete/change options (from all sites in case of a  multisite network).
+		self::delete_options();
+
+		// Delete transients from sitemeta or options table.
+		self::delete_transients();
+
+		// Drop global table.
+		self::drop_table();
+	}
+	/**
+	 * Deletes all cached files.
+	 */
+	private static function delete_cached_files() {
+		$file_cache = new Filesystem_Cache();
+		$file_cache->invalidate();
+	}
+
+	/**
+	 * Drops the global table.
+	 */
+	private static function drop_table() {
+		global $wpdb;
+
+		$table_name = $wpdb->base_prefix . 'avatar_privacy';
+		$wpdb->query( "DROP TABLE IF EXISTS {$table_name};" ); // phpcs:ignore WordPress.VIP.DirectDatabaseQuery,WordPress.WP.PreparedSQL.NotPrepared
+	}
+
+	/**
+	 * Delete all user meta data added by the plugin.
+	 */
+	private static function delete_user_meta() {
+		\delete_metadata( 'user', 0, \Avatar_Privacy_Core::GRAVATAR_USE_META_KEY, null, true );
+	}
+
+	/**
+	 * Delete the plugin options (from all sites).
+	 */
+	private static function delete_options() {
+		$options = new Options();
 
 		// Delete/change options for main blog.
 		$options->delete( \Avatar_Privacy_Core::SETTINGS_NAME );
 		self::reset_avatar_default( $options );
 
 		// Delete/change options for all other blogs (multisite).
-		if ( is_multisite() ) {
-			foreach ( get_sites( [ 'fields' => 'ids' ] ) as $blog_id ) {
-				switch_to_blog( $blog_id );
+		if ( \is_multisite() ) {
+			foreach ( \get_sites( [ 'fields' => 'ids' ] ) as $blog_id ) {
+				\switch_to_blog( $blog_id );
 
 				// Delete our settings.
 				$options->delete( \Avatar_Privacy_Core::SETTINGS_NAME );
@@ -200,23 +237,25 @@ class Setup implements \Avatar_Privacy\Component {
 				// Reset avatar_default to working value if necessary.
 				self::reset_avatar_default( $options );
 
-				restore_current_blog();
+				\restore_current_blog();
 			}
 		}
+	}
 
-		// Delete transients from sitemeta or options table.
-		if ( is_multisite() ) {
+	/**
+	 * Delete all the plugins transients.
+	 */
+	private static function delete_transients() {
+		if ( \is_multisite() ) {
 			// Stored in sitemeta.
-			$site_transients = new Site_Transients();
-			foreach ( $site_transients->get_keys_from_database() as $key ) {
-				$site_transients->delete( $key, true );
-			}
+			$transients = new Site_Transients();
 		} else {
 			// Stored in wp_options.
 			$transients = new Transients();
-			foreach ( $transients->get_keys_from_database() as $key ) {
-				$transients->delete( $key, true );
-			}
+		}
+
+		foreach ( $transients->get_keys_from_database() as $key ) {
+			$transients->delete( $key, true );
 		}
 	}
 
@@ -227,6 +266,7 @@ class Setup implements \Avatar_Privacy\Component {
 	 */
 	private static function reset_avatar_default( Options $options ) {
 		switch ( $options->get( 'avatar_default', null, true ) ) {
+			case 'rings':
 			case 'comment':
 			case 'im-user-offline':
 			case 'view-media-artist':
