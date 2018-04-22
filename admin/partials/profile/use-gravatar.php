@@ -26,22 +26,22 @@
  */
 
 ?>
-<h3><?php esc_html_e( 'Use Gravatar', 'avatar-privacy' ); ?></h3>
-<table class="form-table">
-	<tr>
-		<th scope="row"><?php esc_html_e( 'Gravatars', 'avatar-privacy' ); ?></th>
-		<td>
-			<?php \wp_nonce_field( self::ACTION_EDIT_USE_GRAVATAR, self::NONCE_USE_GRAVATAR . $user->ID ); ?>
-			<input
-				id="<?php echo esc_attr( self::CHECKBOX_FIELD_NAME ); ?>"
-				name="<?php echo esc_attr( self::CHECKBOX_FIELD_NAME ); ?>"
-				type="checkbox"
-				value="true"
-				<?php checked( $value ); ?>
-			/>
-			<label for="<?php echo esc_attr( self::CHECKBOX_FIELD_NAME ); ?>"><?php echo wp_kses( __( 'Display a <a href="https://gravatar.com">Gravatar</a> image for my e-mail address.', 'avatar-privacy' ), [ 'a' => [ 'href' => true ] ] ); ?></label><br />
-			<span class="description"><?php esc_html_e( "Uncheck this box if you don't want to display the gravatar for your e-mail address (or don't have an account on Gravatar.com).", 'avatar-privacy' ); ?></span>
-		</td>
-	</tr>
-</table>
+<tr class"avatar-privacy-use-gravatar">
+	<th scope="row"><?php esc_html_e( 'Gravatars', 'avatar-privacy' ); ?></th>
+	<td>
+		<?php \wp_nonce_field( self::ACTION_EDIT_USE_GRAVATAR, self::NONCE_USE_GRAVATAR . $user->ID ); ?>
+		<input
+			id="<?php echo esc_attr( self::CHECKBOX_FIELD_NAME ); ?>"
+			name="<?php echo esc_attr( self::CHECKBOX_FIELD_NAME ); ?>"
+			type="checkbox"
+			value="true"
+			<?php checked( $value ); ?>
+		/>
+		<label for="<?php echo esc_attr( self::CHECKBOX_FIELD_NAME ); ?>"><?php echo wp_kses( __( 'Display a <a href="https://gravatar.com">Gravatar</a> image for my e-mail address.', 'avatar-privacy' ), [ 'a' => [ 'href' => true ] ] ); ?></label><br />
+		<p class="description">
+			<?php esc_html_e( "Uncheck this box if you don't want to display the gravatar for your e-mail address (or don't have an account on Gravatar.com).", 'avatar-privacy' ); ?>
+			<?php esc_html_e( 'This setting will only take effect if you have not uploaded a local profile picture.', 'avatar-privacy' ); ?>
+		</p>
+	</td>
+</tr>
 <?php

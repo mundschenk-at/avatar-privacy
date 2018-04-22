@@ -27,6 +27,8 @@
 
 namespace Avatar_Privacy\Components;
 
+use Avatar_Privacy\User_Avatar_Upload;
+
 /**
  * Handles privacy-specific updates of the user profile.
  *
@@ -57,12 +59,29 @@ class User_Profile implements \Avatar_Privacy\Component {
 	private $plugin_file;
 
 	/**
+	 * The markup to inject.
+	 *
+	 * @var string
+	 */
+	private $markup;
+
+
+	/**
+	 * The avatar upload handler.
+	 *
+	 * @var User_Avatar_Upload
+	 */
+	private $upload;
+
+	/**
 	 * Creates a new instance.
 	 *
-	 * @param string $plugin_file The full path to the base plugin file.
+	 * @param string             $plugin_file The full path to the base plugin file.
+	 * @param User_Avatar_Upload $upload      The avatar upload handler.
 	 */
-	public function __construct( $plugin_file ) {
+	public function __construct( $plugin_file, User_Avatar_Upload $upload ) {
 		$this->plugin_file = $plugin_file;
+		$this->upload      = $upload;
 	}
 
 	/**
@@ -85,19 +104,79 @@ class User_Profile implements \Avatar_Privacy\Component {
 		// Add the checkbox to the user profile form if we're in the WP backend.
 		\add_action( 'show_user_profile',        [ $this, 'add_user_profile_fields' ] );
 		\add_action( 'edit_user_profile',        [ $this, 'add_user_profile_fields' ] );
-		\add_action( 'personal_options_update',  [ $this, 'save_use_gravatar_checkbox' ] );
-		\add_action( 'edit_user_profile_update', [ $this, 'save_use_gravatar_checkbox' ] );
+		\add_action( 'personal_options_update',  [ $this, 'save_user_profile_fields' ] );
+		\add_action( 'edit_user_profile_update', [ $this, 'save_user_profile_fields' ] );
+		\add_action( 'user_edit_form_tag',       [ $this, 'print_form_encoding' ] );
+
+		// Replace profile picture setting with our own settings.
+		\add_action( 'admin_head', function() {
+			\ob_start( [ $this, 'replace_profile_picture_section' ] );
+		} );
+		\add_action( 'admin_footer', function() {
+			\ob_end_flush();
+		} );
 	}
 
 	/**
-	 * Adds the 'use gravatar' checkbox to the user profile form.
+	 * Prints the enctype "multipart/form-data".
+	 */
+	public function print_form_encoding() {
+		echo ' enctype="multipart/form-data"';
+	}
+
+	/**
+	 * Remove the profile picture section from the user profile screen.
+	 *
+	 * @param  string $content The captured HTML output.
+	 *
+	 * @return string
+	 */
+	public function replace_profile_picture_section( $content ) {
+		if ( ! empty( $this->markup ) ) {
+			return \preg_replace( '#<tr class="user-profile-picture">.*</tr>#Usi', $this->markup, $content );
+		}
+
+		return $content;
+	}
+
+	/**
+	 * Stores the profile user for later use.
 	 *
 	 * @param \WP_User $user The current user whose profile to modify.
 	 */
 	public function add_user_profile_fields( \WP_User $user ) {
+		$this->markup  = $this->upload->get_avatar_upload_markup( $user );
+		$this->markup .= $this->get_use_gravatar_markup( $user );
+	}
+
+	/**
+	 * Retrieves the markup for the `use_gravatar` checkbox.
+	 *
+	 * @param  \WP_User $user The profile user.
+	 *
+	 * @return string
+	 */
+	private function get_use_gravatar_markup( \WP_User $user ) {
 		$value = 'true' === \get_user_meta( $user->ID, \Avatar_Privacy_Core::GRAVATAR_USE_META_KEY, true );
 
+		\ob_start();
 		require \dirname( $this->plugin_file ) . '/admin/partials/profile/use-gravatar.php';
+		return \ob_get_clean();
+	}
+
+	/**
+	 * Saves the custom fields from the user profile in
+	 * the database.
+	 *
+	 * @param int $user_id The ID of the user that has just been saved.
+	 */
+	public function save_user_profile_fields( $user_id ) {
+		if ( ! \current_user_can( 'edit_user', $user_id ) ) {
+			return false;
+		}
+
+		$this->save_use_gravatar_checkbox( $user_id );
+		$this->upload->save_uploaded_user_avatar( $user_id );
 	}
 
 	/**
@@ -107,10 +186,6 @@ class User_Profile implements \Avatar_Privacy\Component {
 	 * @param int $user_id The ID of the user that has just been saved.
 	 */
 	public function save_use_gravatar_checkbox( $user_id ) {
-		if ( ! \current_user_can( 'edit_user', $user_id ) ) {
-			return false;
-		}
-
 		// Use true/false instead of 1/0 since a '0' value is removed from the database and then
 		// we can't differentiate between opted-out and never saved a value.
 		if ( isset( $_POST[ self::NONCE_USE_GRAVATAR . $user_id ] ) && \wp_verify_nonce( \sanitize_key( $_POST[ self::NONCE_USE_GRAVATAR . $user_id ] ), self::ACTION_EDIT_USE_GRAVATAR ) ) {

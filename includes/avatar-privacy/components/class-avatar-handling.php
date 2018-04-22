@@ -27,6 +27,7 @@
 
 namespace Avatar_Privacy\Components;
 
+use Avatar_Privacy\User_Avatar_Upload;
 
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Transients;
@@ -167,6 +168,28 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		if ( ! $force_default && ( $user_id || $email ) ) {
 			$use_default = false;
 			if ( $user_id ) {
+				// Fetch local avatar from meta and make sure it's properly stzed.
+				$local_avatar = \get_user_meta( $user_id, User_Avatar_Upload::USER_META_KEY, true );
+				if ( ! empty( $local_avatar ) ) {
+					/**
+					 * Filters the uploaed avatar URL for the given user.
+					 *
+					 * @param  string    $file    The path to the full-size avatar image.
+					 * @param  string    $email   The mail address used to generate the identity hash.
+					 * @param  int       $size    The size of the avatar image in pixels.
+					 * @param  int       $user_id A WordPress user ID.
+					 */
+					$url = \apply_filters( 'avatar_privacy_user_avatar_icon_url', $local_avatar, $email, $args['size'], $user_id );
+
+					if ( ! empty( $url ) ) {
+						// Great, we have got a local avatar.
+						$args['url'] = $url;
+
+						// Return early.
+						return $args;
+					}
+				}
+
 				// For users get the value from the usermeta table.
 				$show_avatar = \get_user_meta( $user_id, \Avatar_Privacy_Core::GRAVATAR_USE_META_KEY, true ) === 'true';
 				$use_default = '' === $show_avatar;

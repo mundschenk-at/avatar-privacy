@@ -27,6 +27,8 @@
 
 namespace Avatar_Privacy\Components;
 
+use Avatar_Privacy\User_Avatar_Upload;
+
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Site_Transients;
@@ -178,6 +180,8 @@ class Setup implements \Avatar_Privacy\Component {
 		// Delete cached files.
 		self::delete_cached_files();
 
+		// Delete uploaded user avatars.
+		self::delete_uploaded_avatars();
 
 		// Delete usermeta for all users.
 		self::delete_user_meta();
@@ -191,6 +195,26 @@ class Setup implements \Avatar_Privacy\Component {
 		// Drop global table.
 		self::drop_table();
 	}
+
+	/**
+	 * Deletes uploaded avatar images.
+	 */
+	private static function delete_uploaded_avatars() {
+		$user_avatar = User_Avatar_Upload::USER_META_KEY;
+		$users       = \get_users( [
+			'meta_key'     => $user_avatar, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key
+			'meta_compare' => 'EXISTS',
+		] );
+
+		foreach ( $users as $user ) {
+			$path = $user->$user_avatar;
+
+			if ( \file_exists( $path ) ) {
+				\unlink( $path ); // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow
+			}
+		}
+	}
+
 	/**
 	 * Deletes all cached files.
 	 */
@@ -214,6 +238,7 @@ class Setup implements \Avatar_Privacy\Component {
 	 */
 	private static function delete_user_meta() {
 		\delete_metadata( 'user', 0, \Avatar_Privacy_Core::GRAVATAR_USE_META_KEY, null, true );
+		\delete_metadata( 'user', 0, User_Avatar_Upload::USER_META_KEY, null, true );
 	}
 
 	/**

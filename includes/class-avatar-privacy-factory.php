@@ -26,6 +26,9 @@
 
 use Dice\Dice;
 
+use Avatar_Privacy\Gravatar_Cache;
+use Avatar_Privacy\User_Avatar_Upload;
+
 use Avatar_Privacy\Components\Avatar_Handling;
 use Avatar_Privacy\Components\Setup;
 use Avatar_Privacy\Components\Settings_Page;
@@ -46,6 +49,8 @@ use Avatar_Privacy\Data_Storage\Site_Transients;
  * @author Peter Putzer <github@mundschenk.at>
  */
 abstract class Avatar_Privacy_Factory {
+	const SHARED = [ 'shared' => true ];
+
 	/**
 	 * The factory instance.
 	 *
@@ -65,24 +70,13 @@ abstract class Avatar_Privacy_Factory {
 			self::$factory = new Dice();
 
 			// Shared helpers.
-			self::$factory->addRule( Cache::class, [
-				'shared' => true,
-			] );
-			self::$factory->addRule( Transients::class, [
-				'shared' => true,
-			] );
-			self::$factory->addRule( Site_Transients::class, [
-				'shared' => true,
-			] );
-			self::$factory->addRule( Options::class, [
-				'shared' => true,
-			] );
-			self::$factory->addRule( Network_Options::class, [
-				'shared' => true,
-			] );
-			self::$factory->addRule( Filesystem_Cache::class, [
-				'shared' => true,
-			] );
+			self::$factory->addRule( Cache::class, self::SHARED );
+			self::$factory->addRule( Transients::class, self::SHARED );
+			self::$factory->addRule( Site_Transients::class, self::SHARED );
+			self::$factory->addRule( Options::class, self::SHARED );
+			self::$factory->addRule( Network_Options::class, self::SHARED );
+			self::$factory->addRule( Filesystem_Cache::class, self::SHARED );
+			self::$factory->addRule( Gravatar_Cache::class, self::SHARED );
 
 			// Load version from plugin data.
 			if ( ! function_exists( 'get_plugin_data' ) ) {
@@ -104,6 +98,10 @@ abstract class Avatar_Privacy_Factory {
 			] );
 			self::$factory->addRule( Settings_Page::class, [
 				'constructParams' => [ $full_plugin_path ],
+			] );
+			self::$factory->addRule( User_Avatar_Upload::class, [
+				'constructParams' => [ $full_plugin_path ],
+				'shared'          => true,
 			] );
 			self::$factory->addRule( User_Profile::class, [
 				'constructParams' => [ $full_plugin_path ],
