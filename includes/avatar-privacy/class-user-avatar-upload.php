@@ -248,7 +248,7 @@ class User_Avatar_Upload {
 
 		$full = \get_user_meta( $user_id, self::USER_META_KEY, true );
 
-		if ( \unlink( $full ) ) { // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow
+		if ( false !== $full && \file_exists( $full ) && \unlink( $full ) ) { // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow
 			\delete_user_meta( $user_id, self::USER_META_KEY );
 		}
 	}
