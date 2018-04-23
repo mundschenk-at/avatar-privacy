@@ -98,16 +98,21 @@ abstract class PNG_Generator implements Generator {
 		}
 
 		// Convert image to PNG format.
-		$stream = new \Bcn\Component\StreamWrapper\Stream();
-		if ( ! \imagepng( $image, /* @scrutinizer ignore-type */ \fopen( $stream, 'w' ) ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+		$fp = \fopen( 'php://memory', 'w' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+		if ( false === $fp || ! \imagepng( $image, /* @scrutinizer ignore-type */ $fp ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
 			return '';
 		}
 
+		// Retrieve data.
+		\rewind( $fp );
+		$data = \stream_get_contents( $fp );
+
 		// Clean up.
 		\imagedestroy( $image );
+		\fclose( $fp ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
 
 		// Return image.
-		return $stream->getContent();
+		return $data;
 	}
 
 	/**
