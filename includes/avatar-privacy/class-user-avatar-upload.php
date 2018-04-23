@@ -26,6 +26,7 @@
 
 namespace Avatar_Privacy;
 
+use Avatar_Privacy\Images;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
 /**
@@ -271,20 +272,21 @@ class User_Avatar_Upload {
 			$this->base_dir = $uploads['basedir'];
 		}
 
-		$hash   = $core->get_hash( $email );
-		$target = "{$this->file_cache->get_base_dir()}user/{$this->get_sub_dir( $hash )}/{$hash}-{$size}.png";
+		$hash     = $core->get_hash( $email );
+		$filename = "user/{$this->get_sub_dir( $hash )}/{$hash}-{$size}.png";
+		$target   = "{$this->file_cache->get_base_dir()}{$filename}";
 
 		if ( $force || ! \file_exists( $target ) ) {
-			$image = \wp_get_image_editor( \str_replace( $this->base_url, $this->base_dir, $file ) );
-
-			if ( ! \is_wp_error( $image ) ) {
-				$image->resize( $size, $size, true );
-				$resized = $image->save( $target, 'image/png' );
-
-				if ( \is_wp_error( $resized ) ) {
-					return '';
-				}
+			$data = Images\Editor::get_resized_image_data(
+				\wp_get_image_editor( \str_replace( $this->base_url, $this->base_dir, $file ) ), $size, $size, true, 'image/png'
+			);
+			if ( empty( $data ) ) {
+				// Something went wrong..
+				return '';
 			}
+
+			// Save the generated PNG file.
+			$this->file_cache->set( $filename, $data, $force );
 		}
 
 		return \str_replace( $this->base_dir, $this->base_url, $target );
