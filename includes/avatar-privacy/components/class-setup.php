@@ -229,7 +229,7 @@ class Setup implements \Avatar_Privacy\Component {
 	private static function drop_table() {
 		global $wpdb;
 
-		$table_name = $wpdb->base_prefix . 'avatar_privacy';
+		$table_name = self::get_table_name();
 		$wpdb->query( "DROP TABLE IF EXISTS {$table_name};" ); // phpcs:ignore WordPress.VIP.DirectDatabaseQuery,WordPress.WP.PreparedSQL.NotPrepared
 	}
 
@@ -329,7 +329,7 @@ class Setup implements \Avatar_Privacy\Component {
 		}
 
 		// Set up table name.
-		$table_name = $wpdb->base_prefix . 'avatar_privacy';
+		$table_name = self::get_table_name();
 
 		// Fix $wpdb object if table already exists, unless we need an update.
 		if ( ! $db_needs_update && $this->table_exists( $table_name ) ) {
@@ -406,4 +406,39 @@ class Setup implements \Avatar_Privacy\Component {
 		return $table_name === $wpdb->get_var( $wpdb->prepare( 'SHOW tables LIKE %s', $table_name ) ); // WPCS: db call ok, cache ok.
 	}
 
+
+	/**
+	 * Retrieves the table prefix to use (for a given site or the current site).
+	 *
+	 * @param int|null $site_id Optional. The site ID. Null means the current $blog_id. Ddefault null.
+	 *
+	 * @return string
+	 */
+	private static function get_table_prefix( $site_id = null ) {
+		global $wpdb;
+
+		/**
+		 * Filters whether a global table should be enabled for multisite installations.
+		 *
+		 * @param bool $enable Default false.
+		 */
+		$global_table = \apply_filters( 'avatar_privacy_enable_global_table', false );
+
+		if ( ! $global_table ) {
+			return $wpdb->get_blog_prefix( $site_id );
+		} else {
+			return $wpdb->base_prefix;
+		}
+	}
+
+	/**
+	 * Retrieves the table name to use (for a given site or the current site).
+	 *
+	 * @param int|null $site_id Optional. The site ID. Null means the current $blog_id. Ddefault null.
+	 *
+	 * @return string
+	 */
+	private static function get_table_name( $site_id = null ) {
+		return self::get_table_prefix( $site_id ) . 'avatar_privacy';
+	}
 }
