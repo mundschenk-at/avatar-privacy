@@ -37,6 +37,14 @@ class Network_Options extends \Mundschenk\Data_Storage\Network_Options {
 	const PREFIX = 'avatar_privacy_';
 
 	/**
+	 * The network option key (without the prefix) for using a global table in
+	 * multisite installations.
+	 *
+	 * @var string
+	 */
+	const USE_GLOBAL_TABLE = 'use_global_table';
+
+	/**
 	 * Creates a new instance.
 	 */
 	public function __construct() {

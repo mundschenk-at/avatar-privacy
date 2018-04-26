@@ -30,6 +30,7 @@ namespace Avatar_Privacy\Components;
 use Avatar_Privacy\User_Avatar_Upload;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
+use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Data_Storage\Transients;
@@ -40,6 +41,19 @@ use Avatar_Privacy\Data_Storage\Transients;
  * @since 1.0.0
  */
 class Setup implements \Avatar_Privacy\Component {
+
+	/**
+	 * Obsolete settings keys.
+	 *
+	 * @var string[]
+	 */
+	const OBSOLETE_SETTINGS = [
+		'mode_optin',
+		'use_gravatar',
+		'mode_checkforgravatar',
+		'default_show',
+		'checkbox_default',
+	];
 
 	/**
 	 * The full path to the main plugin file.
@@ -54,6 +68,13 @@ class Setup implements \Avatar_Privacy\Component {
 	 * @var Options
 	 */
 	private $options;
+
+	/**
+	 * The options handler.
+	 *
+	 * @var Network_Options
+	 */
+	private $network_options;
 
 	/**
 	 * The transients handler.
@@ -90,12 +111,14 @@ class Setup implements \Avatar_Privacy\Component {
 	 * @param Transients      $transients      The transients handler.
 	 * @param Site_Transients $site_transients The site transients handler.
 	 * @param Options         $options         The options handler.
+	 * @param Network_Options $network_options The network options handler.
 	 */
-	public function __construct( $plugin_file, Transients $transients, Site_Transients $site_transients, Options $options ) {
+	public function __construct( $plugin_file, Transients $transients, Site_Transients $site_transients, Options $options, Network_Options $network_options ) {
 		$this->plugin_file     = $plugin_file;
 		$this->transients      = $transients;
 		$this->site_transients = $site_transients;
 		$this->options         = $options;
+		$this->network_options = $network_options;
 	}
 
 	/**
@@ -122,13 +145,22 @@ class Setup implements \Avatar_Privacy\Component {
 	 * Checks if the default settings or database schema need to be upgraded.
 	 */
 	public function update_check() {
-		$settings = $this->options->get( \Avatar_Privacy_Core::SETTINGS_NAME );
+		// Don't use \Avatar_Privacy_Core::get_settings to prevent cache pollution.
+		$settings = $this->options->get( \Avatar_Privacy_Core::SETTINGS_NAME, [] );
 
 		// We can ignore errors here, just carry on as if for a new installation.
-		$installed_version = empty( $settings['installed_version'] ) ? '' : $settings['installed_version'];
+		if ( ! empty( $settings[ Options::INSTALLED_VERSION ] ) ) {
+			$installed_version = $settings[ Options::INSTALLED_VERSION ];
+		} elseif ( ! empty( $settings ) ) {
+			// Plugin releases before 1.0 did not store the installed version.
+			$installed_version = '0.4-or-earlier';
+		} else {
+			// The plugins was not installed previously.
+			$installed_version = '';
+		}
 
 		if ( $this->version !== $installed_version ) {
-			$this->plugin_updated( $installed_version );
+			$this->plugin_updated( $installed_version, $settings );
 		}
 
 		// Check if our database table needs to created or updated.
@@ -137,8 +169,8 @@ class Setup implements \Avatar_Privacy\Component {
 			$this->maybe_update_table_data( $installed_version );
 		}
 
-		// Update 'installed_version'.
-		$settings['installed_version'] = $this->version;
+		// Update installed version.
+		$settings[ Options::INSTALLED_VERSION ] = $this->version;
 		$this->options->set( \Avatar_Privacy_Core::SETTINGS_NAME, $settings );
 	}
 
@@ -146,15 +178,28 @@ class Setup implements \Avatar_Privacy\Component {
 	 * Upgrade plugin data.
 	 *
 	 * @param string $previous_version The version we are upgrading from.
+	 * @param array  $settings         The settings array. Passed by reference to
+	 *                                 allow for permanent changes. Saved at a the
+	 *                                 end of the upgrade routine.
 	 */
-	private function plugin_updated( $previous_version ) {
-		// Upgrade from version 0.3 or lower.
-		if ( \version_compare( $previous_version, '0.5', '<' ) ) {
+	private function plugin_updated( $previous_version, array &$settings ) {
+		// Upgrade from version 0.4 or lower.
+		if ( ! empty( $previous_version ) && \version_compare( $previous_version, '0.5', '<' ) ) {
+			// Preserve previous multisite behavior.
+			if ( \is_multisite() ) {
+				$this->network_options->set( Network_Options::USE_GLOBAL_TABLE, true );
+			}
+
 			// Run upgrade command.
 			$this->maybe_update_user_hashes();
+
+			// Drop old settings.
+			foreach ( self::OBSOLETE_SETTINGS as $key ) {
+				unset( $settings[ $key ] );
+			}
 		}
 
-		// To be safe, let's flush the rewrite rules if there has been an update.
+		// To be safe, let's always flush the rewrite rules if there has been an update.
 		\add_action( 'init', [ __CLASS__, 'flush_rewrite_rules' ] );
 	}
 
@@ -177,6 +222,10 @@ class Setup implements \Avatar_Privacy\Component {
 	 * Uninstalls all the plugin's information from the database.
 	 */
 	public static function uninstall() {
+		// The plugin is not running anymore, so we have to create handlers.
+		$options         = new Options();
+		$network_options = new Network_Options();
+
 		// Delete cached files.
 		self::delete_cached_files();
 
@@ -187,13 +236,13 @@ class Setup implements \Avatar_Privacy\Component {
 		self::delete_user_meta();
 
 		// Delete/change options (from all sites in case of a  multisite network).
-		self::delete_options();
+		self::delete_options( $options, $network_options );
 
 		// Delete transients from sitemeta or options table.
 		self::delete_transients();
 
 		// Drop all our tables.
-		self::drop_all_tables();
+		self::drop_all_tables( $network_options );
 	}
 
 	/**
@@ -226,26 +275,29 @@ class Setup implements \Avatar_Privacy\Component {
 	/**
 	 * Drops the table for the given site.
 	 *
-	 * @param int|null $site_id Optional. The site ID. Null means the current $blog_id. Ddefault null.
+	 * @param Network_Options $network_options A network options handler.
+	 * @param int|null        $site_id         Optional. The site ID. Null means the current $blog_id. Ddefault null.
 	 */
-	private static function drop_table( $site_id = null ) {
+	private static function drop_table( Network_Options $network_options, $site_id = null ) {
 		global $wpdb;
 
-		$table_name = self::get_table_name( $site_id );
+		$table_name = self::get_table_name( $network_options, $site_id );
 		$wpdb->query( "DROP TABLE IF EXISTS {$table_name};" ); // phpcs:ignore WordPress.VIP.DirectDatabaseQuery,WordPress.WP.PreparedSQL.NotPrepared
 	}
 
 	/**
 	 * Drops all tables.
+	 *
+	 * @param Network_Options $network_options The network options handler.
 	 */
-	private static function drop_all_tables() {
+	private static function drop_all_tables( Network_Options $network_options ) {
 		// Delete/change options for all other blogs (multisite).
 		if ( \is_multisite() ) {
 			foreach ( \get_sites( [ 'fields' => 'ids' ] ) as $site_id ) {
-				self::drop_table( $site_id );
+				self::drop_table( $network_options, $site_id );
 			}
 		} else {
-			self::drop_table();
+			self::drop_table( $network_options );
 		}
 	}
 
@@ -259,10 +311,11 @@ class Setup implements \Avatar_Privacy\Component {
 
 	/**
 	 * Delete the plugin options (from all sites).
+	 *
+	 * @param Options         $options         The options handler.
+	 * @param Network_Options $network_options The network options handler.
 	 */
-	private static function delete_options() {
-		$options = new Options();
-
+	private static function delete_options( Options $options, Network_Options $network_options ) {
 		// Delete/change options for main blog.
 		$options->delete( \Avatar_Privacy_Core::SETTINGS_NAME );
 		self::reset_avatar_default( $options );
@@ -281,6 +334,9 @@ class Setup implements \Avatar_Privacy\Component {
 				\restore_current_blog();
 			}
 		}
+
+		// Delete site options as well (except for the salt).
+		$network_options->delete( Network_Options::USE_GLOBAL_TABLE );
 	}
 
 	/**
@@ -345,7 +401,7 @@ class Setup implements \Avatar_Privacy\Component {
 		}
 
 		// Set up table name.
-		$table_name = self::get_table_name();
+		$table_name = self::get_table_name( $this->network_options );
 
 		// Fix $wpdb object if table already exists, unless we need an update.
 		if ( ! $db_needs_update && $this->table_exists( $table_name ) ) {
@@ -426,14 +482,15 @@ class Setup implements \Avatar_Privacy\Component {
 	/**
 	 * Retrieves the table prefix to use (for a given site or the current site).
 	 *
-	 * @param int|null $site_id Optional. The site ID. Null means the current $blog_id. Ddefault null.
+	 * @param Network_Options $network_options A network options handler.
+	 * @param int|null        $site_id         Optional. The site ID. Null means the current $blog_id. Ddefault null.
 	 *
 	 * @return string
 	 */
-	private static function get_table_prefix( $site_id = null ) {
+	private static function get_table_prefix( Network_Options $network_options, $site_id = null ) {
 		global $wpdb;
 
-		if ( ! self::uses_global_table() ) {
+		if ( ! self::uses_global_table( $network_options ) ) {
 			return $wpdb->get_blog_prefix( $site_id );
 		} else {
 			return $wpdb->base_prefix;
@@ -443,28 +500,34 @@ class Setup implements \Avatar_Privacy\Component {
 	/**
 	 * Retrieves the table name to use (for a given site or the current site).
 	 *
-	 * @param int|null $site_id Optional. The site ID. Null means the current $blog_id. Ddefault null.
+	 * @param Network_Options $network_options A network options handler.
+	 * @param int|null        $site_id         Optional. The site ID. Null means the current $blog_id. Ddefault null.
 	 *
 	 * @return string
 	 */
-	private static function get_table_name( $site_id = null ) {
-		return self::get_table_prefix( $site_id ) . 'avatar_privacy';
+	private static function get_table_name( Network_Options $network_options, $site_id = null ) {
+		return self::get_table_prefix( $network_options, $site_id ) . 'avatar_privacy';
 	}
 
 	/**
 	 * Determines whether this (multisite) installation uses the global table.
 	 * Result is ignored for single-site installations.
 	 *
+	 * @param Network_Options $network_options A network options handler.
+	 *
 	 * @return bool
 	 */
-	private static function uses_global_table() {
+	private static function uses_global_table( Network_Options $network_options ) {
+		$global_table = $network_options->get( Network_Options::USE_GLOBAL_TABLE, false );
+
 		/**
 		 * Filters whether a global table should be enabled for multisite installations.
 		 *
-		 * @param bool $enable Default false.
+		 * @since 1.0.0
+		 *
+		 * @param bool $enable Default false, unless this is a multisite installation
+		 *                     upgraded from version 0.4 or earlier.
 		 */
-		$global_table = \apply_filters( 'avatar_privacy_enable_global_table', false );
-
-		return $global_table;
+		return \apply_filters( 'avatar_privacy_enable_global_table', $global_table );
 	}
 }

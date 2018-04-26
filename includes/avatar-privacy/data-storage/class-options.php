@@ -37,6 +37,13 @@ class Options extends \Mundschenk\Data_Storage\Options {
 	const PREFIX = 'avatar_privacy_';
 
 	/**
+	 * The array key of the installed version setting (in the settings array).
+	 *
+	 * @var string
+	 */
+	const INSTALLED_VERSION = 'installed_version';
+
+	/**
 	 * Creates a new instance.
 	 */
 	public function __construct() {
