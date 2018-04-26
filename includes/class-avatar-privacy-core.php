@@ -496,14 +496,14 @@ class Avatar_Privacy_Core {
 
 			if ( empty( $salt ) ) {
 				// Let's try the network option next.
-				$salt = $this->network_options->get( 'salt' );
+				$salt = $this->network_options->get( Network_Options::SALT );
 
 				if ( empty( $salt ) ) {
 					// Still nothing? Generate a random value.
 					$salt = \mt_rand();
 
 					// Save the generated salt.
-					$this->network_options->set( 'salt', $salt );
+					$this->network_options->set( Network_Options::SALT, $salt );
 				}
 			}
 
