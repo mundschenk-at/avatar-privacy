@@ -417,14 +417,7 @@ class Setup implements \Avatar_Privacy\Component {
 	private static function get_table_prefix( $site_id = null ) {
 		global $wpdb;
 
-		/**
-		 * Filters whether a global table should be enabled for multisite installations.
-		 *
-		 * @param bool $enable Default false.
-		 */
-		$global_table = \apply_filters( 'avatar_privacy_enable_global_table', false );
-
-		if ( ! $global_table ) {
+		if ( ! self::uses_global_table() ) {
 			return $wpdb->get_blog_prefix( $site_id );
 		} else {
 			return $wpdb->base_prefix;
@@ -440,5 +433,22 @@ class Setup implements \Avatar_Privacy\Component {
 	 */
 	private static function get_table_name( $site_id = null ) {
 		return self::get_table_prefix( $site_id ) . 'avatar_privacy';
+	}
+
+	/**
+	 * Determines whether this (multisite) installation uses the global table.
+	 * Result is ignored for single-site installations.
+	 *
+	 * @return bool
+	 */
+	private static function uses_global_table() {
+		/**
+		 * Filters whether a global table should be enabled for multisite installations.
+		 *
+		 * @param bool $enable Default false.
+		 */
+		$global_table = \apply_filters( 'avatar_privacy_enable_global_table', false );
+
+		return $global_table;
 	}
 }
