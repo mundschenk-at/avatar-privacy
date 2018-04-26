@@ -192,8 +192,8 @@ class Setup implements \Avatar_Privacy\Component {
 		// Delete transients from sitemeta or options table.
 		self::delete_transients();
 
-		// Drop global table.
-		self::drop_table();
+		// Drop all our tables.
+		self::drop_all_tables();
 	}
 
 	/**
@@ -224,13 +224,29 @@ class Setup implements \Avatar_Privacy\Component {
 	}
 
 	/**
-	 * Drops the global table.
+	 * Drops the table for the given site.
+	 *
+	 * @param int|null $site_id Optional. The site ID. Null means the current $blog_id. Ddefault null.
 	 */
-	private static function drop_table() {
+	private static function drop_table( $site_id = null ) {
 		global $wpdb;
 
-		$table_name = self::get_table_name();
+		$table_name = self::get_table_name( $site_id );
 		$wpdb->query( "DROP TABLE IF EXISTS {$table_name};" ); // phpcs:ignore WordPress.VIP.DirectDatabaseQuery,WordPress.WP.PreparedSQL.NotPrepared
+	}
+
+	/**
+	 * Drops all tables.
+	 */
+	private static function drop_all_tables() {
+		// Delete/change options for all other blogs (multisite).
+		if ( \is_multisite() ) {
+			foreach ( \get_sites( [ 'fields' => 'ids' ] ) as $site_id ) {
+				self::drop_table( $site_id );
+			}
+		} else {
+			self::drop_table();
+		}
 	}
 
 	/**
