@@ -44,7 +44,7 @@ class Setup implements \Avatar_Privacy\Component {
 	/**
 	 * The full path to the main plugin file.
 	 *
-	 * @var   string
+	 * @var string
 	 */
 	private $plugin_file;
 
