@@ -407,15 +407,15 @@ class Images implements \Avatar_Privacy\Component {
 	/**
 	 * Retrieves the URL for the given default icon type.
 	 *
-	 * @param  string $file  The path to the full-size avatar image.
-	 * @param  string $email The mail address used to generate the identity hash.
-	 * @param  int    $size  The requested size in pixels.
-	 * @param  bool   $force Optional. Whether to force the regeneration of the icon. Default false.
+	 * @param  string[] $avatar The full-size avatar image information.
+	 * @param  string   $email  The mail address used to generate the identity hash.
+	 * @param  int      $size   The requested size in pixels.
+	 * @param  bool     $force  Optional. Whether to force the regeneration of the icon. Default false.
 	 *
 	 * @return string
 	 */
-	public function user_avatar_icon_url( $file, $email, $size, $force = false ) {
-		return $this->user_avatar->get_icon_url( $file, $email, $size, $this->core, $force );
+	public function user_avatar_icon_url( array $avatar, $email, $size, $force = false ) {
+		return $this->user_avatar->get_icon_url( $avatar, $email, $size, $this->core, $force );
 	}
 
 

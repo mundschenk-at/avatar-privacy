@@ -191,7 +191,7 @@ class User_Avatar_Upload {
 		$this->delete_uploaded_avatar( $user_id );
 
 		// Save user information (overwriting previous).
-		\update_user_meta( $user_id, self::USER_META_KEY, $avatar['file'] );
+		\update_user_meta( $user_id, self::USER_META_KEY, $avatar );
 	}
 
 	/**
@@ -247,9 +247,8 @@ class User_Avatar_Upload {
 
 		$this->file_cache->invalidate( 'user', "#/{$hash}-[1-9][0-9]*\.[a-z]{3}\$#" );
 
-		$full = \get_user_meta( $user_id, self::USER_META_KEY, true );
-
-		if ( false !== $full && \file_exists( $full ) && \unlink( $full ) ) { // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow
+		$avatar = \get_user_meta( $user_id, self::USER_META_KEY, true );
+		if ( ! empty( $avatar['file'] ) && \file_exists( $avatar['file'] ) && \unlink( $avatar['file'] ) ) { // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow
 			\delete_user_meta( $user_id, self::USER_META_KEY );
 		}
 	}
@@ -257,7 +256,7 @@ class User_Avatar_Upload {
 	/**
 	 * Retrieves the URL for the given default icon type.
 	 *
-	 * @param  string               $file    The path to the full-size avatar image.
+	 * @param  string[]             $avatar  The full-size avatar image information.
 	 * @param  string               $email   The mail address used to generate the identity hash.
 	 * @param  int                  $size    The requested size in pixels.
 	 * @param  \Avatar_Privacy_Core $core    The core API.
@@ -265,20 +264,21 @@ class User_Avatar_Upload {
 	 *
 	 * @return string
 	 */
-	public function get_icon_url( $file, $email, $size, \Avatar_Privacy_Core $core, $force = false ) {
+	public function get_icon_url( array $avatar, $email, $size, \Avatar_Privacy_Core $core, $force = false ) {
 		if ( empty( $this->base_dir ) || empty( $this->base_url ) ) {
 			$uploads        = \wp_get_upload_dir();
 			$this->base_url = $uploads['baseurl'];
 			$this->base_dir = $uploads['basedir'];
 		}
 
-		$hash     = $core->get_hash( $email );
-		$filename = "user/{$this->get_sub_dir( $hash )}/{$hash}-{$size}.png";
-		$target   = "{$this->file_cache->get_base_dir()}{$filename}";
+		$hash      = $core->get_hash( $email );
+		$extension = \Avatar_Privacy\Components\Images::FILE_EXTENSION[ $avatar['type'] ];
+		$filename  = "user/{$this->get_sub_dir( $hash )}/{$hash}-{$size}.{$extension}";
+		$target    = "{$this->file_cache->get_base_dir()}{$filename}";
 
 		if ( $force || ! \file_exists( $target ) ) {
 			$data = Images\Editor::get_resized_image_data(
-				\wp_get_image_editor( \str_replace( $this->base_url, $this->base_dir, $file ) ), $size, $size, true, 'image/png'
+				\wp_get_image_editor( $avatar['file'] ), $size, $size, true, $avatar['type']
 			);
 			if ( empty( $data ) ) {
 				// Something went wrong..

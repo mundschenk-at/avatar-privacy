@@ -172,11 +172,11 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			if ( $user_id ) {
 				// Fetch local avatar from meta and make sure it's properly stzed.
 				$local_avatar = \get_user_meta( $user_id, User_Avatar_Upload::USER_META_KEY, true );
-				if ( ! empty( $local_avatar ) ) {
+				if ( ! empty( $local_avatar['file'] ) && ! empty( $local_avatar['type'] ) ) {
 					/**
 					 * Filters the uploaed avatar URL for the given user.
 					 *
-					 * @param  string    $file    The path to the full-size avatar image.
+					 * @param  string[]  $avatar  The full-size avatar image information.
 					 * @param  string    $email   The mail address used to generate the identity hash.
 					 * @param  int       $size    The size of the avatar image in pixels.
 					 */
