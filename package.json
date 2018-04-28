@@ -1,7 +1,7 @@
 {
   "name": "avatar-privacy",
   "devDependencies": {
-    "autoprefixer": "^8.0",
+    "autoprefixer": "^8.4.1",
     "grunt": "^1.0.2",
     "grunt-cli": "^1.2.0",
     "grunt-composer": "^0.4",
@@ -14,9 +14,9 @@
     "grunt-phpcs": "^0.4.0",
     "grunt-postcss": "^0.9.0",
     "grunt-sass": "^2.1.0",
+    "grunt-string-replace": "^1.3",
     "grunt-wp-deploy": "^1.2.1",
     "jshint-stylish": "^2.2.1",
-    "grunt-string-replace": "^1.3",
     "load-grunt-tasks": "^3.5.2",
     "pixrem": "^4.0.0"
   },
