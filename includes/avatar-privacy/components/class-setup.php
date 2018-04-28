@@ -225,6 +225,8 @@ class Setup implements \Avatar_Privacy\Component {
 		// The plugin is not running anymore, so we have to create handlers.
 		$options         = new Options();
 		$network_options = new Network_Options();
+		$transients      = new Transients();
+		$site_transients = new Site_Transients();
 
 		// Delete cached files.
 		self::delete_cached_files();
@@ -239,7 +241,7 @@ class Setup implements \Avatar_Privacy\Component {
 		self::delete_options( $options, $network_options );
 
 		// Delete transients from sitemeta or options table.
-		self::delete_transients();
+		self::delete_transients( $transients, $site_transients );
 
 		// Drop all our tables.
 		self::drop_all_tables( $network_options );
@@ -341,18 +343,19 @@ class Setup implements \Avatar_Privacy\Component {
 
 	/**
 	 * Delete all the plugins transients.
+	 *
+	 * @param  Transients      $transients      The transients handler.
+	 * @param  Site_Transients $site_transients The site transients handler.
 	 */
-	private static function delete_transients() {
-		if ( \is_multisite() ) {
-			// Stored in sitemeta.
-			$transients = new Site_Transients();
-		} else {
-			// Stored in wp_options.
-			$transients = new Transients();
-		}
-
+	private static function delete_transients( Transients $transients, Site_Transients $site_transients ) {
+		// Remove regular transients.
 		foreach ( $transients->get_keys_from_database() as $key ) {
 			$transients->delete( $key, true );
+		}
+
+		// Remove site transients.
+		foreach ( $site_transients->get_keys_from_database() as $key ) {
+			$site_transients->delete( $key, true );
 		}
 	}
 
