@@ -89,6 +89,8 @@ class Images implements \Avatar_Privacy\Component {
 		self::SVG_IMAGE  => self::SVG_EXTENSION,
 	];
 
+	const CRON_JOB_LOCK = 'cron_job_lock';
+
 	/**
 	 * The options handler.
 	 *
@@ -431,10 +433,10 @@ class Images implements \Avatar_Privacy\Component {
 	 * that the clean-up happens only once per day on multisite installations.
 	 */
 	public function trim_image_cache() {
-		if ( ! $this->site_transients->get( 'cron_job_lock' ) ) {
+		if ( ! $this->site_transients->get( self::CRON_JOB_LOCK ) ) {
 			$this->file_cache->invalidate_files_older_than( 2 * DAY_IN_SECONDS );
 
-			$this->site_transients->set( 'cron_job_lock', 'wewantprivacy', DAY_IN_SECONDS );
+			$this->site_transients->set( self::CRON_JOB_LOCK, 'wewantprivacy', DAY_IN_SECONDS );
 		}
 	}
 
