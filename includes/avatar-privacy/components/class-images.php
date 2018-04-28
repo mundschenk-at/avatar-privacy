@@ -318,18 +318,7 @@ class Images implements \Avatar_Privacy\Component {
 		}
 
 		if ( Gravatar_Cache::TYPE_USER === Gravatar_Cache::TYPE_MAPPING[ $type ] ) {
-			$user = \get_users( [
-				'number'       => 1,
-				'meta_key'     => \Avatar_Privacy_Core::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key
-				'meta_value'   => $hash, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_value
-				'meta_compare' => '=',
-			] );
-
-			if ( empty( $user ) ) {
-				return;
-			}
-			$user = $user[0];
-
+			$user = self::get_user_by_hash( $hash );
 			if ( ! empty( $user ) ) {
 				$user_id = $user->ID;
 				$email   = ! empty( $user->user_email ) ? $user->user_email : '';
@@ -359,13 +348,7 @@ class Images implements \Avatar_Privacy\Component {
 	 * @return bool
 	 */
 	private function retrieve_user_avatar_icon( $hash, $size ) {
-		list( $user ) = \get_users( [
-			'number'       => 1,
-			'meta_key'     => \Avatar_Privacy_Core::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key
-			'meta_value'   => $hash, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_value
-			'meta_compare' => '=',
-		] );
-
+		$user = self::get_user_by_hash( $hash );
 		if ( ! empty( $user ) ) {
 			$email        = ! empty( $user->user_email ) ? $user->user_email : '';
 			$local_avatar = \get_user_meta( $user->ID, User_Avatar_Upload::USER_META_KEY, true );
@@ -453,5 +436,27 @@ class Images implements \Avatar_Privacy\Component {
 
 			$this->site_transients->set( 'cron_job_lock', 'wewantprivacy', DAY_IN_SECONDS );
 		}
+	}
+
+	/**
+	 * Retrieves a users by email hash.
+	 *
+	 * @param string $hash The user's email hash.
+	 *
+	 * @return \WP_User|null
+	 */
+	private static function get_user_by_hash( $hash ) {
+		$users = \get_users( [
+			'number'       => 1,
+			'meta_key'     => \Avatar_Privacy_Core::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key
+			'meta_value'   => $hash, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_value
+			'meta_compare' => '=',
+		] );
+
+		if ( empty( $users ) ) {
+			return null;
+		}
+
+		return $users[0];
 	}
 }
