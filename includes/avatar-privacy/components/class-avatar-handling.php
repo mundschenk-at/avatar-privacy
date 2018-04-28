@@ -29,6 +29,8 @@ namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\User_Avatar_Upload;
 
+use Avatar_Privacy\Components\Images;
+
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Transients;
 use Avatar_Privacy\Data_Storage\Site_Transients;
@@ -159,6 +161,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	public function get_avatar_data( $args, $id_or_email ) {
 		$show_gravatar = false;
 		$force_default = ! empty( $args['force_default'] );
+		$mimetype      = '';
 
 		// Process the user identifier.
 		list( $user_id, $email ) = $this->parse_id_or_email( $id_or_email );
@@ -223,7 +226,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			 * @param int]false $user_id      A WordPress user ID (or false).
 			 */
 			if ( \apply_filters( 'avatar_privacy_enable_gravatar_check', true, $email, $user_id ) ) {
-				$show_gravatar = $this->validate_gravatar( $email );
+				$show_gravatar = $this->validate_gravatar( $email, $mimetype );
 			}
 		}
 
@@ -239,16 +242,21 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 
 		// Maybe display a Gravatar.
 		if ( $show_gravatar ) {
+			if ( empty( $mimetype ) ) {
+				$mimetype = Images::PNG_IMAGE;
+			}
+
 			/**
 			 * Filters the Gravatar.com URL for the given e-mail.
 			 *
-			 * @param  string    $url     The fallback default icon URL.
-			 * @param  string    $email   The mail address used to generate the identity hash.
-			 * @param  int       $size    The size of the avatar image in pixels.
-			 * @param  int]false $user_id A WordPress user ID (or false).
-			 * @param  string    $rating  The audience rating (e.g. 'g', 'pg', 'r', 'x').
+			 * @param  string    $url      The fallback default icon URL.
+			 * @param  string    $email    The mail address used to generate the identity hash.
+			 * @param  int       $size     The size of the avatar image in pixels.
+			 * @param  int]false $user_id  A WordPress user ID (or false).
+			 * @param  string    $rating   The audience rating (e.g. 'g', 'pg', 'r', 'x').
+			 * @param  string    $mimetype The expected MIME type of the Gravatar image.
 			 */
-			$url = \apply_filters( 'avatar_privacy_gravatar_icon_url', $url, $email, $args['size'], $user_id, $args['rating'] );
+			$url = \apply_filters( 'avatar_privacy_gravatar_icon_url', $url, $email, $args['size'], $user_id, $args['rating'], $mimetype );
 		}
 
 		$args['url'] = $url;
@@ -307,13 +315,14 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 * Validates if a gravatar exists for the given e-mail address. Function originally
 	 * taken from: http://codex.wordpress.org/Using_Gravatars
 	 *
-	 * @param string $email The e-mail address to check.
-	 * @return bool         True if a gravatar exists for the given e-mail address,
-	 *                      false otherwise, including if gravatar.com could not be
-	 *                      reached or answered with a different error code or if
-	 *                      no e-mail address was given.
+	 * @param string $email    The e-mail address to check.
+	 * @param string $mimetype Optional. Set to the mimetype of the gravatar if present. Passed by reference. Default null.
+	 * @return bool            True if a gravatar exists for the given e-mail address,
+	 *                         false otherwise, including if gravatar.com could not be
+	 *                         reached or answered with a different error code or if
+	 *                         no e-mail address was given.
 	 */
-	public function validate_gravatar( $email = '' ) {
+	public function validate_gravatar( $email = '', &$mimetype = null ) {
 		// Make sure we have a real address to check.
 		if ( empty( $email ) ) {
 			return false;
@@ -324,7 +333,12 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 
 		// Try to find something in the cache.
 		if ( isset( $this->validate_gravatar_cache[ $hash ] ) ) {
-			return $this->validate_gravatar_cache[ $hash ];
+			$result = $this->validate_gravatar_cache[ $hash ];
+			if ( null !== $mimetype && ! empty( $result ) ) {
+				$mimetype = $result;
+			}
+
+			return ! empty( $result );
 		}
 
 		// Try to find it via transient cache. On multisite, we use site transients.
@@ -332,20 +346,33 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		$transients    = \is_multisite() ? $this->site_transients : $this->transients;
 		$result        = $transients->get( $transient_key );
 		if ( false !== $result ) {
-			$result                                 = ! empty( $result );
 			$this->validate_gravatar_cache[ $hash ] = $result;
+			if ( null !== $mimetype && ! empty( $result ) ) {
+				$mimetype = $result;
+			}
 
-			return $result;
+			return ! empty( $result );
 		}
 
 		// Ask gravatar.com.
-		$result = 200 === \wp_remote_retrieve_response_code( /* @scrutinizer ignore-type */ \wp_remote_head( "https://gravatar.com/avatar/{$hash}?d=404" ) );
+		$response = \wp_remote_head( "https://gravatar.com/avatar/{$hash}?d=404" );
+		if ( $response instanceof \WP_Error ) {
+			return false; // Don't cache the result.
+		}
+
+		if ( 200 === \wp_remote_retrieve_response_code( $response ) ) {
+			$result = wp_remote_retrieve_header( $response, 'content-type' );
+
+			if ( null !== $mimetype && ! empty( $result ) ) {
+				$mimetype = $result;
+			}
+		}
 
 		// Cache the result across all blogs (a YES for 1 day, a NO for 10 minutes
 		// -- since a YES basically shouldn't change, but a NO might change when the user signs up with gravatar.com).
-		$transients->set( $transient_key, $result ? 1 : 0, $result ? DAY_IN_SECONDS : 10 * MINUTE_IN_SECONDS );
+		$transients->set( $transient_key, ! empty( $result ) ? $result : 0, ! empty( $result ) ? DAY_IN_SECONDS : 10 * MINUTE_IN_SECONDS );
 		$this->validate_gravatar_cache[ $hash ] = $result;
 
-		return $result;
+		return ! empty( $result );
 	}
 }

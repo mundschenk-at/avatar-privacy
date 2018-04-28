@@ -69,9 +69,24 @@ class Images implements \Avatar_Privacy\Component {
 		],
 	];
 
+	const JPEG_IMAGE = 'image/jpeg';
+	const PNG_IMAGE  = 'image/png';
+	const SVG_IMAGE  = 'image/svg+xml';
+
+	const JPEG_EXTENSION = 'jpg';
+	const PNG_EXTENSION  = 'png';
+	const SVG_EXTENSION  = 'svg';
+
 	const CONTENT_TYPE = [
-		'png' => 'image/png',
-		'svg' => 'image/svg+xml',
+		self::JPEG_EXTENSION => self::JPEG_IMAGE,
+		self::PNG_EXTENSION  => self::PNG_IMAGE,
+		self::SVG_EXTENSION  => self::SVG_IMAGE,
+	];
+
+	const FILE_EXTENSION = [
+		self::JPEG_IMAGE => self::JPEG_EXTENSION,
+		self::PNG_IMAGE  => self::PNG_EXTENSION,
+		self::SVG_IMAGE  => self::SVG_EXTENSION,
 	];
 
 	/**
@@ -174,7 +189,7 @@ class Images implements \Avatar_Privacy\Component {
 
 		// Generate the correct avatar images.
 		\add_filter( 'avatar_privacy_default_icon_url',     [ $this, 'default_icon_url' ], 10, 4 );
-		\add_filter( 'avatar_privacy_gravatar_icon_url',    [ $this, 'gravatar_icon_url' ], 10, 5 );
+		\add_filter( 'avatar_privacy_gravatar_icon_url',    [ $this, 'gravatar_icon_url' ], 10, 6 );
 		\add_filter( 'avatar_privacy_user_avatar_icon_url', [ $this, 'user_avatar_icon_url' ], 10, 3 );
 
 		// Automatically regenerate missing image files.
@@ -207,7 +222,7 @@ class Images implements \Avatar_Privacy\Component {
 	 * @param \WP $wp The WordPress global object.
 	 */
 	public function load_cached_avatar( \WP $wp ) {
-		if ( empty( $wp->query_vars['avatar-privacy-file'] ) || ! \preg_match( '#^([a-z]+)/((?:[0-9a-z]/)*)([a-f0-9]{64})(?:-([0-9]+))?\.(png|svg)$#i', $wp->query_vars['avatar-privacy-file'], $parts ) ) {
+		if ( empty( $wp->query_vars['avatar-privacy-file'] ) || ! \preg_match( '#^([a-z]+)/((?:[0-9a-z]/)*)([a-f0-9]{64})(?:-([0-9]+))?\.(jpg|png|svg)$#i', $wp->query_vars['avatar-privacy-file'], $parts ) ) {
 			// Abort early.
 			return;
 		}
@@ -225,7 +240,7 @@ class Images implements \Avatar_Privacy\Component {
 					$success = $this->retrieve_user_avatar_icon( $hash, $size );
 					break;
 				case 'gravatar':
-					$success = $this->retrieve_gravatar_icon( $hash, $subdir, $size );
+					$success = $this->retrieve_gravatar_icon( $hash, $subdir, $size, self::CONTENT_TYPE[ $extension ] );
 					break;
 				default:
 					$success = $this->generate_default_icon( $hash, $type, $size );
@@ -289,13 +304,14 @@ class Images implements \Avatar_Privacy\Component {
 	/**
 	 * Retrieves the Gravatar.com icon for the given hash.
 	 *
-	 * @param  string $hash   The hashed mail address.
-	 * @param  string $subdir The first level is mapped to the address type (user or comment author).
-	 * @param  int    $size   The requested size in pixels.
+	 * @param  string $hash     The hashed mail address.
+	 * @param  string $subdir   The first level is mapped to the address type (user or comment author).
+	 * @param  int    $size     The requested size in pixels.
+	 * @param  string $mimetype The expected MIME type.
 	 *
 	 * @return bool
 	 */
-	private function retrieve_gravatar_icon( $hash, $subdir, $size ) {
+	private function retrieve_gravatar_icon( $hash, $subdir, $size, $mimetype ) {
 		$type = \explode( '/', $subdir )[0];
 		if ( empty( $type ) || ! isset( Gravatar_Cache::TYPE_MAPPING[ $type ] ) ) {
 			return false;
@@ -331,7 +347,7 @@ class Images implements \Avatar_Privacy\Component {
 		}
 
 		// Try to cache the icon.
-		return ! empty( $this->gravatar_icon_url( '', $email, $size, $user_id, /* @scrutinizer ignore-type */ $this->options->get( 'avatar_rating', 'g', true ) ) );
+		return ! empty( $this->gravatar_icon_url( '', $email, $size, $user_id, /* @scrutinizer ignore-type */ $this->options->get( 'avatar_rating', 'g', true ), $mimetype ) );
 	}
 
 	/**
@@ -388,17 +404,18 @@ class Images implements \Avatar_Privacy\Component {
 	/**
 	 * Retrieves the URL for the given default icon type.
 	 *
-	 * @param  string    $url     The fallback default icon URL.
-	 * @param  string    $email   The mail address used to generate the identity hash.
-	 * @param  int       $size    The requested size in pixels.
-	 * @param  int|false $user_id Optional. A WordPress user ID, or false. Default false.
-	 * @param  string    $rating  Optional. The audience rating (e.g. 'g', 'pg', 'r', 'x'). Default 'g'.
-	 * @param  bool      $force   Optional. Whether to force the regeneration of the icon. Default false.
+	 * @param  string    $url      The fallback default icon URL.
+	 * @param  string    $email    The mail address used to generate the identity hash.
+	 * @param  int       $size     The requested size in pixels.
+	 * @param  int|false $user_id  Optional. A WordPress user ID, or false. Default false.
+	 * @param  string    $rating   Optional. The audience rating (e.g. 'g', 'pg', 'r', 'x'). Default 'g'.
+	 * @param  string    $mimetype Optional. The expected MIME type. Default 'image/png'.
+	 * @param  bool      $force    Optional. Whether to force the regeneration of the icon. Default false.
 	 *
 	 * @return string
 	 */
-	public function gravatar_icon_url( $url, $email, $size, $user_id = false, $rating = 'g', $force = false ) {
-		return $this->gravatar_cache->get_icon_url( $url, $email, $size, $user_id, $rating, $this->core, $force );
+	public function gravatar_icon_url( $url, $email, $size, $user_id = false, $rating = 'g', $mimetype = self::PNG_IMAGE, $force = false ) {
+		return $this->gravatar_cache->get_icon_url( $url, $email, $size, $user_id, $rating, $mimetype, $this->core, $force );
 	}
 
 	/**

@@ -26,6 +26,8 @@
 
 namespace Avatar_Privacy;
 
+use Avatar_Privacy\Components\Images;
+
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
 /**
@@ -83,20 +85,21 @@ class Gravatar_Cache {
 	/**
 	 * Retrieves the default icon.
 	 *
-	 * @param  string               $url     The fallback default icon URL.
-	 * @param  string               $email   The mail address used to generate the identity hash.
-	 * @param  int                  $size    The requested size in pixels.
-	 * @param  int|false            $user_id A WordPress user ID, or false.
-	 * @param  string               $rating  The audience rating (e.g. 'g', 'pg', 'r', 'x').
-	 * @param  \Avatar_Privacy_Core $core    The core API.
-	 * @param  bool                 $force   Optional. Whether to force the regeneration of the icon. Default false.
+	 * @param  string               $url      The fallback default icon URL.
+	 * @param  string               $email    The mail address used to generate the identity hash.
+	 * @param  int                  $size     The requested size in pixels.
+	 * @param  int|false            $user_id  A WordPress user ID, or false.
+	 * @param  string               $rating   The audience rating (e.g. 'g', 'pg', 'r', 'x').
+	 * @param  string               $mimetype The expected MIME type.
+	 * @param  \Avatar_Privacy_Core $core     The core API.
+	 * @param  bool                 $force    Optional. Whether to force the regeneration of the icon. Default false.
 	 *
 	 * @return string
 	 */
-	public function get_icon_url( $url, $email, $size, $user_id, $rating, \Avatar_Privacy_Core $core, $force = false ) {
+	public function get_icon_url( $url, $email, $size, $user_id, $rating, $mimetype, \Avatar_Privacy_Core $core, $force = false ) {
 		$hash         = $core->get_hash( $email );
 		$subdir       = $this->get_sub_dir( $hash, false !== $user_id );
-		$filename     = "gravatar/{$subdir}/{$hash}-{$size}.png";
+		$filename     = "gravatar/{$subdir}/{$hash}-{$size}." . Images::FILE_EXTENSION[ $mimetype ];
 		$gravatar_url = "https://secure.gravatar.com/avatar/{$this->get_gravatar_hash( $email )}.png?s={$size}&r={$rating}&d=404";
 
 		// Only retrieve new Gravatar if necessary.
