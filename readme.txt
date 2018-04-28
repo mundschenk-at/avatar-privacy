@@ -1,5 +1,5 @@
 === Avatar Privacy ===
-Contributors: Ammaletu
+Contributors: Ammaletu, pputzer
 Plugin Name: Avatar Privacy
 Plugin URI: http://wordpress.org/extend/plugins/avatar-privacy/
 Author URI: http://code.freudendahl.net/
@@ -7,7 +7,7 @@ Tags: gravatar, avatar, privacy
 Requires at least: 4.6
 Requires PHP: 5.6
 Tested up to: 4.9
-Stable tag: 0.3
+Stable tag: 0.4
 License: GPLv2 or later
 
 Adds options to enhance the privacy when using avatars.
@@ -61,22 +61,21 @@ You can either install it automatically from the WordPress admin, or do it manua
 1. Unzip the archive and put the 'avatar-privacy' folder into your plugins folder (/wp-content/plugins/).
 1. Activate the plugin from the Plugins menu.
 
-Be sure to visit the discussion settings page and configure the plugin. It won't do anything if you skip this step!
-
 = Uninstallation =
 
 There is a difference between deactivating the plugin and uninstalling it. The plugin gets deactivated if you do so on the plugins page or if you simply delete the plugin files via FTP. No uninstallation tasks are performed then, so you can activate and deactivate the plugin as you want without losing the plugin's settings.
 
 If you deactivate the plugin und have gravatars turned on, they will again show up for everybody, even those commenters and users who opted out of displaying gravatars. If you changed the default avatar to one of the new local avatar images, the gravatars will not be displayed until you change the default avatar image back.
 
-If you want to completely uninstall the plugin and get rid of any data in the database, you should properly uninstall it: Deactivate the plugin first via the WordPress plugin page and then click 'delete' (same page, next to the plugin). For multisite installations, this has to be done by the network administrator on the network plugins page.
+If you want to completely uninstall the plugin and get rid of any data in the database, you should properly uninstall it: Deactivate the plugin first via the WordPress plugins page and then click 'delete' (same page, next to the plugin). For multisite installations, this has to be done by the network administrator on the network plugins page.
 
 The plugin saves additional data about whether commenters and users want to display a gravatar or not (if you select that mode in the settings). The following data are saved and deleted upon uninstallation:
 
-* global table [prefix]_avatar_privacy
-* usermeta value per user: use_gravatar
-* option per blog: avatar_privacy_settings
-* transient option per commenter: avapr_check_[mail hash]
+* custom table(s) `[prefix]_avatar_privacy` (global or per blog on new multisite installations)
+* `usermeta` values per user: `use_gravatar`, `avatar_privacy_hash`, `avatar_privacy_user_avatar`
+* `option` per blog: `avatar_privacy_settings`
+* option per network (`sitemeta`) on multisite installations: `avatar_privacy_salt`
+* `transient` per commenter: `avapr_check_[mail hash]`
 
 The default avatar image is set to the mystery man if you selected one of the new local default avatar images.
 
@@ -94,30 +93,20 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 = I activated the plugin and don't see any change!? =
 
-Did you remember to visit the discussion settings page, activate some or all of the checkboxes in the "Avatar Privacy" section and save the changes? On a multisite installation, this has to be done for every blog that wants to use the plugin. You also have to enable the use of gravatars first.
+Did you remember to visit the discussion settings page, activate 'Show Avatars'? You have to enable avatars for this plugin to be able to do anything.
 
 = I saved the settings and still don't see any changes. How do I know the plugin works? =
 
-Depending on which options you selected, you wouldn't see a change in the way the page looks. The changes are visible in the source code though:
+Depending on which options you selected, you might not see a change in the way the page looks. The changes are visible in the source code though:
 
-* Don't publish encrypted e-mail addresses for non-members of Gravatar.com: Look at the gravatar image URL of a user without a gravatar. The plugin works if the URL looks like `http://1.gravatar.com/avatar/[long MD5 token]?s=68` instead of `http://1.gravatar.com/avatar/[other long MD5 token]?s=68&d=http%3A%2F%2F1.gravatar.com%2Favatar%2F[long MD5 token]%3Fs%3D68&r=PG`. There aren't two URLs in there anymore, only one, and the default URL looks the same for two comments without a gravatar.
-* Let users and commenters opt in or out of using gravatars: You should see the checkbox on the comment form. You need to log out though to see it. If you are logged in, you should see a similar checkbox in your user profile in the WordPress backend.
+* Look at the gravatar image URL of a user without a gravatar. The plugin works if the URL looks like `[your site]/wp-content/uploads/avatar-privacy/cache/gravatars/[x]/[y]/[long SHA256 token]-68.png` instead of `http://1.gravatar.com/avatar/[other long MD5 token]?s=68&d=http%3A%2F%2F1.gravatar.com%2Favatar%2F[long MD5 token]%3Fs%3D68&r=PG`. There aren't two URLs in there anymore, only one, and the default URL looks the same for two comments without a gravatar.
+* You should see the checkbox on the comment form. You need to log out though to see it. If you are logged in, you should see a similar checkbox in your user profile in the WordPress backend.
 
 = I still don't see the checkbox in the comment form!? Everything else works. =
 
-Then you probably don't use a modern theme which makes use of the function comment_form() to create the comment form. Check if you can find this function used in comments.php or a similar file of your theme. If you do and it still doesn't work, tell me. Otherwise chances are that you do have to add the checkbox manually. Use this function:
+Then you probably don't use a modern theme which makes use of the function `comment_form()` to create the comment form. Check if you can find this function used in `comments.php` or a similar file of your theme. If you do and it still doesn't work, tell me. Otherwise chances are that you do have to add the checkbox manually. Use this function:
 
 `<?php if (function_exists('avapr_get_avatar_checkbox')) echo avapr_get_avatar_checkbox(); ?>`
-
-= I'm confused by all the settings. What should I select? =
-
-For a maximum effect, check both "Don't publish encrypted e-mail addresses for non-members of Gravatar.com." and "Let users and commenters opt in or out of using gravatars.". Whether you want to enable the latter or not depends on whether you think this will demand too much from your potential commenters.
-
-For a maximum privacy effect, select "The checkbox is... not checked by default". Then people wanting to use gravatars would actively have to tick this box. If you just want to give concerned visitors the chance not to display gravatars, but want to use gravatars for everyone els as a default, select "The checkbox is... checked by default".
-
-The default value is necessary for older comments and user profiles that haven't been saved since activating the plugin. If you did have gravatars enabled before, choose "Show gravatars" here, otherwise "Don't show gravatars". If you are newly enabling gravatars on your site and have already lots of comments, you can of course select "Show gravatars", so that these comments won't look odd because none of them has a gravatar. It would be a bit unfair to your users though, since they commented when there weren't any gravatars on your site. For regular commenters, the gravatars will start to show up over time anyway, since the per-commenter setting of showing gravatars or not is per commenter, not per comment.
-
-Last, scroll up a bit and select one of the local default avatar icons added to the bottom of the list. Their advantage is that together with the rest of the plugin options they can reduce (public) calls to Gravatar.com. You are depending a bit less on an external resource and a bit less data flows to Gravatar.com.
 
 = What happens if I disable the plugin? Are any of the data altered? =
 
@@ -131,13 +120,7 @@ Yes, it certainly can. You have to be careful though which plugin options you se
 
 = Can this plugin be used on a multisite installation? =
 
-Yes, the plugin can be used on a multisite installation. You can either activate it on individual blogs or do a network activation. Options will be set per blog, so the blog admins need to decide which options to use. What will be global is the table for the 'Let users and commenters opt in or out of using gravatars.' option: A global table 'wp_avatar_privacy' will be created that is shared across all blogs. So if a user comments on blog A and chooses to display gravatars, this decision will be followed on blog B and C too.
-
-I develop and use this plugin on a multisite installation with three blogs. Any network with a comparatively small number of blogs should be fine. I haven't really thought about the implications of using the plugin on a network with many 'sites' (as opposed to 'blogs'). Does anybody even do that with WordPress?!
-
-= Why is a minimal WordPress version of 3.2 required? Will it work with older WordPress installations? =
-
-I chose WP 3.2 since that was the release that dropped support for PHP 4 and I didn't want to support that. While I'm writing the initial release of this plugin, WP 3.3 is the current release. I will be testing with WP 3.2, but not with older versions. It's reasonable to assume that it works with versions since WP 3.0 at least if you use PHP 5. There is a check in the main plugin file that checks for PHP and WP versions and doesn't load the plugin on older versions. If you absolutely must use it with older WP versions, comment out the lines after the 'check minimum WP requirements' comment.
+Yes, the plugin can be used on a multisite installation. You can either activate it on individual blogs or do a network activation. As users are global to a multisite installation, their choice regarding Gravatar.com use will affect all sites in the network. So if a user comments on blog A and chooses to display gravatars, this decision will be followed on blog B and C too. On new installations, comment author (i.e. non-user) opt-in is recorded per site, not per network. If you first installed Avatar Privacy 0.4 or earlier, the global table `wp_avatar_privacy` continues to be used for all sites in the multisite network. This behavior can be overriden by the network admin via the filter hook `avatar_privacy_enable_global_table`.
 
 = Won't spam comments flood the database table with useless entries for the checkbox in the comment form? =
 
@@ -152,13 +135,18 @@ No, for registered users the user profile is checked, not the table for the comm
 I used Avatar Privacy together with these plugins:
 
 * [AntiSpam Bee](http://wordpress.org/extend/plugins/antispam-bee/)
-* [Twitter Avatar Reloaded](http://wordpress.org/extend/plugins/twitter-avatar-reloaded/)
-* [User Photo](http://wordpress.org/extend/plugins/user-photo/) (worked on normal WP installation, haven't tried MultiSite; the plugin is a bit outdated and needs some general fixes)
 
 If you find any problems with particular plugins, please tell me!
 
 
 == Changelog ==
+
+= 0.4 (2018-04-17) =
+* adapted the plugin to some subtle changes in how WordPress handles the avatar filter (mainly, default icons arent't passed as URLs anymore)
+* added support for the srcset attribute
+* raised minimum PHP version to 5.6.0
+* raised minimum WordPress version to 4.2
+* checked compatibility with WP 4.9.5
 
 = 0.3 (2013-02-24) =
 * used transients API to cache results of requests to Gravatar.com for a small amount of time
