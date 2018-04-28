@@ -89,7 +89,8 @@ class Images implements \Avatar_Privacy\Component {
 		self::SVG_IMAGE  => self::SVG_EXTENSION,
 	];
 
-	const CRON_JOB_LOCK = 'cron_job_lock';
+	const CRON_JOB_LOCK_GRAVATARS  = 'cron_job_lock_gravatars';
+	const CRON_JOB_LOCK_ALL_IMAGES = 'cron_job_lock_all_images';
 
 	/**
 	 * The options handler.
@@ -424,8 +425,36 @@ class Images implements \Avatar_Privacy\Component {
 	 * would not be picked up.
 	 */
 	public function enable_image_cache_cleanup() {
-		\add_action( 'avatar_privacy_daily', [ $this, 'trim_image_cache' ] );
+		// Schedule our cron action.
 		\wp_schedule_event( \time(), 'daily', 'avatar_privacy_daily' );
+
+		// Add separate jobs for gravatars other images.
+		\add_action( 'avatar_privacy_daily', [ $this, 'trim_gravatar_cache' ] );
+		\add_action( 'avatar_privacy_daily', [ $this, 'trim_image_cache' ] );
+	}
+
+	/**
+	 * Deletes cached gravatar images that are too old. Uses a site transient to ensure
+	 * that the clean-up happens only once per day on multisite installations.
+	 */
+	public function trim_gravatar_cache() {
+		if ( ! $this->site_transients->get( self::CRON_JOB_LOCK_GRAVATARS ) ) {
+			/**
+			 * Filters how long cached gravatar images are kept.
+			 *
+			 * @param int $max_age The maximum age of the cached files (in seconds). Default 2 days.
+			 */
+			$max_age = \apply_filters( 'avatar_privacy_gravatars_max_age', 2 * DAY_IN_SECONDS );
+
+			/**
+			 * Filters how often the clean-up cron job for old gravatar images should run.
+			 *
+			 * @param int $interval Time until the cron job should run again (in seconds). Default 1 day.
+			 */
+			$interval = \apply_filters( 'avatar_privacy_gravatars_cleanup_interval', DAY_IN_SECONDS );
+
+			$this->invalidate_cached_images( self::CRON_JOB_LOCK_GRAVATARS, 'gravatar', $interval, $max_age );
+		}
 	}
 
 	/**
@@ -433,11 +462,45 @@ class Images implements \Avatar_Privacy\Component {
 	 * that the clean-up happens only once per day on multisite installations.
 	 */
 	public function trim_image_cache() {
-		if ( ! $this->site_transients->get( self::CRON_JOB_LOCK ) ) {
-			$this->file_cache->invalidate_files_older_than( 2 * DAY_IN_SECONDS );
+		if ( ! $this->site_transients->get( self::CRON_JOB_LOCK_ALL_IMAGES ) ) {
+			/**
+			 * Filters how long cached images are kept.
+			 *
+			 * Normally, generated default icons and local avatar images don't
+			 * change, so they can be kept longer than gravatars. To keep cache
+			 * size under control, the limit should be set approximately between
+			 * a week and a month, depending on the number of commenters on your
+			 * site.
+			 *
+			 * @param int $max_age The maximum age of the cached files (in seconds). Default 1 week.
+			 */
+			$max_age = \apply_filters( 'avatar_privacy_all_images_max_age', 7 * DAY_IN_SECONDS );
 
-			$this->site_transients->set( self::CRON_JOB_LOCK, 'wewantprivacy', DAY_IN_SECONDS );
+			/**
+			 * Filters how often the clean-up cron job for old images should run.
+			 *
+			 * @param int $interval Time until the cron job should run again (in seconds). Default 1 week.
+			 */
+			$interval = \apply_filters( 'avatar_privacy_all_images_cleanup_interval', 7 * DAY_IN_SECONDS );
+
+			$this->invalidate_cached_images( self::CRON_JOB_LOCK_ALL_IMAGES, '', $interval, $max_age );
 		}
+	}
+
+	/**
+	 * Removes all files older than the maximum age from given subdirectory.
+	 *
+	 * @param  string $lock     The site transient key for ensuring that the job is not run more often than necessary.
+	 * @param  string $subdir   The subdirectory to clean.
+	 * @param  int    $interval The cron job run interval in seconds.
+	 * @param  int    $max_age  The maximum age of the image files in seconds.
+	 */
+	private function invalidate_cached_images( $lock, $subdir, $interval, $max_age ) {
+		// Invalidate all files in the subdirectory older than the maximum age.
+		$this->file_cache->invalidate_files_older_than( $max_age, $subdir );
+
+		// Don't run the job again until the interval is up.
+		$this->site_transients->set( $lock, true, $interval );
 	}
 
 	/**
