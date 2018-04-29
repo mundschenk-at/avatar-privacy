@@ -176,7 +176,14 @@ class Filesystem_Cache {
 	 * @param string $regex  Optional. Limit invalidation to files matching the given regular expression. Default ''.
 	 */
 	public function invalidate( $subdir = '', $regex = '' ) {
-		foreach ( $this->get_recursive_file_iterator( $subdir, $regex ) as $path => $file ) {
+		try {
+			$iterator = $this->get_recursive_file_iterator( $subdir, $regex );
+		} catch ( \UnexpectedValueException $e ) {
+			// Ignore non-existing subdirectories.
+			return;
+		}
+
+		foreach ( $iterator as $path => $file ) {
 			if ( $file->isWritable() ) {
 
 				if ( $file->isDir() ) {
@@ -196,9 +203,15 @@ class Filesystem_Cache {
 	 * @param  string $regex  Optional. Limit invalidation to files matching the given regular expression. Default ''.
 	 */
 	public function invalidate_files_older_than( $age, $subdir = '', $regex = '' ) {
-		$now = \time();
+		try {
+			$now      = \time();
+			$iterator = $this->get_recursive_file_iterator( $subdir, $regex );
+		} catch ( \UnexpectedValueException $e ) {
+			// Ignore non-existing subdirectories.
+			return;
+		}
 
-		foreach ( $this->get_recursive_file_iterator( $subdir, $regex ) as $path => $file ) {
+		foreach ( $iterator as $path => $file ) {
 			if ( $file->isWritable() && ! $file->isDir() && $now - $file->getMTime() > $age ) {
 				\unlink( $path ); // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow
 			}
