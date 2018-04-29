@@ -100,6 +100,13 @@ class User_Avatar_Upload {
 	private $base_url;
 
 	/**
+	 * The core API.
+	 *
+	 * @var \Avatar_Privacy_Core
+	 */
+	private $core;
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param string           $plugin_file The full path to the base plugin file.
@@ -108,6 +115,15 @@ class User_Avatar_Upload {
 	public function __construct( $plugin_file, Filesystem_Cache $file_cache ) {
 		$this->plugin_file = $plugin_file;
 		$this->file_cache  = $file_cache;
+	}
+
+	/**
+	 * Sets the core API instance to use.
+	 *
+	 * @param \Avatar_Privacy_Core $core The core API.
+	 */
+	public function set_core( \Avatar_Privacy_Core $core ) {
+		$this->core = $core;
 	}
 
 	/**
@@ -264,7 +280,7 @@ class User_Avatar_Upload {
 	 * @param  int $user_id The user ID.
 	 */
 	public function delete_uploaded_avatar( $user_id ) {
-		$hash = \get_user_meta( $user_id, \Avatar_Privacy_Core::EMAIL_HASH_META_KEY, true );
+		$hash = $this->core->get_user_hash( $user_id );
 
 		$this->file_cache->invalidate( 'user', "#/{$hash}-[1-9][0-9]*\.[a-z]{3}\$#" );
 
@@ -277,21 +293,20 @@ class User_Avatar_Upload {
 	/**
 	 * Retrieves the URL for the given default icon type.
 	 *
-	 * @param  string[]             $avatar  The full-size avatar image information.
-	 * @param  string               $email   The mail address used to generate the identity hash.
-	 * @param  int                  $size    The requested size in pixels.
-	 * @param  \Avatar_Privacy_Core $core    The core API.
-	 * @param  bool                 $force   Optional. Whether to force the regeneration of the icon. Default false.
+	 * @param  string[] $avatar  The full-size avatar image information.
+	 * @param  string   $email   The mail address used to generate the identity hash.
+	 * @param  int      $size    The requested size in pixels.
+	 * @param  bool     $force   Optional. Whether to force the regeneration of the icon. Default false.
 	 *
 	 * @return string
 	 */
-	public function get_icon_url( array $avatar, $email, $size, \Avatar_Privacy_Core $core, $force = false ) {
+	public function get_icon_url( array $avatar, $email, $size, $force = false ) {
 		if ( empty( $this->base_dir ) || empty( $this->base_url ) ) {
 			$this->base_url = $this->file_cache->get_base_url();
 			$this->base_dir = $this->file_cache->get_base_dir();
 		}
 
-		$hash      = $core->get_hash( $email );
+		$hash      = $this->core->get_hash( $email );
 		$extension = \Avatar_Privacy\Components\Images::FILE_EXTENSION[ $avatar['type'] ];
 		$filename  = "user/{$this->get_sub_dir( $hash )}/{$hash}-{$size}.{$extension}";
 		$target    = "{$this->base_dir}{$filename}";

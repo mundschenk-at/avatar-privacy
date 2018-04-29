@@ -92,6 +92,8 @@ class User_Profile implements \Avatar_Privacy\Component {
 	 * @return void
 	 */
 	public function run( \Avatar_Privacy_Core $core ) {
+		$this->upload->set_core( $core );
+
 		if ( \is_admin() ) {
 			\add_action( 'admin_init', [ $this, 'admin_init' ] );
 		}

@@ -415,7 +415,7 @@ class Images implements \Avatar_Privacy\Component {
 	 * @return string
 	 */
 	public function user_avatar_icon_url( array $avatar, $email, $size, $force = false ) {
-		return $this->user_avatar->get_icon_url( $avatar, $email, $size, $this->core, $force );
+		return $this->user_avatar->get_icon_url( $avatar, $email, $size, $force );
 	}
 
 
