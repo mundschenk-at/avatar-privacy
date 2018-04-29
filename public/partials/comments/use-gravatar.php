@@ -27,12 +27,22 @@
 
 use Avatar_Privacy\Components\Comments;
 
+// Allowed HTML tags in the checkbox label.
 $allowed_html = [
 	'a' => [
 		'href' => true,
 	],
 ];
 
+/**
+ * Filters whether `style="display:inline;"` should be added to the label of the
+ * `use_gravatar` checkbox in the comments form.
+ *
+ * @param bool $disable Default false.
+ */
+$disable_style = \apply_filters( 'avatar_privacy_comment_checkbox_disable_inline_style', false );
+
+// Determine if the checkbox should be checked.
 $is_checked = false;
 if ( isset( $_POST[ Comments::CHECKBOX_FIELD_NAME ] ) ) { // WPCS: CSRF ok, Input var okay.
 	// Re-displaying the comment form with validation errors.
@@ -44,6 +54,11 @@ if ( isset( $_POST[ Comments::CHECKBOX_FIELD_NAME ] ) ) { // WPCS: CSRF ok, Inpu
 ?>
 <p class="comment-form-use-gravatar">
 	<input id="<?php echo \esc_attr( Comments::CHECKBOX_FIELD_NAME ); ?>" name="<?php echo \esc_attr( Comments::CHECKBOX_FIELD_NAME ); ?>" type="checkbox" value="true" <?php \checked( $is_checked, true, false ); ?> />
-	<label for="<?php echo \esc_attr( Comments::CHECKBOX_FIELD_NAME ); ?>"><?php \printf( /* translators: gravatar.com URL */ \wp_kses( \__( 'Display a <a href="%s">Gravatar</a> image next to my comments.', 'avatar-privacy' ), $allowed_html ), 'https://gravatar.com' ); ?></label>
+	<label
+	<?php if ( ! $disable_style ) : ?>
+		style="display:inline;"
+	<?php endif; ?>
+		for="<?php echo \esc_attr( Comments::CHECKBOX_FIELD_NAME ); ?>"
+	><?php \printf( /* translators: gravatar.com URL */ \wp_kses( \__( 'Display a <a href="%s">Gravatar</a> image next to my comments.', 'avatar-privacy' ), $allowed_html ), 'https://gravatar.com' ); ?></label>
 </p>
 <?php
