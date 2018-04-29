@@ -126,6 +126,12 @@ Yes, the plugin can be used on a multisite installation. You can either activate
 
 The plugin doesn't save the value of the "use gravatar" checkbox for comments by registered users (see below), trackbacks/pingbacks (there is no e-mail address) and comments that are marked as spam when they are saved. If you mark a comment as spam later, the table entry is not removed, since the same e-mail address might also be used by non-spam comments. If a comment is marked as spam by Akismet or similar plugins and you later manually mark it as non-spam, what the user selected when submitting the comment will already be lost. This only happens with spam comments, not comments who just need to be moderated, e.g. because of the 'needs at least one published comment' rule.
 
+= Will the avatar caching make my disk space run out? =
+
+While storing the cached avatar images on your own server will take some extra disk space, the plugin makes sure that it does not grow out of bounds by deleting cached gravatars every other day and all other images once a week. When the cached file is accessed again, it is automatically regenerated.
+
+If you don't have to worry about the amount of disk space consumed, you can extend the maximum age of cached files via the filter hooks `avatar_privacy_gravatars_max_age` and `avatar_privacy_all_images_max_age`. The cron job intervals can also be adjusted via hooks (`avatar_privacy_gravatars_cleanup_interval` and `avatar_privacy_all_images_cleanup_interval`, respectively).
+
 = Can commenters override a registered user's choice whether to display a gravatar by creating fake comments? =
 
 No, for registered users the user profile is checked, not the table for the commenter's choices. Commenters can not override this value, not even the user themselves if they post a comment when not signed-in.

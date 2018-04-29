@@ -97,6 +97,14 @@ Yes, it certainly can. You have to be careful though which plugin options you se
 Yes, the plugin can be used on a multisite installation. You can either activate it on individual blogs or do a network activation. As users are global to a multisite installation, their choice regarding Gravatar.com use will affect all sites in the network. So if a user comments on blog A and chooses to display gravatars, this decision will be followed on blog B and C too. On new installations, comment author (i.e. non-user) opt-in is recorded per site, not per network. If you first installed Avatar Privacy 0.4 or earlier, the global table `wp_avatar_privacy` continues to be used for all sites in the multisite network. This behavior can be overriden by the network admin via the filter hook `avatar_privacy_enable_global_table`.
 
 
+
+### Will the avatar caching make my disk space run out?
+
+While storing the cached avatar images on your own server will take some extra disk space, the plugin makes sure that it does not grow out of bounds by deleting cached gravatars every other day and all other images once a week. When the cached file is accessed again, it is automatically regenerated.
+
+If you don't have to worry about the amount of disk space consumed, you can extend the maximum age of cached files via the filter hooks `avatar_privacy_gravatars_max_age` and `avatar_privacy_all_images_max_age`. The cron job intervals can also be adjusted via hooks (`avatar_privacy_gravatars_cleanup_interval` and `avatar_privacy_all_images_cleanup_interval`, respectively).
+
+
 ### Won't spam comments flood the database table with useless entries for the checkbox in the comment form?
 
 The plugin doesn't save the value of the "use gravatar" checkbox for comments by registered users (see below), trackbacks/pingbacks (there is no e-mail address) and comments that are marked as spam when they are saved. If you mark a comment as spam later, the table entry is not removed, since the same e-mail address might also be used by non-spam comments. If a comment is marked as spam by Akismet or similar plugins and you later manually mark it as non-spam, what the user selected when submitting the comment will already be lost. This only happens with spam comments, not comments who just need to be moderated, e.g. because of the 'needs at least one published comment' rule.
