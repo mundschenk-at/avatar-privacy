@@ -144,13 +144,7 @@ class User_Avatar_Upload {
 			$this->user_id_being_edited = $user_id;
 
 			// Upload to our custom directory.
-			\add_filter( 'upload_dir', [ $this, 'custom_upload_dir' ] );
-			$avatar = \wp_handle_upload( $_FILES[ self::FILE_UPLOAD ], [ // WPCS: Input var okay. Sanitization ok.
-				'mimes'                    => self::ALLOWED_MIME_TYPES,
-				'test_form'                => false,
-				'unique_filename_callback' => [ $this, 'get_unique_filename' ],
-			] );
-			\remove_filter( 'upload_dir', [ $this, 'custom_upload_dir' ] );
+			$avatar = $this->upload( $_FILES[ self::FILE_UPLOAD ] ); // WPCS: Input var okay. Sanitization ok.
 
 			// Handle upload failures.
 			if ( empty( $avatar['file'] ) ) {
@@ -164,6 +158,33 @@ class User_Avatar_Upload {
 			// Just delete the current avatar.
 			$this->delete_uploaded_avatar( $user_id );
 		}
+	}
+
+	/**
+	 * Handles the file upload by switching to the primary site of the network.
+	 *
+	 * @param  array $file  A slice of the $_FILES superglobal.
+	 *
+	 * @return string[]     Information about the uploaded file.
+	 */
+	private function upload( array $file ) {
+		if ( \is_multisite() ) {
+			\switch_to_blog( \get_network()->site_id );
+		}
+
+		\add_filter( 'upload_dir', [ $this, 'custom_upload_dir' ] );
+		$avatar = \wp_handle_upload( $file, [
+			'mimes'                    => self::ALLOWED_MIME_TYPES,
+			'test_form'                => false,
+			'unique_filename_callback' => [ $this, 'get_unique_filename' ],
+		] );
+		\remove_filter( 'upload_dir', [ $this, 'custom_upload_dir' ] );
+
+		if ( \is_multisite() ) {
+			\restore_current_blog();
+		}
+
+		return $avatar;
 	}
 
 	/**
@@ -266,15 +287,14 @@ class User_Avatar_Upload {
 	 */
 	public function get_icon_url( array $avatar, $email, $size, \Avatar_Privacy_Core $core, $force = false ) {
 		if ( empty( $this->base_dir ) || empty( $this->base_url ) ) {
-			$uploads        = \wp_get_upload_dir();
-			$this->base_url = $uploads['baseurl'];
-			$this->base_dir = $uploads['basedir'];
+			$this->base_url = $this->file_cache->get_base_url();
+			$this->base_dir = $this->file_cache->get_base_dir();
 		}
 
 		$hash      = $core->get_hash( $email );
 		$extension = \Avatar_Privacy\Components\Images::FILE_EXTENSION[ $avatar['type'] ];
 		$filename  = "user/{$this->get_sub_dir( $hash )}/{$hash}-{$size}.{$extension}";
-		$target    = "{$this->file_cache->get_base_dir()}{$filename}";
+		$target    = "{$this->base_dir}{$filename}";
 
 		if ( $force || ! \file_exists( $target ) ) {
 			$data = Images\Editor::get_resized_image_data(
@@ -289,7 +309,7 @@ class User_Avatar_Upload {
 			$this->file_cache->set( $filename, $data, $force );
 		}
 
-		return \str_replace( $this->base_dir, $this->base_url, $target );
+		return "{$this->base_url}{$filename}";
 	}
 
 	/**
