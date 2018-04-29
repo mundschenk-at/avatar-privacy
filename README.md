@@ -5,7 +5,7 @@ Avatars from Gravatar.com are great, but they come with certain privacy implicat
 The plugin works without changing your theme files if you use a modern theme, and it does support (simple) multisite installations. It requires at least PHP 5.6 and WordPress 4.6. For the plugin to do anything for you, you need to visit the discussion settings page in the WordPress admin area and enable `Show Avatars`. Please note that the plugin does not provide an options page of its own, it rather adds to the existing discussion settings page.
 
 
-### Features
+## Features
 
 The plugin's features summed up. See following sections for longer explanations:
 
@@ -36,7 +36,7 @@ The plugin offers some measures to deal with these problems. It's not perfect or
 5.  The plugin does nothing against the **fake identity** problem. It's questionable if any countermeasures would even be possible without changing the way that Gravatar.com works. Stealing identities is always possible, you can do it with a comment form without gravatars just as well. So that's not really the focus of this plugin.
 
 
-### Uninstallation
+## Uninstallation
 
 There is a difference between deactivating the plugin and uninstalling it. The plugin gets deactivated if you do so on the plugins page or if you simply delete the plugin files via FTP. No uninstallation tasks are performed then, so you can activate and deactivate the plugin as you want without losing the plugin's settings.
 
