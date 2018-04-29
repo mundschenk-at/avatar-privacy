@@ -49,9 +49,19 @@ class Comments implements \Avatar_Privacy\Component {
 	private $core;
 
 	/**
-	 * Creates a new instance.
+	 * The full path to the main plugin file.
+	 *
+	 * @var string
 	 */
-	public function __construct() {
+	private $plugin_file;
+
+	/**
+	 * Creates a new instance.
+	 *
+	 * @param string $plugin_file The full path to the base plugin file.
+	 */
+	public function __construct( $plugin_file ) {
+		$this->plugin_file = $plugin_file;
 	}
 
 	/**
@@ -93,18 +103,7 @@ class Comments implements \Avatar_Privacy\Component {
 		}
 
 		// Define the new checkbox field.
-		$is_checked = false;
-		if ( isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) ) { // WPCS: CSRF ok, Input var okay.
-			// Re-displaying the comment form with validation errors.
-			$is_checked = ! empty( $_POST[ self::CHECKBOX_FIELD_NAME ] ); // WPCS: CSRF ok, Input var okay.
-		} elseif ( isset( $_COOKIE[ 'comment_use_gravatar_' . COOKIEHASH ] ) ) { // Input var okay.
-			// Read the value from the cookie, saved with previous comment.
-			$is_checked = ! empty( $_COOKIE[ 'comment_use_gravatar_' . COOKIEHASH ] ); // Input var okay.
-		}
-		$new_field = '<p class="comment-form-use-gravatar">'
-		. '<input id="' . self::CHECKBOX_FIELD_NAME . '" name="' . self::CHECKBOX_FIELD_NAME . '" type="checkbox" value="true"' . checked( $is_checked, true, false ) . ' " />'
-		. '<label for="' . self::CHECKBOX_FIELD_NAME . '">' . sprintf( /* translators: gravatar.com URL */ __( 'Display a <a href="%s">Gravatar</a> image next to my comments.', 'avatar-privacy' ), 'https://gravatar.com' ) . '</label> '
-		. '</p>';
+		$new_field = self::get_gravatar_checkbox( $this->plugin_file );
 
 		// Either add the new field after the E-Mail field or at the end of the array.
 		if ( isset( $fields['email'] ) ) {
@@ -121,6 +120,24 @@ class Comments implements \Avatar_Privacy\Component {
 		}
 
 		return $fields;
+	}
+
+	/**
+	 * Retrieves the markup for the use_gravatar checkbox for the comment form.
+	 *
+	 * @param  string $path The path to the main plugin file.
+	 *
+	 * @return string
+	 */
+	public static function get_gravatar_checkbox( $path ) {
+		// Start output buffering.
+		\ob_start();
+
+		// Include the partial.
+		require \dirname( $path ) . '/public/partials/comments/use-gravatar.php';
+
+		// Return included markup.
+		return \ob_get_clean();
 	}
 
 	/**
