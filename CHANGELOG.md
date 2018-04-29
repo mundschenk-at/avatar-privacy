@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4 (2018-04-17)
+*   adapted the plugin to some subtle changes in how WordPress handles the avatar
+    filter (mainly, default icons arent't passed as URLs anymore)
+*   added support for the srcset attribute
+*   raised minimum PHP version to 5.6.0
+*   raised minimum WordPress version to 4.2
+*   checked compatibility with WP 4.9.5
+
 
 ## 0.3 (2013-02-24)
 *   used transients API to cache results of requests to gravatar.com for a small
