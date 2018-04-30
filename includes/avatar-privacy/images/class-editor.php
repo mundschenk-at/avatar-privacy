@@ -35,6 +35,9 @@ namespace Avatar_Privacy\Images;
  */
 abstract class Editor {
 
+	const MEMORY_HANDLE = 'image_editor';
+	const STREAM        = Image_Stream::PROTOCOL . '://' . self::MEMORY_HANDLE . '/dummy/path';
+
 	/**
 	 * Retrieves the image data from the given editor object.
 	 *
@@ -46,27 +49,17 @@ abstract class Editor {
 	public static function get_image_data( $image, $format = 'image/png' ) {
 
 		// Check for validity.
-		if ( \is_wp_error( $image ) ) {
+		if ( $image instanceof \WP_Error ) {
 			return '';
 		}
 
 		// Convert the image to PNG format and extract data.
-		$result = $image->save( 'php://memory', $format );
-		if ( \is_wp_error( $result ) || empty( $result['path'] ) ) {
+		if ( $image->save( self::STREAM, $format ) instanceof \WP_Error ) {
 			return '';
 		}
 
-		// Read the data from memory stream.
-		$fp = \fopen( $result['path'], 'r+' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
-		if ( false === $fp ) {
-			// Something went wrong.
-			return '';
-		}
-		$data = \stream_get_contents( $fp );
-		\fclose( $fp );                          // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
-
-		// Return result.
-		return $data;
+		// Read the data from memory stream and clean up.
+		return Image_Stream::get_data( self::MEMORY_HANDLE, true );
 	}
 
 	/**
@@ -82,14 +75,8 @@ abstract class Editor {
 	 */
 	public static function get_resized_image_data( $image, $width, $height, $crop = false, $format = 'image/png' ) {
 
-		// Check for validity.
-		if ( \is_wp_error( $image ) ) {
-			return '';
-		}
-
-		// Try to resize image.
-		$result = $image->resize( $width, $height, $crop );
-		if ( \is_wp_error( $result ) ) {
+		// Try to resize only if we haven't been handed an error object.
+		if ( $image instanceof \WP_Error || $image->resize( $width, $height, $crop ) instanceof \WP_Error ) {
 			return '';
 		}
 
