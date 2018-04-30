@@ -7,3 +7,6 @@ node_modules/
 
 # Build artifacts
 build/
+
+# macOS
+.DS_Store
