@@ -4,6 +4,8 @@ module.exports = function( grunt ) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON( 'package.json' ),
 
+		wpversion: grunt.file.read( 'avatar-privacy.php' ).toString().match(/Version:\s*([0-9](?:\w|\.|\-)*)\s|\Z/)[1],
+
     clean: {
         build: ["build/*"],
         autoloader: [ "build/tests", "build/composer.*", "build/vendor/composer/*.json", "build/vendor/mundschenk-at/composer-for-wordpress/**" ]
@@ -263,6 +265,21 @@ module.exports = function( grunt ) {
 				})
 			},
 		},
+
+		compress: {
+			beta: {
+				options: {
+					mode: 'zip',
+					archive: '<%= pkg.name %>-<%= wpversion %>.zip'
+				},
+				files: [{
+						expand: true,
+						cwd: 'build/',
+						src: [ '**/*' ],
+						dest: '<%= pkg.name %>/',
+				}],
+			}
+		},
 	});
 
 	// load all tasks
@@ -287,6 +304,11 @@ module.exports = function( grunt ) {
 			'composer:build:dump-autoload:classmap-authoritative:no-dev',
 			'clean:autoloader',
 			'string-replace:autoloader',
+	] );
+
+	grunt.registerTask( 'build-beta', [
+			'build',
+			'compress:beta',
 	] );
 
 	// dynamically generate uglify targets
