@@ -513,8 +513,8 @@ class Images implements \Avatar_Privacy\Component {
 	private static function get_user_by_hash( $hash ) {
 		$users = \get_users( [
 			'number'       => 1,
-			'meta_key'     => \Avatar_Privacy_Core::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key
-			'meta_value'   => $hash, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_value
+			'meta_key'     => \Avatar_Privacy_Core::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key, WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine
+			'meta_value'   => $hash, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_value, WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine
 			'meta_compare' => '=',
 		] );
 

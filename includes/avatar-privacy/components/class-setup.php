@@ -253,7 +253,7 @@ class Setup implements \Avatar_Privacy\Component {
 	private static function delete_uploaded_avatars() {
 		$user_avatar = User_Avatar_Upload::USER_META_KEY;
 		$users       = \get_users( [
-			'meta_key'     => $user_avatar, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key
+			'meta_key'     => $user_avatar, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key, WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine
 			'meta_compare' => 'EXISTS',
 		] );
 
@@ -459,7 +459,7 @@ class Setup implements \Avatar_Privacy\Component {
 	 */
 	private function maybe_update_user_hashes() {
 		$users = \get_users( [
-			'meta_key'     => \Avatar_Privacy_Core::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key
+			'meta_key'     => \Avatar_Privacy_Core::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key, WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine
 			'meta_compare' => 'NOT EXISTS',
 		] );
 
