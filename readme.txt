@@ -1,8 +1,8 @@
 === Avatar Privacy ===
 Contributors: Ammaletu, pputzer
 Plugin Name: Avatar Privacy
-Plugin URI: http://wordpress.org/extend/plugins/avatar-privacy/
-Author URI: http://code.freudendahl.net/
+Plugin URI: https://code.mundschenk.at/avatar-privacy/
+Author URI: https://code.mundschenk.at/
 Tags: gravatar, avatar, privacy
 Requires at least: 4.6
 Requires PHP: 5.6
@@ -49,7 +49,17 @@ The plugin offers some measures to deal with these problems. It's not perfect or
 
 = Feedback =
 
-The plugin is still quite new. Please use it with caution and report any problems. You can use the contact form on [my code site](http://code.mundschenk.at) or  create a forum topic on https://wordpress.org/support/plugin/avatar-privacy. I'll see these pop up in my feed reader and hopefully will reply shortly. ;-) You can contact me in German or English.
+The plugin is still quite new. Please use it with caution and report any problems. You can use the contact form on [my code site](https://code.mundschenk.at/avatar-privacy/) or  create a forum topic on https://wordpress.org/support/plugin/avatar-privacy. I'll see these pop up in my feed reader and hopefully will reply shortly. ;-) You can contact me in German or English.
+
+= Credits =
+
+Avatar Privacy is based on the original plugin by [Johannes Freudendahl](http://code.freudendahl.net/projekte/avatar-privacy/). The new release also includes work by several other people:
+
+Daniel Mester Pirttijärvi ([Jdenticon](https://jdenticon.com)),
+Shamus Young ([Wavatars](https://shamusyoung.com/twentysidedtale/?p=1462")),
+Andreas Gohr (the original [MonsterID](https://www.splitbrain.org/blog/2007-01/20_monsterid_as_gravatar_fallback) and [RingIcon](https://github.com/splitbrain/php-ringicon)),
+Scott Sherrill-Mix & Katherine Garner (the [hand-drawn monster update](http://scott.sherrillmix.com/blog/blogger/wp_monsterid-update-hand-drawn-monsters/)), and
+Benjamin Laugueux ([Identicon](https://github.com/yzalis/Identicon)).
 
 
 == Installation ==
@@ -146,6 +156,15 @@ If you find any problems with particular plugins, please tell me!
 
 
 == Changelog ==
+
+= 1.0 (unreleased) =
+* _Change_: Refactored according to modern development principles.
+* _Change_: Removed settings in favor of sensible default values and filter hooks:
+  - Gravatar.com usage is opt-in and gravatars are only displayed if the exist.
+	- The default behavior for legacy comments can be customized via the `avatar_privacy_gravatar_use_default` filter hook.
+* _Feature_: All default avatars are generated on your server.
+* _Feature_: Gravatar.com avatars are cached locally.
+* _Feature_: Registered users can upload their own avatar images to your server.
 
 = 0.4 (2018-04-17) =
 * adapted the plugin to some subtle changes in how WordPress handles the avatar filter (mainly, default icons arent't passed as URLs anymore)
