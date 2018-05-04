@@ -164,7 +164,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		$mimetype      = '';
 
 		// Process the user identifier.
-		list( $user_id, $email ) = $this->parse_id_or_email( $id_or_email );
+		list( $user_id, $email, $age ) = $this->parse_id_or_email( $id_or_email );
 
 		// Find out if the user opted out of displaying a gravatar.
 		if ( ! $force_default && ( $user_id || $email ) ) {
@@ -226,7 +226,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			 * @param int]false $user_id      A WordPress user ID (or false).
 			 */
 			if ( \apply_filters( 'avatar_privacy_enable_gravatar_check', true, $email, $user_id ) ) {
-				$show_gravatar = $this->validate_gravatar( $email, $mimetype );
+				$show_gravatar = $this->validate_gravatar( $email, $age, $mimetype );
 			}
 		}
 
@@ -269,11 +269,12 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 *
 	 * @param  int|string|object $id_or_email The Gravatar to retrieve. Accepts a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
 	 *
-	 * @return array                          The tuple [ $user_id, $email ],
+	 * @return array                          The tuple [ $user_id, $email, $age ],
 	 */
 	private function parse_id_or_email( $id_or_email ) {
 		$user_id = false;
 		$email   = '';
+		$age     = 0;
 
 		if ( is_numeric( $id_or_email ) ) {
 			$user_id = absint( $id_or_email );
@@ -287,6 +288,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		} elseif ( $id_or_email instanceof \WP_Post ) {
 			// Post object.
 			$user_id = (int) $id_or_email->post_author;
+			$age     = \time() - \mysql2date( 'U', $id_or_email->post_date_gmt );
 		} elseif ( $id_or_email instanceof \WP_Comment ) {
 			/** This filter is documented in wp-includes/pluggable.php */
 			$allowed_comment_types = \apply_filters( 'get_avatar_comment_types', [ 'comment' ] );
@@ -301,6 +303,8 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			if ( empty( $user_id ) && ! empty( $id_or_email->comment_author_email ) ) {
 				$email = $id_or_email->comment_author_email;
 			}
+
+			$age = \time() - \mysql2date( 'U', $id_or_email->comment_date_gmt );
 		}
 
 		if ( ! empty( $user_id ) && empty( $email ) ) {
@@ -308,21 +312,23 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			$email = $user->user_email;
 		}
 
-		return [ $user_id, $email ];
+		return [ $user_id, $email, $age ];
 	}
 
 	/**
 	 * Validates if a gravatar exists for the given e-mail address. Function originally
 	 * taken from: http://codex.wordpress.org/Using_Gravatars
 	 *
-	 * @param string $email    The e-mail address to check.
-	 * @param string $mimetype Optional. Set to the mimetype of the gravatar if present. Passed by reference. Default null.
-	 * @return bool            True if a gravatar exists for the given e-mail address,
-	 *                         false otherwise, including if gravatar.com could not be
-	 *                         reached or answered with a different error code or if
-	 *                         no e-mail address was given.
+	 * @param  string $email    The e-mail address to check.
+	 * @param  int    $age      Optional. The age of the object associated with the email address. Default 0.
+	 * @param  string $mimetype Optional. Set to the mimetype of the gravatar if present. Passed by reference. Default null.
+	 *
+	 * @return bool             True if a gravatar exists for the given e-mail address,
+	 *                          false otherwise, including if gravatar.com could not be
+	 *                          reached or answered with a different error code or if
+	 *                          no e-mail address was given.
 	 */
-	public function validate_gravatar( $email = '', &$mimetype = null ) {
+	public function validate_gravatar( $email = '', $age = 0, &$mimetype = null ) {
 		// Make sure we have a real address to check.
 		if ( empty( $email ) ) {
 			return false;
@@ -361,16 +367,31 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		}
 
 		if ( 200 === \wp_remote_retrieve_response_code( $response ) ) {
-			$result = wp_remote_retrieve_header( $response, 'content-type' );
+			$result = \wp_remote_retrieve_header( $response, 'content-type' );
 
 			if ( null !== $mimetype && ! empty( $result ) ) {
 				$mimetype = $result;
 			}
 		}
 
-		// Cache the result across all blogs (a YES for 1 day, a NO for 10 minutes
-		// -- since a YES basically shouldn't change, but a NO might change when the user signs up with gravatar.com).
-		$transients->set( $transient_key, ! empty( $result ) ? $result : 0, ! empty( $result ) ? DAY_IN_SECONDS : 10 * MINUTE_IN_SECONDS );
+		// Cache the result across all blogs (a YES for 1 week, a NO for 10 minutes or longer,
+		// depending on the age of the object (comment, post), since a YES basically shouldn't
+		// change, but a NO might change when the user signs up with gravatar.com).
+		$duration = WEEK_IN_SECONDS;
+		if ( empty( $result ) ) {
+			$duration = $age < HOUR_IN_SECONDS ? 10 * MINUTE_IN_SECONDS : $age < DAY_IN_SECONDS ? HOUR_IN_SECONDS : $age < WEEK_IN_SECONDS ? DAY_IN_SECONDS : $duration;
+		}
+
+		/**
+		 * Filters the interval between gravatar validation checks.
+		 *
+		 * @param int  $duration The validation interval. Default 1 week if the check was successful, less if not.
+		 * @param bool $result   The result of the validation check.
+		 * @param int  $age      The "age" (difference between now and the creation date) of a comment or post (in sceonds).
+		 */
+		$duration = \apply_filters( 'avatar_privacy_validate_gravatar_interval', $duration, ! empty( $result ), $age );
+
+		$transients->set( $transient_key, ! empty( $result ) ? $result : 0, $duration );
 		$this->validate_gravatar_cache[ $hash ] = $result;
 
 		return ! empty( $result );
