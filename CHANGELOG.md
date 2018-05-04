@@ -3,8 +3,9 @@
 ## 1.0 (unreleased)
 *   _Change_: Refactored according to modern development principles.
 *   _Change_: Removed settings in favor of sensible default values and filter hooks:
-    - Gravatar.com usage is opt-in and gravatars are only displayed if the exist.
-	  - The default behavior for legacy comments can be customized via the `avatar_privacy_gravatar_use_default` filter hook.
+    -   Gravatar.com usage is opt-in and gravatars are only displayed if the exist.
+	-   The default behavior for legacy comments can be customized via the
+        `avatar_privacy_gravatar_use_default` filter hook.
 *   _Feature_: All default avatars are generated on your server.
 *   _Feature_: Gravatar.com avatars are cached locally.
 *   _Feature_: Registered users can upload their own avatar images to your server.
@@ -37,7 +38,7 @@
 *   Bugfix: corrected image name of the "Media Artist" image (large version)
 *   removed the check for the get_headers PHP function unless the "Don't publish
     encrypted E-Mail addresses for non-members of gravatar.com." option is enabled
-		to not annoy other users -- thanks to Scott for finding the problem
+    to not annoy other users -- thanks to Scott for finding the problem
 *   added some simple inline CSS to fix the display of the checkbox in the comment
     form with TwentyTen theme
 *   fixed notice for deprecated function get_user_by_email
