@@ -102,7 +102,7 @@ class User_Avatar_Upload {
 	/**
 	 * The core API.
 	 *
-	 * @var \Avatar_Privacy_Core
+	 * @var \Avatar_Privacy\Core
 	 */
 	private $core;
 
@@ -120,9 +120,9 @@ class User_Avatar_Upload {
 	/**
 	 * Sets the core API instance to use.
 	 *
-	 * @param \Avatar_Privacy_Core $core The core API.
+	 * @param \Avatar_Privacy\Core $core The core API.
 	 */
-	public function set_core( \Avatar_Privacy_Core $core ) {
+	public function set_core( \Avatar_Privacy\Core $core ) {
 		$this->core = $core;
 	}
 

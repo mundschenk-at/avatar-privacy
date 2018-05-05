@@ -144,7 +144,7 @@ class Images implements \Avatar_Privacy\Component {
 	/**
 	 * The core API.
 	 *
-	 * @var \Avatar_Privacy_Core
+	 * @var \Avatar_Privacy\Core
 	 */
 	private $core;
 
@@ -170,11 +170,11 @@ class Images implements \Avatar_Privacy\Component {
 	/**
 	 * Sets up the various hooks for the plugin component.
 	 *
-	 * @param \Avatar_Privacy_Core $core The plugin instance.
+	 * @param \Avatar_Privacy\Core $core The plugin instance.
 	 *
 	 * @return void
 	 */
-	public function run( \Avatar_Privacy_Core $core ) {
+	public function run( \Avatar_Privacy\Core $core ) {
 		$this->core = $core;
 
 		foreach ( self::STATIC_ICONS as $file => $types ) {
@@ -513,7 +513,7 @@ class Images implements \Avatar_Privacy\Component {
 	private static function get_user_by_hash( $hash ) {
 		$users = \get_users( [
 			'number'       => 1,
-			'meta_key'     => \Avatar_Privacy_Core::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key, WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine
+			'meta_key'     => \Avatar_Privacy\Core::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key, WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine
 			'meta_value'   => $hash, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_value, WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine
 			'meta_compare' => '=',
 		] );

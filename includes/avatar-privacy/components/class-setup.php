@@ -100,7 +100,7 @@ class Setup implements \Avatar_Privacy\Component {
 	/**
 	 * The core API.
 	 *
-	 * @var \Avatar_Privacy_Core
+	 * @var \Avatar_Privacy\Core
 	 */
 	private $core;
 
@@ -124,11 +124,11 @@ class Setup implements \Avatar_Privacy\Component {
 	/**
 	 * Sets up the various hooks for the plugin component.
 	 *
-	 * @param \Avatar_Privacy_Core $core The plugin instance.
+	 * @param \Avatar_Privacy\Core $core The plugin instance.
 	 *
 	 * @return void
 	 */
-	public function run( \Avatar_Privacy_Core $core ) {
+	public function run( \Avatar_Privacy\Core $core ) {
 		$this->core    = $core;
 		$this->version = $core->get_version();
 
@@ -145,8 +145,8 @@ class Setup implements \Avatar_Privacy\Component {
 	 * Checks if the default settings or database schema need to be upgraded.
 	 */
 	public function update_check() {
-		// Don't use \Avatar_Privacy_Core::get_settings to prevent cache pollution.
-		$settings = $this->options->get( \Avatar_Privacy_Core::SETTINGS_NAME, [] );
+		// Don't use \Avatar_Privacy\Core::get_settings to prevent cache pollution.
+		$settings = $this->options->get( \Avatar_Privacy\Core::SETTINGS_NAME, [] );
 
 		// We can ignore errors here, just carry on as if for a new installation.
 		if ( ! empty( $settings[ Options::INSTALLED_VERSION ] ) ) {
@@ -171,7 +171,7 @@ class Setup implements \Avatar_Privacy\Component {
 
 		// Update installed version.
 		$settings[ Options::INSTALLED_VERSION ] = $this->version;
-		$this->options->set( \Avatar_Privacy_Core::SETTINGS_NAME, $settings );
+		$this->options->set( \Avatar_Privacy\Core::SETTINGS_NAME, $settings );
 	}
 
 	/**
@@ -307,7 +307,7 @@ class Setup implements \Avatar_Privacy\Component {
 	 * Delete all user meta data added by the plugin.
 	 */
 	private static function delete_user_meta() {
-		\delete_metadata( 'user', 0, \Avatar_Privacy_Core::GRAVATAR_USE_META_KEY, null, true );
+		\delete_metadata( 'user', 0, \Avatar_Privacy\Core::GRAVATAR_USE_META_KEY, null, true );
 		\delete_metadata( 'user', 0, User_Avatar_Upload::USER_META_KEY, null, true );
 	}
 
@@ -319,7 +319,7 @@ class Setup implements \Avatar_Privacy\Component {
 	 */
 	private static function delete_options( Options $options, Network_Options $network_options ) {
 		// Delete/change options for main blog.
-		$options->delete( \Avatar_Privacy_Core::SETTINGS_NAME );
+		$options->delete( \Avatar_Privacy\Core::SETTINGS_NAME );
 		self::reset_avatar_default( $options );
 
 		// Delete/change options for all other blogs (multisite).
@@ -328,7 +328,7 @@ class Setup implements \Avatar_Privacy\Component {
 				\switch_to_blog( $blog_id );
 
 				// Delete our settings.
-				$options->delete( \Avatar_Privacy_Core::SETTINGS_NAME );
+				$options->delete( \Avatar_Privacy\Core::SETTINGS_NAME );
 
 				// Reset avatar_default to working value if necessary.
 				self::reset_avatar_default( $options );
@@ -459,12 +459,12 @@ class Setup implements \Avatar_Privacy\Component {
 	 */
 	private function maybe_update_user_hashes() {
 		$users = \get_users( [
-			'meta_key'     => \Avatar_Privacy_Core::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key, WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine
+			'meta_key'     => \Avatar_Privacy\Core::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key, WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine
 			'meta_compare' => 'NOT EXISTS',
 		] );
 
 		foreach ( $users as $user ) {
-			\update_user_meta( $user->ID, \Avatar_Privacy_Core::EMAIL_HASH_META_KEY, $this->core->get_hash( $user->user_email ) );
+			\update_user_meta( $user->ID, \Avatar_Privacy\Core::EMAIL_HASH_META_KEY, $this->core->get_hash( $user->user_email ) );
 		}
 	}
 

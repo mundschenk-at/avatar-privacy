@@ -87,11 +87,11 @@ class User_Profile implements \Avatar_Privacy\Component {
 	/**
 	 * Sets up the various hooks for the plugin component.
 	 *
-	 * @param \Avatar_Privacy_Core $core The plugin instance.
+	 * @param \Avatar_Privacy\Core $core The plugin instance.
 	 *
 	 * @return void
 	 */
-	public function run( \Avatar_Privacy_Core $core ) {
+	public function run( \Avatar_Privacy\Core $core ) {
 		$this->upload->set_core( $core );
 
 		if ( \is_admin() ) {
@@ -159,7 +159,7 @@ class User_Profile implements \Avatar_Privacy\Component {
 	 * @return string
 	 */
 	private function get_use_gravatar_markup( \WP_User $user ) {
-		$value = 'true' === \get_user_meta( $user->ID, \Avatar_Privacy_Core::GRAVATAR_USE_META_KEY, true );
+		$value = 'true' === \get_user_meta( $user->ID, \Avatar_Privacy\Core::GRAVATAR_USE_META_KEY, true );
 
 		\ob_start();
 		require \dirname( $this->plugin_file ) . '/admin/partials/profile/use-gravatar.php';
@@ -192,7 +192,7 @@ class User_Profile implements \Avatar_Privacy\Component {
 		// we can't differentiate between opted-out and never saved a value.
 		if ( isset( $_POST[ self::NONCE_USE_GRAVATAR . $user_id ] ) && \wp_verify_nonce( \sanitize_key( $_POST[ self::NONCE_USE_GRAVATAR . $user_id ] ), self::ACTION_EDIT_USE_GRAVATAR ) ) {
 			$value = isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) && ( 'true' === $_POST[ self::CHECKBOX_FIELD_NAME ] ) ? 'true' : 'false'; // WPCS:  Input var okay.
-			\update_user_meta( $user_id, \Avatar_Privacy_Core::GRAVATAR_USE_META_KEY, $value );
+			\update_user_meta( $user_id, \Avatar_Privacy\Core::GRAVATAR_USE_META_KEY, $value );
 		}
 	}
 

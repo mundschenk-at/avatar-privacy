@@ -25,6 +25,8 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
+namespace Avatar_Privacy;
+
 use Avatar_Privacy\Data_Storage\Cache;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Network_Options;
@@ -37,7 +39,7 @@ use Avatar_Privacy\Data_Storage\Site_Transients;
  * @author Peter Putzer <github@mundschenk.at>
  * @author Johannes Freudendahl <wordpress@freudendahl.net>
  */
-class Avatar_Privacy_Core {
+class Core {
 
 	/**
 	 * The name of the combined settings in the database.
@@ -138,12 +140,12 @@ class Avatar_Privacy_Core {
 	/**
 	 * The singleton instance.
 	 *
-	 * @var Avatar_Privacy_Core
+	 * @var Core
 	 */
 	private static $_instance;
 
 	/**
-	 * Creates a Avatar_Privacy_Core instance and registers all necessary hooks
+	 * Creates a \Avatar_Privacy\Core instance and registers all necessary hooks
 	 * and filters for the plugin.
 	 *
 	 * @param string          $plugin_file      The full path to the base plugin file.
@@ -171,11 +173,11 @@ class Avatar_Privacy_Core {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param \Avatar_Privacy_Core $instance Only used for plugin initialization. Don't ever pass a value in user code.
+	 * @param Core $instance Only used for plugin initialization. Don't ever pass a value in user code.
 	 *
 	 * @throws \BadMethodCallException Thrown when Avatar_Privacy_Core::set_instance after plugin initialization.
 	 */
-	public static function set_instance( Avatar_Privacy_Core $instance ) {
+	public static function set_instance( Core $instance ) {
 		if ( null === self::$_instance ) {
 			self::$_instance = $instance;
 		} else {
@@ -190,7 +192,7 @@ class Avatar_Privacy_Core {
 	 *
 	 * @throws \BadMethodCallException Thrown when Avatar_Privacy_Core::get_instance is called before plugin initialization.
 	 *
-	 * @return \Avatar_Privacy_Core
+	 * @return Core
 	 */
 	public static function get_instance() {
 		if ( null === self::$_instance ) {

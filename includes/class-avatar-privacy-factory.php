@@ -26,6 +26,7 @@
 
 use Dice\Dice;
 
+use Avatar_Privacy\Core;
 use Avatar_Privacy\Gravatar_Cache;
 use Avatar_Privacy\User_Avatar_Upload;
 
@@ -83,7 +84,7 @@ abstract class Avatar_Privacy_Factory {
 			if ( ! function_exists( 'get_plugin_data' ) ) {
 				require_once ABSPATH . 'wp-admin/includes/plugin.php';
 			}
-			self::$factory->addRule( Avatar_Privacy_Core::class, [
+			self::$factory->addRule( Core::class, [
 				'constructParams' => [
 					$full_plugin_path,
 					get_plugin_data( $full_plugin_path, false, false )['Version'],

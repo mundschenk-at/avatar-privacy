@@ -25,6 +25,8 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
+use Avatar_Privacy\Core;
+
 use Avatar_Privacy\Components\Avatar_Handling;
 use Avatar_Privacy\Components\Comments;
 use Avatar_Privacy\Components\Images;
@@ -49,22 +51,22 @@ class Avatar_Privacy_Controller {
 	/**
 	 * The core plugin API.
 	 *
-	 * @var Avatar_Privacy_Core
+	 * @var Core
 	 */
 	private $core;
 
 	/**
 	 * Creates an instance of the plugin controller.
 	 *
-	 * @param Avatar_Privacy_Core $core     The core API.
-	 * @param Setup               $setup    The (de-)activation/uninstallation handling.
-	 * @param Images              $icons    The default icon handler.
-	 * @param Avatar_Handling     $avatars  The avatar handler.
-	 * @param Comments            $comments The comments handler.
-	 * @param User_Profile        $profile  The user profile handler.
-	 * @param Settings_Page       $settings The admin settings handler.
+	 * @param Core            $core     The core API.
+	 * @param Setup           $setup    The (de-)activation/uninstallation handling.
+	 * @param Images          $icons    The default icon handler.
+	 * @param Avatar_Handling $avatars  The avatar handler.
+	 * @param Comments        $comments The comments handler.
+	 * @param User_Profile    $profile  The user profile handler.
+	 * @param Settings_Page   $settings The admin settings handler.
 	 */
-	public function __construct( Avatar_Privacy_Core $core, Setup $setup, Images $icons, Avatar_Handling $avatars, Comments $comments, User_Profile $profile, Settings_Page $settings ) {
+	public function __construct( Core $core, Setup $setup, Images $icons, Avatar_Handling $avatars, Comments $comments, User_Profile $profile, Settings_Page $settings ) {
 		$this->core         = $core;
 		$this->components[] = $setup;
 		$this->components[] = $avatars;
@@ -79,7 +81,7 @@ class Avatar_Privacy_Controller {
 	 */
 	public function run() {
 		// Set plugin singleton.
-		\Avatar_Privacy_Core::set_instance( $this->core );
+		Core::set_instance( $this->core );
 
 		foreach ( $this->components as $component ) {
 			$component->run( $this->core );

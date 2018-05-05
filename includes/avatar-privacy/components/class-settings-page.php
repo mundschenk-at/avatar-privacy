@@ -64,11 +64,11 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	/**
 	 * Sets up the various hooks for the plugin component.
 	 *
-	 * @param \Avatar_Privacy_Core $core The plugin instance.
+	 * @param \Avatar_Privacy\Core $core The plugin instance.
 	 *
 	 * @return void
 	 */
-	public function run( \Avatar_Privacy_Core $core ) {
+	public function run( \Avatar_Privacy\Core $core ) {
 		if ( \is_admin() ) {
 			\add_action( 'admin_init', [ $this, 'register_settings' ] );
 			\add_action( 'admin_footer', [ $this, 'add_settings_toggle' ] );

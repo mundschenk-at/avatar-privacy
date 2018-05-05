@@ -73,7 +73,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	/**
 	 * The core API.
 	 *
-	 * @var \Avatar_Privacy_Core
+	 * @var \Avatar_Privacy\Core
 	 */
 	private $core;
 
@@ -102,11 +102,11 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	/**
 	 * Sets up the various hooks for the plugin component.
 	 *
-	 * @param \Avatar_Privacy_Core $core The plugin instance.
+	 * @param \Avatar_Privacy\Core $core The plugin instance.
 	 *
 	 * @return void
 	 */
-	public function run( \Avatar_Privacy_Core $core ) {
+	public function run( \Avatar_Privacy\Core $core ) {
 		$this->core = $core;
 
 		\add_action( 'init', [ $this, 'init' ] );
@@ -192,7 +192,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 				}
 
 				// For users get the value from the usermeta table.
-				$show_gravatar = \get_user_meta( $user_id, \Avatar_Privacy_Core::GRAVATAR_USE_META_KEY, true ) === 'true';
+				$show_gravatar = \get_user_meta( $user_id, \Avatar_Privacy\Core::GRAVATAR_USE_META_KEY, true ) === 'true';
 				$use_default   = '' === $show_gravatar;
 			} else {
 				// For comments get the value from the plugin's table.
