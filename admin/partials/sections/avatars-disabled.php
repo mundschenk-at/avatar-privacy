@@ -33,7 +33,7 @@ $show_avatars_class = empty( $show_avatars ) ? '' : ' hide-if-js';
 		<?php esc_html_e( "The Avatar Privacy plugin modifies the display of avatars. You have not enabled avatars, so this plugin can't do anything for you. :-)", 'avatar-privacy' ); ?>
 	</p>
 	<p>
-		<?php esc_html_e( "You can enable gravatars above by selecting 'Show Avatars'. Save the settings and after the page has reloaded you'll see the features of the Avatar Privacy plugin options here. There will also be more default avatars, so don't worry about them too much now.", 'avatar-privacy' ); ?>
+		<?php esc_html_e( 'You can enable profile pictures for users and commenters by selecting "Show Avatars" above. Then you will also see the features enabled by the Avatar Privacy plugin here.', 'avatar-privacy' ); ?>
 	</p>
 </div>
 <?php
