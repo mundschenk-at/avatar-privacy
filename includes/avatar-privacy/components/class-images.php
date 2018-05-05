@@ -92,6 +92,8 @@ class Images implements \Avatar_Privacy\Component {
 	const CRON_JOB_LOCK_GRAVATARS  = 'cron_job_lock_gravatars';
 	const CRON_JOB_LOCK_ALL_IMAGES = 'cron_job_lock_all_images';
 
+	const CRON_JOB_ACTION = 'avatar_privacy_daily';
+
 	/**
 	 * The options handler.
 	 *
@@ -426,11 +428,13 @@ class Images implements \Avatar_Privacy\Component {
 	 */
 	public function enable_image_cache_cleanup() {
 		// Schedule our cron action.
-		\wp_schedule_event( \time(), 'daily', 'avatar_privacy_daily' );
+		if ( ! \wp_next_scheduled( self::CRON_JOB_ACTION ) ) {
+			\wp_schedule_event( \time(), 'daily', self::CRON_JOB_ACTION );
+		}
 
 		// Add separate jobs for gravatars other images.
-		\add_action( 'avatar_privacy_daily', [ $this, 'trim_gravatar_cache' ] );
-		\add_action( 'avatar_privacy_daily', [ $this, 'trim_image_cache' ] );
+		\add_action( self::CRON_JOB_ACTION, [ $this, 'trim_gravatar_cache' ] );
+		\add_action( self::CRON_JOB_ACTION, [ $this, 'trim_image_cache' ] );
 	}
 
 	/**

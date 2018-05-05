@@ -29,6 +29,8 @@ namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\User_Avatar_Upload;
 
+use Avatar_Privacy\Components\Images;
+
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Options;
@@ -214,6 +216,7 @@ class Setup implements \Avatar_Privacy\Component {
 	 * Handles plugin deactivation.
 	 */
 	public function deactivate() {
+		self::disable_cron_jobs();
 		self::reset_avatar_default( $this->options );
 		self::flush_rewrite_rules();
 	}
@@ -399,7 +402,7 @@ class Setup implements \Avatar_Privacy\Component {
 		$db_needs_update = \version_compare( $previous_version, '0.5', '<' );
 
 		// Check if the table exists.
-		if ( ! $db_needs_update && property_exists( $wpdb, 'avatar_privacy' ) ) {
+		if ( ! $db_needs_update && \property_exists( $wpdb, 'avatar_privacy' ) ) {
 			return false;
 		}
 
@@ -532,5 +535,41 @@ class Setup implements \Avatar_Privacy\Component {
 		 *                     upgraded from version 0.4 or earlier.
 		 */
 		return \apply_filters( 'avatar_privacy_enable_global_table', $global_table );
+	}
+
+	/**
+	 * Disables any scheduled cron jobs.
+	 *
+	 * This is a copy of wp_unschedule_hook(), introduced in WordPress 4.9.0.
+	 * When we raise the minimum WP version to 4.9, this method can be replaced
+	 * with a call to `wp_unschedule_hook()`.
+	 *
+	 * @param  string $hook The hook name.
+	 */
+	private static function unschedule_hook( $hook ) {
+		$crons = _get_cron_array();
+		foreach ( $crons as $timestamp => $args ) {
+			unset( $crons[ $timestamp ][ $hook ] );
+
+			if ( empty( $crons[ $timestamp ] ) ) {
+				unset( $crons[ $timestamp ] );
+			}
+		}
+		_set_cron_array( $crons );
+	}
+
+	/**
+	 * Ensures that the cron jobs are disabled on each site.
+	 */
+	private static function disable_cron_jobs() {
+		if ( \is_multisite() ) {
+			foreach ( \get_sites( [ 'fields' => 'ids' ] ) as $site_id ) {
+				\switch_to_blog( $site_id );
+				self::unschedule_hook( Images::CRON_JOB_ACTION );
+				\restore_current_blog();
+			}
+		} else {
+			self::unschedule_hook( Images::CRON_JOB_ACTION );
+		}
 	}
 }
