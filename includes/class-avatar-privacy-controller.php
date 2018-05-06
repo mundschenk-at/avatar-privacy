@@ -33,6 +33,7 @@ use Avatar_Privacy\Components\Images;
 use Avatar_Privacy\Components\Setup;
 use Avatar_Privacy\Components\Settings_Page;
 use Avatar_Privacy\Components\User_Profile;
+use Avatar_Privacy\Components\Uninstallation;
 
 /**
  * Initialize Avatar Privacy plugin.
@@ -58,17 +59,19 @@ class Avatar_Privacy_Controller {
 	/**
 	 * Creates an instance of the plugin controller.
 	 *
-	 * @param Core            $core     The core API.
-	 * @param Setup           $setup    The (de-)activation/uninstallation handling.
-	 * @param Images          $icons    The default icon handler.
-	 * @param Avatar_Handling $avatars  The avatar handler.
-	 * @param Comments        $comments The comments handler.
-	 * @param User_Profile    $profile  The user profile handler.
-	 * @param Settings_Page   $settings The admin settings handler.
+	 * @param Core            $core      The core API.
+	 * @param Setup           $setup     The (de-)activation handling.
+	 * @param Uninstallation  $uninstall The uninstallation handling.
+	 * @param Images          $icons     The default icon handler.
+	 * @param Avatar_Handling $avatars   The avatar handler.
+	 * @param Comments        $comments  The comments handler.
+	 * @param User_Profile    $profile   The user profile handler.
+	 * @param Settings_Page   $settings  The admin settings handler.
 	 */
-	public function __construct( Core $core, Setup $setup, Images $icons, Avatar_Handling $avatars, Comments $comments, User_Profile $profile, Settings_Page $settings ) {
+	public function __construct( Core $core, Setup $setup, Uninstallation $uninstall, Images $icons, Avatar_Handling $avatars, Comments $comments, User_Profile $profile, Settings_Page $settings ) {
 		$this->core         = $core;
 		$this->components[] = $setup;
+		$this->components[] = $uninstall;
 		$this->components[] = $avatars;
 		$this->components[] = $icons;
 		$this->components[] = $comments;
