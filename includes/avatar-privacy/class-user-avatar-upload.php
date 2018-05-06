@@ -26,7 +26,7 @@
 
 namespace Avatar_Privacy;
 
-use Avatar_Privacy\Images;
+use Avatar_Privacy\Image_Tools;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
 /**
@@ -317,7 +317,7 @@ class User_Avatar_Upload {
 		$target    = "{$this->base_dir}{$filename}";
 
 		if ( $args['force'] || ! \file_exists( $target ) ) {
-			$data = Images\Editor::get_resized_image_data(
+			$data = Image_Tools\Editor::get_resized_image_data(
 				\wp_get_image_editor( $args['avatar'] ), $size, $size, true, $args['mimetype']
 			);
 			if ( empty( $data ) ) {
