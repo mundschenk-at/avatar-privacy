@@ -166,21 +166,36 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		// Process the user identifier.
 		list( $user_id, $email, $age ) = $this->parse_id_or_email( $id_or_email );
 
+		// Generate the hash.
+		$hash = ! empty( $user_id ) ? $this->core->get_user_hash( $user_id ) : $this->core->get_hash( $email );
+
 		// Find out if the user opted out of displaying a gravatar.
 		if ( ! $force_default && ( $user_id || $email ) ) {
 			$use_default = false;
+
 			if ( $user_id ) {
 				// Fetch local avatar from meta and make sure it's properly stzed.
 				$local_avatar = \get_user_meta( $user_id, User_Avatar_Upload::USER_META_KEY, true );
 				if ( ! empty( $local_avatar['file'] ) && ! empty( $local_avatar['type'] ) ) {
 					/**
-					 * Filters the uploaed avatar URL for the given user.
+					 * Filters the uploaded avatar URL for the given user.
 					 *
-					 * @param  string[]  $avatar  The full-size avatar image information.
-					 * @param  string    $email   The mail address used to generate the identity hash.
-					 * @param  int       $size    The size of the avatar image in pixels.
+					 * @param  string $url   The URL. Default empty.
+					 * @param  string $hash  The hashed mail address.
+					 * @param  int    $size  The size of the avatar image in pixels.
+					 * @param  array  $args {
+					 *     An array of arguments.
+					 *
+					 *     @type int    $user_id  A WordPress user ID.
+					 *     @type string $avatar   The full-size avatar image path.
+					 *     @type string $mimetype The expected MIME type of the avatar image.
+					 * }
 					 */
-					$url = \apply_filters( 'avatar_privacy_user_avatar_icon_url', $local_avatar, $email, $args['size'] );
+					$url = \apply_filters( 'avatar_privacy_user_avatar_icon_url', '', $hash, $args['size'], [
+						'user_id'  => $user_id,
+						'avatar'   => $local_avatar['file'],
+						'mimetype' => $local_avatar['type'],
+					] );
 
 					if ( ! empty( $url ) ) {
 						// Great, we have got a local avatar.
@@ -223,7 +238,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			 *
 			 * @param bool      $enable_check Defaults to true.
 			 * @param string    $email        The email address.
-			 * @param int]false $user_id      A WordPress user ID (or false).
+			 * @param int|false $user_id      A WordPress user ID (or false).
 			 */
 			if ( \apply_filters( 'avatar_privacy_enable_gravatar_check', true, $email, $user_id ) ) {
 				$show_gravatar = $this->validate_gravatar( $email, $age, $mimetype );
@@ -233,12 +248,18 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		/**
 		 * Filters the default icon URL for the given e-mail.
 		 *
-		 * @param  string $url     The fallback icon (a blank GIF).
-		 * @param  string $hash    The hashed mail address.
-		 * @param  string $default The default avatar image identifier.
-		 * @param  int    $size    The size of the avatar image in pixels.
+		 * @param  string $url   The fallback icon URL (a blank GIF).
+		 * @param  string $hash  The hashed mail address.
+		 * @param  int    $size  The size of the avatar image in pixels.
+		 * @param  array  $args {
+		 *     An array of arguments.
+		 *
+		 *     @type string $default The default icon type.
+		 * }
 		 */
-		$url = \apply_filters( 'avatar_privacy_default_icon_url', \includes_url( 'images/blank.gif' ), $this->core->get_hash( $email ), $args['default'], $args['size'] );
+		$url = \apply_filters( 'avatar_privacy_default_icon_url', \includes_url( 'images/blank.gif' ), $hash, $args['size'], [
+			'default' => $args['default'],
+		] );
 
 		// Maybe display a Gravatar.
 		if ( $show_gravatar ) {
@@ -249,14 +270,24 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			/**
 			 * Filters the Gravatar.com URL for the given e-mail.
 			 *
-			 * @param  string    $url      The fallback default icon URL.
-			 * @param  string    $email    The mail address used to generate the identity hash.
-			 * @param  int       $size     The size of the avatar image in pixels.
-			 * @param  int]false $user_id  A WordPress user ID (or false).
-			 * @param  string    $rating   The audience rating (e.g. 'g', 'pg', 'r', 'x').
-			 * @param  string    $mimetype The expected MIME type of the Gravatar image.
+			 * @param  string $url   The fallback default icon URL.
+			 * @param  string $hash  The hashed mail address.
+			 * @param  int    $size  The size of the avatar image in pixels.
+			 * @param  array  $args {
+			 *     An array of arguments.
+			 *
+			 *     @type int|false $user_id  A WordPress user ID (or false).
+			 *     @type string    $email    The mail address used to generate the identity hash.
+			 *     @type string    $rating   The audience rating (e.g. 'g', 'pg', 'r', 'x').
+			 *     @type string    $mimetype The expected MIME type of the Gravatar image.
+			 * }
 			 */
-			$url = \apply_filters( 'avatar_privacy_gravatar_icon_url', $url, $email, $args['size'], $user_id, $args['rating'], $mimetype );
+			$url = \apply_filters( 'avatar_privacy_gravatar_icon_url', $url, $hash, $args['size'], [
+				'user_id'  => $user_id,
+				'email'    => $email,
+				'rating'   => $args['rating'],
+				'mimetype' => $mimetype,
+			] );
 		}
 
 		$args['url'] = $url;

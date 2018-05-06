@@ -85,25 +85,35 @@ class Gravatar_Cache {
 	/**
 	 * Retrieves the default icon.
 	 *
-	 * @param  string               $url      The fallback default icon URL.
-	 * @param  string               $email    The mail address used to generate the identity hash.
-	 * @param  int                  $size     The requested size in pixels.
-	 * @param  int|false            $user_id  A WordPress user ID, or false.
-	 * @param  string               $rating   The audience rating (e.g. 'g', 'pg', 'r', 'x').
-	 * @param  string               $mimetype The expected MIME type.
-	 * @param  \Avatar_Privacy\Core $core     The core API.
-	 * @param  bool                 $force    Optional. Whether to force the regeneration of the icon. Default false.
+	 * @param  string $url   The fallback default icon URL.
+	 * @param  string $hash  The hashed mail address.
+	 * @param  int    $size  The size of the avatar image in pixels.
+	 * @param  array  $args {
+	 *     An array of arguments.
+	 *
+	 *     @type int|false $user_id  A WordPress user ID (or false).
+	 *     @type string    $email    The mail address used to generate the identity hash.
+	 *     @type string    $rating   The audience rating (e.g. 'g', 'pg', 'r', 'x').
+	 *     @type string    $mimetype The expected MIME type of the Gravatar image.
+	 * }
 	 *
 	 * @return string
 	 */
-	public function get_icon_url( $url, $email, $size, $user_id, $rating, $mimetype, \Avatar_Privacy\Core $core, $force = false ) {
-		$hash         = $core->get_hash( $email );
-		$subdir       = $this->get_sub_dir( $hash, false !== $user_id );
-		$filename     = "gravatar/{$subdir}/{$hash}-{$size}." . Images::FILE_EXTENSION[ $mimetype ];
-		$gravatar_url = "https://secure.gravatar.com/avatar/{$this->get_gravatar_hash( $email )}.png?s={$size}&r={$rating}&d=404";
+	public function get_icon_url( $url, $hash, $size, array $args ) {
+		$args = \wp_parse_args( $args, [
+			'user_id'  => false,
+			'email'    => '',
+			'rating'   => 'g',
+			'mimetype' => Images::PNG_IMAGE,
+			'force'    => false,
+		] );
+
+		$subdir       = $this->get_sub_dir( $hash, false !== $args['user_id'] );
+		$filename     = "gravatar/{$subdir}/{$hash}-{$size}." . Images::FILE_EXTENSION[ $args['mimetype'] ];
+		$gravatar_url = "https://secure.gravatar.com/avatar/{$this->get_gravatar_hash( $args['email'] )}.png?s={$size}&r={$args['rating']}&d=404";
 
 		// Only retrieve new Gravatar if necessary.
-		if ( ! \file_exists( "{$this->file_cache->get_base_dir()}{$filename}" ) || $force ) {
+		if ( ! \file_exists( "{$this->file_cache->get_base_dir()}{$filename}" ) || $args['force'] ) {
 			$icon = \wp_remote_retrieve_body( /* @scrutinizer ignore-type */ \wp_remote_get( $gravatar_url ) );
 
 			// Store icon.

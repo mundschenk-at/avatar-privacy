@@ -93,13 +93,6 @@ class User_Avatar_Upload {
 	private $base_dir;
 
 	/**
-	 * The uploads base URL.
-	 *
-	 * @var string
-	 */
-	private $base_url;
-
-	/**
 	 * The core API.
 	 *
 	 * @var \Avatar_Privacy\Core
@@ -293,38 +286,50 @@ class User_Avatar_Upload {
 	/**
 	 * Retrieves the URL for the given default icon type.
 	 *
-	 * @param  string[] $avatar  The full-size avatar image information.
-	 * @param  string   $email   The mail address used to generate the identity hash.
-	 * @param  int      $size    The requested size in pixels.
-	 * @param  bool     $force   Optional. Whether to force the regeneration of the icon. Default false.
+	 * @param  string $url   The URL. Default empty.
+	 * @param  string $hash  The hashed mail address.
+	 * @param  int    $size  The size of the avatar image in pixels.
+	 * @param  array  $args {
+	 *     An array of arguments.
+	 *
+	 *     @type string $avatar   The full-size avatar image path.
+	 *     @type string $mimetype The expected MIME type of the avatar image.
+	 *     @type bool   $force    Optional. Whether to force the regeneration of the image file. Default false.
+	 * }
 	 *
 	 * @return string
 	 */
-	public function get_icon_url( array $avatar, $email, $size, $force = false ) {
-		if ( empty( $this->base_dir ) || empty( $this->base_url ) ) {
-			$this->base_url = $this->file_cache->get_base_url();
+	public function get_icon_url( $url, $hash, $size, array $args ) {
+		// Cache base directory.
+		if ( empty( $this->base_dir ) ) {
 			$this->base_dir = $this->file_cache->get_base_dir();
 		}
 
-		$hash      = $this->core->get_hash( $email );
-		$extension = \Avatar_Privacy\Components\Images::FILE_EXTENSION[ $avatar['type'] ];
+		// Prepare additional arguments.
+		$args = \wp_parse_args( $args, [
+			'avatar'   => '',
+			'mimetype' => \Avatar_Privacy\Components\Images::PNG_IMAGE,
+			'force'    => false,
+		] );
+
+		$extension = \Avatar_Privacy\Components\Images::FILE_EXTENSION[ $args['mimetype'] ];
 		$filename  = "user/{$this->get_sub_dir( $hash )}/{$hash}-{$size}.{$extension}";
 		$target    = "{$this->base_dir}{$filename}";
 
-		if ( $force || ! \file_exists( $target ) ) {
+		if ( $args['force'] || ! \file_exists( $target ) ) {
 			$data = Images\Editor::get_resized_image_data(
-				\wp_get_image_editor( $avatar['file'] ), $size, $size, true, $avatar['type']
+				\wp_get_image_editor( $args['avatar'] ), $size, $size, true, $args['mimetype']
 			);
 			if ( empty( $data ) ) {
 				// Something went wrong..
-				return '';
+				return $url;
 			}
 
 			// Save the generated PNG file.
-			$this->file_cache->set( $filename, $data, $force );
+			$this->file_cache->set( $filename, $data, $args['force'] );
 		}
 
-		return "{$this->base_url}{$filename}";
+		return $this->file_cache->get_url( $filename );
 	}
 
 	/**

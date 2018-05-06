@@ -193,9 +193,9 @@ class Images implements \Avatar_Privacy\Component {
 		$this->icon_providers[] = new Identicon_Icon_Provider( $this->file_cache );
 
 		// Generate the correct avatar images.
-		\add_filter( 'avatar_privacy_default_icon_url',     [ $this, 'default_icon_url' ], 10, 4 );
-		\add_filter( 'avatar_privacy_gravatar_icon_url',    [ $this, 'gravatar_icon_url' ], 10, 6 );
-		\add_filter( 'avatar_privacy_user_avatar_icon_url', [ $this, 'user_avatar_icon_url' ], 10, 3 );
+		\add_filter( 'avatar_privacy_default_icon_url',     [ $this, 'default_icon_url' ],             10, 4 );
+		\add_filter( 'avatar_privacy_gravatar_icon_url',    [ $this->gravatar_cache, 'get_icon_url' ], 10, 4 );
+		\add_filter( 'avatar_privacy_user_avatar_icon_url', [ $this->user_avatar, 'get_icon_url' ],    10, 4 );
 
 		// Automatically regenerate missing image files.
 		\add_action( 'init',          [ $this, 'add_cache_rewrite_rules' ] );
@@ -341,7 +341,12 @@ class Images implements \Avatar_Privacy\Component {
 		}
 
 		// Try to cache the icon.
-		return ! empty( $this->gravatar_icon_url( '', $email, $size, $user_id, /* @scrutinizer ignore-type */ $this->options->get( 'avatar_rating', 'g', true ), $mimetype ) );
+		return ! empty( $this->gravatar_cache->get_icon_url( '', $hash, $size, [
+			'user_id'  => $user_id,
+			'email'    => $email,
+			'rating'   => $this->options->get( 'avatar_rating', 'g', true ),
+			'mimetype' => $mimetype,
+		] ) );
 	}
 
 	/**
@@ -355,32 +360,42 @@ class Images implements \Avatar_Privacy\Component {
 	private function retrieve_user_avatar_icon( $hash, $size ) {
 		$user = self::get_user_by_hash( $hash );
 		if ( ! empty( $user ) ) {
-			$email        = ! empty( $user->user_email ) ? $user->user_email : '';
 			$local_avatar = \get_user_meta( $user->ID, User_Avatar_Upload::USER_META_KEY, true );
 		}
 
-		// Could not find user/comment author or uploaded avatar.
-		if ( empty( $email ) || empty( $local_avatar ) ) {
+		// Could not find user or uploaded avatar.
+		if ( empty( $local_avatar ) ) {
 			return false;
 		}
 
 		// Try to cache the icon.
-		return ! empty( $this->user_avatar_icon_url( $local_avatar, $email, $size ) );
+		return ! empty( $this->user_avatar->get_icon_url( '', $hash, $size, [
+			'avatar'   => $local_avatar['file'],
+			'mimetype' => $local_avatar['type'],
+		] ) );
 	}
 
 	/**
 	 * Retrieves the URL for the given default icon type.
 	 *
-	 * @param  string $url  The fallback default icon URL.
+	 * @param  string $url  The fallback icon URL (a blank GIF).
 	 * @param  string $hash The hashed mail address.
-	 * @param  string $type The default icon type.
-	 * @param  int    $size The requested size in pixels.
+	 * @param  int    $size The size of the avatar image in pixels.
+	 * @param  array  $args {
+	 *     An array of arguments.
+	 *
+	 *     @type string $default The default icon type.
+	 * }
 	 *
 	 * @return string
 	 */
-	public function default_icon_url( $url, $hash, $type, $size ) {
+	public function default_icon_url( $url, $hash, $size, array $args ) {
+		$args = \wp_parse_args( $args, [
+			'default' => '',
+		] );
+
 		foreach ( $this->icon_providers as $provider ) {
-			if ( $provider->provides( $type ) ) {
+			if ( $provider->provides( $args['default'] ) ) {
 				return $provider->get_icon_url( $hash, $size );
 			}
 		}
@@ -388,38 +403,6 @@ class Images implements \Avatar_Privacy\Component {
 		// Return the fallback default icon URL.
 		return $url;
 	}
-
-	/**
-	 * Retrieves the URL for the given default icon type.
-	 *
-	 * @param  string    $url      The fallback default icon URL.
-	 * @param  string    $email    The mail address used to generate the identity hash.
-	 * @param  int       $size     The requested size in pixels.
-	 * @param  int|false $user_id  Optional. A WordPress user ID, or false. Default false.
-	 * @param  string    $rating   Optional. The audience rating (e.g. 'g', 'pg', 'r', 'x'). Default 'g'.
-	 * @param  string    $mimetype Optional. The expected MIME type. Default 'image/png'.
-	 * @param  bool      $force    Optional. Whether to force the regeneration of the icon. Default false.
-	 *
-	 * @return string
-	 */
-	public function gravatar_icon_url( $url, $email, $size, $user_id = false, $rating = 'g', $mimetype = self::PNG_IMAGE, $force = false ) {
-		return $this->gravatar_cache->get_icon_url( $url, $email, $size, $user_id, $rating, $mimetype, $this->core, $force );
-	}
-
-	/**
-	 * Retrieves the URL for the given default icon type.
-	 *
-	 * @param  string[] $avatar The full-size avatar image information.
-	 * @param  string   $email  The mail address used to generate the identity hash.
-	 * @param  int      $size   The requested size in pixels.
-	 * @param  bool     $force  Optional. Whether to force the regeneration of the icon. Default false.
-	 *
-	 * @return string
-	 */
-	public function user_avatar_icon_url( array $avatar, $email, $size, $force = false ) {
-		return $this->user_avatar->get_icon_url( $avatar, $email, $size, $force );
-	}
-
 
 	/**
 	 * Schedules a cron job to clean up the image cache once per day. Otherwise the
