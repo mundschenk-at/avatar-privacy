@@ -99,8 +99,7 @@ class Image_Stream {
 	 * @return bool
 	 */
 	public function stream_open( $path, $mode, $options, /* @scrutinizer ignore-unused */ &$opened_path ) {
-		$handle        = \parse_url( $path, PHP_URL_HOST ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
-		$this->data    = &self::get_handle( $handle );
+		$this->data    = &self::get_handle( self::get_handle_from_url( $path ) );
 		$this->options = $options;
 
 		// Strip binary/text flags from mode for comparison.
@@ -292,7 +291,7 @@ class Image_Stream {
 		return [
 			'dev'     => 0,
 			'ino'     => 0,
-			'mode'    => 0,
+			'mode'    => 0100777, // is_file & mode 0777.
 			'nlink'   => 0,
 			'uid'     => 0,
 			'gid'     => 0,
@@ -364,6 +363,17 @@ class Image_Stream {
 	 */
 	public static function delete_handle( $handle ) {
 		unset( self::$handles[ $handle ] );
+	}
+
+	/**
+	 * Retrieves the stream handle from the wrapper URL.
+	 *
+	 * @param  string $url The wrapper URL.
+	 *
+	 * @return string      The handle.
+	 */
+	public static function get_handle_from_url( $url ) {
+		return \parse_url( $url, PHP_URL_HOST ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
 	}
 }
 

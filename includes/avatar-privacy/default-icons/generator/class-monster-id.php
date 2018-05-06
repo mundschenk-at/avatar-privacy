@@ -28,6 +28,8 @@
 
 namespace Avatar_Privacy\Default_Icons\Generator;
 
+use Avatar_Privacy\Image_Tools;
+
 use function Scriptura\Color\Helpers\HSLtoRGB;
 
 /**
@@ -303,10 +305,6 @@ class Monster_ID extends PNG_Generator {
 		// Init random seed.
 		$id = \substr( $seed, 0, 8 );
 
-		if ( empty( $size ) ) {
-			$size = 400; // px.
-		}
-
 		// Get possible parts files.
 		$parts_array = $this->locate_parts( [
 			'legs'  => [],
@@ -330,6 +328,10 @@ class Monster_ID extends PNG_Generator {
 		if ( false === $monster ) {
 			return false; // Something went wrong but don't want to mess up blog layout.
 		}
+
+		// Fix transparent background.
+		\imageAlphaBlending( $monster, true );
+		\imageSaveAlpha( $monster, true );
 
 		$max_rand   = \mt_getrandmax();
 		$hue        = ( ( \mt_rand( 1, $max_rand ) - 1 ) / $max_rand ) * self::DEGREE; // real_halfopen.
@@ -359,14 +361,13 @@ class Monster_ID extends PNG_Generator {
 			$this->apply_image( $monster, $im, self::SIZE, self::SIZE );
 		}
 
-		// Going to resize always for now.
-		$out = $this->resize_image( $monster, $size, $size, self::SIZE, self::SIZE );
-
 		// Reset randomness.
 		\mt_srand();
 
-		// Convert image to PNG format.
-		return $this->get_png_data( $out );
+		// Resize if necessary.
+		return Image_Tools\Editor::get_resized_image_data(
+			Image_Tools\Editor::create_from_image_resource( $monster ), $size, $size, false, 'image/png'
+		);
 	}
 
 	/**
