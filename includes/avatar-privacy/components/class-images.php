@@ -274,9 +274,13 @@ class Images implements \Avatar_Privacy\Component {
 		$image = @\file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_get_contents, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, Generic.PHP.NoSilencedErrors.Discouraged
 
 		if ( ! empty( $image ) ) {
+			$length        = \strlen( $image );
+			$last_modified = \filemtime( $file );
+
 			// Let's set some HTTP headers.
 			\header( "Content-Type: {$content_type}" );
-			\header( 'Content-Length: ' . \strlen( $image ) );
+			\header( "Content-Length: {$length}" );
+			\header( 'Last-Modified: ' . \gmdate( 'D, d M Y H:i:s \G\M\T', $last_modified ) );
 			\header( 'Expires: ' . \gmdate( 'D, d M Y H:i:s \G\M\T', \time() + $cache_time ) );
 
 			// Here comes the content.
