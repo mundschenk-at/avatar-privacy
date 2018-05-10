@@ -70,7 +70,7 @@ if ( $current_user_can_upload_files ) {
 			</p>
 		<?php endif; ?>
 		<p class="description">
-			<?php echo \wp_kses( $description, [ 'a' => true ] ); ?>
+			<?php echo \wp_kses( $description, [ 'a' => [ 'href' => true ] ] ); ?>
 		</p>
 	</td>
 </tr>
