@@ -4,8 +4,8 @@ The icons in this folder are all licensed under the GPL or a similar license. If
 
   NDD Icon Set 1.0
     copyright: Fabian Volmer, 2007
-  	link: http://www.nddesign.de/news/2007/10/15/NDD_Icon_Set_1_0_-_Free_Icon_Set
-  	license: Dual: LGPL 3
+  	link: https://web.archive.org/web/20100301153626/http://www.nddesign.de/news/2007/10/15/NDD_Icon_Set_1_0_-_Free_Icon_Set
+  	license: LGPL 3
   	License link: http://www.gnu.org/licenses/lgpl-3.0.html
 
 * view-media-artist.png
@@ -16,4 +16,3 @@ The icons in this folder are all licensed under the GPL or a similar license. If
   	license: Dual: CC-BY-SA 3.0 or LGPL
   	License link: http://creativecommons.org/licenses/by-sa/3.0/
   			http://creativecommons.org/licenses/LGPL/2.1/
-	
