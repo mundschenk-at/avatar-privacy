@@ -52,22 +52,23 @@ use Avatar_Privacy\Default_Icons\Identicon_Icon_Provider;
 class Images implements \Avatar_Privacy\Component {
 	const MYSTERY          = 'mystery';
 	const COMMENT_BUBBLE   = 'comment-bubble';
-	const SHADED_CONE      = 'im-user-offline';
-	const BLACK_SILHOUETTE = 'view-media-artist';
-
-	const STATIC_ICONS = [
-		self::SHADED_CONE      => self::SHADED_CONE,
-		self::BLACK_SILHOUETTE => self::BLACK_SILHOUETTE,
-	];
+	const SHADED_CONE      = 'shaded-cone';
+	const BLACK_SILHOUETTE = 'silhouette';
 
 	const SVG_ICONS = [
-		self::MYSTERY        => [
+		self::MYSTERY          => [
 			'mystery',
 			'mystery-man',
 			'mm',
 		],
-		self::COMMENT_BUBBLE => [
+		self::COMMENT_BUBBLE   => [
 			'comment',
+		],
+		self::SHADED_CONE      => [
+			'im-user-offline',
+		],
+		self::BLACK_SILHOUETTE => [
+			'view-media-artist',
 		],
 	];
 
@@ -182,9 +183,6 @@ class Images implements \Avatar_Privacy\Component {
 		$this->core  = $core;
 		$plugin_file = $core->get_plugin_file();
 
-		foreach ( self::STATIC_ICONS as $file => $types ) {
-			$this->icon_providers[] = new Static_Icon_Provider( $types, $file, $plugin_file );
-		}
 		foreach ( self::SVG_ICONS as $file => $types ) {
 			$this->icon_providers[] = new SVG_Icon_Provider( $types, $file, $plugin_file );
 		}
