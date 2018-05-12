@@ -51,21 +51,23 @@ use Avatar_Privacy\Default_Icons\Identicon_Icon_Provider;
  */
 class Images implements \Avatar_Privacy\Component {
 	const MYSTERY          = 'mystery';
-	const COMMENT_BUBBLE   = 'comment';
+	const COMMENT_BUBBLE   = 'comment-bubble';
 	const SHADED_CONE      = 'im-user-offline';
 	const BLACK_SILHOUETTE = 'view-media-artist';
 
 	const STATIC_ICONS = [
-		self::COMMENT_BUBBLE   => self::COMMENT_BUBBLE,
 		self::SHADED_CONE      => self::SHADED_CONE,
 		self::BLACK_SILHOUETTE => self::BLACK_SILHOUETTE,
 	];
 
 	const SVG_ICONS = [
-		self::MYSTERY => [
+		self::MYSTERY        => [
 			'mystery',
 			'mystery-man',
 			'mm',
+		],
+		self::COMMENT_BUBBLE => [
+			'comment',
 		],
 	];
 
