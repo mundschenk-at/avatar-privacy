@@ -177,13 +177,14 @@ class Images implements \Avatar_Privacy\Component {
 	 * @return void
 	 */
 	public function run( \Avatar_Privacy\Core $core ) {
-		$this->core = $core;
+		$this->core  = $core;
+		$plugin_file = $core->get_plugin_file();
 
 		foreach ( self::STATIC_ICONS as $file => $types ) {
-			$this->icon_providers[] = new Static_Icon_Provider( $types, $file, $core->get_plugin_file() );
+			$this->icon_providers[] = new Static_Icon_Provider( $types, $file, $plugin_file );
 		}
 		foreach ( self::SVG_ICONS as $file => $types ) {
-			$this->icon_providers[] = new SVG_Icon_Provider( $types, $file, $core->get_plugin_file() );
+			$this->icon_providers[] = new SVG_Icon_Provider( $types, $file, $plugin_file );
 		}
 
 		$this->icon_providers[] = new Retro_Icon_Provider( $this->file_cache );
