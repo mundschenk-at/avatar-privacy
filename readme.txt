@@ -7,7 +7,7 @@ Tags: gravatar, avatar, privacy
 Requires at least: 4.6
 Requires PHP: 5.6
 Tested up to: 4.9
-Stable tag: 0.4
+Stable tag: 1.0
 License: GPLv2 or later
 
 Adds options to enhance the privacy when using avatars.
@@ -157,7 +157,7 @@ If you find any problems with particular plugins, please tell me!
 
 == Changelog ==
 
-= 1.0 (unreleased) =
+= 1.0 (2018-05-13) =
 * _Feature_: All default avatars are generated on your server.
 * _Feature_: Gravatar.com avatars are cached locally. (The cache is cleaned regularly via a cron job to prevent unlimited growth.)
 * _Feature_: Registered users can upload their own avatar images to your server.

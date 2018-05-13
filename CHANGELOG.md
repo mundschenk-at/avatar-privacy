@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0 (unreleased)
+## 1.0 (2018-05-13)
 *   _Feature_: All default avatars are generated on your server.
 *   _Feature_: Gravatar.com avatars are cached locally. (The cache is cleaned regularly
     via a cron job to prevent unlimited growth.)
