@@ -27,6 +27,8 @@
 
 namespace Avatar_Privacy\Components;
 
+use Avatar_Privacy\Core;
+
 use Avatar_Privacy\Components\Images;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
@@ -111,7 +113,7 @@ class Setup implements \Avatar_Privacy\Component {
 	/**
 	 * The core API.
 	 *
-	 * @var \Avatar_Privacy\Core
+	 * @var Core
 	 */
 	private $core;
 
@@ -135,11 +137,11 @@ class Setup implements \Avatar_Privacy\Component {
 	/**
 	 * Sets up the various hooks for the plugin component.
 	 *
-	 * @param \Avatar_Privacy\Core $core The plugin instance.
+	 * @param Core $core The plugin instance.
 	 *
 	 * @return void
 	 */
-	public function run( \Avatar_Privacy\Core $core ) {
+	public function run( Core $core ) {
 		$this->core    = $core;
 		$this->version = $core->get_version();
 
@@ -155,8 +157,8 @@ class Setup implements \Avatar_Privacy\Component {
 	 * Checks if the default settings or database schema need to be upgraded.
 	 */
 	public function update_check() {
-		// Don't use \Avatar_Privacy\Core::get_settings to prevent cache pollution.
-		$settings = $this->options->get( \Avatar_Privacy\Core::SETTINGS_NAME, [] );
+		// Don't use Core::get_settings to prevent cache pollution.
+		$settings = $this->options->get( Core::SETTINGS_NAME, [] );
 
 		// We can ignore errors here, just carry on as if for a new installation.
 		if ( ! empty( $settings[ Options::INSTALLED_VERSION ] ) ) {
@@ -181,7 +183,7 @@ class Setup implements \Avatar_Privacy\Component {
 
 		// Update installed version.
 		$settings[ Options::INSTALLED_VERSION ] = $this->version;
-		$this->options->set( \Avatar_Privacy\Core::SETTINGS_NAME, $settings );
+		$this->options->set( Core::SETTINGS_NAME, $settings );
 	}
 
 	/**
@@ -347,12 +349,12 @@ class Setup implements \Avatar_Privacy\Component {
 	 */
 	private function maybe_update_user_hashes() {
 		$users = \get_users( [
-			'meta_key'     => \Avatar_Privacy\Core::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key, WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine
+			'meta_key'     => Core::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key, WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine
 			'meta_compare' => 'NOT EXISTS',
 		] );
 
 		foreach ( $users as $user ) {
-			\update_user_meta( $user->ID, \Avatar_Privacy\Core::EMAIL_HASH_META_KEY, $this->core->get_hash( $user->user_email ) );
+			\update_user_meta( $user->ID, Core::EMAIL_HASH_META_KEY, $this->core->get_hash( $user->user_email ) );
 		}
 	}
 

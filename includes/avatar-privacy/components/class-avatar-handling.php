@@ -27,6 +27,7 @@
 
 namespace Avatar_Privacy\Components;
 
+use Avatar_Privacy\Core;
 use Avatar_Privacy\User_Avatar_Upload;
 
 use Avatar_Privacy\Components\Images;
@@ -73,7 +74,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	/**
 	 * The core API.
 	 *
-	 * @var \Avatar_Privacy\Core
+	 * @var Core
 	 */
 	private $core;
 
@@ -102,11 +103,11 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	/**
 	 * Sets up the various hooks for the plugin component.
 	 *
-	 * @param \Avatar_Privacy\Core $core The plugin instance.
+	 * @param Core $core The plugin instance.
 	 *
 	 * @return void
 	 */
-	public function run( \Avatar_Privacy\Core $core ) {
+	public function run( Core $core ) {
 		$this->core = $core;
 
 		\add_action( 'init', [ $this, 'init' ] );
@@ -204,7 +205,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 				}
 
 				// For users get the value from the usermeta table.
-				$show_gravatar = \get_user_meta( $user_id, \Avatar_Privacy\Core::GRAVATAR_USE_META_KEY, true ) === 'true';
+				$show_gravatar = \get_user_meta( $user_id, Core::GRAVATAR_USE_META_KEY, true ) === 'true';
 				$use_default   = '' === $show_gravatar;
 			} else {
 				// For comments get the value from the plugin's table.

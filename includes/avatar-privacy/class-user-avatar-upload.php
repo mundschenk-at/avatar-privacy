@@ -26,7 +26,9 @@
 
 namespace Avatar_Privacy;
 
+use Avatar_Privacy\Core;
 use Avatar_Privacy\Image_Tools;
+
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
 /**
@@ -95,7 +97,7 @@ class User_Avatar_Upload {
 	/**
 	 * The core API.
 	 *
-	 * @var \Avatar_Privacy\Core
+	 * @var Core
 	 */
 	private $core;
 
@@ -113,9 +115,9 @@ class User_Avatar_Upload {
 	/**
 	 * Sets the core API instance to use.
 	 *
-	 * @param \Avatar_Privacy\Core $core The core API.
+	 * @param Core $core The core API.
 	 */
-	public function set_core( \Avatar_Privacy\Core $core ) {
+	public function set_core( Core $core ) {
 		$this->core = $core;
 	}
 

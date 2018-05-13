@@ -27,6 +27,7 @@
 
 namespace Avatar_Privacy\Components;
 
+use Avatar_Privacy\Core;
 use Avatar_Privacy\Data_Storage\Options;
 
 /**
@@ -44,7 +45,7 @@ class Comments implements \Avatar_Privacy\Component {
 	/**
 	 * The core API.
 	 *
-	 * @var \Avatar_Privacy\Core
+	 * @var Core
 	 */
 	private $core;
 
@@ -67,11 +68,11 @@ class Comments implements \Avatar_Privacy\Component {
 	/**
 	 * Sets up the various hooks for the plugin component.
 	 *
-	 * @param \Avatar_Privacy\Core $core The plugin instance.
+	 * @param Core $core The plugin instance.
 	 *
 	 * @return void
 	 */
-	public function run( \Avatar_Privacy\Core $core ) {
+	public function run( Core $core ) {
 		$this->core = $core;
 
 		\add_action( 'init', [ $this, 'init' ] );
