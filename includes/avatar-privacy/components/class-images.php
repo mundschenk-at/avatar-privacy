@@ -62,12 +62,15 @@ class Images implements \Avatar_Privacy\Component {
 			'mm',
 		],
 		self::COMMENT_BUBBLE   => [
+			'bubble',
 			'comment',
 		],
 		self::SHADED_CONE      => [
+			'bowling-pin',
 			'im-user-offline',
 		],
 		self::BLACK_SILHOUETTE => [
+			'silhouette',
 			'view-media-artist',
 		],
 	];

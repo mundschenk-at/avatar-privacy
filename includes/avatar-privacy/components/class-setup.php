@@ -56,6 +56,17 @@ class Setup implements \Avatar_Privacy\Component {
 	];
 
 	/**
+	 * Obsolete avatar defaults and replacement values.
+	 *
+	 * @var string[]
+	 */
+	const OBSOLETE_AVATAR_DEFAULTS = [
+		'comment'           => 'bubble',
+		'im-user-offline'   => 'bowling-pin',
+		'view-media-artist' => 'silhouette',
+	];
+
+	/**
 	 * The full path to the main plugin file.
 	 *
 	 * @var string
@@ -198,6 +209,11 @@ class Setup implements \Avatar_Privacy\Component {
 			}
 		}
 
+		// Upgrade from anything below 1.0.RC.1.
+		if ( ! empty( $previous_version ) && \version_compare( $previous_version, '1.0-rc.1', '<' ) ) {
+			$this->upgrade_old_avatar_defaults( $this->options );
+		}
+
 		// To be safe, let's always flush the rewrite rules if there has been an update.
 		\add_action( 'init', [ __CLASS__, 'flush_rewrite_rules' ] );
 	}
@@ -231,6 +247,19 @@ class Setup implements \Avatar_Privacy\Component {
 			case 'view-media-artist':
 				$options->set( 'avatar_default', 'mystery', true, true );
 				break;
+		}
+	}
+
+	/**
+	 * Tries to upgrade the `avatar_defaults` option.
+	 *
+	 * @param  Options $options The Options handler.
+	 */
+	private function upgrade_old_avatar_defaults( Options $options ) {
+		$old_default = $options->get( 'avatar_default', 'mystery', true );
+
+		if ( ! empty( self::OBSOLETE_AVATAR_DEFAULTS[ $old_default ] ) ) {
+			$options->set( 'avatar_default', self::OBSOLETE_AVATAR_DEFAULTS[ $old_default ], true, true );
 		}
 	}
 

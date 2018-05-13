@@ -135,13 +135,10 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		unset( $avatar_defaults['gravatar_default'] );
 
 		$avatar_defaults = array_merge( $avatar_defaults, [
-			'rings'             => __( 'Rings (Generated)', 'avatar-privacy' ),
-			/* translators: Icon set URL */
-			'comment'           => sprintf( __( 'Comment (loaded from your server, part of <a href="%s">NDD Icon Set</a>, under LGPL)', 'avatar-privacy' ), 'http://www.nddesign.de/news/2007/10/15/NDD_Icon_Set_1_0_-_Free_Icon_Set' ),
-			/* translators: Icon set URL */
-			'im-user-offline'   => sprintf( __( 'User Offline (loaded from your server, part of <a href="%s">Oxygen Icons</a>, under LGPL)', 'avatar-privacy' ), 'http://www.oxygen-icons.org/' ),
-			/* translators: Icon set URL */
-			'view-media-artist' => sprintf( __( 'Media Artist (loaded from your server, part of <a href="%s">Oxygen Icons</a>, under LGPL)', 'avatar-privacy' ), 'http://www.oxygen-icons.org/' ),
+			'rings'       => __( 'Rings (Generated)', 'avatar-privacy' ),
+			'bubble'      => __( 'Speech Bubble', 'avatar-privacy' ),
+			'bowling-pin' => __( 'Bowling Pin', 'avatar-privacy' ),
+			'silhouette'  => __( 'Silhouette', 'avatar-privacy' ),
 		] );
 		return $avatar_defaults;
 	}
