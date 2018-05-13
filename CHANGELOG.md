@@ -1,15 +1,16 @@
 # Changelog
 
 ## 1.0 (unreleased)
+*   _Feature_: All default avatars are generated on your server.
+*   _Feature_: Gravatar.com avatars are cached locally. (The cache is cleaned regularly
+    via a cron job to prevent unlimited growth.)
+*   _Feature_: Registered users can upload their own avatar images to your server.
 *   _Change_: Refactored according to modern development principles.
 *   _Change_: Removed settings in favor of sensible default values and filter hooks:
     -   Gravatar.com usage is opt-in and gravatars are only displayed if the exist.
     -   The default behavior for legacy comments can be customized via the
         `avatar_privacy_gravatar_use_default` filter hook.
-*   _Feature_: All default avatars are generated on your server.
-*   _Feature_: Gravatar.com avatars are cached locally.
-*   _Feature_: Registered users can upload their own avatar images to your server.
-*
+*   _Change_: All static default icons are now SVG images.
 
 ## 0.4 (2018-04-17)
 *   adapted the plugin to some subtle changes in how WordPress handles the avatar
