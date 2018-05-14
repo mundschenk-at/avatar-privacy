@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.1 (2018-05-14)
+*   _Bugfix_: Non-multisite installations triggered an SQL error in some situations.
+
 ## 1.0 (2018-05-13)
 *   _Feature_: All default avatars are generated on your server.
 *   _Feature_: Gravatar.com avatars are cached locally. (The cache is cleaned regularly
