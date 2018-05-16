@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.2 (2018-05-16)
+*   _Bugfix_: PNG avatars were not created correctly when EWWW Image Optimizer was enabled.
+
 ## 1.0.1 (2018-05-14)
 *   _Bugfix_: Non-multisite installations triggered an SQL error in some situations.
 
