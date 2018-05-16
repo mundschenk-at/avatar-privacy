@@ -35,8 +35,14 @@ namespace Avatar_Privacy\Image_Tools;
  */
 abstract class Editor {
 
-	const MEMORY_HANDLE = 'image_editor';
-	const STREAM        = Image_Stream::PROTOCOL . '://' . self::MEMORY_HANDLE . '/dummy/path';
+	const MEMORY_HANDLE = 'image_editor/dummy/path';
+	const STREAM        = Image_Stream::PROTOCOL . '://' . self::MEMORY_HANDLE;
+
+	const FILE_EXTENSION = [
+		'image/jpeg' => 'jpg',
+		'image/png'  => 'png',
+	];
+
 
 
 	/**
@@ -102,17 +108,18 @@ abstract class Editor {
 	public static function get_image_data( $image, $format = 'image/png' ) {
 
 		// Check for validity.
-		if ( $image instanceof \WP_Error ) {
+		if ( $image instanceof \WP_Error || ! isset( self::FILE_EXTENSION[ $format ] ) ) {
 			return '';
 		}
 
-		// Convert the image to PNG format and extract data.
-		if ( $image->save( self::STREAM, $format ) instanceof \WP_Error ) {
+		// Convert the image the given format and extract data.
+		$extension = '.' . self::FILE_EXTENSION[ $format ];
+		if ( $image->save( self::STREAM . $extension, $format ) instanceof \WP_Error ) {
 			return '';
 		}
 
 		// Read the data from memory stream and clean up.
-		return Image_Stream::get_data( self::MEMORY_HANDLE, true );
+		return Image_Stream::get_data( self::MEMORY_HANDLE . $extension, true );
 	}
 
 	/**
