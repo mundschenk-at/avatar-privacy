@@ -7,7 +7,7 @@ Tags: gravatar, avatar, privacy
 Requires at least: 4.6
 Requires PHP: 5.6
 Tested up to: 4.9
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 
 Adds options to enhance the privacy when using avatars.
@@ -132,6 +132,9 @@ If you find any problems with particular plugins, please tell me!
 
 
 == Changelog ==
+
+= 1.0.2 (2018-05-16) =
+* _Bugfix_: PNG avatars were not created correctly when EWWW Image Optimizer was enabled.
 
 = 1.0.1 (2018-05-14) =
 * _Bugfix_: Non-multisite installations triggered an SQL error in some situations.

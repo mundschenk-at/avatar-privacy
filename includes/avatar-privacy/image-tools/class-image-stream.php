@@ -47,6 +47,13 @@ class Image_Stream {
 	private static $handles = [];
 
 	/**
+	 * The handle.
+	 *
+	 * @var string
+	 */
+	private $h;
+
+	/**
 	 * The contents of the stream.
 	 *
 	 * @var string
@@ -99,7 +106,8 @@ class Image_Stream {
 	 * @return bool
 	 */
 	public function stream_open( $path, $mode, $options, /* @scrutinizer ignore-unused */ &$opened_path ) {
-		$this->data    = &self::get_handle( self::get_handle_from_url( $path ) );
+		$this->h       = self::get_handle_from_url( $path );
+		$this->data    = &self::get_handle( $this->h );
 		$this->options = $options;
 
 		// Strip binary/text flags from mode for comparison.
@@ -313,8 +321,58 @@ class Image_Stream {
 	 * @return array
 	 */
 	public function url_stat( $path, /* @scrutinizer ignore-unused */ $flags ) {
-		// If fopen() fails, we are in trouble anyway.
-		return \fstat( /* @scrutinizer ignore-type */ \fopen( $path, 'r' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+		if ( self::handle_exists( self::get_handle_from_url( $path ) ) ) {
+			// If fopen() fails, we are in trouble anyway.
+			return \fstat( /* @scrutinizer ignore-type */ \fopen( $path, 'r' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+		}
+
+		return [
+			'dev'     => 0,
+			'ino'     => 0,
+			'mode'    => 0,
+			'nlink'   => 0,
+			'uid'     => 0,
+			'gid'     => 0,
+			'rdev'    => 0,
+			'size'    => 0,
+			'atime'   => 0,
+			'mtime'   => 0,
+			'ctime'   => 0,
+			'blksize' => -1,
+			'blocks'  => -1,
+		];
+	}
+
+	/**
+	 * Implements touch(), chmod(), chown() and chgrp() for the stream.
+	 *
+	 * @param  string           $path   The URL to set the metadata for.
+	 * @param  int              $option A flag indicating the originating function.
+	 * @param  array|string|int $value  The arguments of the originating function.
+	 *
+	 * @return bool
+	 */
+	public function stream_metadata( /* @scrutinizer ignore-unused */ $path, /* @scrutinizer ignore-unused */ $option, /* @scrutinizer ignore-unused */ $value ) {
+		// Ignore metadata changing functions, but simulate success.
+		return true;
+	}
+
+	/**
+	 * Unlinks the given URL.
+	 *
+	 * @param  string $path The stream URL.
+	 *
+	 * @return bool
+	 */
+	public function unlink( $path ) {
+		$handle = self::get_handle_from_url( $path );
+
+		if ( empty( $handle ) ) {
+			return false;
+		}
+
+		self::delete_handle( $handle );
+		return true;
 	}
 
 	/**
@@ -325,11 +383,22 @@ class Image_Stream {
 	 * @return string         A reference to the stream data.
 	 */
 	private static function &get_handle( $handle ) {
-		if ( ! isset( self::$handles[ $handle ] ) ) {
+		if ( ! self::handle_exists( $handle ) ) {
 			self::$handles[ $handle ] = '';
 		}
 
 		return self::$handles[ $handle ];
+	}
+
+	/**
+	 * Determines if the given handle already exists.
+	 *
+	 * @param  string $handle The stream handle.
+	 *
+	 * @return bool
+	 */
+	private static function handle_exists( $handle ) {
+		return isset( self::$handles[ $handle ] );
 	}
 
 	/**
@@ -373,7 +442,9 @@ class Image_Stream {
 	 * @return string      The handle.
 	 */
 	public static function get_handle_from_url( $url ) {
-		return \parse_url( $url, PHP_URL_HOST ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+		$parts = \parse_url( $url ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+
+		return $parts['host'] . $parts['path'];
 	}
 }
 
