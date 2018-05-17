@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.3 (2018-05-17)
+*   _Bugfix_: The plugin no longer fails with a fatal error on PHP 5.6.
+
 ## 1.0.2 (2018-05-16)
 *   _Bugfix_: PNG avatars were not created correctly when EWWW Image Optimizer was enabled.
 
