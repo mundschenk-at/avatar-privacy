@@ -158,6 +158,13 @@ class Images implements \Avatar_Privacy\Component {
 	private $core;
 
 	/**
+	 * A copy of Gravatar_Cache::TYPE_MAPPING.
+	 *
+	 * @var string[]
+	 */
+	private $gravatar_cache_type_mapping;
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param Transients         $transients      The transients handler.
@@ -174,6 +181,9 @@ class Images implements \Avatar_Privacy\Component {
 		$this->file_cache      = $file_cache;
 		$this->gravatar_cache  = $gravatar;
 		$this->user_avatar     = $user_avatar;
+
+		// Needed for PHP 5.6 compatiblity.
+		$this->gravatar_cache_type_mapping = Gravatar_Cache::TYPE_MAPPING;
 	}
 
 	/**
@@ -327,11 +337,11 @@ class Images implements \Avatar_Privacy\Component {
 	 */
 	private function retrieve_gravatar_icon( $hash, $subdir, $size, $mimetype ) {
 		$type = \explode( '/', $subdir )[0];
-		if ( empty( $type ) || ! isset( Gravatar_Cache::TYPE_MAPPING[ $type ] ) ) {
+		if ( empty( $type ) || ! isset( $this->gravatar_cache_type_mapping[ $type ] ) ) {
 			return false;
 		}
 
-		if ( Gravatar_Cache::TYPE_USER === Gravatar_Cache::TYPE_MAPPING[ $type ] ) {
+		if ( Gravatar_Cache::TYPE_USER === $this->gravatar_cache_type_mapping[ $type ] ) {
 			$user = self::get_user_by_hash( $hash );
 			if ( ! empty( $user ) ) {
 				$user_id = $user->ID;

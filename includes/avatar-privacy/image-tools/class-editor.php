@@ -38,13 +38,6 @@ abstract class Editor {
 	const MEMORY_HANDLE = 'image_editor/dummy/path';
 	const STREAM        = Image_Stream::PROTOCOL . '://' . self::MEMORY_HANDLE;
 
-	const FILE_EXTENSION = [
-		'image/jpeg' => 'jpg',
-		'image/png'  => 'png',
-	];
-
-
-
 	/**
 	 * Creates a \WP_Image_Editor from a given stream wrapper.
 	 *
@@ -106,14 +99,19 @@ abstract class Editor {
 	 * @return string
 	 */
 	public static function get_image_data( $image, $format = 'image/png' ) {
+		// Needed for PHP 5.6 compatibility.
+		$file_extensions = [
+			'image/jpeg' => 'jpg',
+			'image/png'  => 'png',
+		];
 
 		// Check for validity.
-		if ( $image instanceof \WP_Error || ! isset( self::FILE_EXTENSION[ $format ] ) ) {
+		if ( $image instanceof \WP_Error || ! isset( $file_extensions[ $format ] ) ) {
 			return '';
 		}
 
 		// Convert the image the given format and extract data.
-		$extension = '.' . self::FILE_EXTENSION[ $format ];
+		$extension = ".{$file_extensions[ $format ]}";
 		if ( $image->save( self::STREAM . $extension, $format ) instanceof \WP_Error ) {
 			return '';
 		}

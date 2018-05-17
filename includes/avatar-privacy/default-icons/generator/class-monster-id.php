@@ -193,9 +193,44 @@ class Monster_ID extends PNG_Generator {
 	];
 
 	/**
+	 * A copy of self::SAME_COLOR_PARTS.
+	 *
+	 * @var array
+	 */
+	private $same_color_parts;
+
+	/**
+	 * A copy of self::SPECIFIC_COLOR_PARTS.
+	 *
+	 * @var array
+	 */
+	private $specific_color_parts;
+
+	/**
+	 * A copy of self::RANDOM_COLOR_PARTS.
+	 *
+	 * @var array
+	 */
+	private $random_color_parts;
+
+	/**
+	 * A copy of self::PART_OPTIMIZATION.
+	 *
+	 * @var array
+	 */
+	private $part_optimization;
+
+
+	/**
 	 * Creates a new instance.
 	 */
 	public function __construct() {
+		// Needed for PHP 5.6 compatibility.
+		$this->same_color_parts     = self::SAME_COLOR_PARTS;
+		$this->specific_color_parts = self::SPECIFIC_COLOR_PARTS;
+		$this->random_color_parts   = self::RANDOM_COLOR_PARTS;
+		$this->part_optimization    = self::PART_OPTIMIZATION;
+
 		parent::__construct( \dirname( \dirname( \dirname( \dirname( __DIR__ ) ) ) ) . '/public/images/monster-id' );
 	}
 
@@ -348,13 +383,13 @@ class Monster_ID extends PNG_Generator {
 			// Randomly color body parts.
 			if ( 'body' === $part ) {
 				$this->image_colorize( $im, $hue, $saturation, $file );
-			} elseif ( isset( self::SAME_COLOR_PARTS[ $file ] ) ) {
+			} elseif ( isset( $this->same_color_parts[ $file ] ) ) {
 				$this->image_colorize( $im, $hue, $saturation, $file );
-			} elseif ( isset( self::RANDOM_COLOR_PARTS[ $file ] ) ) {
+			} elseif ( isset( $this->random_color_parts[ $file ] ) ) {
 				$this->image_colorize( $im, ( \mt_rand( 1, $max_rand ) - 1 ) / $max_rand * self::DEGREE, \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
-			} elseif ( isset( self::SPECIFIC_COLOR_PARTS[ $file ] ) ) {
-				$low  = self::SPECIFIC_COLOR_PARTS[ $file ][0] * 10000;
-				$high = self::SPECIFIC_COLOR_PARTS[ $file ][1] * 10000;
+			} elseif ( isset( $this->specific_color_parts[ $file ] ) ) {
+				$low  = $this->specific_color_parts[ $file ][0] * 10000;
+				$high = $this->specific_color_parts[ $file ][1] * 10000;
 				$this->image_colorize( $im, \mt_rand( $low, $high ) / 10000 * self::DEGREE, \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
 			}
 
@@ -388,11 +423,11 @@ class Monster_ID extends PNG_Generator {
 		$hue = $hue < 0 ? self::DEGREE + $hue : $hue;
 
 		\imagealphablending( $image, false );
-		if ( isset( self::PART_OPTIMIZATION[ $part ] ) ) {
-			$xmin = self::PART_OPTIMIZATION[ $part ][0][0];
-			$xmax = self::PART_OPTIMIZATION[ $part ][0][1];
-			$ymin = self::PART_OPTIMIZATION[ $part ][1][0];
-			$ymax = self::PART_OPTIMIZATION[ $part ][1][1];
+		if ( isset( $this->part_optimization[ $part ] ) ) {
+			$xmin = $this->part_optimization[ $part ][0][0];
+			$xmax = $this->part_optimization[ $part ][0][1];
+			$ymin = $this->part_optimization[ $part ][1][0];
+			$ymax = $this->part_optimization[ $part ][1][1];
 		} else {
 			$xmin = 0;
 			$xmax = $imgw - 1;
