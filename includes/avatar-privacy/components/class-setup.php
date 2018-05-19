@@ -245,8 +245,11 @@ class Setup implements \Avatar_Privacy\Component {
 		switch ( $options->get( 'avatar_default', null, true ) ) {
 			case 'rings':
 			case 'comment':
+			case 'bubble':
 			case 'im-user-offline':
+			case 'bowling-pin':
 			case 'view-media-artist':
+			case 'silhouette':
 				$options->set( 'avatar_default', 'mystery', true, true );
 				break;
 		}
