@@ -46,12 +46,10 @@ Avatar Privacy is based on the original plugin by [Johannes Freudendahl](http://
 
 == Installation ==
 
-= Installation =
-
-You can either install it automatically from the WordPress admin, or do it manually:
-
-1. Unzip the archive and put the 'avatar-privacy' folder into your plugins folder (/wp-content/plugins/).
-1. Activate the plugin from the Plugins menu.
+= Requirements =
+Avatar Privacy has the following additional requirements beyond those of WordPress itself:
+* Your server must run PHP 5.6.0 or later, and
+* the PHP installation must include the GD extension (most do).
 
 = Uninstallation =
 
