@@ -83,7 +83,7 @@ class Comments implements \Avatar_Privacy\Component {
 	 */
 	public function init() {
 		// Add the checkbox to the comment form.
-		\add_filter( 'comment_form_default_fields', [ $this, 'comment_form_default_fields' ] );
+		\add_filter( 'comment_form_fields', [ $this, 'comment_form_fields' ] );
 
 		// Handle the checkbox data upon saving the comment.
 		\add_action( 'comment_post', [ $this, 'comment_post' ], 10, 2 );
@@ -93,26 +93,32 @@ class Comments implements \Avatar_Privacy\Component {
 	 * Adds the 'use gravatar' checkbox to the comment form. The checkbox value
 	 * is read from a cookie if available.
 	 *
-	 * @param array $fields The array of default comment fields.
+	 * @param string[] $fields The array of comment fields.
 	 *
-	 * @return array The modified array of comment fields.
+	 * @return string[] The modified array of comment fields.
 	 */
-	public function comment_form_default_fields( $fields ) {
-		// Don't change the form if a user is logged-in.
-		if ( \is_user_logged_in() ) {
+	public function comment_form_fields( $fields ) {
+		// Don't change the form if a user is logged-in or the field already exists.
+		if ( \is_user_logged_in() || isset( $fields['use_gravatar'] ) ) {
 			return $fields;
 		}
 
 		// Define the new checkbox field.
 		$new_field = self::get_gravatar_checkbox( $this->plugin_file );
 
-		// Either add the new field after the E-Mail field or at the end of the array.
-		if ( isset( $fields['email'] ) ) {
+		// Either add the new field before the new cookies checkbox, after the
+		// email field or at the end of the array.
+		if ( isset( $fields['cookies'] ) || isset( $fields['email'] ) ) {
 			$result = [];
 			foreach ( $fields as $key => $value ) {
-				$result[ $key ] = $value;
-				if ( 'email' === $key ) {
+				if ( 'cookies' === $key ) {
 					$result['use_gravatar'] = $new_field;
+					$result[ $key ]         = $value;
+				} elseif ( 'email' === $key && ! isset( $fields['cookies'] ) ) {
+					$result[ $key ]         = $value;
+					$result['use_gravatar'] = $new_field;
+				} else {
+					$result[ $key ] = $value;
 				}
 			}
 			$fields = $result;
