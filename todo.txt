@@ -1,6 +1,0 @@
-Ideas for future development (ideas only, no promises, tell me if you'd like anything else):
-* display an explanatory text/link below the comment form, let the admin change this text in the options
-* let the admin upload a different local default image
-* check if not storing the checkbox value for spam comments works with other anti-spam plugins
-* test the plugin with more themes (some common frameworks)
-* add automated tests

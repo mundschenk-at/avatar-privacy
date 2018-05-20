@@ -53,8 +53,7 @@ if ( isset( $_POST[ Comments::CHECKBOX_FIELD_NAME ] ) ) { // WPCS: CSRF ok, Inpu
 }
 ?>
 <p class="comment-form-use-gravatar">
-	<input id="<?php echo \esc_attr( Comments::CHECKBOX_FIELD_NAME ); ?>" name="<?php echo \esc_attr( Comments::CHECKBOX_FIELD_NAME ); ?>" type="checkbox" value="true" <?php \checked( $is_checked, true, false ); ?> />
-	<label
+	<input id="<?php echo \esc_attr( Comments::CHECKBOX_FIELD_NAME ); ?>" name="<?php echo \esc_attr( Comments::CHECKBOX_FIELD_NAME ); ?>" type="checkbox" value="true" <?php \checked( $is_checked, true, false ); ?> /><label
 	<?php if ( ! $disable_style ) : ?>
 		style="display:inline;"
 	<?php endif; ?>

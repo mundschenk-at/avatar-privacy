@@ -7,7 +7,7 @@ Tags: gravatar, avatar, privacy
 Requires at least: 4.6
 Requires PHP: 5.6
 Tested up to: 4.9
-Stable tag: 1.0.3
+Stable tag: 1.0.4
 License: GPLv2 or later
 
 Adds options to enhance the privacy when using avatars.
@@ -46,30 +46,10 @@ Avatar Privacy is based on the original plugin by [Johannes Freudendahl](http://
 
 == Installation ==
 
-= Installation =
-
-You can either install it automatically from the WordPress admin, or do it manually:
-
-1. Unzip the archive and put the 'avatar-privacy' folder into your plugins folder (/wp-content/plugins/).
-1. Activate the plugin from the Plugins menu.
-
-= Uninstallation =
-
-There is a difference between deactivating the plugin and uninstalling it. The plugin gets deactivated if you do so on the plugins page or if you simply delete the plugin files via FTP. No uninstallation tasks are performed then, so you can activate and deactivate the plugin as you want without losing the plugin's settings.
-
-If you deactivate the plugin und have gravatars turned on, they will again show up for everybody, even those commenters and users who opted out of displaying gravatars. If you changed the default avatar to one of the new local avatar images, the gravatars will not be displayed until you change the default avatar image back.
-
-If you want to completely uninstall the plugin and get rid of any data in the database, you should properly uninstall it: Deactivate the plugin first via the WordPress plugins page and then click 'delete' (same page, next to the plugin). For multisite installations, this has to be done by the network administrator on the network plugins page.
-
-The plugin saves additional data about whether commenters and users want to display a gravatar or not (if you select that mode in the settings). The following data are saved and deleted upon uninstallation:
-
-* custom table(s) `[prefix]_avatar_privacy` (global or per blog on new multisite installations)
-* `usermeta` values per user: `use_gravatar`, `avatar_privacy_hash`, `avatar_privacy_user_avatar`
-* `option` per blog: `avatar_privacy_settings`
-* option per network (`sitemeta`) on multisite installations: `avatar_privacy_salt`
-* `transient` per commenter: `avapr_check_[mail hash]`
-
-The default avatar image is set to the mystery man if you selected one of the new local default avatar images.
+= Requirements =
+Avatar Privacy has the following additional requirements beyond those of WordPress itself:
+* Your server must run PHP 5.6.0 or later, and
+* the PHP installation must include the GD extension (most do).
 
 
 == Screenshots ==
@@ -125,12 +105,37 @@ No, for registered users the user profile is checked, not the table for the comm
 
 I used Avatar Privacy together with these plugins:
 
-* [AntiSpam Bee](http://wordpress.org/extend/plugins/antispam-bee/)
+* [AntiSpam Bee](https://wordpress.org/plugins/antispam-bee/)
+* [EWWW Image Optimizer](https://wordpress.org/plugins/ewww-image-optimizer/)
 
 If you find any problems with particular plugins, please tell me!
 
+= What happens if I remove the plugin? =
+
+There is a difference between deactivating the plugin and uninstalling it. The plugin gets deactivated if you do so on the plugins page or if you simply delete the plugin files via FTP. No uninstallation tasks are performed then, so you can activate and deactivate the plugin as you want without losing the plugin's settings.
+
+If you deactivate the plugin und have gravatars turned on, they will again show up for everybody, even those commenters and users who opted out of displaying gravatars. If you changed the default avatar to one of the new local avatar images, the gravatars will not be displayed until you change the default avatar image back.
+
+= OK, but I really want to get rid of everything. How do I that? =
+
+If you want to completely uninstall the plugin and get rid of any data in the database, you should properly uninstall it: Deactivate the plugin first via the WordPress plugins page and then click 'delete' (same page, next to the plugin). For multisite installations, this has to be done by the network administrator on the network plugins page.
+
+The plugin saves additional data about whether commenters and users want to display a gravatar or not (if you select that mode in the settings). The following data are stored by the plugin and deleted upon uninstallation:
+
+* custom table(s) `[prefix]_avatar_privacy` (global or per blog on new multisite installations)
+* `usermeta` values per user: `use_gravatar`, `avatar_privacy_hash`, `avatar_privacy_user_avatar`
+* `option` per blog: `avatar_privacy_settings`
+* option per network (`sitemeta`) on multisite installations: `avatar_privacy_salt`
+* `transient` per commenter: `avapr_check_[mail hash]`
+
+The default avatar image is set to the mystery man if you selected one of the new local default avatar images.
+
 
 == Changelog ==
+
+= 1.0.4 (2018-05-20) =
+* _Bugfix_: When the plugin is uninstalled, the default avatar image is really reset to `mystery` if necessary.
+* _Bugfix_: The `use_gravatar` checkbox is compatible with more themes now.
 
 = 1.0.3 (2018-05-17) =
 * _Bugfix_: The plugin no longer fails with a fatal error on PHP 5.6.
