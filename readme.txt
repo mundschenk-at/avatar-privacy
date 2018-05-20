@@ -123,7 +123,8 @@ No, for registered users the user profile is checked, not the table for the comm
 
 I used Avatar Privacy together with these plugins:
 
-* [AntiSpam Bee](http://wordpress.org/extend/plugins/antispam-bee/)
+* [AntiSpam Bee](https://wordpress.org/plugins/antispam-bee/)
+* [EWWW Image Optimizer](https://wordpress.org/plugins/ewww-image-optimizer/)
 
 If you find any problems with particular plugins, please tell me!
 
