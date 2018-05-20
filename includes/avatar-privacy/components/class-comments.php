@@ -106,17 +106,50 @@ class Comments implements \Avatar_Privacy\Component {
 		// Define the new checkbox field.
 		$new_field = self::get_gravatar_checkbox( $this->plugin_file );
 
-		// Either add the new field before the new cookies checkbox, after the
-		// email field or at the end of the array.
-		if ( isset( $fields['cookies'] ) || isset( $fields['email'] ) ) {
+		if ( isset( $fields['cookies'] ) ) {
+			// If the `cookies` field exists, add the checkbox just before.
+			$insertion_point = 'cookies';
+			$before_or_after = 'before';
+		} elseif ( isset( $fields['url'] ) ) {
+			// Otherwise, if the `url` field exists, add our checkbox after it.
+			$insertion_point = 'url';
+			$before_or_after = 'after';
+		} elseif ( isset( $fields['email'] ) ) {
+			// Otherwise, look for the `email` field and add the checkbox after that.
+			$insertion_point = 'email';
+			$before_or_after = 'after';
+		} else {
+			// As a last ressort, add the checkbox after all the other fields.
+			\end( $fields );
+			$insertion_point = \key( $fields );
+			$before_or_after = 'after';
+		}
+
+		/**
+		 * Filters the insert position for the `use_gravatar` checkbox.
+		 *
+		 * @since 1.1.0
+		 *
+		 * @param string[] $position {
+		 *     Where to insert the checkbox.
+		 *
+		 *     @type string $before_or_after Either 'before' or 'after'.
+		 *     @type string $insertion_point The index ('url', 'email', etc.) of the field where the checkbox should be inserted.
+		 * }
+		 */
+		list( $before_or_after, $insertion_point ) = \apply_filters( 'avatar_privacy_use_gravatar_position', [ $before_or_after, $insertion_point ] );
+
+		if ( isset( $fields[ $insertion_point ] ) ) {
 			$result = [];
 			foreach ( $fields as $key => $value ) {
-				if ( 'cookies' === $key ) {
-					$result['use_gravatar'] = $new_field;
-					$result[ $key ]         = $value;
-				} elseif ( 'email' === $key && ! isset( $fields['cookies'] ) ) {
-					$result[ $key ]         = $value;
-					$result['use_gravatar'] = $new_field;
+				if ( $key === $insertion_point ) {
+					if ( 'before' === $before_or_after ) {
+						$result['use_gravatar'] = $new_field;
+						$result[ $key ]         = $value;
+					} else {
+						$result[ $key ]         = $value;
+						$result['use_gravatar'] = $new_field;
+					}
 				} else {
 					$result[ $key ] = $value;
 				}
