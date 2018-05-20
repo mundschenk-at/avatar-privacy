@@ -133,6 +133,10 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 == Changelog ==
 
+= 1.0.4 (2018-05-20) =
+* _Bugfix_: When the plugin is uninstalled, the default avatar image is really reset to `mystery` if necessary.
+* _Bugfix_: The `use_gravatar` checkbox is compatible with more themes now.
+
 = 1.0.3 (2018-05-17) =
 * _Bugfix_: The plugin no longer fails with a fatal error on PHP 5.6.
 

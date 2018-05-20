@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.4 (2018-05-20)
+*   _Bugfix_: When the plugin is uninstalled, the default avatar image is really
+    reset to `mystery` if necessary.
+*   _Bugfix_: The `use_gravatar` checkbox is compatible with more themes now.
+
 ## 1.0.3 (2018-05-17)
 *   _Bugfix_: The plugin no longer fails with a fatal error on PHP 5.6.
 
@@ -29,14 +34,12 @@
 *   raised minimum WordPress version to 4.2
 *   checked compatibility with WP 4.9.5
 
-
 ## 0.3 (2013-02-24)
 *   used transients API to cache results of requests to gravatar.com for a small
     amount of time
 *   added two previously untranslated strings to the translation files
 *   added a link to the label of the checkbox in the comment and user profile forms
 *   checked compatibility with WP 3.5.1
-
 
 ## 0.2 (2012-06-11)
 *   _Bugfix_: lower-case and trim E-Mail addresses before hashing to produce a
@@ -55,7 +58,6 @@
 *   added screenshots
 *   tested with WP 3.4
 *   tested with plugins User Photo and Twitter Avatar Reloaded
-
 
 ## 0.1 (2012-02-14)
 *   initial release
