@@ -25,6 +25,15 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
+// Allowed HTML tags in the checkbox label.
+$allowed_html = [
+	'a' => [
+		'href'   => true,
+		'rel'    => true,
+		'target' => true,
+	],
+];
+
 ?>
 <tr class"avatar-privacy-use-gravatar">
 	<th scope="row"><?php esc_html_e( 'Gravatars', 'avatar-privacy' ); ?></th>
@@ -37,7 +46,7 @@
 			value="true"
 			<?php checked( $value ); ?>
 		/>
-		<label for="<?php echo esc_attr( self::CHECKBOX_FIELD_NAME ); ?>"><?php echo wp_kses( __( 'Display a <a href="https://gravatar.com">Gravatar</a> image for my e-mail address.', 'avatar-privacy' ), [ 'a' => [ 'href' => true ] ] ); ?></label><br />
+		<label for="<?php echo esc_attr( self::CHECKBOX_FIELD_NAME ); ?>"><?php echo wp_kses( sprintf( /* translators: gravatar.com URL */ __( 'Display a <a href="%s" rel="noopener nofollow">Gravatar</a> image for my e-mail address.', 'avatar-privacy' ), __( 'https://en.gravatar.com/', 'avatar-privacy' ) ), $allowed_html ); ?></label><br />
 		<p class="description">
 			<?php esc_html_e( "Uncheck this box if you don't want to display the gravatar for your e-mail address (or don't have an account on Gravatar.com).", 'avatar-privacy' ); ?>
 			<?php esc_html_e( 'This setting will only take effect if you have not uploaded a local profile picture.', 'avatar-privacy' ); ?>
