@@ -46,8 +46,10 @@ abstract class Editor {
 	 * @return \WP_Image_Editor|\WP_Error
 	 */
 	public static function create_from_stream( $stream ) {
-		// Create image editor instance from stream.
+		// Create image editor instance from stream, but strongly prefer GD implementations.
+		\add_filter( 'wp_image_editors', [ __CLASS__, 'prefer_gd_image_editor' ], 9999 );
 		$result = \wp_get_image_editor( $stream );
+		\remove_filter( 'wp_image_editors', [ __CLASS__, 'prefer_gd_image_editor' ], 9999 );
 
 		// Clean up stream data.
 		Image_Stream::delete_handle( Image_Stream::get_handle_from_url( $stream ) );
@@ -281,5 +283,26 @@ abstract class Editor {
 		}
 
 		return [ $w, $h ];
+	}
+
+	/**
+	 * Moves Imagick-based image editors to the end of the queue.
+	 *
+	 * @param  string[] $editors A list of image editor implementation class names.
+	 *
+	 * @return string[]
+	 */
+	public static function prefer_gd_image_editor( array $editors ) {
+		$preferred_editors = [];
+		$imagick_editors   = [];
+		foreach ( $editors as $key => $editor ) {
+			if ( \preg_match( '/imagick/i', $editor ) ) {
+				$imagick_editors[] = $editor;
+			} else {
+				$preferred_editors[] = $editor;
+			}
+		}
+
+		return \array_merge( $preferred_editors, $imagick_editors );
 	}
 }
