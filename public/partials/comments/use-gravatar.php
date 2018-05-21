@@ -30,7 +30,9 @@ use Avatar_Privacy\Components\Comments;
 // Allowed HTML tags in the checkbox label.
 $allowed_html = [
 	'a' => [
-		'href' => true,
+		'href'   => true,
+		'rel'    => true,
+		'target' => true,
 	],
 ];
 
