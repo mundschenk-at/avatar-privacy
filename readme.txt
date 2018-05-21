@@ -31,7 +31,7 @@ A more detailed examination of the [reasons for using Avatar Privacy](https://co
 
 = Feedback =
 
-The plugin is still quite new. Please use it with caution and report any problems. You can use the contact form on [my code site](https://code.mundschenk.at/avatar-privacy/) or  create a forum topic on https://wordpress.org/support/plugin/avatar-privacy. I'll see these pop up in my feed reader and hopefully will reply shortly. ;-) You can contact me in German or English.
+The plugin is still quite new. Please use it with caution and report any problems. You can use the contact form on [my code site](https://code.mundschenk.at/avatar-privacy/) or [create a topic in the support forum](https://wordpress.org/support/plugin/avatar-privacy). I'll see these pop up in my feed reader and hopefully will reply shortly. ;-) You can contact me in German or English.
 
 = Credits =
 
