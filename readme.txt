@@ -7,7 +7,7 @@ Tags: gravatar, avatar, privacy
 Requires at least: 4.6
 Requires PHP: 5.6
 Tested up to: 4.9
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 License: GPLv2 or later
 
 Adds options to enhance the privacy when using avatars.
@@ -132,6 +132,11 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 
 == Changelog ==
+
+= 1.0.5 (2018-05-22) =
+* _Bugfix_: Prefer GD-based implementations of `WP_Image_Editor` to work around [trac ticket #42663](https://core.trac.wordpress.org/ticket/42663).
+* _Bugfix_: The `rel` and `target` attributes are allowed in `use_gravatar` checkbox labels and by the default, the `noopener` and `nofollow` values for the `rel` attribute are added to the Gravatar.com link.
+* _Bugfix_: Invalid 0-byte image files are not saved anymore.
 
 = 1.0.4 (2018-05-20) =
 * _Bugfix_: When the plugin is uninstalled, the default avatar image is really reset to `mystery` if necessary.
