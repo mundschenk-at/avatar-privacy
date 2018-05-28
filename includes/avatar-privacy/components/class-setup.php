@@ -171,8 +171,14 @@ class Setup implements \Avatar_Privacy\Component {
 			$installed_version = '';
 		}
 
+		// The current version is (probably) newer than the previously installed one.
 		if ( $this->version !== $installed_version ) {
+			// Update plugin settings if necessary.
 			$this->plugin_updated( $installed_version, $settings );
+
+			// Clear transients.
+			$this->transients->invalidate();
+			$this->site_transients->invalidate();
 		}
 
 		// Check if our database table needs to created or updated.
