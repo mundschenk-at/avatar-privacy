@@ -320,7 +320,7 @@ class User_Avatar_Upload {
 
 		if ( $args['force'] || ! \file_exists( $target ) ) {
 			$data = Image_Tools\Editor::get_resized_image_data(
-				\wp_get_image_editor( $args['avatar'] ), $size, $size, true, $args['mimetype']
+				Image_Tools\Editor::get_image_editor( $args['avatar'] ), $size, $size, true, $args['mimetype']
 			);
 			if ( empty( $data ) ) {
 				// Something went wrong..
