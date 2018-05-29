@@ -1,7 +1,12 @@
 # Changelog
 
-## 1.0.5 (2018-05-22)
+## 1.0.6 (2018-05-29)
+*   _Bugfix_: Only valid response codes from Gravatar.com are cached (200 and 404).
+*   _Bugfix_: Plugin transients are cleared on plugin upgrades.
+*   _Bugfix_: The workaround for [trac ticket #42663](https://core.trac.wordpress.org/ticket/42663)
+    introduced in 1.0.5 is expanded to all uses of `wp_get_image_editor()`.
 
+## 1.0.5 (2018-05-22)
 *   _Bugfix_: Prefer GD-based implementations of `WP_Image_Editor` to work around
     [trac ticket #42663](https://core.trac.wordpress.org/ticket/42663).
 *   _Bugfix_: The `rel` and `target` attributes are allowed in `use_gravatar`

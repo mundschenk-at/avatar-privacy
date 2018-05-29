@@ -47,9 +47,7 @@ abstract class Editor {
 	 */
 	public static function create_from_stream( $stream ) {
 		// Create image editor instance from stream, but strongly prefer GD implementations.
-		\add_filter( 'wp_image_editors', [ __CLASS__, 'prefer_gd_image_editor' ], 9999 );
-		$result = \wp_get_image_editor( $stream );
-		\remove_filter( 'wp_image_editors', [ __CLASS__, 'prefer_gd_image_editor' ], 9999 );
+		$result = self::get_image_editor( $stream );
 
 		// Clean up stream data.
 		Image_Stream::delete_handle( Image_Stream::get_handle_from_url( $stream ) );
@@ -283,6 +281,24 @@ abstract class Editor {
 		}
 
 		return [ $w, $h ];
+	}
+
+	/**
+	 * Returns a `\WP_Image_Editor` instance and loads file into it. Preference is
+	 * given to stream-capable editor classes (i.e. GD-based ones).
+	 *
+	 * @param  string $path Path to the file to load.
+	 * @param  array  $args Optional. Additional arguments for retrieving the image editor. Default [].
+	 *
+	 * @return \WP_Image_Editor|\WP_Error
+	 */
+	public static function get_image_editor( $path, array $args = [] ) {
+		// Create image editor instance from path, but strongly prefer GD implementations.
+		\add_filter( 'wp_image_editors', [ __CLASS__, 'prefer_gd_image_editor' ], 9999 );
+		$result = \wp_get_image_editor( $path, $args );
+		\remove_filter( 'wp_image_editors', [ __CLASS__, 'prefer_gd_image_editor' ], 9999 );
+
+		return $result;
 	}
 
 	/**

@@ -395,12 +395,22 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			return false; // Don't cache the result.
 		}
 
-		if ( 200 === \wp_remote_retrieve_response_code( $response ) ) {
-			$result = \wp_remote_retrieve_header( $response, 'content-type' );
+		switch ( \wp_remote_retrieve_response_code( $response ) ) {
+			case 200:
+				// Valid image found.
+				$result = \wp_remote_retrieve_header( $response, 'content-type' );
+				if ( null !== $mimetype && ! empty( $result ) ) {
+					$mimetype = $result;
+				}
+				break;
 
-			if ( null !== $mimetype && ! empty( $result ) ) {
-				$mimetype = $result;
-			}
+			case 404:
+				// No image found.
+				$result = 0;
+				break;
+
+			default:
+				return false; // Don't cache the result.
 		}
 
 		// Cache the result across all blogs (a YES for 1 week, a NO for 10 minutes or longer,
@@ -420,7 +430,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		 */
 		$duration = \apply_filters( 'avatar_privacy_validate_gravatar_interval', $duration, ! empty( $result ), $age );
 
-		$transients->set( $transient_key, ! empty( $result ) ? $result : 0, $duration );
+		$transients->set( $transient_key, $result, $duration );
 		$this->validate_gravatar_cache[ $hash ] = $result;
 
 		return ! empty( $result );

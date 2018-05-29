@@ -29,11 +29,10 @@
  * Description: Adds options to enhance the privacy when using avatars.
  * Author: Peter Putzer, Johannes Freudendahl
  * Author URI: https://code.mundschenk.at
- * Version: 1.0.5
+ * Version: 1.0.6
  * License: GNU General Public License v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: avatar-privacy
- * Domain Path: /lang
  */
 
 // Don't do anything if called directly.
