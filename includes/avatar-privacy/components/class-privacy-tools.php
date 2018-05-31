@@ -83,6 +83,9 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 	public function admin_init() {
 		// Register data exporter.
 		\add_filter( 'wp_privacy_personal_data_exporters', [ $this, 'register_personal_data_exporter' ], 0 ); // Priority 0 to follow after the built-in exporters. Watch https://core.trac.wordpress.org/ticket/44151.
+
+		// Register data eraser.
+		\add_filter( 'wp_privacy_personal_data_erasers', [ $this, 'register_personal_data_eraser' ] );
 	}
 
 	/**
@@ -103,6 +106,22 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 		];
 
 		return $exporters;
+	}
+
+	/**
+	 * Registers an eraser function for the personal data collected by this plugin.
+	 *
+	 * @param  array $erasers The registered eraser callbacks.
+	 *
+	 * @return array
+	 */
+	public function register_personal_data_eraser( array $erasers ) {
+		$erasers['avatar-privacy'] = [
+			'eraser_friendly_name' => __( 'Avatar Privacy Plugin', 'avatar-privacy' ),
+			'callback'             => [ $this, 'erase_data' ],
+		];
+
+		return $erasers;
 	}
 
 	/**
@@ -232,5 +251,65 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 			],
 			'done' => true,
 		];
+	}
+
+	/**
+	 * Erases the data collected by this plugin.
+	 *
+	 * @param  string $email The email address.
+	 * @param  int    $page  Optional. Default 1.
+	 *
+	 * @return array {
+	 *     @type int   $items_removed  The number of removed items.
+	 *     @type int   $items_retained The number of items that were retained and anonymized.
+	 *     @type array $messages       Any additional information for the admin associated with the removal request.
+	 *     @type bool  $done           True if there is no more data to erase, false otherwise.
+	 * }
+	 */
+	public function erase_data( $email, /* @scrutinizer ignore-unused */ $page = 1 ) {
+		$items_removed  = 0;
+		$items_retained = 0;
+		$messages       = [];
+
+		// Remove user data.
+		$user = \get_user_by( 'email', $email );
+		if ( ! empty( $user ) ) {
+			$items_removed += (int) \delete_user_meta( $user->ID, Core::EMAIL_HASH_META_KEY );
+			$items_removed += (int) \delete_user_meta( $user->ID, Core::GRAVATAR_USE_META_KEY );
+			$items_removed += (int) \delete_user_meta( $user->ID, User_Avatar_Upload::USER_META_KEY );
+		}
+
+		// Remove comment author data.
+		$id = $this->core->get_comment_author_key( $email );
+		if ( ! empty( $id ) ) {
+			$items_removed += $this->delete_comment_author_data( $id, $email );
+		}
+
+		return [
+			'items_removed'  => $items_removed,
+			'items_retained' => $items_retained,
+			'messages'       => $messages,
+			'done'           => true,
+		];
+	}
+
+	/**
+	 * Deletes an entry from the avatar_privacy table.
+	 *
+	 * @param  int    $id    The row ID.
+	 * @param  string $email The original email.
+	 *
+	 * @return int           The number of deleted rows (1 or 0).
+	 */
+	private function delete_comment_author_data( $id, $email ) {
+		global $wpdb;
+
+		// Delete data from database.
+		$rows = (int) $wpdb->delete( $wpdb->avatar_privacy, [ 'id' => $id ], [ '%d' ] ); // WPCS: db call ok, cache ok.
+
+		// Delete cached data.
+		$this->cache->delete( Core::EMAIL_CACHE_PREFIX . $this->core->get_hash( $email ) );
+
+		return $rows;
 	}
 }
