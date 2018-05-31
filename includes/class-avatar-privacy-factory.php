@@ -32,6 +32,7 @@ use Avatar_Privacy\User_Avatar_Upload;
 
 use Avatar_Privacy\Components\Avatar_Handling;
 use Avatar_Privacy\Components\Comments;
+use Avatar_Privacy\Components\Privacy_Tools;
 use Avatar_Privacy\Components\Setup;
 use Avatar_Privacy\Components\Settings_Page;
 use Avatar_Privacy\Components\User_Profile;
@@ -96,6 +97,9 @@ abstract class Avatar_Privacy_Factory {
 				'constructParams' => [ $full_plugin_path ],
 			] );
 			self::$factory->addRule( Comments::class, [
+				'constructParams' => [ $full_plugin_path ],
+			] );
+			self::$factory->addRule( Privacy_Tools::class, [
 				'constructParams' => [ $full_plugin_path ],
 			] );
 			self::$factory->addRule( Setup::class, [

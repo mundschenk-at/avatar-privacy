@@ -30,6 +30,7 @@ use Avatar_Privacy\Core;
 use Avatar_Privacy\Components\Avatar_Handling;
 use Avatar_Privacy\Components\Comments;
 use Avatar_Privacy\Components\Images;
+use Avatar_Privacy\Components\Privacy_Tools;
 use Avatar_Privacy\Components\Setup;
 use Avatar_Privacy\Components\Settings_Page;
 use Avatar_Privacy\Components\User_Profile;
@@ -67,8 +68,9 @@ class Avatar_Privacy_Controller {
 	 * @param Comments        $comments  The comments handler.
 	 * @param User_Profile    $profile   The user profile handler.
 	 * @param Settings_Page   $settings  The admin settings handler.
+	 * @param Privacy_Tools   $privacy   The privacy tools handler.
 	 */
-	public function __construct( Core $core, Setup $setup, Uninstallation $uninstall, Images $icons, Avatar_Handling $avatars, Comments $comments, User_Profile $profile, Settings_Page $settings ) {
+	public function __construct( Core $core, Setup $setup, Uninstallation $uninstall, Images $icons, Avatar_Handling $avatars, Comments $comments, User_Profile $profile, Settings_Page $settings, Privacy_Tools $privacy ) {
 		$this->core         = $core;
 		$this->components[] = $setup;
 		$this->components[] = $uninstall;
@@ -77,6 +79,7 @@ class Avatar_Privacy_Controller {
 		$this->components[] = $comments;
 		$this->components[] = $profile;
 		$this->components[] = $settings;
+		$this->components[] = $privacy;
 	}
 
 	/**
