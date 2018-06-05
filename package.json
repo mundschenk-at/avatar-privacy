@@ -1,8 +1,8 @@
 {
   "name": "avatar-privacy",
   "devDependencies": {
-    "autoprefixer": "^8.5.1",
-    "grunt": "^1.0.2",
+    "autoprefixer": "^8.6.0",
+    "grunt": "^1.0.3",
     "grunt-cli": "^1.2.0",
     "grunt-composer": "^0.4",
     "grunt-contrib-clean": "^1.0.0",
