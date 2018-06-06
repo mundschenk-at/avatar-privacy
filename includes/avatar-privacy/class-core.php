@@ -277,14 +277,16 @@ class Core {
 	}
 
 	/**
-	 * Returns the dataset from the 'use gravatar' table for the given E-Mail
+	 * Returns the dataset from the 'use gravatar' table for the given e-mail
 	 * address.
+	 *
+	 * @internal
 	 *
 	 * @param  string $email_or_hash The comment author's e-mail address or the unique hash.
 	 *
 	 * @return object|null           The dataset as an object or null.
 	 */
-	private function load_data( $email_or_hash ) {
+	public function load_data( $email_or_hash ) {
 		if ( false === \strpos( $email_or_hash, '@' ) ) {
 			return $this->load_data_by_hash( $email_or_hash );
 		} else {
