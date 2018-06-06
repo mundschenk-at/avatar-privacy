@@ -45,17 +45,18 @@ $allowed_html = [
 $disable_style = \apply_filters( 'avatar_privacy_comment_checkbox_disable_inline_style', false );
 
 // Determine if the checkbox should be checked.
-$is_checked = false;
+$cookie_name = 'comment_use_gravatar_' . COOKIEHASH;
+$is_checked  = false;
 if ( isset( $_POST[ Comments::CHECKBOX_FIELD_NAME ] ) ) { // WPCS: CSRF ok, Input var okay.
 	// Re-displaying the comment form with validation errors.
 	$is_checked = ! empty( $_POST[ Comments::CHECKBOX_FIELD_NAME ] ); // WPCS: CSRF ok, Input var okay.
-} elseif ( isset( $_COOKIE[ 'comment_use_gravatar_' . COOKIEHASH ] ) ) { // Input var okay.
+} elseif ( isset( $_COOKIE[ $cookie_name ] ) ) { // Input var okay.
 	// Read the value from the cookie, saved with previous comment.
-	$is_checked = ! empty( $_COOKIE[ 'comment_use_gravatar_' . COOKIEHASH ] ); // Input var okay.
+	$is_checked = ! empty( $_COOKIE[ $cookie_name ] ); // Input var okay.
 }
 ?>
 <p class="comment-form-use-gravatar">
-	<input id="<?php echo \esc_attr( Comments::CHECKBOX_FIELD_NAME ); ?>" name="<?php echo \esc_attr( Comments::CHECKBOX_FIELD_NAME ); ?>" type="checkbox" value="true" <?php \checked( $is_checked, true, false ); ?> /><label
+	<input id="<?php echo \esc_attr( Comments::CHECKBOX_FIELD_NAME ); ?>" name="<?php echo \esc_attr( Comments::CHECKBOX_FIELD_NAME ); ?>" type="checkbox" value="true" <?php \checked( $is_checked, true ); ?> /><label
 	<?php if ( ! $disable_style ) : ?>
 		style="display:inline;"
 	<?php endif; ?>

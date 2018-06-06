@@ -323,7 +323,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			$allowed_comment_types = \apply_filters( 'get_avatar_comment_types', [ 'comment' ] );
 
 			if ( ! empty( $id_or_email->comment_type ) && ! in_array( $id_or_email->comment_type, (array) $allowed_comment_types, true ) ) {
-				return [ false, '' ]; // Abort.
+				return [ false, '', 0 ]; // Abort.
 			}
 
 			if ( ! empty( $id_or_email->user_id ) ) {
