@@ -133,6 +133,10 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 == Changelog ==
 
+= 1.0.7 (2018-06-06) =
+* _Bugfix_: The `use_gravatar` is actually checked when the cookie has been set.
+* _Bugfix_: A (harmless) PHP warning has been fixed.
+
 = 1.0.6 (2018-05-29) =
 * _Bugfix_: Only valid response codes from Gravatar.com are cached (200 and 404).
 * _Bugfix_: Plugin transients are cleared on plugin upgrades.
