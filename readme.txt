@@ -7,7 +7,7 @@ Tags: gravatar, avatar, privacy
 Requires at least: 4.6
 Requires PHP: 5.6
 Tested up to: 4.9
-Stable tag: 1.0.6
+Stable tag: 1.0.7
 License: GPLv2 or later
 
 Adds options to enhance the privacy when using avatars.
