@@ -61,6 +61,13 @@ class Core {
 	const GRAVATAR_USE_META_KEY = 'use_gravatar';
 
 	/**
+	 * The meta key for the gravatar use flag.
+	 *
+	 * @var string
+	 */
+	const ALLOW_ANONYMOUS_META_KEY = 'avatar_privacy_allow_anonymous';
+
+	/**
 	 * Prefix for caching avatar privacy for non-logged-in users.
 	 */
 	const EMAIL_CACHE_PREFIX = 'email_';

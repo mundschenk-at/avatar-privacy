@@ -35,21 +35,20 @@ $allowed_html = [
 ];
 
 ?>
-<tr class"avatar-privacy-use-gravatar">
-	<th scope="row"><?php esc_html_e( 'Gravatars', 'avatar-privacy' ); ?></th>
+<tr class"avatar-privacy-allow-anonymous">
+	<th scope="row"><?php \esc_html_e( 'Logged-out Commenting', 'avatar-privacy' ); ?></th>
 	<td>
-		<?php \wp_nonce_field( self::ACTION_EDIT_USE_GRAVATAR, self::NONCE_USE_GRAVATAR . $user->ID ); ?>
+		<?php \wp_nonce_field( self::ACTION_EDIT_ALLOW_ANONYMOUS, self::NONCE_ALLOW_ANONYMOUS . $user->ID ); ?>
 		<input
-			id="<?php echo esc_attr( self::CHECKBOX_FIELD_NAME ); ?>"
-			name="<?php echo esc_attr( self::CHECKBOX_FIELD_NAME ); ?>"
+			id="<?php echo esc_attr( self::CHECKBOX_ALLOW_ANONYMOUS ); ?>"
+			name="<?php echo esc_attr( self::CHECKBOX_ALLOW_ANONYMOUS ); ?>"
 			type="checkbox"
 			value="true"
-			<?php checked( $use_gravatar ); ?>
+			<?php checked( $allow_anonymous ); ?>
 		/>
-		<label for="<?php echo esc_attr( self::CHECKBOX_FIELD_NAME ); ?>"><?php echo wp_kses( sprintf( /* translators: gravatar.com URL */ __( 'Display a <a href="%s" rel="noopener nofollow">Gravatar</a> image for my e-mail address.', 'avatar-privacy' ), __( 'https://en.gravatar.com/', 'avatar-privacy' ) ), $allowed_html ); ?></label><br />
+		<label for="<?php echo esc_attr( self::CHECKBOX_ALLOW_ANONYMOUS ); ?>"><?php \esc_html_e( 'Allow logged-out comments with my profile picture.', 'avatar-privacy' ); ?></label><br />
 		<p class="description">
-			<?php esc_html_e( "Uncheck this box if you don't want to display the gravatar for your e-mail address (or don't have an account on Gravatar.com).", 'avatar-privacy' ); ?>
-			<?php esc_html_e( 'This setting will only take effect if you have not uploaded a local profile picture.', 'avatar-privacy' ); ?>
+			<?php esc_html_e( 'Check this box if you want to be able to use your profile picture while logged-out.', 'avatar-privacy' ); ?>
 		</p>
 	</td>
 </tr>

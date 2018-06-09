@@ -294,6 +294,12 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		if ( ! empty( $user_id ) && empty( $email ) ) {
 			$user  = \get_user_by( 'ID', $user_id );
 			$email = $user->user_email;
+		} elseif ( empty( $user_id ) && ! empty( $email ) ) {
+			// Check if anonymous comments "as user" are allowed.
+			$user = \get_user_by( 'email', $email );
+			if ( ! empty( $user ) && 'true' === $user->get( Core::ALLOW_ANONYMOUS_META_KEY ) ) {
+				$user_id = $user->ID;
+			}
 		}
 
 		/**
