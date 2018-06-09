@@ -167,10 +167,8 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		// Generate the hash.
 		$hash = ! empty( $user_id ) ? $this->core->get_user_hash( $user_id ) : $this->core->get_hash( $email );
 
-		// Find out if the user opted out of displaying a gravatar.
 		if ( ! $force_default && ( $user_id || $email ) ) {
-			$use_default = false;
-
+			// Check for uploaded avatar.
 			if ( $user_id ) {
 				// Fetch local avatar from meta and make sure it's properly stzed.
 				$args['url'] = $this->get_local_avatar_url( $user_id, $hash, $args['size'] );
@@ -178,28 +176,10 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 					// Great, we have got a local avatar.
 					return $args;
 				}
+			}
 
-				// For users get the value from the usermeta table.
-				$show_gravatar = \get_user_meta( $user_id, Core::GRAVATAR_USE_META_KEY, true ) === 'true';
-				$use_default   = '' === $show_gravatar;
-			} else {
-				// For comments get the value from the plugin's table.
-				$show_gravatar = $this->core->comment_author_allows_gravatar_use( $email );
-				$use_default   = ! $this->core->comment_author_has_gravatar_policy( $email );
-			}
-			if ( $use_default ) {
-				/**
-				 * Filters the default policy for showing gravatars.
-				 *
-				 * The result only applies if a user or comment author has not
-				 * explicitely set a value for `use_gravatar` (i.e. for comments
-				 * created  before the plugin was installed).
-				 *
-				 * @param  bool              $show        Default false.
-				 * @param  int|string|object $id_or_email The Gravatar to retrieve. Can be a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
-				 */
-				$show_gravatar = \apply_filters( 'avatar_privacy_gravatar_use_default', false, $id_or_email );
-			}
+			// Find out if the user opted into displaying a gravatar.
+			$show_gravatar = $this->determine_gravatar_policy( $user_id, $email, $id_or_email );
 		}
 
 		// Check if a gravatar exists for the e-mail address.
@@ -464,5 +444,45 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		}
 
 		return $url;
+	}
+
+	/**
+	 * Determines the gravatar use policy.
+	 *
+	 * @param  int               $user_id The user ID.
+	 * @param  string            $email   The email address.
+	 * @param  int|string|object $id_or_email The Gravatar to retrieve. Can be a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
+	 *
+	 * @return bool
+	 */
+	private function determine_gravatar_policy( $user_id, $email, $id_or_email ) {
+		$show_gravatar = false;
+		$use_default   = false;
+
+		if ( $user_id ) {
+			// For users get the value from the usermeta table.
+			$show_gravatar = \get_user_meta( $user_id, Core::GRAVATAR_USE_META_KEY, true ) === 'true';
+			$use_default   = '' === $show_gravatar;
+		} else {
+			// For comments get the value from the plugin's table.
+			$show_gravatar = $this->core->comment_author_allows_gravatar_use( $email );
+			$use_default   = ! $this->core->comment_author_has_gravatar_policy( $email );
+		}
+
+		if ( $use_default ) {
+			/**
+			 * Filters the default policy for showing gravatars.
+			 *
+			 * The result only applies if a user or comment author has not
+			 * explicitely set a value for `use_gravatar` (i.e. for comments
+			 * created  before the plugin was installed).
+			 *
+			 * @param  bool              $show        Default false.
+			 * @param  int|string|object $id_or_email The Gravatar to retrieve. Can be a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
+			 */
+			$show_gravatar = \apply_filters( 'avatar_privacy_gravatar_use_default', false, $id_or_email );
+		}
+
+		return $show_gravatar;
 	}
 }
