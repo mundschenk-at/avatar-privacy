@@ -173,35 +173,10 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 
 			if ( $user_id ) {
 				// Fetch local avatar from meta and make sure it's properly stzed.
-				$local_avatar = \get_user_meta( $user_id, User_Avatar_Upload::USER_META_KEY, true );
-				if ( ! empty( $local_avatar['file'] ) && ! empty( $local_avatar['type'] ) ) {
-					/**
-					 * Filters the uploaded avatar URL for the given user.
-					 *
-					 * @param  string $url   The URL. Default empty.
-					 * @param  string $hash  The hashed mail address.
-					 * @param  int    $size  The size of the avatar image in pixels.
-					 * @param  array  $args {
-					 *     An array of arguments.
-					 *
-					 *     @type int    $user_id  A WordPress user ID.
-					 *     @type string $avatar   The full-size avatar image path.
-					 *     @type string $mimetype The expected MIME type of the avatar image.
-					 * }
-					 */
-					$url = \apply_filters( 'avatar_privacy_user_avatar_icon_url', '', $hash, $args['size'], [
-						'user_id'  => $user_id,
-						'avatar'   => $local_avatar['file'],
-						'mimetype' => $local_avatar['type'],
-					] );
-
-					if ( ! empty( $url ) ) {
-						// Great, we have got a local avatar.
-						$args['url'] = $url;
-
-						// Return early.
-						return $args;
-					}
+				$args['url'] = $this->get_local_avatar_url( $user_id, $hash, $args['size'] );
+				if ( ! empty( $args['url'] ) ) {
+					// Great, we have got a local avatar.
+					return $args;
 				}
 
 				// For users get the value from the usermeta table.
@@ -446,5 +421,48 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		$this->validate_gravatar_cache[ $hash ] = $result;
 
 		return ! empty( $result );
+	}
+
+	/**
+	 * Retrieves a URL pointing to the local avatar image of the appropriate size.
+	 *
+	 * @param  int    $user_id The user ID.
+	 * @param  string $hash    The hashed mail address.
+	 * @param  int    $size    The requested avatar size in pixels.
+	 *
+	 * @return string          The URL, or '' if no local avatar has been set.
+	 */
+	private function get_local_avatar_url( $user_id, $hash, $size ) {
+		// Bail if we haven't got a valid user ID.
+		if ( empty( $user_id ) ) {
+			return '';
+		}
+
+		// Fetch local avatar from meta and make sure it's properly stzed.
+		$url          = '';
+		$local_avatar = \get_user_meta( $user_id, User_Avatar_Upload::USER_META_KEY, true );
+		if ( ! empty( $local_avatar['file'] ) && ! empty( $local_avatar['type'] ) ) {
+			/**
+			 * Filters the uploaded avatar URL for the given user.
+			 *
+			 * @param  string $url   The URL. Default empty.
+			 * @param  string $hash  The hashed mail address.
+			 * @param  int    $size  The size of the avatar image in pixels.
+			 * @param  array  $args {
+			 *     An array of arguments.
+			 *
+			 *     @type int    $user_id  A WordPress user ID.
+			 *     @type string $avatar   The full-size avatar image path.
+			 *     @type string $mimetype The expected MIME type of the avatar image.
+			 * }
+			 */
+			$url = \apply_filters( 'avatar_privacy_user_avatar_icon_url', '', $hash, $size, [
+				'user_id'  => $user_id,
+				'avatar'   => $local_avatar['file'],
+				'mimetype' => $local_avatar['type'],
+			] );
+		}
+
+		return $url;
 	}
 }
