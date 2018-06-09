@@ -32,6 +32,7 @@ use Avatar_Privacy\User_Avatar_Upload;
 
 use Avatar_Privacy\Components\Avatar_Handling;
 use Avatar_Privacy\Components\Comments;
+use Avatar_Privacy\Components\Integrations;
 use Avatar_Privacy\Components\Privacy_Tools;
 use Avatar_Privacy\Components\Setup;
 use Avatar_Privacy\Components\Settings_Page;
@@ -43,6 +44,8 @@ use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Transients;
 use Avatar_Privacy\Data_Storage\Site_Transients;
+
+use Avatar_Privacy\Integrations\BBPress_Integration;
 
 /**
  * A factory for creating Avatar_Privacy instances via dependency injection.
@@ -114,6 +117,20 @@ abstract class Avatar_Privacy_Factory {
 			] );
 			self::$factory->addRule( User_Profile::class, [
 				'constructParams' => [ $full_plugin_path ],
+				'shared'          => true,
+			] );
+
+			// Plugin integrations.
+			self::$factory->addRule( BBPress_Integration::class, [
+				'constructParams' => [ $full_plugin_path ],
+				'shared'          => true,
+			] );
+			self::$factory->addRule( Integrations::class, [
+				'constructParams' => [
+					[
+						self::$factory->create( BBPress_Integration::class ),
+					],
+				],
 			] );
 		}
 

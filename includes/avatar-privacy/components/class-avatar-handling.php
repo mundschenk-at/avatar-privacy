@@ -341,7 +341,19 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			$email = $user->user_email;
 		}
 
-		return [ $user_id, $email, $age ];
+		/**
+		 * Filters the parsed user ID, email address and "object age".
+		 *
+		 * @param array $parsed_data {
+		 *     The information parsed from $id_or_email.
+		 *
+		 *     @type int|false $user_id The WordPress user ID, or false.
+		 *     @type string    $email   The email address.
+		 *     @type int       $age     The seconds since the post or comment was first created, or 0 if $id_or_email was not one of these object types.
+		 * }
+		 * @param int|string|object $id_or_email The Gravatar to retrieve. Accepts a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
+		 */
+		return \apply_filters( 'avatar_privacy_parse_id_or_email', [ $user_id, $email, $age ], $id_or_email );
 	}
 
 	/**
