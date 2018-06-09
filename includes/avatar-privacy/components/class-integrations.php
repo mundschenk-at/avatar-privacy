@@ -27,7 +27,6 @@
 namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Core;
-use Avatar_Privacy\Integration\Plugin_Integration;
 
 /**
  * A registry for plugin integrations.

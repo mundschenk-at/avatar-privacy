@@ -102,12 +102,6 @@ abstract class Avatar_Privacy_Factory {
 			self::$factory->addRule( Comments::class, [
 				'constructParams' => [ $full_plugin_path ],
 			] );
-			self::$factory->addRule( Integrations::class, [
-				'constructParams' => [
-					[
-					],
-				],
-			] );
 			self::$factory->addRule( Privacy_Tools::class, [
 				'constructParams' => [ $full_plugin_path ],
 			] );
@@ -123,6 +117,20 @@ abstract class Avatar_Privacy_Factory {
 			] );
 			self::$factory->addRule( User_Profile::class, [
 				'constructParams' => [ $full_plugin_path ],
+				'shared'          => true,
+			] );
+
+			// Plugin integrations.
+			self::$factory->addRule( BBPress_Integration::class, [
+				'constructParams' => [ $full_plugin_path ],
+				'shared'          => true,
+			] );
+			self::$factory->addRule( Integrations::class, [
+				'constructParams' => [
+					[
+						self::$factory->create( BBPress_Integration::class ),
+					],
+				],
 			] );
 		}
 
