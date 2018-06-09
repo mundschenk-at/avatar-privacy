@@ -143,13 +143,14 @@ class User_Profile implements \Avatar_Privacy\Component {
 	}
 
 	/**
-	 * Stores the profile user for later use.
+	 * Stores the profile fields markup for later use.
 	 *
 	 * @param \WP_User $user The current user whose profile to modify.
 	 */
 	public function add_user_profile_fields( \WP_User $user ) {
-		$this->markup  = $this->upload->get_avatar_upload_markup( $user );
-		$this->markup .= $this->get_use_gravatar_markup( $user );
+		$this->markup =
+			$this->upload->get_avatar_upload_markup( $user ) .
+			$this->get_use_gravatar_markup( $user );
 	}
 
 	/**
