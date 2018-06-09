@@ -27,7 +27,7 @@
 namespace Avatar_Privacy\Integrations;
 
 use Avatar_Privacy\Core;
-use Avatar_Privacy\Components\;
+use Avatar_Privacy\Components\User_Profile;
 
 /**
  * An integration for bbPress.
@@ -44,15 +44,22 @@ class BBPress_Integration implements Plugin_Integration {
 	 */
 	private $plugin_file;
 
-
+	/**
+	 * The user profile component.
+	 *
+	 * @var User_Profile
+	 */
+	private $profile;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param string $plugin_file The full path to the base plugin file.
+	 * @param string       $plugin_file The full path to the base plugin file.
+	 * @param User_Profile $profile     The user profile component.
 	 */
-	public function __construct( $plugin_file ) {
+	public function __construct( $plugin_file, User_Profile $profile ) {
 		$this->plugin_file = $plugin_file;
+		$this->profile     = $profile;
 	}
 
 	/**
@@ -70,8 +77,22 @@ class BBPress_Integration implements Plugin_Integration {
 	 * @param Core $core The plugin instance.
 	 */
 	public function run( Core $core ) {
+		if ( ! \is_admin() ) {
+			\add_action( 'init', [ $this, 'init' ] );
+		}
+	}
+
+	/**
+	 * Init action handler.
+	 */
+	public function init() {
 		// Load user data from email for bbPress.
 		\add_filter( 'avatar_privacy_parse_id_or_email', [ $this, 'parse_id_or_email' ] );
+
+		// Add profile picture upload and `use_gravatar` checkbox to frontend profile editor.
+		\add_action( 'bbp_user_edit_after',      [ $this, 'add_user_profile_fields' ] );
+		\add_action( 'personal_options_update',  [ $this->profile, 'save_user_profile_fields' ] );
+		\add_action( 'edit_user_profile_update', [ $this->profile, 'save_user_profile_fields' ] );
 	}
 
 	/**
@@ -105,5 +126,19 @@ class BBPress_Integration implements Plugin_Integration {
 		}
 
 		return [ $user_id, $email, $age ];
+	}
+
+	/**
+	 * Add user profile fields for bbPress.
+	 */
+	public function add_user_profile_fields() {
+		$user_id = /* @scrutinizer ignore-call */ \bbp_get_user_id( 0, true, false );
+		if ( empty( $user_id ) ) {
+			return;
+		}
+
+		// Include partials.
+		$use_gravatar = 'true' === \get_user_meta( $user_id, Core::GRAVATAR_USE_META_KEY, true );
+		require \dirname( $this->plugin_file ) . '/public/partials/bbpress/user-profile-picture.php';
 	}
 }
