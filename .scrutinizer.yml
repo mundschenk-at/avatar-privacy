@@ -1,3 +1,6 @@
+checks:
+    php: true
+
 filter:
     paths:
         - 'avatar-privacy.php'
@@ -34,11 +37,6 @@ build:
                 override:
                     - php-scrutinizer-run --enable-security-analysis
                     - phpcs-run --standard=phpcs.xml avatar-privacy.php admin/ public/ includes/ --extensions=php
-
-checks:
-    php:
-        code_rating: true
-        duplication: true
 
 tools:
     php_code_sniffer: false
