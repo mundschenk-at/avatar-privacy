@@ -16,24 +16,6 @@ The plugin's features summed up:
 
 A more detailed examination of the [reasons for using Avatar Privacy](https://code.mundschenk.at/avatar-privacy/reasons/) can be found on the plugin homepage.
 
-## Uninstallation
-
-There is a difference between deactivating the plugin and uninstalling it. The plugin gets deactivated if you do so on the plugins page or if you simply delete the plugin files via FTP. No uninstallation tasks are performed then, so you can activate and deactivate the plugin as you want without losing the plugin's settings.
-
-If you deactivate the plugin und have gravatars turned on, they will again show up for everybody, even those commenters and users who opted out of displaying gravatars. If you changed the default avatar to one of the new local avatar images, the gravatars will not be displayed until you change the default avatar image back.
-
-If you want to completely uninstall the plugin and get rid of any data in the database, you should properly uninstall it: Deactivate the plugin first via the WordPress plugins page and then click 'delete' (same page, next to the plugin). For multisite installations, this has to be done by the network administrator on the network plugins page.
-
-The plugin saves additional data about whether commenters and users want to display a gravatar or not (if you select that mode in the settings). The following data are saved and deleted upon uninstallation:
-
-*   custom table(s) `[prefix]_avatar_privacy` (global or per blog on new multisite installations)
-*   `usermeta` values per user: `use_gravatar`, `avatar_privacy_hash`, `avatar_privacy_user_avatar`
-*   `option` per blog: `avatar_privacy_settings`
-*   option per network (`sitemeta`) on multisite installations: `avatar_privacy_salt`
-*   `transient` per commenter: `avapr_check_[mail hash]`
-
-The default avatar image is set to the mystery man if you selected one of the new local default avatar images.
-
 
 ## Frequently Asked Questions
 
