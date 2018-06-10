@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.0 (2018-06-10)
+*   _Feature_: Supports the new privacy tools on WordPress >= 4.9.6 (export and
+    deletion of personal data, suggested privacy notice text).
+*   _Feature_: Registered users can opt into allowing logged-out comments with the
+    same mail address to user their profile pictures.
+*   _Feature_: The plugin is now compatible with bbPress.
+*   _Change_: Trashed comments and comments marked as spam do not trigger a validation
+    request to Gravatar.com if the admin has set the default gravatar use policy
+    to "enabled" via the filter hook `avatar_privacy_gravatar_use_default`.
+
 ## 1.0.7 (2018-06-06)
 *   _Bugfix_: The `use_gravatar` is actually checked when the cookie has been set.
 *   _Bugfix_: A (harmless) PHP warning has been fixed.
