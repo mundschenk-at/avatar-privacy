@@ -107,7 +107,7 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 		$content .= "<p>{$suggested_text}" . __( 'At your option, an anonymized string created from your email address (also called a hash) may be provided to the Gravatar service to see if you are using it. The Gravatar service privacy policy is available here: https://automattic.com/privacy/. After approval of your comment, your profile picture is visible to the public in the context of your comment. Neither the hash nor your actual email address will be exposed to the public.', 'avatar-privacy' ) . '</p>';
 		$content .= '<h3>' . __( 'Cookies', 'avatar-privacy' ) . '</h3>';
 		$content .= '<p class="privacy-policy-tutorial">' . __( 'The information in this subsection should be included in addition to the information about any other cookies set by either WordPress or another plugin.', 'avatar-privacy' ) . '</p>';
-		$content .= "<p>{$suggested_text}" . __( 'If you leave a comment on our site and opt-in to display your Gravatar image, your choice will be stored in a cookie. This is for your convenience so that you do not have to fill the checkbox again when you leave another comment. This cookies will last for one year.', 'avatar-privacy' ) . '</p>';
+		$content .= "<p>{$suggested_text}" . __( 'If you leave a comment on our site and opt-in to display your Gravatar image, your choice will be stored in a cookie. This is for your convenience so that you do not have to fill the checkbox again when you leave another comment. This cookie will last for one year.', 'avatar-privacy' ) . '</p>';
 
 		\wp_add_privacy_policy_content( __( 'Avatar Privacy', 'avatar-privacy' ), $content );
 	}
@@ -181,6 +181,12 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 		$user_data[] = [
 			'name'  => __( 'Use Gravatar.com', 'avatar-privacy' ),
 			'value' => \get_user_meta( $user->ID, Core::GRAVATAR_USE_META_KEY, true ) === 'true',
+		];
+
+		// Export the `allow_anonymous` setting.
+		$user_data[] = [
+			'name'  => __( 'Logged-out Commenting', 'avatar-privacy' ),
+			'value' => \get_user_meta( $user->ID, Core::ALLOW_ANONYMOUS_META_KEY, true ) === 'true',
 		];
 
 		// Export the uploaded avatar.
@@ -300,6 +306,7 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 		if ( ! empty( $user ) ) {
 			$items_removed += (int) \delete_user_meta( $user->ID, Core::EMAIL_HASH_META_KEY );
 			$items_removed += (int) \delete_user_meta( $user->ID, Core::GRAVATAR_USE_META_KEY );
+			$items_removed += (int) \delete_user_meta( $user->ID, Core::ALLOW_ANONYMOUS_META_KEY );
 			$items_removed += (int) \delete_user_meta( $user->ID, User_Avatar_Upload::USER_META_KEY );
 		}
 
