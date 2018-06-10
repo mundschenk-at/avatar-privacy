@@ -146,6 +146,7 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	 */
 	private static function delete_user_meta() {
 		\delete_metadata( 'user', 0, Core::GRAVATAR_USE_META_KEY, null, true );
+		\delete_metadata( 'user', 0, Core::ALLOW_ANONYMOUS_META_KEY, null, true );
 		\delete_metadata( 'user', 0, User_Avatar_Upload::USER_META_KEY, null, true );
 	}
 
