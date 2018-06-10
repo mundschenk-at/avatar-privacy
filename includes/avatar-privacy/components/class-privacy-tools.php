@@ -107,7 +107,7 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 		$content .= "<p>{$suggested_text}" . __( 'At your option, an anonymized string created from your email address (also called a hash) may be provided to the Gravatar service to see if you are using it. The Gravatar service privacy policy is available here: https://automattic.com/privacy/. After approval of your comment, your profile picture is visible to the public in the context of your comment. Neither the hash nor your actual email address will be exposed to the public.', 'avatar-privacy' ) . '</p>';
 		$content .= '<h3>' . __( 'Cookies', 'avatar-privacy' ) . '</h3>';
 		$content .= '<p class="privacy-policy-tutorial">' . __( 'The information in this subsection should be included in addition to the information about any other cookies set by either WordPress or another plugin.', 'avatar-privacy' ) . '</p>';
-		$content .= "<p>{$suggested_text}" . __( 'If you leave a comment on our site and opt-in to display your Gravatar image, your choice will be stored in a cookie. This is for your convenience so that you do not have to fill the checkbox again when you leave another comment. This cookies will last for one year.', 'avatar-privacy' ) . '</p>';
+		$content .= "<p>{$suggested_text}" . __( 'If you leave a comment on our site and opt-in to display your Gravatar image, your choice will be stored in a cookie. This is for your convenience so that you do not have to fill the checkbox again when you leave another comment. This cookie will last for one year.', 'avatar-privacy' ) . '</p>';
 
 		\wp_add_privacy_policy_content( __( 'Avatar Privacy', 'avatar-privacy' ), $content );
 	}
