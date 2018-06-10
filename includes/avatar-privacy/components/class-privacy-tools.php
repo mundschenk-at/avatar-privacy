@@ -183,6 +183,12 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 			'value' => \get_user_meta( $user->ID, Core::GRAVATAR_USE_META_KEY, true ) === 'true',
 		];
 
+		// Export the `allow_anonymous` setting.
+		$user_data[] = [
+			'name'  => __( 'Logged-out Commenting', 'avatar-privacy' ),
+			'value' => \get_user_meta( $user->ID, Core::ALLOW_ANONYMOUS_META_KEY, true ) === 'true',
+		];
+
 		// Export the uploaded avatar.
 		$local_avatar = \get_user_meta( $user->ID, User_Avatar_Upload::USER_META_KEY, true );
 		if ( ! empty( $local_avatar['file'] ) ) {
@@ -300,6 +306,7 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 		if ( ! empty( $user ) ) {
 			$items_removed += (int) \delete_user_meta( $user->ID, Core::EMAIL_HASH_META_KEY );
 			$items_removed += (int) \delete_user_meta( $user->ID, Core::GRAVATAR_USE_META_KEY );
+			$items_removed += (int) \delete_user_meta( $user->ID, Core::ALLOW_ANONYMOUS_META_KEY );
 			$items_removed += (int) \delete_user_meta( $user->ID, User_Avatar_Upload::USER_META_KEY );
 		}
 
