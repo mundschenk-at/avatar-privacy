@@ -53,6 +53,23 @@ class User_Profile implements \Avatar_Privacy\Component {
 	const NONCE_USE_GRAVATAR = 'avatar_privacy_use_gravatar_nonce_';
 
 	/**
+	 * The nonce action for updating the 'allow_anonymous' meta field.
+	 */
+	const ACTION_EDIT_ALLOW_ANONYMOUS = 'avatar_privacy_edit_allow_anonymous';
+
+	/**
+	 * The nonce used for updating the 'allow_anonymous' meta field.
+	 */
+	const NONCE_ALLOW_ANONYMOUS = 'avatar_privacy_allow_anonymous_nonce_';
+
+	/**
+	 * The name of the checkbox field in the user profile.
+	 */
+	const CHECKBOX_ALLOW_ANONYMOUS = 'avatar_privacy_allow_anonymous_gravatar';
+
+
+
+	/**
 	 * The full path to the main plugin file.
 	 *
 	 * @var   string
@@ -161,10 +178,12 @@ class User_Profile implements \Avatar_Privacy\Component {
 	 * @return string
 	 */
 	private function get_use_gravatar_markup( \WP_User $user ) {
-		$value = 'true' === \get_user_meta( $user->ID, Core::GRAVATAR_USE_META_KEY, true );
+		$use_gravatar    = 'true' === \get_user_meta( $user->ID, Core::GRAVATAR_USE_META_KEY, true );
+		$allow_anonymous = 'true' === \get_user_meta( $user->ID, Core::ALLOW_ANONYMOUS_META_KEY, true );
 
 		\ob_start();
 		require \dirname( $this->plugin_file ) . '/admin/partials/profile/use-gravatar.php';
+		require \dirname( $this->plugin_file ) . '/admin/partials/profile/allow-anonymous.php';
 		return \ob_get_clean();
 	}
 
@@ -180,6 +199,7 @@ class User_Profile implements \Avatar_Privacy\Component {
 		}
 
 		$this->save_use_gravatar_checkbox( $user_id );
+		$this->save_allow_anonymous_checkbox( $user_id );
 		$this->upload->save_uploaded_user_avatar( $user_id );
 	}
 
@@ -193,9 +213,23 @@ class User_Profile implements \Avatar_Privacy\Component {
 		// Use true/false instead of 1/0 since a '0' value is removed from the database and then
 		// we can't differentiate between opted-out and never saved a value.
 		if ( isset( $_POST[ self::NONCE_USE_GRAVATAR . $user_id ] ) && \wp_verify_nonce( \sanitize_key( $_POST[ self::NONCE_USE_GRAVATAR . $user_id ] ), self::ACTION_EDIT_USE_GRAVATAR ) ) {
-			$value = isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) && ( 'true' === $_POST[ self::CHECKBOX_FIELD_NAME ] ) ? 'true' : 'false'; // WPCS:  Input var okay.
-			\update_user_meta( $user_id, Core::GRAVATAR_USE_META_KEY, $value );
+			$use_gravatar = isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) && ( 'true' === $_POST[ self::CHECKBOX_FIELD_NAME ] ) ? 'true' : 'false'; // WPCS:  Input var okay.
+			\update_user_meta( $user_id, Core::GRAVATAR_USE_META_KEY, $use_gravatar );
 		}
 	}
 
+	/**
+	 * Saves the value of the 'allow_anonymous' checkbox from the user profile in
+	 * the database.
+	 *
+	 * @param int $user_id The ID of the user that has just been saved.
+	 */
+	public function save_allow_anonymous_checkbox( $user_id ) {
+		// Use true/false instead of 1/0 since a '0' value is removed from the database and then
+		// we can't differentiate between opted-out and never saved a value.
+		if ( isset( $_POST[ self::NONCE_ALLOW_ANONYMOUS . $user_id ] ) && \wp_verify_nonce( \sanitize_key( $_POST[ self::NONCE_ALLOW_ANONYMOUS . $user_id ] ), self::ACTION_EDIT_ALLOW_ANONYMOUS ) ) {
+			$allow_anonymous = isset( $_POST[ self::CHECKBOX_ALLOW_ANONYMOUS ] ) && ( 'true' === $_POST[ self::CHECKBOX_ALLOW_ANONYMOUS ] ) ? 'true' : 'false'; // WPCS:  Input var okay.
+			\update_user_meta( $user_id, Core::ALLOW_ANONYMOUS_META_KEY, $allow_anonymous );
+		}
+	}
 }
