@@ -474,7 +474,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			$show_gravatar = $this->core->comment_author_allows_gravatar_use( $email );
 
 			// Don't use the default policy for spam comments.
-			if ( ! $id_or_email instanceof \WP_Comment || 'spam' !== $id_or_email->comment_approved ) {
+			if ( ! $id_or_email instanceof \WP_Comment || ( 'spam' !== $id_or_email->comment_approved && 'trash' !== $id_or_email->comment_approved ) ) {
 				$use_default = ! $this->core->comment_author_has_gravatar_policy( $email );
 			}
 		}
