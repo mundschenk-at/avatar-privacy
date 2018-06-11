@@ -467,8 +467,9 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 
 		if ( $user_id ) {
 			// For users get the value from the usermeta table.
-			$show_gravatar = \get_user_meta( $user_id, Core::GRAVATAR_USE_META_KEY, true ) === 'true';
-			$use_default   = '' === $show_gravatar;
+			$meta_value    = \get_user_meta( $user_id, Core::GRAVATAR_USE_META_KEY, true );
+			$show_gravatar = 'true' === $meta_value;
+			$use_default   = '' === $meta_value;
 		} else {
 			// For comments get the value from the plugin's table.
 			$show_gravatar = $this->core->comment_author_allows_gravatar_use( $email );
