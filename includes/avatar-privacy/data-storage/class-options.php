@@ -34,10 +34,15 @@ namespace Avatar_Privacy\Data_Storage;
  * @author Peter Putzer <github@mundschenk.at>
  */
 class Options extends \Mundschenk\Data_Storage\Options {
+	/**
+	 * The prefix for the plugin options.
+	 *
+	 * @var string
+	 */
 	const PREFIX = 'avatar_privacy_';
 
 	/**
-	 * The array key of the installed version setting (in the settings array).
+	 * The name of the option containing the installed plugin version.
 	 *
 	 * @var string
 	 */
