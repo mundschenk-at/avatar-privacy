@@ -43,12 +43,12 @@ use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 class User_Avatar_Upload {
 
 	/**
-	 * The nonce action for updating the 'use_gravatar' meta field.
+	 * The nonce action for updating custom user avatars.
 	 */
 	const ACTION_UPLOAD = 'avatar_privacy_upload_avatar';
 
 	/**
-	 * The nonce used for updating the 'use_gravatar' meta field.
+	 * The nonce used for updating custom user avatars.
 	 */
 	const NONCE_UPLOAD = 'avatar_privacy_upload_avatar_nonce_';
 
