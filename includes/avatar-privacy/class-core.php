@@ -27,6 +27,9 @@
 
 namespace Avatar_Privacy;
 
+use Avatar_Privacy\Settings;
+
+
 use Avatar_Privacy\Data_Storage\Cache;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Network_Options;
@@ -136,7 +139,6 @@ class Core {
 	 */
 	private $salt;
 
-
 	/**
 	 * The site transients handler.
 	 *
@@ -230,11 +232,17 @@ class Core {
 	/**
 	 * Retrieves the plugin settings.
 	 *
+	 * @since 1.2.0 Parameter $force added.
+	 *
+	 * @param bool $force Optional. Forces retrieval of settings from database. Default false.
+	 *
 	 * @return array
 	 */
-	public function get_settings() {
-		if ( empty( $this->settings ) ) {
-			$this->settings = $this->options->get( self::SETTINGS_NAME, [] );
+	public function get_settings( $force = false ) {
+		// Force a re-read if the cached settings do not appear to be from the current version.
+		if ( empty( $this->settings ) || empty( $this->settings[ Options::INSTALLED_VERSION ] )
+			|| $this->version !== $this->settings[ Options::INSTALLED_VERSION ] || $force ) {
+			$this->settings = $this->options->get( self::SETTINGS_NAME, Settings::get_defaults() );
 		}
 
 		return $this->settings;
