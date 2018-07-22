@@ -28,6 +28,7 @@
 namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Core;
+use Avatar_Privacy\Settings;
 use Avatar_Privacy\User_Avatar_Upload;
 
 use Avatar_Privacy\Components\Images;
@@ -122,6 +123,21 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 
 		// New default image display: filter the gravatar image upon display.
 		\add_filter( 'pre_get_avatar_data', [ $this, 'get_avatar_data' ], 10, 2 );
+
+		// Generate presets from saved settings.
+		$this->enable_presets();
+	}
+
+	/**
+	 * Enables default filters from the user settings.
+	 */
+	public function enable_presets() {
+		$settings = $this->core->get_settings();
+
+		if ( ! empty( $settings[ Settings::GRAVATAR_USE_DEFAULT ] ) ) {
+			// Use priority 9 to allow filters with the default priority to override this consistently.
+			\add_filter( 'avatar_privacy_gravatar_use_default', '__return_true', 9, 0 );
+		}
 	}
 
 	/**
