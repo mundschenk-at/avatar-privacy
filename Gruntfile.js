@@ -63,6 +63,7 @@ module.exports = function( grunt ) {
 						'vendor/mundschenk-at/check-wp-requirements/*.php',
 						'vendor/mundschenk-at/check-wp-requirements/partials/*.php',
 						'vendor/mundschenk-at/wp-data-storage/src/**/*.php',
+						'vendor/mundschenk-at/wp-settings-ui/src/**/*.php',
 						'vendor/mistic100/randomcolor/src/**/*.php',
 						'vendor/level-2/dice/**/*.php',
 						'vendor/jdenticon/jdenticon/src/**/*.php',

@@ -28,7 +28,12 @@
 namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Core;
+use Avatar_Privacy\Settings;
+
 use Avatar_Privacy\Data_Storage\Options;
+
+use Mundschenk\UI\Control_Factory;
+use Mundschenk\UI\Controls;
 
 /**
  * Handles privacy-specific additions to the "Discussion" settings page.
@@ -92,16 +97,43 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	 * an explanation of the wrong gravatar settings.
 	 */
 	public function register_settings() {
-		\add_settings_field( 'avatar-privacy', __( 'Avatar Privacy', 'avatar-privacy' ), [ $this, 'output_settings_header' ], 'discussion', 'avatars' );
+		\register_setting( 'discussion', $this->options->get_name( Core::SETTINGS_NAME ), [ $this, 'sanitize_settings' ] );
+
+		// Register control render callbacks.
+		$controls = Control_Factory::initialize( Settings::get_fields( $this->get_settings_header() ), $this->options, Core::SETTINGS_NAME );
+		foreach ( $controls as $control ) {
+			$control->register( 'discussion' );
+		}
 	}
 
 	/**
-	 * Outputs a short explanation on the discussion settings page.
+	 * Adds a short explanation on the discussion settings page.
+	 *
+	 * @return string
 	 */
-	public function output_settings_header() {
+	public function get_settings_header() {
 		$show_avatars = $this->options->get( 'show_avatars', false, true );
 
+		\ob_start();
 		require dirname( $this->plugin_file ) . '/admin/partials/sections/avatars-disabled.php';
 		require dirname( $this->plugin_file ) . '/admin/partials/sections/avatars-enabled.php';
+		return \ob_get_clean();
+	}
+
+	/**
+	 * Sanitize plugin settings array.
+	 *
+	 * @param  array $input The plugin settings.
+	 *
+	 * @return array The sanitized plugin settings.
+	 */
+	public function sanitize_settings( $input ) {
+		foreach ( Settings::get_fields() as $key => $info ) {
+			if ( Controls\Checkbox_Input::class === $info['ui'] ) {
+				$input[ $key ] = ! empty( $input[ $key ] );
+			}
+		}
+
+		return $input;
 	}
 }

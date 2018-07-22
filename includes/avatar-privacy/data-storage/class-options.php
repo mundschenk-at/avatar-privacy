@@ -34,10 +34,15 @@ namespace Avatar_Privacy\Data_Storage;
  * @author Peter Putzer <github@mundschenk.at>
  */
 class Options extends \Mundschenk\Data_Storage\Options {
+	/**
+	 * The prefix for the plugin options.
+	 *
+	 * @var string
+	 */
 	const PREFIX = 'avatar_privacy_';
 
 	/**
-	 * The array key of the installed version setting (in the settings array).
+	 * The name of the option containing the installed plugin version.
 	 *
 	 * @var string
 	 */
@@ -48,20 +53,5 @@ class Options extends \Mundschenk\Data_Storage\Options {
 	 */
 	public function __construct() {
 		parent::__construct( self::PREFIX );
-	}
-
-	/**
-	 * Retrieves the default settings.
-	 *
-	 * @return array
-	 */
-	public static function get_default_settings() {
-		return [
-			'mode_optin'            => true,
-			'use_gravatar'          => true,
-			'mode_checkforgravatar' => true,
-			'default_show'          => false,
-			'checkbox_default'      => false,
-		];
 	}
 }

@@ -157,8 +157,8 @@ class Setup implements \Avatar_Privacy\Component {
 	 * Checks if the default settings or database schema need to be upgraded.
 	 */
 	public function update_check() {
-		// Don't use Core::get_settings to prevent cache pollution.
-		$settings = $this->options->get( Core::SETTINGS_NAME, [] );
+		// Force reading the settings from the DB, but do not cache the result.
+		$settings = $this->core->get_settings( true );
 
 		// We can ignore errors here, just carry on as if for a new installation.
 		if ( ! empty( $settings[ Options::INSTALLED_VERSION ] ) ) {
