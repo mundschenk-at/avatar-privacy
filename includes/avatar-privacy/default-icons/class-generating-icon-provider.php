@@ -56,12 +56,15 @@ abstract class Generating_Icon_Provider extends Abstract_Icon_Provider {
 	/**
 	 * Creates a new instance.
 	 *
+	 * @since 1.2.0 Parameter $name added.
+	 *
 	 * @param Generator        $generator  An image generator.
 	 * @param Filesystem_Cache $file_cache The file cache handler.
 	 * @param string[]         $types      An array of valid types. The first entry is used as the cache sub-directory.
+	 * @param string           $name       Optional. A translated user-visible name. Default ''.
 	 */
-	protected function __construct( Generator $generator, Filesystem_Cache $file_cache, array $types ) {
-		parent::__construct( $types );
+	protected function __construct( Generator $generator, Filesystem_Cache $file_cache, array $types, $name = '' ) {
+		parent::__construct( $types, $name );
 
 		$this->generator  = $generator;
 		$this->file_cache = $file_cache;

@@ -83,15 +83,17 @@ abstract class Icon_Provider_List {
 		if ( empty( self::$providers ) ) {
 			$plugin_file = $core->get_plugin_file();
 
-			foreach ( self::SVG_ICONS as $file => $types ) {
-				self::$providers[] = new SVG_Icon_Provider( $types, $file, $plugin_file );
-			}
-
-			self::$providers[] = new Retro_Icon_Provider( $file_cache );
-			self::$providers[] = new Rings_Icon_Provider( $file_cache );
-			self::$providers[] = new Monster_ID_Icon_Provider( $file_cache );
-			self::$providers[] = new Wavatar_Icon_Provider( $file_cache );
-			self::$providers[] = new Identicon_Icon_Provider( $file_cache );
+			self::$providers = [
+				new SVG_Icon_Provider( [ 'mystery', 'mystery-man', 'mm' ], 'mystery', $plugin_file ),
+				new Identicon_Icon_Provider( $file_cache ),
+				new Wavatar_Icon_Provider( $file_cache ),
+				new Monster_ID_Icon_Provider( $file_cache ),
+				new Retro_Icon_Provider( $file_cache ),
+				new Rings_Icon_Provider( $file_cache ),
+				new SVG_Icon_Provider( [ 'bubble', 'comment' ],               'comment-bubble', $plugin_file, __( 'Speech Bubble', 'avatar-privacy' ) ),
+				new SVG_Icon_Provider( [ 'bowling-pin', 'im-user-offline' ],  'shaded-cone',    $plugin_file, __( 'Bowling Pin', 'avatar-privacy' ) ),
+				new SVG_Icon_Provider( [ 'silhouette', 'view-media-artist' ], 'silhouette',     $plugin_file, __( 'Silhouette', 'avatar-privacy' ) ),
+			];
 		}
 
 		return self::$providers;

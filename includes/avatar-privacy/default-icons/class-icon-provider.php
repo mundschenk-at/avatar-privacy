@@ -53,4 +53,22 @@ interface Icon_Provider {
 	 * @return string
 	 */
 	public function get_icon_url( $identity, $size );
+
+	/**
+	 * Retrieves the option value (the primary provided type).
+	 *
+	 * @since 1.2.0
+	 *
+	 * @return string
+	 */
+	public function get_option_value();
+
+	/**
+	 * Retrieves the user-visible, translated name.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @return string
+	 */
+	public function get_name();
 }

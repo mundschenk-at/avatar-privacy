@@ -118,9 +118,6 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 * Initialize additional plugin hooks.
 	 */
 	public function init() {
-		// Add new default avatars.
-		\add_filter( 'avatar_defaults', [ $this, 'avatar_defaults' ] );
-
 		// New default image display: filter the gravatar image upon display.
 		\add_filter( 'pre_get_avatar_data', [ $this, 'get_avatar_data' ], 10, 2 );
 
@@ -138,26 +135,6 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			// Use priority 9 to allow filters with the default priority to override this consistently.
 			\add_filter( 'avatar_privacy_gravatar_use_default', '__return_true', 9, 0 );
 		}
-	}
-
-	/**
-	 * Adds new images to the list of default avatar images.
-	 *
-	 * @param  string[] $avatar_defaults The list of default avatar images.
-	 *
-	 * @return string[] The modified default avatar array.
-	 */
-	public function avatar_defaults( $avatar_defaults ) {
-		// Remove Gravatar logo.
-		unset( $avatar_defaults['gravatar_default'] );
-
-		$avatar_defaults = array_merge( $avatar_defaults, [
-			'rings'       => __( 'Rings (Generated)', 'avatar-privacy' ),
-			'bubble'      => __( 'Speech Bubble', 'avatar-privacy' ),
-			'bowling-pin' => __( 'Bowling Pin', 'avatar-privacy' ),
-			'silhouette'  => __( 'Silhouette', 'avatar-privacy' ),
-		] );
-		return $avatar_defaults;
 	}
 
 	/**

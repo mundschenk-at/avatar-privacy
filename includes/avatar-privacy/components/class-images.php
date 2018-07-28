@@ -167,6 +167,9 @@ class Images implements \Avatar_Privacy\Component {
 		$this->core           = $core;
 		$this->icon_providers = Icon_Provider_List::get( $core, $this->file_cache );
 
+		// Add new default avatars.
+		\add_filter( 'avatar_defaults', [ $this, 'avatar_defaults' ] );
+
 		// Generate the correct avatar images.
 		\add_filter( 'avatar_privacy_default_icon_url',     [ $this, 'default_icon_url' ],             10, 4 );
 		\add_filter( 'avatar_privacy_gravatar_icon_url',    [ $this->gravatar_cache, 'get_icon_url' ], 10, 4 );
@@ -178,6 +181,30 @@ class Images implements \Avatar_Privacy\Component {
 
 		// Clean up cache once per day.
 		\add_action( 'init', [ $this, 'enable_image_cache_cleanup' ] );
+	}
+
+	/**
+	 * Adds new images to the list of default avatar images.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param  string[] $avatar_defaults The list of default avatar images.
+	 *
+	 * @return string[] The modified default avatar array.
+	 */
+	public function avatar_defaults( $avatar_defaults ) {
+		// Remove Gravatar logo.
+		unset( $avatar_defaults['gravatar_default'] );
+
+		// Add non-default icons.
+		foreach ( $this->icon_providers as $provider ) {
+			$type = $provider->get_option_value();
+			if ( ! isset( $avatar_defaults[ $type ] ) ) {
+				$avatar_defaults[ $type ] = $provider->get_name();
+			}
+		}
+
+		return $avatar_defaults;
 	}
 
 	/**
