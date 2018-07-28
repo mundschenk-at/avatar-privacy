@@ -36,13 +36,7 @@ use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Data_Storage\Transients;
 
 use Avatar_Privacy\Default_Icons\Icon_Provider;
-use Avatar_Privacy\Default_Icons\Retro_Icon_Provider;
-use Avatar_Privacy\Default_Icons\Rings_Icon_Provider;
-use Avatar_Privacy\Default_Icons\Static_Icon_Provider;
-use Avatar_Privacy\Default_Icons\SVG_Icon_Provider;
-use Avatar_Privacy\Default_Icons\Monster_ID_Icon_Provider;
-use Avatar_Privacy\Default_Icons\Wavatar_Icon_Provider;
-use Avatar_Privacy\Default_Icons\Identicon_Icon_Provider;
+use Avatar_Privacy\Default_Icons\Icon_Provider_List;
 
 /**
  * Handles the creation and caching of avatar images. Default icons are created by
@@ -51,30 +45,6 @@ use Avatar_Privacy\Default_Icons\Identicon_Icon_Provider;
  * @since 1.0.0
  */
 class Images implements \Avatar_Privacy\Component {
-	const MYSTERY          = 'mystery';
-	const COMMENT_BUBBLE   = 'comment-bubble';
-	const SHADED_CONE      = 'shaded-cone';
-	const BLACK_SILHOUETTE = 'silhouette';
-
-	const SVG_ICONS = [
-		self::MYSTERY          => [
-			'mystery',
-			'mystery-man',
-			'mm',
-		],
-		self::COMMENT_BUBBLE   => [
-			'bubble',
-			'comment',
-		],
-		self::SHADED_CONE      => [
-			'bowling-pin',
-			'im-user-offline',
-		],
-		self::BLACK_SILHOUETTE => [
-			'silhouette',
-			'view-media-artist',
-		],
-	];
 
 	const JPEG_IMAGE = 'image/jpeg';
 	const PNG_IMAGE  = 'image/png';
@@ -194,18 +164,8 @@ class Images implements \Avatar_Privacy\Component {
 	 * @return void
 	 */
 	public function run( Core $core ) {
-		$this->core  = $core;
-		$plugin_file = $core->get_plugin_file();
-
-		foreach ( self::SVG_ICONS as $file => $types ) {
-			$this->icon_providers[] = new SVG_Icon_Provider( $types, $file, $plugin_file );
-		}
-
-		$this->icon_providers[] = new Retro_Icon_Provider( $this->file_cache );
-		$this->icon_providers[] = new Rings_Icon_Provider( $this->file_cache );
-		$this->icon_providers[] = new Monster_ID_Icon_Provider( $this->file_cache );
-		$this->icon_providers[] = new Wavatar_Icon_Provider( $this->file_cache );
-		$this->icon_providers[] = new Identicon_Icon_Provider( $this->file_cache );
+		$this->core           = $core;
+		$this->icon_providers = Icon_Provider_List::get( $core, $this->file_cache );
 
 		// Generate the correct avatar images.
 		\add_filter( 'avatar_privacy_default_icon_url',     [ $this, 'default_icon_url' ],             10, 4 );
