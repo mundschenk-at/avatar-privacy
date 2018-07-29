@@ -416,26 +416,4 @@ class Images implements \Avatar_Privacy\Component {
 		// Don't run the job again until the interval is up.
 		$this->site_transients->set( $lock, true, $interval );
 	}
-
-	/**
-	 * Retrieves a users by email hash.
-	 *
-	 * @param string $hash The user's email hash.
-	 *
-	 * @return \WP_User|null
-	 */
-	private static function get_user_by_hash( $hash ) {
-		$users = \get_users( [
-			'number'       => 1,
-			'meta_key'     => Core::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key, WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine
-			'meta_value'   => $hash, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_value, WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine
-			'meta_compare' => '=',
-		] );
-
-		if ( empty( $users ) ) {
-			return null;
-		}
-
-		return $users[0];
-	}
 }
