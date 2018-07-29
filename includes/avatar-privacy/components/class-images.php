@@ -27,6 +27,8 @@
 namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Core;
+
+use Avatar_Privacy\Avatar_Handlers\Default_Icons_Handler;
 use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache;
 use Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler;
 
@@ -34,9 +36,6 @@ use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Data_Storage\Transients;
-
-use Avatar_Privacy\Default_Icons\Icon_Provider;
-use Avatar_Privacy\Default_Icons\Icon_Provider_List;
 
 /**
  * Handles the creation and caching of avatar images. Default icons are created by
@@ -100,13 +99,6 @@ class Images implements \Avatar_Privacy\Component {
 	private $file_cache;
 
 	/**
-	 * A list of icon providers.
-	 *
-	 * @var Icon_Provider[]
-	 */
-	private $icon_providers = [];
-
-	/**
 	 * The Gravatar.com icon provider.
 	 *
 	 * @var Gravatar_Cache
@@ -121,6 +113,13 @@ class Images implements \Avatar_Privacy\Component {
 	private $user_avatar;
 
 	/**
+	 * The default icons handler.
+	 *
+	 * @var Default_Icons_Handler;
+	 */
+	private $default_icons;
+
+	/**
 	 * The core API.
 	 *
 	 * @var Core
@@ -130,20 +129,22 @@ class Images implements \Avatar_Privacy\Component {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param Transients          $transients      The transients handler.
-	 * @param Site_Transients     $site_transients The site transients handler.
-	 * @param Options             $options         The options handler.
-	 * @param Filesystem_Cache    $file_cache      The filesystem cache handler.
-	 * @param Gravatar_Cache      $gravatar        The Gravatar.com icon provider.
-	 * @param User_Avatar_Handler $user_avatar     The user avatar handler.
+	 * @param Transients            $transients      The transients handler.
+	 * @param Site_Transients       $site_transients The site transients handler.
+	 * @param Options               $options         The options handler.
+	 * @param Filesystem_Cache      $file_cache      The filesystem cache handler.
+	 * @param Gravatar_Cache        $gravatar        The Gravatar.com icon provider.
+	 * @param User_Avatar_Handler   $user_avatar     The user avatar handler.
+	 * @param Default_Icons_Handler $default_icons   The default icons handler.
 	 */
-	public function __construct( Transients $transients, Site_Transients $site_transients, Options $options, Filesystem_Cache $file_cache, Gravatar_Cache $gravatar, User_Avatar_Handler $user_avatar ) {
+	public function __construct( Transients $transients, Site_Transients $site_transients, Options $options, Filesystem_Cache $file_cache, Gravatar_Cache $gravatar, User_Avatar_Handler $user_avatar, Default_Icons_Handler $default_icons ) {
 		$this->transients      = $transients;
 		$this->site_transients = $site_transients;
 		$this->options         = $options;
 		$this->file_cache      = $file_cache;
 		$this->gravatar_cache  = $gravatar;
 		$this->user_avatar     = $user_avatar;
+		$this->default_icons   = $default_icons;
 	}
 
 	/**
@@ -154,14 +155,13 @@ class Images implements \Avatar_Privacy\Component {
 	 * @return void
 	 */
 	public function run( Core $core ) {
-		$this->core           = $core;
-		$this->icon_providers = Icon_Provider_List::get( $core, $this->file_cache );
+		$this->core = $core;
 
 		// Add new default avatars.
-		\add_filter( 'avatar_defaults', [ $this, 'avatar_defaults' ] );
+		\add_filter( 'avatar_defaults', [ $this->default_icons, 'avatar_defaults' ] );
 
 		// Generate the correct avatar images.
-		\add_filter( 'avatar_privacy_default_icon_url',     [ $this, 'default_icon_url' ],        10, 4 );
+		\add_filter( 'avatar_privacy_default_icon_url',     [ $this->default_icons, 'get_url' ],  10, 4 );
 		\add_filter( 'avatar_privacy_gravatar_icon_url',    [ $this->gravatar_cache, 'get_url' ], 10, 4 );
 		\add_filter( 'avatar_privacy_user_avatar_icon_url', [ $this->user_avatar, 'get_url' ],    10, 4 );
 
@@ -171,30 +171,6 @@ class Images implements \Avatar_Privacy\Component {
 
 		// Clean up cache once per day.
 		\add_action( 'init', [ $this, 'enable_image_cache_cleanup' ] );
-	}
-
-	/**
-	 * Adds new images to the list of default avatar images.
-	 *
-	 * @since 1.2.0
-	 *
-	 * @param  string[] $avatar_defaults The list of default avatar images.
-	 *
-	 * @return string[] The modified default avatar array.
-	 */
-	public function avatar_defaults( $avatar_defaults ) {
-		// Remove Gravatar logo.
-		unset( $avatar_defaults['gravatar_default'] );
-
-		// Add non-default icons.
-		foreach ( $this->icon_providers as $provider ) {
-			$type = $provider->get_option_value();
-			if ( ! isset( $avatar_defaults[ $type ] ) ) {
-				$avatar_defaults[ $type ] = $provider->get_name();
-			}
-		}
-
-		return $avatar_defaults;
 	}
 
 	/**
@@ -240,7 +216,7 @@ class Images implements \Avatar_Privacy\Component {
 					$success = $this->gravatar_cache->cache_image( $type, $hash, $size, $subdir, $extension, $this->core );
 					break;
 				default:
-					$success = $this->generate_default_icon( $hash, $type, $size );
+					$success = $this->default_icons->cache_image( $type, $hash, $size, $subdir, $extension, $this->core );
 			}
 
 			if ( ! $success ) {
@@ -281,54 +257,6 @@ class Images implements \Avatar_Privacy\Component {
 			/* translators: $file path */
 			\wp_die( \esc_html( \sprintf( \__( 'Error generating avatar file %s.', 'avatar-privacy' ), $file ) ) );
 		}
-	}
-
-	/**
-	 * Generates the default icon for the given hash.
-	 *
-	 * @param  string $hash The hashed mail address.
-	 * @param  string $type The default icon type.
-	 * @param  int    $size The requested size in pixels.
-	 *
-	 * @return bool
-	 */
-	private function generate_default_icon( $hash, $type, $size ) {
-		foreach ( $this->icon_providers as $provider ) {
-			if ( $provider->provides( $type ) ) {
-				return ! empty( $provider->get_icon_url( $hash, $size ) );
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Retrieves the URL for the given default icon type.
-	 *
-	 * @param  string $url  The fallback icon URL (a blank GIF).
-	 * @param  string $hash The hashed mail address.
-	 * @param  int    $size The size of the avatar image in pixels.
-	 * @param  array  $args {
-	 *     An array of arguments.
-	 *
-	 *     @type string $default The default icon type.
-	 * }
-	 *
-	 * @return string
-	 */
-	public function default_icon_url( $url, $hash, $size, array $args ) {
-		$args = \wp_parse_args( $args, [
-			'default' => '',
-		] );
-
-		foreach ( $this->icon_providers as $provider ) {
-			if ( $provider->provides( $args['default'] ) ) {
-				return $provider->get_icon_url( $hash, $size );
-			}
-		}
-
-		// Return the fallback default icon URL.
-		return $url;
 	}
 
 	/**
