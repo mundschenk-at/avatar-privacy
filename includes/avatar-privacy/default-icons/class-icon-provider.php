@@ -36,7 +36,7 @@ namespace Avatar_Privacy\Default_Icons;
 interface Icon_Provider {
 
 	/**
-	 * Checks if this Default_Icon_Provider handles the given icon type.
+	 * Checks if this Icon_Provider handles the given icon type.
 	 *
 	 * @param  string $type The default icon type.
 	 *
