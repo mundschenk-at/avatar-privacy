@@ -37,6 +37,7 @@ use Avatar_Privacy\Data_Storage\Filesystem_Cache;
  * This implementation has been inspired by Simple Local Avatars (Jake Goldman & 10up).
  *
  * @since 1.0.0
+ * @since 1.2.0 Image generation moved to new class Avatar_Handlers\User_Avatar_Handler.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
@@ -86,13 +87,6 @@ class User_Avatar_Upload {
 	 * @var int
 	 */
 	private $user_id_being_edited;
-
-	/**
-	 * The uploads base directory.
-	 *
-	 * @var string
-	 */
-	private $base_dir;
 
 	/**
 	 * The core API.
@@ -283,65 +277,5 @@ class User_Avatar_Upload {
 		if ( ! empty( $avatar['file'] ) && \file_exists( $avatar['file'] ) && \unlink( $avatar['file'] ) ) { // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow
 			\delete_user_meta( $user_id, self::USER_META_KEY );
 		}
-	}
-
-	/**
-	 * Retrieves the URL for the given default icon type.
-	 *
-	 * @param  string $url   The URL. Default empty.
-	 * @param  string $hash  The hashed mail address.
-	 * @param  int    $size  The size of the avatar image in pixels.
-	 * @param  array  $args {
-	 *     An array of arguments.
-	 *
-	 *     @type string $avatar   The full-size avatar image path.
-	 *     @type string $mimetype The expected MIME type of the avatar image.
-	 *     @type bool   $force    Optional. Whether to force the regeneration of the image file. Default false.
-	 * }
-	 *
-	 * @return string
-	 */
-	public function get_icon_url( $url, $hash, $size, array $args ) {
-		// Cache base directory.
-		if ( empty( $this->base_dir ) ) {
-			$this->base_dir = $this->file_cache->get_base_dir();
-		}
-
-		// Prepare additional arguments.
-		$args = \wp_parse_args( $args, [
-			'avatar'   => '',
-			'mimetype' => \Avatar_Privacy\Components\Images::PNG_IMAGE,
-			'force'    => false,
-		] );
-
-		$extension = \Avatar_Privacy\Components\Images::FILE_EXTENSION[ $args['mimetype'] ];
-		$filename  = "user/{$this->get_sub_dir( $hash )}/{$hash}-{$size}.{$extension}";
-		$target    = "{$this->base_dir}{$filename}";
-
-		if ( $args['force'] || ! \file_exists( $target ) ) {
-			$data = Image_Tools\Editor::get_resized_image_data(
-				Image_Tools\Editor::get_image_editor( $args['avatar'] ), $size, $size, true, $args['mimetype']
-			);
-			if ( empty( $data ) ) {
-				// Something went wrong..
-				return $url;
-			}
-
-			// Save the generated PNG file.
-			$this->file_cache->set( $filename, $data, $args['force'] );
-		}
-
-		return $this->file_cache->get_url( $filename );
-	}
-
-	/**
-	 * Calculates the subdirectory from the given identity hash.
-	 *
-	 * @param  string $identity The identity (mail address) hash.
-	 *
-	 * @return string
-	 */
-	private function get_sub_dir( $identity ) {
-		return \implode( '/', \str_split( \substr( $identity, 0, 2 ) ) );
 	}
 }

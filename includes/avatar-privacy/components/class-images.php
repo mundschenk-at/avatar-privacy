@@ -27,8 +27,8 @@
 namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Core;
-use Avatar_Privacy\User_Avatar_Upload;
 use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache;
+use Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
@@ -116,7 +116,7 @@ class Images implements \Avatar_Privacy\Component {
 	/**
 	 * The user avatar handler.
 	 *
-	 * @var User_Avatar_Upload;
+	 * @var User_Avatar_Handler;
 	 */
 	private $user_avatar;
 
@@ -130,14 +130,14 @@ class Images implements \Avatar_Privacy\Component {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param Transients         $transients      The transients handler.
-	 * @param Site_Transients    $site_transients The site transients handler.
-	 * @param Options            $options         The options handler.
-	 * @param Filesystem_Cache   $file_cache      The filesystem cache handler.
-	 * @param Gravatar_Cache     $gravatar        The Gravatar.com icon provider.
-	 * @param User_Avatar_Upload $user_avatar     The user avatar handler.
+	 * @param Transients          $transients      The transients handler.
+	 * @param Site_Transients     $site_transients The site transients handler.
+	 * @param Options             $options         The options handler.
+	 * @param Filesystem_Cache    $file_cache      The filesystem cache handler.
+	 * @param Gravatar_Cache      $gravatar        The Gravatar.com icon provider.
+	 * @param User_Avatar_Handler $user_avatar     The user avatar handler.
 	 */
-	public function __construct( Transients $transients, Site_Transients $site_transients, Options $options, Filesystem_Cache $file_cache, Gravatar_Cache $gravatar, User_Avatar_Upload $user_avatar ) {
+	public function __construct( Transients $transients, Site_Transients $site_transients, Options $options, Filesystem_Cache $file_cache, Gravatar_Cache $gravatar, User_Avatar_Handler $user_avatar ) {
 		$this->transients      = $transients;
 		$this->site_transients = $site_transients;
 		$this->options         = $options;
@@ -161,9 +161,9 @@ class Images implements \Avatar_Privacy\Component {
 		\add_filter( 'avatar_defaults', [ $this, 'avatar_defaults' ] );
 
 		// Generate the correct avatar images.
-		\add_filter( 'avatar_privacy_default_icon_url',     [ $this, 'default_icon_url' ],             10, 4 );
-		\add_filter( 'avatar_privacy_user_avatar_icon_url', [ $this->user_avatar, 'get_icon_url' ],    10, 4 );
+		\add_filter( 'avatar_privacy_default_icon_url',     [ $this, 'default_icon_url' ],        10, 4 );
 		\add_filter( 'avatar_privacy_gravatar_icon_url',    [ $this->gravatar_cache, 'get_url' ], 10, 4 );
+		\add_filter( 'avatar_privacy_user_avatar_icon_url', [ $this->user_avatar, 'get_url' ],    10, 4 );
 
 		// Automatically regenerate missing image files.
 		\add_action( 'init',          [ $this, 'add_cache_rewrite_rules' ] );
@@ -234,7 +234,7 @@ class Images implements \Avatar_Privacy\Component {
 
 			switch ( $type ) {
 				case 'user':
-					$success = $this->retrieve_user_avatar_icon( $hash, $size );
+					$success = $this->user_avatar->cache_image( $type, $hash, $size, $subdir, $extension, $this->core );
 					break;
 				case 'gravatar':
 					$success = $this->gravatar_cache->cache_image( $type, $hash, $size, $subdir, $extension, $this->core );
@@ -300,33 +300,6 @@ class Images implements \Avatar_Privacy\Component {
 		}
 
 		return false;
-	}
-
-
-	/**
-	 * Retrieves the user avatar image for the given hash.
-	 *
-	 * @param  string $hash The hashed mail address.
-	 * @param  int    $size The requested size in pixels.
-	 *
-	 * @return bool
-	 */
-	private function retrieve_user_avatar_icon( $hash, $size ) {
-		$user = self::get_user_by_hash( $hash );
-		if ( ! empty( $user ) ) {
-			$local_avatar = \get_user_meta( $user->ID, User_Avatar_Upload::USER_META_KEY, true );
-		}
-
-		// Could not find user or uploaded avatar.
-		if ( empty( $local_avatar ) ) {
-			return false;
-		}
-
-		// Try to cache the icon.
-		return ! empty( $this->user_avatar->get_icon_url( '', $hash, $size, [
-			'avatar'   => $local_avatar['file'],
-			'mimetype' => $local_avatar['type'],
-		] ) );
 	}
 
 	/**
