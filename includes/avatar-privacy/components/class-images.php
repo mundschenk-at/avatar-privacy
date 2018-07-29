@@ -27,8 +27,8 @@
 namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Core;
-use Avatar_Privacy\Gravatar_Cache;
 use Avatar_Privacy\User_Avatar_Upload;
+use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
@@ -128,13 +128,6 @@ class Images implements \Avatar_Privacy\Component {
 	private $core;
 
 	/**
-	 * A copy of Gravatar_Cache::TYPE_MAPPING.
-	 *
-	 * @var string[]
-	 */
-	private $gravatar_cache_type_mapping;
-
-	/**
 	 * Creates a new instance.
 	 *
 	 * @param Transients         $transients      The transients handler.
@@ -151,9 +144,6 @@ class Images implements \Avatar_Privacy\Component {
 		$this->file_cache      = $file_cache;
 		$this->gravatar_cache  = $gravatar;
 		$this->user_avatar     = $user_avatar;
-
-		// Needed for PHP 5.6 compatiblity.
-		$this->gravatar_cache_type_mapping = Gravatar_Cache::TYPE_MAPPING;
 	}
 
 	/**
@@ -172,8 +162,8 @@ class Images implements \Avatar_Privacy\Component {
 
 		// Generate the correct avatar images.
 		\add_filter( 'avatar_privacy_default_icon_url',     [ $this, 'default_icon_url' ],             10, 4 );
-		\add_filter( 'avatar_privacy_gravatar_icon_url',    [ $this->gravatar_cache, 'get_icon_url' ], 10, 4 );
 		\add_filter( 'avatar_privacy_user_avatar_icon_url', [ $this->user_avatar, 'get_icon_url' ],    10, 4 );
+		\add_filter( 'avatar_privacy_gravatar_icon_url',    [ $this->gravatar_cache, 'get_url' ], 10, 4 );
 
 		// Automatically regenerate missing image files.
 		\add_action( 'init',          [ $this, 'add_cache_rewrite_rules' ] );
@@ -247,7 +237,7 @@ class Images implements \Avatar_Privacy\Component {
 					$success = $this->retrieve_user_avatar_icon( $hash, $size );
 					break;
 				case 'gravatar':
-					$success = $this->retrieve_gravatar_icon( $hash, $subdir, $size, self::CONTENT_TYPE[ $extension ] );
+					$success = $this->gravatar_cache->cache_image( $type, $hash, $size, $subdir, $extension, $this->core );
 					break;
 				default:
 					$success = $this->generate_default_icon( $hash, $type, $size );
@@ -312,48 +302,6 @@ class Images implements \Avatar_Privacy\Component {
 		return false;
 	}
 
-	/**
-	 * Retrieves the Gravatar.com icon for the given hash.
-	 *
-	 * @param  string $hash     The hashed mail address.
-	 * @param  string $subdir   The first level is mapped to the address type (user or comment author).
-	 * @param  int    $size     The requested size in pixels.
-	 * @param  string $mimetype The expected MIME type.
-	 *
-	 * @return bool
-	 */
-	private function retrieve_gravatar_icon( $hash, $subdir, $size, $mimetype ) {
-		$type = \explode( '/', $subdir )[0];
-		if ( empty( $type ) || ! isset( $this->gravatar_cache_type_mapping[ $type ] ) ) {
-			return false;
-		}
-
-		if ( Gravatar_Cache::TYPE_USER === $this->gravatar_cache_type_mapping[ $type ] ) {
-			$user = self::get_user_by_hash( $hash );
-			if ( ! empty( $user ) ) {
-				$user_id = $user->ID;
-				$email   = ! empty( $user->user_email ) ? $user->user_email : '';
-			} else {
-				return false;
-			}
-		} else {
-			$user_id = false;
-			$email   = $this->core->get_comment_author_email( $hash );
-		}
-
-		// Could not find user/comment author.
-		if ( empty( $email ) ) {
-			return false;
-		}
-
-		// Try to cache the icon.
-		return ! empty( $this->gravatar_cache->get_icon_url( '', $hash, $size, [
-			'user_id'  => $user_id,
-			'email'    => $email,
-			'rating'   => $this->options->get( 'avatar_rating', 'g', true ),
-			'mimetype' => $mimetype,
-		] ) );
-	}
 
 	/**
 	 * Retrieves the user avatar image for the given hash.

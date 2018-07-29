@@ -24,20 +24,24 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy;
+namespace Avatar_Privacy\Avatar_Handlers;
+
+use Avatar_Privacy\Core;
 
 use Avatar_Privacy\Components\Images;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
+use Avatar_Privacy\Data_Storage\Options;
 
 /**
- * An icon provider for caching Gravatar.com images.
+ * Handles retrieving and caching Gravatar.com images.
  *
  * @since 1.0.0
+ * @since 1.2.0 Class was moved to Avatar_Privacy\Avatar_Handlers and now implements the new Avatar_Handler interface.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Gravatar_Cache {
+class Gravatar_Cache implements Avatar_Handler {
 
 	const TYPE_USER    = 'user';
 	const TYPE_COMMENT = 'comment';
@@ -67,19 +71,39 @@ class Gravatar_Cache {
 	];
 
 	/**
+	 * The options handler.
+	 *
+	 * @var Options
+	 */
+	private $options;
+
+	/**
 	 * The filesystem cache handler.
 	 *
 	 * @var Filesystem_Cache
 	 */
 	private $file_cache;
 
+
+	/**
+	 * A copy of Gravatar_Cache::TYPE_MAPPING.
+	 *
+	 * @var string[]
+	 */
+	private $type_mapping;
+
 	/**
 	 * Creates a new instance.
 	 *
+	 * @param Options          $options     The options handler.
 	 * @param Filesystem_Cache $file_cache  The file cache handler.
 	 */
-	public function __construct( Filesystem_Cache $file_cache ) {
+	public function __construct( Options $options, Filesystem_Cache $file_cache ) {
+		$this->options    = $options;
 		$this->file_cache = $file_cache;
+
+		// Needed for PHP 5.6 compatiblity.
+		$this->type_mapping = self::TYPE_MAPPING;
 	}
 
 	/**
@@ -99,7 +123,7 @@ class Gravatar_Cache {
 	 *
 	 * @return string
 	 */
-	public function get_icon_url( $url, $hash, $size, array $args ) {
+	public function get_url( $url, $hash, $size, array $args ) {
 		$args = \wp_parse_args( $args, [
 			'user_id'  => false,
 			'email'    => '',
@@ -157,5 +181,52 @@ class Gravatar_Cache {
 		}
 
 		return \implode( '/', $levels );
+	}
+
+	/**
+	 * Caches the image specified by the parameters.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param  string $type      The image (sub-)type.
+	 * @param  string $hash      The hashed mail address.
+	 * @param  int    $size      The requested size in pixels.
+	 * @param  string $subdir    The requested sub-directory.
+	 * @param  string $extension The requested file extension.
+	 * @param  Core   $core      The plugin instance.
+	 *
+	 * @return bool              Returns `true` if successful, `false` otherwise.
+	 */
+	public function cache_image( $type, $hash, $size, $subdir, $extension, $core ) {
+		// Determine hash type.
+		$type = \explode( '/', $subdir )[0];
+		if ( empty( $type ) || ! isset( $this->type_mapping[ $type ] ) ) {
+			return false;
+		}
+
+		// Lookup user and/or email address.
+		$user_id = false;
+		if ( Gravatar_Cache::TYPE_USER === $this->type_mapping[ $type ] ) {
+			$user = $core->get_user_by_hash( $hash );
+			if ( ! empty( $user ) ) {
+				$user_id = $user->ID;
+				$email   = ! empty( $user->user_email ) ? $user->user_email : '';
+			}
+		} else {
+			$email = $core->get_comment_author_email( $hash );
+		}
+
+		// Could not find user/comment author.
+		if ( empty( $email ) ) {
+			return false;
+		}
+
+		// Try to cache the icon.
+		return ! empty( $this->get_url( '', $hash, $size, [
+			'user_id'  => $user_id,
+			'email'    => $email,
+			'rating'   => $this->options->get( 'avatar_rating', 'g', true ),
+			'mimetype' => Images::CONTENT_TYPE[ $extension ],
+		] ) );
 	}
 }

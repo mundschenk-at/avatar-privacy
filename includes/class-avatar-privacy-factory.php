@@ -27,8 +27,8 @@
 use Dice\Dice;
 
 use Avatar_Privacy\Core;
-use Avatar_Privacy\Gravatar_Cache;
 use Avatar_Privacy\User_Avatar_Upload;
+use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache;
 
 use Avatar_Privacy\Components\Avatar_Handling;
 use Avatar_Privacy\Components\Comments;
