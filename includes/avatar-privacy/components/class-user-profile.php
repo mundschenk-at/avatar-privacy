@@ -28,7 +28,7 @@
 namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Core;
-use Avatar_Privacy\User_Avatar_Upload;
+use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
 /**
  * Handles privacy-specific updates of the user profile.
@@ -87,17 +87,17 @@ class User_Profile implements \Avatar_Privacy\Component {
 	/**
 	 * The avatar upload handler.
 	 *
-	 * @var User_Avatar_Upload
+	 * @var User_Avatar_Upload_Handler
 	 */
 	private $upload;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param string             $plugin_file The full path to the base plugin file.
-	 * @param User_Avatar_Upload $upload      The avatar upload handler.
+	 * @param string                     $plugin_file The full path to the base plugin file.
+	 * @param User_Avatar_Upload_Handler $upload      The avatar upload handler.
 	 */
-	public function __construct( $plugin_file, User_Avatar_Upload $upload ) {
+	public function __construct( $plugin_file, User_Avatar_Upload_Handler $upload ) {
 		$this->plugin_file = $plugin_file;
 		$this->upload      = $upload;
 	}
@@ -110,8 +110,6 @@ class User_Profile implements \Avatar_Privacy\Component {
 	 * @return void
 	 */
 	public function run( Core $core ) {
-		$this->upload->set_core( $core );
-
 		if ( \is_admin() ) {
 			\add_action( 'admin_init', [ $this, 'admin_init' ] );
 		}

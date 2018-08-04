@@ -24,7 +24,7 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy;
+namespace Avatar_Privacy\Upload_Handlers;
 
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Image_Tools;
@@ -37,11 +37,11 @@ use Avatar_Privacy\Data_Storage\Filesystem_Cache;
  * This implementation has been inspired by Simple Local Avatars (Jake Goldman & 10up).
  *
  * @since 1.0.0
- * @since 1.2.0 Image generation moved to new class Avatar_Handlers\User_Avatar_Handler.
+ * @since 1.2.0 Image generation moved to new class Avatar_Handlers\User_Avatar_Handler, the upload handler is now a subclass of Upload_Handler.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class User_Avatar_Upload {
+class User_Avatar_Upload_Handler extends Upload_Handler {
 
 	/**
 	 * The nonce action for updating custom user avatars.
@@ -56,30 +56,9 @@ class User_Avatar_Upload {
 	const CHECKBOX_ERASE = 'avatar-privacy-user-avatar-erase';
 	const FILE_UPLOAD    = 'avatar-privacy-user-avatar-upload';
 
-	const ALLOWED_MIME_TYPES = [
-		'jpg|jpeg|jpe' => 'image/jpeg',
-		'gif'          => 'image/gif',
-		'png'          => 'image/png',
-	];
-
 	const UPLOAD_DIR = '/avatar-privacy/user-avatar';
 
 	const USER_META_KEY = 'avatar_privacy_user_avatar';
-
-
-	/**
-	 * The full path to the main plugin file.
-	 *
-	 * @var   string
-	 */
-	private $plugin_file;
-
-	/**
-	 * The filesystem cache handler.
-	 *
-	 * @var Filesystem_Cache
-	 */
-	private $file_cache;
 
 	/**
 	 * The ID of the user whose profile is being edited.
@@ -87,33 +66,6 @@ class User_Avatar_Upload {
 	 * @var int
 	 */
 	private $user_id_being_edited;
-
-	/**
-	 * The core API.
-	 *
-	 * @var Core
-	 */
-	private $core;
-
-	/**
-	 * Creates a new instance.
-	 *
-	 * @param string           $plugin_file The full path to the base plugin file.
-	 * @param Filesystem_Cache $file_cache  The file cache handler.
-	 */
-	public function __construct( $plugin_file, Filesystem_Cache $file_cache ) {
-		$this->plugin_file = $plugin_file;
-		$this->file_cache  = $file_cache;
-	}
-
-	/**
-	 * Sets the core API instance to use.
-	 *
-	 * @param Core $core The core API.
-	 */
-	public function set_core( Core $core ) {
-		$this->core = $core;
-	}
 
 	/**
 	 * Retrieves the markup for uploading user avatars.
@@ -250,17 +202,10 @@ class User_Avatar_Upload {
 	 * @return string
 	 */
 	public function get_unique_filename( $directory, $filename, $extension ) {
-		$user      = \get_user_by( 'id', $this->user_id_being_edited );
-		$base_name = \sanitize_file_name( $user->display_name . '_avatar' );
-		$filename  = $base_name;
-		$number    = 1;
+		$user     = \get_user_by( 'id', $this->user_id_being_edited );
+		$filename = \sanitize_file_name( $user->display_name . '_avatar' );
 
-		while ( \file_exists( "$directory/{$filename}{$extension}" ) ) {
-			$filename = "{$base_name}_{$number}";
-			$number++;
-		}
-
-		return "{$filename}{$extension}";
+		return parent::get_unique_filename( $directory, $filename, $extension );
 	}
 
 	/**

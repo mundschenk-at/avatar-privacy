@@ -29,7 +29,7 @@ namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Settings;
-use Avatar_Privacy\User_Avatar_Upload;
+use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
 use Avatar_Privacy\Components\Images;
 
@@ -419,7 +419,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 
 		// Fetch local avatar from meta and make sure it's properly stzed.
 		$url          = '';
-		$local_avatar = \get_user_meta( $user_id, User_Avatar_Upload::USER_META_KEY, true );
+		$local_avatar = \get_user_meta( $user_id, User_Avatar_Upload_Handler::USER_META_KEY, true );
 		if ( ! empty( $local_avatar['file'] ) && ! empty( $local_avatar['type'] ) ) {
 			/**
 			 * Filters the uploaded avatar URL for the given user.

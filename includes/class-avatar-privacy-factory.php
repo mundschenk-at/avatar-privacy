@@ -27,7 +27,8 @@
 use Dice\Dice;
 
 use Avatar_Privacy\Core;
-use Avatar_Privacy\User_Avatar_Upload;
+
+use Avatar_Privacy\Upload_Handlers\Upload_Handler;
 
 use Avatar_Privacy\Avatar_Handlers\Default_Icons_Handler;
 use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache;
@@ -113,10 +114,6 @@ abstract class Avatar_Privacy_Factory {
 			self::$factory->addRule( Settings_Page::class, [
 				'constructParams' => [ $full_plugin_path ],
 			] );
-			self::$factory->addRule( User_Avatar_Upload::class, [
-				'constructParams' => [ $full_plugin_path ],
-				'shared'          => true,
-			] );
 			self::$factory->addRule( User_Profile::class, [
 				'constructParams' => [ $full_plugin_path ],
 				'shared'          => true,
@@ -129,6 +126,12 @@ abstract class Avatar_Privacy_Factory {
 			] );
 			self::$factory->addRule( Gravatar_Cache::class, self::SHARED );
 			self::$factory->addRule( User_Avatar_Handler::class, self::SHARED );
+
+			// Upload handlers.
+			self::$factory->addRule( Upload_Handler::class, [
+				'constructParams' => [ $full_plugin_path ],
+				'shared'          => true,
+			] );
 
 			// Plugin integrations.
 			self::$factory->addRule( BBPress_Integration::class, [
