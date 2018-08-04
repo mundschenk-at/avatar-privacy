@@ -153,17 +153,19 @@ class Default_Icons_Handler implements Avatar_Handler {
 	 */
 	public function get_icon_providers() {
 		if ( empty( $this->icon_providers ) ) {
+			$factory = \Avatar_Privacy_Factory::get( $this->plugin_file );
+
 			// These are sorted as the should appear for selection in the discussion settings.
 			$this->icon_providers = [
-				new Default_Icons\SVG_Icon_Provider( [ 'mystery', 'mystery-man', 'mm' ], 'mystery', $this->plugin_file ),
-				new Default_Icons\Identicon_Icon_Provider( $this->file_cache ),
-				new Default_Icons\Wavatar_Icon_Provider( $this->file_cache ),
-				new Default_Icons\Monster_ID_Icon_Provider( $this->file_cache ),
-				new Default_Icons\Retro_Icon_Provider( $this->file_cache ),
-				new Default_Icons\Rings_Icon_Provider( $this->file_cache ),
-				new Default_Icons\SVG_Icon_Provider( [ 'bubble', 'comment' ],               'comment-bubble', $this->plugin_file, __( 'Speech Bubble', 'avatar-privacy' ) ),
-				new Default_Icons\SVG_Icon_Provider( [ 'bowling-pin', 'im-user-offline' ],  'shaded-cone',    $this->plugin_file, __( 'Bowling Pin', 'avatar-privacy' ) ),
-				new Default_Icons\SVG_Icon_Provider( [ 'silhouette', 'view-media-artist' ], 'silhouette',     $this->plugin_file, __( 'Silhouette', 'avatar-privacy' ) ),
+				$factory->create( Default_Icons\SVG_Icon_Provider::class, [ [ 'mystery', 'mystery-man', 'mm' ], 'mystery', $this->plugin_file ] ),
+				$factory->create( Default_Icons\Identicon_Icon_Provider::class ),
+				$factory->create( Default_Icons\Wavatar_Icon_Provider::class ),
+				$factory->create( Default_Icons\Monster_ID_Icon_Provider::class ),
+				$factory->create( Default_Icons\Retro_Icon_Provider::class ),
+				$factory->create( Default_Icons\Rings_Icon_Provider::class ),
+				$factory->create( Default_Icons\SVG_Icon_Provider::class, [ [ 'bubble', 'comment' ], 'comment-bubble', $this->plugin_file, __( 'Speech Bubble', 'avatar-privacy' ) ] ),
+				$factory->create( Default_Icons\SVG_Icon_Provider::class, [ [ 'bowling-pin', 'im-user-offline' ], 'shaded-cone', $this->plugin_file, __( 'Bowling Pin', 'avatar-privacy' ) ] ),
+				$factory->create( Default_Icons\SVG_Icon_Provider::class, [ [ 'silhouette', 'view-media-artist' ], 'silhouette', $this->plugin_file, __( 'Silhouette', 'avatar-privacy' ) ] ),
 			];
 		}
 
