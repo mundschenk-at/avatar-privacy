@@ -15,19 +15,8 @@
 		<exclude name="PEAR.Functions.FunctionCallSignature.Indent" />
 		<exclude name="Generic.Functions.FunctionCallArgumentSpacing" />
 	</rule>
-	<rule ref="WordPress-VIP">
-		<exclude name="WordPress.VIP.RestrictedFunctions.error_log" />
-		<exclude name="WordPress.VIP.RestrictedFunctions.cookies_setcookie" />
-		<exclude name="WordPress.VIP.RestrictedFunctions.file_get_contents_file_get_contents" />
-		<exclude name="WordPress.VIP.RestrictedFunctions.user_meta_get_user_meta" />
-		<exclude name="WordPress.VIP.RestrictedFunctions.user_meta_add_user_meta" />
-		<exclude name="WordPress.VIP.RestrictedFunctions.user_meta_update_user_meta" />
-		<exclude name="WordPress.VIP.RestrictedFunctions.user_meta_delete_user_meta" />
-		<exclude name="WordPress.VIP.RestrictedFunctions.switch_to_blog_switch_to_blog" />
-		<exclude name="WordPress.VIP.RestrictedFunctions.wp_remote_get_wp_remote_get" />
-		<exclude name="WordPress.VIP.RestrictedVariables.cache_constraints___COOKIE" />
-		<exclude name="WordPress.VIP.FileSystemWritesDisallow.file_ops_file_put_contents" />
-	</rule>
+	<rule ref="WordPress-Extra" />
+
 	<rule ref="Squiz.Commenting.LongConditionClosingComment">
 		<exclude name="Squiz.Commenting.LongConditionClosingComment" />
 	</rule>

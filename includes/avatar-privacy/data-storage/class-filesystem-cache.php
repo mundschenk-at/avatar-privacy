@@ -166,7 +166,7 @@ class Filesystem_Cache {
 	public function delete( $filename ) {
 		$file = $this->get_base_dir() . $filename;
 
-		return \is_writable( $file ) && \unlink( $file ); // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow
+		return \is_writable( $file ) && \unlink( $file );
 	}
 
 	/**
@@ -187,9 +187,9 @@ class Filesystem_Cache {
 			if ( $file->isWritable() ) {
 
 				if ( $file->isDir() ) {
-					\rmdir( $path ); // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow
+					\rmdir( $path );
 				} else {
-					\unlink( $path ); // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow
+					\unlink( $path );
 				}
 			}
 		}
@@ -213,7 +213,7 @@ class Filesystem_Cache {
 
 		foreach ( $iterator as $path => $file ) {
 			if ( $file->isWritable() && ! $file->isDir() && $now - $file->getMTime() > $age ) {
-				\unlink( $path ); // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow
+				\unlink( $path );
 			}
 		}
 	}

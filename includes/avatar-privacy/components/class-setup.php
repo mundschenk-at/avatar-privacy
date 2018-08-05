@@ -359,7 +359,7 @@ class Setup implements \Avatar_Privacy\Component {
 	 */
 	private function maybe_update_user_hashes() {
 		$users = \get_users( [
-			'meta_key'     => Core::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key, WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine
+			'meta_key'     => Core::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			'meta_compare' => 'NOT EXISTS',
 		] );
 

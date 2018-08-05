@@ -185,7 +185,7 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 		$this->file_cache->invalidate( 'user', "#/{$hash}-[1-9][0-9]*\.[a-z]{3}\$#" );
 
 		$avatar = \get_user_meta( $user_id, self::USER_META_KEY, true );
-		if ( ! empty( $avatar['file'] ) && \file_exists( $avatar['file'] ) && \unlink( $avatar['file'] ) ) { // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow
+		if ( ! empty( $avatar['file'] ) && \file_exists( $avatar['file'] ) && \unlink( $avatar['file'] ) ) {
 			\delete_user_meta( $user_id, self::USER_META_KEY );
 		}
 	}
