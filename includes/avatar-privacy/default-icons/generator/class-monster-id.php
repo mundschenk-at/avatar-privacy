@@ -351,11 +351,11 @@ class Monster_ID extends PNG_Generator {
 		] );
 
 		// Set randomness.
-		\mt_srand( (int) \hexdec( $id ) );
+		\mt_srand( (int) \hexdec( $id ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand -- we need deterministic "randomness".
 
 		// Throw the dice for body parts.
 		foreach ( $parts_array as $part => $files ) {
-			$parts_array[ $part ] = $files[ \mt_rand( 0, \count( $files ) - 1 ) ];
+			$parts_array[ $part ] = $files[ \mt_rand( 0, \count( $files ) - 1 ) ]; // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
 		}
 
 		// Create background.
@@ -369,8 +369,8 @@ class Monster_ID extends PNG_Generator {
 		\imageSaveAlpha( $monster, true );
 
 		$max_rand   = \mt_getrandmax();
-		$hue        = ( ( \mt_rand( 1, $max_rand ) - 1 ) / $max_rand ) * self::DEGREE; // real_halfopen.
-		$saturation = \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT;
+		$hue        = ( ( \mt_rand( 1, $max_rand ) - 1 ) / $max_rand ) * self::DEGREE; // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand -- real_halfopen.
+		$saturation = \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT; // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
 
 		// Add parts.
 		foreach ( $parts_array as $part => $file ) {
@@ -386,10 +386,12 @@ class Monster_ID extends PNG_Generator {
 			} elseif ( isset( $this->same_color_parts[ $file ] ) ) {
 				$this->image_colorize( $im, $hue, $saturation, $file );
 			} elseif ( isset( $this->random_color_parts[ $file ] ) ) {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
 				$this->image_colorize( $im, ( \mt_rand( 1, $max_rand ) - 1 ) / $max_rand * self::DEGREE, \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
 			} elseif ( isset( $this->specific_color_parts[ $file ] ) ) {
 				$low  = $this->specific_color_parts[ $file ][0] * 10000;
 				$high = $this->specific_color_parts[ $file ][1] * 10000;
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
 				$this->image_colorize( $im, \mt_rand( $low, $high ) / 10000 * self::DEGREE, \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
 			}
 
@@ -397,7 +399,7 @@ class Monster_ID extends PNG_Generator {
 		}
 
 		// Reset randomness.
-		\mt_srand();
+		\mt_srand(); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand
 
 		// Resize if necessary.
 		return Image_Tools\Editor::get_resized_image_data(

@@ -230,13 +230,8 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 * @return bool
 	 */
 	private function should_show_gravatar( $user_id, $email, $id_or_email, $age, &$mimetype ) {
-		// Default: do not show gravatars.
-		$show_gravatar = false;
-
 		// Find out if the user opted into displaying a gravatar.
-		if ( ! empty( $user_id ) && ! empty( $email ) ) {
-			$show_gravatar = $this->determine_gravatar_policy( $user_id, $email, $id_or_email );
-		}
+		$show_gravatar = $this->determine_gravatar_policy( $user_id, $email, $id_or_email );
 
 		// Check if a gravatar exists for the e-mail address.
 		if ( $show_gravatar ) {
@@ -391,21 +386,21 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		}
 
 		// Cache result.
-		$transients->set( $transient_key, $result, $this->determine_caching_duration( $result, $age ) );
+		$transients->set( $transient_key, $result, $this->calculate_caching_duration( $result, $age ) );
 		$this->cache_gravatar_ping( $hash, $result, $mimetype );
 
 		return ! empty( $result );
 	}
 
 	/**
-	 * Determines the proper caching duration.
+	 * Calculates the proper caching duration.
 	 *
 	 * @param string|int|false $result   The result of the validation check.
 	 * @param int              $age      The "age" (difference between now and the creation date) of a comment or post (in sceonds).
 	 *
 	 * @return int
 	 */
-	private function determine_caching_duration( $result, $age ) {
+	private function calculate_caching_duration( $result, $age ) {
 		// Cache the result across all blogs (a YES for 1 week, a NO for 10 minutes or longer,
 		// depending on the age of the object (comment, post), since a YES basically shouldn't
 		// change, but a NO might change when the user signs up with gravatar.com).
@@ -526,8 +521,8 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	/**
 	 * Determines the gravatar use policy.
 	 *
-	 * @param  int               $user_id The user ID.
-	 * @param  string            $email   The email address.
+	 * @param  int|false         $user_id     A WordPress user ID (or false).
+	 * @param  string            $email       The email address.
 	 * @param  int|string|object $id_or_email The Gravatar to retrieve. Can be a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
 	 *
 	 * @return bool
@@ -536,7 +531,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		$show_gravatar = false;
 		$use_default   = false;
 
-		if ( $user_id ) {
+		if ( ! empty( $user_id ) ) {
 			// For users get the value from the usermeta table.
 			$meta_value    = \get_user_meta( $user_id, Core::GRAVATAR_USE_META_KEY, true );
 			$show_gravatar = 'true' === $meta_value;

@@ -519,7 +519,7 @@ class Core {
 
 				if ( empty( $salt ) ) {
 					// Still nothing? Generate a random value.
-					$salt = \mt_rand();
+					$salt = \wp_rand();
 
 					// Save the generated salt.
 					$this->network_options->set( Network_Options::SALT, $salt );
@@ -583,8 +583,8 @@ class Core {
 		// No extra caching necessary, WP Core already does that for us.
 		$users = \get_users( [
 			'number'       => 1,
-			'meta_key'     => self::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key, WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine
-			'meta_value'   => $hash, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_value, WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine
+			'meta_key'     => self::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+			'meta_value'   => $hash, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 			'meta_compare' => '=',
 		] );
 

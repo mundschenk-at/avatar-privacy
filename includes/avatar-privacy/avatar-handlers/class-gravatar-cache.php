@@ -206,7 +206,7 @@ class Gravatar_Cache implements Avatar_Handler {
 
 		// Lookup user and/or email address.
 		$user_id = false;
-		if ( Gravatar_Cache::TYPE_USER === $this->type_mapping[ $type ] ) {
+		if ( self::TYPE_USER === $this->type_mapping[ $type ] ) {
 			$user = $core->get_user_by_hash( $hash );
 			if ( ! empty( $user ) ) {
 				$user_id = $user->ID;

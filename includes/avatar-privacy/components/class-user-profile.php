@@ -127,12 +127,27 @@ class User_Profile implements \Avatar_Privacy\Component {
 		\add_action( 'user_edit_form_tag',       [ $this, 'print_form_encoding' ] );
 
 		// Replace profile picture setting with our own settings.
-		\add_action( 'admin_head', function() {
-			\ob_start( [ $this, 'replace_profile_picture_section' ] );
-		} );
-		\add_action( 'admin_footer', function() {
+		\add_action( 'admin_head-profile.php',     [ $this, 'admin_head' ] );
+		\add_action( 'admin_head-user-edit.php',   [ $this, 'admin_head' ] );
+		\add_action( 'admin_footer-profile.php',   [ $this, 'admin_footer' ] );
+		\add_action( 'admin_footer-user-edit.php', [ $this, 'admin_footer' ] );
+	}
+
+	/**
+	 * Enables output buffering.
+	 */
+	public function admin_head() {
+		\ob_start( [ $this, 'replace_profile_picture_section' ] );
+	}
+
+	/**
+	 * Cleans up any output buffering.
+	 */
+	public function admin_footer() {
+		// Clean up output buffering.
+		if ( \ob_get_level() > 0 ) {
 			\ob_end_flush();
-		} );
+		}
 	}
 
 	/**

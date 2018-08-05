@@ -113,7 +113,7 @@ class Avatar_Privacy_Requirements extends Mundschenk_WP_Requirements {
 	protected function check_uploads_writable() {
 		$uploads = wp_get_upload_dir();
 
-		return is_writable( $uploads['basedir'] ); // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow.file_ops_is_writable
+		return is_writable( $uploads['basedir'] );
 	}
 
 	/**

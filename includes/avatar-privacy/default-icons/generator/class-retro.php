@@ -61,7 +61,7 @@ class Retro implements Generator {
 	 */
 	public function build( $seed, $size = 128 ) {
 		// Initialize random number with seed.
-		\mt_srand( (int) hexdec( substr( $seed, 0, 8 ) ) );
+		\mt_srand( (int) hexdec( substr( $seed, 0, 8 ) ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand -- we need deterministic "random" numbers.
 
 		// Generate icon.
 		$result = $this->identicon->getImageData( $seed, $size,
@@ -69,7 +69,7 @@ class Retro implements Generator {
 			/* @scrutinizer ignore-type */ RandomColor::one( [ 'luminosity' => 'light' ] ) );
 
 		// Restore randomness.
-		\mt_srand();
+		\mt_srand(); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand
 
 		return $result;
 	}

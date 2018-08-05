@@ -91,7 +91,7 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	private static function delete_uploaded_avatars() {
 		$user_avatar = User_Avatar_Upload_Handler::USER_META_KEY;
 		$users       = \get_users( [
-			'meta_key'     => $user_avatar, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key, WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine
+			'meta_key'     => $user_avatar, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			'meta_compare' => 'EXISTS',
 		] );
 
@@ -99,7 +99,7 @@ class Uninstallation implements \Avatar_Privacy\Component {
 			$avatar = $user->$user_avatar;
 
 			if ( ! empty( $avatar['file'] ) && \file_exists( $avatar['file'] ) ) {
-				\unlink( $avatar['file'] ); // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow
+				\unlink( $avatar['file'] );
 			}
 		}
 	}
@@ -122,7 +122,7 @@ class Uninstallation implements \Avatar_Privacy\Component {
 		global $wpdb;
 
 		$table_name = Setup::get_table_name( $network_options, $site_id );
-		$wpdb->query( "DROP TABLE IF EXISTS {$table_name};" ); // phpcs:ignore WordPress.VIP.DirectDatabaseQuery,WordPress.WP.PreparedSQL.NotPrepared
+		$wpdb->query( "DROP TABLE IF EXISTS {$table_name};" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.NotPrepared
 	}
 
 	/**
