@@ -267,21 +267,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			$user_id = (int) $id_or_email->post_author;
 			$age     = \time() - \mysql2date( 'U', $id_or_email->post_date_gmt );
 		} elseif ( $id_or_email instanceof \WP_Comment ) {
-			/** This filter is documented in wp-includes/pluggable.php */
-			$allowed_comment_types = \apply_filters( 'get_avatar_comment_types', [ 'comment' ] );
-
-			if ( ! empty( $id_or_email->comment_type ) && ! in_array( $id_or_email->comment_type, (array) $allowed_comment_types, true ) ) {
-				return [ false, '', 0 ]; // Abort.
-			}
-
-			if ( ! empty( $id_or_email->user_id ) ) {
-				$user_id = (int) $id_or_email->user_id;
-			}
-			if ( empty( $user_id ) && ! empty( $id_or_email->comment_author_email ) ) {
-				$email = $id_or_email->comment_author_email;
-			}
-
-			$age = \time() - \mysql2date( 'U', $id_or_email->comment_date_gmt );
+			list( $user_id, $email, $age ) = $this->parse_comment( $id_or_email );
 		}
 
 		if ( ! empty( $user_id ) && empty( $email ) ) {
@@ -308,6 +294,40 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		 * @param int|string|object $id_or_email The Gravatar to retrieve. Accepts a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
 		 */
 		return \apply_filters( 'avatar_privacy_parse_id_or_email', [ $user_id, $email, $age ], $id_or_email );
+	}
+
+	/**
+	 * Parse a WP_Comment object.
+	 *
+	 * @param  \WP_Comment $comment A comment.
+	 *
+	 * @return array {
+	 *     The information parsed from $id_or_email.
+	 *
+	 *     @type int|false $user_id The WordPress user ID, or false.
+	 *     @type string    $email   The email address.
+	 *     @type int       $age     The seconds since the post or comment was first created, or 0 if $id_or_email was not one of these object types.
+	 * }
+	 */
+	private function parse_comment( \WP_Comment $comment ) {
+		/** This filter is documented in wp-includes/pluggable.php */
+		$allowed_comment_types = \apply_filters( 'get_avatar_comment_types', [ 'comment' ] );
+
+		if ( ! empty( $comment->comment_type ) && ! in_array( $comment->comment_type, (array) $allowed_comment_types, true ) ) {
+			return [ false, '', 0 ]; // Abort.
+		}
+
+		$user_id = false;
+		$email   = '';
+		if ( ! empty( $comment->user_id ) ) {
+			$user_id = (int) $comment->user_id;
+		} elseif ( ! empty( $comment->comment_author_email ) ) {
+			$email = $comment->comment_author_email;
+		}
+
+		$age = \time() - \mysql2date( 'U', $comment->comment_date_gmt );
+
+		return [ $user_id, $email, $age ];
 	}
 
 	/**
