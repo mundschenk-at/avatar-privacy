@@ -253,9 +253,9 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		$email   = '';
 		$age     = 0;
 
-		if ( is_numeric( $id_or_email ) ) {
-			$user_id = absint( $id_or_email );
-		} elseif ( is_string( $id_or_email ) ) {
+		if ( \is_numeric( $id_or_email ) ) {
+			$user_id = \absint( $id_or_email );
+		} elseif ( \is_string( $id_or_email ) ) {
 			// E-mail address.
 			$email = $id_or_email;
 		} elseif ( $id_or_email instanceof \WP_User ) {
@@ -313,7 +313,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		/** This filter is documented in wp-includes/pluggable.php */
 		$allowed_comment_types = \apply_filters( 'get_avatar_comment_types', [ 'comment' ] );
 
-		if ( ! empty( $comment->comment_type ) && ! in_array( $comment->comment_type, (array) $allowed_comment_types, true ) ) {
+		if ( ! empty( $comment->comment_type ) && ! \in_array( $comment->comment_type, (array) $allowed_comment_types, true ) ) {
 			return [ false, '', 0 ]; // Abort.
 		}
 
