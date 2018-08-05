@@ -167,7 +167,8 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	 * @return bool
 	 */
 	public function delete_uploaded_icon( $site_id ) {
-		$this->file_cache->invalidate( 'custom', "#/{$site_id}-[1-9][0-9]*\.[a-z]{3}\$#" );
+		$hash = $this->core->get_hash( "custom-default-{$site_id}" );
+		$this->file_cache->invalidate( 'custom', "#/{$hash}-[1-9][0-9]*\.[a-z]{3}\$#" );
 
 		$icon = $this->core->get_settings()[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ];
 		if ( ! empty( $icon['file'] ) && \file_exists( $icon['file'] ) && \unlink( $icon['file'] ) ) { // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow
