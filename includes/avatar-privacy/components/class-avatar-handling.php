@@ -150,7 +150,6 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 * @return array
 	 */
 	public function get_avatar_data( $args, $id_or_email ) {
-		$show_gravatar = false;
 		$force_default = ! empty( $args['force_default'] );
 		$mimetype      = '';
 
@@ -160,34 +159,12 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		// Generate the hash.
 		$hash = ! empty( $user_id ) ? $this->core->get_user_hash( $user_id ) : $this->core->get_hash( $email );
 
-		if ( ! $force_default && ( $user_id || $email ) ) {
-			// Check for uploaded avatar.
-			if ( $user_id ) {
-				// Fetch local avatar from meta and make sure it's properly stzed.
-				$args['url'] = $this->get_local_avatar_url( $user_id, $hash, $args['size'] );
-				if ( ! empty( $args['url'] ) ) {
-					// Great, we have got a local avatar.
-					return $args;
-				}
-			}
-
-			// Find out if the user opted into displaying a gravatar.
-			$show_gravatar = $this->determine_gravatar_policy( $user_id, $email, $id_or_email );
-		}
-
-		// Check if a gravatar exists for the e-mail address.
-		if ( empty( $email ) ) {
-			$show_gravatar = false;
-		} elseif ( $show_gravatar ) {
-			/**
-			 * Filters whether we check if opting-in users and commenters actually have a Gravatar.com account.
-			 *
-			 * @param bool      $enable_check Defaults to true.
-			 * @param string    $email        The email address.
-			 * @param int|false $user_id      A WordPress user ID (or false).
-			 */
-			if ( \apply_filters( 'avatar_privacy_enable_gravatar_check', true, $email, $user_id ) ) {
-				$show_gravatar = $this->validate_gravatar( $email, $age, $mimetype );
+		if ( ! $force_default && $user_id ) {
+			// Fetch local avatar from meta and make sure it's properly stzed.
+			$args['url'] = $this->get_local_avatar_url( $user_id, $hash, $args['size'] );
+			if ( ! empty( $args['url'] ) ) {
+				// Great, we have got a local avatar.
+				return $args;
 			}
 		}
 
@@ -207,8 +184,8 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			'default' => $args['default'],
 		] );
 
-		// Maybe display a Gravatar.
-		if ( $show_gravatar ) {
+		// Maybe display a gravatar.
+		if ( ! $force_default && $this->should_show_gravatar( $user_id, $email, $id_or_email, $age, $mimetype ) ) {
 			if ( empty( $mimetype ) ) {
 				$mimetype = Images::PNG_IMAGE;
 			}
@@ -239,6 +216,43 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		$args['url'] = $url;
 
 		return $args;
+	}
+
+	/**
+	 * Determines if we should go for a gravatar.
+	 *
+	 * @param int|false         $user_id     A WordPress user ID (or false).
+	 * @param string            $email       The email address.
+	 * @param int|string|object $id_or_email The Gravatar to retrieve. Accepts a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
+	 * @param int               $age         The seconds since the post or comment was first created, or 0 if $id_or_email was not one of these object types.
+	 * @param string            $mimetype    The expected MIME type of the gravatar image (if any). Passed by reference.
+	 *
+	 * @return bool
+	 */
+	private function should_show_gravatar( $user_id, $email, $id_or_email, $age, &$mimetype ) {
+		// Default: do not show gravatars.
+		$show_gravatar = false;
+
+		// Find out if the user opted into displaying a gravatar.
+		if ( ! empty( $user_id ) && ! empty( $email ) ) {
+			$show_gravatar = $this->determine_gravatar_policy( $user_id, $email, $id_or_email );
+		}
+
+		// Check if a gravatar exists for the e-mail address.
+		if ( $show_gravatar ) {
+			/**
+			 * Filters whether we check if opting-in users and commenters actually have a Gravatar.com account.
+			 *
+			 * @param bool      $enable_check Defaults to true.
+			 * @param string    $email        The email address.
+			 * @param int|false $user_id      A WordPress user ID (or false).
+			 */
+			if ( \apply_filters( 'avatar_privacy_enable_gravatar_check', true, $email, $user_id ) ) {
+				$show_gravatar = $this->validate_gravatar( $email, $age, $mimetype );
+			}
+		}
+
+		return $show_gravatar;
 	}
 
 	/**
@@ -376,6 +390,22 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			return false; // Do not cache this result.
 		}
 
+		// Cache result.
+		$transients->set( $transient_key, $result, $this->determine_caching_duration( $result, $age ) );
+		$this->cache_gravatar_ping( $hash, $result, $mimetype );
+
+		return ! empty( $result );
+	}
+
+	/**
+	 * Determines the proper caching duration.
+	 *
+	 * @param string|int|false $result   The result of the validation check.
+	 * @param int              $age      The "age" (difference between now and the creation date) of a comment or post (in sceonds).
+	 *
+	 * @return int
+	 */
+	private function determine_caching_duration( $result, $age ) {
 		// Cache the result across all blogs (a YES for 1 week, a NO for 10 minutes or longer,
 		// depending on the age of the object (comment, post), since a YES basically shouldn't
 		// change, but a NO might change when the user signs up with gravatar.com).
@@ -391,12 +421,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		 * @param bool $result   The result of the validation check.
 		 * @param int  $age      The "age" (difference between now and the creation date) of a comment or post (in sceonds).
 		 */
-		$duration = \apply_filters( 'avatar_privacy_validate_gravatar_interval', $duration, ! empty( $result ), $age );
-
-		$transients->set( $transient_key, $result, $duration );
-		$this->cache_gravatar_ping( $hash, $result, $mimetype );
-
-		return ! empty( $result );
+		return \apply_filters( 'avatar_privacy_validate_gravatar_interval', $duration, ! empty( $result ), $age );
 	}
 
 	/**
