@@ -67,6 +67,18 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 */
 	private $user_id_being_edited;
 
+
+	/**
+	 * Creates a new instance.
+	 *
+	 * @param string           $plugin_file The full path to the base plugin file.
+	 * @param Core             $core        The core API.
+	 * @param Filesystem_Cache $file_cache  The file cache handler.
+	 */
+	public function __construct( $plugin_file, Core $core, Filesystem_Cache $file_cache ) {
+		parent::__construct( $plugin_file, self::UPLOAD_DIR, $core, $file_cache );
+	}
+
 	/**
 	 * Retrieves the markup for uploading user avatars.
 	 *
@@ -92,11 +104,6 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 
 		if ( ! empty( $_FILES[ self::FILE_UPLOAD ]['name'] ) ) { // Input var okay.
 
-			// Enable front end support.
-			if ( ! function_exists( 'wp_handle_upload' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/file.php';
-			}
-
 			// Make user_id known to unique_filename_callback function.
 			$this->user_id_being_edited = $user_id;
 
@@ -115,47 +122,6 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 			// Just delete the current avatar.
 			$this->delete_uploaded_avatar( $user_id );
 		}
-	}
-
-	/**
-	 * Handles the file upload by switching to the primary site of the network.
-	 *
-	 * @param  array $file  A slice of the $_FILES superglobal.
-	 *
-	 * @return string[]     Information about the uploaded file.
-	 */
-	private function upload( array $file ) {
-		if ( \is_multisite() ) {
-			\switch_to_blog( \get_network()->site_id );
-		}
-
-		\add_filter( 'upload_dir', [ $this, 'custom_upload_dir' ] );
-		$avatar = \wp_handle_upload( $file, [
-			'mimes'                    => self::ALLOWED_MIME_TYPES,
-			'test_form'                => false,
-			'unique_filename_callback' => [ $this, 'get_unique_filename' ],
-		] );
-		\remove_filter( 'upload_dir', [ $this, 'custom_upload_dir' ] );
-
-		if ( \is_multisite() ) {
-			\restore_current_blog();
-		}
-
-		return $avatar;
-	}
-
-	/**
-	 * Returns a custom upload direcetory for user avatars.
-	 *
-	 * @param  array $uploads The uplaods data.
-	 * @return array
-	 */
-	public function custom_upload_dir( array $uploads ) {
-		$uploads['path']   = \str_replace( $uploads['subdir'], self::UPLOAD_DIR, $uploads['path'] );
-		$uploads['url']    = \str_replace( $uploads['subdir'], self::UPLOAD_DIR, $uploads['url'] );
-		$uploads['subdir'] = self::UPLOAD_DIR;
-
-		return $uploads;
 	}
 
 	/**
