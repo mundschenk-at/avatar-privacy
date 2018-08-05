@@ -390,6 +390,22 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			return false; // Do not cache this result.
 		}
 
+		// Cache result.
+		$transients->set( $transient_key, $result, $this->determine_caching_duration( $result, $age ) );
+		$this->cache_gravatar_ping( $hash, $result, $mimetype );
+
+		return ! empty( $result );
+	}
+
+	/**
+	 * Determines the proper caching duration.
+	 *
+	 * @param string|int|false $result   The result of the validation check.
+	 * @param int              $age      The "age" (difference between now and the creation date) of a comment or post (in sceonds).
+	 *
+	 * @return int
+	 */
+	private function determine_caching_duration( $result, $age ) {
 		// Cache the result across all blogs (a YES for 1 week, a NO for 10 minutes or longer,
 		// depending on the age of the object (comment, post), since a YES basically shouldn't
 		// change, but a NO might change when the user signs up with gravatar.com).
@@ -405,12 +421,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		 * @param bool $result   The result of the validation check.
 		 * @param int  $age      The "age" (difference between now and the creation date) of a comment or post (in sceonds).
 		 */
-		$duration = \apply_filters( 'avatar_privacy_validate_gravatar_interval', $duration, ! empty( $result ), $age );
-
-		$transients->set( $transient_key, $result, $duration );
-		$this->cache_gravatar_ping( $hash, $result, $mimetype );
-
-		return ! empty( $result );
+		return \apply_filters( 'avatar_privacy_validate_gravatar_interval', $duration, ! empty( $result ), $age );
 	}
 
 	/**
