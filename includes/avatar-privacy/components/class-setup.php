@@ -256,6 +256,7 @@ class Setup implements \Avatar_Privacy\Component {
 			case 'bowling-pin':
 			case 'view-media-artist':
 			case 'silhouette':
+			case 'custom':
 				$options->set( 'avatar_default', 'mystery', true, true );
 				break;
 		}
