@@ -166,6 +166,7 @@ class Default_Icons_Handler implements Avatar_Handler {
 				$factory->create( Default_Icons\SVG_Icon_Provider::class, [ [ 'bubble', 'comment' ], 'comment-bubble', $this->plugin_file, __( 'Speech Bubble', 'avatar-privacy' ) ] ),
 				$factory->create( Default_Icons\SVG_Icon_Provider::class, [ [ 'bowling-pin', 'im-user-offline' ], 'shaded-cone', $this->plugin_file, __( 'Bowling Pin', 'avatar-privacy' ) ] ),
 				$factory->create( Default_Icons\SVG_Icon_Provider::class, [ [ 'silhouette', 'view-media-artist' ], 'silhouette', $this->plugin_file, __( 'Silhouette', 'avatar-privacy' ) ] ),
+				$factory->create( Default_Icons\Custom_Icon_Provider::class ),
 			];
 		}
 

@@ -30,6 +30,8 @@ namespace Avatar_Privacy\Components;
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Settings;
 
+use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler as Upload;
+
 use Avatar_Privacy\Data_Storage\Options;
 
 use Mundschenk\UI\Control_Factory;
@@ -57,14 +59,30 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	private $options;
 
 	/**
+	 * The file upload handler.
+	 *
+	 * @var Upload
+	 */
+	private $upload;
+
+	/**
+	 * The core API.
+	 *
+	 * @var Core
+	 */
+	private $core;
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param string  $plugin_file The full path to the base plugin file.
 	 * @param Options $options     The options handler.
+	 * @param Upload  $upload      The file upload handler.
 	 */
-	public function __construct( $plugin_file, Options $options ) {
+	public function __construct( $plugin_file, Options $options, Upload $upload ) {
 		$this->plugin_file = $plugin_file;
 		$this->options     = $options;
+		$this->upload      = $upload;
 	}
 
 	/**
@@ -75,20 +93,31 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	 * @return void
 	 */
 	public function run( Core $core ) {
+		$this->core = $core;
+
 		if ( \is_admin() ) {
 			\add_action( 'admin_init', [ $this, 'register_settings' ] );
-			\add_action( 'admin_footer', [ $this, 'add_settings_toggle' ] );
+			\add_action( 'admin_footer-options-discussion.php', [ $this, 'settings_footer' ] );
+
+			// Add form encoding.
+			\add_action( 'admin_head-options-discussion.php', function() {
+				\ob_start( [ $this, 'add_form_encoding' ] );
+			} );
 		}
 	}
 
 	/**
-	 * Initialize additional plugin hooks.
+	 * Run tasks in the settings footer.
 	 */
-	public function add_settings_toggle() {
-		$screen = \get_current_screen();
-
-		if ( ! empty( $screen->base ) && 'options-discussion' === $screen->base && \wp_script_is( 'jquery', 'done' ) ) {
+	public function settings_footer() {
+		// Add show/hide javascript.
+		if ( \wp_script_is( 'jquery', 'done' ) ) {
 			require dirname( $this->plugin_file ) . '/admin/partials/sections/avatars-disabled-script.php';
+		}
+
+		// Clean up output buffering.
+		if ( \ob_get_level() > 0 ) {
+			\ob_end_flush();
 		}
 	}
 
@@ -104,6 +133,17 @@ class Settings_Page implements \Avatar_Privacy\Component {
 		foreach ( $controls as $control ) {
 			$control->register( 'discussion' );
 		}
+	}
+
+	/**
+	 * Adds the enctype "multipart/form-data" to the form tag.
+	 *
+	 * @param  string $content The captured HTML output.
+	 *
+	 * @return string
+	 */
+	public function add_form_encoding( $content ) {
+		return \preg_replace( '#(<form method="post") (action="options.php">)#Usi', '\1 enctype="multipart/form-data" \2', $content );
 	}
 
 	/**
@@ -133,6 +173,13 @@ class Settings_Page implements \Avatar_Privacy\Component {
 				$input[ $key ] = ! empty( $input[ $key ] );
 			}
 		}
+
+		if ( ! isset( $input[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] ) ) {
+			$previous                                        = $this->core->get_settings();
+			$input[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] = $previous[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ];
+		}
+
+		$this->upload->save_uploaded_default_icon( \get_current_blog_id(), $input[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] );
 
 		return $input;
 	}
