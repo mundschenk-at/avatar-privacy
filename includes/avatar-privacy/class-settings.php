@@ -26,6 +26,8 @@
 
 namespace Avatar_Privacy;
 
+use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler;
+
 use Mundschenk\UI\Controls;
 
 /**
@@ -36,6 +38,13 @@ use Mundschenk\UI\Controls;
  * @author Peter Putzer <github@mundschenk.at>
  */
 abstract class Settings {
+
+	/**
+	 * The options array index of the custom default avatar image.
+	 *
+	 * @var string
+	 */
+	const UPLOAD_CUSTOM_DEFAULT_AVATAR = 'custom_default_avatar';
 
 	/**
 	 * The defaults array index of the information headers.
@@ -82,14 +91,28 @@ abstract class Settings {
 	public static function get_fields( $information_header = '' ) {
 		if ( empty( self::$fields ) ) {
 			self::$fields = [ // @codeCoverageIgnore
-				self::INFORMATION_HEADER   => [
+				self::UPLOAD_CUSTOM_DEFAULT_AVATAR => [
+					'ui'             => \Avatar_Privacy\Upload_Handlers\UI\File_Upload_Input::class,
+					'tab_id'         => '', // Will be added to the 'discussions' page.
+					'section'        => 'avatars',
+					'help_no_file'   => __( 'No custom default avatar is set. Use the upload field to add a custom default avatar image.', 'avatar-privacy' ),
+					'help_no_upload' => __( 'You do not have media management permissions. To change your custom default avatar, contact the site administrator.', 'avatar-privacy' ),
+					'help_text'      => __( 'Replace the custom default avatar by uploading a new image, or erase it by checking the delete option.', 'avatar-privacy' ),
+					'erase_checkbox' => Custom_Default_Icon_Upload_Handler::CHECKBOX_ERASE,
+					'action'         => Custom_Default_Icon_Upload_Handler::ACTION_UPLOAD,
+					'nonce'          => Custom_Default_Icon_Upload_Handler::NONCE_UPLOAD,
+					'default'        => 0,
+					'attributes'     => [ 'accept' => 'image/*' ],
+					'settings_args'  => [ 'class' => 'avatar-settings' ],
+				],
+				self::INFORMATION_HEADER           => [
 					'ui'            => Controls\Display_Text::class,
 					'tab_id'        => '', // Will be added to the 'discussions' page.
 					'section'       => 'avatars',
 					'elements'      => [], // Will be updated below.
 					'short'         => \__( 'Avatar Privacy', 'avatar-privacy' ),
 				],
-				self::GRAVATAR_USE_DEFAULT => [
+				self::GRAVATAR_USE_DEFAULT         => [
 					'ui'               => Controls\Checkbox_Input::class,
 					'tab_id'           => '',
 					'section'          => 'avatars',
@@ -97,7 +120,7 @@ abstract class Settings {
 					'label'            => \__( '%1$s Display Gravatar images by default.', 'avatar-privacy' ),
 					'help_text'        => \__( 'Checking will ensure that gravatars are displayed when there is no explicit setting for the user or mail address (e.g. for comments made before installing Avatar Privacy). Please only enable this setting after careful consideration of the privacy implications.', 'avatar-privacy' ),
 					'default'          => 0,
-					'grouped_with'     => 'display',
+					'grouped_with'     => self::INFORMATION_HEADER,
 					'outer_attributes' => [ 'class' => 'avatar-settings-enabled' ],
 				],
 			];

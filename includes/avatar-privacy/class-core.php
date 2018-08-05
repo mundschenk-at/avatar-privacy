@@ -569,4 +569,29 @@ class Core {
 
 		return $format_strings;
 	}
+
+	/**
+	 * Retrieves a user by email hash.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param string $hash The user's email hash.
+	 *
+	 * @return \WP_User|null
+	 */
+	public function get_user_by_hash( $hash ) {
+		// No extra caching necessary, WP Core already does that for us.
+		$users = \get_users( [
+			'number'       => 1,
+			'meta_key'     => self::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_key, WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine
+			'meta_value'   => $hash, // phpcs:ignore WordPress.VIP.SlowDBQuery.slow_db_query_meta_value, WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine
+			'meta_compare' => '=',
+		] );
+
+		if ( empty( $users ) ) {
+			return null;
+		}
+
+		return $users[0];
+	}
 }

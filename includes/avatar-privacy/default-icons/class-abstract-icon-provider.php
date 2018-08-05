@@ -43,12 +43,31 @@ abstract class Abstract_Icon_Provider implements Icon_Provider {
 	private $valid_types;
 
 	/**
+	 * The primary type (option value).
+	 *
+	 * @var string
+	 */
+	private $primary_type;
+
+	/**
+	 * The user-visible name. Already translated.
+	 *
+	 * @var string
+	 */
+	private $name;
+
+	/**
 	 * Creates a new instance.
 	 *
+	 * @since 1.2.0 Parameter $name added.
+	 *
 	 * @param string[] $types An array of valid types.
+	 * @param string   $name  Optional. A translated user-visible name. Maybe left empty if a provider replaces a core default icon. Default ''.
 	 */
-	protected function __construct( array $types ) {
-		$this->valid_types = \array_flip( $types );
+	protected function __construct( array $types, $name = '' ) {
+		$this->valid_types  = \array_flip( $types );
+		$this->primary_type = $types[0];
+		$this->name         = $name;
 	}
 
 	/**
@@ -71,4 +90,27 @@ abstract class Abstract_Icon_Provider implements Icon_Provider {
 	 * @return string
 	 */
 	abstract public function get_icon_url( $identity, $size );
+
+	/**
+	 * Retrieves the option value (the primary provided type).
+	 *
+	 * @since 1.2.0
+	 *
+	 * @return string
+	 */
+	public function get_option_value() {
+		return $this->primary_type;
+	}
+
+	/**
+	 * Retrieves the user-visible, translated name. Replacements for existing
+	 * core default icon styles may return the empty string instead.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return $this->name;
+	}
 }

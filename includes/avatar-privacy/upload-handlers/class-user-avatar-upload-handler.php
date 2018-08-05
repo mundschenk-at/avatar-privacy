@@ -24,7 +24,7 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy;
+namespace Avatar_Privacy\Upload_Handlers;
 
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Image_Tools;
@@ -37,48 +37,28 @@ use Avatar_Privacy\Data_Storage\Filesystem_Cache;
  * This implementation has been inspired by Simple Local Avatars (Jake Goldman & 10up).
  *
  * @since 1.0.0
+ * @since 1.2.0 Image generation moved to new class Avatar_Handlers\User_Avatar_Handler, the upload handler is now a subclass of Upload_Handler.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class User_Avatar_Upload {
+class User_Avatar_Upload_Handler extends Upload_Handler {
 
 	/**
-	 * The nonce action for updating the 'use_gravatar' meta field.
+	 * The nonce action for updating custom user avatars.
 	 */
 	const ACTION_UPLOAD = 'avatar_privacy_upload_avatar';
 
 	/**
-	 * The nonce used for updating the 'use_gravatar' meta field.
+	 * The nonce used for updating custom user avatars.
 	 */
 	const NONCE_UPLOAD = 'avatar_privacy_upload_avatar_nonce_';
 
 	const CHECKBOX_ERASE = 'avatar-privacy-user-avatar-erase';
 	const FILE_UPLOAD    = 'avatar-privacy-user-avatar-upload';
 
-	const ALLOWED_MIME_TYPES = [
-		'jpg|jpeg|jpe' => 'image/jpeg',
-		'gif'          => 'image/gif',
-		'png'          => 'image/png',
-	];
-
 	const UPLOAD_DIR = '/avatar-privacy/user-avatar';
 
 	const USER_META_KEY = 'avatar_privacy_user_avatar';
-
-
-	/**
-	 * The full path to the main plugin file.
-	 *
-	 * @var   string
-	 */
-	private $plugin_file;
-
-	/**
-	 * The filesystem cache handler.
-	 *
-	 * @var Filesystem_Cache
-	 */
-	private $file_cache;
 
 	/**
 	 * The ID of the user whose profile is being edited.
@@ -87,38 +67,16 @@ class User_Avatar_Upload {
 	 */
 	private $user_id_being_edited;
 
-	/**
-	 * The uploads base directory.
-	 *
-	 * @var string
-	 */
-	private $base_dir;
-
-	/**
-	 * The core API.
-	 *
-	 * @var Core
-	 */
-	private $core;
 
 	/**
 	 * Creates a new instance.
 	 *
 	 * @param string           $plugin_file The full path to the base plugin file.
+	 * @param Core             $core        The core API.
 	 * @param Filesystem_Cache $file_cache  The file cache handler.
 	 */
-	public function __construct( $plugin_file, Filesystem_Cache $file_cache ) {
-		$this->plugin_file = $plugin_file;
-		$this->file_cache  = $file_cache;
-	}
-
-	/**
-	 * Sets the core API instance to use.
-	 *
-	 * @param Core $core The core API.
-	 */
-	public function set_core( Core $core ) {
-		$this->core = $core;
+	public function __construct( $plugin_file, Core $core, Filesystem_Cache $file_cache ) {
+		parent::__construct( $plugin_file, self::UPLOAD_DIR, $core, $file_cache );
 	}
 
 	/**
@@ -146,11 +104,6 @@ class User_Avatar_Upload {
 
 		if ( ! empty( $_FILES[ self::FILE_UPLOAD ]['name'] ) ) { // Input var okay.
 
-			// Enable front end support.
-			if ( ! function_exists( 'wp_handle_upload' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/file.php';
-			}
-
 			// Make user_id known to unique_filename_callback function.
 			$this->user_id_being_edited = $user_id;
 
@@ -169,47 +122,6 @@ class User_Avatar_Upload {
 			// Just delete the current avatar.
 			$this->delete_uploaded_avatar( $user_id );
 		}
-	}
-
-	/**
-	 * Handles the file upload by switching to the primary site of the network.
-	 *
-	 * @param  array $file  A slice of the $_FILES superglobal.
-	 *
-	 * @return string[]     Information about the uploaded file.
-	 */
-	private function upload( array $file ) {
-		if ( \is_multisite() ) {
-			\switch_to_blog( \get_network()->site_id );
-		}
-
-		\add_filter( 'upload_dir', [ $this, 'custom_upload_dir' ] );
-		$avatar = \wp_handle_upload( $file, [
-			'mimes'                    => self::ALLOWED_MIME_TYPES,
-			'test_form'                => false,
-			'unique_filename_callback' => [ $this, 'get_unique_filename' ],
-		] );
-		\remove_filter( 'upload_dir', [ $this, 'custom_upload_dir' ] );
-
-		if ( \is_multisite() ) {
-			\restore_current_blog();
-		}
-
-		return $avatar;
-	}
-
-	/**
-	 * Returns a custom upload direcetory for user avatars.
-	 *
-	 * @param  array $uploads The uplaods data.
-	 * @return array
-	 */
-	public function custom_upload_dir( array $uploads ) {
-		$uploads['path']   = \str_replace( $uploads['subdir'], self::UPLOAD_DIR, $uploads['path'] );
-		$uploads['url']    = \str_replace( $uploads['subdir'], self::UPLOAD_DIR, $uploads['url'] );
-		$uploads['subdir'] = self::UPLOAD_DIR;
-
-		return $uploads;
 	}
 
 	/**
@@ -256,17 +168,10 @@ class User_Avatar_Upload {
 	 * @return string
 	 */
 	public function get_unique_filename( $directory, $filename, $extension ) {
-		$user      = \get_user_by( 'id', $this->user_id_being_edited );
-		$base_name = \sanitize_file_name( $user->display_name . '_avatar' );
-		$filename  = $base_name;
-		$number    = 1;
+		$user     = \get_user_by( 'id', $this->user_id_being_edited );
+		$filename = \sanitize_file_name( $user->display_name . '_avatar' );
 
-		while ( \file_exists( "$directory/{$filename}{$extension}" ) ) {
-			$filename = "{$base_name}_{$number}";
-			$number++;
-		}
-
-		return "{$filename}{$extension}";
+		return parent::get_unique_filename( $directory, $filename, $extension );
 	}
 
 	/**
@@ -283,65 +188,5 @@ class User_Avatar_Upload {
 		if ( ! empty( $avatar['file'] ) && \file_exists( $avatar['file'] ) && \unlink( $avatar['file'] ) ) { // phpcs:ignore WordPress.VIP.FileSystemWritesDisallow
 			\delete_user_meta( $user_id, self::USER_META_KEY );
 		}
-	}
-
-	/**
-	 * Retrieves the URL for the given default icon type.
-	 *
-	 * @param  string $url   The URL. Default empty.
-	 * @param  string $hash  The hashed mail address.
-	 * @param  int    $size  The size of the avatar image in pixels.
-	 * @param  array  $args {
-	 *     An array of arguments.
-	 *
-	 *     @type string $avatar   The full-size avatar image path.
-	 *     @type string $mimetype The expected MIME type of the avatar image.
-	 *     @type bool   $force    Optional. Whether to force the regeneration of the image file. Default false.
-	 * }
-	 *
-	 * @return string
-	 */
-	public function get_icon_url( $url, $hash, $size, array $args ) {
-		// Cache base directory.
-		if ( empty( $this->base_dir ) ) {
-			$this->base_dir = $this->file_cache->get_base_dir();
-		}
-
-		// Prepare additional arguments.
-		$args = \wp_parse_args( $args, [
-			'avatar'   => '',
-			'mimetype' => \Avatar_Privacy\Components\Images::PNG_IMAGE,
-			'force'    => false,
-		] );
-
-		$extension = \Avatar_Privacy\Components\Images::FILE_EXTENSION[ $args['mimetype'] ];
-		$filename  = "user/{$this->get_sub_dir( $hash )}/{$hash}-{$size}.{$extension}";
-		$target    = "{$this->base_dir}{$filename}";
-
-		if ( $args['force'] || ! \file_exists( $target ) ) {
-			$data = Image_Tools\Editor::get_resized_image_data(
-				Image_Tools\Editor::get_image_editor( $args['avatar'] ), $size, $size, true, $args['mimetype']
-			);
-			if ( empty( $data ) ) {
-				// Something went wrong..
-				return $url;
-			}
-
-			// Save the generated PNG file.
-			$this->file_cache->set( $filename, $data, $args['force'] );
-		}
-
-		return $this->file_cache->get_url( $filename );
-	}
-
-	/**
-	 * Calculates the subdirectory from the given identity hash.
-	 *
-	 * @param  string $identity The identity (mail address) hash.
-	 *
-	 * @return string
-	 */
-	private function get_sub_dir( $identity ) {
-		return \implode( '/', \str_split( \substr( $identity, 0, 2 ) ) );
 	}
 }

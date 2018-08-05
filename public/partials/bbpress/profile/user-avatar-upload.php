@@ -24,9 +24,9 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-use Avatar_Privacy\User_Avatar_Upload;
+use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
-$current_avatar                = \get_user_meta( $user_id, User_Avatar_Upload::USER_META_KEY, true );
+$current_avatar                = \get_user_meta( $user_id, User_Avatar_Upload_Handler::USER_META_KEY, true );
 $current_user_can_upload_files = \current_user_can( 'upload_files' );
 
 if ( $current_user_can_upload_files ) {
@@ -60,11 +60,11 @@ if ( $current_user_can_upload_files ) {
 	<?php echo /* @scrutinizer ignore-type */ \get_avatar( $user_id ); ?>
 
 	<?php if ( $current_user_can_upload_files ) : ?>
-		<?php \wp_nonce_field( User_Avatar_Upload::ACTION_UPLOAD, User_Avatar_Upload::NONCE_UPLOAD . $user_id ); ?>
-		<input type="file" id="<?php echo \esc_attr( User_Avatar_Upload::FILE_UPLOAD ); ?>" name="<?php echo \esc_attr( User_Avatar_Upload::FILE_UPLOAD ); ?>" accept="image/*" />
+		<?php \wp_nonce_field( User_Avatar_Upload_Handler::ACTION_UPLOAD, User_Avatar_Upload_Handler::NONCE_UPLOAD . $user_id ); ?>
+		<input type="file" id="<?php echo \esc_attr( User_Avatar_Upload_Handler::FILE_UPLOAD ); ?>" name="<?php echo \esc_attr( User_Avatar_Upload_Handler::FILE_UPLOAD ); ?>" accept="image/*" />
 		<?php if ( ! empty( $current_avatar ) ) : ?>
 			<label>
-				<input type="checkbox" class="checkbox" id="<?php echo \esc_attr( User_Avatar_Upload::CHECKBOX_ERASE ); ?>" name="<?php echo \esc_attr( User_Avatar_Upload::CHECKBOX_ERASE ); ?>" value="true" />
+				<input type="checkbox" class="checkbox" id="<?php echo \esc_attr( User_Avatar_Upload_Handler::CHECKBOX_ERASE ); ?>" name="<?php echo \esc_attr( User_Avatar_Upload_Handler::CHECKBOX_ERASE ); ?>" value="true" />
 				<?php \esc_html_e( 'Delete local avatar picture.', 'avatar-privacy' ); ?>
 			</label>
 		<?php endif; ?>

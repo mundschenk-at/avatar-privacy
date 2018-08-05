@@ -27,7 +27,7 @@
 namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Core;
-use Avatar_Privacy\User_Avatar_Upload;
+use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
 use Avatar_Privacy\Data_Storage\Cache;
 use Avatar_Privacy\Data_Storage\Options;
@@ -190,7 +190,7 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 		];
 
 		// Export the uploaded avatar.
-		$local_avatar = \get_user_meta( $user->ID, User_Avatar_Upload::USER_META_KEY, true );
+		$local_avatar = \get_user_meta( $user->ID, User_Avatar_Upload_Handler::USER_META_KEY, true );
 		if ( ! empty( $local_avatar['file'] ) ) {
 			$user_data[] = [
 				'name'  => __( 'User Profile Picture', 'avatar-privacy' ),
@@ -307,7 +307,7 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 			$items_removed += (int) \delete_user_meta( $user->ID, Core::EMAIL_HASH_META_KEY );
 			$items_removed += (int) \delete_user_meta( $user->ID, Core::GRAVATAR_USE_META_KEY );
 			$items_removed += (int) \delete_user_meta( $user->ID, Core::ALLOW_ANONYMOUS_META_KEY );
-			$items_removed += (int) \delete_user_meta( $user->ID, User_Avatar_Upload::USER_META_KEY );
+			$items_removed += (int) \delete_user_meta( $user->ID, User_Avatar_Upload_Handler::USER_META_KEY );
 		}
 
 		// Remove comment author data.
