@@ -519,7 +519,7 @@ class Core {
 
 				if ( empty( $salt ) ) {
 					// Still nothing? Generate a random value.
-					$salt = \mt_rand();
+					$salt = \wp_rand();
 
 					// Save the generated salt.
 					$this->network_options->set( Network_Options::SALT, $salt );
