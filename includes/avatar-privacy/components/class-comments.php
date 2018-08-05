@@ -87,6 +87,11 @@ class Comments implements \Avatar_Privacy\Component {
 
 		// Handle the checkbox data upon saving the comment.
 		\add_action( 'comment_post', [ $this, 'comment_post' ], 10, 2 );
+
+		// Store gravatar use choice in cookie, if those are enabled in Core.
+		if ( \has_action( 'set_comment_cookies', 'wp_set_comment_cookies' ) ) {
+			\add_action( 'set_comment_cookies', [ $this, 'set_comment_cookies' ], 10, 3 );
+		}
 	}
 
 	/**
@@ -208,8 +213,32 @@ class Comments implements \Avatar_Privacy\Component {
 		// Save the 'use gravatar' value.
 		$use_gravatar = ( isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) && ( 'true' === $_POST[ self::CHECKBOX_FIELD_NAME ] ) ) ? 1 : 0; // WPCS: CSRF ok, Input var okay.
 		$this->core->update_comment_author_gravatar_use( $comment->comment_author_email, $comment_id, $use_gravatar );
+	}
+
+	/**
+	 * Sets the comment_use_gravatar_ cookie. Based on `wp_set_comment_cookies`.
+	 *
+	 * @param \WP_Comment $comment         Comment object.
+	 * @param \WP_User    $user            Comment author's user object. The user may not exist.
+	 * @param bool        $cookies_consent Optional. Comment author's consent to store cookies. Default true.
+	 */
+	public function set_comment_cookies( \WP_Comment $comment, \WP_User $user, $cookies_consent = true ) {
+		// If the user already exists, or the user opted out of cookies, don't set cookies.
+		if ( $user->exists() ) {
+			return;
+		}
+
+		if ( false === $cookies_consent ) {
+			// Remove any existing cookie.
+			\setcookie( 'comment_use_gravatar_' . COOKIEHASH, 0, time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+			return;
+		}
+
+		// Does the author want to use gravatar?
+		$use_gravatar = $this->core->comment_author_allows_gravatar_use( $comment->comment_author_email );
 
 		// Set a cookie for the 'use gravatar' value.
+		/** This filter is documented in wp-includes/comment.php */
 		$comment_cookie_lifetime = \apply_filters( 'comment_cookie_lifetime', 30000000 );
 		$secure                  = ( 'https' === \wp_parse_url( \home_url(), PHP_URL_SCHEME ) );
 		\setcookie( 'comment_use_gravatar_' . COOKIEHASH, $use_gravatar, \time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN, $secure );
