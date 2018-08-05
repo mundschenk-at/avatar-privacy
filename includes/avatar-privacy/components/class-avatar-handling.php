@@ -253,9 +253,9 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		$email   = '';
 		$age     = 0;
 
-		if ( is_numeric( $id_or_email ) ) {
-			$user_id = absint( $id_or_email );
-		} elseif ( is_string( $id_or_email ) ) {
+		if ( \is_numeric( $id_or_email ) ) {
+			$user_id = \absint( $id_or_email );
+		} elseif ( \is_string( $id_or_email ) ) {
 			// E-mail address.
 			$email = $id_or_email;
 		} elseif ( $id_or_email instanceof \WP_User ) {
@@ -267,21 +267,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			$user_id = (int) $id_or_email->post_author;
 			$age     = \time() - \mysql2date( 'U', $id_or_email->post_date_gmt );
 		} elseif ( $id_or_email instanceof \WP_Comment ) {
-			/** This filter is documented in wp-includes/pluggable.php */
-			$allowed_comment_types = \apply_filters( 'get_avatar_comment_types', [ 'comment' ] );
-
-			if ( ! empty( $id_or_email->comment_type ) && ! in_array( $id_or_email->comment_type, (array) $allowed_comment_types, true ) ) {
-				return [ false, '', 0 ]; // Abort.
-			}
-
-			if ( ! empty( $id_or_email->user_id ) ) {
-				$user_id = (int) $id_or_email->user_id;
-			}
-			if ( empty( $user_id ) && ! empty( $id_or_email->comment_author_email ) ) {
-				$email = $id_or_email->comment_author_email;
-			}
-
-			$age = \time() - \mysql2date( 'U', $id_or_email->comment_date_gmt );
+			list( $user_id, $email, $age ) = $this->parse_comment( $id_or_email );
 		}
 
 		if ( ! empty( $user_id ) && empty( $email ) ) {
@@ -311,6 +297,40 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	}
 
 	/**
+	 * Parse a WP_Comment object.
+	 *
+	 * @param  \WP_Comment $comment A comment.
+	 *
+	 * @return array {
+	 *     The information parsed from $id_or_email.
+	 *
+	 *     @type int|false $user_id The WordPress user ID, or false.
+	 *     @type string    $email   The email address.
+	 *     @type int       $age     The seconds since the post or comment was first created, or 0 if $id_or_email was not one of these object types.
+	 * }
+	 */
+	private function parse_comment( \WP_Comment $comment ) {
+		/** This filter is documented in wp-includes/pluggable.php */
+		$allowed_comment_types = \apply_filters( 'get_avatar_comment_types', [ 'comment' ] );
+
+		if ( ! empty( $comment->comment_type ) && ! \in_array( $comment->comment_type, (array) $allowed_comment_types, true ) ) {
+			return [ false, '', 0 ]; // Abort.
+		}
+
+		$user_id = false;
+		$email   = '';
+		if ( ! empty( $comment->user_id ) ) {
+			$user_id = (int) $comment->user_id;
+		} elseif ( ! empty( $comment->comment_author_email ) ) {
+			$email = $comment->comment_author_email;
+		}
+
+		$age = \time() - \mysql2date( 'U', $comment->comment_date_gmt );
+
+		return [ $user_id, $email, $age ];
+	}
+
+	/**
 	 * Validates if a gravatar exists for the given e-mail address. Function originally
 	 * taken from: http://codex.wordpress.org/Using_Gravatars
 	 *
@@ -335,9 +355,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		// Try to find something in the cache.
 		if ( isset( $this->validate_gravatar_cache[ $hash ] ) ) {
 			$result = $this->validate_gravatar_cache[ $hash ];
-			if ( null !== $mimetype && ! empty( $result ) ) {
-				$mimetype = $result;
-			}
+			$this->set_mimetype( $result, $mimetype );
 
 			return ! empty( $result );
 		}
@@ -347,36 +365,15 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		$transients    = \is_multisite() ? $this->site_transients : $this->transients;
 		$result        = $transients->get( $transient_key );
 		if ( false !== $result ) {
-			$this->validate_gravatar_cache[ $hash ] = $result;
-			if ( null !== $mimetype && ! empty( $result ) ) {
-				$mimetype = $result;
-			}
+			$this->cache_gravatar_ping( $hash, $result, $mimetype );
 
-			return ! empty( $result );
+			return ! empty( $result ); // Return early.
 		}
 
 		// Ask gravatar.com.
-		$response = \wp_remote_head( "https://gravatar.com/avatar/{$hash}?d=404" );
-		if ( $response instanceof \WP_Error ) {
-			return false; // Don't cache the result.
-		}
-
-		switch ( \wp_remote_retrieve_response_code( $response ) ) {
-			case 200:
-				// Valid image found.
-				$result = \wp_remote_retrieve_header( $response, 'content-type' );
-				if ( null !== $mimetype && ! empty( $result ) ) {
-					$mimetype = $result;
-				}
-				break;
-
-			case 404:
-				// No image found.
-				$result = 0;
-				break;
-
-			default:
-				return false; // Don't cache the result.
+		$result = $this->ping_gravatar( $hash );
+		if ( false === $result ) {
+			return false; // Do not cache this result.
 		}
 
 		// Cache the result across all blogs (a YES for 1 week, a NO for 10 minutes or longer,
@@ -397,9 +394,65 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		$duration = \apply_filters( 'avatar_privacy_validate_gravatar_interval', $duration, ! empty( $result ), $age );
 
 		$transients->set( $transient_key, $result, $duration );
-		$this->validate_gravatar_cache[ $hash ] = $result;
+		$this->cache_gravatar_ping( $hash, $result, $mimetype );
 
 		return ! empty( $result );
+	}
+
+	/**
+	 * Pings gravavtar.com to check if there is an image for the given hash.
+	 *
+	 * @param  string $hash An MD5 hash of an email address.
+	 *
+	 * @return string|int|false
+	 */
+	private function ping_gravatar( $hash ) {
+		// Ask gravatar.com.
+		$response = \wp_remote_head( "https://gravatar.com/avatar/{$hash}?d=404" );
+		if ( $response instanceof \WP_Error ) {
+			return false; // Don't cache the result.
+		}
+
+		switch ( \wp_remote_retrieve_response_code( $response ) ) {
+			case 200:
+				// Valid image found.
+				$result = \wp_remote_retrieve_header( $response, 'content-type' );
+				break;
+
+			case 404:
+				// No image found.
+				$result = 0;
+				break;
+
+			default:
+				$result = false; // Don't cache the result.
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Sets the mimetype from the result if the parameter is passed.
+	 *
+	 * @param string|int $result   The content-type header (or 0).
+	 * @param string     $mimetype Optional. Set to the mimetype of the gravatar if present. Passed by reference. Default null.
+	 */
+	private function set_mimetype( $result, &$mimetype = null ) {
+		if ( null !== $mimetype && ! empty( $result ) ) {
+			$mimetype = $result;
+		}
+	}
+
+	/**
+	 * Sets the mimetype from the result if the parameter is passed.
+	 *
+	 * @param string     $hash     An MD5 hash of an email address.
+	 * @param string|int $result   The content-type header (or 0).
+	 * @param string     $mimetype Optional. Set to the mimetype of the gravatar if present. Passed by reference. Default null.
+	 */
+	private function cache_gravatar_ping( $hash, $result, &$mimetype = null ) {
+		$this->validate_gravatar_cache[ $hash ] = $result;
+		$this->set_mimetype( $result, $mimetype );
 	}
 
 	/**
