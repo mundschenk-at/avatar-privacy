@@ -28,7 +28,7 @@
 
 namespace Avatar_Privacy\Default_Icons\Generator;
 
-use Avatar_Privacy\Image_Tools;
+use Avatar_Privacy\Tools\Images as Image_Tools;
 
 use function Scriptura\Color\Helpers\HSLtoRGB;
 

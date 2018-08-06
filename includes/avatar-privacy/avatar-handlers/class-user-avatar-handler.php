@@ -27,7 +27,9 @@
 namespace Avatar_Privacy\Avatar_Handlers;
 
 use Avatar_Privacy\Core;
-use Avatar_Privacy\Image_Tools;
+
+use Avatar_Privacy\Tools\Images as Image_Tools;
+
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;

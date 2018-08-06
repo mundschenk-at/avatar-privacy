@@ -27,12 +27,13 @@
 namespace Avatar_Privacy\Default_Icons;
 
 use Avatar_Privacy\Core;
-use Avatar_Privacy\Image_Tools;
 use Avatar_Privacy\Settings;
 
 use Avatar_Privacy\Components\Images;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
+
+use Avatar_Privacy\Tools\Images as Image_Tools;
 
 use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler as Upload;
 
