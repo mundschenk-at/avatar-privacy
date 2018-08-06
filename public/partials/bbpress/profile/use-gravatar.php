@@ -25,6 +25,7 @@
  */
 
 use Avatar_Privacy\Components\User_Profile;
+use Avatar_Privacy\Tools\Template;
 
 // Allowed HTML tags in the checkbox label.
 $allowed_html = [
@@ -46,7 +47,7 @@ $allowed_html = [
 			value="true"
 			<?php checked( $use_gravatar ); ?>
 		/>
-		<?php echo wp_kses( sprintf( /* translators: gravatar.com URL */ __( 'Display a <a href="%s" rel="noopener nofollow">Gravatar</a> image for my e-mail address.', 'avatar-privacy' ), __( 'https://en.gravatar.com/', 'avatar-privacy' ) ), $allowed_html ); ?>
+		<?php echo wp_kses( sprintf( /* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */ __( 'Display a <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a> image for my e-mail address.', 'avatar-privacy' ), __( 'https://en.gravatar.com/', 'avatar-privacy' ), Template::get_gravatar_link_rel(), Template::get_gravatar_link_target() ), $allowed_html ); ?>
 	</label>
 	<span class="description indicator-hint" style="width:100%;margin-left:0;">
 		<?php \esc_html_e( 'An uploaded profile picture takes precedence over your gravatar.', 'avatar-privacy' ); ?>

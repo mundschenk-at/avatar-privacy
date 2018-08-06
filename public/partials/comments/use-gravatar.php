@@ -26,6 +26,7 @@
  */
 
 use Avatar_Privacy\Components\Comments;
+use Avatar_Privacy\Tools\Template;
 
 // Allowed HTML tags in the checkbox label.
 $allowed_html = [
@@ -61,6 +62,6 @@ if ( isset( $_POST[ Comments::CHECKBOX_FIELD_NAME ] ) ) { // WPCS: CSRF ok, Inpu
 		style="display:inline;"
 	<?php endif; ?>
 		for="<?php echo \esc_attr( Comments::CHECKBOX_FIELD_NAME ); ?>"
-	><?php echo \wp_kses( \sprintf( /* translators: gravatar.com URL */ \__( 'Display a <a href="%s" rel="noopener nofollow">Gravatar</a> image next to my comments.', 'avatar-privacy' ), __( 'https://en.gravatar.com/', 'avatar-privacy' ) ), $allowed_html ); ?></label>
+	><?php echo \wp_kses( \sprintf( /* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */ \__( 'Display a <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a> image next to my comments.', 'avatar-privacy' ), __( 'https://en.gravatar.com/', 'avatar-privacy' ), Template::get_gravatar_link_rel(), Template::get_gravatar_link_target() ), $allowed_html ); ?></label>
 </p>
 <?php

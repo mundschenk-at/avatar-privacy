@@ -24,7 +24,7 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Image_Tools;
+namespace Avatar_Privacy\Tools\Images;
 
 /**
  * A collection of utlitiy methods for using the \WP_Image_Editor class.
