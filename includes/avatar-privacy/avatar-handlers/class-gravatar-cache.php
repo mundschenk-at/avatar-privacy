@@ -33,6 +33,8 @@ use Avatar_Privacy\Components\Images;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
 
+use Avatar_Privacy\Tools\Network\Gravatar_Service;
+
 /**
  * Handles retrieving and caching Gravatar.com images.
  *
@@ -84,7 +86,6 @@ class Gravatar_Cache implements Avatar_Handler {
 	 */
 	private $file_cache;
 
-
 	/**
 	 * A copy of Gravatar_Cache::TYPE_MAPPING.
 	 *
@@ -93,14 +94,25 @@ class Gravatar_Cache implements Avatar_Handler {
 	private $type_mapping;
 
 	/**
+	 * The Gravatar network service.
+	 *
+	 * @var Gravatar_Service
+	 */
+	private $gravatar;
+
+	/**
 	 * Creates a new instance.
+	 *
+	 * @since 1.2.0 Parameter $gravatar added.
 	 *
 	 * @param Options          $options     The options handler.
 	 * @param Filesystem_Cache $file_cache  The file cache handler.
+	 * @param Gravatar_Service $gravatar    The Gravatar network service.
 	 */
-	public function __construct( Options $options, Filesystem_Cache $file_cache ) {
+	public function __construct( Options $options, Filesystem_Cache $file_cache, Gravatar_Service $gravatar ) {
 		$this->options    = $options;
 		$this->file_cache = $file_cache;
+		$this->gravatar   = $gravatar;
 
 		// Needed for PHP 5.6 compatiblity.
 		$this->type_mapping = self::TYPE_MAPPING;
@@ -132,15 +144,13 @@ class Gravatar_Cache implements Avatar_Handler {
 			'force'    => false,
 		] );
 
-		$subdir       = $this->get_sub_dir( $hash, false !== $args['user_id'] );
-		$filename     = "gravatar/{$subdir}/{$hash}-{$size}." . Images::FILE_EXTENSION[ $args['mimetype'] ];
-		$gravatar_url = "https://secure.gravatar.com/avatar/{$this->get_gravatar_hash( $args['email'] )}.png?s={$size}&r={$args['rating']}&d=404";
+		$subdir   = $this->get_sub_dir( $hash, false !== $args['user_id'] );
+		$filename = "gravatar/{$subdir}/{$hash}-{$size}." . Images::FILE_EXTENSION[ $args['mimetype'] ];
 
 		// Only retrieve new Gravatar if necessary.
 		if ( ! \file_exists( "{$this->file_cache->get_base_dir()}{$filename}" ) || $args['force'] ) {
-			$icon = \wp_remote_retrieve_body( /* @scrutinizer ignore-type */ \wp_remote_get( $gravatar_url ) );
-
-			// Store icon.
+			// Retrieve & store icon.
+			$icon = $this->gravatar->get_image( $args['email'], $size, $args['rating'] );
 			if ( ! empty( $icon ) && $this->file_cache->set( $filename, $icon ) ) {
 				$url = $this->file_cache->get_url( $filename );
 			}
@@ -149,17 +159,6 @@ class Gravatar_Cache implements Avatar_Handler {
 		}
 
 		return $url;
-	}
-
-	/**
-	 * Creates a hash from the given mail address using the SHA-256 algorithm.
-	 *
-	 * @param  string $email An email address.
-	 *
-	 * @return string
-	 */
-	public function get_gravatar_hash( $email ) {
-		return \md5( \strtolower( \trim( $email ) ) );
 	}
 
 	/**

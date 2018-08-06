@@ -29,13 +29,14 @@ namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Settings;
-use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
 use Avatar_Privacy\Components\Images;
 
 use Avatar_Privacy\Data_Storage\Options;
-use Avatar_Privacy\Data_Storage\Transients;
-use Avatar_Privacy\Data_Storage\Site_Transients;
+
+use Avatar_Privacy\Tools\Network\Gravatar_Service;
+
+use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
 /**
  * Handles the display of avatars in WordPress.
@@ -59,20 +60,6 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	private $options;
 
 	/**
-	 * The transients handler.
-	 *
-	 * @var Transients
-	 */
-	private $transients;
-
-	/**
-	 * The site transients handler.
-	 *
-	 * @var Site_Transients
-	 */
-	private $site_transients;
-
-	/**
 	 * The core API.
 	 *
 	 * @var Core
@@ -80,25 +67,25 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	private $core;
 
 	/**
-	 * A cache for the results of the validate_gravatar function.
+	 * The Gravatar network service.
 	 *
-	 * @var array
+	 * @var Gravatar_Service
 	 */
-	private $validate_gravatar_cache = [];
+	private $gravatar;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param string          $plugin_file      The full path to the base plugin file.
-	 * @param Options         $options          The options handler.
-	 * @param Transients      $transients       The transients handler.
-	 * @param Site_Transients $site_transients  The site transients handler.
+	 * @since 1.2.0 Parameter $gravatar added.
+	 *
+	 * @param string           $plugin_file The full path to the base plugin file.
+	 * @param Options          $options     The options handler.
+	 * @param Gravatar_Service $gravatar    The Gravatar network service.
 	 */
-	public function __construct( $plugin_file, Options $options, Transients $transients, Site_Transients $site_transients ) {
-		$this->plugin_file     = $plugin_file;
-		$this->options         = $options;
-		$this->transients      = $transients;
-		$this->site_transients = $site_transients;
+	public function __construct( $plugin_file, Options $options, Gravatar_Service $gravatar ) {
+		$this->plugin_file = $plugin_file;
+		$this->options     = $options;
+		$this->gravatar    = $gravatar;
 	}
 
 	/**
@@ -243,7 +230,8 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			 * @param int|false $user_id      A WordPress user ID (or false).
 			 */
 			if ( \apply_filters( 'avatar_privacy_enable_gravatar_check', true, $email, $user_id ) ) {
-				$show_gravatar = $this->validate_gravatar( $email, $age, $mimetype );
+				$mimetype      = $this->gravatar->validate( $email, $age );
+				$show_gravatar = ! empty( $mimetype );
 			}
 		}
 
@@ -337,142 +325,6 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		$age = \time() - \mysql2date( 'U', $comment->comment_date_gmt );
 
 		return [ $user_id, $email, $age ];
-	}
-
-	/**
-	 * Validates if a gravatar exists for the given e-mail address. Function originally
-	 * taken from: http://codex.wordpress.org/Using_Gravatars
-	 *
-	 * @param  string $email    The e-mail address to check.
-	 * @param  int    $age      Optional. The age of the object associated with the email address. Default 0.
-	 * @param  string $mimetype Optional. Set to the mimetype of the gravatar if present. Passed by reference. Default null.
-	 *
-	 * @return bool             True if a gravatar exists for the given e-mail address,
-	 *                          false otherwise, including if gravatar.com could not be
-	 *                          reached or answered with a different error code or if
-	 *                          no e-mail address was given.
-	 */
-	public function validate_gravatar( $email = '', $age = 0, &$mimetype = null ) {
-		// Make sure we have a real address to check.
-		if ( empty( $email ) ) {
-			return false;
-		}
-
-		// Build the hash of the e-mail address.
-		$hash = \md5( \strtolower( \trim( $email ) ) );
-
-		// Try to find something in the cache.
-		if ( isset( $this->validate_gravatar_cache[ $hash ] ) ) {
-			$result = $this->validate_gravatar_cache[ $hash ];
-			$this->set_mimetype( $result, $mimetype );
-
-			return ! empty( $result );
-		}
-
-		// Try to find it via transient cache. On multisite, we use site transients.
-		$transient_key = "check_{$hash}";
-		$transients    = \is_multisite() ? $this->site_transients : $this->transients;
-		$result        = $transients->get( $transient_key );
-		if ( false !== $result ) {
-			$this->cache_gravatar_ping( $hash, $result, $mimetype );
-
-			return ! empty( $result ); // Return early.
-		}
-
-		// Ask gravatar.com.
-		$result = $this->ping_gravatar( $hash );
-		if ( false === $result ) {
-			return false; // Do not cache this result.
-		}
-
-		// Cache result.
-		$transients->set( $transient_key, $result, $this->calculate_caching_duration( $result, $age ) );
-		$this->cache_gravatar_ping( $hash, $result, $mimetype );
-
-		return ! empty( $result );
-	}
-
-	/**
-	 * Calculates the proper caching duration.
-	 *
-	 * @param string|int|false $result   The result of the validation check.
-	 * @param int              $age      The "age" (difference between now and the creation date) of a comment or post (in sceonds).
-	 *
-	 * @return int
-	 */
-	private function calculate_caching_duration( $result, $age ) {
-		// Cache the result across all blogs (a YES for 1 week, a NO for 10 minutes or longer,
-		// depending on the age of the object (comment, post), since a YES basically shouldn't
-		// change, but a NO might change when the user signs up with gravatar.com).
-		$duration = WEEK_IN_SECONDS;
-		if ( empty( $result ) ) {
-			$duration = $age < HOUR_IN_SECONDS ? 10 * MINUTE_IN_SECONDS : $age < DAY_IN_SECONDS ? HOUR_IN_SECONDS : $age < WEEK_IN_SECONDS ? DAY_IN_SECONDS : $duration;
-		}
-
-		/**
-		 * Filters the interval between gravatar validation checks.
-		 *
-		 * @param int  $duration The validation interval. Default 1 week if the check was successful, less if not.
-		 * @param bool $result   The result of the validation check.
-		 * @param int  $age      The "age" (difference between now and the creation date) of a comment or post (in sceonds).
-		 */
-		return \apply_filters( 'avatar_privacy_validate_gravatar_interval', $duration, ! empty( $result ), $age );
-	}
-
-	/**
-	 * Pings gravavtar.com to check if there is an image for the given hash.
-	 *
-	 * @param  string $hash An MD5 hash of an email address.
-	 *
-	 * @return string|int|false
-	 */
-	private function ping_gravatar( $hash ) {
-		// Ask gravatar.com.
-		$response = \wp_remote_head( "https://gravatar.com/avatar/{$hash}?d=404" );
-		if ( $response instanceof \WP_Error ) {
-			return false; // Don't cache the result.
-		}
-
-		switch ( \wp_remote_retrieve_response_code( $response ) ) {
-			case 200:
-				// Valid image found.
-				$result = \wp_remote_retrieve_header( $response, 'content-type' );
-				break;
-
-			case 404:
-				// No image found.
-				$result = 0;
-				break;
-
-			default:
-				$result = false; // Don't cache the result.
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Sets the mimetype from the result if the parameter is passed.
-	 *
-	 * @param string|int $result   The content-type header (or 0).
-	 * @param string     $mimetype Optional. Set to the mimetype of the gravatar if present. Passed by reference. Default null.
-	 */
-	private function set_mimetype( $result, &$mimetype = null ) {
-		if ( null !== $mimetype && ! empty( $result ) ) {
-			$mimetype = $result;
-		}
-	}
-
-	/**
-	 * Sets the mimetype from the result if the parameter is passed.
-	 *
-	 * @param string     $hash     An MD5 hash of an email address.
-	 * @param string|int $result   The content-type header (or 0).
-	 * @param string     $mimetype Optional. Set to the mimetype of the gravatar if present. Passed by reference. Default null.
-	 */
-	private function cache_gravatar_ping( $hash, $result, &$mimetype = null ) {
-		$this->validate_gravatar_cache[ $hash ] = $result;
-		$this->set_mimetype( $result, $mimetype );
 	}
 
 	/**

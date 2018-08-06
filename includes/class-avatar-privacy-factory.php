@@ -51,6 +51,8 @@ use Avatar_Privacy\Data_Storage\Site_Transients;
 
 use Avatar_Privacy\Integrations\BBPress_Integration;
 
+use Avatar_Privacy\Tools\Network\Gravatar_Service;
+
 /**
  * A factory for creating Avatar_Privacy instances via dependency injection.
  *
@@ -145,6 +147,9 @@ abstract class Avatar_Privacy_Factory {
 					],
 				],
 			] );
+
+			// Tools.
+			self::$factory->addRule( Gravatar_Service::class, self::SHARED );
 		}
 
 		return self::$factory;
