@@ -78,13 +78,6 @@ class Images implements \Avatar_Privacy\Component {
 	private $options;
 
 	/**
-	 * The transients handler.
-	 *
-	 * @var Transients
-	 */
-	private $transients;
-
-	/**
 	 * The site transients handler.
 	 *
 	 * @var Site_Transients
@@ -129,7 +122,7 @@ class Images implements \Avatar_Privacy\Component {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param Transients            $transients      The transients handler.
+	 * @param Core                  $core            The core API.
 	 * @param Site_Transients       $site_transients The site transients handler.
 	 * @param Options               $options         The options handler.
 	 * @param Filesystem_Cache      $file_cache      The filesystem cache handler.
@@ -137,8 +130,8 @@ class Images implements \Avatar_Privacy\Component {
 	 * @param User_Avatar_Handler   $user_avatar     The user avatar handler.
 	 * @param Default_Icons_Handler $default_icons   The default icons handler.
 	 */
-	public function __construct( Transients $transients, Site_Transients $site_transients, Options $options, Filesystem_Cache $file_cache, Gravatar_Cache $gravatar, User_Avatar_Handler $user_avatar, Default_Icons_Handler $default_icons ) {
-		$this->transients      = $transients;
+	public function __construct( Core $core, Site_Transients $site_transients, Options $options, Filesystem_Cache $file_cache, Gravatar_Cache $gravatar, User_Avatar_Handler $user_avatar, Default_Icons_Handler $default_icons ) {
+		$this->core            = $core;
 		$this->site_transients = $site_transients;
 		$this->options         = $options;
 		$this->file_cache      = $file_cache;
@@ -150,13 +143,9 @@ class Images implements \Avatar_Privacy\Component {
 	/**
 	 * Sets up the various hooks for the plugin component.
 	 *
-	 * @param Core $core The plugin instance.
-	 *
 	 * @return void
 	 */
-	public function run( Core $core ) {
-		$this->core = $core;
-
+	public function run() {
 		// Add new default avatars.
 		\add_filter( 'avatar_defaults', [ $this->default_icons, 'avatar_defaults' ] );
 

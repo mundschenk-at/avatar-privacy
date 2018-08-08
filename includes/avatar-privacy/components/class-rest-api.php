@@ -38,10 +38,8 @@ class REST_API implements \Avatar_Privacy\Component {
 
 	/**
 	 * Start up enabled integrations.
-	 *
-	 * @param Core $core The plugin API instance.
 	 */
-	public function run( Core $core ) {
+	public function run() {
 		\add_filter( 'rest_prepare_user',    [ $this, 'fix_rest_user_avatars' ],           10, 2 );
 		\add_filter( 'rest_prepare_comment', [ $this, 'fix_rest_comment_author_avatars' ], 10, 2 );
 	}

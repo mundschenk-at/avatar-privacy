@@ -79,11 +79,13 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 * @since 1.2.0 Parameter $gravatar added.
 	 *
 	 * @param string           $plugin_file The full path to the base plugin file.
+	 * @param Core             $core        The core API.
 	 * @param Options          $options     The options handler.
 	 * @param Gravatar_Service $gravatar    The Gravatar network service.
 	 */
-	public function __construct( $plugin_file, Options $options, Gravatar_Service $gravatar ) {
+	public function __construct( $plugin_file, Core $core, Options $options, Gravatar_Service $gravatar ) {
 		$this->plugin_file = $plugin_file;
+		$this->core        = $core;
 		$this->options     = $options;
 		$this->gravatar    = $gravatar;
 	}
@@ -91,13 +93,9 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	/**
 	 * Sets up the various hooks for the plugin component.
 	 *
-	 * @param Core $core The plugin instance.
-	 *
 	 * @return void
 	 */
-	public function run( Core $core ) {
-		$this->core = $core;
-
+	public function run() {
 		\add_action( 'init', [ $this, 'init' ] );
 	}
 

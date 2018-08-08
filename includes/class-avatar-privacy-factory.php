@@ -38,8 +38,9 @@ use Avatar_Privacy\Components\Avatar_Handling;
 use Avatar_Privacy\Components\Comments;
 use Avatar_Privacy\Components\Integrations;
 use Avatar_Privacy\Components\Privacy_Tools;
-use Avatar_Privacy\Components\Setup;
 use Avatar_Privacy\Components\Settings_Page;
+use Avatar_Privacy\Components\Setup;
+use Avatar_Privacy\Components\Uninstallation;
 use Avatar_Privacy\Components\User_Profile;
 
 use Avatar_Privacy\Data_Storage\Cache;
@@ -110,10 +111,13 @@ abstract class Avatar_Privacy_Factory {
 			self::$factory->addRule( Privacy_Tools::class, [
 				'constructParams' => [ $full_plugin_path ],
 			] );
+			self::$factory->addRule( Settings_Page::class, [
+				'constructParams' => [ $full_plugin_path ],
+			] );
 			self::$factory->addRule( Setup::class, [
 				'constructParams' => [ $full_plugin_path ],
 			] );
-			self::$factory->addRule( Settings_Page::class, [
+			self::$factory->addRule( Uninstallation::class, [
 				'constructParams' => [ $full_plugin_path ],
 			] );
 			self::$factory->addRule( User_Profile::class, [

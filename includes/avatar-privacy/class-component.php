@@ -38,9 +38,7 @@ interface Component {
 	/**
 	 * Sets up the various hooks for the plugin component.
 	 *
-	 * @param \Avatar_Privacy\Core $core The plugin instance.
-	 *
 	 * @return void
 	 */
-	public function run( \Avatar_Privacy\Core $core );
+	public function run();
 }

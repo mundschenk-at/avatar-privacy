@@ -105,11 +105,9 @@ class User_Profile implements \Avatar_Privacy\Component {
 	/**
 	 * Sets up the various hooks for the plugin component.
 	 *
-	 * @param Core $core The plugin instance.
-	 *
 	 * @return void
 	 */
-	public function run( Core $core ) {
+	public function run() {
 		if ( \is_admin() ) {
 			\add_action( 'admin_init', [ $this, 'admin_init' ] );
 		}
