@@ -39,10 +39,11 @@ class Retro_Icon_Provider extends Generating_Icon_Provider {
 	/**
 	 * Creates a new instance.
 	 *
+	 * @param Generator\Retro  $generator   A generator instance.
 	 * @param Filesystem_Cache $file_cache  The file cache handler.
 	 */
-	public function __construct( Filesystem_Cache $file_cache ) {
-		parent::__construct( new Generator\Retro(), $file_cache, [ 'retro' ] );
+	public function __construct( Generator\Retro $generator, Filesystem_Cache $file_cache ) {
+		parent::__construct( $generator, $file_cache, [ 'retro' ] );
 	}
 
 	/**

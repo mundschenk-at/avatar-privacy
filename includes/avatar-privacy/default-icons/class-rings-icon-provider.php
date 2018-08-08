@@ -40,10 +40,11 @@ class Rings_Icon_Provider extends Generating_Icon_Provider {
 	/**
 	 * Creates a new instance.
 	 *
+	 * @param Generator\Rings  $generator   A generator instance.
 	 * @param Filesystem_Cache $file_cache  The file cache handler.
 	 */
-	public function __construct( Filesystem_Cache $file_cache ) {
-		parent::__construct( new Generator\Rings(), $file_cache, [ 'rings' ], __( 'Rings (Generated)', 'avatar-privacy' ) );
+	public function __construct( Generator\Rings $generator, Filesystem_Cache $file_cache ) {
+		parent::__construct( $generator, $file_cache, [ 'rings' ], __( 'Rings (Generated)', 'avatar-privacy' ) );
 	}
 
 	/**
