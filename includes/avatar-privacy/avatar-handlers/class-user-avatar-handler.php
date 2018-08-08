@@ -44,6 +44,13 @@ use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 class User_Avatar_Handler implements Avatar_Handler {
 
 	/**
+	 * The core API.
+	 *
+	 * @var Core
+	 */
+	private $core;
+
+	/**
 	 * The filesystem cache handler.
 	 *
 	 * @var Filesystem_Cache
@@ -60,9 +67,11 @@ class User_Avatar_Handler implements Avatar_Handler {
 	/**
 	 * Creates a new instance.
 	 *
+	 * @param Core             $core        The core API.
 	 * @param Filesystem_Cache $file_cache  The file cache handler.
 	 */
-	public function __construct( Filesystem_Cache $file_cache ) {
+	public function __construct( Core $core, Filesystem_Cache $file_cache ) {
+		$this->core       = $core;
 		$this->file_cache = $file_cache;
 	}
 
@@ -137,12 +146,11 @@ class User_Avatar_Handler implements Avatar_Handler {
 	 * @param  int    $size      The requested size in pixels.
 	 * @param  string $subdir    The requested sub-directory.
 	 * @param  string $extension The requested file extension.
-	 * @param  Core   $core      The plugin instance.
 	 *
 	 * @return bool              Returns `true` if successful, `false` otherwise.
 	 */
-	public function cache_image( $type, $hash, $size, $subdir, $extension, $core ) {
-		$user = $core->get_user_by_hash( $hash );
+	public function cache_image( $type, $hash, $size, $subdir, $extension ) {
+		$user = $this->core->get_user_by_hash( $hash );
 		if ( ! empty( $user ) ) {
 			$local_avatar = \get_user_meta( $user->ID, User_Avatar_Upload_Handler::USER_META_KEY, true );
 		}

@@ -73,6 +73,13 @@ class Gravatar_Cache implements Avatar_Handler {
 	];
 
 	/**
+	 * The core API.
+	 *
+	 * @var Core
+	 */
+	private $core;
+
+	/**
 	 * The options handler.
 	 *
 	 * @var Options
@@ -105,11 +112,13 @@ class Gravatar_Cache implements Avatar_Handler {
 	 *
 	 * @since 1.2.0 Parameter $gravatar added.
 	 *
+	 * @param Core             $core        The core API.
 	 * @param Options          $options     The options handler.
 	 * @param Filesystem_Cache $file_cache  The file cache handler.
 	 * @param Gravatar_Service $gravatar    The Gravatar network service.
 	 */
-	public function __construct( Options $options, Filesystem_Cache $file_cache, Gravatar_Service $gravatar ) {
+	public function __construct( Core $core, Options $options, Filesystem_Cache $file_cache, Gravatar_Service $gravatar ) {
+		$this->core       = $core;
 		$this->options    = $options;
 		$this->file_cache = $file_cache;
 		$this->gravatar   = $gravatar;
@@ -192,11 +201,10 @@ class Gravatar_Cache implements Avatar_Handler {
 	 * @param  int    $size      The requested size in pixels.
 	 * @param  string $subdir    The requested sub-directory.
 	 * @param  string $extension The requested file extension.
-	 * @param  Core   $core      The plugin instance.
 	 *
 	 * @return bool              Returns `true` if successful, `false` otherwise.
 	 */
-	public function cache_image( $type, $hash, $size, $subdir, $extension, $core ) {
+	public function cache_image( $type, $hash, $size, $subdir, $extension ) {
 		// Determine hash type.
 		$type = \explode( '/', $subdir )[0];
 		if ( empty( $type ) || ! isset( $this->type_mapping[ $type ] ) ) {
@@ -206,13 +214,13 @@ class Gravatar_Cache implements Avatar_Handler {
 		// Lookup user and/or email address.
 		$user_id = false;
 		if ( self::TYPE_USER === $this->type_mapping[ $type ] ) {
-			$user = $core->get_user_by_hash( $hash );
+			$user = $this->core->get_user_by_hash( $hash );
 			if ( ! empty( $user ) ) {
 				$user_id = $user->ID;
 				$email   = ! empty( $user->user_email ) ? $user->user_email : '';
 			}
 		} else {
-			$email = $core->get_comment_author_email( $hash );
+			$email = $this->core->get_comment_author_email( $hash );
 		}
 
 		// Could not find user/comment author.

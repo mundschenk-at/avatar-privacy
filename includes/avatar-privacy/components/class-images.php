@@ -113,16 +113,8 @@ class Images implements \Avatar_Privacy\Component {
 	private $default_icons;
 
 	/**
-	 * The core API.
-	 *
-	 * @var Core
-	 */
-	private $core;
-
-	/**
 	 * Creates a new instance.
 	 *
-	 * @param Core                  $core            The core API.
 	 * @param Site_Transients       $site_transients The site transients handler.
 	 * @param Options               $options         The options handler.
 	 * @param Filesystem_Cache      $file_cache      The filesystem cache handler.
@@ -130,8 +122,7 @@ class Images implements \Avatar_Privacy\Component {
 	 * @param User_Avatar_Handler   $user_avatar     The user avatar handler.
 	 * @param Default_Icons_Handler $default_icons   The default icons handler.
 	 */
-	public function __construct( Core $core, Site_Transients $site_transients, Options $options, Filesystem_Cache $file_cache, Gravatar_Cache $gravatar, User_Avatar_Handler $user_avatar, Default_Icons_Handler $default_icons ) {
-		$this->core            = $core;
+	public function __construct( Site_Transients $site_transients, Options $options, Filesystem_Cache $file_cache, Gravatar_Cache $gravatar, User_Avatar_Handler $user_avatar, Default_Icons_Handler $default_icons ) {
 		$this->site_transients = $site_transients;
 		$this->options         = $options;
 		$this->file_cache      = $file_cache;
@@ -199,13 +190,13 @@ class Images implements \Avatar_Privacy\Component {
 
 			switch ( $type ) {
 				case 'user':
-					$success = $this->user_avatar->cache_image( $type, $hash, $size, $subdir, $extension, $this->core );
+					$success = $this->user_avatar->cache_image( $type, $hash, $size, $subdir, $extension );
 					break;
 				case 'gravatar':
-					$success = $this->gravatar_cache->cache_image( $type, $hash, $size, $subdir, $extension, $this->core );
+					$success = $this->gravatar_cache->cache_image( $type, $hash, $size, $subdir, $extension );
 					break;
 				default:
-					$success = $this->default_icons->cache_image( $type, $hash, $size, $subdir, $extension, $this->core );
+					$success = $this->default_icons->cache_image( $type, $hash, $size, $subdir, $extension );
 			}
 
 			if ( ! $success ) {

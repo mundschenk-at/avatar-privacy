@@ -26,7 +26,6 @@
 
 namespace Avatar_Privacy\Avatar_Handlers;
 
-use Avatar_Privacy\Core;
 use Avatar_Privacy\Default_Icons;
 
 use Avatar_Privacy\Tools\Images as Image_Tools;
@@ -115,11 +114,10 @@ class Default_Icons_Handler implements Avatar_Handler {
 	 * @param  int    $size      The requested size in pixels.
 	 * @param  string $subdir    The requested sub-directory.
 	 * @param  string $extension The requested file extension.
-	 * @param  Core   $core      The plugin instance.
 	 *
 	 * @return bool              Returns `true` if successful, `false` otherwise.
 	 */
-	public function cache_image( $type, $hash, $size, $subdir, $extension, $core ) {
+	public function cache_image( $type, $hash, $size, $subdir, $extension ) {
 		return ! empty( $this->get_url( '', $hash, $size, [
 			'default' => $type,
 		] ) );

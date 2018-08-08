@@ -96,7 +96,7 @@ class Avatar_Privacy_Controller {
 		Core::set_instance( $this->core );
 
 		foreach ( $this->components as $component ) {
-			$component->run( $this->core );
+			$component->run();
 		}
 	}
 }
