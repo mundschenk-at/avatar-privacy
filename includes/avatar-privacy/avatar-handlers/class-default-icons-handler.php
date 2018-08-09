@@ -173,7 +173,7 @@ class Default_Icons_Handler implements Avatar_Handler {
 	 *
 	 * @return Default_Icons\Icon_Provider[]
 	 */
-	public function get_icon_providers() {
+	private function get_icon_providers() {
 		if ( empty( $this->icon_providers ) ) {
 			$factory = \Avatar_Privacy_Factory::get( $this->plugin_file );
 
