@@ -82,6 +82,17 @@ abstract class Abstract_Icon_Provider implements Icon_Provider {
 	}
 
 	/**
+	 * Retrieves all icon types handled by the class.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @return string[]
+	 */
+	public function get_provided_types() {
+		return \array_keys( $this->valid_types );
+	}
+
+	/**
 	 * Retrieves the default icon.
 	 *
 	 * @param  string $identity The identity (mail address) hash.

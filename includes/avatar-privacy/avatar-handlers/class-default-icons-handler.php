@@ -64,6 +64,13 @@ class Default_Icons_Handler implements Avatar_Handler {
 	private $icon_providers = [];
 
 	/**
+	 * The mapping of icon types to providers.
+	 *
+	 * @var Default_Icons\Icon_Provider[]
+	 */
+	private $icon_provider_mapping = [];
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param string           $plugin_file The full path to the base plugin file.
@@ -72,6 +79,23 @@ class Default_Icons_Handler implements Avatar_Handler {
 	public function __construct( $plugin_file, Filesystem_Cache $file_cache ) {
 		$this->plugin_file = $plugin_file;
 		$this->file_cache  = $file_cache;
+	}
+
+	/**
+	 * Returns a mapping from icon types to specific providers.
+	 *
+	 * @return Default_Icons\Icon_Provider[]
+	 */
+	private function get_provider_mapping() {
+		if ( empty( $this->icon_provider_mapping ) ) {
+			foreach ( $this->get_icon_providers() as $provider ) {
+				foreach ( $provider->get_provided_types() as $type ) {
+					$this->icon_provider_mapping[ $type ] = $provider;
+				}
+			}
+		}
+
+		return $this->icon_provider_mapping;
 	}
 
 	/**
@@ -96,10 +120,9 @@ class Default_Icons_Handler implements Avatar_Handler {
 			'default' => '',
 		] );
 
-		foreach ( $this->get_icon_providers() as $provider ) {
-			if ( $provider->provides( $args['default'] ) ) {
-				return $provider->get_icon_url( $hash, $size );
-			}
+		$providers = $this->get_provider_mapping();
+		if ( ! empty( $providers[ $args['default'] ] ) ) {
+			return $providers[ $args['default'] ]->get_icon_url( $hash, $size );
 		}
 
 		// Return the fallback default icon URL.
