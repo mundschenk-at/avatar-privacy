@@ -32,8 +32,6 @@ use Avatar_Privacy\Settings;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
 
-use Avatar_Privacy\Tools\Images as Image_Tools;
-
 /**
  * Handles uploaded custom default icons.
  *

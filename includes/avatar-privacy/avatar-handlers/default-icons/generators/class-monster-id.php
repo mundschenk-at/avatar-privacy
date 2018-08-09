@@ -28,7 +28,7 @@
 
 namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
-use Avatar_Privacy\Tools\Images as Image_Tools;
+use Avatar_Privacy\Tools\Images;
 
 use function Scriptura\Color\Helpers\HSLtoRGB;
 
@@ -405,8 +405,8 @@ class Monster_ID extends PNG_Generator {
 		\mt_srand(); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand
 
 		// Resize if necessary.
-		return Image_Tools\Editor::get_resized_image_data(
-			Image_Tools\Editor::create_from_image_resource( $monster ), $size, $size, false, 'image/png'
+		return Images\Editor::get_resized_image_data(
+			Images\Editor::create_from_image_resource( $monster ), $size, $size, false, 'image/png'
 		);
 	}
 

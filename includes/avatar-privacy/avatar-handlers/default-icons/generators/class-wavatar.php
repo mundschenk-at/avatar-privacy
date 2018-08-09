@@ -27,7 +27,7 @@
 
 namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
-use Avatar_Privacy\Tools\Images as Image_Tools;
+use Avatar_Privacy\Tools\Images;
 
 /**
  * A wavatar generator.
@@ -106,8 +106,8 @@ class Wavatar extends PNG_Generator {
 		$this->apply_image( $avatar, "mouth{$mouth}.png", self::SIZE, self::SIZE );
 
 		// Resize if needed.
-		return Image_Tools\Editor::get_resized_image_data(
-			Image_Tools\Editor::create_from_image_resource( $avatar ), $size, $size, false, 'image/png'
+		return Images\Editor::get_resized_image_data(
+			Images\Editor::create_from_image_resource( $avatar ), $size, $size, false, 'image/png'
 		);
 	}
 }
