@@ -50,6 +50,8 @@ use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Transients;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 
+use Avatar_Privacy\Default_Icons\Generator;
+
 use Avatar_Privacy\Integrations\BBPress_Integration;
 
 use Avatar_Privacy\Tools\Network\Gravatar_Service;
@@ -132,6 +134,16 @@ abstract class Avatar_Privacy_Factory {
 			] );
 			self::$factory->addRule( Gravatar_Cache::class, self::SHARED );
 			self::$factory->addRule( User_Avatar_Handler::class, self::SHARED );
+
+			// Default icons.
+			self::$factory->addRule( Generator\Monster_ID::class, [
+				'constructParams' => [ $full_plugin_path ],
+				'shared'          => true,
+			] );
+			self::$factory->addRule( Generator\Wavatar::class, [
+				'constructParams' => [ $full_plugin_path ],
+				'shared'          => true,
+			] );
 
 			// Upload handlers.
 			self::$factory->addRule( Upload_Handler::class, [

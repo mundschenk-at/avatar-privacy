@@ -47,9 +47,11 @@ class Wavatar extends PNG_Generator {
 
 	/**
 	 * Creates a new Wavatars generator.
+	 *
+	 * @param string $plugin_file The full path to the base plugin file.
 	 */
-	public function __construct() {
-		parent::__construct( \dirname( \dirname( \dirname( \dirname( __DIR__ ) ) ) ) . '/public/images/wavatars' );
+	public function __construct( $plugin_file ) {
+		parent::__construct( \dirname( $plugin_file ) . '/public/images/wavatars' );
 	}
 
 	/**
