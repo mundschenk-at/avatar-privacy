@@ -35,7 +35,7 @@ use Avatar_Privacy\Tools\Images as Image_Tools;
 /**
  * Handles image uploads.
  *
- * @since 1.2.0
+ * @since 2.0.0
  *
  * @author Peter Putzer <github@mundschenk.at>
  */

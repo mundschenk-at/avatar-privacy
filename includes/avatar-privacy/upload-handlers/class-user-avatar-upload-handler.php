@@ -38,7 +38,7 @@ use Avatar_Privacy\Tools\Images as Image_Tools;
  * This implementation has been inspired by Simple Local Avatars (Jake Goldman & 10up).
  *
  * @since 1.0.0
- * @since 1.2.0 Image generation moved to new class Avatar_Handlers\User_Avatar_Handler, the upload handler is now a subclass of Upload_Handler.
+ * @since 2.0.0 Image generation moved to new class Avatar_Handlers\User_Avatar_Handler, the upload handler is now a subclass of Upload_Handler.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */

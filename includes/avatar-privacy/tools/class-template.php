@@ -29,7 +29,7 @@ namespace Avatar_Privacy\Tools;
 /**
  * A collection of utility methods for use in templates.
  *
- * @since 1.2.0
+ * @since 2.0.0
  *
  * @author Peter Putzer <github@mundschenk.at>
  */

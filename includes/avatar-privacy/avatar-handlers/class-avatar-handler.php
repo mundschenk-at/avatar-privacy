@@ -29,7 +29,7 @@ namespace Avatar_Privacy\Avatar_Handlers;
 /**
  * Specifies an interface for handling avatar retrieval and caching.
  *
- * @since 1.2.0
+ * @since 2.0.0
  *
  * @author Peter Putzer <github@mundschenk.at>
  */

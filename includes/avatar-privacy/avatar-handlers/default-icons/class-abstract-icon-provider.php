@@ -60,7 +60,7 @@ abstract class Abstract_Icon_Provider implements Icon_Provider {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @since 1.2.0 Parameter $name added.
+	 * @since 2.0.0 Parameter $name added.
 	 *
 	 * @param string[] $types An array of valid types.
 	 * @param string   $name  Optional. A translated user-visible name. Maybe left empty if a provider replaces a core default icon. Default ''.
@@ -106,7 +106,7 @@ abstract class Abstract_Icon_Provider implements Icon_Provider {
 	/**
 	 * Retrieves the option value (the primary provided type).
 	 *
-	 * @since 1.2.0
+	 * @since 2.0.0
 	 *
 	 * @return string
 	 */
@@ -118,7 +118,7 @@ abstract class Abstract_Icon_Provider implements Icon_Provider {
 	 * Retrieves the user-visible, translated name. Replacements for existing
 	 * core default icon styles may return the empty string instead.
 	 *
-	 * @since 1.2.0
+	 * @since 2.0.0
 	 *
 	 * @return string
 	 */

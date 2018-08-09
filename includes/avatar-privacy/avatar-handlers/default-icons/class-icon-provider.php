@@ -67,7 +67,7 @@ interface Icon_Provider {
 	/**
 	 * Retrieves the option value (the primary provided type).
 	 *
-	 * @since 1.2.0
+	 * @since 2.0.0
 	 *
 	 * @return string
 	 */
@@ -76,7 +76,7 @@ interface Icon_Provider {
 	/**
 	 * Retrieves the user-visible, translated name.
 	 *
-	 * @since 1.2.0
+	 * @since 2.0.0
 	 *
 	 * @return string
 	 */

@@ -37,7 +37,7 @@ use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 /**
  * Handles image caching for uploaded user avatars.
  *
- * @since 1.2.0
+ * @since 2.0.0
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
@@ -139,7 +139,7 @@ class User_Avatar_Handler implements Avatar_Handler {
 	/**
 	 * Caches the image specified by the parameters.
 	 *
-	 * @since 1.2.0
+	 * @since 2.0.0
 	 *
 	 * @param  string $type      The image (sub-)type.
 	 * @param  string $hash      The hashed mail address.

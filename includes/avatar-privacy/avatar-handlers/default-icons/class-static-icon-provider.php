@@ -53,7 +53,7 @@ class Static_Icon_Provider extends Abstract_Icon_Provider {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @since 1.2.0 Parameter $name added.
+	 * @since 2.0.0 Parameter $name added.
 	 *
 	 * @param string[]|string $types       Either a single identifier string or an array thereof.
 	 * @param string          $basename    The icon basename (without extension or size suffix).

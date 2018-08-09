@@ -75,7 +75,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @since 1.2.0 Parameter $gravatar added.
+	 * @since 2.0.0 Parameter $gravatar added.
 	 *
 	 * @param string           $plugin_file The full path to the base plugin file.
 	 * @param Core             $core        The core API.
