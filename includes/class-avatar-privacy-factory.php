@@ -31,7 +31,7 @@ use Avatar_Privacy\Core;
 use Avatar_Privacy\Upload_Handlers\Upload_Handler;
 
 use Avatar_Privacy\Avatar_Handlers\Default_Icons_Handler;
-use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache;
+use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache_Handler;
 use Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler;
 
 use Avatar_Privacy\Components\Avatar_Handling;
@@ -132,7 +132,7 @@ abstract class Avatar_Privacy_Factory {
 				'constructParams' => [ $full_plugin_path ],
 				'shared'          => true,
 			] );
-			self::$factory->addRule( Gravatar_Cache::class, self::SHARED );
+			self::$factory->addRule( Gravatar_Cache_Handler::class, self::SHARED );
 			self::$factory->addRule( User_Avatar_Handler::class, self::SHARED );
 
 			// Default icons.

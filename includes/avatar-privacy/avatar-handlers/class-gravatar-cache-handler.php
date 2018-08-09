@@ -42,7 +42,7 @@ use Avatar_Privacy\Tools\Network\Gravatar_Service;
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Gravatar_Cache implements Avatar_Handler {
+class Gravatar_Cache_Handler implements Avatar_Handler {
 
 	const TYPE_USER    = 'user';
 	const TYPE_COMMENT = 'comment';
@@ -93,7 +93,7 @@ class Gravatar_Cache implements Avatar_Handler {
 	private $file_cache;
 
 	/**
-	 * A copy of Gravatar_Cache::TYPE_MAPPING.
+	 * A copy of Gravatar_Cache_Handler::TYPE_MAPPING.
 	 *
 	 * @var string[]
 	 */

@@ -30,7 +30,7 @@ use Avatar_Privacy\Core;
 
 use Avatar_Privacy\Avatar_Handlers\Avatar_Handler;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons_Handler;
-use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache;
+use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache_Handler;
 use Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
@@ -42,7 +42,7 @@ use Avatar_Privacy\Tools\Images;
 
 /**
  * Handles the creation and caching of avatar images. Default icons are created by
- * Icon_Provider instances, remote Gravatar.com avatars by a Gravatar_Cache.
+ * Icon_Provider instances, remote Gravatar.com avatars by a Gravatar_Cache_Handler.
  *
  * @since 1.0.0
  * @since 2.0.0 Renamed to Image_Proxy.
@@ -85,14 +85,14 @@ class Image_Proxy implements \Avatar_Privacy\Component {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param Site_Transients       $site_transients The site transients handler.
-	 * @param Options               $options         The options handler.
-	 * @param Filesystem_Cache      $file_cache      The filesystem cache handler.
-	 * @param Gravatar_Cache        $gravatar        The Gravatar.com icon provider.
-	 * @param User_Avatar_Handler   $user_avatar     The user avatar handler.
-	 * @param Default_Icons_Handler $default_icons   The default icons handler.
+	 * @param Site_Transients        $site_transients The site transients handler.
+	 * @param Options                $options         The options handler.
+	 * @param Filesystem_Cache       $file_cache      The filesystem cache handler.
+	 * @param Gravatar_Cache_Handler $gravatar        The Gravatar.com icon provider.
+	 * @param User_Avatar_Handler    $user_avatar     The user avatar handler.
+	 * @param Default_Icons_Handler  $default_icons   The default icons handler.
 	 */
-	public function __construct( Site_Transients $site_transients, Options $options, Filesystem_Cache $file_cache, Gravatar_Cache $gravatar, User_Avatar_Handler $user_avatar, Default_Icons_Handler $default_icons ) {
+	public function __construct( Site_Transients $site_transients, Options $options, Filesystem_Cache $file_cache, Gravatar_Cache_Handler $gravatar, User_Avatar_Handler $user_avatar, Default_Icons_Handler $default_icons ) {
 		$this->site_transients = $site_transients;
 		$this->options         = $options;
 		$this->file_cache      = $file_cache;
