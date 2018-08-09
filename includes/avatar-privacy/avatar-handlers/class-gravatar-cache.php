@@ -28,11 +28,10 @@ namespace Avatar_Privacy\Avatar_Handlers;
 
 use Avatar_Privacy\Core;
 
-use Avatar_Privacy\Components\Image_Proxy;
-
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
 
+use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Tools\Network\Gravatar_Service;
 
 /**
@@ -149,12 +148,12 @@ class Gravatar_Cache implements Avatar_Handler {
 			'user_id'  => false,
 			'email'    => '',
 			'rating'   => 'g',
-			'mimetype' => Image_Proxy::PNG_IMAGE,
+			'mimetype' => Images\Type::PNG_IMAGE,
 			'force'    => false,
 		] );
 
 		$subdir   = $this->get_sub_dir( $hash, false !== $args['user_id'] );
-		$filename = "gravatar/{$subdir}/{$hash}-{$size}." . Image_Proxy::FILE_EXTENSION[ $args['mimetype'] ];
+		$filename = "gravatar/{$subdir}/{$hash}-{$size}." . Images\Type::FILE_EXTENSION[ $args['mimetype'] ];
 
 		// Only retrieve new Gravatar if necessary.
 		if ( ! \file_exists( "{$this->file_cache->get_base_dir()}{$filename}" ) || $args['force'] ) {
@@ -233,7 +232,7 @@ class Gravatar_Cache implements Avatar_Handler {
 			'user_id'  => $user_id,
 			'email'    => $email,
 			'rating'   => $this->options->get( 'avatar_rating', 'g', true ),
-			'mimetype' => Image_Proxy::CONTENT_TYPE[ $extension ],
+			'mimetype' => Images\Type::CONTENT_TYPE[ $extension ],
 		] ) );
 	}
 }

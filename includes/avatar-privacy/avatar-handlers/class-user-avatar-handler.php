@@ -28,7 +28,7 @@ namespace Avatar_Privacy\Avatar_Handlers;
 
 use Avatar_Privacy\Core;
 
-use Avatar_Privacy\Tools\Images as Image_Tools;
+use Avatar_Privacy\Tools\Images;
 
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
@@ -101,17 +101,17 @@ class User_Avatar_Handler implements Avatar_Handler {
 		// Prepare additional arguments.
 		$args = \wp_parse_args( $args, [
 			'avatar'   => '',
-			'mimetype' => \Avatar_Privacy\Components\Image_Proxy::PNG_IMAGE,
+			'mimetype' => Images\Type::PNG_IMAGE,
 			'force'    => false,
 		] );
 
-		$extension = \Avatar_Privacy\Components\Image_Proxy::FILE_EXTENSION[ $args['mimetype'] ];
+		$extension = Images\Type::FILE_EXTENSION[ $args['mimetype'] ];
 		$filename  = "user/{$this->get_sub_dir( $hash )}/{$hash}-{$size}.{$extension}";
 		$target    = "{$this->base_dir}{$filename}";
 
 		if ( $args['force'] || ! \file_exists( $target ) ) {
-			$data = Image_Tools\Editor::get_resized_image_data(
-				Image_Tools\Editor::get_image_editor( $args['avatar'] ), $size, $size, true, $args['mimetype']
+			$data = Images\Editor::get_resized_image_data(
+				Images\Editor::get_image_editor( $args['avatar'] ), $size, $size, true, $args['mimetype']
 			);
 			if ( empty( $data ) ) {
 				// Something went wrong..

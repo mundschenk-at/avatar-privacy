@@ -30,10 +30,9 @@ namespace Avatar_Privacy\Components;
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Settings;
 
-use Avatar_Privacy\Components\Image_Proxy;
-
 use Avatar_Privacy\Data_Storage\Options;
 
+use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Tools\Network\Gravatar_Service;
 
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
@@ -172,7 +171,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		// Maybe display a gravatar.
 		if ( ! $force_default && $this->should_show_gravatar( $user_id, $email, $id_or_email, $age, $mimetype ) ) {
 			if ( empty( $mimetype ) ) {
-				$mimetype = Image_Proxy::PNG_IMAGE;
+				$mimetype = Images\Type::PNG_IMAGE;
 			}
 
 			/**

@@ -37,6 +37,8 @@ use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Data_Storage\Transients;
 
+use Avatar_Privacy\Tools\Images;
+
 /**
  * Handles the creation and caching of avatar images. Default icons are created by
  * Icon_Provider instances, remote Gravatar.com avatars by a Gravatar_Cache.
@@ -45,26 +47,6 @@ use Avatar_Privacy\Data_Storage\Transients;
  * @since 2.0.0 Renamed to Image_Proxy.
  */
 class Image_Proxy implements \Avatar_Privacy\Component {
-
-	const JPEG_IMAGE = 'image/jpeg';
-	const PNG_IMAGE  = 'image/png';
-	const SVG_IMAGE  = 'image/svg+xml';
-
-	const JPEG_EXTENSION = 'jpg';
-	const PNG_EXTENSION  = 'png';
-	const SVG_EXTENSION  = 'svg';
-
-	const CONTENT_TYPE = [
-		self::JPEG_EXTENSION => self::JPEG_IMAGE,
-		self::PNG_EXTENSION  => self::PNG_IMAGE,
-		self::SVG_EXTENSION  => self::SVG_IMAGE,
-	];
-
-	const FILE_EXTENSION = [
-		self::JPEG_IMAGE => self::JPEG_EXTENSION,
-		self::PNG_IMAGE  => self::PNG_EXTENSION,
-		self::SVG_IMAGE  => self::SVG_EXTENSION,
-	];
 
 	const CRON_JOB_LOCK_GRAVATARS  = 'cron_job_lock_gravatars';
 	const CRON_JOB_LOCK_ALL_IMAGES = 'cron_job_lock_all_images';
@@ -206,7 +188,7 @@ class Image_Proxy implements \Avatar_Privacy\Component {
 			}
 		}
 
-		$this->send_image( $file, DAY_IN_SECONDS, self::CONTENT_TYPE[ $extension ] );
+		$this->send_image( $file, DAY_IN_SECONDS, Images\Type::CONTENT_TYPE[ $extension ] );
 
 		// We're done.
 		exit( 0 );
