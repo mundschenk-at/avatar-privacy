@@ -24,12 +24,13 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons;
 
 /**
  * A default icon provider implementation using static images.
  *
  * @since 1.0.0
+ * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons
  *
  * @author Peter Putzer <github@mundschenk.at>
  */

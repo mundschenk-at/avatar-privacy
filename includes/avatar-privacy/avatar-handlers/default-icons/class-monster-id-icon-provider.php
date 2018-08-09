@@ -24,60 +24,39 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons;
+
+use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
 /**
- * Specifies an interface for default icon providers.
+ * An icon provider for "monsterid" style icons.
  *
  * @since 1.0.0
+ * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-interface Icon_Provider {
+class Monster_ID_Icon_Provider extends Generating_Icon_Provider {
 
 	/**
-	 * Checks if this Icon_Provider handles the given icon type.
+	 * Creates a new instance.
 	 *
-	 * @param  string $type The default icon type.
-	 *
-	 * @return bool
+	 * @param Generators\Monster_ID $generator   A generator instance.
+	 * @param Filesystem_Cache      $file_cache  The file cache handler.
 	 */
-	public function provides( $type );
+	public function __construct( Generators\Monster_ID $generator, Filesystem_Cache $file_cache ) {
+		parent::__construct( $generator, $file_cache, [ 'monsterid' ] );
+	}
 
 	/**
-	 * Retrieves all icon types handled by the class.
+	 * Retrieves the filename (including the sub-directory and file extension).
 	 *
-	 * @since 2.0.0
-	 *
-	 * @return string[]
-	 */
-	public function get_provided_types();
-
-	/**
-	 * Retrieves the default icon.
-	 *
-	 * @param  string $identity The identity (mail address) hash.
+	 * @param  string $identity The identity (mail address) hash. Ignored.
 	 * @param  int    $size     The requested size in pixels.
 	 *
 	 * @return string
 	 */
-	public function get_icon_url( $identity, $size );
-
-	/**
-	 * Retrieves the option value (the primary provided type).
-	 *
-	 * @since 1.2.0
-	 *
-	 * @return string
-	 */
-	public function get_option_value();
-
-	/**
-	 * Retrieves the user-visible, translated name.
-	 *
-	 * @since 1.2.0
-	 *
-	 * @return string
-	 */
-	public function get_name();
+	protected function get_filename( $identity, $size ) {
+		return "monsterid/{$this->get_sub_dir( $identity )}/{$identity}-{$size}.png";
+	}
 }

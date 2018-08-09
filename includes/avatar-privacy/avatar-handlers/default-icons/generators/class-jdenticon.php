@@ -24,27 +24,52 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons\Generator;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
+
+use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generator;
 
 /**
- * An icon generator.
+ * Generates an SVG icon based on a hash.
+ *
+ * This is a partial PHP port of Jdenticon by Daniel Mester Pirttijärvi
+ * (https://github.com/aurora/identicon).
  *
  * @since 1.0.0
+ * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
-class Rings implements Generator {
+class Jdenticon implements Generator {
+
+	/**
+	 * The identicon instance.
+	 *
+	 * @var \Jdenticon\Identicon
+	 */
+	private $identicon;
+
+	/**
+	 * Creates a new instance.
+	 */
+	public function __construct() {
+		$this->identicon = new \Jdenticon\Identicon( [
+			'style' => new \Jdenticon\IdenticonStyle( [ 'padding' => 0 ] ),
+		] );
+	}
 
 	/**
 	 * Builds an icon based on the given seed returns the image data.
 	 *
 	 * @param  string $seed The seed data (hash).
-	 * @param  int    $size The size in pixels.
+	 * @param  int    $size Optional. The size in pixels. Default 128 (but really ignored).
 	 *
-	 * @return string|false
+	 * @return string
 	 */
-	public function build( $seed, $size ) {
-		$ring_icon = new Ring_Icon( $size, 3 );
-		$ring_icon->setMono( true );
+	public function build( $seed, $size = 128 ) {
+		$this->identicon->hash = $seed;
+		$this->identicon->size = $size;
 
-		return $ring_icon->get_svg_image_data( $seed );
+		return $this->identicon->getImageData( 'svg' );
 	}
+
 }

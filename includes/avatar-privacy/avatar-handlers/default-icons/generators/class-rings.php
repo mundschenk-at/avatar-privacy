@@ -24,14 +24,17 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons\Generator;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
+
+use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generator;
 
 /**
  * An icon generator.
  *
  * @since 1.0.0
+ * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators
  */
-interface Generator {
+class Rings implements Generator {
 
 	/**
 	 * Builds an icon based on the given seed returns the image data.
@@ -41,5 +44,10 @@ interface Generator {
 	 *
 	 * @return string|false
 	 */
-	public function build( $seed, $size );
+	public function build( $seed, $size ) {
+		$ring_icon = new Ring_Icon( $size, 3 );
+		$ring_icon->setMono( true );
+
+		return $ring_icon->get_svg_image_data( $seed );
+	}
 }

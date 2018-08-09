@@ -24,7 +24,7 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons;
 
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Settings;
@@ -39,6 +39,7 @@ use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler as Upload;
  * An icon provider for uploaded custom default icons.
  *
  * @since 1.2.0
+ * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons
  *
  * @author Peter Putzer <github@mundschenk.at>
  */

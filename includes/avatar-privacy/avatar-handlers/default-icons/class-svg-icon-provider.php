@@ -24,38 +24,27 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons;
-
-use Avatar_Privacy\Data_Storage\Filesystem_Cache;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons;
 
 /**
- * An icon provider for "wavatar" style icons.
+ * A default icon provider implementation using static SVG images.
  *
  * @since 1.0.0
+ * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Wavatar_Icon_Provider extends Generating_Icon_Provider {
+class SVG_Icon_Provider extends Static_Icon_Provider {
 
 	/**
-	 * Creates a new instance.
-	 *
-	 * @param Generator\Wavatar $generator   A generator instance.
-	 * @param Filesystem_Cache  $file_cache  The file cache handler.
-	 */
-	public function __construct( Generator\Wavatar $generator, Filesystem_Cache $file_cache ) {
-		parent::__construct( $generator, $file_cache, [ 'wavatar' ] );
-	}
-
-	/**
-	 * Retrieves the filename (including the sub-directory and file extension).
+	 * Retrieves the default icon.
 	 *
 	 * @param  string $identity The identity (mail address) hash. Ignored.
 	 * @param  int    $size     The requested size in pixels.
 	 *
 	 * @return string
 	 */
-	protected function get_filename( $identity, $size ) {
-		return "wavatar/{$this->get_sub_dir( $identity )}/{$identity}-{$size}.png";
+	public function get_icon_url( $identity, $size ) {
+		return \plugins_url( "public/images/{$this->icon_basename}.svg", $this->plugin_file );
 	}
 }

@@ -26,8 +26,6 @@
 
 namespace Avatar_Privacy\Avatar_Handlers;
 
-use Avatar_Privacy\Default_Icons;
-
 use Avatar_Privacy\Tools\Images as Image_Tools;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;

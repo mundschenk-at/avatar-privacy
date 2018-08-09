@@ -26,7 +26,7 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons\Generator;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
 use Avatar_Privacy\Tools\Images as Image_Tools;
 
@@ -36,6 +36,7 @@ use function Scriptura\Color\Helpers\HSLtoRGB;
  * A monster generator.
  *
  * @since 1.0.0
+ * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators
  */
 class Monster_ID extends PNG_Generator {
 	const SIZE = 120;

@@ -24,38 +24,61 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons;
-
-use Avatar_Privacy\Data_Storage\Filesystem_Cache;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons;
 
 /**
- * An icon provider for "monsterid" style icons.
+ * Specifies an interface for default icon providers.
  *
  * @since 1.0.0
+ * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Monster_ID_Icon_Provider extends Generating_Icon_Provider {
+interface Icon_Provider {
 
 	/**
-	 * Creates a new instance.
+	 * Checks if this Icon_Provider handles the given icon type.
 	 *
-	 * @param Generator\Monster_ID $generator   A generator instance.
-	 * @param Filesystem_Cache     $file_cache  The file cache handler.
+	 * @param  string $type The default icon type.
+	 *
+	 * @return bool
 	 */
-	public function __construct( Generator\Monster_ID $generator, Filesystem_Cache $file_cache ) {
-		parent::__construct( $generator, $file_cache, [ 'monsterid' ] );
-	}
+	public function provides( $type );
 
 	/**
-	 * Retrieves the filename (including the sub-directory and file extension).
+	 * Retrieves all icon types handled by the class.
 	 *
-	 * @param  string $identity The identity (mail address) hash. Ignored.
+	 * @since 2.0.0
+	 *
+	 * @return string[]
+	 */
+	public function get_provided_types();
+
+	/**
+	 * Retrieves the default icon.
+	 *
+	 * @param  string $identity The identity (mail address) hash.
 	 * @param  int    $size     The requested size in pixels.
 	 *
 	 * @return string
 	 */
-	protected function get_filename( $identity, $size ) {
-		return "monsterid/{$this->get_sub_dir( $identity )}/{$identity}-{$size}.png";
-	}
+	public function get_icon_url( $identity, $size );
+
+	/**
+	 * Retrieves the option value (the primary provided type).
+	 *
+	 * @since 1.2.0
+	 *
+	 * @return string
+	 */
+	public function get_option_value();
+
+	/**
+	 * Retrieves the user-visible, translated name.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @return string
+	 */
+	public function get_name();
 }

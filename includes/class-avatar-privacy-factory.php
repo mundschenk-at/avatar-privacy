@@ -50,7 +50,7 @@ use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Transients;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 
-use Avatar_Privacy\Default_Icons\Generator;
+use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
 use Avatar_Privacy\Integrations\BBPress_Integration;
 
@@ -136,11 +136,11 @@ abstract class Avatar_Privacy_Factory {
 			self::$factory->addRule( User_Avatar_Handler::class, self::SHARED );
 
 			// Default icons.
-			self::$factory->addRule( Generator\Monster_ID::class, [
+			self::$factory->addRule( Generators\Monster_ID::class, [
 				'constructParams' => [ $full_plugin_path ],
 				'shared'          => true,
 			] );
-			self::$factory->addRule( Generator\Wavatar::class, [
+			self::$factory->addRule( Generators\Wavatar::class, [
 				'constructParams' => [ $full_plugin_path ],
 				'shared'          => true,
 			] );

@@ -25,7 +25,9 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons\Generator;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
+
+use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generator;
 
 use function Scriptura\Color\Helpers\HSLtoRGB;
 
@@ -33,6 +35,7 @@ use function Scriptura\Color\Helpers\HSLtoRGB;
  * A base class for PNG-based icon generators.
  *
  * @since 1.0.0
+ * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators
  */
 abstract class PNG_Generator implements Generator {
 
