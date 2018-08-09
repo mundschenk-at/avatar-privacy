@@ -28,6 +28,7 @@ namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Core;
 
+use Avatar_Privacy\Avatar_Handlers\Avatar_Handler;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons_Handler;
 use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache;
 use Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler;
@@ -75,25 +76,11 @@ class Image_Proxy implements \Avatar_Privacy\Component {
 	private $file_cache;
 
 	/**
-	 * The Gravatar.com icon provider.
+	 * The available avatar handlers.
 	 *
-	 * @var Gravatar_Cache
+	 * @var Avatar_Handler[]
 	 */
-	private $gravatar_cache;
-
-	/**
-	 * The user avatar handler.
-	 *
-	 * @var User_Avatar_Handler;
-	 */
-	private $user_avatar;
-
-	/**
-	 * The default icons handler.
-	 *
-	 * @var Default_Icons_Handler;
-	 */
-	private $default_icons;
+	private $handlers;
 
 	/**
 	 * Creates a new instance.
@@ -109,9 +96,11 @@ class Image_Proxy implements \Avatar_Privacy\Component {
 		$this->site_transients = $site_transients;
 		$this->options         = $options;
 		$this->file_cache      = $file_cache;
-		$this->gravatar_cache  = $gravatar;
-		$this->user_avatar     = $user_avatar;
-		$this->default_icons   = $default_icons;
+
+		// Avatar handlers.
+		$this->handlers[ Avatar_Handler::GRAVATAR ]    = $gravatar;
+		$this->handlers[ Avatar_Handler::USER_AVATAR ] = $user_avatar;
+		$this->handlers[ Avatar_Handler::DEFAULT ]     = $default_icons;
 	}
 
 	/**
@@ -121,12 +110,12 @@ class Image_Proxy implements \Avatar_Privacy\Component {
 	 */
 	public function run() {
 		// Add new default avatars.
-		\add_filter( 'avatar_defaults', [ $this->default_icons, 'avatar_defaults' ] );
+		\add_filter( 'avatar_defaults', [ $this->handlers[ Avatar_Handler::DEFAULT ], 'avatar_defaults' ] );
 
 		// Generate the correct avatar images.
-		\add_filter( 'avatar_privacy_default_icon_url',     [ $this->default_icons, 'get_url' ],  10, 4 );
-		\add_filter( 'avatar_privacy_gravatar_icon_url',    [ $this->gravatar_cache, 'get_url' ], 10, 4 );
-		\add_filter( 'avatar_privacy_user_avatar_icon_url', [ $this->user_avatar, 'get_url' ],    10, 4 );
+		\add_filter( 'avatar_privacy_default_icon_url',     [ $this->handlers[ Avatar_Handler::DEFAULT ], 'get_url' ],     10, 4 );
+		\add_filter( 'avatar_privacy_gravatar_icon_url',    [ $this->handlers[ Avatar_Handler::GRAVATAR ], 'get_url' ],    10, 4 );
+		\add_filter( 'avatar_privacy_user_avatar_icon_url', [ $this->handlers[ Avatar_Handler::USER_AVATAR ], 'get_url' ], 10, 4 );
 
 		// Automatically regenerate missing image files.
 		\add_action( 'init',          [ $this, 'add_cache_rewrite_rules' ] );
@@ -171,15 +160,10 @@ class Image_Proxy implements \Avatar_Privacy\Component {
 			// Default size (for SVGs mainly, which ignore it).
 			$size = $size ?: 100;
 
-			switch ( $type ) {
-				case 'user':
-					$success = $this->user_avatar->cache_image( $type, $hash, $size, $subdir, $extension );
-					break;
-				case 'gravatar':
-					$success = $this->gravatar_cache->cache_image( $type, $hash, $size, $subdir, $extension );
-					break;
-				default:
-					$success = $this->default_icons->cache_image( $type, $hash, $size, $subdir, $extension );
+			if ( isset( $this->handlers[ $type ] ) ) {
+				$success = $this->handlers[ $type ]->cache_image( $type, $hash, $size, $subdir, $extension );
+			} else {
+				$success = $this->handlers[ Avatar_Handler::DEFAULT ]->cache_image( $type, $hash, $size, $subdir, $extension );
 			}
 
 			if ( ! $success ) {
