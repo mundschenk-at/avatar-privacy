@@ -47,6 +47,7 @@ Avatar Privacy is based on the original plugin by [Johannes Freudendahl](http://
 == Installation ==
 
 = Requirements =
+
 Avatar Privacy has the following additional requirements beyond those of WordPress itself:
 * Your server must run PHP 5.6.0 or later, and
 * the PHP installation must include the GD extension (most do).
@@ -133,6 +134,14 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 == Changelog ==
 
+= 2.0.0 (2018-08-11) =
+* _Feature_: Administrators can now upload site-specific default avatar images.
+* _Feature_: The default policy previously only accessible via the `avatar_privacy_gravatar_use_default` hook can now be set from the `Discussion` settings page.
+* _Feature_: New filter hooks `avatar_privacy_gravatar_link_rel` and `avatar_privacy_gravatar_link_target` to filter the `rel` and `target` attributes of all links to Gravatar.com.
+* _Bugfix_: The REST API returned incorrect avatar URLs for registered users (workaround for [trac ticket #40030](https://core.trac.wordpress.org/ticket/40030)).
+* _Bugfix_: The gravatar use cookie is only set when the comment author has given consent.
+* _Change_: Internal restructuring to make maintenance easier.
+
 = 1.1.1 (2018-06-11) =
 * _Bugfix_: Changing the default gravatar policy via `avatar_privacy_gravatar_use_default` works again for registered users.
 
@@ -179,30 +188,3 @@ The default avatar image is set to the mystery man if you selected one of the ne
   - Gravatar.com usage is opt-in and gravatars are only displayed if the exist.
   - The default behavior for legacy comments can be customized via the `avatar_privacy_gravatar_use_default` filter hook.
 * _Change_: All static default icons are now SVG images.
-
-= 0.4 (2018-04-17) =
-* adapted the plugin to some subtle changes in how WordPress handles the avatar filter (mainly, default icons arent't passed as URLs anymore)
-* added support for the srcset attribute
-* raised minimum PHP version to 5.6.0
-* raised minimum WordPress version to 4.2
-* checked compatibility with WP 4.9.5
-
-= 0.3 (2013-02-24) =
-* used transients API to cache results of requests to Gravatar.com for a small amount of time
-* added two previously untranslated strings to the translation files
-* added a link to the label of the checkbox in the comment and user profile forms
-* checked compatibility with WP 3.5.1
-
-= 0.2 (2012-06-11) =
-* Bugfix: lower-case and trim e-mail addresses before hashing to produce a gravatar URL (otherwise gravatars are not displayed if the address is entered with mixed case) -- thanks to "Schokokaese" for finding the problem and solution
-* Bugfix: repaired a bug so that the plugin actually caches the results of a gravatar check and uses these cached results if the same e-mail address appears twice on a page
-* Bugfix: corrected image name of the "Media Artist" image (large version)
-* removed the check for the get_headers PHP function unless the "Don't publish encrypted e-mail addresses for non-members of Gravatar.com." option is enabled to not annoy other users -- thanks to Scott for finding the problem
-* added some simple inline CSS to fix the display of the checkbox in the comment form with TwentyTen theme
-* fixed notice for deprecated function get_user_by_email
-* added screenshots
-* tested with WP 3.4
-* tested with plugins User Photo and Twitter Avatar Reloaded
-
-= 0.1 (2012-02-14) =
-* initial release
