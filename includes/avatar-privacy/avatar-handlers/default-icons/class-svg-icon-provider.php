@@ -24,23 +24,27 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons\Generator;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons;
 
 /**
- * An icon generator.
+ * A default icon provider implementation using static SVG images.
  *
  * @since 1.0.0
+ * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
-class Ring_Icon extends \splitbrain\RingIcon\RingIconSVG {
+class SVG_Icon_Provider extends Static_Icon_Provider {
 
 	/**
-	 * Retrieves the complete ring SVG suitable for saving to a file.
+	 * Retrieves the default icon.
 	 *
-	 * @param  string $seed The email hash.
+	 * @param  string $identity The identity (mail address) hash. Ignored.
+	 * @param  int    $size     The requested size in pixels.
 	 *
 	 * @return string
 	 */
-	public function get_svg_image_data( $seed ) {
-		return $this->generateSVGImage( $seed, true );
+	public function get_icon_url( $identity, $size ) {
+		return \plugins_url( "public/images/{$this->icon_basename}.svg", $this->plugin_file );
 	}
 }

@@ -60,9 +60,11 @@ class Integrations implements \Avatar_Privacy\Component {
 	/**
 	 * Creates a new instance.
 	 *
+	 * @param Core                 $core         The core API.
 	 * @param Plugin_Integration[] $integrations An array of plugin integration instances.
 	 */
-	public function __construct( array $integrations ) {
+	public function __construct( Core $core, array $integrations ) {
+		$this->core         = $core;
 		$this->integrations = $integrations;
 	}
 
@@ -80,12 +82,8 @@ class Integrations implements \Avatar_Privacy\Component {
 
 	/**
 	 * Start up enabled integrations.
-	 *
-	 * @param Core $core The plugin API instance.
 	 */
-	public function run( Core $core ) {
-		$this->core = $core;
-
+	public function run() {
 		\add_action( 'plugins_loaded', [ $this, 'activate' ] );
 	}
 }

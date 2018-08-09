@@ -24,49 +24,39 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons\Generator;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons;
+
+use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
 /**
- * Generates an SVG icon based on a hash.
- *
- * This is a partial PHP port of Jdenticon by Daniel Mester Pirttijärvi
- * (https://github.com/aurora/identicon).
+ * An icon provider for "wavatar" style icons.
  *
  * @since 1.0.0
+ * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Jdenticon implements Generator {
-
-	/**
-	 * The identicon instance.
-	 *
-	 * @var \Jdenticon\Identicon
-	 */
-	private $identicon;
+class Wavatar_Icon_Provider extends Generating_Icon_Provider {
 
 	/**
 	 * Creates a new instance.
+	 *
+	 * @param Generators\Wavatar $generator   A generator instance.
+	 * @param Filesystem_Cache   $file_cache  The file cache handler.
 	 */
-	public function __construct() {
-		$this->identicon = new \Jdenticon\Identicon( [
-			'style' => new \Jdenticon\IdenticonStyle( [ 'padding' => 0 ] ),
-		] );
+	public function __construct( Generators\Wavatar $generator, Filesystem_Cache $file_cache ) {
+		parent::__construct( $generator, $file_cache, [ 'wavatar' ] );
 	}
 
 	/**
-	 * Builds an icon based on the given seed returns the image data.
+	 * Retrieves the filename (including the sub-directory and file extension).
 	 *
-	 * @param  string $seed The seed data (hash).
-	 * @param  int    $size Optional. The size in pixels. Default 128 (but really ignored).
+	 * @param  string $identity The identity (mail address) hash. Ignored.
+	 * @param  int    $size     The requested size in pixels.
 	 *
 	 * @return string
 	 */
-	public function build( $seed, $size = 128 ) {
-		$this->identicon->hash = $seed;
-		$this->identicon->size = $size;
-
-		return $this->identicon->getImageData( 'svg' );
+	protected function get_filename( $identity, $size ) {
+		return "wavatar/{$this->get_sub_dir( $identity )}/{$identity}-{$size}.png";
 	}
-
 }

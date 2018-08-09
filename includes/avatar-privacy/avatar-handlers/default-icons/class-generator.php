@@ -24,37 +24,23 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons;
-
-use Avatar_Privacy\Data_Storage\Filesystem_Cache;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons;
 
 /**
- * An icon provider for "rings" icons.
+ * An icon generator.
  *
  * @since 1.0.0
- *
- * @author Peter Putzer <github@mundschenk.at>
+ * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons
  */
-class Rings_Icon_Provider extends Generating_Icon_Provider {
+interface Generator {
 
 	/**
-	 * Creates a new instance.
+	 * Builds an icon based on the given seed returns the image data.
 	 *
-	 * @param Filesystem_Cache $file_cache  The file cache handler.
+	 * @param  string $seed The seed data (hash).
+	 * @param  int    $size The size in pixels.
+	 *
+	 * @return string|false
 	 */
-	public function __construct( Filesystem_Cache $file_cache ) {
-		parent::__construct( new Generator\Rings(), $file_cache, [ 'rings' ], __( 'Rings (Generated)', 'avatar-privacy' ) );
-	}
-
-	/**
-	 * Retrieves the filename (including the sub-directory and file extension).
-	 *
-	 * @param  string $identity The identity (mail address) hash. Ignored.
-	 * @param  int    $size     The requested size in pixels.
-	 *
-	 * @return string
-	 */
-	protected function get_filename( $identity, $size ) {
-		return "rings/{$this->get_sub_dir( $identity )}/{$identity}.svg";
-	}
+	public function build( $seed, $size );
 }

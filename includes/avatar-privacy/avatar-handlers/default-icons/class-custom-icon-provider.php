@@ -24,16 +24,14 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons;
 
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Settings;
 
-use Avatar_Privacy\Components\Images;
-
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
-use Avatar_Privacy\Tools\Images as Image_Tools;
+use Avatar_Privacy\Tools\Images;
 
 use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler as Upload;
 
@@ -41,6 +39,7 @@ use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler as Upload;
  * An icon provider for uploaded custom default icons.
  *
  * @since 1.2.0
+ * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
@@ -101,15 +100,15 @@ class Custom_Icon_Provider extends Abstract_Icon_Provider {
 
 		// We need the current site ID.
 		$site_id   = \get_current_blog_id();
-		$extension = Images::FILE_EXTENSION[ $icon['type'] ];
+		$extension = Images\Type::FILE_EXTENSION[ $icon['type'] ];
 		$identity  = $this->core->get_hash( "custom-default-{$site_id}" );
 		$filename  = "custom/{$site_id}/{$identity}-{$size}.{$extension}";
 
 		// Only generate a new icon if necessary.
 		if ( ! \file_exists( "{$this->file_cache->get_base_dir()}{$filename}" ) ) {
 
-			$data = Image_Tools\Editor::get_resized_image_data(
-				Image_Tools\Editor::get_image_editor( $icon['file'] ), $size, $size, true, $icon['type']
+			$data = Images\Editor::get_resized_image_data(
+				Images\Editor::get_image_editor( $icon['file'] ), $size, $size, true, $icon['type']
 			);
 			if ( empty( $data ) ) {
 				// Something went wrong..

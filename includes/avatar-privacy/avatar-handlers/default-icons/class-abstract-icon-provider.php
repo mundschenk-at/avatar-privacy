@@ -24,12 +24,13 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons;
 
 /**
  * An abstract implementation of the Default_Icon_Provider interface.
  *
  * @since 1.0.0
+ * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
@@ -79,6 +80,17 @@ abstract class Abstract_Icon_Provider implements Icon_Provider {
 	 */
 	public function provides( $type ) {
 		return isset( $this->valid_types[ $type ] );
+	}
+
+	/**
+	 * Retrieves all icon types handled by the class.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @return string[]
+	 */
+	public function get_provided_types() {
+		return \array_keys( $this->valid_types );
 	}
 
 	/**

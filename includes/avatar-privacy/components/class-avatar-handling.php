@@ -30,10 +30,9 @@ namespace Avatar_Privacy\Components;
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Settings;
 
-use Avatar_Privacy\Components\Images;
-
 use Avatar_Privacy\Data_Storage\Options;
 
+use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Tools\Network\Gravatar_Service;
 
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
@@ -79,11 +78,13 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 * @since 1.2.0 Parameter $gravatar added.
 	 *
 	 * @param string           $plugin_file The full path to the base plugin file.
+	 * @param Core             $core        The core API.
 	 * @param Options          $options     The options handler.
 	 * @param Gravatar_Service $gravatar    The Gravatar network service.
 	 */
-	public function __construct( $plugin_file, Options $options, Gravatar_Service $gravatar ) {
+	public function __construct( $plugin_file, Core $core, Options $options, Gravatar_Service $gravatar ) {
 		$this->plugin_file = $plugin_file;
+		$this->core        = $core;
 		$this->options     = $options;
 		$this->gravatar    = $gravatar;
 	}
@@ -91,13 +92,9 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	/**
 	 * Sets up the various hooks for the plugin component.
 	 *
-	 * @param Core $core The plugin instance.
-	 *
 	 * @return void
 	 */
-	public function run( Core $core ) {
-		$this->core = $core;
-
+	public function run() {
 		\add_action( 'init', [ $this, 'init' ] );
 	}
 
@@ -174,7 +171,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		// Maybe display a gravatar.
 		if ( ! $force_default && $this->should_show_gravatar( $user_id, $email, $id_or_email, $age, $mimetype ) ) {
 			if ( empty( $mimetype ) ) {
-				$mimetype = Images::PNG_IMAGE;
+				$mimetype = Images\Type::PNG_IMAGE;
 			}
 
 			/**

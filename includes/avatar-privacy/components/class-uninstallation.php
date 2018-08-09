@@ -45,15 +45,29 @@ use Avatar_Privacy\Data_Storage\Transients;
 class Uninstallation implements \Avatar_Privacy\Component {
 
 	/**
-	 * Sets up the various hooks for the plugin component.
+	 * The full path to the main plugin file.
 	 *
-	 * @param Core $core The plugin instance.
+	 * @var string
+	 */
+	private $plugin_file;
+
+	/**
+	 * Creates a new Setup instance.
+	 *
+	 * @param string $plugin_file The full path to the base plugin file.
+	 */
+	public function __construct( $plugin_file ) {
+		$this->plugin_file = $plugin_file;
+	}
+
+	/**
+	 * Sets up the various hooks for the plugin component.
 	 *
 	 * @return void
 	 */
-	public function run( Core $core ) {
+	public function run() {
 		// Register various hooks.
-		\register_uninstall_hook( $core->get_plugin_file(), [ self::class, 'uninstall' ] );
+		\register_uninstall_hook( $this->plugin_file, [ self::class, 'uninstall' ] );
 	}
 
 	/**

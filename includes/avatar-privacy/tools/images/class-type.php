@@ -24,22 +24,33 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons\Generator;
+namespace Avatar_Privacy\Tools\Images;
 
 /**
- * An icon generator.
+ * An abstract class for MIME type and extension handling.
  *
- * @since 1.0.0
+ * @since 1.2.0
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
-interface Generator {
+abstract class Type {
+	const JPEG_IMAGE = 'image/jpeg';
+	const PNG_IMAGE  = 'image/png';
+	const SVG_IMAGE  = 'image/svg+xml';
 
-	/**
-	 * Builds an icon based on the given seed returns the image data.
-	 *
-	 * @param  string $seed The seed data (hash).
-	 * @param  int    $size The size in pixels.
-	 *
-	 * @return string|false
-	 */
-	public function build( $seed, $size );
+	const JPEG_EXTENSION = 'jpg';
+	const PNG_EXTENSION  = 'png';
+	const SVG_EXTENSION  = 'svg';
+
+	const CONTENT_TYPE = [
+		self::JPEG_EXTENSION => self::JPEG_IMAGE,
+		self::PNG_EXTENSION  => self::PNG_IMAGE,
+		self::SVG_EXTENSION  => self::SVG_IMAGE,
+	];
+
+	const FILE_EXTENSION = [
+		self::JPEG_IMAGE => self::JPEG_EXTENSION,
+		self::PNG_IMAGE  => self::PNG_EXTENSION,
+		self::SVG_IMAGE  => self::SVG_EXTENSION,
+	];
 }

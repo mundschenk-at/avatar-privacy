@@ -58,22 +58,20 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 	/**
 	 * Creates a new instance.
 	 *
+	 * @param Core  $core  The core API.
 	 * @param Cache $cache Required.
 	 */
-	public function __construct( Cache $cache ) {
+	public function __construct( Core $core, Cache $cache ) {
+		$this->core  = $core;
 		$this->cache = $cache;
 	}
 
 	/**
 	 * Sets up the various hooks for the plugin component.
 	 *
-	 * @param Core $core The plugin instance.
-	 *
 	 * @return void
 	 */
-	public function run( Core $core ) {
-		$this->core = $core;
-
+	public function run() {
 		\add_action( 'admin_init', [ $this, 'admin_init' ] );
 	}
 

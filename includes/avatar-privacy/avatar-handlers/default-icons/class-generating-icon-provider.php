@@ -24,16 +24,15 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
-
-use Avatar_Privacy\Default_Icons\Generator\Generator;
 
 /**
  * An Icon_Provider that generates dynamic icons.
  *
  * @since 1.0.0
+ * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons
  *
  * @author Peter Putzer <github@mundschenk.at>
  */

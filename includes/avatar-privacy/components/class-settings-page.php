@@ -76,11 +76,13 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	 * Creates a new instance.
 	 *
 	 * @param string  $plugin_file The full path to the base plugin file.
+	 * @param Core    $core        The core API.
 	 * @param Options $options     The options handler.
 	 * @param Upload  $upload      The file upload handler.
 	 */
-	public function __construct( $plugin_file, Options $options, Upload $upload ) {
+	public function __construct( $plugin_file, Core $core, Options $options, Upload $upload ) {
 		$this->plugin_file = $plugin_file;
+		$this->core        = $core;
 		$this->options     = $options;
 		$this->upload      = $upload;
 	}
@@ -88,13 +90,9 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	/**
 	 * Sets up the various hooks for the plugin component.
 	 *
-	 * @param Core $core The plugin instance.
-	 *
 	 * @return void
 	 */
-	public function run( Core $core ) {
-		$this->core = $core;
-
+	public function run() {
 		if ( \is_admin() ) {
 			\add_action( 'admin_init', [ $this, 'register_settings' ] );
 			\add_action( 'admin_footer-options-discussion.php', [ $this, 'settings_footer' ] );

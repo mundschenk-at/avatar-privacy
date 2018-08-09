@@ -29,7 +29,7 @@ namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Core;
 
-use Avatar_Privacy\Components\Images;
+use Avatar_Privacy\Components\Image_Proxy;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Network_Options;
@@ -104,13 +104,6 @@ class Setup implements \Avatar_Privacy\Component {
 	private $site_transients;
 
 	/**
-	 * The plugin version.
-	 *
-	 * @var string
-	 */
-	private $version;
-
-	/**
 	 * The core API.
 	 *
 	 * @var Core
@@ -121,13 +114,15 @@ class Setup implements \Avatar_Privacy\Component {
 	 * Creates a new Setup instance.
 	 *
 	 * @param string          $plugin_file     The full path to the base plugin file.
+	 * @param Core            $core            The core API.
 	 * @param Transients      $transients      The transients handler.
 	 * @param Site_Transients $site_transients The site transients handler.
 	 * @param Options         $options         The options handler.
 	 * @param Network_Options $network_options The network options handler.
 	 */
-	public function __construct( $plugin_file, Transients $transients, Site_Transients $site_transients, Options $options, Network_Options $network_options ) {
+	public function __construct( $plugin_file, Core $core, Transients $transients, Site_Transients $site_transients, Options $options, Network_Options $network_options ) {
 		$this->plugin_file     = $plugin_file;
+		$this->core            = $core;
 		$this->transients      = $transients;
 		$this->site_transients = $site_transients;
 		$this->options         = $options;
@@ -137,13 +132,9 @@ class Setup implements \Avatar_Privacy\Component {
 	/**
 	 * Sets up the various hooks for the plugin component.
 	 *
-	 * @param Core $core The plugin instance.
-	 *
 	 * @return void
 	 */
-	public function run( Core $core ) {
-		$this->core    = $core;
-		$this->version = $core->get_version();
+	public function run() {
 
 		// Register various hooks.
 		\register_activation_hook( $this->plugin_file,   [ $this, 'activate' ] );
@@ -172,7 +163,8 @@ class Setup implements \Avatar_Privacy\Component {
 		}
 
 		// The current version is (probably) newer than the previously installed one.
-		if ( $this->version !== $installed_version ) {
+		$version = $this->core->get_version();
+		if ( $version !== $installed_version ) {
 			// Update plugin settings if necessary.
 			$this->plugin_updated( $installed_version, $settings );
 
@@ -188,7 +180,7 @@ class Setup implements \Avatar_Privacy\Component {
 		}
 
 		// Update installed version.
-		$settings[ Options::INSTALLED_VERSION ] = $this->version;
+		$settings[ Options::INSTALLED_VERSION ] = $version;
 		$this->options->set( Core::SETTINGS_NAME, $settings );
 	}
 
@@ -462,11 +454,11 @@ class Setup implements \Avatar_Privacy\Component {
 		if ( \is_multisite() ) {
 			foreach ( \get_sites( [ 'fields' => 'ids' ] ) as $site_id ) {
 				\switch_to_blog( $site_id );
-				self::unschedule_hook( Images::CRON_JOB_ACTION );
+				self::unschedule_hook( Image_Proxy::CRON_JOB_ACTION );
 				\restore_current_blog();
 			}
 		} else {
-			self::unschedule_hook( Images::CRON_JOB_ACTION );
+			self::unschedule_hook( Image_Proxy::CRON_JOB_ACTION );
 		}
 	}
 }

@@ -60,21 +60,19 @@ class Comments implements \Avatar_Privacy\Component {
 	 * Creates a new instance.
 	 *
 	 * @param string $plugin_file The full path to the base plugin file.
+	 * @param Core   $core        The core API.
 	 */
-	public function __construct( $plugin_file ) {
+	public function __construct( $plugin_file, Core $core ) {
 		$this->plugin_file = $plugin_file;
+		$this->core        = $core;
 	}
 
 	/**
 	 * Sets up the various hooks for the plugin component.
 	 *
-	 * @param Core $core The plugin instance.
-	 *
 	 * @return void
 	 */
-	public function run( Core $core ) {
-		$this->core = $core;
-
+	public function run() {
 		\add_action( 'init', [ $this, 'init' ] );
 	}
 

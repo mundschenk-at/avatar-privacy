@@ -31,15 +31,16 @@ use Avatar_Privacy\Core;
 use Avatar_Privacy\Upload_Handlers\Upload_Handler;
 
 use Avatar_Privacy\Avatar_Handlers\Default_Icons_Handler;
-use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache;
+use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache_Handler;
 use Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler;
 
 use Avatar_Privacy\Components\Avatar_Handling;
 use Avatar_Privacy\Components\Comments;
 use Avatar_Privacy\Components\Integrations;
 use Avatar_Privacy\Components\Privacy_Tools;
-use Avatar_Privacy\Components\Setup;
 use Avatar_Privacy\Components\Settings_Page;
+use Avatar_Privacy\Components\Setup;
+use Avatar_Privacy\Components\Uninstallation;
 use Avatar_Privacy\Components\User_Profile;
 
 use Avatar_Privacy\Data_Storage\Cache;
@@ -48,6 +49,8 @@ use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Transients;
 use Avatar_Privacy\Data_Storage\Site_Transients;
+
+use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
 use Avatar_Privacy\Integrations\BBPress_Integration;
 
@@ -110,10 +113,13 @@ abstract class Avatar_Privacy_Factory {
 			self::$factory->addRule( Privacy_Tools::class, [
 				'constructParams' => [ $full_plugin_path ],
 			] );
+			self::$factory->addRule( Settings_Page::class, [
+				'constructParams' => [ $full_plugin_path ],
+			] );
 			self::$factory->addRule( Setup::class, [
 				'constructParams' => [ $full_plugin_path ],
 			] );
-			self::$factory->addRule( Settings_Page::class, [
+			self::$factory->addRule( Uninstallation::class, [
 				'constructParams' => [ $full_plugin_path ],
 			] );
 			self::$factory->addRule( User_Profile::class, [
@@ -126,8 +132,18 @@ abstract class Avatar_Privacy_Factory {
 				'constructParams' => [ $full_plugin_path ],
 				'shared'          => true,
 			] );
-			self::$factory->addRule( Gravatar_Cache::class, self::SHARED );
+			self::$factory->addRule( Gravatar_Cache_Handler::class, self::SHARED );
 			self::$factory->addRule( User_Avatar_Handler::class, self::SHARED );
+
+			// Default icons.
+			self::$factory->addRule( Generators\Monster_ID::class, [
+				'constructParams' => [ $full_plugin_path ],
+				'shared'          => true,
+			] );
+			self::$factory->addRule( Generators\Wavatar::class, [
+				'constructParams' => [ $full_plugin_path ],
+				'shared'          => true,
+			] );
 
 			// Upload handlers.
 			self::$factory->addRule( Upload_Handler::class, [

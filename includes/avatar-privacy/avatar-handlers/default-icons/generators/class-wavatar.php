@@ -25,14 +25,15 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons\Generator;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
-use Avatar_Privacy\Tools\Images as Image_Tools;
+use Avatar_Privacy\Tools\Images;
 
 /**
  * A wavatar generator.
  *
  * @since 1.0.0
+ * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators
  */
 class Wavatar extends PNG_Generator {
 
@@ -47,9 +48,11 @@ class Wavatar extends PNG_Generator {
 
 	/**
 	 * Creates a new Wavatars generator.
+	 *
+	 * @param string $plugin_file The full path to the base plugin file.
 	 */
-	public function __construct() {
-		parent::__construct( \dirname( \dirname( \dirname( \dirname( __DIR__ ) ) ) ) . '/public/images/wavatars' );
+	public function __construct( $plugin_file ) {
+		parent::__construct( \dirname( $plugin_file ) . '/public/images/wavatars' );
 	}
 
 	/**
@@ -103,8 +106,8 @@ class Wavatar extends PNG_Generator {
 		$this->apply_image( $avatar, "mouth{$mouth}.png", self::SIZE, self::SIZE );
 
 		// Resize if needed.
-		return Image_Tools\Editor::get_resized_image_data(
-			Image_Tools\Editor::create_from_image_resource( $avatar ), $size, $size, false, 'image/png'
+		return Images\Editor::get_resized_image_data(
+			Images\Editor::create_from_image_resource( $avatar ), $size, $size, false, 'image/png'
 		);
 	}
 }

@@ -26,9 +26,9 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons\Generator;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
-use Avatar_Privacy\Tools\Images as Image_Tools;
+use Avatar_Privacy\Tools\Images;
 
 use function Scriptura\Color\Helpers\HSLtoRGB;
 
@@ -36,6 +36,7 @@ use function Scriptura\Color\Helpers\HSLtoRGB;
  * A monster generator.
  *
  * @since 1.0.0
+ * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators
  */
 class Monster_ID extends PNG_Generator {
 	const SIZE = 120;
@@ -223,15 +224,17 @@ class Monster_ID extends PNG_Generator {
 
 	/**
 	 * Creates a new instance.
+	 *
+	 * @param string $plugin_file The full path to the base plugin file.
 	 */
-	public function __construct() {
+	public function __construct( $plugin_file ) {
 		// Needed for PHP 5.6 compatibility.
 		$this->same_color_parts     = self::SAME_COLOR_PARTS;
 		$this->specific_color_parts = self::SPECIFIC_COLOR_PARTS;
 		$this->random_color_parts   = self::RANDOM_COLOR_PARTS;
 		$this->part_optimization    = self::PART_OPTIMIZATION;
 
-		parent::__construct( \dirname( \dirname( \dirname( \dirname( __DIR__ ) ) ) ) . '/public/images/monster-id' );
+		parent::__construct( \dirname( $plugin_file ) . '/public/images/monster-id' );
 	}
 
 	/**
@@ -402,8 +405,8 @@ class Monster_ID extends PNG_Generator {
 		\mt_srand(); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand
 
 		// Resize if necessary.
-		return Image_Tools\Editor::get_resized_image_data(
-			Image_Tools\Editor::create_from_image_resource( $monster ), $size, $size, false, 'image/png'
+		return Images\Editor::get_resized_image_data(
+			Images\Editor::create_from_image_resource( $monster ), $size, $size, false, 'image/png'
 		);
 	}
 

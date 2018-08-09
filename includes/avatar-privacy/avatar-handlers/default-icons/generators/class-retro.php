@@ -24,7 +24,9 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Default_Icons\Generator;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
+
+use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generator;
 
 use Colors\RandomColor;
 
@@ -32,6 +34,7 @@ use Colors\RandomColor;
  * Generates a "retro" SVG icon based on a hash.
  *
  * @since 1.0.0
+ * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators
  *
  * @author Peter Putzer <github@mundschenk.at>
  */

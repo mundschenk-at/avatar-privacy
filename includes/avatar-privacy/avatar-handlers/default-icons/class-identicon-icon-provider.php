@@ -24,21 +24,39 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons;
+
+use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
 /**
- * Implements an interface for plugin components.
+ * An icon provider for "aleavatar" icons.
  *
  * @since 1.0.0
+ * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-interface Component {
+class Identicon_Icon_Provider extends Generating_Icon_Provider {
 
 	/**
-	 * Sets up the various hooks for the plugin component.
+	 * Creates a new instance.
 	 *
-	 * @return void
+	 * @param Generators\Jdenticon $generator   A generator instance.
+	 * @param Filesystem_Cache     $file_cache  The file cache handler.
 	 */
-	public function run();
+	public function __construct( Generators\Jdenticon $generator, Filesystem_Cache $file_cache ) {
+		parent::__construct( $generator, $file_cache, [ 'identicon' ] );
+	}
+
+	/**
+	 * Retrieves the filename (including the sub-directory and file extension).
+	 *
+	 * @param  string $identity The identity (mail address) hash. Ignored.
+	 * @param  int    $size     The requested size in pixels.
+	 *
+	 * @return string
+	 */
+	protected function get_filename( $identity, $size ) {
+		return "identicon/{$this->get_sub_dir( $identity )}/{$identity}.svg";
+	}
 }

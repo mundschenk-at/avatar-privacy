@@ -28,7 +28,7 @@ namespace Avatar_Privacy\Avatar_Handlers;
 
 use Avatar_Privacy\Core;
 
-use Avatar_Privacy\Tools\Images as Image_Tools;
+use Avatar_Privacy\Tools\Images;
 
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
@@ -42,6 +42,13 @@ use Avatar_Privacy\Data_Storage\Filesystem_Cache;
  * @author Peter Putzer <github@mundschenk.at>
  */
 class User_Avatar_Handler implements Avatar_Handler {
+
+	/**
+	 * The core API.
+	 *
+	 * @var Core
+	 */
+	private $core;
 
 	/**
 	 * The filesystem cache handler.
@@ -60,9 +67,11 @@ class User_Avatar_Handler implements Avatar_Handler {
 	/**
 	 * Creates a new instance.
 	 *
+	 * @param Core             $core        The core API.
 	 * @param Filesystem_Cache $file_cache  The file cache handler.
 	 */
-	public function __construct( Filesystem_Cache $file_cache ) {
+	public function __construct( Core $core, Filesystem_Cache $file_cache ) {
+		$this->core       = $core;
 		$this->file_cache = $file_cache;
 	}
 
@@ -92,17 +101,17 @@ class User_Avatar_Handler implements Avatar_Handler {
 		// Prepare additional arguments.
 		$args = \wp_parse_args( $args, [
 			'avatar'   => '',
-			'mimetype' => \Avatar_Privacy\Components\Images::PNG_IMAGE,
+			'mimetype' => Images\Type::PNG_IMAGE,
 			'force'    => false,
 		] );
 
-		$extension = \Avatar_Privacy\Components\Images::FILE_EXTENSION[ $args['mimetype'] ];
+		$extension = Images\Type::FILE_EXTENSION[ $args['mimetype'] ];
 		$filename  = "user/{$this->get_sub_dir( $hash )}/{$hash}-{$size}.{$extension}";
 		$target    = "{$this->base_dir}{$filename}";
 
 		if ( $args['force'] || ! \file_exists( $target ) ) {
-			$data = Image_Tools\Editor::get_resized_image_data(
-				Image_Tools\Editor::get_image_editor( $args['avatar'] ), $size, $size, true, $args['mimetype']
+			$data = Images\Editor::get_resized_image_data(
+				Images\Editor::get_image_editor( $args['avatar'] ), $size, $size, true, $args['mimetype']
 			);
 			if ( empty( $data ) ) {
 				// Something went wrong..
@@ -137,12 +146,11 @@ class User_Avatar_Handler implements Avatar_Handler {
 	 * @param  int    $size      The requested size in pixels.
 	 * @param  string $subdir    The requested sub-directory.
 	 * @param  string $extension The requested file extension.
-	 * @param  Core   $core      The plugin instance.
 	 *
 	 * @return bool              Returns `true` if successful, `false` otherwise.
 	 */
-	public function cache_image( $type, $hash, $size, $subdir, $extension, $core ) {
-		$user = $core->get_user_by_hash( $hash );
+	public function cache_image( $type, $hash, $size, $subdir, $extension ) {
+		$user = $this->core->get_user_by_hash( $hash );
 		if ( ! empty( $user ) ) {
 			$local_avatar = \get_user_meta( $user->ID, User_Avatar_Upload_Handler::USER_META_KEY, true );
 		}

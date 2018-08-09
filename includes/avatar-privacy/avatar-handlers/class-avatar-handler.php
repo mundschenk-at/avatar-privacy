@@ -26,8 +26,6 @@
 
 namespace Avatar_Privacy\Avatar_Handlers;
 
-use Avatar_Privacy\Core;
-
 /**
  * Specifies an interface for handling avatar retrieval and caching.
  *
@@ -36,6 +34,10 @@ use Avatar_Privacy\Core;
  * @author Peter Putzer <github@mundschenk.at>
  */
 interface Avatar_Handler {
+
+	const GRAVATAR    = 'gravatar';
+	const USER_AVATAR = 'user';
+	const DEFAULT     = '-default-';
 
 	/**
 	 * Retrieves the URL for the given default icon type.
@@ -62,9 +64,8 @@ interface Avatar_Handler {
 	 * @param  int    $size      The requested size in pixels.
 	 * @param  string $subdir    The requested sub-directory (may contain implementation-specific data).
 	 * @param  string $extension The requested file extension.
-	 * @param  Core   $core      The plugin instance.
 	 *
 	 * @return bool              Returns `true` if successful, `false` otherwise.
 	 */
-	public function cache_image( $type, $hash, $size, $subdir, $extension, $core );
+	public function cache_image( $type, $hash, $size, $subdir, $extension );
 }
