@@ -10,7 +10,7 @@ Tested up to: 4.9
 Stable tag: 1.1.1
 License: GPLv2 or later
 
-Adds options to enhance the privacy when using avatars.
+Enhances the privacy of your users and visitors with gravatar opt-in and local avatars.
 
 == Description ==
 
