@@ -42,8 +42,9 @@ use Avatar_Privacy\Data_Storage\Transients;
  * Icon_Provider instances, remote Gravatar.com avatars by a Gravatar_Cache.
  *
  * @since 1.0.0
+ * @since 2.0.0 Renamed to Image_Proxy.
  */
-class Images implements \Avatar_Privacy\Component {
+class Image_Proxy implements \Avatar_Privacy\Component {
 
 	const JPEG_IMAGE = 'image/jpeg';
 	const PNG_IMAGE  = 'image/png';

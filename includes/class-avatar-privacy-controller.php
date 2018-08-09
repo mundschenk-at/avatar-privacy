@@ -29,7 +29,7 @@ use Avatar_Privacy\Core;
 
 use Avatar_Privacy\Components\Avatar_Handling;
 use Avatar_Privacy\Components\Comments;
-use Avatar_Privacy\Components\Images;
+use Avatar_Privacy\Components\Image_Proxy;
 use Avatar_Privacy\Components\Integrations;
 use Avatar_Privacy\Components\Privacy_Tools;
 use Avatar_Privacy\Components\REST_API;
@@ -65,7 +65,7 @@ class Avatar_Privacy_Controller {
 	 * @param Core            $core         The core API.
 	 * @param Setup           $setup        The (de-)activation handling.
 	 * @param Uninstallation  $uninstall    The uninstallation handling.
-	 * @param Images          $icons        The default icon handler.
+	 * @param Image_Proxy     $image_proxy  The image handler.
 	 * @param Avatar_Handling $avatars      The avatar handler.
 	 * @param Comments        $comments     The comments handler.
 	 * @param User_Profile    $profile      The user profile handler.
@@ -74,12 +74,12 @@ class Avatar_Privacy_Controller {
 	 * @param REST_API        $rest_api     The REST API handler.
 	 * @param Integrations    $integrations The third-party plugin integrations handler.
 	 */
-	public function __construct( Core $core, Setup $setup, Uninstallation $uninstall, Images $icons, Avatar_Handling $avatars, Comments $comments, User_Profile $profile, Settings_Page $settings, Privacy_Tools $privacy, REST_API $rest_api, Integrations $integrations ) {
+	public function __construct( Core $core, Setup $setup, Uninstallation $uninstall, Image_Proxy $image_proxy, Avatar_Handling $avatars, Comments $comments, User_Profile $profile, Settings_Page $settings, Privacy_Tools $privacy, REST_API $rest_api, Integrations $integrations ) {
 		$this->core         = $core;
 		$this->components[] = $setup;
 		$this->components[] = $uninstall;
 		$this->components[] = $avatars;
-		$this->components[] = $icons;
+		$this->components[] = $image_proxy;
 		$this->components[] = $comments;
 		$this->components[] = $profile;
 		$this->components[] = $settings;

@@ -29,7 +29,7 @@ namespace Avatar_Privacy\Default_Icons;
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Settings;
 
-use Avatar_Privacy\Components\Images;
+use Avatar_Privacy\Components\Image_Proxy;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
@@ -101,7 +101,7 @@ class Custom_Icon_Provider extends Abstract_Icon_Provider {
 
 		// We need the current site ID.
 		$site_id   = \get_current_blog_id();
-		$extension = Images::FILE_EXTENSION[ $icon['type'] ];
+		$extension = Image_Proxy::FILE_EXTENSION[ $icon['type'] ];
 		$identity  = $this->core->get_hash( "custom-default-{$site_id}" );
 		$filename  = "custom/{$site_id}/{$identity}-{$size}.{$extension}";
 

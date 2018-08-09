@@ -101,11 +101,11 @@ class User_Avatar_Handler implements Avatar_Handler {
 		// Prepare additional arguments.
 		$args = \wp_parse_args( $args, [
 			'avatar'   => '',
-			'mimetype' => \Avatar_Privacy\Components\Images::PNG_IMAGE,
+			'mimetype' => \Avatar_Privacy\Components\Image_Proxy::PNG_IMAGE,
 			'force'    => false,
 		] );
 
-		$extension = \Avatar_Privacy\Components\Images::FILE_EXTENSION[ $args['mimetype'] ];
+		$extension = \Avatar_Privacy\Components\Image_Proxy::FILE_EXTENSION[ $args['mimetype'] ];
 		$filename  = "user/{$this->get_sub_dir( $hash )}/{$hash}-{$size}.{$extension}";
 		$target    = "{$this->base_dir}{$filename}";
 

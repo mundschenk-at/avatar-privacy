@@ -29,7 +29,7 @@ namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Core;
 
-use Avatar_Privacy\Components\Images;
+use Avatar_Privacy\Components\Image_Proxy;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Network_Options;
@@ -454,11 +454,11 @@ class Setup implements \Avatar_Privacy\Component {
 		if ( \is_multisite() ) {
 			foreach ( \get_sites( [ 'fields' => 'ids' ] ) as $site_id ) {
 				\switch_to_blog( $site_id );
-				self::unschedule_hook( Images::CRON_JOB_ACTION );
+				self::unschedule_hook( Image_Proxy::CRON_JOB_ACTION );
 				\restore_current_blog();
 			}
 		} else {
-			self::unschedule_hook( Images::CRON_JOB_ACTION );
+			self::unschedule_hook( Image_Proxy::CRON_JOB_ACTION );
 		}
 	}
 }
