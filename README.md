@@ -9,10 +9,10 @@ The plugin works without changing your theme files if you use a modern theme, an
 
 The plugin's features summed up:
 
-*   Add local avatar caching to ensure the privacy of your website visitors.
-*   Let users and commenters explicitly opt-in before using gravatars.
-*   Don't publish encrypted e-mail addresses for people who are not members of Gravatar.com.
-*   Use default avatar images hosted on your server rather than Gravatar.com.
+*   Self-uploaded avatars for users (and custom default images), hosted on _your_ server.
+*   Users and commenters explicitly opt-in before using gravatars.
+*   Gravatar caching to ensure the privacy of your website visitors.
+*   Don't publish weakly encrypted e-mail addresses of comment authors.
 
 A more detailed examination of the [reasons for using Avatar Privacy](https://code.mundschenk.at/avatar-privacy/reasons/) can be found on the plugin homepage.
 
