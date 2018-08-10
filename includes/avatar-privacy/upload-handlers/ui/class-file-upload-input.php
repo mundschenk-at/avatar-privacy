@@ -34,7 +34,7 @@ use Mundschenk\Data_Storage\Options;
 /**
  * Special <input> element for file uploads.
  *
- * @since 1.2.0
+ * @since 2.0.0
  */
 class File_Upload_Input extends Controls\Input {
 

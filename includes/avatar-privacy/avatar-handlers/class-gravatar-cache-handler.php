@@ -38,7 +38,7 @@ use Avatar_Privacy\Tools\Network\Gravatar_Service;
  * Handles retrieving and caching Gravatar.com images.
  *
  * @since 1.0.0
- * @since 1.2.0 Class was moved to Avatar_Privacy\Avatar_Handlers and now implements the new Avatar_Handler interface.
+ * @since 2.0.0 Class was moved to Avatar_Privacy\Avatar_Handlers and now implements the new Avatar_Handler interface.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
@@ -109,7 +109,7 @@ class Gravatar_Cache_Handler implements Avatar_Handler {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @since 1.2.0 Parameter $gravatar added.
+	 * @since 2.0.0 Parameter $gravatar added.
 	 *
 	 * @param Core             $core        The core API.
 	 * @param Options          $options     The options handler.
@@ -193,7 +193,7 @@ class Gravatar_Cache_Handler implements Avatar_Handler {
 	/**
 	 * Caches the image specified by the parameters.
 	 *
-	 * @since 1.2.0
+	 * @since 2.0.0
 	 *
 	 * @param  string $type      The image (sub-)type.
 	 * @param  string $hash      The hashed mail address.

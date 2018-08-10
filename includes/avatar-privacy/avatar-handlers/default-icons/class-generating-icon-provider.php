@@ -55,7 +55,7 @@ abstract class Generating_Icon_Provider extends Abstract_Icon_Provider {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @since 1.2.0 Parameter $name added.
+	 * @since 2.0.0 Parameter $name added.
 	 *
 	 * @param Generator        $generator  An image generator.
 	 * @param Filesystem_Cache $file_cache The file cache handler.

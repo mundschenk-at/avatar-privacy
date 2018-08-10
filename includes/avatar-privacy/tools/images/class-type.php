@@ -29,7 +29,7 @@ namespace Avatar_Privacy\Tools\Images;
 /**
  * An abstract class for MIME type and extension handling.
  *
- * @since 1.2.0
+ * @since 2.0.0
  *
  * @author Peter Putzer <github@mundschenk.at>
  */

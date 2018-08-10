@@ -35,7 +35,7 @@ use Avatar_Privacy\Data_Storage\Options;
 /**
  * Handles uploaded custom default icons.
  *
- * @since 1.2.0
+ * @since 2.0.0
  *
  * @author Peter Putzer <github@mundschenk.at>
  */

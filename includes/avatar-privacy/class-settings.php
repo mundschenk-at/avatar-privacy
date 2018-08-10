@@ -33,7 +33,7 @@ use Mundschenk\UI\Controls;
 /**
  * Default configuration for Avatar Privacy.
  *
- * @since 1.2.0
+ * @since 2.0.0
  *
  * @author Peter Putzer <github@mundschenk.at>
  */

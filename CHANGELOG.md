@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.0.0 (2018-08-11)
+*   _Feature_: Administrators can now upload site-specific default avatar images.
+*   _Feature_: The default policy previously only accessible via the `avatar_privacy_gravatar_use_default`
+    hook can now be set from the `Discussion` settings page.
+*   _Feature_: New filter hooks `avatar_privacy_gravatar_link_rel` and `avatar_privacy_gravatar_link_target`
+    to filter the `rel` and `target` attributes of all links to Gravatar.com.
+*   _Bugfix_: The REST API returned incorrect avatar URLs for registered users (workaround for
+    [trac ticket #40030](https://core.trac.wordpress.org/ticket/40030)).
+*   _Bugfix_: The gravatar use cookie is only set when the comment author has given consent.
+*   _Change_: Internal restructuring to make maintenance easier.
+
 ## 1.1.1 (2018-06-11)
 *   _Bugfix_: Changing the default gravatar policy via `avatar_privacy_gravatar_use_default`
     works again for registered users.

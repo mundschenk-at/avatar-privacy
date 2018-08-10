@@ -232,7 +232,7 @@ class Core {
 	/**
 	 * Retrieves the plugin settings.
 	 *
-	 * @since 1.2.0 Parameter $force added.
+	 * @since 2.0.0 Parameter $force added.
 	 *
 	 * @param bool $force Optional. Forces retrieval of settings from database. Default false.
 	 *
@@ -573,7 +573,7 @@ class Core {
 	/**
 	 * Retrieves a user by email hash.
 	 *
-	 * @since 1.2.0
+	 * @since 2.0.0
 	 *
 	 * @param string $hash The user's email hash.
 	 *
