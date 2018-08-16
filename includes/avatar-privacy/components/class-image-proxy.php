@@ -98,9 +98,9 @@ class Image_Proxy implements \Avatar_Privacy\Component {
 		$this->file_cache      = $file_cache;
 
 		// Avatar handlers.
-		$this->handlers[ Avatar_Handler::GRAVATAR ]    = $gravatar;
-		$this->handlers[ Avatar_Handler::USER_AVATAR ] = $user_avatar;
-		$this->handlers[ Avatar_Handler::DEFAULT ]     = $default_icons;
+		$this->handlers[ Avatar_Handler::GRAVATAR ]       = $gravatar;
+		$this->handlers[ Avatar_Handler::USER_AVATAR ]    = $user_avatar;
+		$this->handlers[ Avatar_Handler::DEFAULT_AVATAR ] = $default_icons;
 	}
 
 	/**
@@ -110,12 +110,12 @@ class Image_Proxy implements \Avatar_Privacy\Component {
 	 */
 	public function run() {
 		// Add new default avatars.
-		\add_filter( 'avatar_defaults', [ $this->handlers[ Avatar_Handler::DEFAULT ], 'avatar_defaults' ] );
+		\add_filter( 'avatar_defaults', [ $this->handlers[ Avatar_Handler::DEFAULT_AVATAR ], 'avatar_defaults' ] );
 
 		// Generate the correct avatar images.
-		\add_filter( 'avatar_privacy_default_icon_url',     [ $this->handlers[ Avatar_Handler::DEFAULT ], 'get_url' ],     10, 4 );
-		\add_filter( 'avatar_privacy_gravatar_icon_url',    [ $this->handlers[ Avatar_Handler::GRAVATAR ], 'get_url' ],    10, 4 );
-		\add_filter( 'avatar_privacy_user_avatar_icon_url', [ $this->handlers[ Avatar_Handler::USER_AVATAR ], 'get_url' ], 10, 4 );
+		\add_filter( 'avatar_privacy_default_icon_url',     [ $this->handlers[ Avatar_Handler::DEFAULT_AVATAR ], 'get_url' ], 10, 4 );
+		\add_filter( 'avatar_privacy_gravatar_icon_url',    [ $this->handlers[ Avatar_Handler::GRAVATAR ], 'get_url' ],       10, 4 );
+		\add_filter( 'avatar_privacy_user_avatar_icon_url', [ $this->handlers[ Avatar_Handler::USER_AVATAR ], 'get_url' ],    10, 4 );
 
 		// Automatically regenerate missing image files.
 		\add_action( 'init',          [ $this, 'add_cache_rewrite_rules' ] );
@@ -163,7 +163,7 @@ class Image_Proxy implements \Avatar_Privacy\Component {
 			if ( isset( $this->handlers[ $type ] ) ) {
 				$success = $this->handlers[ $type ]->cache_image( $type, $hash, $size, $subdir, $extension );
 			} else {
-				$success = $this->handlers[ Avatar_Handler::DEFAULT ]->cache_image( $type, $hash, $size, $subdir, $extension );
+				$success = $this->handlers[ Avatar_Handler::DEFAULT_AVATAR ]->cache_image( $type, $hash, $size, $subdir, $extension );
 			}
 
 			if ( ! $success ) {
