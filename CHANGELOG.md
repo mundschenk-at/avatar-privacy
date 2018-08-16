@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.1 (2018-08-16)
+*   _Bugfix_: The plugin no longer fails with a fatal error on PHP 5.6 (accidentally introduced in 2.0.0).
+
 ## 2.0.0 (2018-08-11)
 *   _Feature_: Administrators can now upload site-specific default avatar images.
 *   _Feature_: The default policy previously only accessible via the `avatar_privacy_gravatar_use_default`
