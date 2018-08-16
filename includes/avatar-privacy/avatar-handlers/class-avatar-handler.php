@@ -35,9 +35,9 @@ namespace Avatar_Privacy\Avatar_Handlers;
  */
 interface Avatar_Handler {
 
-	const GRAVATAR    = 'gravatar';
-	const USER_AVATAR = 'user';
-	const DEFAULT     = '-default-';
+	const GRAVATAR       = 'gravatar';
+	const USER_AVATAR    = 'user';
+	const DEFAULT_AVATAR = '-default-';
 
 	/**
 	 * Retrieves the URL for the given default icon type.
