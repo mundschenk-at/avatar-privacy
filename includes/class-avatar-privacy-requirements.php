@@ -25,7 +25,7 @@
  */
 
 // We can't rely on autoloading for the requirements check.
-require_once dirname( dirname( __FILE__ ) ) . '/vendor/mundschenk-at/check-wp-requirements/class-mundschenk-wp-requirements.php';
+require_once dirname( dirname( __FILE__ ) ) . '/vendor/mundschenk-at/check-wp-requirements/class-mundschenk-wp-requirements.php'; // @codeCoverageIgnore
 
 /**
  * A custom requirements class to check for additional PHP packages and other
