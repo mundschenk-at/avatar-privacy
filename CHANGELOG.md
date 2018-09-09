@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.2 (2018-09-09)
+*   _Bugfix_: Updated included libraries for improved compatibility with other plugins.
+
 ## 2.0.1 (2018-08-16)
 *   _Bugfix_: The plugin no longer fails with a fatal error on PHP 5.6 (accidentally introduced in 2.0.0).
 
