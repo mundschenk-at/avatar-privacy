@@ -265,8 +265,12 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		}
 
 		if ( ! empty( $user_id ) && empty( $email ) ) {
-			$user  = \get_user_by( 'ID', $user_id );
-			$email = $user->user_email;
+			$user = \get_user_by( 'ID', $user_id );
+
+			// Prevent warnings when a user ID is invalid (e.g. because a user was deleted directly from the database).
+			if ( ! empty( $user ) ) {
+				$email = $user->user_email;
+			}
 		} elseif ( empty( $user_id ) && ! empty( $email ) ) {
 			// Check if anonymous comments "as user" are allowed.
 			$user = \get_user_by( 'email', $email );
