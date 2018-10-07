@@ -130,12 +130,20 @@ abstract class Upload_Handler {
 			\switch_to_blog( \get_network()->site_id );
 		}
 
+		// Ensure custom upload directory.
 		\add_filter( 'upload_dir', [ $this, 'custom_upload_dir' ] );
-		$result = \wp_handle_upload( $file, [
+
+		// Prepare arguments.
+		$args = [
 			'mimes'                    => self::ALLOWED_MIME_TYPES,
 			'test_form'                => false,
 			'unique_filename_callback' => [ $this, 'get_unique_filename' ],
-		] );
+		];
+
+		// Move uploaded file.
+		$result = \wp_handle_upload( $file, $args );
+
+		// Restore standard upload directory.
 		\remove_filter( 'upload_dir', [ $this, 'custom_upload_dir' ] );
 
 		// Switch back to current site.

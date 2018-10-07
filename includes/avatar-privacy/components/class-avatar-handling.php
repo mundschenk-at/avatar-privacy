@@ -152,6 +152,11 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			}
 		}
 
+		// Prepare filter arguments.
+		$filter_args = [
+			'default' => $args['default'],
+		];
+
 		/**
 		 * Filters the default icon URL for the given e-mail.
 		 *
@@ -164,15 +169,21 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		 *     @type string $default The default icon type.
 		 * }
 		 */
-		$url = \apply_filters( 'avatar_privacy_default_icon_url', \includes_url( 'images/blank.gif' ), $hash, $args['size'], [
-			'default' => $args['default'],
-		] );
+		$url = \apply_filters( 'avatar_privacy_default_icon_url', \includes_url( 'images/blank.gif' ), $hash, $args['size'], $filter_args );
 
 		// Maybe display a gravatar.
 		if ( ! $force_default && $this->should_show_gravatar( $user_id, $email, $id_or_email, $age, $mimetype ) ) {
 			if ( empty( $mimetype ) ) {
 				$mimetype = Images\Type::PNG_IMAGE;
 			}
+
+			// Prepare filter arguments.
+			$filter_args = [
+				'user_id'  => $user_id,
+				'email'    => $email,
+				'rating'   => $args['rating'],
+				'mimetype' => $mimetype,
+			];
 
 			/**
 			 * Filters the Gravatar.com URL for the given e-mail.
@@ -189,12 +200,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			 *     @type string    $mimetype The expected MIME type of the Gravatar image.
 			 * }
 			 */
-			$url = \apply_filters( 'avatar_privacy_gravatar_icon_url', $url, $hash, $args['size'], [
-				'user_id'  => $user_id,
-				'email'    => $email,
-				'rating'   => $args['rating'],
-				'mimetype' => $mimetype,
-			] );
+			$url = \apply_filters( 'avatar_privacy_gravatar_icon_url', $url, $hash, $args['size'], $filter_args );
 		}
 
 		$args['url'] = $url;
@@ -343,6 +349,13 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		$url          = '';
 		$local_avatar = \get_user_meta( $user_id, User_Avatar_Upload_Handler::USER_META_KEY, true );
 		if ( ! empty( $local_avatar['file'] ) && ! empty( $local_avatar['type'] ) ) {
+			// Prepare filter arguments.
+			$args = [
+				'user_id'  => $user_id,
+				'avatar'   => $local_avatar['file'],
+				'mimetype' => $local_avatar['type'],
+			];
+
 			/**
 			 * Filters the uploaded avatar URL for the given user.
 			 *
@@ -357,11 +370,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			 *     @type string $mimetype The expected MIME type of the avatar image.
 			 * }
 			 */
-			$url = \apply_filters( 'avatar_privacy_user_avatar_icon_url', '', $hash, $size, [
-				'user_id'  => $user_id,
-				'avatar'   => $local_avatar['file'],
-				'mimetype' => $local_avatar['type'],
-			] );
+			$url = \apply_filters( 'avatar_privacy_user_avatar_icon_url', '', $hash, $size, $args );
 		}
 
 		return $url;

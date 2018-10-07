@@ -96,11 +96,13 @@ class Gravatar_Service {
 	 * @return string
 	 */
 	public function get_url( $email, $size = 80, $rating = 'x' ) {
-		return \esc_url_raw( \add_query_arg( [
+		$args = [
 			'd' => '404', // We are never interested in gravatar default images.
 			's' => empty( $size ) ? '' : $size,
 			'r' => $rating,
-		], "https://secure.gravatar.com/avatar/{$this->get_hash( $email )}" ) );
+		];
+
+		return \esc_url_raw( \add_query_arg( $args, "https://secure.gravatar.com/avatar/{$this->get_hash( $email )}" ) );
 	}
 
 	/**

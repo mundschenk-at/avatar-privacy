@@ -74,19 +74,22 @@ class Avatar_Privacy_Controller_Test extends TestCase {
 	 * @covers ::__construct
 	 */
 	public function test_constructor() {
-		$controller = m::mock( \Avatar_Privacy_Controller::class, [
-			m::mock( Core::class ),
-			m::mock( Setup::class ),
-			m::mock( Uninstallation::class ),
-			m::mock( Image_Proxy::class ),
-			m::mock( Avatar_Handling::class ),
-			m::mock( Comments::class ),
-			m::mock( User_Profile::class ),
-			m::mock( Settings_Page::class ),
-			m::mock( Privacy_Tools::class ),
-			m::mock( REST_API::class ),
-			m::mock( Integrations::class ),
-		] )->makePartial();
+		$controller = m::mock(
+			\Avatar_Privacy_Controller::class,
+			[
+				m::mock( Core::class ),
+				m::mock( Setup::class ),
+				m::mock( Uninstallation::class ),
+				m::mock( Image_Proxy::class ),
+				m::mock( Avatar_Handling::class ),
+				m::mock( Comments::class ),
+				m::mock( User_Profile::class ),
+				m::mock( Settings_Page::class ),
+				m::mock( Privacy_Tools::class ),
+				m::mock( REST_API::class ),
+				m::mock( Integrations::class ),
+			]
+		)->makePartial();
 
 		$this->assertInstanceOf( \Avatar_Privacy_Controller::class, $controller );
 

@@ -147,15 +147,15 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	private function handle_errors( array $result ) {
 		switch ( $result['error'] ) {
 			case 'Sorry, this file type is not permitted for security reasons.':
-				\add_action( 'user_profile_update_errors', function( \WP_Error $errors ) {
+				\add_action( 'user_profile_update_errors', function( \WP_Error $errors ) { // phpcs:ignore PEAR.Functions.FunctionCallSignature.MultipleArguments,PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket
 					$errors->add( 'avatar_error', \__( 'Please upload a valid PNG, GIF or JPEG image for the avatar.', 'avatar-privacy' ) );
-				} );
+				} ); // phpcs:ignore PEAR.Functions.FunctionCallSignature.CloseBracketLine
 				break;
 
 			default:
-				\add_action( 'user_profile_update_errors', function( \WP_Error $errors ) use ( $result ) {
+				\add_action( 'user_profile_update_errors', function( \WP_Error $errors ) use ( $result ) { // phpcs:ignore PEAR.Functions.FunctionCallSignature.MultipleArguments,PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket
 					$errors->add( 'avatar_error', \sprintf( '<strong>%s</strong> %s', \__( 'There was an error uploading the avatar: ', 'avatar-privacy' ), \esc_attr( $result['error'] ) ) );
-				} );
+				} ); // phpcs:ignore PEAR.Functions.FunctionCallSignature.CloseBracketLine
 		}
 	}
 

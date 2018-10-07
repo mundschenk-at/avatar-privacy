@@ -98,9 +98,9 @@ class Settings_Page implements \Avatar_Privacy\Component {
 			\add_action( 'admin_footer-options-discussion.php', [ $this, 'settings_footer' ] );
 
 			// Add form encoding.
-			\add_action( 'admin_head-options-discussion.php', function() {
+			\add_action( 'admin_head-options-discussion.php', function() { // phpcs:ignore PEAR.Functions.FunctionCallSignature.MultipleArguments,PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket
 				\ob_start( [ $this, 'add_form_encoding' ] );
-			} );
+			} ); // phpcs:ignore PEAR.Functions.FunctionCallSignature.CloseBracketLine 
 		}
 	}
 

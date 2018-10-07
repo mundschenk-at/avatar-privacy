@@ -28,6 +28,13 @@
 		</properties>
 	</rule>
 
+	<rule ref="WordPress.PHP.NoSilencedErrors">
+		<properties>
+			<property name="use_default_whitelist" value="true"/>
+			<property name="custom_whitelist" type="array" value="imagecreatefrompng"/>
+		</properties>
+	</rule>
+
 	<!-- Include sniffs for PHP cross-version compatibility. -->
 	<rule ref="PHPCompatibility">
 		<config name="testVersion" value="5.2-7.2"/>

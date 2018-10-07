@@ -67,21 +67,26 @@ class Avatar_Privacy_Requirements_Test extends TestCase {
 	 */
 	public function test_constructor() {
 
-		Functions\expect( 'wp_parse_args' )->andReturnUsing( function( $args, $defaults ) {
-			return \array_merge( $defaults, $args );
-		} );
+		Functions\expect( 'wp_parse_args' )->andReturnUsing(
+			function( $args, $defaults ) {
+				return \array_merge( $defaults, $args );
+			}
+		);
 		$req = m::mock( \Avatar_Privacy_Requirements::class )->makePartial();
 		$req->__construct( 'some_file' );
 
 		$this->assertSame( 'Avatar Privacy', $this->getValue( $req, 'plugin_name', \Mundschenk_WP_Requirements::class ) );
 		$this->assertSame( 'avatar-privacy', $this->getValue( $req, 'textdomain', \Mundschenk_WP_Requirements::class ) );
-		$this->assertSame( [
-			'php'              => '5.6.0',
-			'multibyte'        => false,
-			'utf-8'            => false,
-			'gd'               => true,
-			'uploads_writable' => true,
-		], $this->getValue( $req, 'install_requirements', \Mundschenk_WP_Requirements::class ) );
+		$this->assertSame(
+			[
+				'php'              => '5.6.0',
+				'multibyte'        => false,
+				'utf-8'            => false,
+				'gd'               => true,
+				'uploads_writable' => true,
+			],
+			$this->getValue( $req, 'install_requirements', \Mundschenk_WP_Requirements::class )
+		);
 	}
 
 	/**

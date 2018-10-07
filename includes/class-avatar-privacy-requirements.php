@@ -43,13 +43,15 @@ class Avatar_Privacy_Requirements extends Mundschenk_WP_Requirements {
 	 * @param string $plugin_file The full path to the plugin file.
 	 */
 	public function __construct( $plugin_file ) {
-		parent::__construct( 'Avatar Privacy', $plugin_file, 'avatar-privacy', array(
+		$requirements = array(
 			'php'              => '5.6.0',
 			'multibyte'        => false,
 			'utf-8'            => false,
 			'gd'               => true,
 			'uploads_writable' => true,
-		) );
+		);
+
+		parent::__construct( 'Avatar Privacy', $plugin_file, 'avatar-privacy', $requirements );
 	}
 
 	/**

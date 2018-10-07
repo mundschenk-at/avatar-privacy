@@ -104,12 +104,12 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	 */
 	private static function delete_uploaded_avatars() {
 		$user_avatar = User_Avatar_Upload_Handler::USER_META_KEY;
-		$users       = \get_users( [
+		$query       = [
 			'meta_key'     => $user_avatar, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			'meta_compare' => 'EXISTS',
-		] );
+		];
 
-		foreach ( $users as $user ) {
+		foreach ( \get_users( $query ) as $user ) {
 			$avatar = $user->$user_avatar;
 
 			if ( ! empty( $avatar['file'] ) && \file_exists( $avatar['file'] ) ) {

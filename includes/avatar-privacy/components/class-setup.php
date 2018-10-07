@@ -350,12 +350,12 @@ class Setup implements \Avatar_Privacy\Component {
 	 * Updates user hashes where they don't exist yet.
 	 */
 	private function maybe_update_user_hashes() {
-		$users = \get_users( [
+		$args = [
 			'meta_key'     => Core::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			'meta_compare' => 'NOT EXISTS',
-		] );
+		];
 
-		foreach ( $users as $user ) {
+		foreach ( \get_users( $args ) as $user ) {
 			\update_user_meta( $user->ID, Core::EMAIL_HASH_META_KEY, $this->core->get_hash( $user->user_email ) );
 		}
 	}

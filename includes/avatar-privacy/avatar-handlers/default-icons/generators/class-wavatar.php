@@ -106,8 +106,6 @@ class Wavatar extends PNG_Generator {
 		$this->apply_image( $avatar, "mouth{$mouth}.png", self::SIZE, self::SIZE );
 
 		// Resize if needed.
-		return Images\Editor::get_resized_image_data(
-			Images\Editor::create_from_image_resource( $avatar ), $size, $size, false, 'image/png'
-		);
+		return Images\Editor::get_resized_image_data( Images\Editor::create_from_image_resource( $avatar ), $size, $size, false, 'image/png' );
 	}
 }

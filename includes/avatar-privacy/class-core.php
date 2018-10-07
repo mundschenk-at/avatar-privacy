@@ -466,18 +466,18 @@ class Core {
 		$data = $this->load_data( $email );
 		if ( empty( $data ) ) {
 			// Nothing found in the database, insert the dataset.
-			$this->insert_comment_author_data( $email, $use_gravatar, current_time( 'mysql' ),
-				'set with comment ' . $comment_id . ( \is_multisite() ? ' (site: ' . $wpdb->siteid . ', blog: ' . $wpdb->blogid . ')' : '' )
-			);
+			$log_message = 'set with comment ' . $comment_id . ( \is_multisite() ? ' (site: ' . $wpdb->siteid . ', blog: ' . $wpdb->blogid . ')' : '' );
+			$this->insert_comment_author_data( $email, $use_gravatar, \current_time( 'mysql' ), $log_message );
 		} else {
 			if ( $data->use_gravatar !== $use_gravatar ) {
 				// Dataset found but with different value, update it.
-				$this->update_comment_author_data( $data->id, $data->email, [
+				$new_values = [
 					'use_gravatar' => $use_gravatar,
-					'last_updated' => current_time( 'mysql' ),
+					'last_updated' => \current_time( 'mysql' ),
 					'log_message'  => 'set with comment ' . $comment_id . ( \is_multisite() ? ' (site: ' . $wpdb->siteid . ', blog: ' . $wpdb->blogid . ')' : '' ),
 					'hash'         => $this->get_hash( $email ),
-				] );
+				];
+				$this->update_comment_author_data( $data->id, $data->email, $new_values );
 			} elseif ( empty( $data->hash ) ) {
 				// Just add the hash.
 				$this->update_comment_author_hash( $data->id, $data->email );
@@ -581,12 +581,13 @@ class Core {
 	 */
 	public function get_user_by_hash( $hash ) {
 		// No extra caching necessary, WP Core already does that for us.
-		$users = \get_users( [
+		$args  = [
 			'number'       => 1,
 			'meta_key'     => self::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			'meta_value'   => $hash, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 			'meta_compare' => '=',
-		] );
+		];
+		$users = \get_users( $args );
 
 		if ( empty( $users ) ) {
 			return null;

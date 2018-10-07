@@ -51,8 +51,7 @@ class Avatar_Privacy_Factory_Test extends TestCase {
 	protected function setUp() { // @codingStandardsIgnoreLine
 		parent::setUp();
 
-		// Set up virtual filesystem.
-		vfsStream::setup( 'root', null, [
+		$filesystem = [
 			'wordpress' => [
 				'path' => [
 					'wp-admin' => [
@@ -62,7 +61,10 @@ class Avatar_Privacy_Factory_Test extends TestCase {
 					],
 				],
 			],
-		] );
+		];
+
+		// Set up virtual filesystem.
+		vfsStream::setup( 'root', null, $filesystem );
 		set_include_path( 'vfs://root/' ); // @codingStandardsIgnoreLine
 	}
 
