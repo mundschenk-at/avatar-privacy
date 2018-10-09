@@ -190,7 +190,7 @@ class Core {
 		if ( null === self::$_instance ) {
 			self::$_instance = $instance;
 		} else {
-			throw new \BadMethodCallException( 'Avatar_Privacy_Core::set_instance called more than once.' );
+			throw new \BadMethodCallException( __METHOD__ . ' called more than once.' );
 		}
 	}
 
@@ -205,7 +205,7 @@ class Core {
 	 */
 	public static function get_instance() {
 		if ( null === self::$_instance ) {
-			throw new \BadMethodCallException( 'Avatar_Privacy_Core::get_instance called without prior plugin intialization.' );
+			throw new \BadMethodCallException( __METHOD__ . ' called without prior plugin intialization.' );
 		}
 
 		return self::$_instance;
