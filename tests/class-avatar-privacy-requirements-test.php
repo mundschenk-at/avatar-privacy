@@ -102,6 +102,22 @@ class Avatar_Privacy_Requirements_Test extends TestCase {
 	}
 
 	/**
+	 * Test ::check_gd_support (successful).
+	 *
+	 * @covers ::check_gd_support
+	 */
+	public function test_check_gd_support() {
+		// Mocking tests for PHP extensions is difficult.
+		$gd = function_exists( 'imagecreatefrompng' )
+			&& function_exists( 'imagecopy' )
+			&& function_exists( 'imagedestroy' )
+			&& function_exists( 'imagepng' )
+			&& function_exists( 'imagecreatetruecolor' );
+
+		$this->assertSame( $gd, $this->sut->check_gd_support() );
+	}
+
+	/**
 	 * Test ::check_uploads_writable (successful).
 	 *
 	 * @covers ::check_uploads_writable
