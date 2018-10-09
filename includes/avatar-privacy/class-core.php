@@ -29,7 +29,6 @@ namespace Avatar_Privacy;
 
 use Avatar_Privacy\Settings;
 
-
 use Avatar_Privacy\Data_Storage\Cache;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Network_Options;
@@ -316,7 +315,7 @@ class Core {
 	 *
 	 * @return object|null   The dataset as an object or null.
 	 */
-	private function load_data_by_email( $email ) {
+	protected function load_data_by_email( $email ) {
 		global $wpdb;
 
 		$email = \strtolower( \trim( $email ) );
@@ -346,7 +345,7 @@ class Core {
 	 *
 	 * @return object       The dataset as an object or null.
 	 */
-	private function load_data_by_hash( $hash ) {
+	protected function load_data_by_hash( $hash ) {
 		global $wpdb;
 
 		if ( empty( $hash ) ) {
@@ -412,7 +411,7 @@ class Core {
 	 *
 	 * @throws \RuntimeException A \RuntimeException is raised when invalid column names are used.
 	 */
-	private function update_comment_author_data( $id, $email, array $columns ) {
+	protected function update_comment_author_data( $id, $email, array $columns ) {
 		global $wpdb;
 
 		$result = $wpdb->update( $wpdb->avatar_privacy, $columns, [ 'id' => $id ], $this->get_format_strings( $columns ), [ '%d' ] ); // WPCS: db call ok, db cache ok.
@@ -435,7 +434,7 @@ class Core {
 	 *
 	 * @return int|false      The number of rows updated, or false on error.
 	 */
-	private function insert_comment_author_data( $email, $use_gravatar, $last_updated, $log_message ) {
+	protected function insert_comment_author_data( $email, $use_gravatar, $last_updated, $log_message ) {
 		global $wpdb;
 
 		$hash    = $this->get_hash( $email );
