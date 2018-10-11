@@ -60,7 +60,8 @@
     "config": {
         "classmap-authoritative": false,
         "classloader-suffix": "AvatarPrivacy",
-        "autoloader-suffix": "AvatarPrivacy"
+        "autoloader-suffix": "AvatarPrivacy",
+        "process-timeout": 0
     },
 
     "minimum-stability": "dev",
