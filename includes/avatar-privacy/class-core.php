@@ -371,17 +371,22 @@ class Core {
 	 * Retrieves the hash for the given user ID. If there currently is no hash,
 	 * a new one is generated.
 	 *
+	 * @since 2.1.0 False is returned on error.
+	 *
 	 * @param  int $user_id The user ID.
 	 *
-	 * @return string
+	 * @return string|false The hashed email, or `false` on failure.
 	 */
 	public function get_user_hash( $user_id ) {
 		$hash = \get_user_meta( $user_id, self::EMAIL_HASH_META_KEY, true );
 
 		if ( empty( $hash ) ) {
 			$user = \get_user_by( 'ID', $user_id );
-			$hash = $this->get_hash( $user->user_email );
-			\update_user_meta( $user_id, self::EMAIL_HASH_META_KEY, $hash );
+
+			if ( ! empty( $user->user_email ) ) {
+				$hash = $this->get_hash( $user->user_email );
+				\update_user_meta( $user_id, self::EMAIL_HASH_META_KEY, $hash );
+			}
 		}
 
 		return $hash;

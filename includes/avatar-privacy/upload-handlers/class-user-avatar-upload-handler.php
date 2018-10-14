@@ -181,10 +181,13 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 * @param  int $user_id The user ID.
 	 */
 	public function delete_uploaded_avatar( $user_id ) {
+		// Invalidate cached avatar images.
 		$hash = $this->core->get_user_hash( $user_id );
+		if ( ! empty( $hash ) ) {
+			$this->file_cache->invalidate( 'user', "#/{$hash}-[1-9][0-9]*\.[a-z]{3}\$#" );
+		}
 
-		$this->file_cache->invalidate( 'user', "#/{$hash}-[1-9][0-9]*\.[a-z]{3}\$#" );
-
+		// Delete original upload.
 		$avatar = \get_user_meta( $user_id, self::USER_META_KEY, true );
 		if ( ! empty( $avatar['file'] ) && \file_exists( $avatar['file'] ) && \unlink( $avatar['file'] ) ) {
 			\delete_user_meta( $user_id, self::USER_META_KEY );
