@@ -558,7 +558,7 @@ class Core {
 	 *
 	 * @throws \RuntimeException A \RuntimeException is raised when invalid column names are used.
 	 */
-	private function get_format_strings( array $columns ) {
+	protected function get_format_strings( array $columns ) {
 		$format_strings = [];
 
 		foreach ( $columns as $key => $value ) {
