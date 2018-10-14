@@ -139,6 +139,15 @@ class Core {
 	private $salt;
 
 	/**
+	 * A copy of COLUMN_FORMAT_STRINGS for PHP 5.6 compatibility.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @var array
+	 */
+	private $column_format_strings;
+
+	/**
 	 * The site transients handler.
 	 *
 	 * @var Site_Transients
@@ -172,6 +181,9 @@ class Core {
 		$this->cache           = $cache;
 		$this->options         = $options;
 		$this->network_options = $network_options;
+
+		// PHP 5.6 compatibility.
+		$this->column_format_strings = self::COLUMN_FORMAT_STRINGS;
 	}
 
 	/**
@@ -562,8 +574,8 @@ class Core {
 		$format_strings = [];
 
 		foreach ( $columns as $key => $value ) {
-			if ( ! empty( self::COLUMN_FORMAT_STRINGS[ $key ] ) ) {
-				$format_strings[] = self::COLUMN_FORMAT_STRINGS[ $key ];
+			if ( ! empty( $this->column_format_strings[ $key ] ) ) {
+				$format_strings[] = $this->column_format_strings[ $key ];
 			}
 		}
 
