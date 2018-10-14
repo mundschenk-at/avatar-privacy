@@ -260,10 +260,11 @@ class Setup implements \Avatar_Privacy\Component {
 	 * @param  Options $options The Options handler.
 	 */
 	private function upgrade_old_avatar_defaults( Options $options ) {
-		$old_default = $options->get( 'avatar_default', 'mystery', true );
+		$obsolete_avatar_defaults = self::OBSOLETE_AVATAR_DEFAULTS;
+		$old_default              = $options->get( 'avatar_default', 'mystery', true );
 
-		if ( ! empty( self::OBSOLETE_AVATAR_DEFAULTS[ $old_default ] ) ) {
-			$options->set( 'avatar_default', self::OBSOLETE_AVATAR_DEFAULTS[ $old_default ], true, true );
+		if ( ! empty( $obsolete_avatar_defaults[ $old_default ] ) ) {
+			$options->set( 'avatar_default', $obsolete_avatar_defaults[ $old_default ], true, true );
 		}
 	}
 
