@@ -141,7 +141,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		list( $user_id, $email, $age ) = $this->parse_id_or_email( $id_or_email );
 
 		// Generate the hash.
-		$hash = $this->core->get_user_hash( $user_id ) ?: $this->core->get_hash( $email );
+		$hash = $this->core->get_user_hash( (int) $user_id ) ?: $this->core->get_hash( $email );
 
 		if ( ! $force_default && $user_id ) {
 			// Fetch local avatar from meta and make sure it's properly stzed.
