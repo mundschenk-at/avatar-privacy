@@ -100,11 +100,12 @@ abstract class Upload_Handler {
 	 * @return string
 	 */
 	public function get_unique_filename( $directory, $filename, $extension ) {
-		$number    = 1;
-		$base_name = \preg_replace( "/{$extension}\$/", '', $filename, 1 );
+		$number   = 1;
+		$basename = \basename( $filename, $extension );
+		$filename = $basename;
 
 		while ( \file_exists( "$directory/{$filename}{$extension}" ) ) {
-			$filename = "{$base_name}_{$number}";
+			$filename = "{$basename}_{$number}";
 			$number++;
 		}
 
