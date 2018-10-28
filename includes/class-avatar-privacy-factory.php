@@ -27,6 +27,7 @@
 use Dice\Dice;
 
 use Avatar_Privacy\Core;
+use Avatar_Privacy\Settings;
 
 use Avatar_Privacy\Upload_Handlers\Upload_Handler;
 
@@ -105,6 +106,7 @@ abstract class Avatar_Privacy_Factory {
 				Options::class                => self::SHARED,
 				Network_Options::class        => self::SHARED,
 				Filesystem_Cache::class       => self::SHARED,
+				Settings::class               => self::SHARED,
 
 				// Core API.
 				Core::class                   => [

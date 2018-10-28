@@ -66,6 +66,13 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	private $upload;
 
 	/**
+	 * The default settings.
+	 *
+	 * @var Settings
+	 */
+	private $settings;
+
+	/**
 	 * The core API.
 	 *
 	 * @var Core
@@ -75,16 +82,18 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param string  $plugin_file The full path to the base plugin file.
-	 * @param Core    $core        The core API.
-	 * @param Options $options     The options handler.
-	 * @param Upload  $upload      The file upload handler.
+	 * @param string   $plugin_file The full path to the base plugin file.
+	 * @param Core     $core        The core API.
+	 * @param Options  $options     The options handler.
+	 * @param Upload   $upload      The file upload handler.
+	 * @param Settings $settings    The default settings.
 	 */
-	public function __construct( $plugin_file, Core $core, Options $options, Upload $upload ) {
+	public function __construct( $plugin_file, Core $core, Options $options, Upload $upload, Settings $settings ) {
 		$this->plugin_file = $plugin_file;
 		$this->core        = $core;
 		$this->options     = $options;
 		$this->upload      = $upload;
+		$this->settings    = $settings;
 	}
 
 	/**
@@ -100,7 +109,7 @@ class Settings_Page implements \Avatar_Privacy\Component {
 			// Add form encoding.
 			\add_action( 'admin_head-options-discussion.php', function() { // phpcs:ignore PEAR.Functions.FunctionCallSignature.MultipleArguments,PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket
 				\ob_start( [ $this, 'add_form_encoding' ] );
-			} ); // phpcs:ignore PEAR.Functions.FunctionCallSignature.CloseBracketLine 
+			} ); // phpcs:ignore PEAR.Functions.FunctionCallSignature.CloseBracketLine
 		}
 	}
 
@@ -127,7 +136,7 @@ class Settings_Page implements \Avatar_Privacy\Component {
 		\register_setting( 'discussion', $this->options->get_name( Core::SETTINGS_NAME ), [ $this, 'sanitize_settings' ] );
 
 		// Register control render callbacks.
-		$controls = Control_Factory::initialize( Settings::get_fields( $this->get_settings_header() ), $this->options, Core::SETTINGS_NAME );
+		$controls = Control_Factory::initialize( $this->settings->get_fields( $this->get_settings_header() ), $this->options, Core::SETTINGS_NAME );
 		foreach ( $controls as $control ) {
 			$control->register( 'discussion' );
 		}
@@ -166,7 +175,7 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	 * @return array The sanitized plugin settings.
 	 */
 	public function sanitize_settings( $input ) {
-		foreach ( Settings::get_fields() as $key => $info ) {
+		foreach ( $this->settings->get_fields() as $key => $info ) {
 			if ( Controls\Checkbox_Input::class === $info['ui'] ) {
 				$input[ $key ] = ! empty( $input[ $key ] );
 			}

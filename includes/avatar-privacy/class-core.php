@@ -155,6 +155,13 @@ class Core {
 	private $site_transients;
 
 	/**
+	 * The default settings.
+	 *
+	 * @var Settings
+	 */
+	private $settings_template;
+
+	/**
 	 * The singleton instance.
 	 *
 	 * @var Core
@@ -165,22 +172,24 @@ class Core {
 	 * Creates a \Avatar_Privacy\Core instance and registers all necessary hooks
 	 * and filters for the plugin.
 	 *
-	 * @param string          $plugin_file      The full path to the base plugin file.
-	 * @param string          $version          The plugin version string (e.g. "3.0.0-beta.2").
-	 * @param Transients      $transients       Required.
-	 * @param Site_Transients $site_transients  Required.
-	 * @param Cache           $cache            Required.
-	 * @param Options         $options          Required.
-	 * @param Network_Options $network_options  Required.
+	 * @param string          $plugin_file       The full path to the base plugin file.
+	 * @param string          $version           The plugin version string (e.g. "3.0.0-beta.2").
+	 * @param Transients      $transients        Required.
+	 * @param Site_Transients $site_transients   Required.
+	 * @param Cache           $cache             Required.
+	 * @param Options         $options           Required.
+	 * @param Network_Options $network_options   Required.
+	 * @param Settings        $settings_template Required.
 	 */
-	public function __construct( $plugin_file, $version, Transients $transients, Site_Transients $site_transients, Cache $cache, Options $options, Network_Options $network_options ) {
-		$this->plugin_file     = $plugin_file;
-		$this->version         = $version;
-		$this->transients      = $transients;
-		$this->site_transients = $site_transients;
-		$this->cache           = $cache;
-		$this->options         = $options;
-		$this->network_options = $network_options;
+	public function __construct( $plugin_file, $version, Transients $transients, Site_Transients $site_transients, Cache $cache, Options $options, Network_Options $network_options, Settings $settings_template ) {
+		$this->plugin_file       = $plugin_file;
+		$this->version           = $version;
+		$this->transients        = $transients;
+		$this->site_transients   = $site_transients;
+		$this->cache             = $cache;
+		$this->options           = $options;
+		$this->network_options   = $network_options;
+		$this->settings_template = $settings_template;
 
 		// PHP 5.6 compatibility.
 		$this->column_format_strings = self::COLUMN_FORMAT_STRINGS;
@@ -253,7 +262,7 @@ class Core {
 		// Force a re-read if the cached settings do not appear to be from the current version.
 		if ( empty( $this->settings ) || empty( $this->settings[ Options::INSTALLED_VERSION ] )
 			|| $this->version !== $this->settings[ Options::INSTALLED_VERSION ] || $force ) {
-			$this->settings = $this->options->get( self::SETTINGS_NAME, Settings::get_defaults() );
+			$this->settings = $this->options->get( self::SETTINGS_NAME, $this->settings_template->get_defaults() );
 		}
 
 		return $this->settings;

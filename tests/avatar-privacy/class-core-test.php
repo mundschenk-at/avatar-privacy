@@ -46,11 +46,6 @@ use Avatar_Privacy\Data_Storage\Transients;
  * @coversDefaultClass \Avatar_Privacy\Core
  * @usesDefaultClass \Avatar_Privacy\Core
  *
- * @runClassInSeparateProcess
- *
- * @preserveGlobalState disabled
- * @backupStaticAttributes false
- *
  * @uses ::__construct
  */
 class Core_Test extends \Avatar_Privacy\Tests\TestCase {
@@ -98,7 +93,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $network_options;
 
 	/**
-	 * Static Settings mock.
+	 * Required helper object.
 	 *
 	 * @var Settings
 	 */
@@ -123,6 +118,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->cache           = m::mock( Cache::class );
 		$this->options         = m::mock( Options::class );
 		$this->network_options = m::mock( Network_Options::class );
+		$this->settings        = m::mock( Settings::class );
 
 		// Partially mock system under test.
 		$this->sut = m::mock(
@@ -135,11 +131,9 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 				$this->cache,
 				$this->options,
 				$this->network_options,
+				$this->settings,
 			]
 		)->makePartial()->shouldAllowMockingProtectedMethods();
-
-		// Mock static test fixture.
-		$this->settings = m::mock( 'alias:' . Settings::class );
 	}
 
 	/**
@@ -166,9 +160,10 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$cache           = m::mock( Cache::class )->makePartial();
 		$options         = m::mock( Options::class )->makePartial();
 		$network_options = m::mock( Network_Options::class )->makePartial();
+		$settings        = m::mock( Settings::class );
 
 		$core = m::mock( \Avatar_Privacy\Core::class )->makePartial();
-		$core->__construct( 'some/file', '6.6.6', $transients, $site_transients, $cache, $options, $network_options );
+		$core->__construct( 'some/file', '6.6.6', $transients, $site_transients, $cache, $options, $network_options, $settings );
 
 		$this->assertSame( '6.6.6', $core->get_version() );
 	}

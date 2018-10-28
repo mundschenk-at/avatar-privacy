@@ -43,6 +43,13 @@ use Avatar_Privacy\Settings;
 class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 
 	/**
+	 * The system-under-test.
+	 *
+	 * @var Settings
+	 */
+	private $sut;
+
+	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
@@ -50,6 +57,8 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 		parent::setUp();
 
 		Functions\when( '__' )->returnArg();
+
+		$this->sut = m::mock( Settings::class )->makePartial();
 	}
 
 	/**
@@ -60,7 +69,7 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_fields() {
 		$information_header = 'INFORMATION_HEADER';
 
-		$result = Settings::get_fields( $information_header );
+		$result = $this->sut->get_fields( $information_header );
 
 		$this->assertInternalType( 'array', $result );
 		$this->assertContainsOnly( 'string', \array_keys( $result ) );
@@ -76,7 +85,7 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @uses ::get_fields
 	 */
 	public function test_get_defaults() {
-		$result = Settings::get_defaults();
+		$result = $this->sut->get_defaults();
 
 		$this->assertInternalType( 'array', $result );
 		$this->assertNotContainsOnly( 'array', $result );
