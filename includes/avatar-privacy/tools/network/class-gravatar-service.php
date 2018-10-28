@@ -108,11 +108,13 @@ class Gravatar_Service {
 	/**
 	 * Creates a hash from the given mail address using the SHA-256 algorithm.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  string $email An email address.
 	 *
 	 * @return string
 	 */
-	private function get_hash( $email ) {
+	protected function get_hash( $email ) {
 		return \md5( \strtolower( \trim( $email ) ) );
 	}
 
@@ -170,11 +172,13 @@ class Gravatar_Service {
 	/**
 	 * Pings Gravatar.com to check if there is an image for the given hash.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  string $email    The e-mail address to check.
 	 *
 	 * @return string|int|false
 	 */
-	private function ping_gravatar( $email ) {
+	protected function ping_gravatar( $email ) {
 		// Ask gravatar.com.
 		$response = \wp_remote_head( $this->get_url( $email ) );
 		if ( $response instanceof \WP_Error ) {
@@ -202,12 +206,14 @@ class Gravatar_Service {
 	/**
 	 * Calculates the proper caching duration.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param string|int|false $result   The result of the validation check.
 	 * @param int              $age      The "age" (difference between now and the creation date) of a comment or post (in sceonds).
 	 *
 	 * @return int
 	 */
-	private function calculate_caching_duration( $result, $age ) {
+	protected function calculate_caching_duration( $result, $age ) {
 		// Cache the result across all blogs (a YES for 1 week, a NO for 10 minutes or longer,
 		// depending on the age of the object (comment, post), since a YES basically shouldn't
 		// change, but a NO might change when the user signs up with gravatar.com).
