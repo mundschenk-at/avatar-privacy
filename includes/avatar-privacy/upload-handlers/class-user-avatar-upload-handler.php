@@ -142,9 +142,11 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	/**
 	 * Handles upload errors and prints appropriate notices.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  array $result The result of \wp_handle_upload().
 	 */
-	private function handle_errors( array $result ) {
+	protected function handle_errors( array $result ) {
 		switch ( $result['error'] ) {
 			case 'Sorry, this file type is not permitted for security reasons.':
 				\add_action( 'user_profile_update_errors', function( \WP_Error $errors ) { // phpcs:ignore PEAR.Functions.FunctionCallSignature.MultipleArguments,PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket
