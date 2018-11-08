@@ -143,7 +143,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		// Generate the hash.
 		$hash = $this->core->get_user_hash( (int) $user_id ) ?: $this->core->get_hash( $email );
 
-		if ( ! $force_default && $user_id ) {
+		if ( ! $force_default && ! empty( $user_id ) ) {
 			// Fetch local avatar from meta and make sure it's properly stzed.
 			$args['url'] = $this->get_local_avatar_url( $user_id, $hash, $args['size'] );
 			if ( ! empty( $args['url'] ) ) {
