@@ -211,6 +211,8 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	/**
 	 * Determines if we should go for a gravatar.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param int|false         $user_id     A WordPress user ID (or false).
 	 * @param string            $email       The email address.
 	 * @param int|string|object $id_or_email The Gravatar to retrieve. Accepts a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
@@ -219,7 +221,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 *
 	 * @return bool
 	 */
-	private function should_show_gravatar( $user_id, $email, $id_or_email, $age, &$mimetype ) {
+	protected function should_show_gravatar( $user_id, $email, $id_or_email, $age, &$mimetype ) {
 		// Find out if the user opted into displaying a gravatar.
 		$show_gravatar = $this->determine_gravatar_policy( $user_id, $email, $id_or_email );
 
@@ -244,11 +246,13 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	/**
 	 * Parses e-mail address and/or user ID from $id_or_email.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  int|string|object $id_or_email The Gravatar to retrieve. Accepts a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
 	 *
 	 * @return array                          The tuple [ $user_id, $email, $age ],
 	 */
-	private function parse_id_or_email( $id_or_email ) {
+	protected function parse_id_or_email( $id_or_email ) {
 		$user_id = false;
 		$email   = '';
 		$age     = 0;
@@ -299,6 +303,8 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	/**
 	 * Parse a WP_Comment object.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  \WP_Comment $comment A comment.
 	 *
 	 * @return array {
@@ -309,7 +315,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 *     @type int       $age     The seconds since the post or comment was first created, or 0 if $id_or_email was not one of these object types.
 	 * }
 	 */
-	private function parse_comment( \WP_Comment $comment ) {
+	protected function parse_comment( \WP_Comment $comment ) {
 		/** This filter is documented in wp-includes/pluggable.php */
 		$allowed_comment_types = \apply_filters( 'get_avatar_comment_types', [ 'comment' ] );
 
@@ -333,13 +339,15 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	/**
 	 * Retrieves a URL pointing to the local avatar image of the appropriate size.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  int    $user_id The user ID.
 	 * @param  string $hash    The hashed mail address.
 	 * @param  int    $size    The requested avatar size in pixels.
 	 *
 	 * @return string          The URL, or '' if no local avatar has been set.
 	 */
-	private function get_local_avatar_url( $user_id, $hash, $size ) {
+	protected function get_local_avatar_url( $user_id, $hash, $size ) {
 		// Bail if we haven't got a valid user ID.
 		if ( empty( $user_id ) ) {
 			return '';
@@ -379,13 +387,15 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	/**
 	 * Determines the gravatar use policy.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  int|false         $user_id     A WordPress user ID (or false).
 	 * @param  string            $email       The email address.
 	 * @param  int|string|object $id_or_email The Gravatar to retrieve. Can be a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
 	 *
 	 * @return bool
 	 */
-	private function determine_gravatar_policy( $user_id, $email, $id_or_email ) {
+	protected function determine_gravatar_policy( $user_id, $email, $id_or_email ) {
 		$show_gravatar = false;
 		$use_default   = false;
 
