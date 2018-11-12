@@ -478,7 +478,9 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'mysql2date' )->once()->with( 'U', $date )->andReturn( $now - $age );
 
-		$this->assertSame( $age, $this->invokeMethod( $this->sut, 'determine_age', [ $date ] ) );
+		$result = $this->invokeMethod( $this->sut, 'determine_age', [ $date ] );
+		$this->assertGreaterThanOrEqual( 550, $result );
+		$this->assertLessThanOrEqual( 560, $result );
 	}
 
 	/**
