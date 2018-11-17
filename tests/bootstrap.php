@@ -28,3 +28,8 @@
  * Autoload everything using Composer.
  */
 require_once dirname( __DIR__ ) . '/vendor/autoload.php';
+
+// Necessary constants.
+if ( ! defined( 'ABSPATH' ) ) {
+	define( 'ABSPATH', 'wordpress/path/' );
+}

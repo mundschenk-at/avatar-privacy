@@ -99,8 +99,6 @@ class Avatar_Privacy_Factory_Test extends TestCase {
 		Functions\expect( 'wp_get_upload_dir' )->once()->andReturn( false );
 		Functions\expect( 'wp_mkdir_p' )->once()->andReturn( true );
 
-		define( 'ABSPATH', 'wordpress/path/' );
-
 		$this->assertInstanceOf( Dice::class, \Avatar_Privacy_Factory::get( '/dummy/path' ) );
 	}
 }
