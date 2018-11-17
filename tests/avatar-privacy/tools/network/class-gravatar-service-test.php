@@ -384,19 +384,6 @@ class Gravatar_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param  int    $filter_value The filtered validation interval.
 	 */
 	public function test_calculate_caching_duration( $result, $age, $filter_value ) {
-		if ( ! defined( 'WEEK_IN_SECONDS' ) ) {
-			define( 'WEEK_IN_SECONDS', 10 );
-		}
-		if ( ! defined( 'DAY_IN_SECONDS' ) ) {
-			define( 'DAY_IN_SECONDS', 10 );
-		}
-		if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
-			define( 'HOUR_IN_SECONDS', 10 );
-		}
-		if ( ! defined( 'MINUTE_IN_SECONDS' ) ) {
-			define( 'MINUTE_IN_SECONDS', 10 );
-		}
-
 		Filters\expectApplied( 'avatar_privacy_validate_gravatar_interval' )->once()->with( m::type( 'int' ), ! empty( $result ), $age )->andReturn( $filter_value );
 
 		$this->assertSame( $filter_value, $this->sut->calculate_caching_duration( $result, $age ) );
