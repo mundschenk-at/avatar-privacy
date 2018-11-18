@@ -175,7 +175,7 @@ class Image_Proxy implements \Avatar_Privacy\Component {
 		$this->send_image( $file, DAY_IN_SECONDS, Images\Type::CONTENT_TYPE[ $extension ] );
 
 		// We're done.
-		exit( 0 );
+		$this->exit_request();
 	}
 
 	/**
@@ -294,5 +294,17 @@ class Image_Proxy implements \Avatar_Privacy\Component {
 
 		// Don't run the job again until the interval is up.
 		$this->site_transients->set( $lock, true, $interval );
+	}
+
+	/**
+	 * Stops executing the current request early.
+	 *
+	 * @since 2.1.0
+	 * @codeCoverageIgnore
+	 *
+	 * @param  int $status Optional. A status code in the range 0 to 254. Default 0.
+	 */
+	protected function exit_request( $status = 0 ) {
+		exit( $status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }
