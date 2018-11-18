@@ -121,7 +121,7 @@ class Comments implements \Avatar_Privacy\Component {
 		 *     @type string $insertion_point The index ('url', 'email', etc.) of the field where the checkbox should be inserted.
 		 * }
 		 */
-		list( $before_or_after, $insertion_point ) = \apply_filters( 'avatar_privacy_use_gravatar_position', $this->determine_position( $fields ) );
+		list( $before_or_after, $insertion_point ) = \apply_filters( 'avatar_privacy_use_gravatar_position', $this->get_position( $fields ) );
 
 		if ( isset( $fields[ $insertion_point ] ) ) {
 			$result = [];
@@ -160,7 +160,7 @@ class Comments implements \Avatar_Privacy\Component {
 	 *     @type string $insertion_point The index ('url', 'email', etc.) of the field where the checkbox should be inserted.
 	 * }
 	 */
-	protected function determine_position( array $fields ) {
+	protected function get_position( array $fields ) {
 		if ( isset( $fields['cookies'] ) ) {
 			// If the `cookies` field exists, add the checkbox just before.
 			$insertion_point = 'cookies';

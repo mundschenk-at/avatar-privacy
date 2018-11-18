@@ -172,7 +172,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'is_user_logged_in' )->times( 3 )->andReturn( false );
 
-		$this->sut->shouldReceive( 'determine_position' )->times( 3 )->with( $fields )->andReturn( [ 'before', 'email' ], [ 'after', 'name' ], [ 'before', 'name' ] );
+		$this->sut->shouldReceive( 'get_position' )->times( 3 )->with( $fields )->andReturn( [ 'before', 'email' ], [ 'after', 'name' ], [ 'before', 'name' ] );
 
 		Filters\expectApplied( 'avatar_privacy_use_gravatar_position' )->times( 3 )->with( m::type( 'array' ) );
 
@@ -205,7 +205,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'is_user_logged_in' )->once()->andReturn( true );
 
-		$this->sut->shouldReceive( 'determine_position' )->never();
+		$this->sut->shouldReceive( 'get_position' )->never();
 
 		Filters\expectApplied( 'avatar_privacy_use_gravatar_position' )->never();
 
@@ -229,7 +229,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'is_user_logged_in' )->once()->andReturn( false );
 
-		$this->sut->shouldReceive( 'determine_position' )->never();
+		$this->sut->shouldReceive( 'get_position' )->never();
 
 		Filters\expectApplied( 'avatar_privacy_use_gravatar_position' )->never();
 
@@ -255,7 +255,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'is_user_logged_in' )->once()->andReturn( false );
 
-		$this->sut->shouldReceive( 'determine_position' )->once()->with( $fields )->andReturn( [ 'before', 'foobar' ] );
+		$this->sut->shouldReceive( 'get_position' )->once()->with( $fields )->andReturn( [ 'before', 'foobar' ] );
 
 		Filters\expectApplied( 'avatar_privacy_use_gravatar_position' )->once()->with( m::type( 'array' ) );
 
@@ -263,11 +263,11 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Provides data for testing determine_position.
+	 * Provides data for testing get_position.
 	 *
 	 * @return array
 	 */
-	public function provide_determine_position_data() {
+	public function provide_get_position_data() {
 		return [
 			[
 				[
@@ -309,18 +309,18 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::determine_position.
+	 * Tests ::get_position.
 	 *
-	 * @covers ::determine_position
+	 * @covers ::get_position
 	 *
-	 * @dataProvider provide_determine_position_data
+	 * @dataProvider provide_get_position_data
 	 *
 	 * @param  string[] $fields          The comment fields markup.
 	 * @param  string   $before_or_after Expected result (either 'before' or 'after').
 	 * @param  string   $insert_position Expected result ($fields index).
 	 */
-	public function test_determine_position( $fields, $before_or_after, $insert_position ) {
-		$this->assertSame( [ $before_or_after, $insert_position ], $this->sut->determine_position( $fields ) );
+	public function test_get_position( $fields, $before_or_after, $insert_position ) {
+		$this->assertSame( [ $before_or_after, $insert_position ], $this->sut->get_position( $fields ) );
 	}
 
 	/**
