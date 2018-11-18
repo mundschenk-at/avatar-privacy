@@ -157,30 +157,30 @@ class Comments implements \Avatar_Privacy\Component {
 	 *     Where to insert the checkbox.
 	 *
 	 *     @type string $before_or_after Either 'before' or 'after'.
-	 *     @type string $insertion_point The index ('url', 'email', etc.) of the field where the checkbox should be inserted.
+	 *     @type string $field           The index ('url', 'email', etc.) of the field where the checkbox should be inserted.
 	 * }
 	 */
 	protected function get_position( array $fields ) {
 		if ( isset( $fields['cookies'] ) ) {
 			// If the `cookies` field exists, add the checkbox just before.
-			$insertion_point = 'cookies';
 			$before_or_after = 'before';
+			$field           = 'cookies';
 		} elseif ( isset( $fields['url'] ) ) {
 			// Otherwise, if the `url` field exists, add our checkbox after it.
-			$insertion_point = 'url';
 			$before_or_after = 'after';
+			$field           = 'url';
 		} elseif ( isset( $fields['email'] ) ) {
 			// Otherwise, look for the `email` field and add the checkbox after that.
-			$insertion_point = 'email';
 			$before_or_after = 'after';
+			$field           = 'email';
 		} else {
 			// As a last ressort, add the checkbox after all the other fields.
 			\end( $fields );
-			$insertion_point = \key( $fields );
 			$before_or_after = 'after';
+			$field           = \key( $fields );
 		}
 
-		return [ $before_or_after, $insertion_point ];
+		return [ $before_or_after, $field ];
 	}
 
 	/**
