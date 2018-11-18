@@ -350,7 +350,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_parse_id_or_email( $id_or_email, $user_id, $email, $age, $get_user_by = '' ) {
 
 		// Special provisions for posts and comments.
-		$this->sut->shouldReceive( 'determine_age' )->atMost()->once()->with( m::type( 'string' ) )->andReturn( $age );
+		$this->sut->shouldReceive( 'get_age' )->atMost()->once()->with( m::type( 'string' ) )->andReturn( $age );
 		$this->sut->shouldReceive( 'parse_comment' )->atMost()->once()->with( $id_or_email )->andReturn( [ $user_id, $email, $age ] );
 
 		// Check for user ID/email if empty.
@@ -460,25 +460,25 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		Filters\expectApplied( 'get_avatar_comment_types' )->once()->with( [ 'comment' ] )->andReturn( [ 'comment' ] );
 
 		if ( 'comment' === $comment_type ) {
-			$this->sut->shouldReceive( 'determine_age' )->once()->with( $comment_date_gmt )->andReturn( $now - \strtotime( $comment_date_gmt ) );
+			$this->sut->shouldReceive( 'get_age' )->once()->with( $comment_date_gmt )->andReturn( $now - \strtotime( $comment_date_gmt ) );
 		}
 
 		$this->assertSame( $result, $this->invokeMethod( $this->sut, 'parse_comment', [ $comment ] ) );
 	}
 
 	/**
-	 * Tests ::determine_age.
+	 * Tests ::get_age.
 	 *
-	 * @covers ::determine_age
+	 * @covers ::get_age
 	 */
-	public function test_determine_age() {
+	public function test_get_age() {
 		$age  = 555;
 		$now  = \time();
 		$date = \date( 'Y-m-d H:i:s', $now - $age );
 
 		Functions\expect( 'mysql2date' )->once()->with( 'U', $date )->andReturn( $now - $age );
 
-		$result = $this->invokeMethod( $this->sut, 'determine_age', [ $date ] );
+		$result = $this->invokeMethod( $this->sut, 'get_age', [ $date ] );
 		$this->assertGreaterThanOrEqual( 550, $result );
 		$this->assertLessThanOrEqual( 560, $result );
 	}

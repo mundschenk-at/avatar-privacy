@@ -269,7 +269,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		} elseif ( $id_or_email instanceof \WP_Post ) {
 			// Post object.
 			$user_id = (int) $id_or_email->post_author;
-			$age     = $this->determine_age( $id_or_email->post_date_gmt );
+			$age     = $this->get_age( $id_or_email->post_date_gmt );
 		} elseif ( $id_or_email instanceof \WP_Comment ) {
 			list( $user_id, $email, $age ) = $this->parse_comment( $id_or_email );
 		}
@@ -329,7 +329,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 
 		$user_id = false;
 		$email   = '';
-		$age     = $this->determine_age( $comment->comment_date_gmt );
+		$age     = $this->get_age( $comment->comment_date_gmt );
 		if ( ! empty( $comment->user_id ) ) {
 			$user_id = (int) $comment->user_id;
 		} elseif ( ! empty( $comment->comment_author_email ) ) {
@@ -348,7 +348,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 *
 	 * @return int              The age in seconds.
 	 */
-	protected function determine_age( $date_gmt ) {
+	protected function get_age( $date_gmt ) {
 		return \time() - \mysql2date( 'U', $date_gmt );
 	}
 
