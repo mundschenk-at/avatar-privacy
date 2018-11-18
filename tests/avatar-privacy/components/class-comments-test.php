@@ -523,6 +523,12 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 		$headers = \xdebug_get_headers();
 		$regex   = '/Set\-Cookie: comment_use_gravatar_somehash\=0; expires\=[^;]+; Max\-Age\=0; path\=' . \preg_quote( COOKIEPATH, '/' ) . '; domain=' . \preg_quote( COOKIE_DOMAIN, '/' ) . '/';
 
+		if ( \version_compare( PHP_VERSION, '7.0.0', '<' ) ) {
+			// Workaround PHP bug #72071:
+			// A bug in setcookie allows negative Max-Age values.
+			$regex = \str_replace( 'Max\-Age\=0;', 'Max\-Age\=\-31536000;', $regex );
+		}
+
 		// Cookie is "unset".
 		$this->assertRegexp( $regex, $headers[0] );
 	}
