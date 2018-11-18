@@ -91,8 +91,10 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 
 	/**
 	 * Adds a privacy notice snippet.
+	 *
+	 * @since 2.1.0 Visibility changed to protected.
 	 */
-	private function add_privacy_notice_content() {
+	protected function add_privacy_notice_content() {
 		// Don't crash on older versions of WordPress.
 		if ( ! function_exists( 'wp_add_privacy_policy_content' ) ) {
 			return;
@@ -325,12 +327,14 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 	/**
 	 * Deletes an entry from the avatar_privacy table.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  int    $id    The row ID.
 	 * @param  string $email The original email.
 	 *
 	 * @return int           The number of deleted rows (1 or 0).
 	 */
-	private function delete_comment_author_data( $id, $email ) {
+	protected function delete_comment_author_data( $id, $email ) {
 		global $wpdb;
 
 		// Delete data from database.
