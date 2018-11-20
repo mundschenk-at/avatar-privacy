@@ -80,6 +80,13 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	private $core;
 
 	/**
+	 * Indiciates whether the settings page is buffering its output.
+	 *
+	 * @var bool
+	 */
+	private $buffering;
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param string   $plugin_file The full path to the base plugin file.
@@ -94,6 +101,7 @@ class Settings_Page implements \Avatar_Privacy\Component {
 		$this->options     = $options;
 		$this->upload      = $upload;
 		$this->settings    = $settings;
+		$this->buffering   = false;
 	}
 
 	/**
@@ -103,13 +111,23 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	 */
 	public function run() {
 		if ( \is_admin() ) {
+			// Register scripts.
 			\add_action( 'admin_init', [ $this, 'register_settings' ] );
-			\add_action( 'admin_footer-options-discussion.php', [ $this, 'settings_footer' ] );
 
 			// Add form encoding.
-			\add_action( 'admin_head-options-discussion.php', function() { // phpcs:ignore PEAR.Functions.FunctionCallSignature.MultipleArguments,PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket
-				\ob_start( [ $this, 'add_form_encoding' ] );
-			} ); // phpcs:ignore PEAR.Functions.FunctionCallSignature.CloseBracketLine
+			\add_action( 'admin_head-options-discussion.php', [ $this, 'settings_head' ] );
+
+			// Print scripts.
+			\add_action( 'admin_footer-options-discussion.php', [ $this, 'settings_footer' ] );
+		}
+	}
+
+	/**
+	 * Run tasks in the settings header.
+	 */
+	public function settings_head() {
+		if ( \ob_start( [ $this, 'add_form_encoding' ] ) ) {
+			$this->buffering = true;
 		}
 	}
 
@@ -123,8 +141,9 @@ class Settings_Page implements \Avatar_Privacy\Component {
 		}
 
 		// Clean up output buffering.
-		if ( \ob_get_level() > 0 ) {
+		if ( $this->buffering && \ob_get_level() > 0 ) {
 			\ob_end_flush();
+			$this->buffering = false;
 		}
 	}
 
