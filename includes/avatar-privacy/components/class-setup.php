@@ -428,38 +428,17 @@ class Setup implements \Avatar_Privacy\Component {
 	}
 
 	/**
-	 * Disables any scheduled cron jobs.
-	 *
-	 * This is a copy of wp_unschedule_hook(), introduced in WordPress 4.9.0.
-	 * When we raise the minimum WP version to 4.9, this method can be replaced
-	 * with a call to `wp_unschedule_hook()`.
-	 *
-	 * @param  string $hook The hook name.
-	 */
-	private static function unschedule_hook( $hook ) {
-		$crons = _get_cron_array();
-		foreach ( $crons as $timestamp => $args ) {
-			unset( $crons[ $timestamp ][ $hook ] );
-
-			if ( empty( $crons[ $timestamp ] ) ) {
-				unset( $crons[ $timestamp ] );
-			}
-		}
-		_set_cron_array( $crons );
-	}
-
-	/**
 	 * Ensures that the cron jobs are disabled on each site.
 	 */
 	private static function disable_cron_jobs() {
 		if ( \is_multisite() ) {
 			foreach ( \get_sites( [ 'fields' => 'ids' ] ) as $site_id ) {
 				\switch_to_blog( $site_id );
-				self::unschedule_hook( Image_Proxy::CRON_JOB_ACTION );
+				\wp_unschedule_hook( Image_Proxy::CRON_JOB_ACTION );
 				\restore_current_blog();
 			}
 		} else {
-			self::unschedule_hook( Image_Proxy::CRON_JOB_ACTION );
+			\wp_unschedule_hook( Image_Proxy::CRON_JOB_ACTION );
 		}
 	}
 }
