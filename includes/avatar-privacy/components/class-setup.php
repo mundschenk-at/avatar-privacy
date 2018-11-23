@@ -215,23 +215,23 @@ class Setup implements \Avatar_Privacy\Component {
 		}
 
 		// To be safe, let's always flush the rewrite rules if there has been an update.
-		\add_action( 'init', [ __CLASS__, 'flush_rewrite_rules' ] );
+		\add_action( 'init', [ $this, 'flush_rewrite_rules' ] );
 	}
 
 	/**
 	 * Handles plugin activation.
 	 */
 	public function activate() {
-		self::flush_rewrite_rules();
+		$this->flush_rewrite_rules();
 	}
 
 	/**
 	 * Handles plugin deactivation.
 	 */
 	public function deactivate() {
-		self::disable_cron_jobs();
+		$this->disable_cron_jobs();
 		self::reset_avatar_default( $this->options );
-		self::flush_rewrite_rules();
+		$this->flush_rewrite_rules();
 	}
 
 	/**
@@ -270,8 +270,10 @@ class Setup implements \Avatar_Privacy\Component {
 
 	/**
 	 * Flushes the rewrite rules.
+	 *
+	 * @since 2.1.0 Made non-static.
 	 */
-	public static function flush_rewrite_rules() {
+	public function flush_rewrite_rules() {
 		global $wp_rewrite;
 		$wp_rewrite->flush_rules();
 	}
@@ -334,9 +336,11 @@ class Setup implements \Avatar_Privacy\Component {
 	/**
 	 * Sometimes, the table data needs to updated when upgrading.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param string $previous_version The previously installed plugin version.
 	 */
-	private function maybe_update_table_data( $previous_version ) {
+	protected function maybe_update_table_data( $previous_version ) {
 		global $wpdb;
 
 		if ( \version_compare( $previous_version, '0.5', '<' ) ) {
@@ -349,8 +353,10 @@ class Setup implements \Avatar_Privacy\Component {
 
 	/**
 	 * Updates user hashes where they don't exist yet.
+	 *
+	 * @since 2.1.0 Visibility changed to protected.
 	 */
-	private function maybe_update_user_hashes() {
+	protected function maybe_update_user_hashes() {
 		$args = [
 			'meta_key'     => Core::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			'meta_compare' => 'NOT EXISTS',
@@ -364,11 +370,13 @@ class Setup implements \Avatar_Privacy\Component {
 	/**
 	 * Checks if the given table exists.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  string $table_name A table name.
 	 *
 	 * @return bool
 	 */
-	private function table_exists( $table_name ) {
+	protected function table_exists( $table_name ) {
 		global $wpdb;
 
 		return $table_name === $wpdb->get_var( $wpdb->prepare( 'SHOW tables LIKE %s', $table_name ) ); // WPCS: db call ok, cache ok.
@@ -429,8 +437,10 @@ class Setup implements \Avatar_Privacy\Component {
 
 	/**
 	 * Ensures that the cron jobs are disabled on each site.
+	 *
+	 * @since 2.1.0 Made non-static, visibility changed to protected.
 	 */
-	private static function disable_cron_jobs() {
+	protected function disable_cron_jobs() {
 		if ( \is_multisite() ) {
 			foreach ( \get_sites( [ 'fields' => 'ids' ] ) as $site_id ) {
 				\switch_to_blog( $site_id );
