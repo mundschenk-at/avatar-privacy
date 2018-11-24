@@ -29,6 +29,7 @@ namespace Avatar_Privacy\Components;
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
+use Avatar_Privacy\Data_Storage\Database;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Options;
@@ -79,6 +80,7 @@ class Uninstallation implements \Avatar_Privacy\Component {
 		$network_options = new Network_Options();
 		$transients      = new Transients();
 		$site_transients = new Site_Transients();
+		$database        = new Database( $network_options );
 
 		// Delete cached files.
 		self::delete_cached_files();
@@ -96,7 +98,7 @@ class Uninstallation implements \Avatar_Privacy\Component {
 		self::delete_transients( $transients, $site_transients );
 
 		// Drop all our tables.
-		self::drop_all_tables( $network_options );
+		self::drop_all_tables( $database );
 	}
 
 	/**
@@ -127,31 +129,18 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	}
 
 	/**
-	 * Drops the table for the given site.
-	 *
-	 * @param Network_Options $network_options A network options handler.
-	 * @param int|null        $site_id         Optional. The site ID. Null means the current $blog_id. Ddefault null.
-	 */
-	private static function drop_table( Network_Options $network_options, $site_id = null ) {
-		global $wpdb;
-
-		$table_name = Setup::get_table_name( $network_options, $site_id );
-		$wpdb->query( "DROP TABLE IF EXISTS {$table_name};" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.NotPrepared
-	}
-
-	/**
 	 * Drops all tables.
 	 *
-	 * @param Network_Options $network_options The network options handler.
+	 * @param Database $database The database handler.
 	 */
-	private static function drop_all_tables( Network_Options $network_options ) {
+	private static function drop_all_tables( Database $database ) {
 		// Delete/change options for all other blogs (multisite).
 		if ( \is_multisite() ) {
 			foreach ( \get_sites( [ 'fields' => 'ids' ] ) as $site_id ) {
-				self::drop_table( $network_options, $site_id );
+				$database->drop_table( $site_id );
 			}
 		} else {
-			self::drop_table( $network_options );
+			$database->drop_table();
 		}
 	}
 
