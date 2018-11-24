@@ -241,7 +241,7 @@ class Setup implements \Avatar_Privacy\Component {
 	 */
 	public function deactivate() {
 		$this->disable_cron_jobs();
-		self::reset_avatar_default( $this->options );
+		static::reset_avatar_default( $this->options );
 		\flush_rewrite_rules();
 	}
 
