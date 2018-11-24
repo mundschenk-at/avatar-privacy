@@ -54,7 +54,7 @@ class Database {
 	/**
 	 * Retrieves the table prefix to use (for a given site or the current site).
 	 *
-	 * @param int|null $site_id Optional. The site ID. Null means the current $blog_id. Ddefault null.
+	 * @param int|null $site_id Optional. The site ID. Null means the current $blog_id. Default null.
 	 *
 	 * @return string
 	 */
@@ -71,7 +71,7 @@ class Database {
 	/**
 	 * Retrieves the table name to use (for a given site or the current site).
 	 *
-	 * @param int|null $site_id Optional. The site ID. Null means the current $blog_id. Ddefault null.
+	 * @param int|null $site_id Optional. The site ID. Null means the current $blog_id. Default null.
 	 *
 	 * @return string
 	 */
