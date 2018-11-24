@@ -226,14 +226,14 @@ class Setup implements \Avatar_Privacy\Component {
 		}
 
 		// To be safe, let's always flush the rewrite rules if there has been an update.
-		\add_action( 'init', [ $this, 'flush_rewrite_rules' ] );
+		\add_action( 'init', 'flush_rewrite_rules' );
 	}
 
 	/**
 	 * Handles plugin activation.
 	 */
 	public function activate() {
-		$this->flush_rewrite_rules();
+		\flush_rewrite_rules();
 	}
 
 	/**
@@ -242,7 +242,7 @@ class Setup implements \Avatar_Privacy\Component {
 	public function deactivate() {
 		$this->disable_cron_jobs();
 		self::reset_avatar_default( $this->options );
-		$this->flush_rewrite_rules();
+		\flush_rewrite_rules();
 	}
 
 	/**
@@ -279,16 +279,6 @@ class Setup implements \Avatar_Privacy\Component {
 		if ( ! empty( $obsolete_avatar_defaults[ $old_default ] ) ) {
 			$options->set( 'avatar_default', $obsolete_avatar_defaults[ $old_default ], true, true );
 		}
-	}
-
-	/**
-	 * Flushes the rewrite rules.
-	 *
-	 * @since 2.1.0 Made non-static.
-	 */
-	public function flush_rewrite_rules() {
-		global $wp_rewrite;
-		$wp_rewrite->flush_rules();
 	}
 
 	/**
