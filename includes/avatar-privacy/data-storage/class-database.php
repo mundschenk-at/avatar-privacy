@@ -114,8 +114,8 @@ class Database {
 
 	/**
 	 * Creates the plugin's database table if it doesn't already exist. The
-	 * table is created as a global table for multisite installations. Makes the
-	 * name of the table available through $wpdb->avatar_privacy.
+	 * table may be created as a global table for legacy multisite installations.
+	 * Makes the name of the table available through $wpdb->avatar_privacy.
 	 *
 	 * @param string $previous_version The previously installed plugin version.
 	 *
