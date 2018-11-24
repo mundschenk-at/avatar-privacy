@@ -222,7 +222,7 @@ class Setup implements \Avatar_Privacy\Component {
 
 		// Upgrade from anything below 1.0.RC.1.
 		if ( ! empty( $previous_version ) && \version_compare( $previous_version, '1.0-rc.1', '<' ) ) {
-			$this->upgrade_old_avatar_defaults( $this->options );
+			$this->upgrade_old_avatar_defaults();
 		}
 
 		// To be safe, let's always flush the rewrite rules if there has been an update.
@@ -268,16 +268,14 @@ class Setup implements \Avatar_Privacy\Component {
 	/**
 	 * Tries to upgrade the `avatar_defaults` option.
 	 *
-	 * @since 2.1.0 Visibility changed to protected.
-	 *
-	 * @param  Options $options The Options handler.
+	 * @since 2.1.0 Visibility changed to protected, $options parameter removed.
 	 */
-	protected function upgrade_old_avatar_defaults( Options $options ) {
+	protected function upgrade_old_avatar_defaults() {
 		$obsolete_avatar_defaults = self::OBSOLETE_AVATAR_DEFAULTS;
-		$old_default              = $options->get( 'avatar_default', 'mystery', true );
+		$old_default              = $this->options->get( 'avatar_default', 'mystery', true );
 
 		if ( ! empty( $obsolete_avatar_defaults[ $old_default ] ) ) {
-			$options->set( 'avatar_default', $obsolete_avatar_defaults[ $old_default ], true, true );
+			$this->options->set( 'avatar_default', $obsolete_avatar_defaults[ $old_default ], true, true );
 		}
 	}
 
