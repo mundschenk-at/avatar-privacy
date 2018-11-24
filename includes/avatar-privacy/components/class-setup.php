@@ -196,12 +196,14 @@ class Setup implements \Avatar_Privacy\Component {
 	/**
 	 * Upgrade plugin data.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param string $previous_version The version we are upgrading from.
 	 * @param array  $settings         The settings array. Passed by reference to
 	 *                                 allow for permanent changes. Saved at a the
 	 *                                 end of the upgrade routine.
 	 */
-	private function plugin_updated( $previous_version, array &$settings ) {
+	protected function plugin_updated( $previous_version, array &$settings ) {
 		// Upgrade from version 0.4 or lower.
 		if ( ! empty( $previous_version ) && \version_compare( $previous_version, '0.5', '<' ) ) {
 			// Preserve previous multisite behavior.
@@ -266,9 +268,11 @@ class Setup implements \Avatar_Privacy\Component {
 	/**
 	 * Tries to upgrade the `avatar_defaults` option.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  Options $options The Options handler.
 	 */
-	private function upgrade_old_avatar_defaults( Options $options ) {
+	protected function upgrade_old_avatar_defaults( Options $options ) {
 		$obsolete_avatar_defaults = self::OBSOLETE_AVATAR_DEFAULTS;
 		$old_default              = $options->get( 'avatar_default', 'mystery', true );
 
