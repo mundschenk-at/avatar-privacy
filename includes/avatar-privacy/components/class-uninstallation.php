@@ -81,9 +81,10 @@ class Uninstallation implements \Avatar_Privacy\Component {
 		$transients      = new Transients();
 		$site_transients = new Site_Transients();
 		$database        = new Database( $network_options );
+		$file_cache      = new Filesystem_Cache();
 
 		// Delete cached files.
-		static::delete_cached_files();
+		static::delete_cached_files( $file_cache );
 
 		// Delete uploaded user avatars.
 		static::delete_uploaded_avatars();
@@ -125,10 +126,11 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	/**
 	 * Deletes all cached files.
 	 *
-	 * @since 2.1.0 Visibility changed to protected.
+	 * @since 2.1.0 Visibility changed to protected, parameter $file_cache added.
+	 *
+	 * @param Filesystem_Cache $file_cache A fileystem cache handler.
 	 */
-	protected static function delete_cached_files() {
-		$file_cache = new Filesystem_Cache();
+	protected static function delete_cached_files( Filesystem_Cache $file_cache ) {
 		$file_cache->invalidate();
 	}
 
