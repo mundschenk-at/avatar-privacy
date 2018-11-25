@@ -184,11 +184,13 @@ class User_Profile implements \Avatar_Privacy\Component {
 	/**
 	 * Retrieves the markup for the `use_gravatar` checkbox.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  \WP_User $user The profile user.
 	 *
 	 * @return string
 	 */
-	private function get_use_gravatar_markup( \WP_User $user ) {
+	protected function get_use_gravatar_markup( \WP_User $user ) {
 		$use_gravatar    = 'true' === \get_user_meta( $user->ID, Core::GRAVATAR_USE_META_KEY, true );
 		$allow_anonymous = 'true' === \get_user_meta( $user->ID, Core::ALLOW_ANONYMOUS_META_KEY, true );
 
