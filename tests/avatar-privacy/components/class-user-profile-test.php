@@ -163,7 +163,7 @@ class User_Profile_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_admin_head() {
 		$this->assertNull( $this->sut->admin_head() );
-		// $this->assertAttributeSame( true, 'buffering', $this->sut );
+		$this->assertAttributeSame( true, 'buffering', $this->sut );
 
 		// Clean up.
 		\ob_end_flush();
@@ -177,10 +177,10 @@ class User_Profile_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_admin_footer() {
 		// Fake settings_head.
 		\ob_start();
-		//$this->setValue( $this->sut, 'buffering', true, User_Profile::class );
+		$this->setValue( $this->sut, 'buffering', true, User_Profile::class );
 
 		$this->assertNull( $this->sut->admin_footer() );
-		//$this->assertAttributeSame( false, 'buffering', $this->sut );
+		$this->assertAttributeSame( false, 'buffering', $this->sut );
 	}
 
 	/**
