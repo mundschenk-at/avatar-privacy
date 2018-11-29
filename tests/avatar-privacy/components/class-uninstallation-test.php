@@ -231,21 +231,17 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::delete_options.
 	 *
 	 * @covers ::delete_options
-	 *
-	 * @uses Avatar_Privacy\Components\Setup::reset_avatar_default
 	 */
 	public function test_delete_options() {
 		$options         = m::mock( Options::class );
 		$network_options = m::mock( Network_Options::class );
 
 		$options->shouldReceive( 'delete' )->once()->with( Core::SETTINGS_NAME );
+		$options->shouldReceive( 'reset_avatar_default' )->once();
 
 		Functions\expect( 'is_multisite' )->once()->andReturn( false );
 
 		$network_options->shouldReceive( 'delete' )->once()->with( Network_Options::USE_GLOBAL_TABLE );
-
-		// This is from reset_default_avatar.
-		$options->shouldReceive( 'get' )->once()->andReturn( 'foo' );
 
 		$this->assertNull( $this->sut->delete_options( $options, $network_options ) );
 	}
@@ -254,8 +250,6 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::delete_options.
 	 *
 	 * @covers ::delete_options
-	 *
-	 * @uses Avatar_Privacy\Components\Setup::reset_avatar_default
 	 */
 	public function test_delete_options_multisite() {
 		$options         = m::mock( Options::class );
@@ -268,11 +262,9 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'switch_to_blog' )->times( $site_count )->with( m::type( 'int' ) );
 		Functions\expect( 'restore_current_blog' )->times( $site_count );
 
-		// This is from reset_default_avatar.
-		$options->shouldReceive( 'get' )->times( $site_count + 1 )->andReturn( 'foo' );
-
 		// FIXME: The main site is included!
 		$options->shouldReceive( 'delete' )->times( $site_count + 1 )->with( Core::SETTINGS_NAME );
+		$options->shouldReceive( 'reset_avatar_default' )->times( $site_count + 1 );
 		$network_options->shouldReceive( 'delete' )->once()->with( Network_Options::USE_GLOBAL_TABLE );
 
 		$this->assertNull( $this->sut->delete_options( $options, $network_options ) );

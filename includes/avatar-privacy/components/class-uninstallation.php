@@ -174,7 +174,7 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	protected static function delete_options( Options $options, Network_Options $network_options ) {
 		// Delete/change options for main blog.
 		$options->delete( Core::SETTINGS_NAME );
-		Setup::reset_avatar_default( $options );
+		$options->reset_avatar_default();
 
 		// Delete/change options for all other blogs (multisite).
 		if ( \is_multisite() ) {
@@ -185,7 +185,7 @@ class Uninstallation implements \Avatar_Privacy\Component {
 				$options->delete( Core::SETTINGS_NAME );
 
 				// Reset avatar_default to working value if necessary.
-				Setup::reset_avatar_default( $options );
+				$options->reset_avatar_default();
 
 				\restore_current_blog();
 			}

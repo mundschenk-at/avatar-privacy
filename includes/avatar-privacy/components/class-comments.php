@@ -43,6 +43,13 @@ class Comments implements \Avatar_Privacy\Component {
 	const CHECKBOX_FIELD_NAME = 'use_gravatar';
 
 	/**
+	 * The prefix of the comment cookie (COOKIEHASH is added at the end).
+	 *
+	 * @var string
+	 */
+	const COOKIE_PREFIX = 'comment_use_gravatar_';
+
+	/**
 	 * The core API.
 	 *
 	 * @var Core
@@ -246,7 +253,7 @@ class Comments implements \Avatar_Privacy\Component {
 
 		if ( false === $cookies_consent ) {
 			// Remove any existing cookie.
-			\setcookie( 'comment_use_gravatar_' . COOKIEHASH, 0, time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+			\setcookie( self::COOKIE_PREFIX . COOKIEHASH, 0, time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
 			return;
 		}
 
@@ -257,6 +264,6 @@ class Comments implements \Avatar_Privacy\Component {
 		/** This filter is documented in wp-includes/comment.php */
 		$comment_cookie_lifetime = \apply_filters( 'comment_cookie_lifetime', 30000000 );
 		$secure                  = ( 'https' === \wp_parse_url( \home_url(), PHP_URL_SCHEME ) );
-		\setcookie( 'comment_use_gravatar_' . COOKIEHASH, $use_gravatar, \time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN, $secure );
+		\setcookie( self::COOKIE_PREFIX . COOKIEHASH, $use_gravatar, \time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN, $secure );
 	}
 }
