@@ -313,10 +313,13 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 		$execute = true;
 		$result  = [ 'foo' ];
 
-		// Function undefined.
-		$this->expectOutputString( 'UPGRADE_PHP' );
-		$this->expectExceptionMessage( 'Call to undefined function dbDelta()' );
-		$this->assertSame( $result, $this->sut->db_delta( $queries, $execute ) );
+		// Does not work on PHP 5.6.
+		if ( \version_compare( \phpversion(), '7.0', '>=' ) ) {
+			// Function undefined.
+			$this->expectOutputString( 'UPGRADE_PHP' );
+			$this->expectExceptionMessage( 'Call to undefined function dbDelta()' );
+			$this->assertSame( $result, $this->sut->db_delta( $queries, $execute ) );
+		}
 
 		// Function defined.
 		Functions\expect( 'dbDelta' )->once()->with( $queries, $execute )->andReturn( $result );
