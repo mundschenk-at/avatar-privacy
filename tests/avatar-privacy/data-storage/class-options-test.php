@@ -43,6 +43,13 @@ use Avatar_Privacy\Data_Storage\Options;
 class Options_Test extends \Avatar_Privacy\Tests\TestCase {
 
 	/**
+	 * The system-under-test.
+	 *
+	 * @var \Avatar_Privacy\Data_Storage\Options
+	 */
+	private $sut;
+
+	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
@@ -50,6 +57,8 @@ class Options_Test extends \Avatar_Privacy\Tests\TestCase {
 		parent::setUp();
 
 		Functions\when( '__' )->returnArg();
+
+		$this->sut = m::mock( Options::class )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -61,5 +70,48 @@ class Options_Test extends \Avatar_Privacy\Tests\TestCase {
 		$result = new Options();
 
 		$this->assertAttributeSame( Options::PREFIX, 'prefix', $result );
+	}
+
+	/**
+	 * Provides data for testing reset_avatar_default.
+	 *
+	 * @return array
+	 */
+	public function provide_reset_avatar_default_data() {
+		return [
+			[ 'rings', true ],
+			[ 'comment', true ],
+			[ 'bubble', true ],
+			[ 'bubble', true ],
+			[ 'im-user-offline', true ],
+			[ 'bowling-pin', true ],
+			[ 'view-media-artist', true ],
+			[ 'silhouette', true ],
+			[ 'custom', true ],
+			[ 'mystery', false ],
+			[ 'foobar', false ],
+		];
+	}
+
+	/**
+	 * Tests ::reset_avatar_default.
+	 *
+	 * @covers ::reset_avatar_default
+	 *
+	 * @dataProvider provide_reset_avatar_default_data
+	 *
+	 * @param  string $old_default The old value of `avatar_default`.
+	 * @param  bool   $reset       Whether the value should be reset.
+	 */
+	public function test_reset_avatar_default( $old_default, $reset ) {
+		$this->sut->shouldReceive( 'get' )->once()->with( 'avatar_default', null, true )->andReturn( $old_default );
+
+		if ( $reset ) {
+			$this->sut->shouldReceive( 'set' )->once()->with( 'avatar_default', 'mystery', true, true );
+		} else {
+			$this->sut->shouldReceive( 'set' )->never();
+		}
+
+		$this->assertNull( $this->sut->reset_avatar_default() );
 	}
 }

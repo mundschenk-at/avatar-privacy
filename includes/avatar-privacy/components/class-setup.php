@@ -241,28 +241,8 @@ class Setup implements \Avatar_Privacy\Component {
 	 */
 	public function deactivate() {
 		$this->disable_cron_jobs();
-		static::reset_avatar_default( $this->options );
+		$this->options->reset_avatar_default();
 		\flush_rewrite_rules();
-	}
-
-	/**
-	 * Resets the `avatar_default` option to a safe value.
-	 *
-	 * @param Options $options The Options handler.
-	 */
-	public static function reset_avatar_default( Options $options ) {
-		switch ( $options->get( 'avatar_default', null, true ) ) {
-			case 'rings':
-			case 'comment':
-			case 'bubble':
-			case 'im-user-offline':
-			case 'bowling-pin':
-			case 'view-media-artist':
-			case 'silhouette':
-			case 'custom':
-				$options->set( 'avatar_default', 'mystery', true, true );
-				break;
-		}
 	}
 
 	/**

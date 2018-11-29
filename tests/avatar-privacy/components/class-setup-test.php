@@ -323,52 +323,9 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_deactivate() {
 		$this->sut->shouldReceive( 'disable_cron_jobs' )->once();
 		Functions\expect( 'flush_rewrite_rules' )->once();
-		$this->sut->shouldReceive( 'reset_avatar_default' )->once()->with( $this->options );
+		$this->options->shouldReceive( 'reset_avatar_default' )->once();
 
 		$this->assertNull( $this->sut->deactivate() );
-	}
-
-	/**
-	 * Provides data for testing reset_avatar_default.
-	 *
-	 * @return array
-	 */
-	public function provide_reset_avatar_default_data() {
-		return [
-			[ 'rings', true ],
-			[ 'comment', true ],
-			[ 'bubble', true ],
-			[ 'bubble', true ],
-			[ 'im-user-offline', true ],
-			[ 'bowling-pin', true ],
-			[ 'view-media-artist', true ],
-			[ 'silhouette', true ],
-			[ 'custom', true ],
-			[ 'mystery', false ],
-			[ 'foobar', false ],
-		];
-	}
-
-	/**
-	 * Tests ::reset_avatar_default.
-	 *
-	 * @covers ::reset_avatar_default
-	 *
-	 * @dataProvider provide_reset_avatar_default_data
-	 *
-	 * @param  string $old_default The old value of `avatar_default`.
-	 * @param  bool   $reset       Whether the value should be reset.
-	 */
-	public function test_reset_avatar_default( $old_default, $reset ) {
-		$this->options->shouldReceive( 'get' )->once()->with( 'avatar_default', null, true )->andReturn( $old_default );
-
-		if ( $reset ) {
-			$this->options->shouldReceive( 'set' )->once()->with( 'avatar_default', 'mystery', true, true );
-		} else {
-			$this->options->shouldReceive( 'set' )->never();
-		}
-
-		$this->assertNull( $this->sut->reset_avatar_default( $this->options ) );
 	}
 
 	/**
