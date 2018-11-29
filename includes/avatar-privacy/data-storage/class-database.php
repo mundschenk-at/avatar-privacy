@@ -89,7 +89,7 @@ class Database {
 	protected function table_exists( $table_name ) {
 		global $wpdb;
 
-		return $table_name === $wpdb->get_var( $wpdb->prepare( 'SHOW tables LIKE %s', $table_name ) ); // WPCS: db call ok, cache ok.
+		return $table_name === $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) ); // WPCS: db call ok, cache ok.
 	}
 
 	/**
