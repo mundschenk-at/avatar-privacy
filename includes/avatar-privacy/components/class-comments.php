@@ -109,25 +109,6 @@ class Comments implements \Avatar_Privacy\Component {
 		// Define the new checkbox field.
 		$new_field = self::get_gravatar_checkbox( $this->plugin_file );
 
-		if ( isset( $fields['cookies'] ) ) {
-			// If the `cookies` field exists, add the checkbox just before.
-			$insertion_point = 'cookies';
-			$before_or_after = 'before';
-		} elseif ( isset( $fields['url'] ) ) {
-			// Otherwise, if the `url` field exists, add our checkbox after it.
-			$insertion_point = 'url';
-			$before_or_after = 'after';
-		} elseif ( isset( $fields['email'] ) ) {
-			// Otherwise, look for the `email` field and add the checkbox after that.
-			$insertion_point = 'email';
-			$before_or_after = 'after';
-		} else {
-			// As a last ressort, add the checkbox after all the other fields.
-			\end( $fields );
-			$insertion_point = \key( $fields );
-			$before_or_after = 'after';
-		}
-
 		/**
 		 * Filters the insert position for the `use_gravatar` checkbox.
 		 *
@@ -140,7 +121,7 @@ class Comments implements \Avatar_Privacy\Component {
 		 *     @type string $insertion_point The index ('url', 'email', etc.) of the field where the checkbox should be inserted.
 		 * }
 		 */
-		list( $before_or_after, $insertion_point ) = \apply_filters( 'avatar_privacy_use_gravatar_position', [ $before_or_after, $insertion_point ] );
+		list( $before_or_after, $insertion_point ) = \apply_filters( 'avatar_privacy_use_gravatar_position', $this->get_position( $fields ) );
 
 		if ( isset( $fields[ $insertion_point ] ) ) {
 			$result = [];
@@ -163,6 +144,43 @@ class Comments implements \Avatar_Privacy\Component {
 		}
 
 		return $fields;
+	}
+
+	/**
+	 * Determines position for inserting the `use_gravatar` field.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param  string[] $fields The array of comment fields.
+	 *
+	 * @return string[] $position {
+	 *     Where to insert the checkbox.
+	 *
+	 *     @type string $before_or_after Either 'before' or 'after'.
+	 *     @type string $field           The index ('url', 'email', etc.) of the field where the checkbox should be inserted.
+	 * }
+	 */
+	protected function get_position( array $fields ) {
+		if ( isset( $fields['cookies'] ) ) {
+			// If the `cookies` field exists, add the checkbox just before.
+			$before_or_after = 'before';
+			$field           = 'cookies';
+		} elseif ( isset( $fields['url'] ) ) {
+			// Otherwise, if the `url` field exists, add our checkbox after it.
+			$before_or_after = 'after';
+			$field           = 'url';
+		} elseif ( isset( $fields['email'] ) ) {
+			// Otherwise, look for the `email` field and add the checkbox after that.
+			$before_or_after = 'after';
+			$field           = 'email';
+		} else {
+			// As a last ressort, add the checkbox after all the other fields.
+			\end( $fields );
+			$before_or_after = 'after';
+			$field           = \key( $fields );
+		}
+
+		return [ $before_or_after, $field ];
 	}
 
 	/**

@@ -33,11 +33,14 @@ use Mundschenk\UI\Controls;
 /**
  * Default configuration for Avatar Privacy.
  *
+ * @internal
+ *
  * @since 2.0.0
+ * @since 2.1.0 Class made concrete and marked internal.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-abstract class Settings {
+class Settings {
 
 	/**
 	 * The options array index of the custom default avatar image.
@@ -65,21 +68,21 @@ abstract class Settings {
 	 *
 	 * @var array
 	 */
-	private static $defaults;
+	private $defaults;
 
 	/**
 	 * The fields definition array.
 	 *
 	 * @var array
 	 */
-	private static $fields;
+	private $fields;
 
 	/**
 	 * The cached information header markup.
 	 *
 	 * @var string
 	 */
-	private static $information_header;
+	private $information_header;
 
 	/**
 	 * Retrieves the settings field definitions.
@@ -88,9 +91,9 @@ abstract class Settings {
 	 *
 	 * @return array
 	 */
-	public static function get_fields( $information_header = '' ) {
-		if ( empty( self::$fields ) ) {
-			self::$fields = [ // @codeCoverageIgnore
+	public function get_fields( $information_header = '' ) {
+		if ( empty( $this->fields ) ) {
+			$this->fields = [ // @codeCoverageIgnore
 				self::UPLOAD_CUSTOM_DEFAULT_AVATAR => [
 					'ui'             => \Avatar_Privacy\Upload_Handlers\UI\File_Upload_Input::class,
 					'tab_id'         => '', // Will be added to the 'discussions' page.
@@ -127,12 +130,12 @@ abstract class Settings {
 		}
 
 		// Allow calls where the information header is not relevant by caching it separately.
-		if ( ! empty( $information_header ) && $information_header !== self::$information_header ) {
-			self::$fields[ self::INFORMATION_HEADER ]['elements'] = [ $information_header ];
-			self::$information_header                             = $information_header;
+		if ( ! empty( $information_header ) && $information_header !== $this->information_header ) {
+			$this->fields[ self::INFORMATION_HEADER ]['elements'] = [ $information_header ];
+			$this->information_header                             = $information_header;
 		}
 
-		return self::$fields;
+		return $this->fields;
 	}
 
 	/**
@@ -140,18 +143,18 @@ abstract class Settings {
 	 *
 	 * @return array
 	 */
-	public static function get_defaults() {
-		if ( empty( self::$defaults ) ) {
+	public function get_defaults() {
+		if ( empty( $this->defaults ) ) {
 			$defaults = [];
-			foreach ( self::get_fields() as $index => $field ) {
+			foreach ( $this->get_fields() as $index => $field ) {
 				if ( isset( $field['default'] ) ) {
 					$defaults[ $index ] = $field['default'];
 				}
 			}
 
-			self::$defaults = $defaults;
+			$this->defaults = $defaults;
 		}
 
-		return self::$defaults;
+		return $this->defaults;
 	}
 }

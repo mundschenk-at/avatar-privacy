@@ -142,20 +142,22 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	/**
 	 * Handles upload errors and prints appropriate notices.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  array $result The result of \wp_handle_upload().
 	 */
-	private function handle_errors( array $result ) {
+	protected function handle_errors( array $result ) {
 		switch ( $result['error'] ) {
 			case 'Sorry, this file type is not permitted for security reasons.':
-				\add_action( 'user_profile_update_errors', function( \WP_Error $errors ) {
-					$errors->add( 'avatar_error', \__( 'Please upload a valid PNG, GIF or JPEG image for the avatar.', 'avatar-privacy' ) );
-				} );
+				\add_action( 'user_profile_update_errors', function( \WP_Error $errors ) { // phpcs:ignore PEAR.Functions.FunctionCallSignature.MultipleArguments,PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket
+					$errors->add( 'avatar_error', \__( 'Please upload a valid PNG, GIF or JPEG image for the avatar.', 'avatar-privacy' ) ); // @codeCoverageIgnore
+				} ); // phpcs:ignore PEAR.Functions.FunctionCallSignature.CloseBracketLine
 				break;
 
 			default:
-				\add_action( 'user_profile_update_errors', function( \WP_Error $errors ) use ( $result ) {
-					$errors->add( 'avatar_error', \sprintf( '<strong>%s</strong> %s', \__( 'There was an error uploading the avatar: ', 'avatar-privacy' ), \esc_attr( $result['error'] ) ) );
-				} );
+				\add_action( 'user_profile_update_errors', function( \WP_Error $errors ) use ( $result ) { // phpcs:ignore PEAR.Functions.FunctionCallSignature.MultipleArguments,PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket
+					$errors->add( 'avatar_error', \sprintf( '<strong>%s</strong> %s', \__( 'There was an error uploading the avatar: ', 'avatar-privacy' ), \esc_attr( $result['error'] ) ) ); // @codeCoverageIgnore
+				} ); // phpcs:ignore PEAR.Functions.FunctionCallSignature.CloseBracketLine
 		}
 	}
 
@@ -181,10 +183,13 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 * @param  int $user_id The user ID.
 	 */
 	public function delete_uploaded_avatar( $user_id ) {
+		// Invalidate cached avatar images.
 		$hash = $this->core->get_user_hash( $user_id );
+		if ( ! empty( $hash ) ) {
+			$this->file_cache->invalidate( 'user', "#/{$hash}-[1-9][0-9]*\.[a-z]{3}\$#" );
+		}
 
-		$this->file_cache->invalidate( 'user', "#/{$hash}-[1-9][0-9]*\.[a-z]{3}\$#" );
-
+		// Delete original upload.
 		$avatar = \get_user_meta( $user_id, self::USER_META_KEY, true );
 		if ( ! empty( $avatar['file'] ) && \file_exists( $avatar['file'] ) && \unlink( $avatar['file'] ) ) {
 			\delete_user_meta( $user_id, self::USER_META_KEY );

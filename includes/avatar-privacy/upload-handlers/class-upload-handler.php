@@ -100,11 +100,12 @@ abstract class Upload_Handler {
 	 * @return string
 	 */
 	public function get_unique_filename( $directory, $filename, $extension ) {
-		$number    = 1;
-		$base_name = \preg_replace( "/{$extension}\$/", '', $filename, 1 );
+		$number   = 1;
+		$basename = \basename( $filename, $extension );
+		$filename = $basename;
 
 		while ( \file_exists( "$directory/{$filename}{$extension}" ) ) {
-			$filename = "{$base_name}_{$number}";
+			$filename = "{$basename}_{$number}";
 			$number++;
 		}
 
@@ -122,7 +123,7 @@ abstract class Upload_Handler {
 	protected function upload( array $file, $global = false ) {
 		// Enable front end support.
 		if ( ! function_exists( 'wp_handle_upload' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php';
+			require_once ABSPATH . 'wp-admin/includes/file.php'; // @codeCoverageIgnore
 		}
 
 		// Switch to primary site if this should be a global upload.
@@ -130,12 +131,20 @@ abstract class Upload_Handler {
 			\switch_to_blog( \get_network()->site_id );
 		}
 
+		// Ensure custom upload directory.
 		\add_filter( 'upload_dir', [ $this, 'custom_upload_dir' ] );
-		$result = \wp_handle_upload( $file, [
+
+		// Prepare arguments.
+		$args = [
 			'mimes'                    => self::ALLOWED_MIME_TYPES,
 			'test_form'                => false,
 			'unique_filename_callback' => [ $this, 'get_unique_filename' ],
-		] );
+		];
+
+		// Move uploaded file.
+		$result = \wp_handle_upload( $file, $args );
+
+		// Restore standard upload directory.
 		\remove_filter( 'upload_dir', [ $this, 'custom_upload_dir' ] );
 
 		// Switch back to current site.

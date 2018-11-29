@@ -144,14 +144,15 @@ class Gravatar_Cache_Handler implements Avatar_Handler {
 	 * @return string
 	 */
 	public function get_url( $url, $hash, $size, array $args ) {
-		$args = \wp_parse_args( $args, [
+		$defaults = [
 			'user_id'  => false,
 			'email'    => '',
 			'rating'   => 'g',
 			'mimetype' => Images\Type::PNG_IMAGE,
 			'force'    => false,
-		] );
+		];
 
+		$args     = \wp_parse_args( $args, $defaults );
 		$subdir   = $this->get_sub_dir( $hash, false !== $args['user_id'] );
 		$filename = "gravatar/{$subdir}/{$hash}-{$size}." . Images\Type::FILE_EXTENSION[ $args['mimetype'] ];
 
@@ -227,12 +228,15 @@ class Gravatar_Cache_Handler implements Avatar_Handler {
 			return false;
 		}
 
-		// Try to cache the icon.
-		return ! empty( $this->get_url( '', $hash, $size, [
+		// Prepare arguments.
+		$args = [
 			'user_id'  => $user_id,
 			'email'    => $email,
 			'rating'   => $this->options->get( 'avatar_rating', 'g', true ),
 			'mimetype' => Images\Type::CONTENT_TYPE[ $extension ],
-		] ) );
+		];
+
+		// Try to cache the icon.
+		return ! empty( $this->get_url( '', $hash, $size, $args ) );
 	}
 }

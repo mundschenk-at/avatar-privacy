@@ -129,9 +129,11 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	/**
 	 * Handles upload errors and prints appropriate notices.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  array $result The result of \wp_handle_upload().
 	 */
-	private function handle_errors( array $result ) {
+	protected function handle_errors( array $result ) {
 		$id = $this->options->get_name( Core::SETTINGS_NAME ) . '[' . Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR . ']';
 		switch ( $result['error'] ) {
 			case 'Sorry, this file type is not permitted for security reasons.':

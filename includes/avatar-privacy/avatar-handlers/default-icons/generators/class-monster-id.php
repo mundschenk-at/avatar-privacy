@@ -41,6 +41,15 @@ use function Scriptura\Color\Helpers\HSLtoRGB;
 class Monster_ID extends PNG_Generator {
 	const SIZE = 120;
 
+	const EMPTY_PARTS_LIST = [
+		'legs'  => [],
+		'hair'  => [],
+		'arms'  => [],
+		'body'  => [],
+		'eyes'  => [],
+		'mouth' => [],
+	];
+
 	const SAME_COLOR_PARTS     = [
 		'arms_S8.png'  => true,
 		'legs_S5.png'  => true,
@@ -282,14 +291,7 @@ class Monster_ID extends PNG_Generator {
 	 * @return string|array
 	 */
 	private function get_parts_dimensions( $text = false ) {
-		$parts = $this->locate_parts( [
-			'legs'  => [],
-			'hair'  => [],
-			'arms'  => [],
-			'body'  => [],
-			'eyes'  => [],
-			'mouth' => [],
-		] );
+		$parts = $this->locate_parts( self::EMPTY_PARTS_LIST );
 
 		$bounds      = [];
 		$result_text = '';
@@ -297,24 +299,24 @@ class Monster_ID extends PNG_Generator {
 		foreach ( $parts as $key => $value ) {
 			foreach ( $value as $part ) {
 				$file    = "{$this->parts_dir}/{$part}";
-				$im      = imagecreatefrompng( $file );
-				$imgw    = imagesx( $im );
-				$imgh    = imagesy( $im );
+				$im      = @\imagecreatefrompng( $file );
+				$imgw    = \imagesx( $im );
+				$imgh    = \imagesy( $im );
 				$xbounds = [ 999999, 0 ];
 				$ybounds = [ 999999, 0 ];
 				for ( $i = 0;$i < $imgw;$i++ ) {
 					for ( $j = 0;$j < $imgh;$j++ ) {
-						$rgb       = ImageColorAt( $im, $i, $j );
+						$rgb       = \ImageColorAt( $im, $i, $j );
 						$r         = ( $rgb >> 16 ) & 0xFF;
 						$g         = ( $rgb >> 8 ) & 0xFF;
 						$b         = $rgb & 0xFF;
 						$alpha     = ( $rgb & 0x7F000000 ) >> 24;
 						$lightness = ( $r + $g + $b ) / 3 / 255 * self::PERCENT;
 						if ( $lightness > 10 && $lightness < 99 && $alpha < 115 ) {
-							$xbounds[0] = min( $xbounds[0],$i );
-							$xbounds[1] = max( $xbounds[1],$i );
-							$ybounds[0] = min( $ybounds[0],$j );
-							$ybounds[1] = max( $ybounds[1],$j );
+							$xbounds[0] = \min( $xbounds[0],$i );
+							$xbounds[1] = \max( $xbounds[1],$i );
+							$ybounds[0] = \min( $ybounds[0],$j );
+							$ybounds[1] = \max( $ybounds[1],$j );
 						}
 					}
 				}
@@ -344,14 +346,7 @@ class Monster_ID extends PNG_Generator {
 		$id = \substr( $seed, 0, 8 );
 
 		// Get possible parts files.
-		$parts_array = $this->locate_parts( [
-			'legs'  => [],
-			'hair'  => [],
-			'arms'  => [],
-			'body'  => [],
-			'eyes'  => [],
-			'mouth' => [],
-		] );
+		$parts_array = $this->locate_parts( self::EMPTY_PARTS_LIST );
 
 		// Set randomness.
 		\mt_srand( (int) \hexdec( $id ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand -- we need deterministic "randomness".
@@ -362,7 +357,7 @@ class Monster_ID extends PNG_Generator {
 		}
 
 		// Create background.
-		$monster = @\imagecreatefrompng( "{$this->parts_dir}/back.png" ); // phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
+		$monster = @\imagecreatefrompng( "{$this->parts_dir}/back.png" );
 		if ( false === $monster ) {
 			return false; // Something went wrong but don't want to mess up blog layout.
 		}
@@ -377,7 +372,7 @@ class Monster_ID extends PNG_Generator {
 
 		// Add parts.
 		foreach ( $parts_array as $part => $file ) {
-			$im = @\imagecreatefrompng( "{$this->parts_dir}/{$file}" ); // phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
+			$im = @\imagecreatefrompng( "{$this->parts_dir}/{$file}" );
 			if ( ! $im ) {
 				return false; // Something went wrong but don't want to mess up blog layout.
 			}
@@ -405,9 +400,7 @@ class Monster_ID extends PNG_Generator {
 		\mt_srand(); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand
 
 		// Resize if necessary.
-		return Images\Editor::get_resized_image_data(
-			Images\Editor::create_from_image_resource( $monster ), $size, $size, false, 'image/png'
-		);
+		return Images\Editor::get_resized_image_data( Images\Editor::create_from_image_resource( $monster ), $size, $size, false, 'image/png' );
 	}
 
 	/**
