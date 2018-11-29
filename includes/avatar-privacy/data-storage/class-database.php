@@ -175,7 +175,7 @@ class Database {
 	protected function db_delta( $queries, $execute = true ) {
 		if ( ! function_exists( 'dbDelta' ) ) {
 			// Load upgrade.php for the dbDelta function.
-			require_once ABSPATH . '/wp-admin/includes/upgrade.php';
+			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		}
 
 		return \dbDelta( $queries, $execute );
