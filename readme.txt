@@ -3,11 +3,11 @@ Contributors: Ammaletu, pputzer
 Plugin Name: Avatar Privacy
 Plugin URI: https://code.mundschenk.at/avatar-privacy/
 Author URI: https://code.mundschenk.at/
-Tags: gravatar, avatar, privacy, bbpress
+Tags: gravatar, avatar, privacy, caching, bbpress
 Requires at least: 4.6
 Requires PHP: 5.6
-Tested up to: 4.9
-Stable tag: 2.0.2
+Tested up to: 5.0
+Stable tag: 2.0.3
 License: GPLv2 or later
 
 Enhances the privacy of your users and visitors with gravatar opt-in and local avatars.
@@ -133,6 +133,9 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 
 == Changelog ==
+
+= 2.0.3 (2018-11-30) =
+* _Bugfix_: Prevent warnings when trying to retrieve the avatar for an invalid user ID.
 
 = 2.0.2 (2018-09-09) =
 * _Bugfix_: Updated included libraries for improved compatibility with other plugins.
