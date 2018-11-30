@@ -83,13 +83,19 @@ class User_Profile implements \Avatar_Privacy\Component {
 	 */
 	private $markup;
 
-
 	/**
 	 * The avatar upload handler.
 	 *
 	 * @var User_Avatar_Upload_Handler
 	 */
 	private $upload;
+
+	/**
+	 * Indiciates whether the settings page is buffering its output.
+	 *
+	 * @var bool
+	 */
+	private $buffering;
 
 	/**
 	 * Creates a new instance.
@@ -100,6 +106,7 @@ class User_Profile implements \Avatar_Privacy\Component {
 	public function __construct( $plugin_file, User_Avatar_Upload_Handler $upload ) {
 		$this->plugin_file = $plugin_file;
 		$this->upload      = $upload;
+		$this->buffering   = false;
 	}
 
 	/**
@@ -135,7 +142,9 @@ class User_Profile implements \Avatar_Privacy\Component {
 	 * Enables output buffering.
 	 */
 	public function admin_head() {
-		\ob_start( [ $this, 'replace_profile_picture_section' ] );
+		if ( \ob_start( [ $this, 'replace_profile_picture_section' ] ) ) {
+			$this->buffering = true;
+		}
 	}
 
 	/**
@@ -143,8 +152,9 @@ class User_Profile implements \Avatar_Privacy\Component {
 	 */
 	public function admin_footer() {
 		// Clean up output buffering.
-		if ( \ob_get_level() > 0 ) {
+		if ( $this->buffering && \ob_get_level() > 0 ) {
 			\ob_end_flush();
+			$this->buffering = false;
 		}
 	}
 
@@ -184,11 +194,13 @@ class User_Profile implements \Avatar_Privacy\Component {
 	/**
 	 * Retrieves the markup for the `use_gravatar` checkbox.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  \WP_User $user The profile user.
 	 *
 	 * @return string
 	 */
-	private function get_use_gravatar_markup( \WP_User $user ) {
+	protected function get_use_gravatar_markup( \WP_User $user ) {
 		$use_gravatar    = 'true' === \get_user_meta( $user->ID, Core::GRAVATAR_USE_META_KEY, true );
 		$allow_anonymous = 'true' === \get_user_meta( $user->ID, Core::ALLOW_ANONYMOUS_META_KEY, true );
 

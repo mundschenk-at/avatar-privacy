@@ -141,9 +141,9 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		list( $user_id, $email, $age ) = $this->parse_id_or_email( $id_or_email );
 
 		// Generate the hash.
-		$hash = ! empty( $user_id ) ? $this->core->get_user_hash( $user_id ) : $this->core->get_hash( $email );
+		$hash = $this->core->get_user_hash( (int) $user_id ) ?: $this->core->get_hash( $email );
 
-		if ( ! $force_default && $user_id ) {
+		if ( ! $force_default && ! empty( $user_id ) ) {
 			// Fetch local avatar from meta and make sure it's properly stzed.
 			$args['url'] = $this->get_local_avatar_url( $user_id, $hash, $args['size'] );
 			if ( ! empty( $args['url'] ) ) {
@@ -151,6 +151,11 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 				return $args;
 			}
 		}
+
+		// Prepare filter arguments.
+		$filter_args = [
+			'default' => $args['default'],
+		];
 
 		/**
 		 * Filters the default icon URL for the given e-mail.
@@ -164,15 +169,21 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		 *     @type string $default The default icon type.
 		 * }
 		 */
-		$url = \apply_filters( 'avatar_privacy_default_icon_url', \includes_url( 'images/blank.gif' ), $hash, $args['size'], [
-			'default' => $args['default'],
-		] );
+		$url = \apply_filters( 'avatar_privacy_default_icon_url', \includes_url( 'images/blank.gif' ), $hash, $args['size'], $filter_args );
 
 		// Maybe display a gravatar.
 		if ( ! $force_default && $this->should_show_gravatar( $user_id, $email, $id_or_email, $age, $mimetype ) ) {
 			if ( empty( $mimetype ) ) {
 				$mimetype = Images\Type::PNG_IMAGE;
 			}
+
+			// Prepare filter arguments.
+			$filter_args = [
+				'user_id'  => $user_id,
+				'email'    => $email,
+				'rating'   => $args['rating'],
+				'mimetype' => $mimetype,
+			];
 
 			/**
 			 * Filters the Gravatar.com URL for the given e-mail.
@@ -189,12 +200,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			 *     @type string    $mimetype The expected MIME type of the Gravatar image.
 			 * }
 			 */
-			$url = \apply_filters( 'avatar_privacy_gravatar_icon_url', $url, $hash, $args['size'], [
-				'user_id'  => $user_id,
-				'email'    => $email,
-				'rating'   => $args['rating'],
-				'mimetype' => $mimetype,
-			] );
+			$url = \apply_filters( 'avatar_privacy_gravatar_icon_url', $url, $hash, $args['size'], $filter_args );
 		}
 
 		$args['url'] = $url;
@@ -205,6 +211,8 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	/**
 	 * Determines if we should go for a gravatar.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param int|false         $user_id     A WordPress user ID (or false).
 	 * @param string            $email       The email address.
 	 * @param int|string|object $id_or_email The Gravatar to retrieve. Accepts a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
@@ -213,7 +221,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 *
 	 * @return bool
 	 */
-	private function should_show_gravatar( $user_id, $email, $id_or_email, $age, &$mimetype ) {
+	protected function should_show_gravatar( $user_id, $email, $id_or_email, $age, &$mimetype ) {
 		// Find out if the user opted into displaying a gravatar.
 		$show_gravatar = $this->determine_gravatar_policy( $user_id, $email, $id_or_email );
 
@@ -238,11 +246,13 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	/**
 	 * Parses e-mail address and/or user ID from $id_or_email.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  int|string|object $id_or_email The Gravatar to retrieve. Accepts a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
 	 *
 	 * @return array                          The tuple [ $user_id, $email, $age ],
 	 */
-	private function parse_id_or_email( $id_or_email ) {
+	protected function parse_id_or_email( $id_or_email ) {
 		$user_id = false;
 		$email   = '';
 		$age     = 0;
@@ -259,7 +269,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		} elseif ( $id_or_email instanceof \WP_Post ) {
 			// Post object.
 			$user_id = (int) $id_or_email->post_author;
-			$age     = \time() - \mysql2date( 'U', $id_or_email->post_date_gmt );
+			$age     = $this->get_age( $id_or_email->post_date_gmt );
 		} elseif ( $id_or_email instanceof \WP_Comment ) {
 			list( $user_id, $email, $age ) = $this->parse_comment( $id_or_email );
 		}
@@ -270,6 +280,8 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			// Prevent warnings when a user ID is invalid (e.g. because a user was deleted directly from the database).
 			if ( ! empty( $user ) ) {
 				$email = $user->user_email;
+			} else {
+				$user_id = false; // The user ID was invalid.
 			}
 		} elseif ( empty( $user_id ) && ! empty( $email ) ) {
 			// Check if anonymous comments "as user" are allowed.
@@ -297,6 +309,8 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	/**
 	 * Parse a WP_Comment object.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  \WP_Comment $comment A comment.
 	 *
 	 * @return array {
@@ -307,7 +321,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 *     @type int       $age     The seconds since the post or comment was first created, or 0 if $id_or_email was not one of these object types.
 	 * }
 	 */
-	private function parse_comment( \WP_Comment $comment ) {
+	protected function parse_comment( \WP_Comment $comment ) {
 		/** This filter is documented in wp-includes/pluggable.php */
 		$allowed_comment_types = \apply_filters( 'get_avatar_comment_types', [ 'comment' ] );
 
@@ -317,19 +331,33 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 
 		$user_id = false;
 		$email   = '';
+		$age     = $this->get_age( $comment->comment_date_gmt );
 		if ( ! empty( $comment->user_id ) ) {
 			$user_id = (int) $comment->user_id;
 		} elseif ( ! empty( $comment->comment_author_email ) ) {
 			$email = $comment->comment_author_email;
 		}
 
-		$age = \time() - \mysql2date( 'U', $comment->comment_date_gmt );
-
 		return [ $user_id, $email, $age ];
 	}
 
 	/**
+	 * Calculates the age (seconds before now) from a GMT-based date/time string.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param  string $date_gmt A date/time string in the GMT time zone.
+	 *
+	 * @return int              The age in seconds.
+	 */
+	protected function get_age( $date_gmt ) {
+		return \time() - \mysql2date( 'U', $date_gmt );
+	}
+
+	/**
 	 * Retrieves a URL pointing to the local avatar image of the appropriate size.
+	 *
+	 * @since 2.1.0 Visibility changed to protected.
 	 *
 	 * @param  int    $user_id The user ID.
 	 * @param  string $hash    The hashed mail address.
@@ -337,7 +365,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 *
 	 * @return string          The URL, or '' if no local avatar has been set.
 	 */
-	private function get_local_avatar_url( $user_id, $hash, $size ) {
+	protected function get_local_avatar_url( $user_id, $hash, $size ) {
 		// Bail if we haven't got a valid user ID.
 		if ( empty( $user_id ) ) {
 			return '';
@@ -347,6 +375,13 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		$url          = '';
 		$local_avatar = \get_user_meta( $user_id, User_Avatar_Upload_Handler::USER_META_KEY, true );
 		if ( ! empty( $local_avatar['file'] ) && ! empty( $local_avatar['type'] ) ) {
+			// Prepare filter arguments.
+			$args = [
+				'user_id'  => $user_id,
+				'avatar'   => $local_avatar['file'],
+				'mimetype' => $local_avatar['type'],
+			];
+
 			/**
 			 * Filters the uploaded avatar URL for the given user.
 			 *
@@ -361,11 +396,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			 *     @type string $mimetype The expected MIME type of the avatar image.
 			 * }
 			 */
-			$url = \apply_filters( 'avatar_privacy_user_avatar_icon_url', '', $hash, $size, [
-				'user_id'  => $user_id,
-				'avatar'   => $local_avatar['file'],
-				'mimetype' => $local_avatar['type'],
-			] );
+			$url = \apply_filters( 'avatar_privacy_user_avatar_icon_url', '', $hash, $size, $args );
 		}
 
 		return $url;
@@ -374,13 +405,15 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	/**
 	 * Determines the gravatar use policy.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  int|false         $user_id     A WordPress user ID (or false).
 	 * @param  string            $email       The email address.
 	 * @param  int|string|object $id_or_email The Gravatar to retrieve. Can be a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
 	 *
 	 * @return bool
 	 */
-	private function determine_gravatar_policy( $user_id, $email, $id_or_email ) {
+	protected function determine_gravatar_policy( $user_id, $email, $id_or_email ) {
 		$show_gravatar = false;
 		$use_default   = false;
 
@@ -394,7 +427,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			$show_gravatar = $this->core->comment_author_allows_gravatar_use( $email );
 
 			// Don't use the default policy for spam comments.
-			if ( ! $id_or_email instanceof \WP_Comment || ( 'spam' !== $id_or_email->comment_approved && 'trash' !== $id_or_email->comment_approved ) ) {
+			if ( ! $show_gravatar && ( ! $id_or_email instanceof \WP_Comment || ( 'spam' !== $id_or_email->comment_approved && 'trash' !== $id_or_email->comment_approved ) ) ) {
 				$use_default = ! $this->core->comment_author_has_gravatar_policy( $email );
 			}
 		}

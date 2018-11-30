@@ -54,4 +54,24 @@ class Options extends \Mundschenk\Data_Storage\Options {
 	public function __construct() {
 		parent::__construct( self::PREFIX );
 	}
+
+	/**
+	 * Resets the `avatar_default` option to a safe value.
+	 *
+	 * @since 2.1.0 Moved from \Avatar_Privacy\Components\Setup and made non-static.
+	 */
+	public function reset_avatar_default() {
+		switch ( $this->get( 'avatar_default', null, true ) ) {
+			case 'rings':
+			case 'comment':
+			case 'bubble':
+			case 'im-user-offline':
+			case 'bowling-pin':
+			case 'view-media-artist':
+			case 'silhouette':
+			case 'custom':
+				$this->set( 'avatar_default', 'mystery', true, true );
+				break;
+		}
+	}
 }

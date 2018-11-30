@@ -41,20 +41,27 @@
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^3.0",
-        "wp-coding-standards/wpcs": "^1.0",
-        "wimg/php-compatibility": "^8.0",
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.4"
+        "wp-coding-standards/wpcs": "^1.1",
+        "phpcompatibility/phpcompatibility-wp": "^2.0",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.4",
+        "phpunit/phpunit": "5.*||6.*||7.*",
+        "mikey179/vfsStream": "~1",
+        "brain/monkey": "^2.2"
     },
 
     "autoload": {
         "classmap": ["includes/"],
         "files": ["includes/avatar-privacy-functions.php"]
     },
+    "autoload-dev": {
+        "classmap": ["tests/"]
+    },
 
     "config": {
         "classmap-authoritative": false,
         "classloader-suffix": "AvatarPrivacy",
-        "autoloader-suffix": "AvatarPrivacy"
+        "autoloader-suffix": "AvatarPrivacy",
+        "process-timeout": 0
     },
 
     "minimum-stability": "dev",
@@ -63,6 +70,12 @@
     "scripts": {
         "phpcs": [
             "phpcs -p -s *.php includes/ --extensions=php"
+        ],
+        "test": [
+            "phpunit --testsuite AvatarPrivacy"
+        ],
+        "coverage": [
+            "phpunit --testsuite AvatarPrivacy --coverage-html tests/coverage"
         ],
         "build-wordpress": [
             "@composer require mundschenk-at/composer-for-wordpress=dev-master --no-update",

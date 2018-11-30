@@ -27,6 +27,7 @@
 use Dice\Dice;
 
 use Avatar_Privacy\Core;
+use Avatar_Privacy\Settings;
 
 use Avatar_Privacy\Upload_Handlers\Upload_Handler;
 
@@ -82,90 +83,80 @@ abstract class Avatar_Privacy_Factory {
 	 */
 	public static function get( $full_plugin_path ) {
 		if ( ! isset( self::$factory ) ) {
-			self::$factory = new Dice();
-
-			// Shared helpers.
-			self::$factory->addRule( Cache::class, self::SHARED );
-			self::$factory->addRule( Transients::class, self::SHARED );
-			self::$factory->addRule( Site_Transients::class, self::SHARED );
-			self::$factory->addRule( Options::class, self::SHARED );
-			self::$factory->addRule( Network_Options::class, self::SHARED );
-			self::$factory->addRule( Filesystem_Cache::class, self::SHARED );
-
 			// Load version from plugin data.
 			if ( ! function_exists( 'get_plugin_data' ) ) {
 				require_once ABSPATH . 'wp-admin/includes/plugin.php';
 			}
-			self::$factory->addRule( Core::class, [
-				'constructParams' => [
-					$full_plugin_path,
-					get_plugin_data( $full_plugin_path, false, false )['Version'],
-				],
-			] );
 
-			// Additional parameters for components.
-			self::$factory->addRule( Avatar_Handling::class, [
+			// Dynamic rules' helpers.
+			$full_path_rule        = [
 				'constructParams' => [ $full_plugin_path ],
-			] );
-			self::$factory->addRule( Comments::class, [
-				'constructParams' => [ $full_plugin_path ],
-			] );
-			self::$factory->addRule( Privacy_Tools::class, [
-				'constructParams' => [ $full_plugin_path ],
-			] );
-			self::$factory->addRule( Settings_Page::class, [
-				'constructParams' => [ $full_plugin_path ],
-			] );
-			self::$factory->addRule( Setup::class, [
-				'constructParams' => [ $full_plugin_path ],
-			] );
-			self::$factory->addRule( Uninstallation::class, [
-				'constructParams' => [ $full_plugin_path ],
-			] );
-			self::$factory->addRule( User_Profile::class, [
+			];
+			$full_path_shared_rule = [
 				'constructParams' => [ $full_plugin_path ],
 				'shared'          => true,
-			] );
+			];
 
-			// Avatar handlers.
-			self::$factory->addRule( Default_Icons_Handler::class, [
-				'constructParams' => [ $full_plugin_path ],
-				'shared'          => true,
-			] );
-			self::$factory->addRule( Gravatar_Cache_Handler::class, self::SHARED );
-			self::$factory->addRule( User_Avatar_Handler::class, self::SHARED );
+			// Define rules.
+			$rules = [
+				// Shared helpers.
+				Cache::class                  => self::SHARED,
+				Transients::class             => self::SHARED,
+				Site_Transients::class        => self::SHARED,
+				Options::class                => self::SHARED,
+				Network_Options::class        => self::SHARED,
+				Filesystem_Cache::class       => self::SHARED,
+				Settings::class               => self::SHARED,
 
-			// Default icons.
-			self::$factory->addRule( Generators\Monster_ID::class, [
-				'constructParams' => [ $full_plugin_path ],
-				'shared'          => true,
-			] );
-			self::$factory->addRule( Generators\Wavatar::class, [
-				'constructParams' => [ $full_plugin_path ],
-				'shared'          => true,
-			] );
-
-			// Upload handlers.
-			self::$factory->addRule( Upload_Handler::class, [
-				'constructParams' => [ $full_plugin_path ],
-				'shared'          => true,
-			] );
-
-			// Plugin integrations.
-			self::$factory->addRule( BBPress_Integration::class, [
-				'constructParams' => [ $full_plugin_path ],
-				'shared'          => true,
-			] );
-			self::$factory->addRule( Integrations::class, [
-				'constructParams' => [
-					[
-						self::$factory->create( BBPress_Integration::class ),
+				// Core API.
+				Core::class                   => [
+					'constructParams' => [
+						$full_plugin_path,
+						\get_plugin_data( $full_plugin_path, false, false )['Version'],
 					],
 				],
-			] );
 
-			// Tools.
-			self::$factory->addRule( Gravatar_Service::class, self::SHARED );
+				// Components.
+				Avatar_Handling::class        => $full_path_rule,
+				Comments::class               => $full_path_rule,
+				Privacy_Tools::class          => $full_path_rule,
+				Settings_Page::class          => $full_path_rule,
+				Setup::class                  => $full_path_rule,
+				Uninstallation::class         => $full_path_rule,
+				User_Profile::class           => $full_path_shared_rule,
+
+				// Avatar handlers.
+				Default_Icons_Handler::class  => $full_path_shared_rule,
+				Gravatar_Cache_Handler::class => self::SHARED,
+				User_Avatar_Handler::class    => self::SHARED,
+
+				// Default icon generators.
+				Generators\Monster_ID::class  => $full_path_shared_rule,
+				Generators\Wavatar::class     => $full_path_shared_rule,
+
+				// Upload handlers.
+				Upload_Handler::class         => $full_path_shared_rule,
+
+				// Plugin integrations.
+				BBPress_Integration::class    => $full_path_shared_rule,
+
+				// Tools.
+				Gravatar_Service::class       => self::SHARED,
+			];
+
+			// Create factory.
+			self::$factory = new Dice();
+
+			// Add rules.
+			foreach ( $rules as $classname => $rule ) {
+				self::$factory->addRule( $classname, $rule );
+			}
+
+			// Plugin integrations list.
+			$integrations = [
+				self::$factory->create( BBPress_Integration::class ),
+			];
+			self::$factory->addRule( Integrations::class, [ 'constructParams' => [ $integrations ] ] );
 		}
 
 		return self::$factory;

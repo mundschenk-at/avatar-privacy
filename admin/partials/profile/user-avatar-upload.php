@@ -34,13 +34,17 @@ if ( $current_user_can_upload_files ) {
 		$description = \sprintf(
 			/* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */
 			\__( 'No local profile picture is set. Use the upload field to add a local profile picture or change your profile picture on <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a>.', 'avatar-privacy' ),
-			\__( 'https://en.gravatar.com/', 'avatar-privacy' ), Template::get_gravatar_link_rel(), Template::get_gravatar_link_target()
+			\__( 'https://en.gravatar.com/', 'avatar-privacy' ),
+			Template::get_gravatar_link_rel(),
+			Template::get_gravatar_link_target()
 		);
 	} else {
 		$description = \sprintf(
 			/* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */
 			\__( 'Replace the local profile picture by uploading a new avatar, or erase it (falling back on <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a>) by checking the delete option.', 'avatar-privacy' ),
-			\__( 'https://en.gravatar.com/', 'avatar-privacy' ), Template::get_gravatar_link_rel(), Template::get_gravatar_link_target()
+			\__( 'https://en.gravatar.com/', 'avatar-privacy' ),
+			Template::get_gravatar_link_rel(),
+			Template::get_gravatar_link_target()
 		);
 	}
 } else {
@@ -48,7 +52,9 @@ if ( $current_user_can_upload_files ) {
 		$description = \sprintf(
 			/* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */
 			\__( 'No local profile picture is set. Change your profile picture on <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a>.', 'avatar-privacy' ),
-			\__( 'https://en.gravatar.com/', 'avatar-privacy' ), Template::get_gravatar_link_rel(), Template::get_gravatar_link_target()
+			\__( 'https://en.gravatar.com/', 'avatar-privacy' ),
+			Template::get_gravatar_link_rel(),
+			Template::get_gravatar_link_target()
 		);
 	} else {
 		$description = \__( 'You do not have media management permissions. To change your local profile picture, contact the site administrator.', 'avatar-privacy' );

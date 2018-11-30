@@ -46,7 +46,7 @@ $allowed_html = [
 $disable_style = \apply_filters( 'avatar_privacy_comment_checkbox_disable_inline_style', false );
 
 // Determine if the checkbox should be checked.
-$cookie_name = 'comment_use_gravatar_' . COOKIEHASH;
+$cookie_name = Comments::COOKIE_PREFIX . COOKIEHASH;
 $is_checked  = false;
 if ( isset( $_POST[ Comments::CHECKBOX_FIELD_NAME ] ) ) { // WPCS: CSRF ok, Input var okay.
 	// Re-displaying the comment form with validation errors.

@@ -107,9 +107,7 @@ class Custom_Icon_Provider extends Abstract_Icon_Provider {
 		// Only generate a new icon if necessary.
 		if ( ! \file_exists( "{$this->file_cache->get_base_dir()}{$filename}" ) ) {
 
-			$data = Images\Editor::get_resized_image_data(
-				Images\Editor::get_image_editor( $icon['file'] ), $size, $size, true, $icon['type']
-			);
+			$data = Images\Editor::get_resized_image_data( Images\Editor::get_image_editor( $icon['file'] ), $size, $size, true, $icon['type'] );
 			if ( empty( $data ) ) {
 				// Something went wrong..
 				return $default;

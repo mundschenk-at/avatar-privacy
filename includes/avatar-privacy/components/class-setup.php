@@ -31,7 +31,7 @@ use Avatar_Privacy\Core;
 
 use Avatar_Privacy\Components\Image_Proxy;
 
-use Avatar_Privacy\Data_Storage\Filesystem_Cache;
+use Avatar_Privacy\Data_Storage\Database;
 use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Site_Transients;
@@ -104,6 +104,13 @@ class Setup implements \Avatar_Privacy\Component {
 	private $site_transients;
 
 	/**
+	 * The DB handler.
+	 *
+	 * @var Database
+	 */
+	private $database;
+
+	/**
 	 * The core API.
 	 *
 	 * @var Core
@@ -119,14 +126,16 @@ class Setup implements \Avatar_Privacy\Component {
 	 * @param Site_Transients $site_transients The site transients handler.
 	 * @param Options         $options         The options handler.
 	 * @param Network_Options $network_options The network options handler.
+	 * @param Database        $database        The database handler.
 	 */
-	public function __construct( $plugin_file, Core $core, Transients $transients, Site_Transients $site_transients, Options $options, Network_Options $network_options ) {
+	public function __construct( $plugin_file, Core $core, Transients $transients, Site_Transients $site_transients, Options $options, Network_Options $network_options, Database $database ) {
 		$this->plugin_file     = $plugin_file;
 		$this->core            = $core;
 		$this->transients      = $transients;
 		$this->site_transients = $site_transients;
 		$this->options         = $options;
 		$this->network_options = $network_options;
+		$this->database        = $database;
 	}
 
 	/**
@@ -174,7 +183,7 @@ class Setup implements \Avatar_Privacy\Component {
 		}
 
 		// Check if our database table needs to created or updated.
-		if ( $this->maybe_create_table( $installed_version ) ) {
+		if ( $this->database->maybe_create_table( $installed_version ) ) {
 			// We may need to update the contents as well.
 			$this->maybe_update_table_data( $installed_version );
 		}
@@ -187,12 +196,14 @@ class Setup implements \Avatar_Privacy\Component {
 	/**
 	 * Upgrade plugin data.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param string $previous_version The version we are upgrading from.
 	 * @param array  $settings         The settings array. Passed by reference to
 	 *                                 allow for permanent changes. Saved at a the
 	 *                                 end of the upgrade routine.
 	 */
-	private function plugin_updated( $previous_version, array &$settings ) {
+	protected function plugin_updated( $previous_version, array &$settings ) {
 		// Upgrade from version 0.4 or lower.
 		if ( ! empty( $previous_version ) && \version_compare( $previous_version, '0.5', '<' ) ) {
 			// Preserve previous multisite behavior.
@@ -211,131 +222,51 @@ class Setup implements \Avatar_Privacy\Component {
 
 		// Upgrade from anything below 1.0.RC.1.
 		if ( ! empty( $previous_version ) && \version_compare( $previous_version, '1.0-rc.1', '<' ) ) {
-			$this->upgrade_old_avatar_defaults( $this->options );
+			$this->upgrade_old_avatar_defaults();
 		}
 
 		// To be safe, let's always flush the rewrite rules if there has been an update.
-		\add_action( 'init', [ __CLASS__, 'flush_rewrite_rules' ] );
+		\add_action( 'init', 'flush_rewrite_rules' );
 	}
 
 	/**
 	 * Handles plugin activation.
 	 */
 	public function activate() {
-		self::flush_rewrite_rules();
+		\flush_rewrite_rules();
 	}
 
 	/**
 	 * Handles plugin deactivation.
 	 */
 	public function deactivate() {
-		self::disable_cron_jobs();
-		self::reset_avatar_default( $this->options );
-		self::flush_rewrite_rules();
-	}
-
-	/**
-	 * Resets the `avatar_default` option to a safe value.
-	 *
-	 * @param Options $options The Options handler.
-	 */
-	public static function reset_avatar_default( Options $options ) {
-		switch ( $options->get( 'avatar_default', null, true ) ) {
-			case 'rings':
-			case 'comment':
-			case 'bubble':
-			case 'im-user-offline':
-			case 'bowling-pin':
-			case 'view-media-artist':
-			case 'silhouette':
-			case 'custom':
-				$options->set( 'avatar_default', 'mystery', true, true );
-				break;
-		}
+		$this->disable_cron_jobs();
+		$this->options->reset_avatar_default();
+		\flush_rewrite_rules();
 	}
 
 	/**
 	 * Tries to upgrade the `avatar_defaults` option.
 	 *
-	 * @param  Options $options The Options handler.
+	 * @since 2.1.0 Visibility changed to protected, $options parameter removed.
 	 */
-	private function upgrade_old_avatar_defaults( Options $options ) {
-		$old_default = $options->get( 'avatar_default', 'mystery', true );
+	protected function upgrade_old_avatar_defaults() {
+		$obsolete_avatar_defaults = self::OBSOLETE_AVATAR_DEFAULTS;
+		$old_default              = $this->options->get( 'avatar_default', 'mystery', true );
 
-		if ( ! empty( self::OBSOLETE_AVATAR_DEFAULTS[ $old_default ] ) ) {
-			$options->set( 'avatar_default', self::OBSOLETE_AVATAR_DEFAULTS[ $old_default ], true, true );
+		if ( ! empty( $obsolete_avatar_defaults[ $old_default ] ) ) {
+			$this->options->set( 'avatar_default', $obsolete_avatar_defaults[ $old_default ], true, true );
 		}
-	}
-
-	/**
-	 * Flushes the rewrite rules.
-	 */
-	public static function flush_rewrite_rules() {
-		global $wp_rewrite;
-		$wp_rewrite->flush_rules();
-	}
-
-	/**
-	 * Creates the plugin's database table if it doesn't already exist. The
-	 * table is created as a global table for multisite installations. Makes the
-	 * name of the table available through $wpdb->avatar_privacy.
-	 *
-	 * @param string $previous_version The previously installed plugin version.
-	 *
-	 * @return bool                    Returns true if the table was created/updated.
-	 */
-	private function maybe_create_table( $previous_version ) {
-		global $wpdb;
-
-		// Force DB update?
-		$db_needs_update = \version_compare( $previous_version, '0.5', '<' );
-
-		// Check if the table exists.
-		if ( ! $db_needs_update && \property_exists( $wpdb, 'avatar_privacy' ) ) {
-			return false;
-		}
-
-		// Set up table name.
-		$table_name = self::get_table_name( $this->network_options );
-
-		// Fix $wpdb object if table already exists, unless we need an update.
-		if ( ! $db_needs_update && $this->table_exists( $table_name ) ) {
-			$wpdb->avatar_privacy = $table_name;
-			return false;
-		}
-
-		// Load upgrade.php for the dbDelta function.
-		require_once ABSPATH . '/wp-admin/includes/upgrade.php';
-
-		// Create the plugin's table.
-		$sql = "CREATE TABLE {$table_name} (
-				id mediumint(9) NOT NULL AUTO_INCREMENT,
-				email varchar(100) NOT NULL,
-				use_gravatar tinyint(2) NOT NULL,
-				last_updated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-				log_message varchar(255),
-				hash varchar(64),
-				PRIMARY KEY (id),
-				UNIQUE KEY email (email),
-				UNIQUE KEY hash (hash)
-			) {$wpdb->get_charset_collate()};";
-		dbDelta( $sql );
-
-		if ( $this->table_exists( $table_name ) ) {
-			$wpdb->avatar_privacy = $table_name;
-			return true;
-		}
-
-		// Should not ever happen.
-		return false;
 	}
 
 	/**
 	 * Sometimes, the table data needs to updated when upgrading.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param string $previous_version The previously installed plugin version.
 	 */
-	private function maybe_update_table_data( $previous_version ) {
+	protected function maybe_update_table_data( $previous_version ) {
 		global $wpdb;
 
 		if ( \version_compare( $previous_version, '0.5', '<' ) ) {
@@ -348,117 +279,34 @@ class Setup implements \Avatar_Privacy\Component {
 
 	/**
 	 * Updates user hashes where they don't exist yet.
+	 *
+	 * @since 2.1.0 Visibility changed to protected.
 	 */
-	private function maybe_update_user_hashes() {
-		$users = \get_users( [
+	protected function maybe_update_user_hashes() {
+		$args = [
 			'meta_key'     => Core::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			'meta_compare' => 'NOT EXISTS',
-		] );
+		];
 
-		foreach ( $users as $user ) {
+		foreach ( \get_users( $args ) as $user ) {
 			\update_user_meta( $user->ID, Core::EMAIL_HASH_META_KEY, $this->core->get_hash( $user->user_email ) );
 		}
 	}
 
 	/**
-	 * Checks if the given table exists.
-	 *
-	 * @param  string $table_name A table name.
-	 *
-	 * @return bool
-	 */
-	private function table_exists( $table_name ) {
-		global $wpdb;
-
-		return $table_name === $wpdb->get_var( $wpdb->prepare( 'SHOW tables LIKE %s', $table_name ) ); // WPCS: db call ok, cache ok.
-	}
-
-
-	/**
-	 * Retrieves the table prefix to use (for a given site or the current site).
-	 *
-	 * @param Network_Options $network_options A network options handler.
-	 * @param int|null        $site_id         Optional. The site ID. Null means the current $blog_id. Ddefault null.
-	 *
-	 * @return string
-	 */
-	private static function get_table_prefix( Network_Options $network_options, $site_id = null ) {
-		global $wpdb;
-
-		if ( ! self::uses_global_table( $network_options ) ) {
-			return $wpdb->get_blog_prefix( $site_id );
-		} else {
-			return $wpdb->base_prefix;
-		}
-	}
-
-	/**
-	 * Retrieves the table name to use (for a given site or the current site).
-	 *
-	 * @param Network_Options $network_options A network options handler.
-	 * @param int|null        $site_id         Optional. The site ID. Null means the current $blog_id. Ddefault null.
-	 *
-	 * @return string
-	 */
-	public static function get_table_name( Network_Options $network_options, $site_id = null ) {
-		return self::get_table_prefix( $network_options, $site_id ) . 'avatar_privacy';
-	}
-
-	/**
-	 * Determines whether this (multisite) installation uses the global table.
-	 * Result is ignored for single-site installations.
-	 *
-	 * @param Network_Options $network_options A network options handler.
-	 *
-	 * @return bool
-	 */
-	private static function uses_global_table( Network_Options $network_options ) {
-		$global_table = $network_options->get( Network_Options::USE_GLOBAL_TABLE, false );
-
-		/**
-		 * Filters whether a global table should be enabled for multisite installations.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param bool $enable Default false, unless this is a multisite installation
-		 *                     upgraded from version 0.4 or earlier.
-		 */
-		return \apply_filters( 'avatar_privacy_enable_global_table', $global_table );
-	}
-
-	/**
-	 * Disables any scheduled cron jobs.
-	 *
-	 * This is a copy of wp_unschedule_hook(), introduced in WordPress 4.9.0.
-	 * When we raise the minimum WP version to 4.9, this method can be replaced
-	 * with a call to `wp_unschedule_hook()`.
-	 *
-	 * @param  string $hook The hook name.
-	 */
-	private static function unschedule_hook( $hook ) {
-		$crons = _get_cron_array();
-		foreach ( $crons as $timestamp => $args ) {
-			unset( $crons[ $timestamp ][ $hook ] );
-
-			if ( empty( $crons[ $timestamp ] ) ) {
-				unset( $crons[ $timestamp ] );
-			}
-		}
-		_set_cron_array( $crons );
-	}
-
-	/**
 	 * Ensures that the cron jobs are disabled on each site.
+	 *
+	 * @since 2.1.0 Made non-static, visibility changed to protected.
 	 */
-	private static function disable_cron_jobs() {
+	protected function disable_cron_jobs() {
 		if ( \is_multisite() ) {
 			foreach ( \get_sites( [ 'fields' => 'ids' ] ) as $site_id ) {
 				\switch_to_blog( $site_id );
-				self::unschedule_hook( Image_Proxy::CRON_JOB_ACTION );
+				\wp_unschedule_hook( Image_Proxy::CRON_JOB_ACTION );
 				\restore_current_blog();
 			}
 		} else {
-			self::unschedule_hook( Image_Proxy::CRON_JOB_ACTION );
+			\wp_unschedule_hook( Image_Proxy::CRON_JOB_ACTION );
 		}
 	}
 }

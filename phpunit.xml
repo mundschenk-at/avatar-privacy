@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+	bootstrap="tests/bootstrap.php"
+	beStrictAboutTestsThatDoNotTestAnything="true"
+	beStrictAboutCoversAnnotation="true"
+	stopOnRisky="true"
+	verbose="true"
+>
+	<testsuites>
+	    <testsuite name="AvatarPrivacy">
+			<directory suffix="-test.php">tests</directory>
+	    </testsuite>
+	</testsuites>
+	<filter>
+		<whitelist processUncoveredFilesFromWhitelist="true">
+	    	<directory suffix=".php">includes</directory>
+		</whitelist>
+	</filter>
+	<php>
+  		<ini name="memory_limit" value="2G"/>
+	</php>
+</phpunit>

@@ -72,7 +72,7 @@ abstract class PNG_Generator implements Generator {
 
 		// Load image if we are given a filename.
 		if ( \is_string( $image ) ) {
-			$image = @\imagecreatefrompng( "{$this->parts_dir}/{$image}" ); // phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
+			$image = @\imagecreatefrompng( "{$this->parts_dir}/{$image}" );
 		}
 
 		// Abort if $image is not a valid resource.

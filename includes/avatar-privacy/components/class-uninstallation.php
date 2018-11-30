@@ -29,6 +29,7 @@ namespace Avatar_Privacy\Components;
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
+use Avatar_Privacy\Data_Storage\Database;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Options;
@@ -79,37 +80,41 @@ class Uninstallation implements \Avatar_Privacy\Component {
 		$network_options = new Network_Options();
 		$transients      = new Transients();
 		$site_transients = new Site_Transients();
+		$database        = new Database( $network_options );
+		$file_cache      = new Filesystem_Cache();
 
 		// Delete cached files.
-		self::delete_cached_files();
+		static::delete_cached_files( $file_cache );
 
 		// Delete uploaded user avatars.
-		self::delete_uploaded_avatars();
+		static::delete_uploaded_avatars();
 
 		// Delete usermeta for all users.
-		self::delete_user_meta();
+		static::delete_user_meta();
 
 		// Delete/change options (from all sites in case of a  multisite network).
-		self::delete_options( $options, $network_options );
+		static::delete_options( $options, $network_options );
 
 		// Delete transients from sitemeta or options table.
-		self::delete_transients( $transients, $site_transients );
+		static::delete_transients( $transients, $site_transients );
 
 		// Drop all our tables.
-		self::drop_all_tables( $network_options );
+		static::drop_all_tables( $database );
 	}
 
 	/**
 	 * Deletes uploaded avatar images.
+	 *
+	 * @since 2.1.0 Visibility changed to protected.
 	 */
-	private static function delete_uploaded_avatars() {
+	protected static function delete_uploaded_avatars() {
 		$user_avatar = User_Avatar_Upload_Handler::USER_META_KEY;
-		$users       = \get_users( [
+		$query       = [
 			'meta_key'     => $user_avatar, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			'meta_compare' => 'EXISTS',
-		] );
+		];
 
-		foreach ( $users as $user ) {
+		foreach ( \get_users( $query ) as $user ) {
 			$avatar = $user->$user_avatar;
 
 			if ( ! empty( $avatar['file'] ) && \file_exists( $avatar['file'] ) ) {
@@ -120,45 +125,39 @@ class Uninstallation implements \Avatar_Privacy\Component {
 
 	/**
 	 * Deletes all cached files.
-	 */
-	private static function delete_cached_files() {
-		$file_cache = new Filesystem_Cache();
-		$file_cache->invalidate();
-	}
-
-	/**
-	 * Drops the table for the given site.
 	 *
-	 * @param Network_Options $network_options A network options handler.
-	 * @param int|null        $site_id         Optional. The site ID. Null means the current $blog_id. Ddefault null.
+	 * @since 2.1.0 Visibility changed to protected, parameter $file_cache added.
+	 *
+	 * @param Filesystem_Cache $file_cache A fileystem cache handler.
 	 */
-	private static function drop_table( Network_Options $network_options, $site_id = null ) {
-		global $wpdb;
-
-		$table_name = Setup::get_table_name( $network_options, $site_id );
-		$wpdb->query( "DROP TABLE IF EXISTS {$table_name};" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.NotPrepared
+	protected static function delete_cached_files( Filesystem_Cache $file_cache ) {
+		$file_cache->invalidate();
 	}
 
 	/**
 	 * Drops all tables.
 	 *
-	 * @param Network_Options $network_options The network options handler.
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
+	 * @param Database $database The database handler.
 	 */
-	private static function drop_all_tables( Network_Options $network_options ) {
+	protected static function drop_all_tables( Database $database ) {
 		// Delete/change options for all other blogs (multisite).
 		if ( \is_multisite() ) {
 			foreach ( \get_sites( [ 'fields' => 'ids' ] ) as $site_id ) {
-				self::drop_table( $network_options, $site_id );
+				$database->drop_table( $site_id );
 			}
 		} else {
-			self::drop_table( $network_options );
+			$database->drop_table();
 		}
 	}
 
 	/**
 	 * Delete all user meta data added by the plugin.
+	 *
+	 * @since 2.1.0 Visibility changed to protected.
 	 */
-	private static function delete_user_meta() {
+	protected static function delete_user_meta() {
 		\delete_metadata( 'user', 0, Core::GRAVATAR_USE_META_KEY, null, true );
 		\delete_metadata( 'user', 0, Core::ALLOW_ANONYMOUS_META_KEY, null, true );
 		\delete_metadata( 'user', 0, User_Avatar_Upload_Handler::USER_META_KEY, null, true );
@@ -167,13 +166,15 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	/**
 	 * Delete the plugin options (from all sites).
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param Options         $options         The options handler.
 	 * @param Network_Options $network_options The network options handler.
 	 */
-	private static function delete_options( Options $options, Network_Options $network_options ) {
+	protected static function delete_options( Options $options, Network_Options $network_options ) {
 		// Delete/change options for main blog.
 		$options->delete( Core::SETTINGS_NAME );
-		Setup::reset_avatar_default( $options );
+		$options->reset_avatar_default();
 
 		// Delete/change options for all other blogs (multisite).
 		if ( \is_multisite() ) {
@@ -184,7 +185,7 @@ class Uninstallation implements \Avatar_Privacy\Component {
 				$options->delete( Core::SETTINGS_NAME );
 
 				// Reset avatar_default to working value if necessary.
-				Setup::reset_avatar_default( $options );
+				$options->reset_avatar_default();
 
 				\restore_current_blog();
 			}
@@ -197,10 +198,12 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	/**
 	 * Delete all the plugins transients.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  Transients      $transients      The transients handler.
 	 * @param  Site_Transients $site_transients The site transients handler.
 	 */
-	private static function delete_transients( Transients $transients, Site_Transients $site_transients ) {
+	protected static function delete_transients( Transients $transients, Site_Transients $site_transients ) {
 		// Remove regular transients.
 		foreach ( $transients->get_keys_from_database() as $key ) {
 			$transients->delete( $key, true );
