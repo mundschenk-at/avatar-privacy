@@ -110,7 +110,7 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::run
 	 */
 	public function test_run() {
-		Functions\expect( 'register_uninstall_hook' )->once()->with( 'plugin/file', [ Uninstallation::class, 'uninstall' ] );
+		$this->sut->shouldReceive( 'uninstall' )->once();
 
 		$this->assertNull( $this->sut->run() );
 	}

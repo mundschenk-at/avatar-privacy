@@ -67,8 +67,7 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	 * @return void
 	 */
 	public function run() {
-		// Register various hooks.
-		\register_uninstall_hook( $this->plugin_file, [ self::class, 'uninstall' ] );
+		static::uninstall();
 	}
 
 	/**
