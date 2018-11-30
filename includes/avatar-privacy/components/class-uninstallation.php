@@ -124,30 +124,30 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	 */
 	public function run() {
 		// Delete cached files.
-		static::delete_cached_files( $this->file_cache );
+		$this->delete_cached_files();
 
 		// Delete uploaded user avatars.
-		static::delete_uploaded_avatars();
+		$this->delete_uploaded_avatars();
 
 		// Delete usermeta for all users.
-		static::delete_user_meta();
+		$this->delete_user_meta();
 
-		// Delete/change options (from all sites in case of a  multisite network).
-		static::delete_options( $this->options, $this->network_options );
+		// Delete/change options (from all sites in case of a multisite network).
+		$this->delete_options();
 
 		// Delete transients from sitemeta or options table.
-		static::delete_transients( $this->transients, $this->site_transients );
+		$this->delete_transients();
 
 		// Drop all our tables.
-		static::drop_all_tables( $this->database );
+		$this->drop_all_tables();
 	}
 
 	/**
 	 * Deletes uploaded avatar images.
 	 *
-	 * @since 2.1.0 Visibility changed to protected.
+	 * @since 2.1.0 Visibility changed to protected, made non-static.
 	 */
-	protected static function delete_uploaded_avatars() {
+	protected function delete_uploaded_avatars() {
 		$user_avatar = User_Avatar_Upload_Handler::USER_META_KEY;
 		$query       = [
 			'meta_key'     => $user_avatar, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
@@ -166,38 +166,34 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	/**
 	 * Deletes all cached files.
 	 *
-	 * @since 2.1.0 Visibility changed to protected, parameter $file_cache added.
-	 *
-	 * @param Filesystem_Cache $file_cache A fileystem cache handler.
+	 * @since 2.1.0 Visibility changed to protected, made non-static.
 	 */
-	protected static function delete_cached_files( Filesystem_Cache $file_cache ) {
-		$file_cache->invalidate();
+	protected function delete_cached_files() {
+		$this->file_cache->invalidate();
 	}
 
 	/**
 	 * Drops all tables.
 	 *
-	 * @since 2.1.0 Visibility changed to protected.
-	 *
-	 * @param Database $database The database handler.
+	 * @since 2.1.0 Visibility changed to protected, made non-static.
 	 */
-	protected static function drop_all_tables( Database $database ) {
+	protected function drop_all_tables() {
 		// Delete/change options for all other blogs (multisite).
 		if ( \is_multisite() ) {
 			foreach ( \get_sites( [ 'fields' => 'ids' ] ) as $site_id ) {
-				$database->drop_table( $site_id );
+				$this->database->drop_table( $site_id );
 			}
 		} else {
-			$database->drop_table();
+			$this->database->drop_table();
 		}
 	}
 
 	/**
 	 * Delete all user meta data added by the plugin.
 	 *
-	 * @since 2.1.0 Visibility changed to protected.
+	 * @since 2.1.0 Visibility changed to protected, made non-static.
 	 */
-	protected static function delete_user_meta() {
+	protected function delete_user_meta() {
 		\delete_metadata( 'user', 0, Core::GRAVATAR_USE_META_KEY, null, true );
 		\delete_metadata( 'user', 0, Core::ALLOW_ANONYMOUS_META_KEY, null, true );
 		\delete_metadata( 'user', 0, User_Avatar_Upload_Handler::USER_META_KEY, null, true );
@@ -206,15 +202,12 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	/**
 	 * Delete the plugin options (from all sites).
 	 *
-	 * @since 2.1.0 Visibility changed to protected.
-	 *
-	 * @param Options         $options         The options handler.
-	 * @param Network_Options $network_options The network options handler.
+	 * @since 2.1.0 Visibility changed to protected, made non-static.
 	 */
-	protected static function delete_options( Options $options, Network_Options $network_options ) {
+	protected function delete_options() {
 		// Delete/change options for main blog.
-		$options->delete( Core::SETTINGS_NAME );
-		$options->reset_avatar_default();
+		$this->options->delete( Core::SETTINGS_NAME );
+		$this->options->reset_avatar_default();
 
 		// Delete/change options for all other blogs (multisite).
 		if ( \is_multisite() ) {
@@ -222,36 +215,33 @@ class Uninstallation implements \Avatar_Privacy\Component {
 				\switch_to_blog( $blog_id );
 
 				// Delete our settings.
-				$options->delete( Core::SETTINGS_NAME );
+				$this->options->delete( Core::SETTINGS_NAME );
 
 				// Reset avatar_default to working value if necessary.
-				$options->reset_avatar_default();
+				$this->options->reset_avatar_default();
 
 				\restore_current_blog();
 			}
 		}
 
 		// Delete site options as well (except for the salt).
-		$network_options->delete( Network_Options::USE_GLOBAL_TABLE );
+		$this->network_options->delete( Network_Options::USE_GLOBAL_TABLE );
 	}
 
 	/**
 	 * Delete all the plugins transients.
 	 *
-	 * @since 2.1.0 Visibility changed to protected.
-	 *
-	 * @param  Transients      $transients      The transients handler.
-	 * @param  Site_Transients $site_transients The site transients handler.
+	 * @since 2.1.0 Visibility changed to protected, made non-static.
 	 */
-	protected static function delete_transients( Transients $transients, Site_Transients $site_transients ) {
+	protected function delete_transients() {
 		// Remove regular transients.
-		foreach ( $transients->get_keys_from_database() as $key ) {
-			$transients->delete( $key, true );
+		foreach ( $this->transients->get_keys_from_database() as $key ) {
+			$this->transients->delete( $key, true );
 		}
 
 		// Remove site transients.
-		foreach ( $site_transients->get_keys_from_database() as $key ) {
-			$site_transients->delete( $key, true );
+		foreach ( $this->site_transients->get_keys_from_database() as $key ) {
+			$this->site_transients->delete( $key, true );
 		}
 	}
 }
