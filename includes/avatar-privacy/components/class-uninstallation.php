@@ -40,6 +40,7 @@ use Avatar_Privacy\Data_Storage\Transients;
  * Handles plugin activation and deactivation.
  *
  * @since 1.0.0
+ * @since 2.1.0 Class is now instantiated from `uninstall.php` all methods have been made non-static.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
@@ -53,12 +54,67 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	private $plugin_file;
 
 	/**
+	 * The options handler.
+	 *
+	 * @var Options
+	 */
+	private $options;
+
+	/**
+	 * The options handler.
+	 *
+	 * @var Network_Options
+	 */
+	private $network_options;
+
+	/**
+	 * The transients handler.
+	 *
+	 * @var Transients
+	 */
+	private $transients;
+
+	/**
+	 * The site transients handler.
+	 *
+	 * @var Site_Transients
+	 */
+	private $site_transients;
+
+	/**
+	 * The DB handler.
+	 *
+	 * @var Database
+	 */
+	private $database;
+
+	/**
+	 * The filesystem cache handler.
+	 *
+	 * @var Filesystem_Cache
+	 */
+	private $file_cache;
+
+	/**
 	 * Creates a new Setup instance.
 	 *
-	 * @param string $plugin_file The full path to the base plugin file.
+	 * @param string           $plugin_file The full path to the base plugin file.
+	 * @param Options          $options         The options handler.
+	 * @param Network_Options  $network_options The network options handler.
+	 * @param Transients       $transients      The transients handler.
+	 * @param Site_Transients  $site_transients The site transients handler.
+	 * @param Database         $database        The database handler.
+	 * @param Filesystem_Cache $file_cache      The filesystem cache handler.
 	 */
-	public function __construct( $plugin_file ) {
-		$this->plugin_file = $plugin_file;
+	public function __construct( $plugin_file, Options $options, Network_Options $network_options, Transients $transients, Site_Transients $site_transients, Database $database, Filesystem_Cache $file_cache ) {
+		$this->plugin_file     = $plugin_file;
+		$this->options         = $options;
+		$this->network_options = $network_options;
+		$this->transients      = $transients;
+		$this->site_transients = $site_transients;
+		$this->database        = $database;
+		$this->file_cache      = $file_cache;
+
 	}
 
 	/**
@@ -67,23 +123,8 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	 * @return void
 	 */
 	public function run() {
-		static::uninstall();
-	}
-
-	/**
-	 * Uninstalls all the plugin's information from the database.
-	 */
-	public static function uninstall() {
-		// The plugin is not running anymore, so we have to create handlers.
-		$options         = new Options();
-		$network_options = new Network_Options();
-		$transients      = new Transients();
-		$site_transients = new Site_Transients();
-		$database        = new Database( $network_options );
-		$file_cache      = new Filesystem_Cache();
-
 		// Delete cached files.
-		static::delete_cached_files( $file_cache );
+		static::delete_cached_files( $this->file_cache );
 
 		// Delete uploaded user avatars.
 		static::delete_uploaded_avatars();
@@ -92,13 +133,13 @@ class Uninstallation implements \Avatar_Privacy\Component {
 		static::delete_user_meta();
 
 		// Delete/change options (from all sites in case of a  multisite network).
-		static::delete_options( $options, $network_options );
+		static::delete_options( $this->options, $this->network_options );
 
 		// Delete transients from sitemeta or options table.
-		static::delete_transients( $transients, $site_transients );
+		static::delete_transients( $this->transients, $this->site_transients );
 
 		// Drop all our tables.
-		static::drop_all_tables( $database );
+		static::drop_all_tables( $this->database );
 	}
 
 	/**

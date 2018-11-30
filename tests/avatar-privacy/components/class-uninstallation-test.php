@@ -67,6 +67,48 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $sut;
 
 	/**
+	 * The options handler.
+	 *
+	 * @var Options
+	 */
+	private $options;
+
+	/**
+	 * The options handler.
+	 *
+	 * @var Network_Options
+	 */
+	private $network_options;
+
+	/**
+	 * The transients handler.
+	 *
+	 * @var Transients
+	 */
+	private $transients;
+
+	/**
+	 * The site transients handler.
+	 *
+	 * @var Site_Transients
+	 */
+	private $site_transients;
+
+	/**
+	 * The database handler.
+	 *
+	 * @var Database
+	 */
+	private $database;
+
+	/**
+	 * The filesystem cache handler.
+	 *
+	 * @var Filesystem_Cache
+	 */
+	private $file_cache;
+
+	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
@@ -88,7 +130,15 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 		$root = vfsStream::setup( 'root', null, $filesystem );
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
-		$this->sut = m::mock( Uninstallation::class, [ 'plugin/file' ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		// Helper mocks.
+		$this->options         = m::mock( Options::class );
+		$this->network_options = m::mock( Network_Options::class );
+		$this->transients      = m::mock( Transients::class );
+		$this->site_transients = m::mock( Site_Transients::class );
+		$this->database        = m::mock( Database::class );
+		$this->file_cache      = m::mock( Filesystem_Cache::class );
+
+		$this->sut = m::mock( Uninstallation::class, [ 'plugin/file', $this->options, $this->network_options, $this->transients, $this->site_transients, $this->database, $this->file_cache ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -99,9 +149,15 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Uninstallation::class )->makePartial();
 
-		$mock->__construct( 'path/file' );
+		$mock->__construct( 'path/file', $this->options, $this->network_options, $this->transients, $this->site_transients, $this->database, $this->file_cache );
 
 		$this->assertAttributeSame( 'path/file', 'plugin_file', $mock );
+		$this->assertAttributeSame( $this->options, 'options', $mock );
+		$this->assertAttributeSame( $this->network_options, 'network_options', $mock );
+		$this->assertAttributeSame( $this->transients, 'transients', $mock );
+		$this->assertAttributeSame( $this->site_transients, 'site_transients', $mock );
+		$this->assertAttributeSame( $this->database, 'database', $mock );
+		$this->assertAttributeSame( $this->file_cache, 'file_cache', $mock );
 	}
 
 	/**
@@ -110,36 +166,6 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::run
 	 */
 	public function test_run() {
-		$this->sut->shouldReceive( 'uninstall' )->once();
-
-		$this->assertNull( $this->sut->run() );
-	}
-
-	/**
-	 * Tests ::uninstall.
-	 *
-	 * @covers ::uninstall
-	 *
-	 * @uses Avatar_Privacy\Data_Storage\Options::__construct
-	 * @uses Avatar_Privacy\Data_Storage\Network_Options::__construct
-	 * @uses Avatar_Privacy\Data_Storage\Transients::__construct
-	 * @uses Avatar_Privacy\Data_Storage\Site_Transients::__construct
-	 * @uses Avatar_Privacy\Data_Storage\Database::__construct
-	 * @uses Avatar_Privacy\Data_Storage\Filesystem_Cache::__construct
-	 * @uses Avatar_Privacy\Data_Storage\Filesystem_Cache::get_base_dir
-	 * @uses Avatar_Privacy\Data_Storage\Filesystem_Cache::get_upload_dir
-	 */
-	public function test_uninstall() {
-		Functions\expect( 'get_current_network_id' )->once()->andReturn( 0 );
-		Functions\expect( 'get_transient' )->once()->andReturn( false );
-		Functions\expect( 'get_site_transient' )->once()->andReturn( false );
-		Functions\expect( 'wp_using_ext_object_cache' )->twice()->andReturn( true );
-		Functions\expect( 'set_transient' )->once();
-		Functions\expect( 'set_site_transient' )->once();
-		Functions\expect( 'is_multisite' )->once()->andReturn( false );
-		Functions\expect( 'wp_get_upload_dir' )->once()->andReturn( [ 'basedir' => vfsStream::url( 'root/uploads' ) ] );
-		Functions\expect( 'wp_mkdir_p' )->once()->andReturn( true );
-
 		$this->sut->shouldReceive( 'delete_cached_files' )->once();
 		$this->sut->shouldReceive( 'delete_uploaded_avatars' )->once();
 		$this->sut->shouldReceive( 'delete_user_meta' )->once();
@@ -147,7 +173,7 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'delete_transients' )->once()->with( m::type( Transients::class ), m::type( Site_Transients::class ) );
 		$this->sut->shouldReceive( 'drop_all_tables' )->once()->with( m::type( Database::class ) );
 
-		$this->assertNull( $this->sut->uninstall() );
+		$this->assertNull( $this->sut->run() );
 	}
 
 	/**
