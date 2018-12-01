@@ -37,7 +37,6 @@ use Avatar_Privacy\Components\REST_API;
 use Avatar_Privacy\Components\Setup;
 use Avatar_Privacy\Components\Settings_Page;
 use Avatar_Privacy\Components\User_Profile;
-use Avatar_Privacy\Components\Uninstallation;
 
 use Brain\Monkey\Actions;
 use Brain\Monkey\Filters;
@@ -79,7 +78,6 @@ class Avatar_Privacy_Controller_Test extends TestCase {
 			[
 				m::mock( Core::class ),
 				m::mock( Setup::class ),
-				m::mock( Uninstallation::class ),
 				m::mock( Image_Proxy::class ),
 				m::mock( Avatar_Handling::class ),
 				m::mock( Comments::class ),

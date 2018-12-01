@@ -3,7 +3,6 @@
  * This file is part of Avatar Privacy.
  *
  * Copyright 2018 Peter Putzer.
- * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,42 +21,31 @@
  *
  * @package mundschenk-at/avatar-privacy
  * @license http://www.gnu.org/licenses/gpl-2.0.html
- *
- * @wordpress-plugin
- * Plugin Name: Avatar Privacy
- * Plugin URI: https://code.mundschenk.at/avatar-privacy/
- * Description: Adds options to enhance the privacy when using avatars.
- * Author: Peter Putzer
- * Author URI: https://code.mundschenk.at
- * Version: 2.1.0-alpha.2
- * License: GNU General Public License v2 or later
- * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: avatar-privacy
  */
 
 // Don't do anything if called directly.
-if ( ! defined( 'ABSPATH' ) || ! defined( 'WPINC' ) ) {
+if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	die();
 }
 
-require_once dirname( __FILE__ ) . '/includes/class-avatar-privacy-requirements.php';
+require_once dirname( __FILE__ ) . '/includes/class-avatar-privacy-uninstallation-requirements.php';
 
 /**
- * Load the plugin after checking for the necessary PHP version.
+ * Uninstall the plugin after checking for the necessary PHP version.
  *
- * It's necessary to do this here because main class relies on namespaces.
+ * It's necessary to do this here because our classes rely on namespaces.
  */
-function run_avatar_privacy() {
+function uninstall_avatar_privacy() {
 
-	$requirements = new Avatar_Privacy_Requirements( __FILE__ );
+	$requirements = new Avatar_Privacy_Uninstallation_Requirements( __FILE__ );
 
 	if ( $requirements->check() ) {
 		// Autoload the rest of your classes.
 		require_once __DIR__ . '/vendor/autoload.php';
 
 		// Create and start the plugin.
-		$plugin = Avatar_Privacy_Factory::get( __FILE__ )->create( 'Avatar_Privacy_Controller' );
+		$plugin = Avatar_Privacy_Factory::get( __FILE__ )->create( 'Avatar_Privacy\Components\Uninstallation' );
 		$plugin->run();
 	}
 }
-run_avatar_privacy();
+uninstall_avatar_privacy();
