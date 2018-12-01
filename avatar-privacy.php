@@ -56,7 +56,7 @@ function run_avatar_privacy() {
 		require_once __DIR__ . '/vendor/autoload.php';
 
 		// Create and start the plugin.
-		$plugin = Avatar_Privacy_Factory::get( __FILE__ )->create( 'Avatar_Privacy_Controller' );
+		$plugin = Avatar_Privacy_Factory::get( __FILE__ )->create( 'Avatar_Privacy\Controller' );
 		$plugin->run();
 	}
 }

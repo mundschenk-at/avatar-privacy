@@ -25,7 +25,7 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-use Avatar_Privacy\Core;
+namespace Avatar_Privacy;
 
 use Avatar_Privacy\Components\Avatar_Handling;
 use Avatar_Privacy\Components\Comments;
@@ -41,8 +41,9 @@ use Avatar_Privacy\Components\User_Profile;
  * Initialize Avatar Privacy plugin.
  *
  * @since 1.0.0
+ * @since 2.1.0 Renamed to Avatar_Privacy\Controller.
  */
-class Avatar_Privacy_Controller {
+class Controller {
 
 	/**
 	 * The settings page handler.

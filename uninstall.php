@@ -43,9 +43,9 @@ function uninstall_avatar_privacy() {
 		// Autoload the rest of your classes.
 		require_once __DIR__ . '/vendor/autoload.php';
 
-		// Create and start the plugin.
-		$plugin = Avatar_Privacy_Factory::get( __FILE__ )->create( 'Avatar_Privacy\Components\Uninstallation' );
-		$plugin->run();
+		// Create and start the uninstallation handler.
+		$uninstaller = Avatar_Privacy_Factory::get( __FILE__ )->create( 'Avatar_Privacy\Components\Uninstallation' );
+		$uninstaller->run();
 	}
 }
 uninstall_avatar_privacy();

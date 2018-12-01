@@ -24,7 +24,7 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Tests;
+namespace Avatar_Privacy\Tests\Avatar_Privacy;
 
 use Avatar_Privacy\Core;
 
@@ -47,10 +47,10 @@ use Mockery as m;
 /**
  * Unit tests for plugin controller.
  *
- * @coversDefaultClass \Avatar_Privacy_Controller
- * @usesDefaultClass \Avatar_Privacy_Controller
+ * @coversDefaultClass \Avatar_Privacy\Controller
+ * @usesDefaultClass \Avatar_Privacy\Controller
  */
-class Avatar_Privacy_Controller_Test extends TestCase {
+class Controller_Test extends \Avatar_Privacy\Tests\TestCase {
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -74,7 +74,7 @@ class Avatar_Privacy_Controller_Test extends TestCase {
 	 */
 	public function test_constructor() {
 		$controller = m::mock(
-			\Avatar_Privacy_Controller::class,
+			\Avatar_Privacy\Controller::class,
 			[
 				m::mock( Core::class ),
 				m::mock( Setup::class ),
@@ -89,7 +89,7 @@ class Avatar_Privacy_Controller_Test extends TestCase {
 			]
 		)->makePartial();
 
-		$this->assertInstanceOf( \Avatar_Privacy_Controller::class, $controller );
+		$this->assertInstanceOf( \Avatar_Privacy\Controller::class, $controller );
 
 		return $controller;
 	}
@@ -103,10 +103,10 @@ class Avatar_Privacy_Controller_Test extends TestCase {
 	 *
 	 * @uses \Avatar_Privacy\Core::set_instance
 	 *
-	 * @param \Avatar_Privacy_Controller $controller Required.
+	 * @param \Avatar_Privacy\Controller $controller Required.
 	 */
 	public function test_run( $controller ) {
-		foreach ( $this->getValue( $controller, 'components', \Avatar_Privacy_Controller::class ) as $component ) {
+		foreach ( $this->getValue( $controller, 'components', \Avatar_Privacy\Controller::class ) as $component ) {
 			$component->shouldReceive( 'run' )->once();
 		}
 
