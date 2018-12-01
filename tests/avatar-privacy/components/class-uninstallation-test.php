@@ -166,12 +166,25 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::run
 	 */
 	public function test_run() {
-		$this->sut->shouldReceive( 'delete_cached_files' )->once();
-		$this->sut->shouldReceive( 'delete_uploaded_avatars' )->once();
-		$this->sut->shouldReceive( 'delete_user_meta' )->once();
-		$this->sut->shouldReceive( 'delete_options' )->once();
-		$this->sut->shouldReceive( 'delete_transients' )->once();
-		$this->sut->shouldReceive( 'drop_all_tables' )->once();
+		Actions\expectAdded( 'avatar_privacy_uninstallation_global' )->once()->with( [ $this->file_cache, 'invalidate' ], m::type( 'int' ), 0 );
+		Actions\expectAdded( 'avatar_privacy_uninstallation_global' )->once()->with( [ $this->sut, 'delete_uploaded_avatars' ], m::type( 'int' ), 0 );
+
+		// Delete usermeta for all users.
+		Actions\expectAdded( 'avatar_privacy_uninstallation_global' )->once()->with( [ $this->sut, 'delete_user_meta' ], m::type( 'int' ), 0 );
+
+		// Delete/change options (from all sites in case of a multisite network).
+		Actions\expectAdded( 'avatar_privacy_uninstallation_site' )->once()->with( [ $this->sut, 'delete_options' ], m::type( 'int' ), 0 );
+		Actions\expectAdded( 'avatar_privacy_uninstallation_global' )->once()->with( [ $this->sut, 'delete_network_options' ], m::type( 'int' ), 0 );
+
+		// Delete transients from sitemeta or options table.
+		Actions\expectAdded( 'avatar_privacy_uninstallation_site' )->once()->with( [ $this->sut, 'delete_transients' ], m::type( 'int' ), 0 );
+		Actions\expectAdded( 'avatar_privacy_uninstallation_global' )->once()->with( [ $this->sut, 'delete_network_transients' ], m::type( 'int' ), 0 );
+
+		// Drop all our tables.
+		Actions\expectAdded( 'avatar_privacy_uninstallation_site' )->once()->with( [ $this->database, 'drop_table' ], m::type( 'int' ), 1 );
+
+		$this->sut->shouldReceive( 'do_site_cleanups' )->once();
+		Actions\expectDone( 'avatar_privacy_uninstallation_global' )->once();
 
 		$this->assertNull( $this->sut->run() );
 	}
@@ -198,43 +211,42 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::delete_cached_files.
+	 * Tests ::do_site_cleanups.
 	 *
-	 * @covers ::delete_cached_files
+	 * @covers ::do_site_cleanups
 	 */
-	public function test_delete_cached_files() {
-		$this->file_cache->shouldReceive( 'invalidate' )->once();
+	public function test_do_site_cleanups() {
+		$site_ids   = [ 1, 2, 10 ];
+		$site_count = \count( $site_ids );
 
-		$this->assertNull( $this->sut->delete_cached_files() );
-	}
-
-	/**
-	 * Tests ::drop_all_tables.
-	 *
-	 * @covers ::drop_all_tables
-	 */
-	public function test_drop_all_tables() {
 		Functions\expect( 'is_multisite' )->once()->andReturn( false );
 
-		$this->database->shouldReceive( 'drop_table' )->once()->withNoArgs();
+		Functions\expect( 'get_sites' )->never();
+		Functions\expect( 'switch_to_blog' )->never();
+		Functions\expect( 'restore_current_blog' )->never();
 
-		$this->assertNull( $this->sut->drop_all_tables() );
+		Actions\expectDone( 'avatar_privacy_uninstallation_site' )->once()->with( null );
+
+		$this->assertNull( $this->sut->do_site_cleanups() );
 	}
 
 	/**
-	 * Tests ::drop_all_tables.
+	 * Tests ::do_site_cleanups.
 	 *
-	 * @covers ::drop_all_tables
+	 * @covers ::do_site_cleanups
 	 */
-	public function test_drop_all_tables_multisite() {
+	public function test_do_site_cleanups_multisite() {
 		$site_ids   = [ 1, 2, 10 ];
 		$site_count = \count( $site_ids );
 
 		Functions\expect( 'is_multisite' )->once()->andReturn( true );
 		Functions\expect( 'get_sites' )->once()->with( [ 'fields' => 'ids' ] )->andReturn( $site_ids );
-		$this->database->shouldReceive( 'drop_table' )->times( $site_count )->with( m::type( 'int' ) );
+		Functions\expect( 'switch_to_blog' )->times( $site_count )->with( m::type( 'int' ) );
+		Functions\expect( 'restore_current_blog' )->times( $site_count );
 
-		$this->assertNull( $this->sut->drop_all_tables() );
+		Actions\expectDone( 'avatar_privacy_uninstallation_site' )->times( $site_count )->with( m::type( 'int' ) );
+
+		$this->assertNull( $this->sut->do_site_cleanups() );
 	}
 
 	/**
@@ -259,33 +271,18 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->options->shouldReceive( 'delete' )->once()->with( Core::SETTINGS_NAME );
 		$this->options->shouldReceive( 'reset_avatar_default' )->once();
 
-		Functions\expect( 'is_multisite' )->once()->andReturn( false );
-
-		$this->network_options->shouldReceive( 'delete' )->once()->with( Network_Options::USE_GLOBAL_TABLE );
-
 		$this->assertNull( $this->sut->delete_options() );
 	}
 
 	/**
-	 * Tests ::delete_options.
+	 * Tests ::delete_network_options.
 	 *
-	 * @covers ::delete_options
+	 * @covers ::delete_network_options
 	 */
-	public function test_delete_options_multisite() {
-		$site_ids   = [ 1, 2, 3 ];
-		$site_count = \count( $site_ids );
-
-		Functions\expect( 'is_multisite' )->once()->andReturn( true );
-		Functions\expect( 'get_sites' )->once()->with( [ 'fields' => 'ids' ] )->andReturn( $site_ids );
-		Functions\expect( 'switch_to_blog' )->times( $site_count )->with( m::type( 'int' ) );
-		Functions\expect( 'restore_current_blog' )->times( $site_count );
-
-		// FIXME: The main site is included!
-		$this->options->shouldReceive( 'delete' )->times( $site_count + 1 )->with( Core::SETTINGS_NAME );
-		$this->options->shouldReceive( 'reset_avatar_default' )->times( $site_count + 1 );
+	public function test_delete_network_options() {
 		$this->network_options->shouldReceive( 'delete' )->once()->with( Network_Options::USE_GLOBAL_TABLE );
 
-		$this->assertNull( $this->sut->delete_options() );
+		$this->assertNull( $this->sut->delete_network_options() );
 	}
 
 	/**
@@ -294,21 +291,31 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::delete_transients
 	 */
 	public function test_delete_transients() {
-		$key1      = 'foo';
-		$key2      = 'bar';
-		$key3      = 'acme';
-		$site_key1 = 'foobar';
-		$site_key2 = 'barfoo';
+		$key1 = 'foo';
+		$key2 = 'bar';
+		$key3 = 'acme';
 
 		$this->transients->shouldReceive( 'get_keys_from_database' )->once()->andReturn( [ $key1, $key2, $key3 ] );
 		$this->transients->shouldReceive( 'delete' )->once()->with( $key1, true );
 		$this->transients->shouldReceive( 'delete' )->once()->with( $key2, true );
 		$this->transients->shouldReceive( 'delete' )->once()->with( $key3, true );
 
+		$this->assertNull( $this->sut->delete_transients() );
+	}
+
+	/**
+	 * Tests ::delete_network_transients.
+	 *
+	 * @covers ::delete_network_transients
+	 */
+	public function test_delete_network_transients() {
+		$site_key1 = 'foobar';
+		$site_key2 = 'barfoo';
+
 		$this->site_transients->shouldReceive( 'get_keys_from_database' )->once()->andReturn( [ $site_key1, $site_key2 ] );
 		$this->site_transients->shouldReceive( 'delete' )->once()->with( $site_key1, true );
 		$this->site_transients->shouldReceive( 'delete' )->once()->with( $site_key2, true );
 
-		$this->assertNull( $this->sut->delete_transients() );
+		$this->assertNull( $this->sut->delete_network_transients() );
 	}
 }

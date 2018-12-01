@@ -114,7 +114,6 @@ class Uninstallation implements \Avatar_Privacy\Component {
 		$this->site_transients = $site_transients;
 		$this->database        = $database;
 		$this->file_cache      = $file_cache;
-
 	}
 
 	/**
@@ -124,30 +123,63 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	 */
 	public function run() {
 		// Delete cached files.
-		$this->delete_cached_files();
+		\add_action( 'avatar_privacy_uninstallation_global', [ $this->file_cache, 'invalidate' ], 10, 0 );
 
 		// Delete uploaded user avatars.
-		$this->delete_uploaded_avatars();
+		\add_action( 'avatar_privacy_uninstallation_global', [ $this, 'delete_uploaded_avatars' ], 11, 0 );
 
 		// Delete usermeta for all users.
-		$this->delete_user_meta();
+		\add_action( 'avatar_privacy_uninstallation_global', [ $this, 'delete_user_meta' ], 12, 0 );
 
 		// Delete/change options (from all sites in case of a multisite network).
-		$this->delete_options();
+		\add_action( 'avatar_privacy_uninstallation_site', [ $this, 'delete_options' ], 10, 0 );
+		\add_action( 'avatar_privacy_uninstallation_global', [ $this, 'delete_network_options' ], 13, 0 );
 
 		// Delete transients from sitemeta or options table.
-		$this->delete_transients();
+		\add_action( 'avatar_privacy_uninstallation_site', [ $this, 'delete_transients' ], 11, 0 );
+		\add_action( 'avatar_privacy_uninstallation_global', [ $this, 'delete_network_transients' ], 14, 0 );
 
 		// Drop all our tables.
-		$this->drop_all_tables();
+		\add_action( 'avatar_privacy_uninstallation_site', [ $this->database, 'drop_table' ], 12, 1 );
+
+		// Clean up the site-specific artifacts.
+		$this->do_site_cleanups();
+
+		/**
+		 * Cleans up any remaining global artifacts.
+		 */
+		\do_action( 'avatar_privacy_uninstallation_global' );
+	}
+
+	/**
+	 * Executes all the registered site clean-ups (for all sites if on multisite).
+	 */
+	protected function do_site_cleanups() {
+		if ( \is_multisite() ) {
+			foreach ( \get_sites( [ 'fields' => 'ids' ] ) as $site_id ) {
+				\switch_to_blog( $site_id );
+
+				/**
+				 * Do the registered site clean-ups for the current site.
+				 *
+				 * @param int|null $site_id Optional. The site (blog) ID or null if not a multisite installation.
+				 */
+				\do_action( 'avatar_privacy_uninstallation_site', $site_id );
+
+				\restore_current_blog();
+			}
+		} else {
+			/** This action is documented in class-uninstallation.php */
+			\do_action( 'avatar_privacy_uninstallation_site', null );
+		}
 	}
 
 	/**
 	 * Deletes uploaded avatar images.
 	 *
-	 * @since 2.1.0 Visibility changed to protected, made non-static.
+	 * @since 2.1.0 Visibility changed to public, made non-static.
 	 */
-	protected function delete_uploaded_avatars() {
+	public function delete_uploaded_avatars() {
 		$user_avatar = User_Avatar_Upload_Handler::USER_META_KEY;
 		$query       = [
 			'meta_key'     => $user_avatar, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
@@ -164,81 +196,56 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	}
 
 	/**
-	 * Deletes all cached files.
+	 * Deletes all user meta data added by the plugin.
 	 *
-	 * @since 2.1.0 Visibility changed to protected, made non-static.
+	 * @since 2.1.0 Visibility changed to public, made non-static.
 	 */
-	protected function delete_cached_files() {
-		$this->file_cache->invalidate();
-	}
-
-	/**
-	 * Drops all tables.
-	 *
-	 * @since 2.1.0 Visibility changed to protected, made non-static.
-	 */
-	protected function drop_all_tables() {
-		// Delete/change options for all other blogs (multisite).
-		if ( \is_multisite() ) {
-			foreach ( \get_sites( [ 'fields' => 'ids' ] ) as $site_id ) {
-				$this->database->drop_table( $site_id );
-			}
-		} else {
-			$this->database->drop_table();
-		}
-	}
-
-	/**
-	 * Delete all user meta data added by the plugin.
-	 *
-	 * @since 2.1.0 Visibility changed to protected, made non-static.
-	 */
-	protected function delete_user_meta() {
+	public function delete_user_meta() {
 		\delete_metadata( 'user', 0, Core::GRAVATAR_USE_META_KEY, null, true );
 		\delete_metadata( 'user', 0, Core::ALLOW_ANONYMOUS_META_KEY, null, true );
 		\delete_metadata( 'user', 0, User_Avatar_Upload_Handler::USER_META_KEY, null, true );
 	}
 
 	/**
-	 * Delete the plugin options (from all sites).
+	 * Deletes the site-specific plugin options.
 	 *
-	 * @since 2.1.0 Visibility changed to protected, made non-static.
+	 * @since 2.1.0 Visibility changed to public, made non-static.
 	 */
-	protected function delete_options() {
-		// Delete/change options for main blog.
+	public function delete_options() {
+		// Delete our settings.
 		$this->options->delete( Core::SETTINGS_NAME );
+
+		// Reset avatar_default to working value if necessary.
 		$this->options->reset_avatar_default();
+	}
 
-		// Delete/change options for all other blogs (multisite).
-		if ( \is_multisite() ) {
-			foreach ( \get_sites( [ 'fields' => 'ids' ] ) as $blog_id ) {
-				\switch_to_blog( $blog_id );
-
-				// Delete our settings.
-				$this->options->delete( Core::SETTINGS_NAME );
-
-				// Reset avatar_default to working value if necessary.
-				$this->options->reset_avatar_default();
-
-				\restore_current_blog();
-			}
-		}
-
-		// Delete site options as well (except for the salt).
+	/**
+	 * Deletes the global plugin options (except for the salt).
+	 *
+	 * @since 2.1.0
+	 */
+	public function delete_network_options() {
 		$this->network_options->delete( Network_Options::USE_GLOBAL_TABLE );
 	}
 
 	/**
-	 * Delete all the plugins transients.
+	 * Deletes all the plugin's site-specific transients.
 	 *
-	 * @since 2.1.0 Visibility changed to protected, made non-static.
+	 * @since 2.1.0 Visibility changed to public, made non-static.
 	 */
-	protected function delete_transients() {
+	public function delete_transients() {
 		// Remove regular transients.
 		foreach ( $this->transients->get_keys_from_database() as $key ) {
 			$this->transients->delete( $key, true );
 		}
+	}
 
+	/**
+	 * Deletes all the plugin's global transients ("site transients").
+	 *
+	 * @since 2.1.0
+	 */
+	public function delete_network_transients() {
 		// Remove site transients.
 		foreach ( $this->site_transients->get_keys_from_database() as $key ) {
 			$this->site_transients->delete( $key, true );
