@@ -161,7 +161,7 @@ class Setup implements \Avatar_Privacy\Component {
 		// We can ignore errors here, just carry on as if for a new installation.
 		if ( ! empty( $settings[ Options::INSTALLED_VERSION ] ) ) {
 			$installed_version = $settings[ Options::INSTALLED_VERSION ];
-		} elseif ( ! empty( $settings ) ) {
+		} elseif ( ! empty( $settings ) && ! isset( $settings[ Options::INSTALLED_VERSION ] ) ) {
 			// Plugin releases before 1.0 did not store the installed version.
 			$installed_version = '0.4-or-earlier';
 		} else {

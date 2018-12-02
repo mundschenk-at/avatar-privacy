@@ -26,6 +26,7 @@
 
 namespace Avatar_Privacy;
 
+use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler;
 
 use Mundschenk\UI\Controls;
@@ -151,6 +152,9 @@ class Settings {
 					$defaults[ $index ] = $field['default'];
 				}
 			}
+
+			// Allow detection of new installations.
+			$defaults[ Options::INSTALLED_VERSION ] = '';
 
 			$this->defaults = $defaults;
 		}

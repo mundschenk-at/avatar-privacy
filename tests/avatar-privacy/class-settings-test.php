@@ -34,6 +34,8 @@ use Mockery as m;
 
 use Avatar_Privacy\Settings;
 
+use Avatar_Privacy\Data_Storage\Options;
+
 /**
  * Avatar_Privacy\Settings unit test.
  *
@@ -89,5 +91,6 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertInternalType( 'array', $result );
 		$this->assertNotContainsOnly( 'array', $result );
+		$this->assertSame( '', $result[ Options::INSTALLED_VERSION ] );
 	}
 }
