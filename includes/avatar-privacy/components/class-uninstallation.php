@@ -153,10 +153,17 @@ class Uninstallation implements \Avatar_Privacy\Component {
 
 	/**
 	 * Executes all the registered site clean-ups (for all sites if on multisite).
+	 *
+	 * @since 2.1.0
 	 */
 	protected function do_site_cleanups() {
 		if ( \is_multisite() ) {
-			foreach ( \get_sites( [ 'fields' => 'ids' ] ) as $site_id ) {
+			// We want all the sites across all networks.
+			$query = [
+				'fields'     => 'ids',
+				'number'     => '',
+			];
+			foreach ( \get_sites( $query ) as $site_id ) {
 				\switch_to_blog( $site_id );
 
 				/**

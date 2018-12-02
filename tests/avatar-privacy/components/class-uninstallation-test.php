@@ -240,7 +240,7 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 		$site_count = \count( $site_ids );
 
 		Functions\expect( 'is_multisite' )->once()->andReturn( true );
-		Functions\expect( 'get_sites' )->once()->with( [ 'fields' => 'ids' ] )->andReturn( $site_ids );
+		Functions\expect( 'get_sites' )->once()->with( m::subset( [ 'fields' => 'ids' ] ) )->andReturn( $site_ids );
 		Functions\expect( 'switch_to_blog' )->times( $site_count )->with( m::type( 'int' ) );
 		Functions\expect( 'restore_current_blog' )->times( $site_count );
 
