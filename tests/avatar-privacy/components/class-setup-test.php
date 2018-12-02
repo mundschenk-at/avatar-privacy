@@ -147,7 +147,6 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::run
 	 */
 	public function test_run() {
-		Functions\expect( 'register_activation_hook' )->once()->with( 'plugin/file', [ $this->sut, 'activate' ] );
 		Functions\expect( 'register_deactivation_hook' )->once()->with( 'plugin/file', [ $this->sut, 'deactivate' ] );
 
 		Actions\expectAdded( 'plugins_loaded' )->once()->with( [ $this->sut, 'update_check' ] );
@@ -231,8 +230,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'maybe_update_user_hashes' )->once();
 		$this->sut->shouldReceive( 'upgrade_old_avatar_defaults' )->once();
-
-		Actions\expectAdded( 'init' )->once()->with( 'flush_rewrite_rules' );
+		$this->sut->shouldReceive( 'flush_rewrite_rules_soon' )->once();
 
 		// Preserve pass-by-reference.
 		$this->assertNull( $this->invokeMethod( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
@@ -261,8 +259,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'maybe_update_user_hashes' )->never();
 		$this->sut->shouldReceive( 'upgrade_old_avatar_defaults' )->once();
-
-		Actions\expectAdded( 'init' )->once()->with( 'flush_rewrite_rules' );
+		$this->sut->shouldReceive( 'flush_rewrite_rules_soon' )->once();
 
 		// Preserve pass-by-reference.
 		$this->assertNull( $this->invokeMethod( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
@@ -291,8 +288,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'maybe_update_user_hashes' )->never();
 		$this->sut->shouldReceive( 'upgrade_old_avatar_defaults' )->never();
-
-		Actions\expectAdded( 'init' )->once()->with( 'flush_rewrite_rules' );
+		$this->sut->shouldReceive( 'flush_rewrite_rules_soon' )->once();
 
 		// Preserve pass-by-reference.
 		$this->assertNull( $this->invokeMethod( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
@@ -305,27 +301,102 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::activate.
-	 *
-	 * @covers ::activate
-	 */
-	public function test_activate() {
-		Functions\expect( 'flush_rewrite_rules' )->once();
-
-		$this->assertNull( $this->sut->activate() );
-	}
-
-	/**
 	 * Tests ::deactivate.
 	 *
 	 * @covers ::deactivate
 	 */
 	public function test_deactivate() {
-		$this->sut->shouldReceive( 'disable_cron_jobs' )->once();
-		Functions\expect( 'flush_rewrite_rules' )->once();
-		$this->options->shouldReceive( 'reset_avatar_default' )->once();
+		$this->sut->shouldReceive( 'deactivate_plugin' )->once();
 
-		$this->assertNull( $this->sut->deactivate() );
+		$this->assertNull( $this->sut->deactivate( false ) );
+	}
+
+	/**
+	 * Tests ::deactivate on a small network.
+	 *
+	 * @covers ::deactivate
+	 */
+	public function test_deactivate_small_network() {
+		Functions\expect( 'wp_is_large_network' )->once()->andReturn( false );
+
+		$this->sut->shouldReceive( 'do_for_all_sites_in_network' )->once()->with( [ $this->sut, 'deactivate_plugin' ] );
+		$this->sut->shouldReceive( 'flush_rewrite_rules_soon' )->never();
+
+		$this->assertNull( $this->sut->deactivate( true ) );
+	}
+
+	/**
+	 * Tests ::deactivate on a large network.
+	 *
+	 * @covers ::deactivate
+	 */
+	public function test_deactivate_large_network() {
+		Functions\expect( 'wp_is_large_network' )->once()->andReturn( true );
+
+		$this->sut->shouldReceive( 'do_for_all_sites_in_network' )->once()->with(
+			m::on(
+				function( $task ) {
+					Functions\expect( 'wp_unschedule_hook' )->once()->with( Image_Proxy::CRON_JOB_ACTION );
+					$task( null );
+
+					return true;
+				}
+			)
+		);
+		$this->sut->shouldReceive( 'flush_rewrite_rules_soon' )->never();
+
+		$this->assertNull( $this->sut->deactivate( true ) );
+	}
+
+	/**
+	 * Tests ::do_for_all_sites_in_network.
+	 *
+	 * @covers ::do_for_all_sites_in_network
+	 */
+	public function test_do_for_all_sites_in_network() {
+		$fake_function = 'foobar';
+		$network_id    = 5;
+		$site_ids      = [ 1, 3, 5 ];
+		$site_count    = \count( $site_ids );
+
+		Functions\expect( 'get_current_network_id' )->once()->andReturn( $network_id );
+		Functions\expect( 'get_sites' )->once()->with(
+			[
+				'fields'     => 'ids',
+				'network_id' => $network_id,
+				'number'     => '',
+			]
+		)->andReturn( $site_ids );
+
+		Functions\expect( 'switch_to_blog' )->times( $site_count )->with( m::type( 'int' ) );
+		Functions\expect( $fake_function )->times( $site_count )->with( m::type( 'int' ) );
+		Functions\expect( 'restore_current_blog' )->times( $site_count );
+
+		$this->assertNull( $this->sut->do_for_all_sites_in_network( $fake_function ) );
+	}
+
+	/**
+	 * Tests ::flush_rewrite_rules_soon.
+	 *
+	 * @covers ::flush_rewrite_rules_soon
+	 */
+	public function test_flush_rewrite_rules_soon() {
+		$this->options->shouldReceive( 'delete' )->once()->with( 'rewrite_rules', true );
+
+		$this->assertNull( $this->sut->flush_rewrite_rules_soon() );
+	}
+
+	/**
+	 * Tests ::deactivate_plugin.
+	 *
+	 * @covers ::deactivate_plugin
+	 */
+	public function test_deactivate_plugin() {
+		Functions\expect( 'wp_unschedule_hook' )->once()->with( Image_Proxy::CRON_JOB_ACTION );
+		$this->options->shouldReceive( 'reset_avatar_default' )->once();
+		$this->sut->shouldReceive( 'flush_rewrite_rules_soon' )->once();
+
+		$this->assertNull( $this->sut->deactivate_plugin() );
 	}
 
 	/**
@@ -439,35 +510,5 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		}
 
 		$this->assertNull( $this->sut->maybe_update_user_hashes() );
-	}
-
-	/**
-	 * Tests ::disable_cron_jobs.
-	 *
-	 * @covers ::disable_cron_jobs
-	 */
-	public function test_disable_cron_jobs() {
-		Functions\expect( 'is_multisite' )->once()->andReturn( false );
-		Functions\expect( 'wp_unschedule_hook' )->once()->with( \Avatar_Privacy\Components\Image_Proxy::CRON_JOB_ACTION );
-
-		$this->assertNull( $this->sut->disable_cron_jobs() );
-	}
-
-	/**
-	 * Tests ::disable_cron_jobs.
-	 *
-	 * @covers ::disable_cron_jobs
-	 */
-	public function test_disable_cron_jobs_multisite() {
-		$site_ids   = [ 1, 2, 10 ];
-		$site_count = \count( $site_ids );
-
-		Functions\expect( 'is_multisite' )->once()->andReturn( true );
-		Functions\expect( 'get_sites' )->once()->with( [ 'fields' => 'ids' ] )->andReturn( $site_ids );
-		Functions\expect( 'switch_to_blog' )->times( $site_count )->with( m::type( 'int' ) );
-		Functions\expect( 'wp_unschedule_hook' )->times( $site_count )->with( \Avatar_Privacy\Components\Image_Proxy::CRON_JOB_ACTION );
-		Functions\expect( 'restore_current_blog' )->times( $site_count );
-
-		$this->assertNull( $this->sut->disable_cron_jobs() );
 	}
 }

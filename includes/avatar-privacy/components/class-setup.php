@@ -144,9 +144,7 @@ class Setup implements \Avatar_Privacy\Component {
 	 * @return void
 	 */
 	public function run() {
-
-		// Register various hooks.
-		\register_activation_hook( $this->plugin_file,   [ $this, 'activate' ] );
+		// Register deactivation hook. Activation is handled by the update check instead.
 		\register_deactivation_hook( $this->plugin_file, [ $this, 'deactivate' ] );
 
 		// Update settings and database if necessary.
@@ -183,6 +181,8 @@ class Setup implements \Avatar_Privacy\Component {
 		}
 
 		// Check if our database table needs to created or updated.
+		// This also sets up the `$wpdb->avatar_privacy` property, so we have to
+		// check on every page load.
 		if ( $this->database->maybe_create_table( $installed_version ) ) {
 			// We may need to update the contents as well.
 			$this->maybe_update_table_data( $installed_version );
@@ -226,23 +226,84 @@ class Setup implements \Avatar_Privacy\Component {
 		}
 
 		// To be safe, let's always flush the rewrite rules if there has been an update.
-		\add_action( 'init', 'flush_rewrite_rules' );
-	}
-
-	/**
-	 * Handles plugin activation.
-	 */
-	public function activate() {
-		\flush_rewrite_rules();
+		$this->flush_rewrite_rules_soon();
 	}
 
 	/**
 	 * Handles plugin deactivation.
+	 *
+	 * @since 2.1.0 Parameter `$network_wide` added.
+	 *
+	 * @param  bool $network_wide A flag indicating if the plugin was network-activated.
 	 */
-	public function deactivate() {
-		$this->disable_cron_jobs();
+	public function deactivate( $network_wide ) {
+		if ( ! $network_wide ) {
+			// We've only been activated on this site, all good.
+			$this->deactivate_plugin();
+		} elseif ( ! \wp_is_large_network() ) {
+			// This is a "small" multisite network, so get WordPress to rebuild the rewrite rules.
+			$this->do_for_all_sites_in_network( [ $this, 'deactivate_plugin' ] );
+		} else {
+			// OK, let's try not to break anything.
+			$this->do_for_all_sites_in_network(
+				// We still need to disable our cron jobs, though.
+				function() {
+					\wp_unschedule_hook( Image_Proxy::CRON_JOB_ACTION );
+				}
+			);
+
+			return;
+		}
+	}
+
+	/**
+	 * Performs the given task on all sites in the current network.
+	 *
+	 * Warning: This is potentially expensive.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param  callable $task The task to execute. Should take the site ID as its parameter.
+	 */
+	protected function do_for_all_sites_in_network( callable $task ) {
+		$query = [
+			'fields'     => 'ids',
+			'network_id' => \get_current_network_id(),
+			'number'     => '',
+		];
+		foreach ( \get_sites( $query ) as $site_id ) {
+			\switch_to_blog( $site_id );
+
+			$task( $site_id );
+
+			\restore_current_blog();
+		}
+	}
+
+	/**
+	 * Triggers a rebuild of the rewrite rules on the next page load.
+	 *
+	 * @since 2.1.0
+	 */
+	public function flush_rewrite_rules_soon() {
+		// Deleting the option forces a rebuild in the proper context on the next load.
+		$this->options->delete( 'rewrite_rules', true );
+	}
+
+	/**
+	 * The deactivation tasks for a single site.
+	 *
+	 * @since 2.1.0
+	 */
+	public function deactivate_plugin() {
+		// Disable cron jobs.
+		\wp_unschedule_hook( Image_Proxy::CRON_JOB_ACTION );
+
+		// Reset avatar defaults.
 		$this->options->reset_avatar_default();
-		\flush_rewrite_rules();
+
+		// Flush rewrite rules on next page load.
+		$this->flush_rewrite_rules_soon();
 	}
 
 	/**
@@ -290,23 +351,6 @@ class Setup implements \Avatar_Privacy\Component {
 
 		foreach ( \get_users( $args ) as $user ) {
 			\update_user_meta( $user->ID, Core::EMAIL_HASH_META_KEY, $this->core->get_hash( $user->user_email ) );
-		}
-	}
-
-	/**
-	 * Ensures that the cron jobs are disabled on each site.
-	 *
-	 * @since 2.1.0 Made non-static, visibility changed to protected.
-	 */
-	protected function disable_cron_jobs() {
-		if ( \is_multisite() ) {
-			foreach ( \get_sites( [ 'fields' => 'ids' ] ) as $site_id ) {
-				\switch_to_blog( $site_id );
-				\wp_unschedule_hook( Image_Proxy::CRON_JOB_ACTION );
-				\restore_current_blog();
-			}
-		} else {
-			\wp_unschedule_hook( Image_Proxy::CRON_JOB_ACTION );
 		}
 	}
 }
