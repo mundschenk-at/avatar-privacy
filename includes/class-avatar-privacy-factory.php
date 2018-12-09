@@ -38,6 +38,7 @@ use Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler;
 use Avatar_Privacy\Components\Avatar_Handling;
 use Avatar_Privacy\Components\Comments;
 use Avatar_Privacy\Components\Integrations;
+use Avatar_Privacy\Components\Network_Settings_Page;
 use Avatar_Privacy\Components\Privacy_Tools;
 use Avatar_Privacy\Components\Settings_Page;
 use Avatar_Privacy\Components\Setup;
@@ -45,6 +46,7 @@ use Avatar_Privacy\Components\Uninstallation;
 use Avatar_Privacy\Components\User_Profile;
 
 use Avatar_Privacy\Data_Storage\Cache;
+use Avatar_Privacy\Data_Storage\Database;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Network_Options;
@@ -101,6 +103,7 @@ abstract class Avatar_Privacy_Factory {
 			$rules = [
 				// Shared helpers.
 				Cache::class                  => self::SHARED,
+				Database::class               => self::SHARED,
 				Transients::class             => self::SHARED,
 				Site_Transients::class        => self::SHARED,
 				Options::class                => self::SHARED,
@@ -119,6 +122,7 @@ abstract class Avatar_Privacy_Factory {
 				// Components.
 				Avatar_Handling::class        => $full_path_rule,
 				Comments::class               => $full_path_rule,
+				Network_Settings_Page::class  => $full_path_rule,
 				Privacy_Tools::class          => $full_path_rule,
 				Settings_Page::class          => $full_path_rule,
 				Setup::class                  => $full_path_rule,

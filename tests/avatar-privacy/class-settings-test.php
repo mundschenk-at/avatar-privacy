@@ -93,4 +93,17 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assertNotContainsOnly( 'array', $result );
 		$this->assertSame( '', $result[ Options::INSTALLED_VERSION ] );
 	}
+
+	/**
+	 * Tests ::get_network_fields.
+	 *
+	 * @covers ::get_network_fields
+	 */
+	public function test_get_network_fields() {
+		$result = $this->sut->get_network_fields();
+
+		$this->assertInternalType( 'array', $result );
+		$this->assertContainsOnly( 'string', \array_keys( $result ) );
+		$this->assertContainsOnly( 'array', $result );
+	}
 }
