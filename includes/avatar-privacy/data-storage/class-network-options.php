@@ -57,4 +57,22 @@ class Network_Options extends \Mundschenk\Data_Storage\Network_Options {
 	public function __construct() {
 		parent::__construct( self::PREFIX );
 	}
+
+	/**
+	 * Removes the prefix from an option name.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param  string $name The option name including the prefix.
+	 *
+	 * @return string       The option name without the prefix, or '' if an invalid name was given.
+	 */
+	public function remove_prefix( $name ) {
+		$parts = \explode( self::PREFIX, $name, 2 );
+		if ( '' === $parts[0] ) {
+			return $parts[1];
+		}
+
+		return '';
+	}
 }

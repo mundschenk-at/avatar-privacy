@@ -43,6 +43,13 @@ use Avatar_Privacy\Data_Storage\Network_Options;
 class Network_Options_Test extends \Avatar_Privacy\Tests\TestCase {
 
 	/**
+	 * The system-under-test.
+	 *
+	 * @var Network_Options
+	 */
+	private $sut;
+
+	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
@@ -50,6 +57,8 @@ class Network_Options_Test extends \Avatar_Privacy\Tests\TestCase {
 		parent::setUp();
 
 		Functions\when( '__' )->returnArg();
+
+		$this->sut = m::mock( Network_Options::class )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -63,5 +72,31 @@ class Network_Options_Test extends \Avatar_Privacy\Tests\TestCase {
 		$result = new Network_Options();
 
 		$this->assertAttributeSame( Network_Options::PREFIX, 'prefix', $result );
+	}
+
+	/**
+	 * Provides data for testing remove_prefix.
+	 *
+	 * @return array
+	 */
+	public function provide_test_remove_prefix_data() {
+		return [
+			[ 'avatar_privacy_test', 'test' ],
+			[ 'foobar', '' ],
+		];
+	}
+
+	/**
+	 * Tests ::remove_prefix.
+	 *
+	 * @covers ::remove_prefix
+	 *
+	 * @dataProvider provide_test_remove_prefix_data
+	 *
+	 * @param  string $input  Option name.
+	 * @param  string $result Result.
+	 */
+	public function test_remove_prefix( $input, $result ) {
+		$this->assertSame( $result, $this->sut->remove_prefix( $input ) );
 	}
 }
