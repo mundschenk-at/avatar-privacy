@@ -118,7 +118,9 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	 */
 	public function register_network_settings() {
 		// Create our options page.
-		\add_submenu_page( 'settings.php', \__( 'My Network Options', 'avatar-privacy' ), \__( 'Avatar Privacy', 'avatar-privacy' ), 'manage_network_options', self::OPTION_GROUP, [ $this, 'print_settings_page' ] );
+		$page = \add_submenu_page( 'settings.php', \__( 'My Network Options', 'avatar-privacy' ), \__( 'Avatar Privacy', 'avatar-privacy' ), 'manage_network_options', self::OPTION_GROUP, [ $this, 'print_settings_page' ] );
+
+		// Add the section(s).
 		\add_settings_section( self::SECTION, '', [ $this, 'print_settings_section' ], self::OPTION_GROUP );
 
 		// Register control render callbacks.
@@ -127,6 +129,9 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 
 			$control->register( self::OPTION_GROUP );
 		}
+
+		// Use the registered $page handle to hook stylesheet loading.
+		\add_action( 'admin_print_styles-' . $page, [ $this, 'print_admin_styles' ] );
 	}
 
 	/**
@@ -202,12 +207,18 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	/**
 	 * Stops executing the current request early.
 	 *
-	 * @since 2.1.0
 	 * @codeCoverageIgnore
 	 *
 	 * @param  int $status Optional. A status code in the range 0 to 254. Default 0.
 	 */
 	protected function exit_request( $status = 0 ) {
 		exit( $status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+
+	/**
+	 * Enqueue stylesheet for options page.
+	 */
+	public function print_admin_styles() {
+		\wp_enqueue_style( 'wp-typography-settings', \plugins_url( 'admin/css/settings.css', $this->plugin_file ), [], $this->core->get_version(), 'all' );
 	}
 }

@@ -1,0 +1,13 @@
+.submit .aux-buttons {
+	float: right;
+	display: block;
+}
+
+select,
+input {
+	margin-top: -.1em;
+}
+
+input[type=number] {
+  width: 5em;
+}
