@@ -161,9 +161,9 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function provide_update_check_data() {
 		return [
-			[ '1.0', '' ],
-			[ '1.0', '1.0' ],
-			[ '1.0', null ],
+			[ '1.0', '', true ],
+			[ '1.0', '1.0', true ],
+			[ '1.0', null, false ],
 		];
 	}
 
@@ -174,11 +174,12 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @dataProvider provide_update_check_data
 	 *
-	 * @param  string $version   The simulated plugin version.
-	 * @param  string $installed The previously installed plugin version (may be empty).
+	 * @param  string $version        The simulated plugin version.
+	 * @param  string $installed      The previously installed plugin version (may be empty).
+	 * @param  bool   $settings_empty Whether the intial settings array is empty.
 	 */
-	public function test_update_check( $version, $installed ) {
-		$settings = [];
+	public function test_update_check( $version, $installed, $settings_empty ) {
+		$settings = $settings_empty ? [] : [ 'foo' => 'bar' ];
 		if ( null !== $installed ) {
 			$settings[ Options::INSTALLED_VERSION ] = $installed;
 		}
