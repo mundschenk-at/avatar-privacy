@@ -39,6 +39,7 @@ use Avatar_Privacy\Components\Network_Settings_Page;
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Settings;
 use Avatar_Privacy\Data_Storage\Network_Options;
+use Avatar_Privacy\Data_Storage\Transients;
 
 /**
  * Avatar_Privacy\Components\Network_Settings_Page unit test.
@@ -79,6 +80,13 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $network_options;
 
 	/**
+	 * Mocked helper object.
+	 *
+	 * @var Transients
+	 */
+	private $transients;
+
+	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
@@ -107,8 +115,9 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->core            = m::mock( Core::class );
 		$this->settings        = m::mock( Settings::class );
 		$this->network_options = m::mock( Network_Options::class );
+		$this->transients      = m::mock( Transients::class );
 
-		$this->sut = m::mock( Network_Settings_Page::class, [ 'plugin/file', $this->core, $this->network_options, $this->settings ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Network_Settings_Page::class, [ 'plugin/file', $this->core, $this->network_options, $this->transients, $this->settings ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -119,7 +128,7 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Network_Settings_Page::class )->makePartial();
 
-		$mock->__construct( 'path/file', $this->core, $this->network_options, $this->settings );
+		$mock->__construct( 'path/file', $this->core, $this->network_options, $this->transients, $this->settings );
 
 		$this->assertAttributeSame( 'path/file', 'plugin_file', $mock );
 		$this->assertAttributeSame( $this->core, 'core', $mock );
@@ -166,10 +175,12 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'is_network_admin' )->once()->andReturn( true );
 
 		$this->settings->shouldReceive( 'get_network_fields' )->once()->andReturn( $templates );
-		$factory->shouldReceive( 'initialize' )->once()->with( $templates, $this->network_options, '' )->andReturn( $controls );
+		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::USE_GLOBAL_TABLE )->andReturn( true );
+		$factory->shouldReceive( 'initialize' )->once()->with( m::subset( $templates ), $this->network_options, '' )->andReturn( $controls );
 
 		Actions\expectAdded( 'network_admin_menu' )->once()->with( [ $this->sut, 'register_network_settings' ] );
 		Actions\expectAdded( 'network_admin_edit_' . Network_Settings_Page::ACTION )->once()->with( [ $this->sut, 'save_network_settings' ] );
+		Actions\expectAdded( 'network_admin_notices' )->once()->with( 'settings_errors' );
 
 		$this->assertNull( $this->sut->run() );
 	}
@@ -181,10 +192,12 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_register_network_settings() {
 		// External input.
+		$migrate       = Network_Options::MIGRATE_FROM_GLOBAL_TABLE;
 		$controls      = [
-			'setting1' => m::mock( 'Mundschenk\UI\Controls\Checkbox_Input' ),
-			'setting2' => m::mock( 'Mundschenk\UI\Controls\Textarea' ),
-			'setting3' => m::mock( 'Mundschenk\UI\Controls\Button_Input' ),
+			'setting1' => m::mock( \Mundschenk\UI\Controls\Checkbox_Input::class ),
+			'setting2' => m::mock( \Mundschenk\UI\Controls\Textarea::class ),
+			'setting3' => m::mock( \Mundschenk\UI\Controls\Button_Input::class ),
+			$migrate   => m::mock( \Mundschenk\UI\Controls\Submit_Input::class ),
 		];
 		$control_count = \count( $controls );
 		$this->setValue( $this->sut, 'controls', $controls, Network_Settings_Page::class );
@@ -198,6 +211,7 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		$controls['setting1']->shouldReceive( 'register' )->once()->with( Network_Settings_Page::OPTION_GROUP );
 		$controls['setting2']->shouldReceive( 'register' )->once()->with( Network_Settings_Page::OPTION_GROUP );
 		$controls['setting3']->shouldReceive( 'register' )->once()->with( Network_Settings_Page::OPTION_GROUP );
+		$controls[ $migrate ]->shouldReceive( 'register' )->once()->with( Network_Settings_Page::OPTION_GROUP );
 
 		$this->assertNull( $this->sut->register_network_settings() );
 	}
@@ -261,12 +275,17 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->network_options->shouldReceive( 'remove_prefix' )->once()->with( 'prefix_option3' )->andReturn( 'option3' );
 		$this->network_options->shouldReceive( 'delete' )->once()->with( 'prefix_option3', true );
 
+		// Settings errors.
+		Functions\expect( 'get_settings_errors' )->once()->andReturn( [] );
+		Functions\expect( 'add_settings_error' )->once()->with( Network_Settings_Page::OPTION_GROUP, 'settings_updated', m::type( 'string' ), 'updated' );
+		$this->sut->shouldReceive( 'persist_settings_errors' )->once();
+
 		// Finish.
 		Functions\expect( 'network_admin_url' )->once()->with( 'settings.php' )->andReturn( $network_admin_url );
 		Functions\expect( 'add_query_arg' )->once()->with(
 			[
-				'page'    => Network_Settings_Page::OPTION_GROUP,
-				'updated' => true,
+				'page'             => Network_Settings_Page::OPTION_GROUP,
+				'settings-updated' => true,
 			],
 			$network_admin_url
 		)->andReturn( $network_admin_url_with_queries );
@@ -319,5 +338,185 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->expectOutputString( 'NETWORK_SECTION' );
 
 		$this->assertNull( $this->sut->print_settings_section( $section ) );
+	}
+
+	/**
+	 * Tests ::print_styles.
+	 *
+	 * @covers ::print_styles
+	 */
+	public function test_print_styles() {
+		$plugin_url = 'my-plugin-url';
+		$version    = '9.9.9';
+
+		$this->core->shouldReceive( 'get_version' )->once()->andReturn( $version );
+		Functions\expect( 'plugins_url' )->once()->with( 'admin/css/settings.css', 'plugin/file' )->andReturn( $plugin_url );
+		Functions\expect( 'wp_enqueue_style' )->once()->with( 'avatar-privacy-settings', $plugin_url, [], $version, 'all' );
+
+		$this->assertNull( $this->sut->print_styles() );
+	}
+
+	/**
+	 * Tests ::sanitize_migrate_from_global_table.
+	 *
+	 * @covers ::sanitize_migrate_from_global_table
+	 */
+	public function test_sanitize_migrate_from_global_table() {
+		$input  = 'foo';
+		$result = 'bar';
+
+		$this->sut->shouldReceive( 'trigger_admin_notice' )->once()->with( Network_Options::MIGRATE_FROM_GLOBAL_TABLE, 'migrated-to-site-tables', m::type( 'string' ), 'notice-info', $input )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->sanitize_migrate_from_global_table( $input ) );
+	}
+
+	/**
+	 * Provides data for testing filter_update_option.
+	 *
+	 * @return array
+	 */
+	public function provide_trigger_admin_notice_data() {
+		return [
+			[ 'foo', true ],
+			[ 0, false ],
+		];
+	}
+
+	/**
+	 * Tests ::trigger_admin_notice.
+	 *
+	 * @covers ::trigger_admin_notice
+	 *
+	 * @dataProvider provide_trigger_admin_notice_data
+	 *
+	 * @param  mixed $input     The input value.
+	 * @param  bool  $result    Expected result.
+	 */
+	public function test_trigger_admin_notice( $input, $result ) {
+		$setting_name = 'my-setting-name';
+		$notice_id    = 'my-notice-id';
+		$message      = 'some message';
+		$notice_level = 'my-notice-level';
+
+		$index = 'foo';
+
+		// Fake $_POST.
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		$_POST = [ $index => 'bar' ];
+
+		$this->network_options->shouldReceive( 'get_name' )->once()->with( $setting_name )->andReturn( $index );
+		Functions\expect( 'add_settings_error' )->once()->with( Network_Settings_Page::OPTION_GROUP, $notice_id, $message, $notice_level );
+
+		$this->assertSame( $result, $this->sut->trigger_admin_notice( $setting_name, $notice_id, $message, $notice_level, $input ) );
+	}
+
+	/**
+	 * Tests ::trigger_admin_notice.
+	 *
+	 * @covers ::trigger_admin_notice
+	 *
+	 * @dataProvider provide_trigger_admin_notice_data
+	 *
+	 * @param  mixed $input     The input value.
+	 * @param  bool  $result    Expected result.
+	 */
+	public function test_trigger_admin_notice_no_button( $input, $result ) {
+		$setting_name = 'my-setting-name';
+		$notice_id    = 'my-notice-id';
+		$message      = 'some message';
+		$notice_level = 'my-notice-level';
+
+		$index = 'foo';
+
+		// Fake $_POST.
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		$_POST = [];
+
+		$this->network_options->shouldReceive( 'get_name' )->once()->with( $setting_name )->andReturn( $index );
+		Functions\expect( 'add_settings_error' )->never();
+
+		$this->assertSame( $result, $this->sut->trigger_admin_notice( $setting_name, $notice_id, $message, $notice_level, $input ) );
+	}
+
+	/**
+	 * Tests ::trigger_admin_notice.
+	 *
+	 * @covers ::trigger_admin_notice
+	 *
+	 * @dataProvider provide_trigger_admin_notice_data
+	 *
+	 * @param  mixed $input     The input value.
+	 * @param  bool  $result    Expected result.
+	 */
+	public function test_trigger_admin_notice_already_triggered( $input, $result ) {
+		$setting_name = 'my-setting-name';
+		$notice_id    = 'my-notice-id';
+		$message      = 'some message';
+		$notice_level = 'my-notice-level';
+
+		$index = 'foo';
+
+		// Fake $_POST.
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		$_POST = [ $index => 'bar' ];
+
+		// Notice already triggered.
+		$triggered = [ $setting_name => true ];
+		$this->setValue( $this->sut, 'triggered_notice', $triggered, Network_Settings_Page::class );
+
+		$this->network_options->shouldReceive( 'get_name' )->once()->with( $setting_name )->andReturn( $index );
+		Functions\expect( 'add_settings_error' )->never();
+
+		$this->assertSame( $result, $this->sut->trigger_admin_notice( $setting_name, $notice_id, $message, $notice_level, $input ) );
+	}
+
+	/**
+	 * Tests ::persist_settings_errors.
+	 *
+	 * @covers ::persist_settings_errors
+	 */
+	public function test_persist_settings_errors() {
+		$settings_errors = [ 'foo', 'bar' ];
+
+		Functions\expect( 'get_settings_errors' )->once()->andReturn( $settings_errors );
+		$this->transients->shouldReceive( 'set' )->once()->with( 'settings_errors', $settings_errors, 30, true );
+
+		$this->assertNull( $this->sut->persist_settings_errors() );
+	}
+
+	/**
+	 * Provides data for testing filter_update_option.
+	 *
+	 * @return array
+	 */
+	public function provide_filter_update_option_data() {
+		return [
+			[ 5, 6, true, 6 ],
+			[ 5, 6, false, 5 ],
+		];
+	}
+
+	/**
+	 * Tests ::filter_update_option.
+	 *
+	 * @covers ::filter_update_option
+	 *
+	 * @dataProvider provide_filter_update_option_data
+	 *
+	 * @param  mixed $new_value New value of the network option.
+	 * @param  mixed $old_value Old value of the network option.
+	 * @param  bool  $migrate   Whether the migrate button was pressed.
+	 * @param  mixed $result    Expected result.
+	 */
+	public function test_filter_update_option( $new_value, $old_value, $migrate, $result ) {
+		$index = 'foo';
+
+		// Fake $_POST.
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		$_POST = $migrate ? [ $index => 'bar' ] : [];
+
+		$this->network_options->shouldReceive( 'get_name' )->once()->with( Network_Options::MIGRATE_FROM_GLOBAL_TABLE )->andReturn( $index );
+
+		$this->assertSame( $result, $this->sut->filter_update_option( $new_value, $old_value, 'my-option' ) );
 	}
 }

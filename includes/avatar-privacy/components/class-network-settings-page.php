@@ -120,8 +120,16 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	 */
 	public function run() {
 		if ( \is_network_admin() ) {
+			// Load the field definitions.
+			$fields = $this->settings->get_network_fields();
+			if ( $this->network_options->get( Network_Options::USE_GLOBAL_TABLE ) ) {
+				$fields[ Network_Options::MIGRATE_FROM_GLOBAL_TABLE ]['attributes'] = [
+					'disabled' => 'disabled',
+				];
+			}
+
 			// Initialize the controls.
-			$this->controls = Control_Factory::initialize( $this->settings->get_network_fields(), $this->network_options, '' );
+			$this->controls = Control_Factory::initialize( $fields, $this->network_options, '' );
 
 			// Add some actions.
 			\add_action( 'network_admin_menu', [ $this, 'register_network_settings' ] );
@@ -145,6 +153,12 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 		foreach ( $this->controls as $option => $control ) {
 			$option_name = $this->network_options->get_name( $option );
 			$sanitize    = [ $control, 'sanitize' ];
+			if ( Network_Options::MIGRATE_FROM_GLOBAL_TABLE === $option ) {
+				$sanitize = [ $this, 'sanitize_migrate_from_global_table' ];
+			} else {
+				// Prevent spurious saves.
+				\add_filter( "pre_update_site_option_{$option_name}", [ $this, 'filter_update_option' ], 10, 3 );
+			}
 
 			// Register the setting ...
 			\register_setting( self::OPTION_GROUP, $option_name, $sanitize );
@@ -250,7 +264,19 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	 * Enqueue stylesheet for options page.
 	 */
 	public function print_styles() {
-		\wp_enqueue_style( 'wp-typography-settings', \plugins_url( 'admin/css/settings.css', $this->plugin_file ), [], $this->core->get_version(), 'all' );
+		\wp_enqueue_style( 'avatar-privacy-settings', \plugins_url( 'admin/css/settings.css', $this->plugin_file ), [], $this->core->get_version(), 'all' );
+	}
+
+
+	/**
+	 * Add proper notification for Migrate from Global Table button.
+	 *
+	 * @param mixed $input Ignored.
+	 *
+	 * @return bool
+	 */
+	public function sanitize_migrate_from_global_table( $input ) {
+		return $this->trigger_admin_notice( Network_Options::MIGRATE_FROM_GLOBAL_TABLE, 'migrated-to-site-tables', \__( 'Consent data migrated to site-specific tables.', 'avatar-privacy' ), 'notice-info', $input );
 	}
 
 	/**
@@ -286,5 +312,23 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	protected function persist_settings_errors() {
 		// A regular transient is used here, since it is automatically cleared right after the redirect.
 		$this->transients->set( 'settings_errors', \get_settings_errors(), 30, true );
+	}
+
+	/**
+	 * Prevents settings from being saved if we are migrating table data.
+	 *
+	 * @param mixed  $value      New value of the network option.
+	 * @param mixed  $old_value  Old value of the network option.
+	 * @param string $option     Option name.
+	 *
+	 * @return mixed
+	 */
+	public function filter_update_option( $value, $old_value, $option ) {
+		// Check if one of the auxiliary buttons was clicked and ignore changes in that case.
+		if ( ! empty( $_POST[ $this->network_options->get_name( Network_Options::MIGRATE_FROM_GLOBAL_TABLE ) ] ) ) { // WPCS: CSRF ok. Input var okay.
+			return $old_value;
+		} else {
+			return $value;
+		}
 	}
 }
