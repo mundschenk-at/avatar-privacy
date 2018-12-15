@@ -30,6 +30,7 @@ use Avatar_Privacy\Core;
 use Avatar_Privacy\Settings;
 
 use Avatar_Privacy\Data_Storage\Network_Options;
+use Avatar_Privacy\Data_Storage\Transients;
 
 use Mundschenk\UI\Control_Factory;
 use Mundschenk\UI\Control;
@@ -61,6 +62,13 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	private $network_options;
 
 	/**
+	 * The (standard) transietns handler.
+	 *
+	 * @var Transients
+	 */
+	private $transients;
+
+	/**
 	 * The default settings.
 	 *
 	 * @var Settings
@@ -82,17 +90,26 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	private $controls;
 
 	/**
+	 * An array to keep track of triggered admin notices.
+	 *
+	 * @var bool[]
+	 */
+	private $triggered_notice = [];
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param string          $plugin_file     The full path to the base plugin file.
 	 * @param Core            $core            The core API.
-	 * @param Network_Options $network_options The options handler.
+	 * @param Network_Options $network_options The network options handler.
+	 * @param Transients      $transients      The transients handler.
 	 * @param Settings        $settings        The default settings.
 	 */
-	public function __construct( $plugin_file, Core $core, Network_Options $network_options, Settings $settings ) {
+	public function __construct( $plugin_file, Core $core, Network_Options $network_options, Transients $transients, Settings $settings ) {
 		$this->plugin_file     = $plugin_file;
 		$this->core            = $core;
 		$this->network_options = $network_options;
+		$this->transients      = $transients;
 		$this->settings        = $settings;
 	}
 
@@ -109,6 +126,7 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 			// Add some actions.
 			\add_action( 'network_admin_menu', [ $this, 'register_network_settings' ] );
 			\add_action( 'network_admin_edit_' . self::ACTION, [ $this, 'save_network_settings' ] );
+			\add_action( 'network_admin_notices', 'settings_errors' );
 		}
 	}
 
@@ -125,13 +143,18 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 
 		// Register control render callbacks.
 		foreach ( $this->controls as $option => $control ) {
-			\register_setting( self::OPTION_GROUP, $this->network_options->get_name( $option ), [ $control, 'sanitize' ] );
+			$option_name = $this->network_options->get_name( $option );
+			$sanitize    = [ $control, 'sanitize' ];
 
+			// Register the setting ...
+			\register_setting( self::OPTION_GROUP, $option_name, $sanitize );
+
+			// ... and the control
 			$control->register( self::OPTION_GROUP );
 		}
 
-		// Use the registered $page handle to hook stylesheet loading.
-		\add_action( 'admin_print_styles-' . $page, [ $this, 'print_admin_styles' ] );
+		// Use the registered $page handle to hook stylesheet and script loading.
+		\add_action( "admin_print_styles-{$page}", [ $this, 'print_styles' ] );
 	}
 
 	/**
@@ -176,12 +199,20 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 			}
 		}
 
+		$settings_errors = \get_settings_errors();
+		if ( empty( $settings_errors ) ) {
+			\add_settings_error( self::OPTION_GROUP, 'settings_updated', \__( 'Settings updated.', 'avatar-privacy' ), 'updated' );
+		}
+
+		// Save the settings errors until after the redirect.
+		$this->persist_settings_errors();
+
 		// At last we redirect back to our options page.
 		\wp_safe_redirect(
 			\add_query_arg(
 				[
-					'page'    => self::OPTION_GROUP,
-					'updated' => 'true',
+					'page'             => self::OPTION_GROUP,
+					'settings-updated' => 'true',
 				],
 				\network_admin_url( 'settings.php' )
 			)
@@ -218,7 +249,42 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	/**
 	 * Enqueue stylesheet for options page.
 	 */
-	public function print_admin_styles() {
+	public function print_styles() {
 		\wp_enqueue_style( 'wp-typography-settings', \plugins_url( 'admin/css/settings.css', $this->plugin_file ), [], $this->core->get_version(), 'all' );
+	}
+
+	/**
+	 * Use sanitization callback to trigger an admin notice.
+	 *
+	 * @param  string $setting_name The setting used to trigger the notice (without the prefix).
+	 * @param  string $notice_id    HTML ID attribute for the notice.
+	 * @param  string $message      Translated message string.
+	 * @param  string $notice_level 'updated', 'notice-info', etc.
+	 * @param  mixed  $input        Passed back.
+	 *
+	 * @return bool The $input parameter cast to a boolean value.
+	 */
+	protected function trigger_admin_notice( $setting_name, $notice_id, $message, $notice_level, $input ) {
+		if (
+			! empty( $_POST[ $this->network_options->get_name( $setting_name ) ] ) && // WPCS: CSRF ok. Input var okay.
+			empty( $this->triggered_notice[ $setting_name ] )
+		) {
+			\add_settings_error( self::OPTION_GROUP, $notice_id, $message, $notice_level );
+
+			// Workaround for https://core.trac.wordpress.org/ticket/21989.
+			$this->triggered_notice[ $setting_name ] = true;
+		}
+
+		return (bool) $input;
+	}
+
+	/**
+	 * Persists the settings errors across the redirect.
+	 *
+	 * Uses a regular transient to stay compatible with core.
+	 */
+	protected function persist_settings_errors() {
+		// A regular transient is used here, since it is automatically cleared right after the redirect.
+		$this->transients->set( 'settings_errors', \get_settings_errors(), 30, true );
 	}
 }

@@ -45,6 +45,16 @@ class Network_Options extends \Mundschenk\Data_Storage\Network_Options {
 	const USE_GLOBAL_TABLE = 'use_global_table';
 
 	/**
+	 * The network option key (without the prefix) for the button to migrate from
+	 * global table usage in  multisite installations.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @var string
+	 */
+	const MIGRATE_FROM_GLOBAL_TABLE = 'migrate_from_global_table';
+
+	/**
 	 * The network option key (without the prefix) for storing the network-wide salt.
 	 *
 	 * @var string
