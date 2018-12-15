@@ -169,7 +169,6 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 
 		// Use the registered $page handle to hook stylesheet and script loading.
 		\add_action( "admin_print_styles-{$page}", [ $this, 'print_styles' ] );
-		\add_action( "admin_footer-{$page}", [ $this, 'print_scripts' ] );
 	}
 
 	/**
@@ -266,16 +265,6 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	 */
 	public function print_styles() {
 		\wp_enqueue_style( 'avatar-privacy-settings', \plugins_url( 'admin/css/settings.css', $this->plugin_file ), [], $this->core->get_version(), 'all' );
-	}
-
-	/**
-	 * Run tasks in the settings footer.
-	 */
-	public function print_scripts() {
-		// Add show/hide javascript.
-		if ( \wp_script_is( 'jquery', 'done' ) ) {
-			require \dirname( $this->plugin_file ) . '/admin/partials/network/migrate-global-table-script.php';
-		}
 	}
 
 	/**
