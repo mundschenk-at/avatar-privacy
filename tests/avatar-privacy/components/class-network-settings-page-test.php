@@ -517,6 +517,6 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->network_options->shouldReceive( 'get_name' )->once()->with( Network_Options::MIGRATE_FROM_GLOBAL_TABLE )->andReturn( $index );
 
-		$this->assertSame( $result, $this->sut->filter_update_option( $new_value, $old_value, 'my-option' ) );
+		$this->assertSame( $result, $this->sut->filter_update_option( $new_value, $old_value ) );
 	}
 }

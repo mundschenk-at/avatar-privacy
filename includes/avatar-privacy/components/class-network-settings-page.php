@@ -157,7 +157,7 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 				$sanitize = [ $this, 'sanitize_migrate_from_global_table' ];
 			} else {
 				// Prevent spurious saves.
-				\add_filter( "pre_update_site_option_{$option_name}", [ $this, 'filter_update_option' ], 10, 3 );
+				\add_filter( "pre_update_site_option_{$option_name}", [ $this, 'filter_update_option' ], 10, 2 );
 			}
 
 			// Register the setting ...
@@ -316,13 +316,12 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	/**
 	 * Prevents settings from being saved if we are migrating table data.
 	 *
-	 * @param mixed  $value      New value of the network option.
-	 * @param mixed  $old_value  Old value of the network option.
-	 * @param string $option     Option name.
+	 * @param mixed $value      New value of the network option.
+	 * @param mixed $old_value  Old value of the network option.
 	 *
 	 * @return mixed
 	 */
-	public function filter_update_option( $value, $old_value, $option ) {
+	public function filter_update_option( $value, $old_value ) {
 		// Check if one of the auxiliary buttons was clicked and ignore changes in that case.
 		if ( ! empty( $_POST[ $this->network_options->get_name( Network_Options::MIGRATE_FROM_GLOBAL_TABLE ) ] ) ) { // WPCS: CSRF ok. Input var okay.
 			return $old_value;
