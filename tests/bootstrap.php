@@ -34,14 +34,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', 'wordpress/path/' );
 }
 if ( ! defined( 'WEEK_IN_SECONDS' ) ) {
-	define( 'WEEK_IN_SECONDS', 10000 );
+	define( 'WEEK_IN_SECONDS', 7 * 24 * 60 * 60 );
 }
 if ( ! defined( 'DAY_IN_SECONDS' ) ) {
-	define( 'DAY_IN_SECONDS', 1000 );
+	define( 'DAY_IN_SECONDS', 24 * 60 * 60 );
 }
 if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
-	define( 'HOUR_IN_SECONDS', 100 );
+	define( 'HOUR_IN_SECONDS', 60 * 60 );
 }
 if ( ! defined( 'MINUTE_IN_SECONDS' ) ) {
-	define( 'MINUTE_IN_SECONDS', 10 );
+	define( 'MINUTE_IN_SECONDS', 60 );
+}
+if ( ! defined( 'OBJECT_K' ) ) {
+	define( 'OBJECT_K', 'OBJECT_K' );
 }
