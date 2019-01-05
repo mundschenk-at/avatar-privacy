@@ -193,4 +193,173 @@ class Database {
 		$wpdb->query( "DROP TABLE IF EXISTS {$table_name};" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.NotPrepared
 	}
 
+	/**
+	 * Migrates data from the global database to the given site database.
+	 *
+	 * @param  int|null $site_id Optional. The site ID. Null means the current $blog_id. Ddefault null.
+	 *
+	 * @return int|false         The number of migrated rows or false on error.
+	 */
+	public function migrate_from_global_table( $site_id = null ) {
+		global $wpdb;
+
+		// Retrieve site ID.
+		$site_id = $site_id ?: \get_current_blog_id();
+
+		// Get table names.
+		$global_table_name = $this->get_table_name( \get_main_site_id() );
+		$site_table_name   = $this->get_table_name( $site_id );
+
+		// Either we are on the main site or the "use global table" option is enabled.
+		if ( $global_table_name === $site_table_name ) {
+			return false;
+		}
+
+		// Select the rows to migrate.
+		$like_clause     = "set with comment % (site: %, blog: {$wpdb->esc_like( $site_id )})";
+		$rows_to_delete  = [];
+		$rows_to_update  = [];
+		$rows_to_migrate = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare( "SELECT * FROM `{$global_table_name}` WHERE log_message LIKE %s", $like_clause ), // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			OBJECT_K
+		);
+
+		// Check for existing rows for the same email addresses.
+		$emails        = \wp_list_pluck( $rows_to_migrate, 'email', 'id' );
+		$emails_to_ids = \array_flip( $emails );
+		$existing_rows = (array) $wpdb->get_results( $this->prepare_email_query( $emails, $site_table_name ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery
+		foreach ( $existing_rows as $row ) {
+			$global_row_id = $emails_to_ids[ $row->email ];
+
+			if ( ! empty( $rows_to_migrate[ $global_row_id ] ) ) {
+				$global_row = $rows_to_migrate[ $global_row_id ];
+
+				if ( \strtotime( $row->last_updated ) < \strtotime( $global_row->last_updated ) ) {
+					$rows_to_update[ $row->id ] = $global_row;
+				}
+
+				$rows_to_delete[ $global_row_id ] = $global_row;
+
+				unset( $rows_to_migrate[ $global_row_id ] );
+			}
+		}
+
+		// Migrated rows need to be deleted, too.
+		$rows_to_delete = $rows_to_delete + $rows_to_migrate;
+
+		// Number of affected rows.
+		$migrated = 0;
+		$deleted  = 0;
+
+		// Do INSERTs and UPDATEs in one query.
+		$insert_query = $this->prepare_insert_update_query( $rows_to_update, $rows_to_migrate, $site_table_name );
+		if ( false !== $insert_query ) {
+			$migrated = $wpdb->query( $insert_query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery
+		}
+
+		// Do DELETEs in one query.
+		$delete_query = $this->prepare_delete_query( \array_keys( $rows_to_delete ), $global_table_name );
+		if ( false !== $delete_query ) {
+			$deleted = $wpdb->query( $delete_query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery
+		}
+
+		// Don't count updated rows twice, but do count the deleted rows if they
+		// were not included in the updated rows because they were too old.
+		return \max( $migrated - \count( $rows_to_update ), $deleted );
+	}
+
+	/**
+	 * Prepares the query for inserting or updating the database.
+	 *
+	 * @param  object[] $rows_to_update  The table rows to update (existing ID).
+	 * @param  object[] $rows_to_migrate The table rows to insert (new autoincrement ID).
+	 * @param  string   $table           The table name.
+	 *
+	 * @return string|false              The prepared query, or false.
+	 */
+	protected function prepare_insert_update_query( array $rows_to_update, array $rows_to_migrate, $table ) {
+		global $wpdb;
+
+		if ( ( empty( $rows_to_update ) && empty( $rows_to_migrate ) ) || empty( $table ) ) {
+			return false;
+		}
+
+		$values_clause_parts = [];
+		$prepared_values     = [];
+
+		foreach ( $rows_to_update as $id => $row ) {
+			$values_clause_parts[] = '(%d,%s,%s,%d,%s,%s)';
+			$prepared_values[]     = $id;
+			$prepared_values[]     = $row->email;
+			$prepared_values[]     = $row->hash;
+			$prepared_values[]     = $row->use_gravatar;
+			$prepared_values[]     = $row->last_updated;
+			$prepared_values[]     = $row->log_message;
+		}
+
+		foreach ( $rows_to_migrate as $row ) {
+			$values_clause_parts[] = '(NULL,%s,%s,%d,%s,%s)';
+			$prepared_values[]     = $row->email;
+			$prepared_values[]     = $row->hash;
+			$prepared_values[]     = $row->use_gravatar;
+			$prepared_values[]     = $row->last_updated;
+			$prepared_values[]     = $row->log_message;
+		}
+
+		$values_clause = \join( ',', $values_clause_parts );
+
+		return $wpdb->prepare(  // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+			"INSERT INTO `{$table}` (id,email,hash,use_gravatar,last_updated,log_message)
+			 VALUES {$values_clause}
+			 ON DUPLICATE KEY UPDATE
+				 email = VALUES(email),
+				 hash = VALUES(hash),
+				 use_gravatar = VALUES(use_gravatar),
+				 last_updated = VALUES(last_updated),
+				 log_message = VALUES(log_message)",
+			$prepared_values
+		); // phpcs:enable WordPress.DB
+	}
+
+	/**
+	 * Prepares the query for selecting existing rows by email.
+	 *
+	 * @param  string[] $emails  An array of email adresses.
+	 * @param  string   $table   The table name.
+	 *
+	 * @return string|false      The prepared query, or false.
+	 */
+	protected function prepare_email_query( array $emails, $table ) {
+		global $wpdb;
+
+		if ( empty( $emails ) || empty( $table ) ) {
+			return false;
+		}
+
+		$placeholders = \join( ',', \array_fill( 0, \count( $emails ), '%s' ) );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+		return $wpdb->prepare( "SELECT * FROM `{$table}` WHERE email IN ({$placeholders})", $emails );
+	}
+
+	/**
+	 * Prepares the query for deleting obsolete rows from the database.
+	 *
+	 * @param  int[]  $ids_to_delete The IDs to delete.
+	 * @param  string $table         The table name.
+	 *
+	 * @return string|false          The prepared query, or false.
+	 */
+	protected function prepare_delete_query( array $ids_to_delete, $table ) {
+		global $wpdb;
+
+		if ( empty( $ids_to_delete ) || empty( $table ) ) {
+			return false;
+		}
+
+		$placeholders = \join( ',', \array_fill( 0, \count( $ids_to_delete ), '%d' ) );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+		return $wpdb->prepare( "DELETE FROM `{$table}` WHERE id IN ({$placeholders})", $ids_to_delete );
+	}
 }
