@@ -174,15 +174,16 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param bool $global        A flag indicating global uploads on multisite.
 	 */
 	public function test_upload( $is_multisite, $global ) {
-		$file   = [ 'foo' => 'bar' ];
-		$result = [ 'bar' => 'foo' ];
+		$file         = [ 'foo' => 'bar' ];
+		$result       = [ 'bar' => 'foo' ];
+		$main_site_id = 5;
 
 		if ( $global ) {
-			Functions\expect( 'is_multisite' )->twice()->andReturn( $is_multisite );
+			Functions\expect( 'is_multisite' )->once()->andReturn( $is_multisite );
 
 			if ( $is_multisite ) {
-				Functions\expect( 'get_network' )->once()->andReturn( (object) [ 'site_id' => 5 ] );
-				Functions\expect( 'switch_to_blog' )->once()->with( 5 );
+				Functions\expect( 'get_main_site_id' )->once()->andReturn( $main_site_id );
+				Functions\expect( 'switch_to_blog' )->once()->with( $main_site_id );
 				Functions\expect( 'restore_current_blog' )->once();
 			}
 		}

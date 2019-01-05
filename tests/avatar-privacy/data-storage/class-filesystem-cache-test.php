@@ -183,7 +183,7 @@ class Filesystem_Cache_Test extends \Avatar_Privacy\Tests\TestCase {
 		// First invocation.
 		Functions\expect( 'is_multisite' )->once()->andReturn( true );
 		Functions\expect( 'switch_to_blog' )->once()->with( m::type( 'int' ) );
-		Functions\expect( 'get_network' )->once()->andReturn( (object) [ 'site_id' => 5 ] );
+		Functions\expect( 'get_main_site_id' )->once()->andReturn( 5 );
 		Functions\expect( 'wp_get_upload_dir' )->once()->andReturn( $result );
 		Functions\expect( 'restore_current_blog' )->once();
 		$this->assertSame( $result, $this->sut->get_upload_dir() );
@@ -191,7 +191,7 @@ class Filesystem_Cache_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Second invocation.
 		Functions\expect( 'is_multisite' )->never();
 		Functions\expect( 'switch_to_blog' )->never();
-		Functions\expect( 'get_network' )->never();
+		Functions\expect( 'get_main_site_id' )->never();
 		Functions\expect( 'wp_get_upload_dir' )->never();
 		Functions\expect( 'restore_current_blog' )->never();
 		$this->assertSame( $result, $this->sut->get_upload_dir() );
