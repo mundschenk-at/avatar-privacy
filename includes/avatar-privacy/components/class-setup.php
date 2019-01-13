@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -36,6 +36,8 @@ use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Data_Storage\Transients;
+
+use Avatar_Privacy\Tools\Multisite;
 
 /**
  * Handles plugin activation and deactivation.
@@ -111,6 +113,13 @@ class Setup implements \Avatar_Privacy\Component {
 	private $database;
 
 	/**
+	 * The multisite tools.
+	 *
+	 * @var Multisite
+	 */
+	private $multisite;
+
+	/**
 	 * The core API.
 	 *
 	 * @var Core
@@ -127,8 +136,9 @@ class Setup implements \Avatar_Privacy\Component {
 	 * @param Options         $options         The options handler.
 	 * @param Network_Options $network_options The network options handler.
 	 * @param Database        $database        The database handler.
+	 * @param Multisite       $multisite       The the multisite handler.
 	 */
-	public function __construct( $plugin_file, Core $core, Transients $transients, Site_Transients $site_transients, Options $options, Network_Options $network_options, Database $database ) {
+	public function __construct( $plugin_file, Core $core, Transients $transients, Site_Transients $site_transients, Options $options, Network_Options $network_options, Database $database, Multisite $multisite ) {
 		$this->plugin_file     = $plugin_file;
 		$this->core            = $core;
 		$this->transients      = $transients;
@@ -136,6 +146,7 @@ class Setup implements \Avatar_Privacy\Component {
 		$this->options         = $options;
 		$this->network_options = $network_options;
 		$this->database        = $database;
+		$this->multisite       = $multisite;
 	}
 
 	/**
@@ -242,10 +253,10 @@ class Setup implements \Avatar_Privacy\Component {
 			$this->deactivate_plugin();
 		} elseif ( ! \wp_is_large_network() ) {
 			// This is a "small" multisite network, so get WordPress to rebuild the rewrite rules.
-			$this->do_for_all_sites_in_network( [ $this, 'deactivate_plugin' ] );
+			$this->multisite->do_for_all_sites_in_network( [ $this, 'deactivate_plugin' ] );
 		} else {
 			// OK, let's try not to break anything.
-			$this->do_for_all_sites_in_network(
+			$this->multisite->do_for_all_sites_in_network(
 				// We still need to disable our cron jobs, though.
 				function() {
 					\wp_unschedule_hook( Image_Proxy::CRON_JOB_ACTION );
@@ -253,30 +264,6 @@ class Setup implements \Avatar_Privacy\Component {
 			);
 
 			return;
-		}
-	}
-
-	/**
-	 * Performs the given task on all sites in the current network.
-	 *
-	 * Warning: This is potentially expensive.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param  callable $task The task to execute. Should take the site ID as its parameter.
-	 */
-	protected function do_for_all_sites_in_network( callable $task ) {
-		$query = [
-			'fields'     => 'ids',
-			'network_id' => \get_current_network_id(),
-			'number'     => '',
-		];
-		foreach ( \get_sites( $query ) as $site_id ) {
-			\switch_to_blog( $site_id );
-
-			$task( $site_id );
-
-			\restore_current_blog();
 		}
 	}
 

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -57,6 +57,7 @@ use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
 use Avatar_Privacy\Integrations\BBPress_Integration;
 
+use Avatar_Privacy\Tools\Multisite as Multisite_Tools;
 use Avatar_Privacy\Tools\Network\Gravatar_Service;
 
 /**
@@ -145,6 +146,7 @@ abstract class Avatar_Privacy_Factory {
 				BBPress_Integration::class    => $full_path_shared_rule,
 
 				// Tools.
+				Multisite_Tools::class        => self::SHARED,
 				Gravatar_Service::class       => self::SHARED,
 			];
 
