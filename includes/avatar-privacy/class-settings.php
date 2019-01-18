@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -189,16 +189,6 @@ class Settings {
 					'label'            => \__( '%1$s Use global table.', 'avatar-privacy' ),
 					'short'            => \__( 'Global Table', 'avatar-privacy' ),
 					'help_text'        => \__( 'Checking will make Avatar Privacy use a single table for each network (instead of for each site) for storing anonymous comment author consent. (Do not enable this setting unless you are sure about the privacy implications.)', 'avatar-privacy' ),
-					'default'          => 0,
-				],
-				Network_Options::MIGRATE_FROM_GLOBAL_TABLE => [
-					'ui'               => Controls\Submit_Input::class,
-					'tab_id'           => '',
-					'section'          => Network_Settings_Page::SECTION,
-					'grouped_with'     => Network_Options::USE_GLOBAL_TABLE,
-					'button_class'     => 'button',
-					'label'            => \__( 'Migrate from Global Table', 'avatar-privacy' ),
-					'help_text'        => \__( 'Clicking the button will migrate stored consent to separate tables for each site. The migration cannot be reversed and the created tables will not be deleted automatically if you later decide to use the global table again.', 'avatar-privacy' ),
 					'default'          => 0,
 				],
 			];

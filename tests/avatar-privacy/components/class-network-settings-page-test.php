@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -40,6 +40,7 @@ use Avatar_Privacy\Core;
 use Avatar_Privacy\Settings;
 use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Transients;
+use Avatar_Privacy\Tools\Multisite;
 
 /**
  * Avatar_Privacy\Components\Network_Settings_Page unit test.
@@ -87,6 +88,13 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $transients;
 
 	/**
+	 * The multisite tools.
+	 *
+	 * @var Multisite
+	 */
+	private $multisite;
+
+	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
@@ -116,8 +124,9 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->settings        = m::mock( Settings::class );
 		$this->network_options = m::mock( Network_Options::class );
 		$this->transients      = m::mock( Transients::class );
+		$this->multisite       = m::mock( Multisite::class );
 
-		$this->sut = m::mock( Network_Settings_Page::class, [ 'plugin/file', $this->core, $this->network_options, $this->transients, $this->settings ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Network_Settings_Page::class, [ 'plugin/file', $this->core, $this->network_options, $this->transients, $this->settings, $this->multisite ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -128,12 +137,20 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Network_Settings_Page::class )->makePartial();
 
-		$mock->__construct( 'path/file', $this->core, $this->network_options, $this->transients, $this->settings );
+		$mock->__construct(
+			'path/file',
+			$this->core,
+			$this->network_options,
+			$this->transients,
+			$this->settings,
+			$this->multisite
+		);
 
 		$this->assertAttributeSame( 'path/file', 'plugin_file', $mock );
 		$this->assertAttributeSame( $this->core, 'core', $mock );
 		$this->assertAttributeSame( $this->network_options, 'network_options', $mock );
 		$this->assertAttributeSame( $this->settings, 'settings', $mock );
+		$this->assertAttributeSame( $this->multisite, 'multisite', $mock );
 	}
 
 
@@ -175,7 +192,6 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'is_network_admin' )->once()->andReturn( true );
 
 		$this->settings->shouldReceive( 'get_network_fields' )->once()->andReturn( $templates );
-		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::USE_GLOBAL_TABLE )->andReturn( true );
 		$factory->shouldReceive( 'initialize' )->once()->with( m::subset( $templates ), $this->network_options, '' )->andReturn( $controls );
 
 		Actions\expectAdded( 'network_admin_menu' )->once()->with( [ $this->sut, 'register_network_settings' ] );
@@ -192,7 +208,7 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_register_network_settings() {
 		// External input.
-		$migrate       = Network_Options::MIGRATE_FROM_GLOBAL_TABLE;
+		$migrate       = Network_Options::GLOBAL_TABLE_MIGRATION;
 		$controls      = [
 			'setting1' => m::mock( \Mundschenk\UI\Controls\Checkbox_Input::class ),
 			'setting2' => m::mock( \Mundschenk\UI\Controls\Textarea::class ),
@@ -202,7 +218,11 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		$control_count = \count( $controls );
 		$this->setValue( $this->sut, 'controls', $controls, Network_Settings_Page::class );
 
-		Functions\expect( 'add_submenu_page' )->once()->with( 'settings.php', m::type( 'string' ), m::type( 'string' ), 'manage_network_options', Network_Settings_Page::OPTION_GROUP, [ $this->sut, 'print_settings_page' ] );
+		// Function results.
+		$use_global_table_name = 'prefix_use_global_table';
+		$page                  = 'my_network_settings_page';
+
+		Functions\expect( 'add_submenu_page' )->once()->with( 'settings.php', m::type( 'string' ), m::type( 'string' ), 'manage_network_options', Network_Settings_Page::OPTION_GROUP, [ $this->sut, 'print_settings_page' ] )->andReturn( $page );
 		Functions\expect( 'add_settings_section' )->once()->with( Network_Settings_Page::SECTION, '', [ $this->sut, 'print_settings_section' ], Network_Settings_Page::OPTION_GROUP );
 
 		$this->network_options->shouldReceive( 'get_name' )->times( $control_count )->with( m::type( 'string' ) )->andReturn( 'fake_option_name' );
@@ -212,6 +232,10 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		$controls['setting2']->shouldReceive( 'register' )->once()->with( Network_Settings_Page::OPTION_GROUP );
 		$controls['setting3']->shouldReceive( 'register' )->once()->with( Network_Settings_Page::OPTION_GROUP );
 		$controls[ $migrate ]->shouldReceive( 'register' )->once()->with( Network_Settings_Page::OPTION_GROUP );
+
+		$this->network_options->shouldReceive( 'get_name' )->once()->with( Network_Options::USE_GLOBAL_TABLE )->andReturn( $use_global_table_name );
+		Actions\expectAdded( "update_site_option_{$use_global_table_name}" )->once()->with( [ $this->sut, 'start_migration_from_global_table' ], 10, 3 );
+		Actions\expectAdded( "admin_print_styles-{$page}" )->once()->with( [ $this->sut, 'print_styles' ] );
 
 		$this->assertNull( $this->sut->register_network_settings() );
 	}
@@ -357,20 +381,6 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::sanitize_migrate_from_global_table.
-	 *
-	 * @covers ::sanitize_migrate_from_global_table
-	 */
-	public function test_sanitize_migrate_from_global_table() {
-		$input  = 'foo';
-		$result = 'bar';
-
-		$this->sut->shouldReceive( 'trigger_admin_notice' )->once()->with( Network_Options::MIGRATE_FROM_GLOBAL_TABLE, 'migrated-to-site-tables', m::type( 'string' ), 'notice-info', $input )->andReturn( $result );
-
-		$this->assertSame( $result, $this->sut->sanitize_migrate_from_global_table( $input ) );
-	}
-
-	/**
 	 * Provides data for testing filter_update_option.
 	 *
 	 * @return array
@@ -489,34 +499,54 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @return array
 	 */
-	public function provide_filter_update_option_data() {
+	public function provide_start_migration_from_global_table_data() {
 		return [
-			[ 5, 6, true, 6 ],
-			[ 5, 6, false, 5 ],
+			[ 'my_use_global_table', 0, 1, false, true ],
+			[ 'my_use_global_table', 0, 1, true, true ],
+			[ 'my_use_global_table', 1, 0, false, false ],
+			[ 'my_use_global_table', 1, 0, true, false ],
+			[ 'foo', 0, 1, false, false ],
+			[ 'foo', 0, 1, true, false ],
+			[ 'foo', 1, 0, false, false ],
+			[ 'foo', 1, 0, true, false ],
 		];
 	}
 
 	/**
-	 * Tests ::filter_update_option.
+	 * Tests ::start_migration_from_global_table.
 	 *
-	 * @covers ::filter_update_option
+	 * @covers ::start_migration_from_global_table
 	 *
-	 * @dataProvider provide_filter_update_option_data
+	 * @dataProvider provide_start_migration_from_global_table_data
 	 *
-	 * @param  mixed $new_value New value of the network option.
-	 * @param  mixed $old_value Old value of the network option.
-	 * @param  bool  $migrate   Whether the migrate button was pressed.
-	 * @param  mixed $result    Expected result.
+	 * @param  string $option    The saved option name.
+	 * @param  mixed  $new_value New value of the network option.
+	 * @param  mixed  $old_value Old value of the network option.
+	 * @param  bool   $locked    If the queue is currently locked by another request.
+	 * @param  bool   $triggered If a migration should be triggerd.
 	 */
-	public function test_filter_update_option( $new_value, $old_value, $migrate, $result ) {
-		$index = 'foo';
+	public function test_start_migration_from_global_table( $option, $new_value, $old_value, $locked, $triggered ) {
+		$use_global_table = 'my_use_global_table';
+		$site_ids         = [ 5, 11, 12, 21 ];
+		$queue            = \array_combine( $site_ids, $site_ids );
 
-		// Fake $_POST.
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
-		$_POST = $migrate ? [ $index => 'bar' ] : [];
+		$this->network_options->shouldReceive( 'get_name' )->once()->with( Network_Options::USE_GLOBAL_TABLE )->andReturn( $use_global_table );
 
-		$this->network_options->shouldReceive( 'get_name' )->once()->with( Network_Options::MIGRATE_FROM_GLOBAL_TABLE )->andReturn( $index );
+		if ( $triggered ) {
+			$this->multisite->shouldReceive( 'get_site_ids' )->once()->andReturn( $site_ids );
+			$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK )->andReturn( $locked );
 
-		$this->assertSame( $result, $this->sut->filter_update_option( $new_value, $old_value ) );
+			if ( ! $locked ) {
+				$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK, true );
+				$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION, $queue );
+				$this->network_options->shouldReceive( 'delete' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK );
+			} else {
+				$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION, $queue );
+			}
+
+			$this->sut->shouldReceive( 'trigger_admin_notice' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION, 'migrated-to-site-tables', m::type( 'string' ), 'notice-info', true );
+		}
+
+		$this->assertNull( $this->sut->start_migration_from_global_table( $option, $new_value, $old_value ) );
 	}
 }

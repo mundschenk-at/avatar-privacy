@@ -199,6 +199,11 @@ class Setup implements \Avatar_Privacy\Component {
 			$this->maybe_update_table_data( $installed_version );
 		}
 
+		// The tables are set up correctly, but maybe we need to migrate some data
+		// from the global table on network installations.
+		$this->maybe_load_migration_queue();
+		$this->maybe_migrate_from_global_table();
+
 		// Update installed version.
 		$settings[ Options::INSTALLED_VERSION ] = $version;
 		$this->options->set( Core::SETTINGS_NAME, $settings );
@@ -339,5 +344,60 @@ class Setup implements \Avatar_Privacy\Component {
 		foreach ( \get_users( $args ) as $user ) {
 			\update_user_meta( $user->ID, Core::EMAIL_HASH_META_KEY, $this->core->get_hash( $user->user_email ) );
 		}
+	}
+
+	/**
+	 * Tries set up the migration queue if the trigger is set.
+	 */
+	protected function maybe_load_migration_queue() {
+		$queue = $this->network_options->get( Network_Options::START_GLOBAL_TABLE_MIGRATION );
+
+		if ( ! empty( $queue ) && ! $this->network_options->get( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK ) ) {
+			// Lock queue.
+			$this->network_options->set( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK, true );
+
+			// Store new queue, overwriting any existing queue (since this per network
+			// and we already got all sites currently in the network).
+			$this->network_options->set( Network_Options::GLOBAL_TABLE_MIGRATION, $queue );
+
+			// Unlock queue and delete trigger.
+			$this->network_options->delete( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK );
+			$this->network_options->delete( Network_Options::START_GLOBAL_TABLE_MIGRATION );
+		}
+	}
+
+	/**
+	 * Tries to migrate global table data if the current site is queued.
+	 */
+	protected function maybe_migrate_from_global_table() {
+		if ( ! \is_plugin_active_for_network( \plugin_basename( $this->plugin_file ) ) ) {
+			// Nothing to see here.
+			return;
+		}
+
+		if ( $this->network_options->get( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK ) ) {
+			// The queue is currently locked. Try again next time.
+			return;
+		}
+
+		// Lock the queue.
+		$this->network_options->set( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK, true );
+
+		// Check if we are scheduled to migrate data from the global table.
+		$site_id = \get_current_blog_id();
+		$queue   = $this->network_options->get( Network_Options::GLOBAL_TABLE_MIGRATION, [] );
+		if ( ! empty( $queue[ $site_id ] ) ) {
+			// Migrate the data.
+			$this->database->migrate_from_global_table( $site_id );
+
+			// Mark this site as done.
+			unset( $queue[ $site_id ] );
+
+			// Save the new queue.
+			$this->network_options->set( Network_Options::GLOBAL_TABLE_MIGRATION, $queue );
+		}
+
+		// Unlock the queue again.
+		$this->network_options->delete( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK );
 	}
 }

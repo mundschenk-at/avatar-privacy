@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -31,6 +31,8 @@ use Avatar_Privacy\Settings;
 
 use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Transients;
+
+use Avatar_Privacy\Tools\Multisite;
 
 use Mundschenk\UI\Control_Factory;
 use Mundschenk\UI\Control;
@@ -76,6 +78,13 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	private $settings;
 
 	/**
+	 * The multisite tools.
+	 *
+	 * @var Multisite
+	 */
+	private $multisite;
+
+	/**
 	 * The core API.
 	 *
 	 * @var Core
@@ -104,13 +113,22 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	 * @param Network_Options $network_options The network options handler.
 	 * @param Transients      $transients      The transients handler.
 	 * @param Settings        $settings        The default settings.
+	 * @param Multisite       $multisite       The the multisite handler.
 	 */
-	public function __construct( $plugin_file, Core $core, Network_Options $network_options, Transients $transients, Settings $settings ) {
+	public function __construct(
+		$plugin_file,
+		Core $core,
+		Network_Options $network_options,
+		Transients $transients,
+		Settings $settings,
+		Multisite $multisite
+	) {
 		$this->plugin_file     = $plugin_file;
 		$this->core            = $core;
 		$this->network_options = $network_options;
 		$this->transients      = $transients;
 		$this->settings        = $settings;
+		$this->multisite       = $multisite;
 	}
 
 	/**
@@ -122,11 +140,6 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 		if ( \is_network_admin() ) {
 			// Load the field definitions.
 			$fields = $this->settings->get_network_fields();
-			if ( $this->network_options->get( Network_Options::USE_GLOBAL_TABLE ) ) {
-				$fields[ Network_Options::MIGRATE_FROM_GLOBAL_TABLE ]['attributes'] = [
-					'disabled' => 'disabled',
-				];
-			}
 
 			// Initialize the controls.
 			$this->controls = Control_Factory::initialize( $fields, $this->network_options, '' );
@@ -153,19 +166,17 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 		foreach ( $this->controls as $option => $control ) {
 			$option_name = $this->network_options->get_name( $option );
 			$sanitize    = [ $control, 'sanitize' ];
-			if ( Network_Options::MIGRATE_FROM_GLOBAL_TABLE === $option ) {
-				$sanitize = [ $this, 'sanitize_migrate_from_global_table' ];
-			} else {
-				// Prevent spurious saves.
-				\add_filter( "pre_update_site_option_{$option_name}", [ $this, 'filter_update_option' ], 10, 2 );
-			}
 
 			// Register the setting ...
 			\register_setting( self::OPTION_GROUP, $option_name, $sanitize );
 
-			// ... and the control
+			// ... and the control.
 			$control->register( self::OPTION_GROUP );
 		}
+
+		// Trigger table migration if the settings are changed.
+		$use_global_table = $this->network_options->get_name( Network_Options::USE_GLOBAL_TABLE );
+		\add_action( "update_site_option_{$use_global_table}", [ $this, 'start_migration_from_global_table' ], 10, 3 );
 
 		// Use the registered $page handle to hook stylesheet and script loading.
 		\add_action( "admin_print_styles-{$page}", [ $this, 'print_styles' ] );
@@ -268,17 +279,6 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	}
 
 	/**
-	 * Add proper notification for Migrate from Global Table button.
-	 *
-	 * @param mixed $input Ignored.
-	 *
-	 * @return bool
-	 */
-	public function sanitize_migrate_from_global_table( $input ) {
-		return $this->trigger_admin_notice( Network_Options::MIGRATE_FROM_GLOBAL_TABLE, 'migrated-to-site-tables', \__( 'Consent data migrated to site-specific tables.', 'avatar-privacy' ), 'notice-info', $input );
-	}
-
-	/**
 	 * Use sanitization callback to trigger an admin notice.
 	 *
 	 * @param  string $setting_name The setting used to trigger the notice (without the prefix).
@@ -314,19 +314,39 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	}
 
 	/**
-	 * Prevents settings from being saved if we are migrating table data.
+	 * Triggers the migration from global to site specific tables when global table
+	 * use is changed from enbled to disabled.
 	 *
-	 * @param mixed $value      New value of the network option.
-	 * @param mixed $old_value  Old value of the network option.
-	 *
-	 * @return mixed
+	 * @param string $option     Name of the network option.
+	 * @param mixed  $value      New value of the network option.
+	 * @param mixed  $old_value  Old value of the network option.
 	 */
-	public function filter_update_option( $value, $old_value ) {
-		// Check if one of the auxiliary buttons was clicked and ignore changes in that case.
-		if ( ! empty( $_POST[ $this->network_options->get_name( Network_Options::MIGRATE_FROM_GLOBAL_TABLE ) ] ) ) { // WPCS: CSRF ok. Input var okay.
-			return $old_value;
-		} else {
-			return $value;
+	public function start_migration_from_global_table( $option, $value, $old_value ) {
+		// The option name including the prefix.
+		$use_global_table = $this->network_options->get_name( Network_Options::USE_GLOBAL_TABLE );
+
+		// Only trigger migration if USE_GLOBAL_TABLE was changed from "on" to "off".
+		if ( $option === $use_global_table && empty( $value ) && ! empty( $old_value ) ) {
+			// Add all sites in the current network to the queue.
+			$site_ids = $this->multisite->get_site_ids();
+			$queue    = \array_combine( $site_ids, $site_ids );
+
+			if ( ! $this->network_options->get( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK ) ) {
+				// Lock queue.
+				$this->network_options->set( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK, true );
+
+				// Store new queue, overwriting any existing queue (since this per network
+				// and we already got all sites currently in the network).
+				$this->network_options->set( Network_Options::GLOBAL_TABLE_MIGRATION, $queue );
+
+				// Unlock queue.
+				$this->network_options->delete( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK );
+			} else {
+				$this->network_options->set( Network_Options::START_GLOBAL_TABLE_MIGRATION, $queue );
+			}
+
+			// Notify admins.
+			$this->trigger_admin_notice( Network_Options::GLOBAL_TABLE_MIGRATION, 'migrated-to-site-tables', \__( 'Consent data will be migrated to site-specific tables.', 'avatar-privacy' ), 'notice-info', true );
 		}
 	}
 }

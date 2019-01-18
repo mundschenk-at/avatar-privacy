@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -45,14 +45,33 @@ class Network_Options extends \Mundschenk\Data_Storage\Network_Options {
 	const USE_GLOBAL_TABLE = 'use_global_table';
 
 	/**
-	 * The network option key (without the prefix) for the button to migrate from
-	 * global table usage in  multisite installations.
+	 * The network option key (without the prefix) for the queue of site IDs to migrate from
+	 * global table usage in multisite installations.
 	 *
 	 * @since 2.1.0
 	 *
 	 * @var string
 	 */
-	const MIGRATE_FROM_GLOBAL_TABLE = 'migrate_from_global_table';
+	const GLOBAL_TABLE_MIGRATION = 'migrate_from_global_table';
+
+	/**
+	 * The network option key (without the prefix) serving as a lock for the site ID queue.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @var string
+	 */
+	const GLOBAL_TABLE_MIGRATION_LOCK = 'migrate_from_global_table_lock';
+
+	/**
+	 * The network option key (without the prefix) serving as temporary storagen when
+	 * the the site ID queue is locked.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @var string
+	 */
+	const START_GLOBAL_TABLE_MIGRATION = 'start_global_table_migration';
 
 	/**
 	 * The network option key (without the prefix) for storing the network-wide salt.
