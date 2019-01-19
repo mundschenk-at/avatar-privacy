@@ -104,4 +104,40 @@ class Network_Options extends \Mundschenk\Data_Storage\Network_Options {
 
 		return '';
 	}
+
+	/**
+	 * Tries to write-lock the given option (using a secondary option with the '_lock'
+	 * suffix).
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param  string $option   The option name (without the plugin-specific prefix).
+	 *
+	 * @return bool             True if the option can be safely set, false otherwise.
+	 */
+	public function lock( $option ) {
+		$now    = \microtime( true );
+		$secret = \wp_hash( "{$option}|{$now}", 'nonce' );
+		$lock   = "{$option}_lock";
+
+		return ! $this->get( $lock ) && $this->set( $lock, $secret ) && $secret === $this->get( $lock );
+	}
+
+	/**
+	 * Tries to write-unlock the given option (using a secondary option with the '_lock'
+	 * suffix).
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param  string $option   The option name (without the plugin-specific prefix).
+	 *
+	 * @return bool             True if the option is now unlocked (either because
+	 *                          it was not lockedor because unlock was successful),
+	 *                          false otherwise.
+	 */
+	public function unlock( $option ) {
+		$lock = "{$option}_lock";
+
+		return ! $this->get( $lock ) || $this->delete( $lock );
+	}
 }

@@ -99,4 +99,103 @@ class Network_Options_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_remove_prefix( $input, $result ) {
 		$this->assertSame( $result, $this->sut->remove_prefix( $input ) );
 	}
+
+	/**
+	 * Tests ::lock.
+	 *
+	 * @covers ::lock
+	 */
+	public function test_lock() {
+		$option = 'my_option_name';
+		$hash   = 'some hash';
+		$lock   = "{$option}_lock";
+
+		Functions\expect( 'wp_hash' )->once()->with( m::pattern( "/{$option}\|\d+\.\d+$/" ), 'nonce' )->andReturn( $hash );
+
+		$this->sut->shouldReceive( 'get' )->twice()->with( $lock )->andReturn( false, $hash );
+		$this->sut->shouldReceive( 'set' )->once()->with( $lock, $hash )->andReturn( true );
+
+		$this->assertTrue( $this->sut->lock( $option ) );
+	}
+
+	/**
+	 * Tests ::lock.
+	 *
+	 * @covers ::lock
+	 */
+	public function test_lock_already_locked() {
+		$option = 'my_option_name';
+		$hash   = 'some hash';
+		$lock   = "{$option}_lock";
+
+		Functions\expect( 'wp_hash' )->once()->with( m::pattern( "/{$option}\|\d+\.\d+$/" ), 'nonce' )->andReturn( $hash );
+
+		$this->sut->shouldReceive( 'get' )->once()->with( $lock )->andReturn( true );
+		$this->sut->shouldReceive( 'set' )->never();
+
+		$this->assertFalse( $this->sut->lock( $option ) );
+	}
+
+	/**
+	 * Tests ::lock.
+	 *
+	 * @covers ::lock
+	 */
+	public function test_lock_race_condition() {
+		$option = 'my_option_name';
+		$hash   = 'some hash';
+		$lock   = "{$option}_lock";
+
+		Functions\expect( 'wp_hash' )->once()->with( m::pattern( "/{$option}\|\d+\.\d+$/" ), 'nonce' )->andReturn( $hash );
+
+		$this->sut->shouldReceive( 'get' )->twice()->with( $lock )->andReturn( false, 'some other hash' );
+		$this->sut->shouldReceive( 'set' )->once()->with( $lock, $hash )->andReturn( true );
+
+		$this->assertFalse( $this->sut->lock( $option ) );
+	}
+
+	/**
+	 * Tests ::unlock.
+	 *
+	 * @covers ::unlock
+	 */
+	public function test_unlock() {
+		$option = 'my_option_name';
+		$lock   = "{$option}_lock";
+
+		$this->sut->shouldReceive( 'get' )->once()->with( $lock )->andReturn( 'some hash' );
+		$this->sut->shouldReceive( 'delete' )->once()->with( $lock )->andReturn( true );
+
+		$this->assertTrue( $this->sut->unlock( $option ) );
+	}
+
+	/**
+	 * Tests ::unlock.
+	 *
+	 * @covers ::unlock
+	 */
+	public function test_unlock_not_locked() {
+		$option = 'my_option_name';
+		$lock   = "{$option}_lock";
+
+		$this->sut->shouldReceive( 'get' )->once()->with( $lock )->andReturn( false );
+		$this->sut->shouldReceive( 'delete' )->never();
+
+		$this->assertTrue( $this->sut->unlock( $option ) );
+	}
+
+	/**
+	 * Tests ::unlock.
+	 *
+	 * @covers ::unlock
+	 */
+	public function test_unlock_error() {
+		$option = 'my_option_name';
+		$lock   = "{$option}_lock";
+
+		$this->sut->shouldReceive( 'get' )->once()->with( $lock )->andReturn( 'some hash' );
+		$this->sut->shouldReceive( 'delete' )->once()->with( $lock )->andReturn( false );
+
+		$this->assertFalse( $this->sut->unlock( $option ) );
+	}
 }
