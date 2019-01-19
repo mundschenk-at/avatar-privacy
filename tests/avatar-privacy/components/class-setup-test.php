@@ -520,10 +520,9 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION )->andReturn( $queue );
-		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK )->andReturn( false );
-		$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK, true );
+		$this->network_options->shouldReceive( 'lock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
 		$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION, $queue );
-		$this->network_options->shouldReceive( 'delete' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK );
+		$this->network_options->shouldReceive( 'unlock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
 		$this->network_options->shouldReceive( 'delete' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION );
 
 		$this->assertNull( $this->sut->maybe_load_migration_queue() );
@@ -541,8 +540,9 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION )->andReturn( $queue );
-		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK )->andReturn( true );
+		$this->network_options->shouldReceive( 'lock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( false );
 		$this->network_options->shouldReceive( 'set' )->never();
+		$this->network_options->shouldReceive( 'unlock' )->never();
 		$this->network_options->shouldReceive( 'delete' )->never();
 
 		$this->assertNull( $this->sut->maybe_load_migration_queue() );
@@ -557,8 +557,9 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$queue = false;
 
 		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION )->andReturn( $queue );
-		$this->network_options->shouldReceive( 'get' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK );
+		$this->network_options->shouldReceive( 'lock' )->never();
 		$this->network_options->shouldReceive( 'set' )->never();
+		$this->network_options->shouldReceive( 'unlock' )->never();
 		$this->network_options->shouldReceive( 'delete' )->never();
 
 		$this->assertNull( $this->sut->maybe_load_migration_queue() );
@@ -580,8 +581,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'plugin_basename' )->once()->with( 'plugin/file' )->andReturn( 'plugin/basename' );
 		Functions\expect( 'is_plugin_active_for_network' )->once()->with( 'plugin/basename' )->andReturn( true );
 
-		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK )->andReturn( false );
-		$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK, true );
+		$this->network_options->shouldReceive( 'lock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
 
 		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
 
@@ -589,7 +589,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->database->shouldReceive( 'migrate_from_global_table' )->once()->with( $site_id );
 		$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION, m::not( m::hasKey( $site_id ) ) );
 
-		$this->network_options->shouldReceive( 'delete' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK );
+		$this->network_options->shouldReceive( 'unlock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
 
 		$this->assertNull( $this->sut->maybe_migrate_from_global_table() );
 	}
@@ -610,9 +610,10 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'plugin_basename' )->once()->with( 'plugin/file' )->andReturn( 'plugin/basename' );
 		Functions\expect( 'is_plugin_active_for_network' )->once()->with( 'plugin/basename' )->andReturn( false );
 
+		$this->network_options->shouldReceive( 'lock' )->never();
 		$this->network_options->shouldReceive( 'get' )->never();
 		$this->network_options->shouldReceive( 'set' )->never();
-		$this->network_options->shouldReceive( 'delete' )->never();
+		$this->network_options->shouldReceive( 'unlock' )->never();
 
 		Functions\expect( 'get_current_blog_id' )->never();
 
@@ -637,9 +638,9 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'plugin_basename' )->once()->with( 'plugin/file' )->andReturn( 'plugin/basename' );
 		Functions\expect( 'is_plugin_active_for_network' )->once()->with( 'plugin/basename' )->andReturn( true );
 
-		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK )->andReturn( true );
+		$this->network_options->shouldReceive( 'lock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( false );
 		$this->network_options->shouldReceive( 'set' )->never();
-		$this->network_options->shouldReceive( 'delete' )->never();
+		$this->network_options->shouldReceive( 'unlock' )->never();
 
 		Functions\expect( 'get_current_blog_id' )->never();
 
@@ -663,8 +664,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'plugin_basename' )->once()->with( 'plugin/file' )->andReturn( 'plugin/basename' );
 		Functions\expect( 'is_plugin_active_for_network' )->once()->with( 'plugin/basename' )->andReturn( true );
 
-		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK )->andReturn( false );
-		$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK, true );
+		$this->network_options->shouldReceive( 'lock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
 
 		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
 
@@ -672,7 +672,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->database->shouldReceive( 'migrate_from_global_table' )->never();
 		$this->network_options->shouldReceive( 'set' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION, m::type( 'array' ) );
 
-		$this->network_options->shouldReceive( 'delete' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK );
+		$this->network_options->shouldReceive( 'unlock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
 
 		$this->assertNull( $this->sut->maybe_migrate_from_global_table() );
 	}

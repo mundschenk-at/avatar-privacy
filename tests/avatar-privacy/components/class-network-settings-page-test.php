@@ -534,12 +534,11 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		if ( $triggered ) {
 			$this->multisite->shouldReceive( 'get_site_ids' )->once()->andReturn( $site_ids );
-			$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK )->andReturn( $locked );
+			$this->network_options->shouldReceive( 'lock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( ! $locked );
 
 			if ( ! $locked ) {
-				$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK, true );
 				$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION, $queue );
-				$this->network_options->shouldReceive( 'delete' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK );
+				$this->network_options->shouldReceive( 'unlock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( ! $locked );
 			} else {
 				$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION, $queue );
 			}

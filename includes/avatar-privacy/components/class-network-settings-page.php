@@ -331,16 +331,14 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 			$site_ids = $this->multisite->get_site_ids();
 			$queue    = \array_combine( $site_ids, $site_ids );
 
-			if ( ! $this->network_options->get( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK ) ) {
-				// Lock queue.
-				$this->network_options->set( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK, true );
+			if ( $this->network_options->lock( Network_Options::GLOBAL_TABLE_MIGRATION ) ) {
 
 				// Store new queue, overwriting any existing queue (since this per network
 				// and we already got all sites currently in the network).
 				$this->network_options->set( Network_Options::GLOBAL_TABLE_MIGRATION, $queue );
 
 				// Unlock queue.
-				$this->network_options->delete( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK );
+				$this->network_options->unlock( Network_Options::GLOBAL_TABLE_MIGRATION );
 			} else {
 				$this->network_options->set( Network_Options::START_GLOBAL_TABLE_MIGRATION, $queue );
 			}

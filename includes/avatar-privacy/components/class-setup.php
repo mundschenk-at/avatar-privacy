@@ -352,16 +352,13 @@ class Setup implements \Avatar_Privacy\Component {
 	protected function maybe_load_migration_queue() {
 		$queue = $this->network_options->get( Network_Options::START_GLOBAL_TABLE_MIGRATION );
 
-		if ( ! empty( $queue ) && ! $this->network_options->get( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK ) ) {
-			// Lock queue.
-			$this->network_options->set( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK, true );
-
+		if ( ! empty( $queue ) && $this->network_options->lock( Network_Options::GLOBAL_TABLE_MIGRATION ) ) {
 			// Store new queue, overwriting any existing queue (since this per network
 			// and we already got all sites currently in the network).
 			$this->network_options->set( Network_Options::GLOBAL_TABLE_MIGRATION, $queue );
 
 			// Unlock queue and delete trigger.
-			$this->network_options->delete( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK );
+			$this->network_options->unlock( Network_Options::GLOBAL_TABLE_MIGRATION );
 			$this->network_options->delete( Network_Options::START_GLOBAL_TABLE_MIGRATION );
 		}
 	}
@@ -375,13 +372,10 @@ class Setup implements \Avatar_Privacy\Component {
 			return;
 		}
 
-		if ( $this->network_options->get( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK ) ) {
+		if ( ! $this->network_options->lock( Network_Options::GLOBAL_TABLE_MIGRATION ) ) {
 			// The queue is currently locked. Try again next time.
 			return;
 		}
-
-		// Lock the queue.
-		$this->network_options->set( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK, true );
 
 		// Check if we are scheduled to migrate data from the global table.
 		$site_id = \get_current_blog_id();
@@ -398,6 +392,6 @@ class Setup implements \Avatar_Privacy\Component {
 		}
 
 		// Unlock the queue again.
-		$this->network_options->delete( Network_Options::GLOBAL_TABLE_MIGRATION_LOCK );
+		$this->network_options->unlock( Network_Options::GLOBAL_TABLE_MIGRATION );
 	}
 }

@@ -55,15 +55,6 @@ class Network_Options extends \Mundschenk\Data_Storage\Network_Options {
 	const GLOBAL_TABLE_MIGRATION = 'migrate_from_global_table';
 
 	/**
-	 * The network option key (without the prefix) serving as a lock for the site ID queue.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @var string
-	 */
-	const GLOBAL_TABLE_MIGRATION_LOCK = 'migrate_from_global_table_lock';
-
-	/**
 	 * The network option key (without the prefix) serving as temporary storagen when
 	 * the the site ID queue is locked.
 	 *
