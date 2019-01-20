@@ -20,31 +20,23 @@
  *
  *  ***
  *
- * @package mundschenk-at/avatar-privacy/tests
+ * @package mundschenk-at/avatar-privacy
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-/**
- * Autoload everything using Composer.
- */
-require_once dirname( __DIR__ ) . '/vendor/autoload.php';
+use Avatar_Privacy\Data_Storage\Network_Options;
 
-// Necessary constants.
-if ( ! defined( 'ABSPATH' ) ) {
-	define( 'ABSPATH', 'wordpress/path/' );
-}
-if ( ! defined( 'WEEK_IN_SECONDS' ) ) {
-	define( 'WEEK_IN_SECONDS', 7 * 24 * 60 * 60 );
-}
-if ( ! defined( 'DAY_IN_SECONDS' ) ) {
-	define( 'DAY_IN_SECONDS', 24 * 60 * 60 );
-}
-if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
-	define( 'HOUR_IN_SECONDS', 60 * 60 );
-}
-if ( ! defined( 'MINUTE_IN_SECONDS' ) ) {
-	define( 'MINUTE_IN_SECONDS', 60 );
-}
-if ( ! defined( 'OBJECT_K' ) ) {
-	define( 'OBJECT_K', 'OBJECT_K' );
-}
+?><div class='wrap'>
+	<h1><?php \esc_html_e( 'Avatar Privacy Settings', 'avatar-privacy' ); ?></h1>
+
+	<form method="post" action="<?php echo \esc_url( 'edit.php?action=' . self::ACTION ); ?>">
+		<?php \settings_fields( self::OPTION_GROUP ); ?>
+		<?php \do_settings_sections( self::OPTION_GROUP ); ?>
+
+		<p class="submit">
+			<?php \submit_button( \__( 'Save Changes', 'avatar-privacy' ), 'primary', 'save_changes', false, [ 'tabindex' => 1 ] ); ?>
+		</p><!-- .submit -->
+	</form>
+
+</div><!-- .wrap -->
+<?php

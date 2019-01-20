@@ -31,6 +31,7 @@ use Avatar_Privacy\Components\Avatar_Handling;
 use Avatar_Privacy\Components\Comments;
 use Avatar_Privacy\Components\Image_Proxy;
 use Avatar_Privacy\Components\Integrations;
+use Avatar_Privacy\Components\Network_Settings_Page;
 use Avatar_Privacy\Components\Privacy_Tools;
 use Avatar_Privacy\Components\REST_API;
 use Avatar_Privacy\Components\Setup;
@@ -62,18 +63,19 @@ class Controller {
 	/**
 	 * Creates an instance of the plugin controller.
 	 *
-	 * @param Core            $core         The core API.
-	 * @param Setup           $setup        The (de-)activation handling.
-	 * @param Image_Proxy     $image_proxy  The image handler.
-	 * @param Avatar_Handling $avatars      The avatar handler.
-	 * @param Comments        $comments     The comments handler.
-	 * @param User_Profile    $profile      The user profile handler.
-	 * @param Settings_Page   $settings     The admin settings handler.
-	 * @param Privacy_Tools   $privacy      The privacy tools handler.
-	 * @param REST_API        $rest_api     The REST API handler.
-	 * @param Integrations    $integrations The third-party plugin integrations handler.
+	 * @param Core                  $core             The core API.
+	 * @param Setup                 $setup            The (de-)activation handling.
+	 * @param Image_Proxy           $image_proxy      The image handler.
+	 * @param Avatar_Handling       $avatars          The avatar handler.
+	 * @param Comments              $comments         The comments handler.
+	 * @param User_Profile          $profile          The user profile handler.
+	 * @param Settings_Page         $settings         The admin settings handler.
+	 * @param Network_Settings_Page $network_settings The admin settings handler.
+	 * @param Privacy_Tools         $privacy          The privacy tools handler.
+	 * @param REST_API              $rest_api         The REST API handler.
+	 * @param Integrations          $integrations     The third-party plugin integrations handler.
 	 */
-	public function __construct( Core $core, Setup $setup, Image_Proxy $image_proxy, Avatar_Handling $avatars, Comments $comments, User_Profile $profile, Settings_Page $settings, Privacy_Tools $privacy, REST_API $rest_api, Integrations $integrations ) {
+	public function __construct( Core $core, Setup $setup, Image_Proxy $image_proxy, Avatar_Handling $avatars, Comments $comments, User_Profile $profile, Settings_Page $settings, Network_Settings_Page $network_settings, Privacy_Tools $privacy, REST_API $rest_api, Integrations $integrations ) {
 		$this->core         = $core;
 		$this->components[] = $setup;
 		$this->components[] = $avatars;
@@ -81,6 +83,7 @@ class Controller {
 		$this->components[] = $comments;
 		$this->components[] = $profile;
 		$this->components[] = $settings;
+		$this->components[] = $network_settings;
 		$this->components[] = $privacy;
 		$this->components[] = $rest_api;
 		$this->components[] = $integrations;

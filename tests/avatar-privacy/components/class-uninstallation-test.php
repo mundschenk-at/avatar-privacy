@@ -118,8 +118,8 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 		$filesystem = [
 			'uploads'    => [
 				'avatar-privacy' => [
-					'cache'       => [],
-					'user-avatar' => [
+					'cache'        => [],
+					'user-avatars' => [
 						'foo.png' => 'FAKE_PNG',
 					],
 				],
@@ -281,6 +281,8 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_delete_network_options() {
 		$this->network_options->shouldReceive( 'delete' )->once()->with( Network_Options::USE_GLOBAL_TABLE );
+		$this->network_options->shouldReceive( 'delete' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION );
+		$this->network_options->shouldReceive( 'delete' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION );
 
 		$this->assertNull( $this->sut->delete_network_options() );
 	}

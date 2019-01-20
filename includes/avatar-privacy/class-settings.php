@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,6 +26,9 @@
 
 namespace Avatar_Privacy;
 
+use Avatar_Privacy\Components\Network_Settings_Page;
+use Avatar_Privacy\Data_Storage\Options;
+use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler;
 
 use Mundschenk\UI\Controls;
@@ -76,6 +79,13 @@ class Settings {
 	 * @var array
 	 */
 	private $fields;
+
+	/**
+	 * The fields definition array for the network settings.
+	 *
+	 * @var array
+	 */
+	private $network_fields;
 
 	/**
 	 * The cached information header markup.
@@ -152,9 +162,38 @@ class Settings {
 				}
 			}
 
+			// Allow detection of new installations.
+			$defaults[ Options::INSTALLED_VERSION ] = '';
+
 			$this->defaults = $defaults;
 		}
 
 		return $this->defaults;
+	}
+
+	/**
+	 * Retrieves the network settings field definitions.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @return array
+	 */
+	public function get_network_fields() {
+		if ( empty( $this->network_fields ) ) {
+			$this->network_fields = [ // @codeCoverageIgnore
+				Network_Options::USE_GLOBAL_TABLE          => [
+					'ui'               => Controls\Checkbox_Input::class,
+					'tab_id'           => '',
+					'section'          => Network_Settings_Page::SECTION,
+					/* translators: 1: checkbox HTML */
+					'label'            => \__( '%1$s Use global table.', 'avatar-privacy' ),
+					'short'            => \__( 'Global Table', 'avatar-privacy' ),
+					'help_text'        => \__( 'Checking will make Avatar Privacy use a single table for each network (instead of for each site) for storing anonymous comment author consent. (Do not enable this setting unless you are sure about the privacy implications.)', 'avatar-privacy' ),
+					'default'          => 0,
+				],
+			];
+		}
+
+		return $this->network_fields;
 	}
 }

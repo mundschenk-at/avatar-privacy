@@ -204,6 +204,8 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::register_settings.
 	 *
 	 * @covers ::register_settings
+	 *
+	 * @runInSeparateProcess
 	 */
 	public function test_register_settings() {
 		// External input.

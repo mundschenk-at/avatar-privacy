@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -36,6 +36,8 @@ use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Data_Storage\Transients;
+
+use Avatar_Privacy\Tools\Multisite;
 
 /**
  * Handles plugin activation and deactivation.
@@ -111,6 +113,13 @@ class Setup implements \Avatar_Privacy\Component {
 	private $database;
 
 	/**
+	 * The multisite tools.
+	 *
+	 * @var Multisite
+	 */
+	private $multisite;
+
+	/**
 	 * The core API.
 	 *
 	 * @var Core
@@ -127,8 +136,9 @@ class Setup implements \Avatar_Privacy\Component {
 	 * @param Options         $options         The options handler.
 	 * @param Network_Options $network_options The network options handler.
 	 * @param Database        $database        The database handler.
+	 * @param Multisite       $multisite       The the multisite handler.
 	 */
-	public function __construct( $plugin_file, Core $core, Transients $transients, Site_Transients $site_transients, Options $options, Network_Options $network_options, Database $database ) {
+	public function __construct( $plugin_file, Core $core, Transients $transients, Site_Transients $site_transients, Options $options, Network_Options $network_options, Database $database, Multisite $multisite ) {
 		$this->plugin_file     = $plugin_file;
 		$this->core            = $core;
 		$this->transients      = $transients;
@@ -136,6 +146,7 @@ class Setup implements \Avatar_Privacy\Component {
 		$this->options         = $options;
 		$this->network_options = $network_options;
 		$this->database        = $database;
+		$this->multisite       = $multisite;
 	}
 
 	/**
@@ -161,7 +172,7 @@ class Setup implements \Avatar_Privacy\Component {
 		// We can ignore errors here, just carry on as if for a new installation.
 		if ( ! empty( $settings[ Options::INSTALLED_VERSION ] ) ) {
 			$installed_version = $settings[ Options::INSTALLED_VERSION ];
-		} elseif ( ! empty( $settings ) ) {
+		} elseif ( ! empty( $settings ) && ! isset( $settings[ Options::INSTALLED_VERSION ] ) ) {
 			// Plugin releases before 1.0 did not store the installed version.
 			$installed_version = '0.4-or-earlier';
 		} else {
@@ -187,6 +198,11 @@ class Setup implements \Avatar_Privacy\Component {
 			// We may need to update the contents as well.
 			$this->maybe_update_table_data( $installed_version );
 		}
+
+		// The tables are set up correctly, but maybe we need to migrate some data
+		// from the global table on network installations.
+		$this->maybe_prepare_migration_queue();
+		$this->maybe_migrate_from_global_table();
 
 		// Update installed version.
 		$settings[ Options::INSTALLED_VERSION ] = $version;
@@ -242,10 +258,10 @@ class Setup implements \Avatar_Privacy\Component {
 			$this->deactivate_plugin();
 		} elseif ( ! \wp_is_large_network() ) {
 			// This is a "small" multisite network, so get WordPress to rebuild the rewrite rules.
-			$this->do_for_all_sites_in_network( [ $this, 'deactivate_plugin' ] );
+			$this->multisite->do_for_all_sites_in_network( [ $this, 'deactivate_plugin' ] );
 		} else {
 			// OK, let's try not to break anything.
-			$this->do_for_all_sites_in_network(
+			$this->multisite->do_for_all_sites_in_network(
 				// We still need to disable our cron jobs, though.
 				function() {
 					\wp_unschedule_hook( Image_Proxy::CRON_JOB_ACTION );
@@ -253,30 +269,6 @@ class Setup implements \Avatar_Privacy\Component {
 			);
 
 			return;
-		}
-	}
-
-	/**
-	 * Performs the given task on all sites in the current network.
-	 *
-	 * Warning: This is potentially expensive.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param  callable $task The task to execute. Should take the site ID as its parameter.
-	 */
-	protected function do_for_all_sites_in_network( callable $task ) {
-		$query = [
-			'fields'     => 'ids',
-			'network_id' => \get_current_network_id(),
-			'number'     => '',
-		];
-		foreach ( \get_sites( $query ) as $site_id ) {
-			\switch_to_blog( $site_id );
-
-			$task( $site_id );
-
-			\restore_current_blog();
 		}
 	}
 
@@ -352,5 +344,68 @@ class Setup implements \Avatar_Privacy\Component {
 		foreach ( \get_users( $args ) as $user ) {
 			\update_user_meta( $user->ID, Core::EMAIL_HASH_META_KEY, $this->core->get_hash( $user->user_email ) );
 		}
+	}
+
+	/**
+	 * Tries set up the migration queue if the trigger is set.
+	 */
+	protected function maybe_prepare_migration_queue() {
+		$queue = $this->network_options->get( Network_Options::START_GLOBAL_TABLE_MIGRATION );
+
+		if ( \is_array( $queue ) && $this->network_options->lock( Network_Options::GLOBAL_TABLE_MIGRATION ) ) {
+
+			if ( ! empty( $queue ) ) {
+				// Store new queue, overwriting any existing queue (since this per network
+				// and we already got all sites currently in the network).
+				$this->network_options->set( Network_Options::GLOBAL_TABLE_MIGRATION, $queue );
+			} else {
+				// The "start queue" is empty, which means we should cease the migration efforts.
+				$this->network_options->delete( Network_Options::GLOBAL_TABLE_MIGRATION );
+			}
+
+			// Unlock queue and delete trigger.
+			$this->network_options->unlock( Network_Options::GLOBAL_TABLE_MIGRATION );
+			$this->network_options->delete( Network_Options::START_GLOBAL_TABLE_MIGRATION );
+		}
+	}
+
+	/**
+	 * Tries to migrate global table data if the current site is queued.
+	 */
+	protected function maybe_migrate_from_global_table() {
+
+		if (
+			// The plugin is not network-activated (or not on a multisite installation).
+			! \is_plugin_active_for_network( \plugin_basename( $this->plugin_file ) ) ||
+			// The queue is empty.
+			! $this->network_options->get( Network_Options::GLOBAL_TABLE_MIGRATION ) ||
+			// The queue is locked. Try again next time.
+			! $this->network_options->lock( Network_Options::GLOBAL_TABLE_MIGRATION )
+		) {
+			// Nothing to see here.
+			return;
+		}
+
+		// Check if we are scheduled to migrate data from the global table.
+		$site_id = \get_current_blog_id();
+		$queue   = $this->network_options->get( Network_Options::GLOBAL_TABLE_MIGRATION, [] );
+		if ( ! empty( $queue[ $site_id ] ) ) {
+			// Migrate the data.
+			$this->database->migrate_from_global_table( $site_id );
+
+			// Mark this site as done.
+			unset( $queue[ $site_id ] );
+
+			if ( ! empty( $queue ) ) {
+				// Save the new queue.
+				$this->network_options->set( Network_Options::GLOBAL_TABLE_MIGRATION, $queue );
+			} else {
+				// Delete it.
+				$this->network_options->delete( Network_Options::GLOBAL_TABLE_MIGRATION );
+			}
+		}
+
+		// Unlock the queue again.
+		$this->network_options->unlock( Network_Options::GLOBAL_TABLE_MIGRATION );
 	}
 }

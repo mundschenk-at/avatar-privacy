@@ -1,4 +1,6 @@
 'use strict';
+const sass = require('node-sass');
+
 module.exports = function( grunt ) {
 
 	grunt.initConfig({
@@ -58,6 +60,7 @@ module.exports = function( grunt ) {
 						'admin/**',
 						'public/**',
 						'includes/**',
+						'!**/scss/**',
 						'composer.*',
 						'vendor/composer/**',
 						'vendor/mundschenk-at/check-wp-requirements/*.php',
@@ -162,6 +165,9 @@ module.exports = function( grunt ) {
 		},
 
 		sass: {
+			options: {
+				implementation: sass,
+			},
 			dist: {
 				options: {
 					outputStyle: 'compressed',

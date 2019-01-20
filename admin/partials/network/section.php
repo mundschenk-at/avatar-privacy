@@ -20,31 +20,11 @@
  *
  *  ***
  *
- * @package mundschenk-at/avatar-privacy/tests
+ * @package mundschenk-at/avatar-privacy
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-/**
- * Autoload everything using Composer.
- */
-require_once dirname( __DIR__ ) . '/vendor/autoload.php';
-
-// Necessary constants.
-if ( ! defined( 'ABSPATH' ) ) {
-	define( 'ABSPATH', 'wordpress/path/' );
-}
-if ( ! defined( 'WEEK_IN_SECONDS' ) ) {
-	define( 'WEEK_IN_SECONDS', 7 * 24 * 60 * 60 );
-}
-if ( ! defined( 'DAY_IN_SECONDS' ) ) {
-	define( 'DAY_IN_SECONDS', 24 * 60 * 60 );
-}
-if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
-	define( 'HOUR_IN_SECONDS', 60 * 60 );
-}
-if ( ! defined( 'MINUTE_IN_SECONDS' ) ) {
-	define( 'MINUTE_IN_SECONDS', 60 );
-}
-if ( ! defined( 'OBJECT_K' ) ) {
-	define( 'OBJECT_K', 'OBJECT_K' );
-}
+if ( ! empty( $description ) ) : ?>
+	<p><?php echo \esc_html( $description ); ?></p>
+<?php endif; ?>
+<?php

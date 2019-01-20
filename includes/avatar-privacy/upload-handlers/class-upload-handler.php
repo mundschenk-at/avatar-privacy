@@ -126,9 +126,12 @@ abstract class Upload_Handler {
 			require_once ABSPATH . 'wp-admin/includes/file.php'; // @codeCoverageIgnore
 		}
 
+		// Should we use a global directory for uploads?
+		$use_global_upload_dir = $global && \is_multisite();
+
 		// Switch to primary site if this should be a global upload.
-		if ( $global && \is_multisite() ) {
-			\switch_to_blog( \get_network()->site_id );
+		if ( $use_global_upload_dir ) {
+			\switch_to_blog( \get_main_site_id() );
 		}
 
 		// Ensure custom upload directory.
@@ -148,7 +151,7 @@ abstract class Upload_Handler {
 		\remove_filter( 'upload_dir', [ $this, 'custom_upload_dir' ] );
 
 		// Switch back to current site.
-		if ( $global && \is_multisite() ) {
+		if ( $use_global_upload_dir ) {
 			\restore_current_blog();
 		}
 

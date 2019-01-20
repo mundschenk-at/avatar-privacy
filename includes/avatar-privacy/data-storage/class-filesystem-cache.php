@@ -108,10 +108,10 @@ class Filesystem_Cache {
 	 */
 	protected function get_upload_dir() {
 		if ( empty( $this->upload_dir ) ) {
-			$multisite = is_multisite();
+			$multisite = \is_multisite();
 
 			if ( $multisite ) {
-				\switch_to_blog( \get_network()->site_id );
+				\switch_to_blog( \get_main_site_id() );
 			}
 
 			$this->upload_dir = \wp_get_upload_dir();
