@@ -381,103 +381,39 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Provides data for testing filter_update_option.
-	 *
-	 * @return array
-	 */
-	public function provide_trigger_admin_notice_data() {
-		return [
-			[ 'foo', true ],
-			[ 0, false ],
-		];
-	}
-
-	/**
 	 * Tests ::trigger_admin_notice.
 	 *
 	 * @covers ::trigger_admin_notice
-	 *
-	 * @dataProvider provide_trigger_admin_notice_data
-	 *
-	 * @param  mixed $input     The input value.
-	 * @param  bool  $result    Expected result.
 	 */
-	public function test_trigger_admin_notice( $input, $result ) {
+	public function test_trigger_admin_notice() {
 		$setting_name = 'my-setting-name';
 		$notice_id    = 'my-notice-id';
 		$message      = 'some message';
 		$notice_level = 'my-notice-level';
 
-		$index = 'foo';
-
-		// Fake $_POST.
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
-		$_POST = [ $index => 'bar' ];
-
-		$this->network_options->shouldReceive( 'get_name' )->once()->with( $setting_name )->andReturn( $index );
 		Functions\expect( 'add_settings_error' )->once()->with( Network_Settings_Page::OPTION_GROUP, $notice_id, $message, $notice_level );
 
-		$this->assertSame( $result, $this->sut->trigger_admin_notice( $setting_name, $notice_id, $message, $notice_level, $input ) );
+		$this->assertNull( $this->sut->trigger_admin_notice( $setting_name, $notice_id, $message, $notice_level ) );
 	}
 
 	/**
 	 * Tests ::trigger_admin_notice.
 	 *
 	 * @covers ::trigger_admin_notice
-	 *
-	 * @dataProvider provide_trigger_admin_notice_data
-	 *
-	 * @param  mixed $input     The input value.
-	 * @param  bool  $result    Expected result.
 	 */
-	public function test_trigger_admin_notice_no_button( $input, $result ) {
+	public function test_trigger_admin_notice_already_triggered() {
 		$setting_name = 'my-setting-name';
 		$notice_id    = 'my-notice-id';
 		$message      = 'some message';
 		$notice_level = 'my-notice-level';
-
-		$index = 'foo';
-
-		// Fake $_POST.
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
-		$_POST = [];
-
-		$this->network_options->shouldReceive( 'get_name' )->once()->with( $setting_name )->andReturn( $index );
-		Functions\expect( 'add_settings_error' )->never();
-
-		$this->assertSame( $result, $this->sut->trigger_admin_notice( $setting_name, $notice_id, $message, $notice_level, $input ) );
-	}
-
-	/**
-	 * Tests ::trigger_admin_notice.
-	 *
-	 * @covers ::trigger_admin_notice
-	 *
-	 * @dataProvider provide_trigger_admin_notice_data
-	 *
-	 * @param  mixed $input     The input value.
-	 * @param  bool  $result    Expected result.
-	 */
-	public function test_trigger_admin_notice_already_triggered( $input, $result ) {
-		$setting_name = 'my-setting-name';
-		$notice_id    = 'my-notice-id';
-		$message      = 'some message';
-		$notice_level = 'my-notice-level';
-
-		$index = 'foo';
-
-		// Fake $_POST.
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
-		$_POST = [ $index => 'bar' ];
 
 		// Notice already triggered.
 		$triggered = [ $setting_name => true ];
 		$this->setValue( $this->sut, 'triggered_notice', $triggered, Network_Settings_Page::class );
 
-		$this->network_options->shouldReceive( 'get_name' )->once()->with( $setting_name )->andReturn( $index );
 		Functions\expect( 'add_settings_error' )->never();
 
-		$this->assertSame( $result, $this->sut->trigger_admin_notice( $setting_name, $notice_id, $message, $notice_level, $input ) );
+		$this->assertNull( $this->sut->trigger_admin_notice( $setting_name, $notice_id, $message, $notice_level ) );
 	}
 
 	/**
@@ -543,7 +479,7 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 				$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION, $queue );
 			}
 
-			$this->sut->shouldReceive( 'trigger_admin_notice' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION, 'migrated-to-site-tables', m::type( 'string' ), 'notice-info', true );
+			$this->sut->shouldReceive( 'trigger_admin_notice' )->once()->with( Network_Options::USE_GLOBAL_TABLE, 'settings_updated', m::type( 'string' ), 'updated' );
 		}
 
 		$this->assertNull( $this->sut->start_migration_from_global_table( $option, $new_value, $old_value ) );

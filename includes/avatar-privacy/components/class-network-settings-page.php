@@ -285,22 +285,14 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	 * @param  string $notice_id    HTML ID attribute for the notice.
 	 * @param  string $message      Translated message string.
 	 * @param  string $notice_level 'updated', 'notice-info', etc.
-	 * @param  mixed  $input        Passed back.
-	 *
-	 * @return bool The $input parameter cast to a boolean value.
 	 */
-	protected function trigger_admin_notice( $setting_name, $notice_id, $message, $notice_level, $input ) {
-		if (
-			! empty( $_POST[ $this->network_options->get_name( $setting_name ) ] ) && // WPCS: CSRF ok. Input var okay.
-			empty( $this->triggered_notice[ $setting_name ] )
-		) {
+	protected function trigger_admin_notice( $setting_name, $notice_id, $message, $notice_level ) {
+		if ( empty( $this->triggered_notice[ $setting_name ] ) ) {
 			\add_settings_error( self::OPTION_GROUP, $notice_id, $message, $notice_level );
 
 			// Workaround for https://core.trac.wordpress.org/ticket/21989.
 			$this->triggered_notice[ $setting_name ] = true;
 		}
-
-		return (bool) $input;
 	}
 
 	/**
@@ -344,7 +336,7 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 			}
 
 			// Notify admins.
-			$this->trigger_admin_notice( Network_Options::GLOBAL_TABLE_MIGRATION, 'migrated-to-site-tables', \__( 'Consent data will be migrated to site-specific tables.', 'avatar-privacy' ), 'notice-info', true );
+			$this->trigger_admin_notice( Network_Options::USE_GLOBAL_TABLE, 'settings_updated', \__( 'Settings updated. Consent data will be migrated to site-specific tables.', 'avatar-privacy' ), 'updated' );
 		}
 	}
 }
