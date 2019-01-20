@@ -566,113 +566,137 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::maybe_migrate_from_global_table.
+	 * Provides data for testing maybe_migrate_from_global_table.
 	 *
-	 * @covers ::maybe_migrate_from_global_table
+	 * @return array
 	 */
-	public function test_maybe_migrate_from_global_table() {
-		$site_id = 6;
-		$queue   = [
-			1        => 1,
-			3        => 3,
-			$site_id => $site_id,
+	public function provide_maybe_migrate_from_global_table_data() {
+		return [
+			[
+				// Active and not locked.
+				6,   // site ID.
+				[    // queue.
+					1 => 1,
+					3 => 3,
+					6 => 6,
+				],
+				true,  // active.
+				false, // not locked.
+			],
+			[
+				// Not active.
+				6,   // site ID.
+				[    // queue.
+					1 => 1,
+					3 => 3,
+					6 => 6,
+				],
+				false, // not active.
+				false, // not locked.
+			],
+			[
+				// Active, but locked.
+				6,   // site ID.
+				[    // queue.
+					1 => 1,
+					3 => 3,
+					6 => 6,
+				],
+				true,  // active.
+				true,  // but locked.
+			],
+			[
+				// Active and not locked, but not queued.
+				6,   // site ID.
+				[    // queue.
+					1 => 1,
+					3 => 3,
+				],
+				true,  // active.
+				false, // not locked.
+			],
+			[
+				// Active and not locked, last site to be migrated.
+				6,   // site ID.
+				[    // queue.
+					6 => 6,
+				],
+				true,  // active.
+				false, // not locked.
+			],
+			[
+				// Active and not locked, but empty queue.
+				6,     // site ID.
+				[],    // queue.
+				true,  // active.
+				false, // not locked.
+			],
 		];
-
-		Functions\expect( 'plugin_basename' )->once()->with( 'plugin/file' )->andReturn( 'plugin/basename' );
-		Functions\expect( 'is_plugin_active_for_network' )->once()->with( 'plugin/basename' )->andReturn( true );
-
-		$this->network_options->shouldReceive( 'lock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
-
-		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
-
-		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION, [] )->andReturn( $queue );
-		$this->database->shouldReceive( 'migrate_from_global_table' )->once()->with( $site_id );
-		$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION, m::not( m::hasKey( $site_id ) ) );
-
-		$this->network_options->shouldReceive( 'unlock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
-
-		$this->assertNull( $this->sut->maybe_migrate_from_global_table() );
 	}
 
 	/**
 	 * Tests ::maybe_migrate_from_global_table.
 	 *
 	 * @covers ::maybe_migrate_from_global_table
-	 */
-	public function test_maybe_migrate_from_global_table_not_network_active() {
-		$site_id = 6;
-		$queue   = [
-			1        => 1,
-			3        => 3,
-			$site_id => $site_id,
-		];
-
-		Functions\expect( 'plugin_basename' )->once()->with( 'plugin/file' )->andReturn( 'plugin/basename' );
-		Functions\expect( 'is_plugin_active_for_network' )->once()->with( 'plugin/basename' )->andReturn( false );
-
-		$this->network_options->shouldReceive( 'lock' )->never();
-		$this->network_options->shouldReceive( 'get' )->never();
-		$this->network_options->shouldReceive( 'set' )->never();
-		$this->network_options->shouldReceive( 'unlock' )->never();
-
-		Functions\expect( 'get_current_blog_id' )->never();
-
-		$this->database->shouldReceive( 'migrate_from_global_table' )->never();
-
-		$this->assertNull( $this->sut->maybe_migrate_from_global_table() );
-	}
-
-	/**
-	 * Tests ::maybe_migrate_from_global_table.
 	 *
-	 * @covers ::maybe_migrate_from_global_table
-	 */
-	public function test_maybe_migrate_from_global_table_locked() {
-		$site_id = 6;
-		$queue   = [
-			1        => 1,
-			3        => 3,
-			$site_id => $site_id,
-		];
-
-		Functions\expect( 'plugin_basename' )->once()->with( 'plugin/file' )->andReturn( 'plugin/basename' );
-		Functions\expect( 'is_plugin_active_for_network' )->once()->with( 'plugin/basename' )->andReturn( true );
-
-		$this->network_options->shouldReceive( 'lock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( false );
-		$this->network_options->shouldReceive( 'set' )->never();
-		$this->network_options->shouldReceive( 'unlock' )->never();
-
-		Functions\expect( 'get_current_blog_id' )->never();
-
-		$this->database->shouldReceive( 'migrate_from_global_table' )->never();
-
-		$this->assertNull( $this->sut->maybe_migrate_from_global_table() );
-	}
-
-	/**
-	 * Tests ::maybe_migrate_from_global_table.
+	 * @dataProvider provide_maybe_migrate_from_global_table_data
 	 *
-	 * @covers ::maybe_migrate_from_global_table
+	 * @param  int   $site_id The site ID.
+	 * @param  int[] $queue   The queue.
+	 * @param  bool  $active  Whether the plugin is network active.
+	 * @param  bool  $locked  Whether the option is currently locked.
 	 */
-	public function test_maybe_migrate_from_global_table_not_queued() {
-		$site_id = 6;
-		$queue   = [
-			1        => 1,
-			3        => 3,
-		];
+	public function test_maybe_migrate_from_global_table( $site_id, $queue, $active, $locked ) {
 
 		Functions\expect( 'plugin_basename' )->once()->with( 'plugin/file' )->andReturn( 'plugin/basename' );
-		Functions\expect( 'is_plugin_active_for_network' )->once()->with( 'plugin/basename' )->andReturn( true );
+		Functions\expect( 'is_plugin_active_for_network' )->once()->with( 'plugin/basename' )->andReturn( $active );
 
-		$this->network_options->shouldReceive( 'lock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
+		if ( $active ) {
+			$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( $queue );
 
-		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
+			if ( ! empty( $queue ) ) {
+				$this->network_options->shouldReceive( 'lock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( ! $locked );
 
-		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION, [] )->andReturn( $queue );
-		$this->database->shouldReceive( 'migrate_from_global_table' )->never();
-		$this->network_options->shouldReceive( 'set' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION, m::type( 'array' ) );
+				if ( ! $locked ) {
+					Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
 
-		$this->network_options->shouldReceive( 'unlock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
+					$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION, [] )->andReturn( $queue );
+
+					if ( ! empty( $queue[ $site_id ] ) ) {
+						$this->database->shouldReceive( 'migrate_from_global_table' )->once()->with( $site_id );
+
+						if ( \count( $queue ) > 1 ) {
+							$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION, m::not( m::hasKey( $site_id ) ) );
+						} else {
+							$this->network_options->shouldReceive( 'delete' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION );
+						}
+					} else {
+						$this->database->shouldReceive( 'migrate_from_global_table' )->never();
+						$this->network_options->shouldReceive( 'set' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION, m::not( m::hasKey( $site_id ) ) );
+					}
+
+					$this->network_options->shouldReceive( 'unlock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
+				} else {
+					$this->network_options->shouldReceive( 'get' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION, [] );
+					$this->database->shouldReceive( 'migrate_from_global_table' )->never();
+					$this->network_options->shouldReceive( 'set' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION, m::not( m::hasKey( $site_id ) ) );
+					$this->network_options->shouldReceive( 'unlock' )->never();
+				}
+			} else {
+				$this->network_options->shouldReceive( 'lock' )->never();
+				$this->network_options->shouldReceive( 'get' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION, [] );
+				$this->database->shouldReceive( 'migrate_from_global_table' )->never();
+				$this->network_options->shouldReceive( 'set' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION, m::not( m::hasKey( $site_id ) ) );
+				$this->network_options->shouldReceive( 'unlock' )->never();
+			}
+		} else {
+			$this->network_options->shouldReceive( 'lock' )->never();
+			$this->network_options->shouldReceive( 'get' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION, [] )->andReturn( $queue );
+			$this->database->shouldReceive( 'migrate_from_global_table' )->never();
+			$this->network_options->shouldReceive( 'set' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION, m::not( m::hasKey( $site_id ) ) );
+			$this->network_options->shouldReceive( 'unlock' )->never();
+			$this->network_options->shouldReceive( 'get' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION );
+		}
 
 		$this->assertNull( $this->sut->maybe_migrate_from_global_table() );
 	}

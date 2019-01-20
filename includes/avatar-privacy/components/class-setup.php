@@ -367,13 +367,16 @@ class Setup implements \Avatar_Privacy\Component {
 	 * Tries to migrate global table data if the current site is queued.
 	 */
 	protected function maybe_migrate_from_global_table() {
-		if ( ! \is_plugin_active_for_network( \plugin_basename( $this->plugin_file ) ) ) {
-			// Nothing to see here.
-			return;
-		}
 
-		if ( ! $this->network_options->lock( Network_Options::GLOBAL_TABLE_MIGRATION ) ) {
-			// The queue is currently locked. Try again next time.
+		if (
+			// The plugin is not network-activated (or not on a multisite installation).
+			! \is_plugin_active_for_network( \plugin_basename( $this->plugin_file ) ) ||
+			// The queue is empty.
+			! $this->network_options->get( Network_Options::GLOBAL_TABLE_MIGRATION ) ||
+			// The queue is locked. Try again next time.
+			! $this->network_options->lock( Network_Options::GLOBAL_TABLE_MIGRATION )
+		) {
+			// Nothing to see here.
 			return;
 		}
 
@@ -387,8 +390,13 @@ class Setup implements \Avatar_Privacy\Component {
 			// Mark this site as done.
 			unset( $queue[ $site_id ] );
 
-			// Save the new queue.
-			$this->network_options->set( Network_Options::GLOBAL_TABLE_MIGRATION, $queue );
+			if ( ! empty( $queue ) ) {
+				// Save the new queue.
+				$this->network_options->set( Network_Options::GLOBAL_TABLE_MIGRATION, $queue );
+			} else {
+				// Delete it.
+				$this->network_options->delete( Network_Options::GLOBAL_TABLE_MIGRATION );
+			}
 		}
 
 		// Unlock the queue again.
