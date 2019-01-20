@@ -201,7 +201,7 @@ class Setup implements \Avatar_Privacy\Component {
 
 		// The tables are set up correctly, but maybe we need to migrate some data
 		// from the global table on network installations.
-		$this->maybe_load_migration_queue();
+		$this->maybe_prepare_migration_queue();
 		$this->maybe_migrate_from_global_table();
 
 		// Update installed version.
@@ -349,7 +349,7 @@ class Setup implements \Avatar_Privacy\Component {
 	/**
 	 * Tries set up the migration queue if the trigger is set.
 	 */
-	protected function maybe_load_migration_queue() {
+	protected function maybe_prepare_migration_queue() {
 		$queue = $this->network_options->get( Network_Options::START_GLOBAL_TABLE_MIGRATION );
 
 		if ( ! empty( $queue ) && $this->network_options->lock( Network_Options::GLOBAL_TABLE_MIGRATION ) ) {

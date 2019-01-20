@@ -211,7 +211,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->core->shouldReceive( 'get_version' )->once()->andReturn( $version );
 		$this->database->shouldReceive( 'maybe_create_table' )->once()->with( $match_installed )->andReturn( true );
 		$this->sut->shouldReceive( 'maybe_update_table_data' )->once()->with( $match_installed );
-		$this->sut->shouldReceive( 'maybe_load_migration_queue' )->once();
+		$this->sut->shouldReceive( 'maybe_prepare_migration_queue' )->once();
 		$this->sut->shouldReceive( 'maybe_migrate_from_global_table' )->once();
 
 		if ( $version !== $installed ) {
@@ -509,11 +509,11 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::maybe_load_migration_queue.
+	 * Tests ::maybe_prepare_migration_queue.
 	 *
-	 * @covers ::maybe_load_migration_queue
+	 * @covers ::maybe_prepare_migration_queue
 	 */
-	public function test_maybe_load_migration_queue() {
+	public function test_maybe_prepare_migration_queue() {
 		$queue = [
 			15 => 15,
 			17 => 17,
@@ -525,15 +525,15 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->network_options->shouldReceive( 'unlock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
 		$this->network_options->shouldReceive( 'delete' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION );
 
-		$this->assertNull( $this->sut->maybe_load_migration_queue() );
+		$this->assertNull( $this->sut->maybe_prepare_migration_queue() );
 	}
 
 	/**
-	 * Tests ::maybe_load_migration_queue.
+	 * Tests ::maybe_prepare_migration_queue.
 	 *
-	 * @covers ::maybe_load_migration_queue
+	 * @covers ::maybe_prepare_migration_queue
 	 */
-	public function test_maybe_load_migration_queue_locked() {
+	public function test_maybe_prepare_migration_queue_locked() {
 		$queue = [
 			15 => 15,
 			17 => 17,
@@ -545,15 +545,15 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->network_options->shouldReceive( 'unlock' )->never();
 		$this->network_options->shouldReceive( 'delete' )->never();
 
-		$this->assertNull( $this->sut->maybe_load_migration_queue() );
+		$this->assertNull( $this->sut->maybe_prepare_migration_queue() );
 	}
 
 	/**
-	 * Tests ::maybe_load_migration_queue.
+	 * Tests ::maybe_prepare_migration_queue.
 	 *
-	 * @covers ::maybe_load_migration_queue
+	 * @covers ::maybe_prepare_migration_queue
 	 */
-	public function test_maybe_load_migration_queue_empty() {
+	public function test_maybe_prepare_migration_queue_empty() {
 		$queue = false;
 
 		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION )->andReturn( $queue );
@@ -562,7 +562,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->network_options->shouldReceive( 'unlock' )->never();
 		$this->network_options->shouldReceive( 'delete' )->never();
 
-		$this->assertNull( $this->sut->maybe_load_migration_queue() );
+		$this->assertNull( $this->sut->maybe_prepare_migration_queue() );
 	}
 
 	/**
