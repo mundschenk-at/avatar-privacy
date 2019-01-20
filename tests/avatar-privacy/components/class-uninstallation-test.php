@@ -118,8 +118,8 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 		$filesystem = [
 			'uploads'    => [
 				'avatar-privacy' => [
-					'cache'       => [],
-					'user-avatar' => [
+					'cache'        => [],
+					'user-avatars' => [
 						'foo.png' => 'FAKE_PNG',
 					],
 				],
