@@ -364,7 +364,7 @@ class Core {
 	 *
 	 * @param  string $hash The hashed mail address.
 	 *
-	 * @return object       The dataset as an object or null.
+	 * @return object|null  The dataset as an object or null.
 	 */
 	protected function load_data_by_hash( $hash ) {
 		global $wpdb;
