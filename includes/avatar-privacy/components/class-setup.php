@@ -352,10 +352,16 @@ class Setup implements \Avatar_Privacy\Component {
 	protected function maybe_prepare_migration_queue() {
 		$queue = $this->network_options->get( Network_Options::START_GLOBAL_TABLE_MIGRATION );
 
-		if ( ! empty( $queue ) && $this->network_options->lock( Network_Options::GLOBAL_TABLE_MIGRATION ) ) {
-			// Store new queue, overwriting any existing queue (since this per network
-			// and we already got all sites currently in the network).
-			$this->network_options->set( Network_Options::GLOBAL_TABLE_MIGRATION, $queue );
+		if ( \is_array( $queue ) && $this->network_options->lock( Network_Options::GLOBAL_TABLE_MIGRATION ) ) {
+
+			if ( ! empty( $queue ) ) {
+				// Store new queue, overwriting any existing queue (since this per network
+				// and we already got all sites currently in the network).
+				$this->network_options->set( Network_Options::GLOBAL_TABLE_MIGRATION, $queue );
+			} else {
+				// The "start queue" is empty, which means we should cease the migration efforts.
+				$this->network_options->delete( Network_Options::GLOBAL_TABLE_MIGRATION );
+			}
 
 			// Unlock queue and delete trigger.
 			$this->network_options->unlock( Network_Options::GLOBAL_TABLE_MIGRATION );

@@ -553,7 +553,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @covers ::maybe_prepare_migration_queue
 	 */
-	public function test_maybe_prepare_migration_queue_empty() {
+	public function test_maybe_prepare_migration_nothing_to_do() {
 		$queue = false;
 
 		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION )->andReturn( $queue );
@@ -561,6 +561,24 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->network_options->shouldReceive( 'set' )->never();
 		$this->network_options->shouldReceive( 'unlock' )->never();
 		$this->network_options->shouldReceive( 'delete' )->never();
+
+		$this->assertNull( $this->sut->maybe_prepare_migration_queue() );
+	}
+
+	/**
+	 * Tests ::maybe_prepare_migration_queue.
+	 *
+	 * @covers ::maybe_prepare_migration_queue
+	 */
+	public function test_maybe_prepare_migration_queue_empty() {
+		$queue = [];
+
+		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION )->andReturn( $queue );
+		$this->network_options->shouldReceive( 'lock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
+		$this->network_options->shouldReceive( 'set' )->never();
+		$this->network_options->shouldReceive( 'delete' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION );
+		$this->network_options->shouldReceive( 'unlock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
+		$this->network_options->shouldReceive( 'delete' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION );
 
 		$this->assertNull( $this->sut->maybe_prepare_migration_queue() );
 	}
