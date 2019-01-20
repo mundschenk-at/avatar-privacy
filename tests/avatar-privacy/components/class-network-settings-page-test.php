@@ -437,14 +437,10 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function provide_start_migration_from_global_table_data() {
 		return [
-			[ 'my_use_global_table', 0, 1, false, true ],
-			[ 'my_use_global_table', 0, 1, true, true ],
-			[ 'my_use_global_table', 1, 0, false, false ],
-			[ 'my_use_global_table', 1, 0, true, false ],
-			[ 'foo', 0, 1, false, false ],
-			[ 'foo', 0, 1, true, false ],
-			[ 'foo', 1, 0, false, false ],
-			[ 'foo', 1, 0, true, false ],
+			[ 'my_use_global_table', 0, 1, true ],
+			[ 'my_use_global_table', 1, 0, false, true ],
+			[ 'foo', 0, 1, false ],
+			[ 'foo', 1, 0, false ],
 		];
 	}
 
@@ -458,28 +454,33 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param  string $option    The saved option name.
 	 * @param  mixed  $new_value New value of the network option.
 	 * @param  mixed  $old_value Old value of the network option.
-	 * @param  bool   $locked    If the queue is currently locked by another request.
-	 * @param  bool   $triggered If a migration should be triggerd.
+	 * @param  bool   $triggered If a migration should be triggered.
+	 * @param  bool   $triggered Optional. If running migrations should be ended. Default false.
 	 */
-	public function test_start_migration_from_global_table( $option, $new_value, $old_value, $locked, $triggered ) {
+	public function test_start_migration_from_global_table( $option, $new_value, $old_value, $triggered, $cleaned = false ) {
 		$use_global_table = 'my_use_global_table';
 		$site_ids         = [ 5, 11, 12, 21 ];
-		$queue            = \array_combine( $site_ids, $site_ids );
+		$main_site_id     = 5;
 
 		$this->network_options->shouldReceive( 'get_name' )->once()->with( Network_Options::USE_GLOBAL_TABLE )->andReturn( $use_global_table );
 
 		if ( $triggered ) {
 			$this->multisite->shouldReceive( 'get_site_ids' )->once()->andReturn( $site_ids );
-			$this->network_options->shouldReceive( 'lock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( ! $locked );
 
-			if ( ! $locked ) {
-				$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION, $queue );
-				$this->network_options->shouldReceive( 'unlock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( ! $locked );
-			} else {
-				$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION, $queue );
-			}
+			Functions\expect( 'get_main_site_id' )->once()->andReturn( $main_site_id );
 
+			// The queue should contain all sites but the main one.
+			$queue = \array_combine( $site_ids, $site_ids );
+			unset( $queue[ $main_site_id ] );
+
+			$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION, $queue );
 			$this->sut->shouldReceive( 'trigger_admin_notice' )->once()->with( Network_Options::USE_GLOBAL_TABLE, 'settings_updated', m::type( 'string' ), 'updated' );
+		} elseif ( $cleaned ) {
+			$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION, [] );
+			$this->sut->shouldReceive( 'trigger_admin_notice' )->never();
+		} else {
+			$this->network_options->shouldReceive( 'set' )->never();
+			$this->sut->shouldReceive( 'trigger_admin_notice' )->never();
 		}
 
 		$this->assertNull( $this->sut->start_migration_from_global_table( $option, $new_value, $old_value ) );

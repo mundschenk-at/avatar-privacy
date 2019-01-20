@@ -314,29 +314,31 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	 * @param mixed  $old_value  Old value of the network option.
 	 */
 	public function start_migration_from_global_table( $option, $value, $old_value ) {
-		// The option name including the prefix.
-		$use_global_table = $this->network_options->get_name( Network_Options::USE_GLOBAL_TABLE );
+		if ( $option !== $this->network_options->get_name( Network_Options::USE_GLOBAL_TABLE ) ) {
+			// This should never happen.
+			return;
+		}
 
 		// Only trigger migration if USE_GLOBAL_TABLE was changed from "on" to "off".
-		if ( $option === $use_global_table && empty( $value ) && ! empty( $old_value ) ) {
+		if ( empty( $value ) && ! empty( $old_value ) ) {
 			// Add all sites in the current network to the queue.
 			$site_ids = $this->multisite->get_site_ids();
 			$queue    = \array_combine( $site_ids, $site_ids );
 
-			if ( $this->network_options->lock( Network_Options::GLOBAL_TABLE_MIGRATION ) ) {
+			// Remove the main site ID from the queue.
+			unset( $queue[ \get_main_site_id() ] );
 
-				// Store new queue, overwriting any existing queue (since this per network
-				// and we already got all sites currently in the network).
-				$this->network_options->set( Network_Options::GLOBAL_TABLE_MIGRATION, $queue );
-
-				// Unlock queue.
-				$this->network_options->unlock( Network_Options::GLOBAL_TABLE_MIGRATION );
-			} else {
-				$this->network_options->set( Network_Options::START_GLOBAL_TABLE_MIGRATION, $queue );
-			}
+			// Store new queue, overwriting any existing queue (since this per
+			// network and we already got all sites currently in the network).
+			// If the new queue is empty, the next page load will clean up the
+			// network options.
+			$this->network_options->set( Network_Options::START_GLOBAL_TABLE_MIGRATION, $queue );
 
 			// Notify admins.
 			$this->trigger_admin_notice( Network_Options::USE_GLOBAL_TABLE, 'settings_updated', \__( 'Settings updated. Consent data will be migrated to site-specific tables.', 'avatar-privacy' ), 'updated' );
+		} elseif ( ! empty( $value ) && empty( $old_value ) ) {
+			// Clean up any running migrations on the next page load.
+			$this->network_options->set( Network_Options::START_GLOBAL_TABLE_MIGRATION, [] );
 		}
 	}
 }
