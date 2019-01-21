@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -196,6 +196,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 
 		$this->options->shouldReceive( 'get_name' )->once()->with( \Avatar_Privacy\Core::SETTINGS_NAME )->andReturn( 'upload_index' );
 
+		Functions\expect( 'wp_unslash' )->once()->with( $uploaded_file )->andReturn( $uploaded_file );
 		$this->sut->shouldReceive( 'normalize_files_array' )->once()->with( $uploaded_file )->andReturn( $normalized_files );
 		$this->sut->shouldReceive( 'upload' )->once()->with( $normalized_files[ \Avatar_Privacy\Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ], false )->andReturn( $icon );
 		$this->sut->shouldReceive( 'delete_uploaded_icon' )->once()->with( $site_id )->andReturn( true );
@@ -241,6 +242,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 
 		$this->options->shouldReceive( 'get_name' )->once()->with( \Avatar_Privacy\Core::SETTINGS_NAME )->andReturn( 'upload_index' );
 
+		Functions\expect( 'wp_unslash' )->once()->with( $uploaded_file )->andReturn( $uploaded_file );
 		$this->sut->shouldReceive( 'normalize_files_array' )->once()->with( $uploaded_file )->andReturn( $normalized_files );
 		$this->sut->shouldReceive( 'upload' )->once()->with( $normalized_files[ \Avatar_Privacy\Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ], false )->andReturn( $icon );
 		$this->sut->shouldReceive( 'delete_uploaded_icon' )->never();
