@@ -349,7 +349,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 		$comment->comment_author_email = $email;
 
 		// Set up request data.
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$_POST = [ Comments::CHECKBOX_FIELD_NAME => 'true' ];
 
 		Functions\expect( 'get_comment' )->once()->with( $comment_id )->andReturn( $comment );
@@ -371,7 +371,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 		$comment_approved = 'spam';
 
 		// Set up request data.
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$_POST = [ Comments::CHECKBOX_FIELD_NAME => 'true' ];
 
 		Functions\expect( 'get_comment' )->never();
@@ -399,7 +399,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 		$comment->comment_author_email = $email;
 
 		// Set up request data.
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$_POST = [ Comments::CHECKBOX_FIELD_NAME => 'true' ];
 
 		Functions\expect( 'get_comment' )->once()->with( $comment_id )->andReturn( $comment );
@@ -427,7 +427,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 		$comment->comment_author_email = $email;
 
 		// Set up request data.
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$_POST = [ Comments::CHECKBOX_FIELD_NAME => 'true' ];
 
 		Functions\expect( 'get_comment' )->once()->with( $comment_id )->andReturn( $comment );
@@ -455,7 +455,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 		$comment->comment_author_email = $email;
 
 		// Set up request data.
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$_POST = [ Comments::CHECKBOX_FIELD_NAME => 'true' ];
 
 		Functions\expect( 'get_comment' )->once()->with( $comment_id )->andReturn( $comment );

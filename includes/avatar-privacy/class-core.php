@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -166,7 +166,7 @@ class Core {
 	 *
 	 * @var Core
 	 */
-	private static $_instance;
+	private static $instance;
 
 	/**
 	 * Creates a \Avatar_Privacy\Core instance and registers all necessary hooks
@@ -207,8 +207,8 @@ class Core {
 	 * @throws \BadMethodCallException Thrown when Avatar_Privacy_Core::set_instance after plugin initialization.
 	 */
 	public static function set_instance( Core $instance ) {
-		if ( null === self::$_instance ) {
-			self::$_instance = $instance;
+		if ( null === self::$instance ) {
+			self::$instance = $instance;
 		} else {
 			throw new \BadMethodCallException( __METHOD__ . ' called more than once.' );
 		}
@@ -224,11 +224,11 @@ class Core {
 	 * @return Core
 	 */
 	public static function get_instance() {
-		if ( null === self::$_instance ) {
+		if ( null === self::$instance ) {
 			throw new \BadMethodCallException( __METHOD__ . ' called without prior plugin intialization.' );
 		}
 
-		return self::$_instance;
+		return self::$instance;
 	}
 
 	/**
@@ -364,7 +364,7 @@ class Core {
 	 *
 	 * @param  string $hash The hashed mail address.
 	 *
-	 * @return object       The dataset as an object or null.
+	 * @return object|null  The dataset as an object or null.
 	 */
 	protected function load_data_by_hash( $hash ) {
 		global $wpdb;

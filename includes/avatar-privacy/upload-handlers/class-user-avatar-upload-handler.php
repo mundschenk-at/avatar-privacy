@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -109,7 +109,10 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 			$this->user_id_being_edited = $user_id;
 
 			// Upload to our custom directory.
-			$avatar = $this->upload( $_FILES[ self::FILE_UPLOAD ] ); // WPCS: Input var okay. Sanitization ok.
+			$avatar = $this->upload(
+				/* @scrutinizer ignore-type */
+				\wp_unslash( $_FILES[ self::FILE_UPLOAD ] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- ::upload uses \wp_handle_upload.
+			);
 
 			// Handle upload failures.
 			if ( empty( $avatar['file'] ) ) {

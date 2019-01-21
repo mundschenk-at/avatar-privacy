@@ -309,7 +309,7 @@ class User_Profile_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param  string|null $result       The expected result for `use_gravatar` (or null if the value should not be updated).
 	 */
 	public function test_save_use_gravatar_checkbox( $verify, $checkbox, $result ) {
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		// Input data.
 		$user_id = 5;
@@ -351,7 +351,7 @@ class User_Profile_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param  string|null $result       The expected result for `use_gravatar` (or null if the value should not be updated).
 	 */
 	public function test_save_allow_anonymous_checkbox( $verify, $checkbox, $result ) {
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		// Input data.
 		$user_id = 5;

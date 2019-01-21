@@ -28,7 +28,7 @@
 $show_avatars_class = empty( $show_avatars ) ? '' : ' hide-if-js';
 
 ?>
-<div class="avatar-settings-disabled<?php echo $show_avatars_class; // WPCS: XSS ok. ?>">
+<div class="avatar-settings-disabled<?php echo $show_avatars_class; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
 	<p>
 		<?php esc_html_e( "The Avatar Privacy plugin modifies the display of avatars. You have not enabled avatars, so this plugin can't do anything for you. :-)", 'avatar-privacy' ); ?>
 	</p>

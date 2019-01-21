@@ -1,13 +1,8 @@
-# Travis CI (MIT License) configuration file for the php-typography libryry.
+# Travis CI (MIT License) configuration file for the Avatar Privacy plugin.
 # @link https://travis-ci.org/
 
-# For use with the wp-Typography WordPress plugin.
-# @link https://github.com/mundschenk-at/wp-typography
-
-# Ditch sudo and use containers.
-# @link http://docs.travis-ci.com/user/migrating-from-legacy/#Why-migrate-to-container-based-infrastructure%3F
-# @link http://docs.travis-ci.com/user/workers/container-based-infrastructure/#Routing-your-build-to-container-based-infrastructure
-sudo: false
+# For use with the Avatar Privacy WordPress plugin.
+# @link https://github.com/mundschenk-at/avatar-privacy
 
 # Declare project language.
 # @link http://about.travis-ci.org/docs/user/languages/php/

@@ -265,7 +265,7 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Fake post.
-		global $_POST; // phpcs:ignore  WordPress.Security.NonceVerification.NoNonceVerification
+		global $_POST; // phpcs:ignore  WordPress.Security.NonceVerification.Missing
 		$_POST = [ // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
 			'prefix_option1' => 'foo',
 		];
