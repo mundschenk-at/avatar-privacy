@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -190,7 +190,7 @@ class Database {
 		global $wpdb;
 
 		$table_name = $this->get_table_name( $site_id );
-		$wpdb->query( "DROP TABLE IF EXISTS {$table_name};" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.NotPrepared
+		$wpdb->query( "DROP TABLE IF EXISTS {$table_name};" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 
 	/**
@@ -220,7 +220,7 @@ class Database {
 		$rows_to_delete  = [];
 		$rows_to_update  = [];
 		$rows_to_migrate = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-			$wpdb->prepare( "SELECT * FROM `{$global_table_name}` WHERE log_message LIKE %s", $like_clause ), // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$wpdb->prepare( "SELECT * FROM `{$global_table_name}` WHERE log_message LIKE %s", $like_clause ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			OBJECT_K
 		);
 
@@ -308,7 +308,7 @@ class Database {
 
 		$values_clause = \join( ',', $values_clause_parts );
 
-		return $wpdb->prepare(  // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+		return $wpdb->prepare(  // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 			"INSERT INTO `{$table}` (id,email,hash,use_gravatar,last_updated,log_message)
 			 VALUES {$values_clause}
 			 ON DUPLICATE KEY UPDATE
@@ -338,7 +338,7 @@ class Database {
 
 		$placeholders = \join( ',', \array_fill( 0, \count( $emails ), '%s' ) );
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 		return $wpdb->prepare( "SELECT * FROM `{$table}` WHERE email IN ({$placeholders})", $emails );
 	}
 
@@ -359,7 +359,7 @@ class Database {
 
 		$placeholders = \join( ',', \array_fill( 0, \count( $ids_to_delete ), '%d' ) );
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 		return $wpdb->prepare( "DELETE FROM `{$table}` WHERE id IN ({$placeholders})", $ids_to_delete );
 	}
 }

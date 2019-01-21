@@ -173,7 +173,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	 * @param  string[] $uploaded_file The files array.
 	 */
 	public function test_save_uploaded_default_icon( $site_id, $uploaded_file ) {
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		global $_FILES;
 
 		// Intermediate data.
@@ -218,7 +218,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	 * @param  string[] $uploaded_file The files array.
 	 */
 	public function test_save_uploaded_default_icon_with_error( $site_id, $uploaded_file ) {
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		global $_FILES;
 
 		// Intermediate data.
@@ -263,7 +263,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	 * @param  string[] $uploaded_file The files array.
 	 */
 	public function test_save_uploaded_default_icon_no_nonce( $site_id, $uploaded_file ) {
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		global $_FILES;
 
 		// Intermediate data.
@@ -308,7 +308,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	 * @param  string[] $uploaded_file The files array.
 	 */
 	public function test_save_uploaded_default_icon_incorrect_nonce( $site_id, $uploaded_file ) {
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		global $_FILES;
 
 		// Intermediate data.
@@ -354,7 +354,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	 * @param  string[] $uploaded_file The files array.
 	 */
 	public function test_save_uploaded_default_icon_delete_icon( $site_id, $uploaded_file ) {
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		global $_FILES;
 
 		// Intermediate data.
@@ -397,7 +397,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	 * @param  string[] $uploaded_file The files array.
 	 */
 	public function test_save_uploaded_default_icon_delete_icon_incorrect_var( $site_id, $uploaded_file ) {
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		global $_FILES;
 
 		// Intermediate data.

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -201,7 +201,7 @@ class Image_Proxy implements \Avatar_Privacy\Component {
 			\header( 'Expires: ' . \gmdate( 'D, d M Y H:i:s \G\M\T', \time() + $cache_time ) );
 
 			// Here comes the content.
-			echo $image; // WPCS: XSS ok.
+			echo $image; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		} else {
 			/* translators: $file path */
 			\wp_die( \esc_html( \sprintf( \__( 'Error generating avatar file %s.', 'avatar-privacy' ), $file ) ) );

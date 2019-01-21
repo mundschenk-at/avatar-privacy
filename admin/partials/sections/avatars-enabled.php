@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +29,7 @@ $show_avatars_class = ! empty( $show_avatars ) ? '' : ' hide-if-js';
 $allowed_html       = [ 'strong' => [] ];
 
 ?>
-<div class="avatar-settings-enabled<?php echo $show_avatars_class; // WPCS: XSS ok. ?>">
+<div class="avatar-settings-enabled<?php echo $show_avatars_class; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
 	<p>
 		<?php esc_html_e( 'To protect the privacy of your users, visitors and commenters, the Avatar Privacy plugin has enabled the following features:', 'avatar-privacy' ); ?>
 	</p>

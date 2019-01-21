@@ -177,7 +177,7 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param  string[] $uploaded_file The files array.
 	 */
 	public function test_save_uploaded_user_avatar( $user_id, $uploaded_file ) {
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		global $_FILES;
 
 		// Intermediate data.
@@ -213,7 +213,7 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param  string[] $uploaded_file The files array.
 	 */
 	public function test_save_uploaded_user_avatar_with_error( $user_id, $uploaded_file ) {
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		global $_FILES;
 
 		// Intermediate data.
@@ -247,7 +247,7 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param  string[] $uploaded_file The files array.
 	 */
 	public function test_save_uploaded_user_avatar_no_nonce( $user_id, $uploaded_file ) {
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		global $_FILES;
 
 		// Set up fake request.
@@ -277,7 +277,7 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param  string[] $uploaded_file The files array.
 	 */
 	public function test_save_uploaded_user_avatar_incorrect_nonce( $user_id, $uploaded_file ) {
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		global $_FILES;
 
 		// Intermediate data.
@@ -311,7 +311,7 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param  string[] $uploaded_file The files array.
 	 */
 	public function test_save_uploaded_user_avatar_delete_icon( $user_id, $uploaded_file ) {
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		global $_FILES;
 
 		// Intermediate data.
@@ -349,7 +349,7 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param  string[] $uploaded_file The files array.
 	 */
 	public function test_save_uploaded_user_avatar_delete_icon_incorrect_var( $user_id, $uploaded_file ) {
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		global $_FILES;
 
 		// Intermediate data.
