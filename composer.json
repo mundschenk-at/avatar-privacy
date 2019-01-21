@@ -70,7 +70,7 @@
 
     "scripts": {
         "phpcs": [
-            "phpcs -p -s *.php includes/ --extensions=php"
+            "phpcs -p -s *.php includes/ admin/ public/ --extensions=php"
         ],
         "test": [
             "phpunit --testsuite AvatarPrivacy"
