@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -53,7 +53,7 @@ function run_avatar_privacy() {
 
 	if ( $requirements->check() ) {
 		// Autoload the rest of your classes.
-		require_once __DIR__ . '/vendor/autoload.php';
+		require_once __DIR__ . '/vendor/autoload.php'; // phpcs:ignore PHPCompatibility.Keywords.NewKeywords.t_dirFound
 
 		// Create and start the plugin.
 		$plugin = Avatar_Privacy_Factory::get( __FILE__ )->create( 'Avatar_Privacy\Controller' );

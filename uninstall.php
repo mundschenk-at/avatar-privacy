@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -41,7 +41,7 @@ function uninstall_avatar_privacy() {
 
 	if ( $requirements->check() ) {
 		// Autoload the rest of your classes.
-		require_once __DIR__ . '/vendor/autoload.php';
+		require_once __DIR__ . '/vendor/autoload.php'; // phpcs:ignore PHPCompatibility.Keywords.NewKeywords.t_dirFound
 
 		// Create and start the uninstallation handler.
 		$uninstaller = Avatar_Privacy_Factory::get( __FILE__ )->create( 'Avatar_Privacy\Components\Uninstallation' );
