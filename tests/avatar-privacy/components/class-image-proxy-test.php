@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -210,7 +210,7 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_add_cache_rewrite_rules() {
 		global $wp;
-		$wp = m::mock( 'WP' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wp = m::mock( 'WP' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		$wp->shouldReceive( 'add_query_var' )->once()->with( 'avatar-privacy-file' );
 		$this->file_cache->shouldReceive( 'get_base_dir' )->once()->andReturn( '/wordpress/path/base/dir' );

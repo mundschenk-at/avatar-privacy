@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -110,7 +110,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_get_table_prefix() {
 		global $wpdb;
-		$wpdb              = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb              = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->base_prefix = 'base_prefix';
 		$site_id           = 5;
 
@@ -127,7 +127,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_get_table_prefix_no_global_table() {
 		global $wpdb;
-		$wpdb              = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb              = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->base_prefix = 'base_prefix';
 		$site_id           = 5;
 
@@ -157,7 +157,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_table_exists() {
 		global $wpdb;
-		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$table_name = 'foo';
 
 		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SHOW TABLES LIKE %s', $table_name )->andReturn( 'PREPARED_SQL' );
@@ -173,7 +173,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_table_exists_does_not_exist() {
 		global $wpdb;
-		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$table_name = 'foo';
 
 		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SHOW TABLES LIKE %s', $table_name )->andReturn( 'PREPARED_SQL' );
@@ -246,7 +246,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 		$table_name = 'my_table_name';
 
 		// Global objects.
-		$wpdb = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		if ( $property_exists ) {
 			$wpdb->avatar_privacy = $table_name;
 		}
@@ -289,7 +289,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 		$table_name = 'my_table_name';
 
 		// Global objects.
-		$wpdb = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		$this->sut->shouldReceive( 'get_table_name' )->once()->andReturn( $table_name );
 		$this->sut->shouldReceive( 'table_exists' )->twice()->with( $table_name )->andReturn( false );
@@ -333,7 +333,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_drop_table() {
 		global $wpdb;
-		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$site_id    = 7;
 		$table_name = 'my_custom_table';
 
@@ -350,7 +350,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_migrate_from_global_table() {
 		global $wpdb;
-		$wpdb              = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb              = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$site_id           = 7;
 		$main_site_id      = 1;
 		$network_id        = 5;
@@ -479,7 +479,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_migrate_from_global_table_same_table_name() {
 		global $wpdb;
-		$wpdb              = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb              = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$site_id           = 2;
 		$main_site_id      = 2;
 		$network_id        = 5;
@@ -502,7 +502,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_prepare_insert_update_query() {
 		global $wpdb;
-		$wpdb            = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb            = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$network_id      = 5;
 		$site_id         = 3;
 		$rows_to_update  = [
@@ -567,7 +567,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_prepare_insert_update_query_no_rows() {
 		global $wpdb;
-		$wpdb            = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb            = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$rows_to_update  = [];
 		$rows_to_migrate = [];
 		$table_name      = 'my_table';
@@ -585,7 +585,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_prepare_insert_update_query_empty_table_name() {
 		global $wpdb;
-		$wpdb            = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb            = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$network_id      = 5;
 		$site_id         = 3;
 		$rows_to_update  = [
@@ -647,7 +647,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_prepare_email_query() {
 		global $wpdb;
-		$wpdb        = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb        = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$emails      = [ 'foo@bar.org', 'foobar@example.org', 'bar@foo.com' ];
 		$email_count = \count( $emails );
 		$table_name  = 'my_table';
@@ -665,7 +665,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_prepare_email_query_no_emails() {
 		global $wpdb;
-		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$emails     = [];
 		$table_name = 'my_table';
 		$result     = false;
@@ -682,7 +682,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_prepare_email_query_empty_table_name() {
 		global $wpdb;
-		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$emails     = [ 'foo@bar.org', 'foobar@example.org', 'bar@foo.com' ];
 		$table_name = '';
 		$result     = false;
@@ -699,7 +699,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_prepare_delete_query() {
 		global $wpdb;
-		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$ids        = [ 5, 10, 11, 17 ];
 		$id_count   = \count( $ids );
 		$table_name = 'my_table';
@@ -717,7 +717,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_prepare_delete_query_no_ids() {
 		global $wpdb;
-		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$ids        = [];
 		$table_name = 'my_table';
 		$result     = false;
@@ -734,7 +734,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_prepare_delete_query_empty_table_name() {
 		global $wpdb;
-		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$ids        = [ 5, 10, 11, 17 ];
 		$table_name = '';
 		$result     = false;

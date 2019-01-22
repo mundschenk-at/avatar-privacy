@@ -509,7 +509,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_maybe_update_table_data() {
 		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->avatar_privacy = 'avatar_privacy';
 		$previous             = '0.4';
 		$rows                 = [
@@ -539,7 +539,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_maybe_update_table_data_no_need() {
 		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->avatar_privacy = 'avatar_privacy';
 		$previous             = '0.5';
 
