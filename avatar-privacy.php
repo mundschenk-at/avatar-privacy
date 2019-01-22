@@ -47,7 +47,7 @@ require_once dirname( __FILE__ ) . '/includes/class-avatar-privacy-requirements.
  *
  * It's necessary to do this here because main class relies on namespaces.
  */
-function run_avatar_privacy() {
+function avatar_privacy_run() {
 
 	$requirements = new Avatar_Privacy_Requirements( __FILE__ );
 
@@ -60,4 +60,4 @@ function run_avatar_privacy() {
 		$plugin->run();
 	}
 }
-run_avatar_privacy();
+avatar_privacy_run();

@@ -35,7 +35,7 @@ require_once dirname( __FILE__ ) . '/includes/class-avatar-privacy-uninstallatio
  *
  * It's necessary to do this here because our classes rely on namespaces.
  */
-function uninstall_avatar_privacy() {
+function avatar_privacy_uninstall() {
 
 	$requirements = new Avatar_Privacy_Uninstallation_Requirements( __FILE__ );
 
@@ -48,4 +48,4 @@ function uninstall_avatar_privacy() {
 		$uninstaller->run();
 	}
 }
-uninstall_avatar_privacy();
+avatar_privacy_uninstall();
