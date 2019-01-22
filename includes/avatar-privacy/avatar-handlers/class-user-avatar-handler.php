@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -127,11 +127,13 @@ class User_Avatar_Handler implements Avatar_Handler {
 	/**
 	 * Calculates the subdirectory from the given identity hash.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  string $identity The identity (mail address) hash.
 	 *
 	 * @return string
 	 */
-	private function get_sub_dir( $identity ) {
+	protected function get_sub_dir( $identity ) {
 		return \implode( '/', \str_split( \substr( $identity, 0, 2 ) ) );
 	}
 
