@@ -129,7 +129,19 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->database        = m::mock( Database::class );
 		$this->multisite       = m::mock( Multisite::class );
 
-		$this->sut = m::mock( Setup::class, [ 'plugin/file', $this->core, $this->transients, $this->site_transients, $this->options, $this->network_options, $this->database, $this->multisite ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock(
+			Setup::class,
+			[
+				'plugin/file',
+				$this->core,
+				$this->transients,
+				$this->site_transients,
+				$this->options,
+				$this->network_options,
+				$this->database,
+				$this->multisite,
+			]
+		)->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -253,6 +265,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'maybe_update_user_hashes' )->once();
 		$this->sut->shouldReceive( 'upgrade_old_avatar_defaults' )->once();
+		$this->sut->shouldReceive( 'prefix_usermeta_keys' )->once();
 		$this->sut->shouldReceive( 'flush_rewrite_rules_soon' )->once();
 
 		// Preserve pass-by-reference.
@@ -282,6 +295,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'maybe_update_user_hashes' )->never();
 		$this->sut->shouldReceive( 'upgrade_old_avatar_defaults' )->once();
+		$this->sut->shouldReceive( 'prefix_usermeta_keys' )->once();
 		$this->sut->shouldReceive( 'flush_rewrite_rules_soon' )->once();
 
 		// Preserve pass-by-reference.
@@ -311,6 +325,37 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'maybe_update_user_hashes' )->never();
 		$this->sut->shouldReceive( 'upgrade_old_avatar_defaults' )->never();
+		$this->sut->shouldReceive( 'prefix_usermeta_keys' )->once();
+		$this->sut->shouldReceive( 'flush_rewrite_rules_soon' )->once();
+
+		// Preserve pass-by-reference.
+		$this->assertNull( $this->invokeMethod( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
+
+		$this->assertFalse( isset( $settings['mode_optin'] ) );
+		$this->assertFalse( isset( $settings['use_gravatar'] ) );
+		$this->assertFalse( isset( $settings['mode_checkforgravatar'] ) );
+		$this->assertFalse( isset( $settings['default_show'] ) );
+		$this->assertFalse( isset( $settings['checkbox_default'] ) );
+	}
+
+	/**
+	 * Tests ::plugin_updated.
+	 *
+	 * @covers ::plugin_updated
+	 */
+	public function test_plugin_updated_2_1() {
+		$previous = '2.1.0';
+		$settings = [
+			'foo'          => 'bar',
+		];
+
+		// Global table use preserved for 0.4 or earlier.
+		Functions\expect( 'is_multisite' )->never();
+		$this->network_options->shouldReceive( 'set' )->never();
+
+		$this->sut->shouldReceive( 'maybe_update_user_hashes' )->never();
+		$this->sut->shouldReceive( 'upgrade_old_avatar_defaults' )->never();
+		$this->sut->shouldReceive( 'prefix_usermeta_keys' )->never();
 		$this->sut->shouldReceive( 'flush_rewrite_rules_soon' )->once();
 
 		// Preserve pass-by-reference.
@@ -383,6 +428,30 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Tests ::prefix_usermeta_keys.
+	 *
+	 * @covers ::prefix_usermeta_keys
+	 */
+	public function test_prefix_usermeta_keys() {
+		global $wpdb;
+		$wpdb           = m::mock( wpdb::class ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wpdb->usermeta = 'wp_usermeta';
+		$user_ids       = [ 1, 2, 4 ];
+		$rows           = \count( $user_ids );
+
+		// Update meta keys.
+		$wpdb->shouldReceive( 'prepare' )->once()->with( "SELECT DISTINCT user_id FROM {$wpdb->usermeta} WHERE meta_key = %s", 'use_gravatar' )->andReturn( 'select_query' );
+		$wpdb->shouldReceive( 'get_col' )->once()->with( 'select_query' )->andReturn( $user_ids );
+		$wpdb->shouldReceive( 'prepare' )->once()->with( "UPDATE {$wpdb->usermeta} SET meta_key = %s WHERE meta_key = %s", Core::GRAVATAR_USE_META_KEY, 'use_gravatar' )->andReturn( 'update_query' );
+		$wpdb->shouldReceive( 'query' )->once()->with( 'update_query' )->andReturn( $rows );
+
+		// Clear cache.
+		Functions\expect( 'wp_cache_delete' )->times( $rows )->with( m::type( 'int' ), 'user_meta' );
+
+		$this->assertNull( $this->sut->prefix_usermeta_keys() );
+	}
+
+	/**
 	 * Tests ::deactivate_plugin.
 	 *
 	 * @covers ::deactivate_plugin
@@ -440,7 +509,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_maybe_update_table_data() {
 		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->avatar_privacy = 'avatar_privacy';
 		$previous             = '0.4';
 		$rows                 = [
@@ -470,7 +539,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_maybe_update_table_data_no_need() {
 		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->avatar_privacy = 'avatar_privacy';
 		$previous             = '0.5';
 

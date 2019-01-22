@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -532,7 +532,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		}
 
 		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->avatar_privacy = 'avatar_privacy_table';
 
 		$this->sut->shouldReceive( 'get_hash' )->with( $email )->andReturn( $hash );
@@ -563,7 +563,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		}
 
 		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->avatar_privacy = 'avatar_privacy_table';
 
 		$this->sut->shouldReceive( 'get_hash' )->with( $email )->andReturn( $hash );
@@ -584,7 +584,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$email = '  ';
 
 		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->avatar_privacy = 'avatar_privacy_table';
 
 		$this->sut->shouldReceive( 'get_hash' )->never();
@@ -614,7 +614,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		}
 
 		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->avatar_privacy = 'avatar_privacy_table';
 
 		$this->cache->shouldReceive( 'get' )->with( $key )->andReturn( false );
@@ -643,7 +643,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		}
 
 		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->avatar_privacy = 'avatar_privacy_table';
 
 		$this->cache->shouldReceive( 'get' )->with( $key )->andReturn( $result );
@@ -663,7 +663,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$hash = '';
 
 		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->avatar_privacy = 'avatar_privacy_table';
 
 		$this->cache->shouldReceive( 'get' )->never();
@@ -740,7 +740,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$rows_updated   = 5;
 
 		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->avatar_privacy = 'avatar_privacy_table';
 
 		$this->sut->shouldReceive( 'get_format_strings' )->once()->with( $columns )->andReturn( $format_strings );
@@ -765,7 +765,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$format_strings = 'format strings for columns array';
 
 		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->avatar_privacy = 'avatar_privacy_table';
 
 		$this->sut->shouldReceive( 'get_format_strings' )->once()->with( $columns )->andReturn( $format_strings );
@@ -791,7 +791,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$rows_updated   = 0;
 
 		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->avatar_privacy = 'avatar_privacy_table';
 
 		$this->sut->shouldReceive( 'get_format_strings' )->once()->with( $columns )->andReturn( $format_strings );
@@ -826,7 +826,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->avatar_privacy = 'avatar_privacy_table';
 
 		$this->sut->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
@@ -886,7 +886,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$hash = 'hashed $email';
 
 		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->avatar_privacy = 'avatar_privacy_table';
 		$wpdb->site_id        = 1;
 		$wpdb->blog_id        = 2;

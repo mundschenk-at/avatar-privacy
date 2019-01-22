@@ -31,6 +31,7 @@ use Avatar_Privacy\Core;
 
 use Avatar_Privacy\Components\Image_Proxy;
 
+use Avatar_Privacy\Data_Storage\Cache;
 use Avatar_Privacy\Data_Storage\Database;
 use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Options;
@@ -241,6 +242,11 @@ class Setup implements \Avatar_Privacy\Component {
 			$this->upgrade_old_avatar_defaults();
 		}
 
+		// Upgrade from anything below 2.1.0-alpha.3.
+		if ( ! empty( $previous_version ) && \version_compare( $previous_version, '2.1.0-alpha.3', '<' ) ) {
+			$this->prefix_usermeta_keys();
+		}
+
 		// To be safe, let's always flush the rewrite rules if there has been an update.
 		$this->flush_rewrite_rules_soon();
 	}
@@ -280,6 +286,39 @@ class Setup implements \Avatar_Privacy\Component {
 	public function flush_rewrite_rules_soon() {
 		// Deleting the option forces a rebuild in the proper context on the next load.
 		$this->options->delete( 'rewrite_rules', true );
+	}
+
+	/**
+	 * Adds a prefix to the GRAVATAR_USE_META_KEY.
+	 *
+	 * This migration method will not work if the standard `wp_usermeta` table is
+	 * replaced with something else, but there does not seem to be a good way to
+	 * use the `get_user_metadata` filter hook and fulfill the goal of not breaking
+	 * future Core use of `use_gravatar` as a meta key.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @global wpdb $wpdb The WordPress Database Access Abstraction.
+	 */
+	public function prefix_usermeta_keys() {
+		global $wpdb;
+
+		// Get all users with the `use_gravatar` meta key.
+		$affected_users = $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT user_id FROM {$wpdb->usermeta} WHERE meta_key = %s", 'use_gravatar' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		if ( \count( $affected_users ) > 0 ) {
+			// Update the database table.
+			$rows = $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->usermeta} SET meta_key = %s WHERE meta_key = %s", Core::GRAVATAR_USE_META_KEY, 'use_gravatar' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+
+			// If there were any keys to update, we also have to clear the user_meta cache group.
+			if ( false !== $rows && $rows > 0 ) {
+
+				// Clear user_meta cache for all affected users.
+				foreach ( $affected_users as $user_id ) {
+					\wp_cache_delete( $user_id, 'user_meta' );
+				}
+			}
+		}
 	}
 
 	/**

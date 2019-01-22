@@ -258,7 +258,7 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_save_network_settings() {
 		global $new_whitelist_options;
-		$new_whitelist_options[ Network_Settings_Page::OPTION_GROUP ] = [ // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$new_whitelist_options[ Network_Settings_Page::OPTION_GROUP ] = [ // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			'prefix_option1',
 			'prefix_option2',
 			'prefix_option3',
@@ -266,7 +266,7 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Fake post.
 		global $_POST; // phpcs:ignore  WordPress.Security.NonceVerification.Missing
-		$_POST = [ // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$_POST = [ // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			'prefix_option1' => 'foo',
 		];
 
