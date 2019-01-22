@@ -262,7 +262,7 @@ class Comments implements \Avatar_Privacy\Component {
 
 		// Set a cookie for the 'use gravatar' value.
 		/** This filter is documented in wp-includes/comment.php */
-		$comment_cookie_lifetime = \apply_filters( 'comment_cookie_lifetime', 30000000 );
+		$comment_cookie_lifetime = \apply_filters( 'comment_cookie_lifetime', 30000000 ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		$secure                  = ( 'https' === \wp_parse_url( \home_url(), PHP_URL_SCHEME ) );
 		\setcookie( self::COOKIE_PREFIX . COOKIEHASH, $use_gravatar, \time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN, $secure );
 	}

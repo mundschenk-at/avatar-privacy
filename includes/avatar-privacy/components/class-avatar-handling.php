@@ -323,7 +323,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 */
 	protected function parse_comment( \WP_Comment $comment ) {
 		/** This filter is documented in wp-includes/pluggable.php */
-		$allowed_comment_types = \apply_filters( 'get_avatar_comment_types', [ 'comment' ] );
+		$allowed_comment_types = \apply_filters( 'get_avatar_comment_types', [ 'comment' ] ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- can be replaced with is_avatar_comment_type() once WordPress 5.1 is released.
 
 		if ( ! empty( $comment->comment_type ) && ! \in_array( $comment->comment_type, (array) $allowed_comment_types, true ) ) {
 			return [ false, '', 0 ]; // Abort.

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -100,7 +100,7 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 			return;
 		}
 
-		$suggested_text = '<strong class="privacy-policy-tutorial">' . __( 'Suggested text:' ) . ' </strong>'; // Missing text domain is intentional to use Core translation.
+		$suggested_text = '<strong class="privacy-policy-tutorial">' . __( 'Suggested text:' ) . ' </strong>'; // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- Missing text domain is intentional to use Core translation.
 
 		$content  = '<h3>' . __( 'Comments', 'avatar-privacy' ) . '</h3>';
 		$content .= '<p class="privacy-policy-tutorial">' . __( 'The information in this subsection supersedes the paragraph on Gravatar in the default "Comments" subsection provided by WordPress.', 'avatar-privacy' ) . '</p>';
@@ -202,7 +202,7 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 			'data' => [
 				[
 					'group_id'    => 'user',             // Existing Core group.
-					'group_label' => __( 'User' ),       // Missing text domain is intentional to use Core translation.
+					'group_label' => __( 'User' ),       // // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- Missing text domain is intentional to use Core translation.
 					'item_id'     => "user-{$user->ID}", // Existing Core item ID.
 					'data'        => $user_data,         // The personal data that should be exported.
 				],
