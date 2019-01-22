@@ -60,7 +60,7 @@ class Core {
 	 *
 	 * @var string
 	 */
-	const GRAVATAR_USE_META_KEY = 'use_gravatar';
+	const GRAVATAR_USE_META_KEY = 'avatar_privacy_use_gravatar';
 
 	/**
 	 * The meta key for the gravatar use flag.
