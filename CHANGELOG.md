@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.4 (2019-02-22)
+*   _Bugfix_: Updated included libraries for improved compatibility with other plugins.
+
 ## 2.0.3 (2018-11-30)
 *   _Bugfix_: Prevent warnings when trying to retrieve the avatar for an invalid user ID.
 

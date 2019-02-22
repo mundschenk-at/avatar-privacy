@@ -10,7 +10,7 @@ module.exports = function( grunt ) {
 
     clean: {
         build: ["build/*"],
-        autoloader: [ "build/tests", "build/composer.*", "build/vendor/composer/*.json", "build/vendor/mundschenk-at/composer-for-wordpress/**" ]
+        autoloader: [ "build/tests", "build/composer.*", "build/vendor/composer/*.json", "build/vendor/dangoodman" ]
     },
 
 		composer: {
