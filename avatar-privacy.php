@@ -29,7 +29,7 @@
  * Description: Adds options to enhance the privacy when using avatars.
  * Author: Peter Putzer
  * Author URI: https://code.mundschenk.at
- * Version: 2.0.4
+ * Version: 2.1.0-alpha.3
  * License: GNU General Public License v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: avatar-privacy
@@ -47,17 +47,17 @@ require_once dirname( __FILE__ ) . '/includes/class-avatar-privacy-requirements.
  *
  * It's necessary to do this here because main class relies on namespaces.
  */
-function run_avatar_privacy() {
+function avatar_privacy_run() {
 
 	$requirements = new Avatar_Privacy_Requirements( __FILE__ );
 
 	if ( $requirements->check() ) {
 		// Autoload the rest of your classes.
-		require_once __DIR__ . '/vendor/autoload.php';
+		require_once __DIR__ . '/vendor/autoload.php'; // phpcs:ignore PHPCompatibility.Keywords.NewKeywords.t_dirFound
 
 		// Create and start the plugin.
-		$plugin = Avatar_Privacy_Factory::get( __FILE__ )->create( 'Avatar_Privacy_Controller' );
+		$plugin = Avatar_Privacy_Factory::get( __FILE__ )->create( 'Avatar_Privacy\Controller' );
 		$plugin->run();
 	}
 }
-run_avatar_privacy();
+avatar_privacy_run();

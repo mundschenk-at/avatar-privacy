@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -89,7 +89,7 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 		}
 
 		$upload_index     = $this->options->get_name( Core::SETTINGS_NAME );
-		$normalized_files = ! empty( $_FILES[ $upload_index ]['name'] ) ? $this->normalize_files_array( $_FILES[ $upload_index ] ) : []; // WPCS: Input var okay. Sanitization ok.
+		$normalized_files = ! empty( $_FILES[ $upload_index ]['name'] ) ? $this->normalize_files_array( /* @scrutinizer ignore-type */ \wp_unslash( $_FILES[ $upload_index ] ) ) : []; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		if ( ! empty( $normalized_files[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ]['name'] ) ) {
 			// Upload to our custom directory.
@@ -129,9 +129,11 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	/**
 	 * Handles upload errors and prints appropriate notices.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  array $result The result of \wp_handle_upload().
 	 */
-	private function handle_errors( array $result ) {
+	protected function handle_errors( array $result ) {
 		$id = $this->options->get_name( Core::SETTINGS_NAME ) . '[' . Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR . ']';
 		switch ( $result['error'] ) {
 			case 'Sorry, this file type is not permitted for security reasons.':

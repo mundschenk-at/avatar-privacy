@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,6 +26,9 @@
 
 namespace Avatar_Privacy;
 
+use Avatar_Privacy\Components\Network_Settings_Page;
+use Avatar_Privacy\Data_Storage\Options;
+use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler;
 
 use Mundschenk\UI\Controls;
@@ -33,11 +36,14 @@ use Mundschenk\UI\Controls;
 /**
  * Default configuration for Avatar Privacy.
  *
+ * @internal
+ *
  * @since 2.0.0
+ * @since 2.1.0 Class made concrete and marked internal.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-abstract class Settings {
+class Settings {
 
 	/**
 	 * The options array index of the custom default avatar image.
@@ -65,21 +71,28 @@ abstract class Settings {
 	 *
 	 * @var array
 	 */
-	private static $defaults;
+	private $defaults;
 
 	/**
 	 * The fields definition array.
 	 *
 	 * @var array
 	 */
-	private static $fields;
+	private $fields;
+
+	/**
+	 * The fields definition array for the network settings.
+	 *
+	 * @var array
+	 */
+	private $network_fields;
 
 	/**
 	 * The cached information header markup.
 	 *
 	 * @var string
 	 */
-	private static $information_header;
+	private $information_header;
 
 	/**
 	 * Retrieves the settings field definitions.
@@ -88,9 +101,9 @@ abstract class Settings {
 	 *
 	 * @return array
 	 */
-	public static function get_fields( $information_header = '' ) {
-		if ( empty( self::$fields ) ) {
-			self::$fields = [ // @codeCoverageIgnore
+	public function get_fields( $information_header = '' ) {
+		if ( empty( $this->fields ) ) {
+			$this->fields = [ // @codeCoverageIgnore
 				self::UPLOAD_CUSTOM_DEFAULT_AVATAR => [
 					'ui'             => \Avatar_Privacy\Upload_Handlers\UI\File_Upload_Input::class,
 					'tab_id'         => '', // Will be added to the 'discussions' page.
@@ -127,12 +140,12 @@ abstract class Settings {
 		}
 
 		// Allow calls where the information header is not relevant by caching it separately.
-		if ( ! empty( $information_header ) && $information_header !== self::$information_header ) {
-			self::$fields[ self::INFORMATION_HEADER ]['elements'] = [ $information_header ];
-			self::$information_header                             = $information_header;
+		if ( ! empty( $information_header ) && $information_header !== $this->information_header ) {
+			$this->fields[ self::INFORMATION_HEADER ]['elements'] = [ $information_header ];
+			$this->information_header                             = $information_header;
 		}
 
-		return self::$fields;
+		return $this->fields;
 	}
 
 	/**
@@ -140,18 +153,47 @@ abstract class Settings {
 	 *
 	 * @return array
 	 */
-	public static function get_defaults() {
-		if ( empty( self::$defaults ) ) {
+	public function get_defaults() {
+		if ( empty( $this->defaults ) ) {
 			$defaults = [];
-			foreach ( self::get_fields() as $index => $field ) {
+			foreach ( $this->get_fields() as $index => $field ) {
 				if ( isset( $field['default'] ) ) {
 					$defaults[ $index ] = $field['default'];
 				}
 			}
 
-			self::$defaults = $defaults;
+			// Allow detection of new installations.
+			$defaults[ Options::INSTALLED_VERSION ] = '';
+
+			$this->defaults = $defaults;
 		}
 
-		return self::$defaults;
+		return $this->defaults;
+	}
+
+	/**
+	 * Retrieves the network settings field definitions.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @return array
+	 */
+	public function get_network_fields() {
+		if ( empty( $this->network_fields ) ) {
+			$this->network_fields = [ // @codeCoverageIgnore
+				Network_Options::USE_GLOBAL_TABLE          => [
+					'ui'               => Controls\Checkbox_Input::class,
+					'tab_id'           => '',
+					'section'          => Network_Settings_Page::SECTION,
+					/* translators: 1: checkbox HTML */
+					'label'            => \__( '%1$s Use global table.', 'avatar-privacy' ),
+					'short'            => \__( 'Global Table', 'avatar-privacy' ),
+					'help_text'        => \__( 'Checking will make Avatar Privacy use a single table for each network (instead of for each site) for storing anonymous comment author consent. (Do not enable this setting unless you are sure about the privacy implications.)', 'avatar-privacy' ),
+					'default'          => 0,
+				],
+			];
+		}
+
+		return $this->network_fields;
 	}
 }

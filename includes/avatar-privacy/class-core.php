@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -28,7 +28,6 @@
 namespace Avatar_Privacy;
 
 use Avatar_Privacy\Settings;
-
 
 use Avatar_Privacy\Data_Storage\Cache;
 use Avatar_Privacy\Data_Storage\Options;
@@ -61,7 +60,7 @@ class Core {
 	 *
 	 * @var string
 	 */
-	const GRAVATAR_USE_META_KEY = 'use_gravatar';
+	const GRAVATAR_USE_META_KEY = 'avatar_privacy_use_gravatar';
 
 	/**
 	 * The meta key for the gravatar use flag.
@@ -140,6 +139,15 @@ class Core {
 	private $salt;
 
 	/**
+	 * A copy of COLUMN_FORMAT_STRINGS for PHP 5.6 compatibility.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @var array
+	 */
+	private $column_format_strings;
+
+	/**
 	 * The site transients handler.
 	 *
 	 * @var Site_Transients
@@ -147,32 +155,44 @@ class Core {
 	private $site_transients;
 
 	/**
+	 * The default settings.
+	 *
+	 * @var Settings
+	 */
+	private $settings_template;
+
+	/**
 	 * The singleton instance.
 	 *
 	 * @var Core
 	 */
-	private static $_instance;
+	private static $instance;
 
 	/**
 	 * Creates a \Avatar_Privacy\Core instance and registers all necessary hooks
 	 * and filters for the plugin.
 	 *
-	 * @param string          $plugin_file      The full path to the base plugin file.
-	 * @param string          $version          The plugin version string (e.g. "3.0.0-beta.2").
-	 * @param Transients      $transients       Required.
-	 * @param Site_Transients $site_transients  Required.
-	 * @param Cache           $cache            Required.
-	 * @param Options         $options          Required.
-	 * @param Network_Options $network_options  Required.
+	 * @param string          $plugin_file       The full path to the base plugin file.
+	 * @param string          $version           The plugin version string (e.g. "3.0.0-beta.2").
+	 * @param Transients      $transients        Required.
+	 * @param Site_Transients $site_transients   Required.
+	 * @param Cache           $cache             Required.
+	 * @param Options         $options           Required.
+	 * @param Network_Options $network_options   Required.
+	 * @param Settings        $settings_template Required.
 	 */
-	public function __construct( $plugin_file, $version, Transients $transients, Site_Transients $site_transients, Cache $cache, Options $options, Network_Options $network_options ) {
-		$this->plugin_file     = $plugin_file;
-		$this->version         = $version;
-		$this->transients      = $transients;
-		$this->site_transients = $site_transients;
-		$this->cache           = $cache;
-		$this->options         = $options;
-		$this->network_options = $network_options;
+	public function __construct( $plugin_file, $version, Transients $transients, Site_Transients $site_transients, Cache $cache, Options $options, Network_Options $network_options, Settings $settings_template ) {
+		$this->plugin_file       = $plugin_file;
+		$this->version           = $version;
+		$this->transients        = $transients;
+		$this->site_transients   = $site_transients;
+		$this->cache             = $cache;
+		$this->options           = $options;
+		$this->network_options   = $network_options;
+		$this->settings_template = $settings_template;
+
+		// PHP 5.6 compatibility.
+		$this->column_format_strings = self::COLUMN_FORMAT_STRINGS;
 	}
 
 	/**
@@ -187,10 +207,10 @@ class Core {
 	 * @throws \BadMethodCallException Thrown when Avatar_Privacy_Core::set_instance after plugin initialization.
 	 */
 	public static function set_instance( Core $instance ) {
-		if ( null === self::$_instance ) {
-			self::$_instance = $instance;
+		if ( null === self::$instance ) {
+			self::$instance = $instance;
 		} else {
-			throw new \BadMethodCallException( 'Avatar_Privacy_Core::set_instance called more than once.' );
+			throw new \BadMethodCallException( __METHOD__ . ' called more than once.' );
 		}
 	}
 
@@ -204,11 +224,11 @@ class Core {
 	 * @return Core
 	 */
 	public static function get_instance() {
-		if ( null === self::$_instance ) {
-			throw new \BadMethodCallException( 'Avatar_Privacy_Core::get_instance called without prior plugin intialization.' );
+		if ( null === self::$instance ) {
+			throw new \BadMethodCallException( __METHOD__ . ' called without prior plugin intialization.' );
 		}
 
-		return self::$_instance;
+		return self::$instance;
 	}
 
 	/**
@@ -242,7 +262,7 @@ class Core {
 		// Force a re-read if the cached settings do not appear to be from the current version.
 		if ( empty( $this->settings ) || empty( $this->settings[ Options::INSTALLED_VERSION ] )
 			|| $this->version !== $this->settings[ Options::INSTALLED_VERSION ] || $force ) {
-			$this->settings = $this->options->get( self::SETTINGS_NAME, Settings::get_defaults() );
+			$this->settings = $this->options->get( self::SETTINGS_NAME, $this->settings_template->get_defaults() );
 		}
 
 		return $this->settings;
@@ -316,7 +336,7 @@ class Core {
 	 *
 	 * @return object|null   The dataset as an object or null.
 	 */
-	private function load_data_by_email( $email ) {
+	protected function load_data_by_email( $email ) {
 		global $wpdb;
 
 		$email = \strtolower( \trim( $email ) );
@@ -344,9 +364,9 @@ class Core {
 	 *
 	 * @param  string $hash The hashed mail address.
 	 *
-	 * @return object       The dataset as an object or null.
+	 * @return object|null  The dataset as an object or null.
 	 */
-	private function load_data_by_hash( $hash ) {
+	protected function load_data_by_hash( $hash ) {
 		global $wpdb;
 
 		if ( empty( $hash ) ) {
@@ -372,17 +392,22 @@ class Core {
 	 * Retrieves the hash for the given user ID. If there currently is no hash,
 	 * a new one is generated.
 	 *
+	 * @since 2.1.0 False is returned on error.
+	 *
 	 * @param  int $user_id The user ID.
 	 *
-	 * @return string
+	 * @return string|false The hashed email, or `false` on failure.
 	 */
 	public function get_user_hash( $user_id ) {
 		$hash = \get_user_meta( $user_id, self::EMAIL_HASH_META_KEY, true );
 
 		if ( empty( $hash ) ) {
 			$user = \get_user_by( 'ID', $user_id );
-			$hash = $this->get_hash( $user->user_email );
-			\update_user_meta( $user_id, self::EMAIL_HASH_META_KEY, $hash );
+
+			if ( ! empty( $user->user_email ) ) {
+				$hash = $this->get_hash( $user->user_email );
+				\update_user_meta( $user_id, self::EMAIL_HASH_META_KEY, $hash );
+			}
 		}
 
 		return $hash;
@@ -412,7 +437,7 @@ class Core {
 	 *
 	 * @throws \RuntimeException A \RuntimeException is raised when invalid column names are used.
 	 */
-	private function update_comment_author_data( $id, $email, array $columns ) {
+	protected function update_comment_author_data( $id, $email, array $columns ) {
 		global $wpdb;
 
 		$result = $wpdb->update( $wpdb->avatar_privacy, $columns, [ 'id' => $id ], $this->get_format_strings( $columns ), [ '%d' ] ); // WPCS: db call ok, db cache ok.
@@ -435,7 +460,7 @@ class Core {
 	 *
 	 * @return int|false      The number of rows updated, or false on error.
 	 */
-	private function insert_comment_author_data( $email, $use_gravatar, $last_updated, $log_message ) {
+	protected function insert_comment_author_data( $email, $use_gravatar, $last_updated, $log_message ) {
 		global $wpdb;
 
 		$hash    = $this->get_hash( $email );
@@ -466,18 +491,18 @@ class Core {
 		$data = $this->load_data( $email );
 		if ( empty( $data ) ) {
 			// Nothing found in the database, insert the dataset.
-			$this->insert_comment_author_data( $email, $use_gravatar, current_time( 'mysql' ),
-				'set with comment ' . $comment_id . ( \is_multisite() ? ' (site: ' . $wpdb->siteid . ', blog: ' . $wpdb->blogid . ')' : '' )
-			);
+			$log_message = 'set with comment ' . $comment_id . ( \is_multisite() ? ' (site: ' . $wpdb->siteid . ', blog: ' . $wpdb->blogid . ')' : '' );
+			$this->insert_comment_author_data( $email, $use_gravatar, \current_time( 'mysql' ), $log_message );
 		} else {
 			if ( $data->use_gravatar !== $use_gravatar ) {
 				// Dataset found but with different value, update it.
-				$this->update_comment_author_data( $data->id, $data->email, [
+				$new_values = [
 					'use_gravatar' => $use_gravatar,
-					'last_updated' => current_time( 'mysql' ),
+					'last_updated' => \current_time( 'mysql' ),
 					'log_message'  => 'set with comment ' . $comment_id . ( \is_multisite() ? ' (site: ' . $wpdb->siteid . ', blog: ' . $wpdb->blogid . ')' : '' ),
 					'hash'         => $this->get_hash( $email ),
-				] );
+				];
+				$this->update_comment_author_data( $data->id, $data->email, $new_values );
 			} elseif ( empty( $data->hash ) ) {
 				// Just add the hash.
 				$this->update_comment_author_hash( $data->id, $data->email );
@@ -554,12 +579,12 @@ class Core {
 	 *
 	 * @throws \RuntimeException A \RuntimeException is raised when invalid column names are used.
 	 */
-	private function get_format_strings( array $columns ) {
+	protected function get_format_strings( array $columns ) {
 		$format_strings = [];
 
 		foreach ( $columns as $key => $value ) {
-			if ( ! empty( self::COLUMN_FORMAT_STRINGS[ $key ] ) ) {
-				$format_strings[] = self::COLUMN_FORMAT_STRINGS[ $key ];
+			if ( ! empty( $this->column_format_strings[ $key ] ) ) {
+				$format_strings[] = $this->column_format_strings[ $key ];
 			}
 		}
 
@@ -581,12 +606,13 @@ class Core {
 	 */
 	public function get_user_by_hash( $hash ) {
 		// No extra caching necessary, WP Core already does that for us.
-		$users = \get_users( [
+		$args  = [
 			'number'       => 1,
 			'meta_key'     => self::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			'meta_value'   => $hash, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 			'meta_compare' => '=',
-		] );
+		];
+		$users = \get_users( $args );
 
 		if ( empty( $users ) ) {
 			return null;

@@ -111,10 +111,7 @@ class Image_Stream {
 		$this->options = $options;
 
 		// Strip binary/text flags from mode for comparison.
-		$mode = strtr( $mode , [
-			'b' => '',
-			't' => '',
-		] );
+		$mode = \str_replace( [ 'b', 't' ], '', $mode );
 
 		switch ( $mode ) {
 

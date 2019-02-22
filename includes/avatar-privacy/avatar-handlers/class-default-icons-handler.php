@@ -112,9 +112,7 @@ class Default_Icons_Handler implements Avatar_Handler {
 	 * @return string
 	 */
 	public function get_url( $url, $hash, $size, array $args ) {
-		$args = \wp_parse_args( $args, [
-			'default' => '',
-		] );
+		$args = \wp_parse_args( $args, [ 'default' => '' ] );
 
 		$providers = $this->get_provider_mapping();
 		if ( ! empty( $providers[ $args['default'] ] ) ) {
@@ -137,9 +135,7 @@ class Default_Icons_Handler implements Avatar_Handler {
 	 * @return bool              Returns `true` if successful, `false` otherwise.
 	 */
 	public function cache_image( $type, $hash, $size, $subdir, $extension ) {
-		return ! empty( $this->get_url( '', $hash, $size, [
-			'default' => $type,
-		] ) );
+		return ! empty( $this->get_url( '', $hash, $size, [ 'default' => $type ] ) );
 	}
 
 	/**

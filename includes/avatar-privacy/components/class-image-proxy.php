@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -175,17 +175,19 @@ class Image_Proxy implements \Avatar_Privacy\Component {
 		$this->send_image( $file, DAY_IN_SECONDS, Images\Type::CONTENT_TYPE[ $extension ] );
 
 		// We're done.
-		exit( 0 );
+		$this->exit_request();
 	}
 
 	/**
 	 * Sends an image file to the browser.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  string $file         The full path to the image.
 	 * @param  int    $cache_time   The time the image should be cached by the brwoser (in seconds).
 	 * @param  string $content_type The content MIME type.
 	 */
-	private function send_image( $file, $cache_time, $content_type ) {
+	protected function send_image( $file, $cache_time, $content_type ) {
 		$image = @\file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_get_contents, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, Generic.PHP.NoSilencedErrors.Discouraged
 
 		if ( ! empty( $image ) ) {
@@ -199,7 +201,7 @@ class Image_Proxy implements \Avatar_Privacy\Component {
 			\header( 'Expires: ' . \gmdate( 'D, d M Y H:i:s \G\M\T', \time() + $cache_time ) );
 
 			// Here comes the content.
-			echo $image; // WPCS: XSS ok.
+			echo $image; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		} else {
 			/* translators: $file path */
 			\wp_die( \esc_html( \sprintf( \__( 'Error generating avatar file %s.', 'avatar-privacy' ), $file ) ) );
@@ -279,16 +281,30 @@ class Image_Proxy implements \Avatar_Privacy\Component {
 	/**
 	 * Removes all files older than the maximum age from given subdirectory.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  string $lock     The site transient key for ensuring that the job is not run more often than necessary.
 	 * @param  string $subdir   The subdirectory to clean.
 	 * @param  int    $interval The cron job run interval in seconds.
 	 * @param  int    $max_age  The maximum age of the image files in seconds.
 	 */
-	private function invalidate_cached_images( $lock, $subdir, $interval, $max_age ) {
+	protected function invalidate_cached_images( $lock, $subdir, $interval, $max_age ) {
 		// Invalidate all files in the subdirectory older than the maximum age.
 		$this->file_cache->invalidate_files_older_than( $max_age, $subdir );
 
 		// Don't run the job again until the interval is up.
 		$this->site_transients->set( $lock, true, $interval );
+	}
+
+	/**
+	 * Stops executing the current request early.
+	 *
+	 * @since 2.1.0
+	 * @codeCoverageIgnore
+	 *
+	 * @param  int $status Optional. A status code in the range 0 to 254. Default 0.
+	 */
+	protected function exit_request( $status = 0 ) {
+		exit( $status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }

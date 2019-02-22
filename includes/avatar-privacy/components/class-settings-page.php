@@ -66,6 +66,13 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	private $upload;
 
 	/**
+	 * The default settings.
+	 *
+	 * @var Settings
+	 */
+	private $settings;
+
+	/**
 	 * The core API.
 	 *
 	 * @var Core
@@ -73,18 +80,28 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	private $core;
 
 	/**
+	 * Indiciates whether the settings page is buffering its output.
+	 *
+	 * @var bool
+	 */
+	private $buffering;
+
+	/**
 	 * Creates a new instance.
 	 *
-	 * @param string  $plugin_file The full path to the base plugin file.
-	 * @param Core    $core        The core API.
-	 * @param Options $options     The options handler.
-	 * @param Upload  $upload      The file upload handler.
+	 * @param string   $plugin_file The full path to the base plugin file.
+	 * @param Core     $core        The core API.
+	 * @param Options  $options     The options handler.
+	 * @param Upload   $upload      The file upload handler.
+	 * @param Settings $settings    The default settings.
 	 */
-	public function __construct( $plugin_file, Core $core, Options $options, Upload $upload ) {
+	public function __construct( $plugin_file, Core $core, Options $options, Upload $upload, Settings $settings ) {
 		$this->plugin_file = $plugin_file;
 		$this->core        = $core;
 		$this->options     = $options;
 		$this->upload      = $upload;
+		$this->settings    = $settings;
+		$this->buffering   = false;
 	}
 
 	/**
@@ -94,13 +111,23 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	 */
 	public function run() {
 		if ( \is_admin() ) {
+			// Register scripts.
 			\add_action( 'admin_init', [ $this, 'register_settings' ] );
-			\add_action( 'admin_footer-options-discussion.php', [ $this, 'settings_footer' ] );
 
 			// Add form encoding.
-			\add_action( 'admin_head-options-discussion.php', function() {
-				\ob_start( [ $this, 'add_form_encoding' ] );
-			} );
+			\add_action( 'admin_head-options-discussion.php', [ $this, 'settings_head' ] );
+
+			// Print scripts.
+			\add_action( 'admin_footer-options-discussion.php', [ $this, 'settings_footer' ] );
+		}
+	}
+
+	/**
+	 * Run tasks in the settings header.
+	 */
+	public function settings_head() {
+		if ( \ob_start( [ $this, 'add_form_encoding' ] ) ) {
+			$this->buffering = true;
 		}
 	}
 
@@ -114,8 +141,9 @@ class Settings_Page implements \Avatar_Privacy\Component {
 		}
 
 		// Clean up output buffering.
-		if ( \ob_get_level() > 0 ) {
+		if ( $this->buffering && \ob_get_level() > 0 ) {
 			\ob_end_flush();
+			$this->buffering = false;
 		}
 	}
 
@@ -127,7 +155,7 @@ class Settings_Page implements \Avatar_Privacy\Component {
 		\register_setting( 'discussion', $this->options->get_name( Core::SETTINGS_NAME ), [ $this, 'sanitize_settings' ] );
 
 		// Register control render callbacks.
-		$controls = Control_Factory::initialize( Settings::get_fields( $this->get_settings_header() ), $this->options, Core::SETTINGS_NAME );
+		$controls = Control_Factory::initialize( $this->settings->get_fields( $this->get_settings_header() ), $this->options, Core::SETTINGS_NAME );
 		foreach ( $controls as $control ) {
 			$control->register( 'discussion' );
 		}
@@ -166,7 +194,7 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	 * @return array The sanitized plugin settings.
 	 */
 	public function sanitize_settings( $input ) {
-		foreach ( Settings::get_fields() as $key => $info ) {
+		foreach ( $this->settings->get_fields() as $key => $info ) {
 			if ( Controls\Checkbox_Input::class === $info['ui'] ) {
 				$input[ $key ] = ! empty( $input[ $key ] );
 			}

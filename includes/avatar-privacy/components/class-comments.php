@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -41,6 +41,13 @@ class Comments implements \Avatar_Privacy\Component {
 	 * The name of the checkbox field in the comment form.
 	 */
 	const CHECKBOX_FIELD_NAME = 'use_gravatar';
+
+	/**
+	 * The prefix of the comment cookie (COOKIEHASH is added at the end).
+	 *
+	 * @var string
+	 */
+	const COOKIE_PREFIX = 'comment_use_gravatar_';
 
 	/**
 	 * The core API.
@@ -109,25 +116,6 @@ class Comments implements \Avatar_Privacy\Component {
 		// Define the new checkbox field.
 		$new_field = self::get_gravatar_checkbox( $this->plugin_file );
 
-		if ( isset( $fields['cookies'] ) ) {
-			// If the `cookies` field exists, add the checkbox just before.
-			$insertion_point = 'cookies';
-			$before_or_after = 'before';
-		} elseif ( isset( $fields['url'] ) ) {
-			// Otherwise, if the `url` field exists, add our checkbox after it.
-			$insertion_point = 'url';
-			$before_or_after = 'after';
-		} elseif ( isset( $fields['email'] ) ) {
-			// Otherwise, look for the `email` field and add the checkbox after that.
-			$insertion_point = 'email';
-			$before_or_after = 'after';
-		} else {
-			// As a last ressort, add the checkbox after all the other fields.
-			\end( $fields );
-			$insertion_point = \key( $fields );
-			$before_or_after = 'after';
-		}
-
 		/**
 		 * Filters the insert position for the `use_gravatar` checkbox.
 		 *
@@ -140,7 +128,7 @@ class Comments implements \Avatar_Privacy\Component {
 		 *     @type string $insertion_point The index ('url', 'email', etc.) of the field where the checkbox should be inserted.
 		 * }
 		 */
-		list( $before_or_after, $insertion_point ) = \apply_filters( 'avatar_privacy_use_gravatar_position', [ $before_or_after, $insertion_point ] );
+		list( $before_or_after, $insertion_point ) = \apply_filters( 'avatar_privacy_use_gravatar_position', $this->get_position( $fields ) );
 
 		if ( isset( $fields[ $insertion_point ] ) ) {
 			$result = [];
@@ -163,6 +151,43 @@ class Comments implements \Avatar_Privacy\Component {
 		}
 
 		return $fields;
+	}
+
+	/**
+	 * Determines position for inserting the `use_gravatar` field.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param  string[] $fields The array of comment fields.
+	 *
+	 * @return string[] $position {
+	 *     Where to insert the checkbox.
+	 *
+	 *     @type string $before_or_after Either 'before' or 'after'.
+	 *     @type string $field           The index ('url', 'email', etc.) of the field where the checkbox should be inserted.
+	 * }
+	 */
+	protected function get_position( array $fields ) {
+		if ( isset( $fields['cookies'] ) ) {
+			// If the `cookies` field exists, add the checkbox just before.
+			$before_or_after = 'before';
+			$field           = 'cookies';
+		} elseif ( isset( $fields['url'] ) ) {
+			// Otherwise, if the `url` field exists, add our checkbox after it.
+			$before_or_after = 'after';
+			$field           = 'url';
+		} elseif ( isset( $fields['email'] ) ) {
+			// Otherwise, look for the `email` field and add the checkbox after that.
+			$before_or_after = 'after';
+			$field           = 'email';
+		} else {
+			// As a last ressort, add the checkbox after all the other fields.
+			\end( $fields );
+			$before_or_after = 'after';
+			$field           = \key( $fields );
+		}
+
+		return [ $before_or_after, $field ];
 	}
 
 	/**
@@ -209,7 +234,7 @@ class Comments implements \Avatar_Privacy\Component {
 		}
 
 		// Save the 'use gravatar' value.
-		$use_gravatar = ( isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) && ( 'true' === $_POST[ self::CHECKBOX_FIELD_NAME ] ) ) ? 1 : 0; // WPCS: CSRF ok, Input var okay.
+		$use_gravatar = ( isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) && ( 'true' === $_POST[ self::CHECKBOX_FIELD_NAME ] ) ) ? 1 : 0; // // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$this->core->update_comment_author_gravatar_use( $comment->comment_author_email, $comment_id, $use_gravatar );
 	}
 
@@ -228,7 +253,7 @@ class Comments implements \Avatar_Privacy\Component {
 
 		if ( false === $cookies_consent ) {
 			// Remove any existing cookie.
-			\setcookie( 'comment_use_gravatar_' . COOKIEHASH, 0, time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+			\setcookie( self::COOKIE_PREFIX . COOKIEHASH, 0, time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
 			return;
 		}
 
@@ -237,8 +262,8 @@ class Comments implements \Avatar_Privacy\Component {
 
 		// Set a cookie for the 'use gravatar' value.
 		/** This filter is documented in wp-includes/comment.php */
-		$comment_cookie_lifetime = \apply_filters( 'comment_cookie_lifetime', 30000000 );
+		$comment_cookie_lifetime = \apply_filters( 'comment_cookie_lifetime', 30000000 ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		$secure                  = ( 'https' === \wp_parse_url( \home_url(), PHP_URL_SCHEME ) );
-		\setcookie( 'comment_use_gravatar_' . COOKIEHASH, $use_gravatar, \time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN, $secure );
+		\setcookie( self::COOKIE_PREFIX . COOKIEHASH, $use_gravatar, \time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN, $secure );
 	}
 }

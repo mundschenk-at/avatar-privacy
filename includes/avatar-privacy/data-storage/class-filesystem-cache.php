@@ -102,14 +102,16 @@ class Filesystem_Cache {
 	/**
 	 * Retrieves information about the upload directory.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @return array
 	 */
-	private function get_upload_dir() {
+	protected function get_upload_dir() {
 		if ( empty( $this->upload_dir ) ) {
-			$multisite = is_multisite();
+			$multisite = \is_multisite();
 
 			if ( $multisite ) {
-				\switch_to_blog( \get_network()->site_id );
+				\switch_to_blog( \get_main_site_id() );
 			}
 
 			$this->upload_dir = \wp_get_upload_dir();
@@ -221,12 +223,14 @@ class Filesystem_Cache {
 	/**
 	 * Retrieves a recursive iterator for all files in the cache.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  string $subdir Optional. Limit invalidation to the given subdirectory. Default ''.
 	 * @param  string $regex  Optional. Limit invalidation to files matching the given regular expression. Default ''.
 	 *
 	 * @return \OuterIterator
 	 */
-	private function get_recursive_file_iterator( $subdir = '', $regex = '' ) {
+	protected function get_recursive_file_iterator( $subdir = '', $regex = '' ) {
 		$files = new \RecursiveIteratorIterator(
 			new \RecursiveDirectoryIterator( "{$this->get_base_dir()}{$subdir}", \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS ),
 			\RecursiveIteratorIterator::CHILD_FIRST

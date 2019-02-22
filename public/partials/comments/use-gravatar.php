@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -46,11 +46,11 @@ $allowed_html = [
 $disable_style = \apply_filters( 'avatar_privacy_comment_checkbox_disable_inline_style', false );
 
 // Determine if the checkbox should be checked.
-$cookie_name = 'comment_use_gravatar_' . COOKIEHASH;
+$cookie_name = Comments::COOKIE_PREFIX . COOKIEHASH;
 $is_checked  = false;
-if ( isset( $_POST[ Comments::CHECKBOX_FIELD_NAME ] ) ) { // WPCS: CSRF ok, Input var okay.
+if ( isset( $_POST[ Comments::CHECKBOX_FIELD_NAME ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- frontend form.
 	// Re-displaying the comment form with validation errors.
-	$is_checked = ! empty( $_POST[ Comments::CHECKBOX_FIELD_NAME ] ); // WPCS: CSRF ok, Input var okay.
+	$is_checked = ! empty( $_POST[ Comments::CHECKBOX_FIELD_NAME ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- frontend form.
 } elseif ( isset( $_COOKIE[ $cookie_name ] ) ) { // Input var okay.
 	// Read the value from the cookie, saved with previous comment.
 	$is_checked = ! empty( $_COOKIE[ $cookie_name ] ); // Input var okay.
