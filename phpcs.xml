@@ -14,6 +14,9 @@
 		<exclude name="Generic.WhiteSpace.ScopeIndent.Incorrect" />
 		<exclude name="PEAR.Functions.FunctionCallSignature.Indent" />
 		<exclude name="Generic.Functions.FunctionCallArgumentSpacing" />
+		<exclude name ="PEAR.Functions.FunctionCallSignature.CloseBracketLine" />
+		<exclude name ="PEAR.Functions.FunctionCallSignature.MultipleArguments" />
+		<exclude name ="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket" />
 	</rule>
 	<rule ref="WordPress-Extra" />
 
