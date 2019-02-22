@@ -126,32 +126,12 @@ module.exports = function( grunt ) {
 			}
 		},
 
-		jshint: {
-			files: [
-				'admin/js/**/*.js',
-				'public/js/**/*.js',
-				'!**/*.min.js'
-			],
-			options: {
-				reporter: require('jshint-stylish'),
-				jshintrc: true,
-				globals: {
-					jQuery: true,
-					console: true,
-					module: true,
-					document: true
-				},
-			}
-		},
-
-		jscs: {
+		eslint: {
 			src: [
 				'admin/js/**/*.js',
 				'public/js/**/*.js',
-				'!**/*.min.js'
-			],
-			options: {
-			}
+				'!**/*.min.js',
+			]
 		},
 
 		phpcs: {
@@ -294,8 +274,7 @@ module.exports = function( grunt ) {
 	require( 'load-grunt-tasks' )( grunt, { scope: 'devDependencies' } );
 
 	grunt.registerTask( 'default', [
-			'newer:jscs',
-			'newer:jshint',
+			'newer:eslint',
 			'newer:phpcs',
 			'newer:sass:dev',
 			'newer:postcss:dev'
@@ -342,15 +321,14 @@ module.exports = function( grunt ) {
 
 	grunt.registerTask('deploy', [
 			'phpcs',
-			'jshint',
-			'jscs',
+			'eslint',
 			'build',
 			'wp_deploy:release'
 	] );
 
 	grunt.registerTask('trunk', [
 			'phpcs',
-			'jscs',
+			'eslint',
 			'build',
 			'wp_deploy:trunk'
 	] );
