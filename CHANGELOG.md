@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.5 (2019-02-23)
+*   _Bugfix_: Fixed a previously undiscovered compatibility issue with recent versions of EWWW Image Optimizer.
+
 ## 2.0.4 (2019-02-22)
 *   _Bugfix_: Updated included libraries for improved compatibility with other plugins.
 
