@@ -7,7 +7,7 @@ Tags: gravatar, avatar, privacy, caching, bbpress
 Requires at least: 4.9
 Requires PHP: 5.6
 Tested up to: 5.1
-Stable tag: 2.0.4
+Stable tag: 2.0.5
 License: GPLv2 or later
 
 Enhances the privacy of your users and visitors with gravatar opt-in and local avatars.
@@ -133,6 +133,9 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 
 == Changelog ==
+
+= 2.0.5 (2019-02-23) =
+* _Bugfix_: Fixed a previously undiscovered compatibility issue with recent versions of EWWW Image Optimizer.
 
 = 2.0.4 (2019-02-22) =
 * _Bugfix_: Updated included libraries for improved compatibility with other plugins.
