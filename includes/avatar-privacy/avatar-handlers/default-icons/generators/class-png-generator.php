@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  * Copyright 2007-2008 Shamus Young.
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@
 
 namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
+use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generator;
 
 use function Scriptura\Color\Helpers\HSLtoRGB;
@@ -51,12 +52,21 @@ abstract class PNG_Generator implements Generator {
 	protected $parts_dir;
 
 	/**
+	 * The image editor support class.
+	 *
+	 * @var Images\Editor
+	 */
+	private $images;
+
+	/**
 	 * Creates a new Wavatars generator.
 	 *
-	 * @param string $parts_dir The directory containing our image parts.
+	 * @param string        $parts_dir The directory containing our image parts.
+	 * @param Images\Editor $images    The image editing handler.
 	 */
-	public function __construct( $parts_dir ) {
+	public function __construct( $parts_dir, Images\Editor $images ) {
 		$this->parts_dir = $parts_dir;
+		$this->images    = $images;
 	}
 
 	/**
@@ -108,5 +118,19 @@ abstract class PNG_Generator implements Generator {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Resizes the image and returns the raw data.
+	 *
+	 * @param  resource $image The image resource.
+	 * @param  int      $size  The size in pixels.
+	 *
+	 * @return string          The image data (or the empty string on error).
+	 */
+	protected function get_resized_image_data( $image, $size ) {
+		return $this->images->get_resized_image_data(
+			$this->images->create_from_image_resource( $image ), $size, $size, false, 'image/png'
+		);
 	}
 }

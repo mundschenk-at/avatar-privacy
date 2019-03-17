@@ -74,6 +74,13 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $file_cache;
 
 	/**
+	 * The image editor support class.
+	 *
+	 * @var Images\Editor
+	 */
+	private $images;
+
+	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
@@ -95,6 +102,7 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Helper mocks.
 		$this->core       = m::mock( Core::class );
 		$this->file_cache = m::mock( Filesystem_Cache::class );
+		$this->images     = m::mock( Images\Editor::class );
 
 		// Partially mock system under test.
 		$this->sut = m::mock(
@@ -102,6 +110,7 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 			[
 				$this->core,
 				$this->file_cache,
+				$this->images,
 			]
 		)->makePartial()->shouldAllowMockingProtectedMethods();
 	}
@@ -115,11 +124,15 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$mock       = m::mock( User_Avatar_Handler::class )->makePartial()->shouldAllowMockingProtectedMethods();
 		$core       = m::mock( Core::class );
 		$file_cache = m::mock( Filesystem_Cache::class );
+		$images     = m::mock( Images\Editor::class );
 
-		$mock->__construct( $core, $file_cache );
+		$mock->__construct( $core, $file_cache, $images );
 
 		$this->assertAttributeSame( $core, 'core', $mock );
 		$this->assertAttributeSame( $file_cache, 'file_cache', $mock );
+		$this->assertAttributeSame( $images, 'images', $mock );
+	}
+
 	}
 
 	/**

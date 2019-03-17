@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  * Copyright 2007-2008 Shamus Young.
  *
  * This program is free software; you can redistribute it and/or
@@ -49,10 +49,11 @@ class Wavatar extends PNG_Generator {
 	/**
 	 * Creates a new Wavatars generator.
 	 *
-	 * @param string $plugin_file The full path to the base plugin file.
+	 * @param string        $plugin_file The full path to the base plugin file.
+	 * @param Images\Editor $images      The image editing handler.
 	 */
-	public function __construct( $plugin_file ) {
-		parent::__construct( \dirname( $plugin_file ) . '/public/images/wavatars' );
+	public function __construct( $plugin_file, Images\Editor $images ) {
+		parent::__construct( \dirname( $plugin_file ) . '/public/images/wavatars', $images );
 	}
 
 	/**
@@ -106,6 +107,6 @@ class Wavatar extends PNG_Generator {
 		$this->apply_image( $avatar, "mouth{$mouth}.png", self::SIZE, self::SIZE );
 
 		// Resize if needed.
-		return Images\Editor::get_resized_image_data( Images\Editor::create_from_image_resource( $avatar ), $size, $size, false, 'image/png' );
+		return $this->get_resized_image_data( $avatar, $size );
 	}
 }

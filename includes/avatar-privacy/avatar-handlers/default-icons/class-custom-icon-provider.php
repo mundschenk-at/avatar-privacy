@@ -67,18 +67,27 @@ class Custom_Icon_Provider extends Abstract_Icon_Provider {
 	private $core;
 
 	/**
+	 * The image editor support class.
+	 *
+	 * @var Images\Editor
+	 */
+	private $images;
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param Filesystem_Cache $file_cache The file cache handler.
 	 * @param Upload           $upload     The upload handler.
 	 * @param Core             $core       The plugin instance.
+	 * @param Images\Editor    $images     The image editing handler.
 	 */
-	public function __construct( Filesystem_Cache $file_cache, Upload $upload, Core $core ) {
+	public function __construct( Filesystem_Cache $file_cache, Upload $upload, Core $core, Images\Editor $images ) {
 		parent::__construct( [ 'custom' ], __( 'Custom', 'avatar-privacy' ) );
 
 		$this->file_cache = $file_cache;
 		$this->upload     = $upload;
 		$this->core       = $core;
+		$this->images     = $images;
 	}
 
 	/**
@@ -107,7 +116,7 @@ class Custom_Icon_Provider extends Abstract_Icon_Provider {
 		// Only generate a new icon if necessary.
 		if ( ! \file_exists( "{$this->file_cache->get_base_dir()}{$filename}" ) ) {
 
-			$data = Images\Editor::get_resized_image_data( Images\Editor::get_image_editor( $icon['file'] ), $size, $size, true, $icon['type'] );
+			$data = $this->images->get_resized_image_data( $this->images->get_image_editor( $icon['file'] ), $size, $size, true, $icon['type'] );
 			if ( empty( $data ) ) {
 				// Something went wrong..
 				return $default;

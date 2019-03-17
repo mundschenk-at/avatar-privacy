@@ -65,14 +65,23 @@ class User_Avatar_Handler implements Avatar_Handler {
 	private $base_dir;
 
 	/**
+	 * The image editor support class.
+	 *
+	 * @var Images\Editor
+	 */
+	private $images;
+
+	/**
 	 * Creates a new instance.
 	 *
-	 * @param Core             $core        The core API.
-	 * @param Filesystem_Cache $file_cache  The file cache handler.
+	 * @param Core             $core       The core API.
+	 * @param Filesystem_Cache $file_cache The file cache handler.
+	 * @param Images\Editor    $images     The image editing handler.
 	 */
-	public function __construct( Core $core, Filesystem_Cache $file_cache ) {
+	public function __construct( Core $core, Filesystem_Cache $file_cache, Images\Editor $images ) {
 		$this->core       = $core;
 		$this->file_cache = $file_cache;
+		$this->images     = $images;
 	}
 
 	/**
@@ -111,7 +120,9 @@ class User_Avatar_Handler implements Avatar_Handler {
 		$target    = "{$this->base_dir}{$filename}";
 
 		if ( $args['force'] || ! \file_exists( $target ) ) {
-			$data = Images\Editor::get_resized_image_data( Images\Editor::get_image_editor( $args['avatar'] ), $size, $size, true, $args['mimetype'] );
+			$data = $this->images->get_resized_image_data(
+				$this->images->get_image_editor( $args['avatar'] ), $size, $size, true, $args['mimetype']
+			);
 			if ( empty( $data ) ) {
 				// Something went wrong..
 				return $url;

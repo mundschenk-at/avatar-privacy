@@ -57,6 +57,7 @@ use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
 use Avatar_Privacy\Integrations\BBPress_Integration;
 
+use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Tools\Multisite as Multisite_Tools;
 use Avatar_Privacy\Tools\Network\Gravatar_Service;
 
@@ -146,6 +147,7 @@ abstract class Avatar_Privacy_Factory {
 				BBPress_Integration::class    => $full_path_shared_rule,
 
 				// Tools.
+				Images\Editor::class          => self::SHARED,
 				Multisite_Tools::class        => self::SHARED,
 				Gravatar_Service::class       => self::SHARED,
 			];
