@@ -298,8 +298,13 @@ class Monster_ID extends PNG_Generator {
 
 		foreach ( $parts as $key => $value ) {
 			foreach ( $value as $part ) {
-				$file    = "{$this->parts_dir}/{$part}";
-				$im      = @\imagecreatefrompng( $file );
+				$im = @\imagecreatefrompng( "{$this->parts_dir}/{$part}" );
+
+				if ( false === $im ) {
+					// Not a valid image file.
+					continue;
+				}
+
 				$imgw    = \imagesx( $im );
 				$imgh    = \imagesy( $im );
 				$xbounds = [ 999999, 0 ];
