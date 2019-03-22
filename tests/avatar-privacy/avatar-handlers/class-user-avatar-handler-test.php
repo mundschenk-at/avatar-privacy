@@ -133,6 +133,80 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assertAttributeSame( $images, 'images', $mock );
 	}
 
+	/**
+	 * Tests ::get_url.
+	 *
+	 * @covers ::get_url
+	 */
+	public function test_get_url() {
+		$force       = false;
+		$basedir     = '/basedir';
+		$hash        = 'f0e4c2f76c58916ec258f246851bea091d14d4247a2fc3e18694461b1816e13b';
+		$default_url = 'https://some/default';
+		$size        = 42;
+		$subdir      = 'a/b';
+		$args        = [
+			'type'     => 'ignored',
+			'avatar'   => '/image/path',
+			'mimetype' => 'image/jpeg',
+			'force'    => $force,
+		];
+
+		// Expected result.
+		$image = 'fake image data';
+		$url   = 'https://some_url_for/the/avatar';
+
+		$this->file_cache->shouldReceive( 'get_base_dir' )->once()->andReturn( $basedir );
+
+		Functions\expect( 'wp_parse_args' )->once()->with( $args, m::type( 'array' ) )->andReturn( $args );
+
+		$this->sut->shouldReceive( 'get_sub_dir' )->once()->with( $hash )->andReturn( 'a/b' );
+
+		$this->images->shouldReceive( 'get_image_editor' )->once()->with( $args['avatar'] )->andReturn( m::mock( \WP_Image_Editor::class ) );
+		$this->images->shouldReceive( 'get_resized_image_data' )->once()->with( m::type( \WP_Image_Editor::class ), $size, $size, true, $args['mimetype'] )->andReturn( $image );
+
+		$this->file_cache->shouldReceive( 'set' )->once()->with( m::type( 'string' ), $image, $force );
+		$this->file_cache->shouldReceive( 'get_url' )->once()->with( m::type( 'string' ) )->andReturn( $url );
+
+		$this->assertSame( $url, $this->sut->get_url( $default_url, $hash, $size, $args ) );
+	}
+
+
+	/**
+	 * Tests ::get_url.
+	 *
+	 * @covers ::get_url
+	 */
+	public function test_get_url_no_data() {
+		$force       = false;
+		$basedir     = '/basedir';
+		$hash        = 'f0e4c2f76c58916ec258f246851bea091d14d4247a2fc3e18694461b1816e13b';
+		$default_url = 'https://some/default';
+		$size        = 42;
+		$subdir      = 'a/b';
+		$args        = [
+			'type'     => 'ignored',
+			'avatar'   => '/image/path',
+			'mimetype' => 'image/jpeg',
+			'force'    => $force,
+		];
+
+		// Expected result.
+		$image = '';
+
+		$this->file_cache->shouldReceive( 'get_base_dir' )->once()->andReturn( $basedir );
+
+		Functions\expect( 'wp_parse_args' )->once()->with( $args, m::type( 'array' ) )->andReturn( $args );
+
+		$this->sut->shouldReceive( 'get_sub_dir' )->once()->with( $hash )->andReturn( 'a/b' );
+
+		$this->images->shouldReceive( 'get_image_editor' )->once()->with( $args['avatar'] )->andReturn( m::mock( \WP_Image_Editor::class ) );
+		$this->images->shouldReceive( 'get_resized_image_data' )->once()->with( m::type( \WP_Image_Editor::class ), $size, $size, true, $args['mimetype'] )->andReturn( $image );
+
+		$this->file_cache->shouldReceive( 'set' )->never();
+		$this->file_cache->shouldReceive( 'get_url' )->never();
+
+		$this->assertSame( $default_url, $this->sut->get_url( $default_url, $hash, $size, $args ) );
 	}
 
 	/**
