@@ -76,7 +76,7 @@ class Wavatar extends PNG_Generator {
 	 * @param  string $seed The seed data (hash).
 	 * @param  int    $size The size in pixels.
 	 *
-	 * @return string       The image data.
+	 * @return string       The image data (or the empty string on error).
 	 */
 	public function build( $seed, $size ) {
 		// Look at the seed (an md5 hash) and use pairs of digits to determine our
@@ -92,6 +92,11 @@ class Wavatar extends PNG_Generator {
 
 		// Create backgound.
 		$avatar = \imagecreatetruecolor( self::SIZE, self::SIZE );
+
+		// Check for valid image resource.
+		if ( false === $avatar ) {
+			return '';
+		}
 
 		// Pick a random color for the background.
 		$this->fill( $avatar, $bg_color, 94, 20, 1, 1 );
