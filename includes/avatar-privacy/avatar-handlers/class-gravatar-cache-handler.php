@@ -173,12 +173,14 @@ class Gravatar_Cache_Handler implements Avatar_Handler {
 	/**
 	 * Calculates the subdirectory from the given identity hash.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  string $identity The identity (mail address) hash.
 	 * @param  bool   $user     If we need to encode the type as "user".
 	 *
 	 * @return string
 	 */
-	private function get_sub_dir( $identity, $user = false ) {
+	protected function get_sub_dir( $identity, $user = false ) {
 		$first  = \substr( $identity, 0, 1 );
 		$second = \substr( $identity, 1, 1 );
 
