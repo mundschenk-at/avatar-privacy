@@ -160,7 +160,7 @@ class Gravatar_Cache_Handler implements Avatar_Handler {
 		if ( ! \file_exists( "{$this->file_cache->get_base_dir()}{$filename}" ) || $args['force'] ) {
 			// Retrieve & store icon.
 			$icon = $this->gravatar->get_image( $args['email'], $size, $args['rating'] );
-			if ( ! empty( $icon ) && $this->file_cache->set( $filename, $icon ) ) {
+			if ( ! empty( $icon ) && $this->file_cache->set( $filename, $icon, $args['force'] ) ) {
 				$url = $this->file_cache->get_url( $filename );
 			}
 		} else {
