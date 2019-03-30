@@ -165,7 +165,7 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->images->shouldReceive( 'get_image_editor' )->once()->with( $args['avatar'] )->andReturn( m::mock( \WP_Image_Editor::class ) );
 		$this->images->shouldReceive( 'get_resized_image_data' )->once()->with( m::type( \WP_Image_Editor::class ), $size, $size, true, $args['mimetype'] )->andReturn( $image );
 
-		$this->file_cache->shouldReceive( 'set' )->once()->with( m::type( 'string' ), $image, $force );
+		$this->file_cache->shouldReceive( 'set' )->once()->with( m::type( 'string' ), $image, $force )->andReturn( true );
 		$this->file_cache->shouldReceive( 'get_url' )->once()->with( m::type( 'string' ) )->andReturn( $url );
 
 		$this->assertSame( $url, $this->sut->get_url( $default_url, $hash, $size, $args ) );
@@ -203,7 +203,7 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->images->shouldReceive( 'get_image_editor' )->once()->with( $args['avatar'] )->andReturn( m::mock( \WP_Image_Editor::class ) );
 		$this->images->shouldReceive( 'get_resized_image_data' )->once()->with( m::type( \WP_Image_Editor::class ), $size, $size, true, $args['mimetype'] )->andReturn( $image );
 
-		$this->file_cache->shouldReceive( 'set' )->never();
+		$this->file_cache->shouldReceive( 'set' )->once()->with( m::type( 'string' ), $image, $force )->andReturn( false );
 		$this->file_cache->shouldReceive( 'get_url' )->never();
 
 		$this->assertSame( $default_url, $this->sut->get_url( $default_url, $hash, $size, $args ) );

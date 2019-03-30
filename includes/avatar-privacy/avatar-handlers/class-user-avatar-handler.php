@@ -117,19 +117,17 @@ class User_Avatar_Handler implements Avatar_Handler {
 		$args      = \wp_parse_args( $args, $defaults );
 		$extension = Images\Type::FILE_EXTENSION[ $args['mimetype'] ];
 		$filename  = "user/{$this->get_sub_dir( $hash )}/{$hash}-{$size}.{$extension}";
-		$target    = "{$this->base_dir}{$filename}";
-
-		if ( $args['force'] || ! \file_exists( $target ) ) {
+		
+		if ( $args['force'] || ! \file_exists( "{$this->base_dir}{$filename}" ) ) {
 			$data = $this->images->get_resized_image_data(
 				$this->images->get_image_editor( $args['avatar'] ), $size, $size, true, $args['mimetype']
 			);
-			if ( empty( $data ) ) {
+
+			// Save the generated PNG file (empty files will fail this check).
+			if ( ! $this->file_cache->set( $filename, $data, $args['force'] ) ) {
 				// Something went wrong..
 				return $url;
 			}
-
-			// Save the generated PNG file.
-			$this->file_cache->set( $filename, $data, $args['force'] );
 		}
 
 		return $this->file_cache->get_url( $filename );
