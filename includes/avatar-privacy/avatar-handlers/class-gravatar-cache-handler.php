@@ -198,7 +198,7 @@ class Gravatar_Cache_Handler implements Avatar_Handler {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param  string $type      The image (sub-)type.
+	 * @param  string $type      The image (sub-)type. Ignored.
 	 * @param  string $hash      The hashed mail address.
 	 * @param  int    $size      The requested size in pixels.
 	 * @param  string $subdir    The requested sub-directory.
