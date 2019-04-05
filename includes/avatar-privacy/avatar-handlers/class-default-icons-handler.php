@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,6 +27,8 @@
 namespace Avatar_Privacy\Avatar_Handlers;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
+
+use Avatar_Privacy\Avatar_Handlers\Default_Icons\Icon_Provider;
 
 
 /**
@@ -55,36 +57,40 @@ class Default_Icons_Handler implements Avatar_Handler {
 	/**
 	 * A list of icon providers.
 	 *
-	 * @var Default_Icons\Icon_Provider[]
+	 * @var Icon_Provider[]
 	 */
 	private $icon_providers = [];
 
 	/**
 	 * The mapping of icon types to providers.
 	 *
-	 * @var Default_Icons\Icon_Provider[]
+	 * @var Icon_Provider[]
 	 */
 	private $icon_provider_mapping = [];
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param string           $plugin_file The full path to the base plugin file.
-	 * @param Filesystem_Cache $file_cache  The file cache handler.
+	 * @param string           $plugin_file    The full path to the base plugin file.
+	 * @param Filesystem_Cache $file_cache     The file cache handler.
+	 * @param Icon_Provider[]  $icon_providers An array of icon providers.
 	 */
-	public function __construct( $plugin_file, Filesystem_Cache $file_cache ) {
-		$this->plugin_file = $plugin_file;
-		$this->file_cache  = $file_cache;
+	public function __construct( $plugin_file, Filesystem_Cache $file_cache, array $icon_providers ) {
+		$this->plugin_file    = $plugin_file;
+		$this->file_cache     = $file_cache;
+		$this->icon_providers = $icon_providers;
 	}
 
 	/**
 	 * Returns a mapping from icon types to specific providers.
 	 *
-	 * @return Default_Icons\Icon_Provider[]
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
+	 * @return Icon_Provider[]
 	 */
-	private function get_provider_mapping() {
+	protected function get_provider_mapping() {
 		if ( empty( $this->icon_provider_mapping ) ) {
-			foreach ( $this->get_icon_providers() as $provider ) {
+			foreach ( $this->icon_providers as $provider ) {
 				foreach ( $provider->get_provided_types() as $type ) {
 					$this->icon_provider_mapping[ $type ] = $provider;
 				}
@@ -150,7 +156,7 @@ class Default_Icons_Handler implements Avatar_Handler {
 		unset( $avatar_defaults['gravatar_default'] );
 
 		// Add non-default icons.
-		foreach ( $this->get_icon_providers() as $provider ) {
+		foreach ( $this->icon_providers as $provider ) {
 			$type = $provider->get_option_value();
 			if ( ! isset( $avatar_defaults[ $type ] ) ) {
 				$avatar_defaults[ $type ] = $provider->get_name();
@@ -158,32 +164,5 @@ class Default_Icons_Handler implements Avatar_Handler {
 		}
 
 		return $avatar_defaults;
-	}
-
-	/**
-	 * Retrieves a list of Icon_Provider instances.
-	 *
-	 * @return Default_Icons\Icon_Provider[]
-	 */
-	private function get_icon_providers() {
-		if ( empty( $this->icon_providers ) ) {
-			$factory = \Avatar_Privacy_Factory::get( $this->plugin_file );
-
-			// These are sorted as the should appear for selection in the discussion settings.
-			$this->icon_providers = [
-				$factory->create( Default_Icons\SVG_Icon_Provider::class, [ [ 'mystery', 'mystery-man', 'mm' ], 'mystery', $this->plugin_file ] ),
-				$factory->create( Default_Icons\Identicon_Icon_Provider::class ),
-				$factory->create( Default_Icons\Wavatar_Icon_Provider::class ),
-				$factory->create( Default_Icons\Monster_ID_Icon_Provider::class ),
-				$factory->create( Default_Icons\Retro_Icon_Provider::class ),
-				$factory->create( Default_Icons\Rings_Icon_Provider::class ),
-				$factory->create( Default_Icons\SVG_Icon_Provider::class, [ [ 'bubble', 'comment' ], 'comment-bubble', $this->plugin_file, __( 'Speech Bubble', 'avatar-privacy' ) ] ),
-				$factory->create( Default_Icons\SVG_Icon_Provider::class, [ [ 'bowling-pin', 'im-user-offline' ], 'shaded-cone', $this->plugin_file, __( 'Bowling Pin', 'avatar-privacy' ) ] ),
-				$factory->create( Default_Icons\SVG_Icon_Provider::class, [ [ 'silhouette', 'view-media-artist' ], 'silhouette', $this->plugin_file, __( 'Silhouette', 'avatar-privacy' ) ] ),
-				$factory->create( Default_Icons\Custom_Icon_Provider::class ),
-			];
-		}
-
-		return $this->icon_providers;
 	}
 }

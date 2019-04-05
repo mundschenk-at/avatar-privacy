@@ -31,6 +31,7 @@ use Avatar_Privacy\Settings;
 
 use Avatar_Privacy\Upload_Handlers\Upload_Handler;
 
+use Avatar_Privacy\Avatar_Handlers\Default_Icons;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons_Handler;
 use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache_Handler;
 use Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler;
@@ -54,6 +55,8 @@ use Avatar_Privacy\Data_Storage\Transients;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
+use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons;
+use Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons;
 
 use Avatar_Privacy\Integrations\BBPress_Integration;
 
@@ -104,17 +107,17 @@ abstract class Avatar_Privacy_Factory {
 			// Define rules.
 			$rules = [
 				// Shared helpers.
-				Cache::class                  => self::SHARED,
-				Database::class               => self::SHARED,
-				Transients::class             => self::SHARED,
-				Site_Transients::class        => self::SHARED,
-				Options::class                => self::SHARED,
-				Network_Options::class        => self::SHARED,
-				Filesystem_Cache::class       => self::SHARED,
-				Settings::class               => self::SHARED,
+				Cache::class                                    => self::SHARED,
+				Database::class                                 => self::SHARED,
+				Transients::class                               => self::SHARED,
+				Site_Transients::class                          => self::SHARED,
+				Options::class                                  => self::SHARED,
+				Network_Options::class                          => self::SHARED,
+				Filesystem_Cache::class                         => self::SHARED,
+				Settings::class                                 => self::SHARED,
 
 				// Core API.
-				Core::class                   => [
+				Core::class                                     => [
 					'constructParams' => [
 						$full_plugin_path,
 						\get_plugin_data( $full_plugin_path, false, false )['Version'],
@@ -122,34 +125,58 @@ abstract class Avatar_Privacy_Factory {
 				],
 
 				// Components.
-				Avatar_Handling::class        => $full_path_rule,
-				Comments::class               => $full_path_rule,
-				Network_Settings_Page::class  => $full_path_rule,
-				Privacy_Tools::class          => $full_path_rule,
-				Settings_Page::class          => $full_path_rule,
-				Setup::class                  => $full_path_rule,
-				Uninstallation::class         => $full_path_rule,
-				User_Profile::class           => $full_path_shared_rule,
+				Avatar_Handling::class                          => $full_path_rule,
+				Comments::class                                 => $full_path_rule,
+				Network_Settings_Page::class                    => $full_path_rule,
+				Privacy_Tools::class                            => $full_path_rule,
+				Settings_Page::class                            => $full_path_rule,
+				Setup::class                                    => $full_path_rule,
+				Uninstallation::class                           => $full_path_rule,
+				User_Profile::class                             => $full_path_shared_rule,
+
+				// Default icon providers.
+				Static_Icons\Mystery_Icon_Provider::class       => $full_path_shared_rule,
+				Static_Icons\Speech_Bubble_Icon_Provider::class => $full_path_shared_rule,
+				Static_Icons\Bowling_Pin_Icon_Provider::class   => $full_path_shared_rule,
+				Static_Icons\Silhouette_Icon_Provider::class    => $full_path_shared_rule,
 
 				// Avatar handlers.
-				Default_Icons_Handler::class  => $full_path_shared_rule,
-				Gravatar_Cache_Handler::class => self::SHARED,
-				User_Avatar_Handler::class    => self::SHARED,
+				Default_Icons_Handler::class                    => [
+					'shared'          => true,
+					'constructParams' => [
+						$full_plugin_path,
+						[
+							// These are sorted as the should appear for selection in the discussion settings.
+							[ 'instance' => Static_Icons\Mystery_Icon_Provider::class ],
+							[ 'instance' => Generated_Icons\Identicon_Icon_Provider::class ],
+							[ 'instance' => Generated_Icons\Wavatar_Icon_Provider::class ],
+							[ 'instance' => Generated_Icons\Monster_ID_Icon_Provider::class ],
+							[ 'instance' => Generated_Icons\Retro_Icon_Provider::class ],
+							[ 'instance' => Generated_Icons\Rings_Icon_Provider::class ],
+							[ 'instance' => Static_Icons\Speech_Bubble_Icon_Provider::class ],
+							[ 'instance' => Static_Icons\Bowling_Pin_Icon_Provider::class ],
+							[ 'instance' => Static_Icons\Silhouette_Icon_Provider::class ],
+							[ 'instance' => Default_Icons\Custom_Icon_Provider::class ],
+						],
+					],
+				],
+				Gravatar_Cache_Handler::class                   => self::SHARED,
+				User_Avatar_Handler::class                      => self::SHARED,
 
 				// Default icon generators.
-				Generators\Monster_ID::class  => $full_path_shared_rule,
-				Generators\Wavatar::class     => $full_path_shared_rule,
+				Generators\Monster_ID::class                    => $full_path_shared_rule,
+				Generators\Wavatar::class                       => $full_path_shared_rule,
 
 				// Upload handlers.
-				Upload_Handler::class         => $full_path_shared_rule,
+				Upload_Handler::class                           => $full_path_shared_rule,
 
 				// Plugin integrations.
-				BBPress_Integration::class    => $full_path_shared_rule,
+				BBPress_Integration::class                      => $full_path_shared_rule,
 
 				// Tools.
-				Images\Editor::class          => self::SHARED,
-				Multisite_Tools::class        => self::SHARED,
-				Gravatar_Service::class       => self::SHARED,
+				Images\Editor::class                            => self::SHARED,
+				Multisite_Tools::class                          => self::SHARED,
+				Gravatar_Service::class                         => self::SHARED,
 			];
 
 			// Create factory.
