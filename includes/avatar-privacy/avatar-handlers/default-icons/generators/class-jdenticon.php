@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -30,9 +30,6 @@ use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generator;
 
 /**
  * Generates an SVG icon based on a hash.
- *
- * This is a partial PHP port of Jdenticon by Daniel Mester Pirttijärvi
- * (https://github.com/aurora/identicon).
  *
  * @since 1.0.0
  * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators
