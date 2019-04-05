@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,28 +24,32 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Avatar_Handlers\Default_Icons;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons;
+
+use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generating_Icon_Provider;
+use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
 /**
- * An icon provider for "rings" icons.
+ * An icon provider for "monsterid" style icons.
  *
  * @since 1.0.0
  * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons
+ * @since 2.1.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Rings_Icon_Provider extends Generating_Icon_Provider {
+class Monster_ID_Icon_Provider extends Generating_Icon_Provider {
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param Generators\Rings $generator   A generator instance.
-	 * @param Filesystem_Cache $file_cache  The file cache handler.
+	 * @param Generators\Monster_ID $generator   A generator instance.
+	 * @param Filesystem_Cache      $file_cache  The file cache handler.
 	 */
-	public function __construct( Generators\Rings $generator, Filesystem_Cache $file_cache ) {
-		parent::__construct( $generator, $file_cache, [ 'rings' ], __( 'Rings (Generated)', 'avatar-privacy' ) );
+	public function __construct( Generators\Monster_ID $generator, Filesystem_Cache $file_cache ) {
+		parent::__construct( $generator, $file_cache, [ 'monsterid' ] );
 	}
 
 	/**
@@ -57,6 +61,6 @@ class Rings_Icon_Provider extends Generating_Icon_Provider {
 	 * @return string
 	 */
 	protected function get_filename( $identity, $size ) {
-		return "rings/{$this->get_sub_dir( $identity )}/{$identity}.svg";
+		return "monsterid/{$this->get_sub_dir( $identity )}/{$identity}-{$size}.png";
 	}
 }
