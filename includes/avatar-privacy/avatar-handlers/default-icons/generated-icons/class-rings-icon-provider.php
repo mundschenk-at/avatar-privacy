@@ -49,7 +49,7 @@ class Rings_Icon_Provider extends Generating_Icon_Provider {
 	 * @param Filesystem_Cache $file_cache  The file cache handler.
 	 */
 	public function __construct( Generators\Rings $generator, Filesystem_Cache $file_cache ) {
-		parent::__construct( $generator, $file_cache, [ 'rings' ], __( 'Rings (Generated)', 'avatar-privacy' ) );
+		parent::__construct( $generator, $file_cache, [ 'rings' ] );
 	}
 
 	/**
@@ -62,5 +62,16 @@ class Rings_Icon_Provider extends Generating_Icon_Provider {
 	 */
 	protected function get_filename( $identity, $size ) {
 		return "rings/{$this->get_sub_dir( $identity )}/{$identity}.svg";
+	}
+
+	/**
+	 * Retrieves the user-visible, translated name.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return \__( 'Rings (Generated)', 'avatar-privacy' );
 	}
 }

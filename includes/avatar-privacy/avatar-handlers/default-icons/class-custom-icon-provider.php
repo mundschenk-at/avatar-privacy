@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -82,7 +82,7 @@ class Custom_Icon_Provider extends Abstract_Icon_Provider {
 	 * @param Images\Editor    $images     The image editing handler.
 	 */
 	public function __construct( Filesystem_Cache $file_cache, Upload $upload, Core $core, Images\Editor $images ) {
-		parent::__construct( [ 'custom' ], __( 'Custom', 'avatar-privacy' ) );
+		parent::__construct( [ 'custom' ] );
 
 		$this->file_cache = $file_cache;
 		$this->upload     = $upload;
@@ -127,5 +127,16 @@ class Custom_Icon_Provider extends Abstract_Icon_Provider {
 		}
 
 		return $this->file_cache->get_url( $filename );
+	}
+
+	/**
+	 * Retrieves the user-visible, translated name.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return \__( 'Custom', 'avatar-privacy' );
 	}
 }

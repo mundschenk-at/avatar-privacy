@@ -54,14 +54,14 @@ class Static_Icon_Provider extends Abstract_Icon_Provider {
 	 * Creates a new instance.
 	 *
 	 * @since 2.0.0 Parameter $name added.
+	 * @since 2.1.0 Parameter $name removed to allow proper translation loading.
 	 *
 	 * @param string[]|string $types       Either a single identifier string or an array thereof.
 	 * @param string          $basename    The icon basename (without extension or size suffix).
 	 * @param string          $plugin_file The full path to the base plugin file.
-	 * @param string          $name        Optional. A translated user-visible name. Default ''.
 	 */
-	public function __construct( $types, $basename, $plugin_file, $name = '' ) {
-		parent::__construct( (array) $types, $name );
+	public function __construct( $types, $basename, $plugin_file ) {
+		parent::__construct( (array) $types );
 
 		$this->icon_basename = $basename;
 		$this->plugin_file   = $plugin_file;
