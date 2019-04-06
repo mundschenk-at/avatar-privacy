@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -446,4 +446,4 @@ class Image_Stream {
 }
 
 // Register image stream wrapper.
-\stream_register_wrapper( Image_Stream::PROTOCOL, Image_Stream::class );
+\stream_wrapper_register( Image_Stream::PROTOCOL, Image_Stream::class );
