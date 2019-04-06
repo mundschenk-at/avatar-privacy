@@ -36,8 +36,7 @@ namespace Avatar_Privacy\Tools\Images;
  */
 class Editor {
 
-	const MEMORY_HANDLE  = 'image_editor/dummy/path';
-	const DEFAULT_STREAM = Image_Stream::PROTOCOL . '://' . self::MEMORY_HANDLE;
+	const DEFAULT_STREAM = 'avprimg://image_editor/dummy/path';
 
 	/**
 	 * A stream wrapper URL.
@@ -49,15 +48,40 @@ class Editor {
 	private $stream_url;
 
 	/**
+	 * The stream implmentation to use.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @var string
+	 */
+	private $stream_class;
+
+	/**
+	 * The handle (hostname/path) parsed from the stream URL.
+	 *
+	 * @var string
+	 */
+	private $handle;
+
+	/**
 	 * Creates a new image editor helper.
 	 *
 	 * @since 2.1.0
 	 *
-	 * @param string $url Optional. The stream URL to be used for in-memory-images. Default self::DEFAULT_STREAM.
+	 * @param string $url          Optional. The stream URL to be used for in-memory-images. Default self::DEFAULT_STREAM.
+	 * @param string $stream_class Optional. The stream wrapper class that should be used. Default Image_Stream.
 	 */
-	public function __construct( $url = self::DEFAULT_STREAM ) {
-		$this->stream_url = $url;
+	public function __construct( $url = self::DEFAULT_STREAM, $stream_class = Image_Stream::class ) {
+		$this->stream_url   = $url;
+		$this->stream_class = $stream_class;
 
+		// Also save the memory handle.
+		$parts        = \parse_url( $url ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+		$host         = ! empty( $parts['host'] ) ? $parts['host'] : '';
+		$path         = ! empty( $parts['path'] ) ? $parts['path'] : '';
+		$this->handle = "{$host}{$path}";
+
+		$stream_class::register( $parts['scheme'] );
 	}
 
 	/**
@@ -72,7 +96,8 @@ class Editor {
 		$result = $this->get_image_editor( $stream );
 
 		// Clean up stream data.
-		Image_Stream::delete_handle( Image_Stream::get_handle_from_url( $stream ) );
+		$stream_class = $this->stream_class; // PHP 5.6 workaround.
+		$stream_class::delete_handle( $stream_class::get_handle_from_url( $stream ) );
 
 		// Return image editor.
 		return $result;
@@ -139,7 +164,8 @@ class Editor {
 		}
 
 		// Read the data from memory stream and clean up.
-		return Image_Stream::get_data( self::MEMORY_HANDLE . $extension, true );
+		$stream_class = $this->stream_class; // HPP 5.6 workaround.
+		return $stream_class::get_data( $this->handle . $extension, true );
 	}
 
 	/**

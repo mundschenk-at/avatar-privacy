@@ -439,7 +439,15 @@ class Image_Stream {
 
 		return $parts['host'] . $parts['path'];
 	}
-}
 
-// Register image stream wrapper.
-\stream_wrapper_register( Image_Stream::PROTOCOL, Image_Stream::class );
+	/**
+	 * Registers the stream wrapper.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param  string $protocol Optional. The wrapper-specific URL protocol. Default 'avprimg'.
+	 */
+	public static function register( $protocol = self::PROTOCOL ) {
+		\stream_wrapper_register( $protocol, static::class );
+	}
+}
