@@ -112,7 +112,7 @@ class Editor {
 	 */
 	public function create_from_string( $data ) {
 		// Copy data to stream implementation.
-		\file_put_contents( $this->stream_url, $data, LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+		\file_put_contents( $this->stream_url, $data ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
 
 		return $this->create_from_stream( $this->stream_url );
 	}
