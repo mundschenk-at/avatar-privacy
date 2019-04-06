@@ -36,8 +36,29 @@ namespace Avatar_Privacy\Tools\Images;
  */
 class Editor {
 
-	const MEMORY_HANDLE = 'image_editor/dummy/path';
-	const STREAM        = Image_Stream::PROTOCOL . '://' . self::MEMORY_HANDLE;
+	const MEMORY_HANDLE  = 'image_editor/dummy/path';
+	const DEFAULT_STREAM = Image_Stream::PROTOCOL . '://' . self::MEMORY_HANDLE;
+
+	/**
+	 * A stream wrapper URL.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @var string
+	 */
+	private $stream_url;
+
+	/**
+	 * Creates a new image editor helper.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param string $url Optional. The stream URL to be used for in-memory-images. Default self::DEFAULT_STREAM.
+	 */
+	public function __construct( $url = self::DEFAULT_STREAM ) {
+		$this->stream_url = $url;
+
+	}
 
 	/**
 	 * Creates a \WP_Image_Editor from a given stream wrapper.
@@ -66,9 +87,9 @@ class Editor {
 	 */
 	public function create_from_string( $data ) {
 		// Copy data to stream implementation.
-		\file_put_contents( self::STREAM, $data, LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+		\file_put_contents( $this->stream_url, $data, LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
 
-		return $this->create_from_stream( self::STREAM );
+		return $this->create_from_stream( $this->stream_url );
 	}
 
 	/**
@@ -80,12 +101,12 @@ class Editor {
 	 * @return \WP_Image_Editor|\WP_Error
 	 */
 	public function create_from_image_resource( $image ) {
-		if ( \is_resource( $image ) && \imagepng( $image, self::STREAM ) ) {
+		if ( \is_resource( $image ) && \imagepng( $image, $this->stream_url ) ) {
 			// Clean up resource.
 			\imagedestroy( $image );
 
 			// Create editor.
-			return $this->create_from_stream( self::STREAM );
+			return $this->create_from_stream( $this->stream_url );
 		}
 
 		return new \WP_Error( 'invalid_image', \__( 'Resource is not an image.', 'avatar-privacy' ) );
@@ -113,7 +134,7 @@ class Editor {
 
 		// Convert the image the given format and extract data.
 		$extension = ".{$file_extensions[ $format ]}";
-		if ( $image->save( self::STREAM . $extension, $format ) instanceof \WP_Error ) {
+		if ( $image->save( $this->stream_url . $extension, $format ) instanceof \WP_Error ) {
 			return '';
 		}
 
