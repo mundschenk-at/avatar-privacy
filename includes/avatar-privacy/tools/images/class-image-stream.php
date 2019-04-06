@@ -47,13 +47,6 @@ class Image_Stream {
 	private static $handles = [];
 
 	/**
-	 * The handle.
-	 *
-	 * @var string
-	 */
-	private $h;
-
-	/**
 	 * The contents of the stream.
 	 *
 	 * @var string
@@ -106,8 +99,7 @@ class Image_Stream {
 	 * @return bool
 	 */
 	public function stream_open( $path, $mode, $options, /* @scrutinizer ignore-unused */ &$opened_path ) {
-		$this->h       = self::get_handle_from_url( $path );
-		$this->data    = &self::get_handle( $this->h );
+		$this->data    = &static::get_data_reference( static::get_handle_from_url( $path ) );
 		$this->options = $options;
 
 		// Strip binary/text flags from mode for comparison.
@@ -318,7 +310,7 @@ class Image_Stream {
 	 * @return array
 	 */
 	public function url_stat( $path, /* @scrutinizer ignore-unused */ $flags ) {
-		if ( self::handle_exists( self::get_handle_from_url( $path ) ) ) {
+		if ( static::handle_exists( static::get_handle_from_url( $path ) ) ) {
 			// If fopen() fails, we are in trouble anyway.
 			return \fstat( /* @scrutinizer ignore-type */ \fopen( $path, 'r' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
 		}
@@ -362,25 +354,27 @@ class Image_Stream {
 	 * @return bool
 	 */
 	public function unlink( $path ) {
-		$handle = self::get_handle_from_url( $path );
+		$handle = static::get_handle_from_url( $path );
 
 		if ( empty( $handle ) ) {
 			return false;
 		}
 
-		self::delete_handle( $handle );
+		static::delete_handle( $handle );
 		return true;
 	}
 
 	/**
 	 * Retrieves a reference to the handle and creates it if necessary.
 	 *
+	 * @since 2.1.0 Visibility changed to protected and renamed to get_data_reference.
+	 *
 	 * @param  string $handle The stream handle.
 	 *
 	 * @return string         A reference to the stream data.
 	 */
-	private static function &get_handle( $handle ) {
-		if ( ! self::handle_exists( $handle ) ) {
+	protected static function &get_data_reference( $handle ) {
+		if ( ! static::handle_exists( $handle ) ) {
 			self::$handles[ $handle ] = '';
 		}
 
@@ -390,11 +384,13 @@ class Image_Stream {
 	/**
 	 * Determines if the given handle already exists.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  string $handle The stream handle.
 	 *
 	 * @return bool
 	 */
-	private static function handle_exists( $handle ) {
+	protected static function handle_exists( $handle ) {
 		return isset( self::$handles[ $handle ] );
 	}
 
@@ -407,16 +403,16 @@ class Image_Stream {
 	 * @return string|null    The stream data or null.
 	 */
 	public static function get_data( $handle, $delete = false ) {
-		if ( ! isset( self::$handles[ $handle ] ) ) {
+		if ( ! static::handle_exists( $handle ) ) {
 			return null;
 		}
 
 		// Save data.
-		$result = self::$handles[ $handle ];
+		$result = static::get_data_reference( $handle );
 
 		// Clean up, if requested.
 		if ( $delete ) {
-			self::delete_handle( $handle );
+			static::delete_handle( $handle );
 		}
 
 		return $result;
