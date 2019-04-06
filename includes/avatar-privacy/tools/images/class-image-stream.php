@@ -145,13 +145,13 @@ class Image_Stream {
 			case 'a':
 				$this->read     = false;
 				$this->write    = true;
-				$this->position = strlen( $this->data );
+				$this->position = \strlen( $this->data );
 				break;
 
 			case 'a+':
 				$this->read     = true;
 				$this->write    = true;
-				$this->position = strlen( $this->data );
+				$this->position = \strlen( $this->data );
 				break;
 
 			case 'c':
