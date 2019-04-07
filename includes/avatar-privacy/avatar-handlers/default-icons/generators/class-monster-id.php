@@ -233,17 +233,18 @@ class Monster_ID extends PNG_Generator {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param string        $plugin_file The full path to the base plugin file.
-	 * @param Images\Editor $images      The image editing handler.
+	 * @since 2.1.0 Parameter $plugin_file removed.
+	 *
+	 * @param Images\Editor $images The image editing handler.
 	 */
-	public function __construct( $plugin_file, Images\Editor $images ) {
+	public function __construct( Images\Editor $images ) {
 		// Needed for PHP 5.6 compatibility.
 		$this->same_color_parts     = self::SAME_COLOR_PARTS;
 		$this->specific_color_parts = self::SPECIFIC_COLOR_PARTS;
 		$this->random_color_parts   = self::RANDOM_COLOR_PARTS;
 		$this->part_optimization    = self::PART_OPTIMIZATION;
 
-		parent::__construct( \dirname( $plugin_file ) . '/public/images/monster-id', $images );
+		parent::__construct( \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/images/monster-id', $images );
 	}
 
 	/**

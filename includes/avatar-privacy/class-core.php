@@ -90,13 +90,6 @@ class Core {
 	private $settings = [];
 
 	/**
-	 * The full path to the main plugin file.
-	 *
-	 * @var string
-	 */
-	private $plugin_file;
-
-	/**
 	 * The plugin version.
 	 *
 	 * @var string
@@ -172,7 +165,8 @@ class Core {
 	 * Creates a \Avatar_Privacy\Core instance and registers all necessary hooks
 	 * and filters for the plugin.
 	 *
-	 * @param string          $plugin_file       The full path to the base plugin file.
+	 * @since 2.1.0 Parameter $plugin_file removed.
+	 *
 	 * @param string          $version           The plugin version string (e.g. "3.0.0-beta.2").
 	 * @param Transients      $transients        Required.
 	 * @param Site_Transients $site_transients   Required.
@@ -181,8 +175,7 @@ class Core {
 	 * @param Network_Options $network_options   Required.
 	 * @param Settings        $settings_template Required.
 	 */
-	public function __construct( $plugin_file, $version, Transients $transients, Site_Transients $site_transients, Cache $cache, Options $options, Network_Options $network_options, Settings $settings_template ) {
-		$this->plugin_file       = $plugin_file;
+	public function __construct( $version, Transients $transients, Site_Transients $site_transients, Cache $cache, Options $options, Network_Options $network_options, Settings $settings_template ) {
 		$this->version           = $version;
 		$this->transients        = $transients;
 		$this->site_transients   = $site_transients;
@@ -246,7 +239,7 @@ class Core {
 	 * @return string
 	 */
 	public function get_plugin_file() {
-		return $this->plugin_file;
+		return AVATAR_PRIVACY_PLUGIN_FILE;
 	}
 
 	/**

@@ -47,13 +47,6 @@ use Avatar_Privacy\Data_Storage\Transients;
 class Uninstallation implements \Avatar_Privacy\Component {
 
 	/**
-	 * The full path to the main plugin file.
-	 *
-	 * @var string
-	 */
-	private $plugin_file;
-
-	/**
 	 * The options handler.
 	 *
 	 * @var Options
@@ -98,7 +91,8 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	/**
 	 * Creates a new Setup instance.
 	 *
-	 * @param string           $plugin_file The full path to the base plugin file.
+	 * @since 2.1.0 Parameter $plugin_file removed.
+	 *
 	 * @param Options          $options         The options handler.
 	 * @param Network_Options  $network_options The network options handler.
 	 * @param Transients       $transients      The transients handler.
@@ -106,8 +100,7 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	 * @param Database         $database        The database handler.
 	 * @param Filesystem_Cache $file_cache      The filesystem cache handler.
 	 */
-	public function __construct( $plugin_file, Options $options, Network_Options $network_options, Transients $transients, Site_Transients $site_transients, Database $database, Filesystem_Cache $file_cache ) {
-		$this->plugin_file     = $plugin_file;
+	public function __construct( Options $options, Network_Options $network_options, Transients $transients, Site_Transients $site_transients, Database $database, Filesystem_Cache $file_cache ) {
 		$this->options         = $options;
 		$this->network_options = $network_options;
 		$this->transients      = $transients;

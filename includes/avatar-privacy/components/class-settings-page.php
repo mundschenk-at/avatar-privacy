@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -45,13 +45,6 @@ use Mundschenk\UI\Controls;
 class Settings_Page implements \Avatar_Privacy\Component {
 
 	/**
-	 * The full path to the main plugin file.
-	 *
-	 * @var   string
-	 */
-	private $plugin_file;
-
-	/**
 	 * The options handler.
 	 *
 	 * @var Options
@@ -89,19 +82,19 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param string   $plugin_file The full path to the base plugin file.
+	 * @since 2.1.0 Parameter $plugin_file removed.
+	 *
 	 * @param Core     $core        The core API.
 	 * @param Options  $options     The options handler.
 	 * @param Upload   $upload      The file upload handler.
 	 * @param Settings $settings    The default settings.
 	 */
-	public function __construct( $plugin_file, Core $core, Options $options, Upload $upload, Settings $settings ) {
-		$this->plugin_file = $plugin_file;
-		$this->core        = $core;
-		$this->options     = $options;
-		$this->upload      = $upload;
-		$this->settings    = $settings;
-		$this->buffering   = false;
+	public function __construct( Core $core, Options $options, Upload $upload, Settings $settings ) {
+		$this->core      = $core;
+		$this->options   = $options;
+		$this->upload    = $upload;
+		$this->settings  = $settings;
+		$this->buffering = false;
 	}
 
 	/**
@@ -137,7 +130,7 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	public function settings_footer() {
 		// Add show/hide javascript.
 		if ( \wp_script_is( 'jquery', 'done' ) ) {
-			require dirname( $this->plugin_file ) . '/admin/partials/sections/avatars-disabled-script.php';
+			require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/admin/partials/sections/avatars-disabled-script.php';
 		}
 
 		// Clean up output buffering.
@@ -181,8 +174,8 @@ class Settings_Page implements \Avatar_Privacy\Component {
 		$show_avatars = $this->options->get( 'show_avatars', false, true );
 
 		\ob_start();
-		require dirname( $this->plugin_file ) . '/admin/partials/sections/avatars-disabled.php';
-		require dirname( $this->plugin_file ) . '/admin/partials/sections/avatars-enabled.php';
+		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/admin/partials/sections/avatars-disabled.php';
+		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/admin/partials/sections/avatars-enabled.php';
 		return \ob_get_clean();
 	}
 

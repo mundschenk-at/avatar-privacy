@@ -57,21 +57,14 @@ class Comments implements \Avatar_Privacy\Component {
 	private $core;
 
 	/**
-	 * The full path to the main plugin file.
-	 *
-	 * @var string
-	 */
-	private $plugin_file;
-
-	/**
 	 * Creates a new instance.
 	 *
-	 * @param string $plugin_file The full path to the base plugin file.
-	 * @param Core   $core        The core API.
+	 * @since 2.1.0 Parameter $plugin_file removed.
+	 *
+	 * @param Core $core The core API.
 	 */
-	public function __construct( $plugin_file, Core $core ) {
-		$this->plugin_file = $plugin_file;
-		$this->core        = $core;
+	public function __construct( Core $core ) {
+		$this->core = $core;
 	}
 
 	/**
@@ -114,7 +107,7 @@ class Comments implements \Avatar_Privacy\Component {
 		}
 
 		// Define the new checkbox field.
-		$new_field = self::get_gravatar_checkbox( $this->plugin_file );
+		$new_field = self::get_gravatar_checkbox( AVATAR_PRIVACY_PLUGIN_FILE );
 
 		/**
 		 * Filters the insert position for the `use_gravatar` checkbox.

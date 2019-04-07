@@ -41,13 +41,6 @@ use Avatar_Privacy\Avatar_Handlers\Default_Icons\Icon_Provider;
 class Default_Icons_Handler implements Avatar_Handler {
 
 	/**
-	 * The full path to the main plugin file.
-	 *
-	 * @var   string
-	 */
-	private $plugin_file;
-
-	/**
 	 * The filesystem cache handler.
 	 *
 	 * @var Filesystem_Cache
@@ -71,12 +64,12 @@ class Default_Icons_Handler implements Avatar_Handler {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param string           $plugin_file    The full path to the base plugin file.
+	 * @since 2.1.0 Parameter $plugin_file removed.
+	 *
 	 * @param Filesystem_Cache $file_cache     The file cache handler.
 	 * @param Icon_Provider[]  $icon_providers An array of icon providers.
 	 */
-	public function __construct( $plugin_file, Filesystem_Cache $file_cache, array $icon_providers ) {
-		$this->plugin_file    = $plugin_file;
+	public function __construct( Filesystem_Cache $file_cache, array $icon_providers ) {
 		$this->file_cache     = $file_cache;
 		$this->icon_providers = $icon_providers;
 	}

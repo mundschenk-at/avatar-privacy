@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -45,13 +45,6 @@ use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 class Avatar_Handling implements \Avatar_Privacy\Component {
 
 	/**
-	 * The full path to the main plugin file.
-	 *
-	 * @var   string
-	 */
-	private $plugin_file;
-
-	/**
 	 * The options handler.
 	 *
 	 * @var Options
@@ -76,17 +69,16 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 * Creates a new instance.
 	 *
 	 * @since 2.0.0 Parameter $gravatar added.
+	 * @since 2.1.0 Parameter $plugin_file removed.
 	 *
-	 * @param string           $plugin_file The full path to the base plugin file.
 	 * @param Core             $core        The core API.
 	 * @param Options          $options     The options handler.
 	 * @param Gravatar_Service $gravatar    The Gravatar network service.
 	 */
-	public function __construct( $plugin_file, Core $core, Options $options, Gravatar_Service $gravatar ) {
-		$this->plugin_file = $plugin_file;
-		$this->core        = $core;
-		$this->options     = $options;
-		$this->gravatar    = $gravatar;
+	public function __construct( Core $core, Options $options, Gravatar_Service $gravatar ) {
+		$this->core     = $core;
+		$this->options  = $options;
+		$this->gravatar = $gravatar;
 	}
 
 	/**

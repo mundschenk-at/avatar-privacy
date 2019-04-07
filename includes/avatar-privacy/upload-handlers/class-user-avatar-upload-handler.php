@@ -72,12 +72,13 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param string           $plugin_file The full path to the base plugin file.
+	 * @since 2.1.0 Parameter $plugin_file removed.
+	 *
 	 * @param Core             $core        The core API.
 	 * @param Filesystem_Cache $file_cache  The file cache handler.
 	 */
-	public function __construct( $plugin_file, Core $core, Filesystem_Cache $file_cache ) {
-		parent::__construct( $plugin_file, self::UPLOAD_DIR, $core, $file_cache );
+	public function __construct( Core $core, Filesystem_Cache $file_cache ) {
+		parent::__construct( self::UPLOAD_DIR, $core, $file_cache );
 	}
 
 	/**
@@ -89,7 +90,7 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 */
 	public function get_avatar_upload_markup( \WP_User $user ) {
 		\ob_start();
-		require \dirname( $this->plugin_file ) . '/admin/partials/profile/user-avatar-upload.php';
+		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/admin/partials/profile/user-avatar-upload.php';
 		return \ob_get_clean();
 	}
 

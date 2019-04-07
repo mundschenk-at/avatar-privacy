@@ -39,14 +39,12 @@ class Avatar_Privacy_Uninstallation_Requirements extends Mundschenk_WP_Requireme
 
 	/**
 	 * Creates a new requirements instance.
-	 *
-	 * @param string $plugin_file The full path to the plugin file.
 	 */
-	public function __construct( $plugin_file ) {
+	public function __construct() {
 		$requirements = array(
-			'php'              => '5.6.0',
+			'php' => '5.6.0',
 		);
 
-		parent::__construct( 'Avatar Privacy', $plugin_file, 'avatar-privacy', $requirements );
+		parent::__construct( 'Avatar Privacy', AVATAR_PRIVACY_PLUGIN_FILE, 'avatar-privacy', $requirements );
 	}
 }

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -44,27 +44,18 @@ class Static_Icon_Provider extends Abstract_Icon_Provider {
 	protected $icon_basename;
 
 	/**
-	 * The full path to the main plugin file.
-	 *
-	 * @var string
-	 */
-	protected $plugin_file;
-
-	/**
 	 * Creates a new instance.
 	 *
 	 * @since 2.0.0 Parameter $name added.
-	 * @since 2.1.0 Parameter $name removed to allow proper translation loading.
+	 * @since 2.1.0 Parameters $name and $plugin_file removed.
 	 *
-	 * @param string[]|string $types       Either a single identifier string or an array thereof.
-	 * @param string          $basename    The icon basename (without extension or size suffix).
-	 * @param string          $plugin_file The full path to the base plugin file.
+	 * @param string[]|string $types    Either a single identifier string or an array thereof.
+	 * @param string          $basename The icon basename (without extension or size suffix).
 	 */
-	public function __construct( $types, $basename, $plugin_file ) {
+	public function __construct( $types, $basename ) {
 		parent::__construct( (array) $types );
 
 		$this->icon_basename = $basename;
-		$this->plugin_file   = $plugin_file;
 	}
 
 	/**
@@ -78,6 +69,6 @@ class Static_Icon_Provider extends Abstract_Icon_Provider {
 	public function get_icon_url( $identity, $size ) {
 		$use_size = ( $size > 64 ) ? '128' : '64';
 
-		return plugins_url( "public/images/{$this->icon_basename}-{$use_size}.png", $this->plugin_file );
+		return plugins_url( "public/images/{$this->icon_basename}-{$use_size}.png", AVATAR_PRIVACY_PLUGIN_FILE );
 	}
 }

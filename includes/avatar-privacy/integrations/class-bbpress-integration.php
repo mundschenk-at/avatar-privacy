@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -38,13 +38,6 @@ use Avatar_Privacy\Components\User_Profile;
 class BBPress_Integration implements Plugin_Integration {
 
 	/**
-	 * The full path to the main plugin file.
-	 *
-	 * @var   string
-	 */
-	private $plugin_file;
-
-	/**
 	 * The user profile component.
 	 *
 	 * @var User_Profile
@@ -54,12 +47,12 @@ class BBPress_Integration implements Plugin_Integration {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param string       $plugin_file The full path to the base plugin file.
+	 * @since 2.1.0 Parameter $plugin_file removed.
+	 *
 	 * @param User_Profile $profile     The user profile component.
 	 */
-	public function __construct( $plugin_file, User_Profile $profile ) {
-		$this->plugin_file = $plugin_file;
-		$this->profile     = $profile;
+	public function __construct( User_Profile $profile ) {
+		$this->profile = $profile;
 	}
 
 	/**
@@ -139,6 +132,6 @@ class BBPress_Integration implements Plugin_Integration {
 
 		// Include partials.
 		$use_gravatar = 'true' === \get_user_meta( $user_id, Core::GRAVATAR_USE_META_KEY, true );
-		require \dirname( $this->plugin_file ) . '/public/partials/bbpress/user-profile-picture.php';
+		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/partials/bbpress/user-profile-picture.php';
 	}
 }

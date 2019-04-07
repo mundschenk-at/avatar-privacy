@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -45,6 +45,6 @@ class SVG_Icon_Provider extends Static_Icon_Provider {
 	 * @return string
 	 */
 	public function get_icon_url( $identity, $size ) {
-		return \plugins_url( "public/images/{$this->icon_basename}.svg", $this->plugin_file );
+		return \plugins_url( "public/images/{$this->icon_basename}.svg", AVATAR_PRIVACY_PLUGIN_FILE );
 	}
 }

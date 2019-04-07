@@ -40,9 +40,9 @@ class Avatar_Privacy_Requirements extends Mundschenk_WP_Requirements {
 	/**
 	 * Creates a new requirements instance.
 	 *
-	 * @param string $plugin_file The full path to the plugin file.
+	 * @since 2.1.0 Parameter $plugin_file replaced with AVATAR_PRIVACY_PLUGIN_FILE constant.
 	 */
-	public function __construct( $plugin_file ) {
+	public function __construct() {
 		$requirements = array(
 			'php'              => '5.6.0',
 			'multibyte'        => false,
@@ -51,7 +51,7 @@ class Avatar_Privacy_Requirements extends Mundschenk_WP_Requirements {
 			'uploads_writable' => true,
 		);
 
-		parent::__construct( 'Avatar Privacy', $plugin_file, 'avatar-privacy', $requirements );
+		parent::__construct( 'Avatar Privacy', AVATAR_PRIVACY_PLUGIN_FILE, 'avatar-privacy', $requirements );
 	}
 
 	/**

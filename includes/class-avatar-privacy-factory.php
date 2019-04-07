@@ -84,25 +84,16 @@ abstract class Avatar_Privacy_Factory {
 	/**
 	 * Retrieves a factory set up for creating Avatar_Privacy instances.
 	 *
-	 * @param string $full_plugin_path The full path to the main plugin file (i.e. __FILE__).
+	 * @since 2.1.0 Parameter $full_plugin_path replaced with AVATAR_PRIVACY_PLUGIN_FILE constant.
 	 *
 	 * @return Dice
 	 */
-	public static function get( $full_plugin_path ) {
+	public static function get() {
 		if ( ! isset( self::$factory ) ) {
 			// Load version from plugin data.
 			if ( ! function_exists( 'get_plugin_data' ) ) {
 				require_once ABSPATH . 'wp-admin/includes/plugin.php';
 			}
-
-			// Dynamic rules' helpers.
-			$full_path_rule        = [
-				'constructParams' => [ $full_plugin_path ],
-			];
-			$full_path_shared_rule = [
-				'constructParams' => [ $full_plugin_path ],
-				'shared'          => true,
-			];
 
 			// Define rules.
 			$rules = [
@@ -119,32 +110,23 @@ abstract class Avatar_Privacy_Factory {
 				// Core API.
 				Core::class                                     => [
 					'constructParams' => [
-						$full_plugin_path,
-						\get_plugin_data( $full_plugin_path, false, false )['Version'],
+						\get_plugin_data( AVATAR_PRIVACY_PLUGIN_FILE, false, false )['Version'],
 					],
 				],
 
 				// Components.
-				Avatar_Handling::class                          => $full_path_rule,
-				Comments::class                                 => $full_path_rule,
-				Network_Settings_Page::class                    => $full_path_rule,
-				Privacy_Tools::class                            => $full_path_rule,
-				Settings_Page::class                            => $full_path_rule,
-				Setup::class                                    => $full_path_rule,
-				Uninstallation::class                           => $full_path_rule,
-				User_Profile::class                             => $full_path_shared_rule,
+				User_Profile::class                             => self::SHARED,
 
 				// Default icon providers.
-				Static_Icons\Mystery_Icon_Provider::class       => $full_path_shared_rule,
-				Static_Icons\Speech_Bubble_Icon_Provider::class => $full_path_shared_rule,
-				Static_Icons\Bowling_Pin_Icon_Provider::class   => $full_path_shared_rule,
-				Static_Icons\Silhouette_Icon_Provider::class    => $full_path_shared_rule,
+				Static_Icons\Mystery_Icon_Provider::class       => self::SHARED,
+				Static_Icons\Speech_Bubble_Icon_Provider::class => self::SHARED,
+				Static_Icons\Bowling_Pin_Icon_Provider::class   => self::SHARED,
+				Static_Icons\Silhouette_Icon_Provider::class    => self::SHARED,
 
 				// Avatar handlers.
 				Default_Icons_Handler::class                    => [
 					'shared'          => true,
 					'constructParams' => [
-						$full_plugin_path,
 						[
 							// These are sorted as the should appear for selection in the discussion settings.
 							[ 'instance' => Static_Icons\Mystery_Icon_Provider::class ],
@@ -164,14 +146,14 @@ abstract class Avatar_Privacy_Factory {
 				User_Avatar_Handler::class                      => self::SHARED,
 
 				// Default icon generators.
-				Generators\Monster_ID::class                    => $full_path_shared_rule,
-				Generators\Wavatar::class                       => $full_path_shared_rule,
+				Generators\Monster_ID::class                    => self::SHARED,
+				Generators\Wavatar::class                       => self::SHARED,
 
 				// Upload handlers.
-				Upload_Handler::class                           => $full_path_shared_rule,
+				Upload_Handler::class                           => self::SHARED,
 
 				// Plugin integrations.
-				BBPress_Integration::class                      => $full_path_shared_rule,
+				BBPress_Integration::class                      => self::SHARED,
 
 				// Tools.
 				Images\Editor::class                            => self::SHARED,

@@ -72,13 +72,6 @@ class Setup implements \Avatar_Privacy\Component {
 	];
 
 	/**
-	 * The full path to the main plugin file.
-	 *
-	 * @var string
-	 */
-	private $plugin_file;
-
-	/**
 	 * The options handler.
 	 *
 	 * @var Options
@@ -130,7 +123,8 @@ class Setup implements \Avatar_Privacy\Component {
 	/**
 	 * Creates a new Setup instance.
 	 *
-	 * @param string          $plugin_file     The full path to the base plugin file.
+	 * @since 2.1.0 Parameter $plugin_file removed.
+	 *
 	 * @param Core            $core            The core API.
 	 * @param Transients      $transients      The transients handler.
 	 * @param Site_Transients $site_transients The site transients handler.
@@ -139,8 +133,7 @@ class Setup implements \Avatar_Privacy\Component {
 	 * @param Database        $database        The database handler.
 	 * @param Multisite       $multisite       The the multisite handler.
 	 */
-	public function __construct( $plugin_file, Core $core, Transients $transients, Site_Transients $site_transients, Options $options, Network_Options $network_options, Database $database, Multisite $multisite ) {
-		$this->plugin_file     = $plugin_file;
+	public function __construct( Core $core, Transients $transients, Site_Transients $site_transients, Options $options, Network_Options $network_options, Database $database, Multisite $multisite ) {
 		$this->core            = $core;
 		$this->transients      = $transients;
 		$this->site_transients = $site_transients;
@@ -157,7 +150,7 @@ class Setup implements \Avatar_Privacy\Component {
 	 */
 	public function run() {
 		// Register deactivation hook. Activation is handled by the update check instead.
-		\register_deactivation_hook( $this->plugin_file, [ $this, 'deactivate' ] );
+		\register_deactivation_hook( AVATAR_PRIVACY_PLUGIN_FILE, [ $this, 'deactivate' ] );
 
 		// Update settings and database if necessary.
 		\add_action( 'plugins_loaded', [ $this, 'update_check' ] );
@@ -415,7 +408,7 @@ class Setup implements \Avatar_Privacy\Component {
 
 		if (
 			// The plugin is not network-activated (or not on a multisite installation).
-			! \is_plugin_active_for_network( \plugin_basename( $this->plugin_file ) ) ||
+			! \is_plugin_active_for_network( \plugin_basename( AVATAR_PRIVACY_PLUGIN_FILE ) ) ||
 			// The queue is empty.
 			! $this->network_options->get( Network_Options::GLOBAL_TABLE_MIGRATION ) ||
 			// The queue is locked. Try again next time.
