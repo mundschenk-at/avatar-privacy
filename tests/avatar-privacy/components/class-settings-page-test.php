@@ -116,7 +116,7 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->options  = m::mock( Options::class );
 		$this->upload   = m::mock( Custom_Default_Icon_Upload_Handler::class );
 
-		$this->sut = m::mock( Settings_Page::class, [ 'plugin/file', $this->core, $this->options, $this->upload, $this->settings ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Settings_Page::class, [ $this->core, $this->options, $this->upload, $this->settings ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -127,9 +127,8 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Settings_Page::class )->makePartial();
 
-		$mock->__construct( 'path/file', $this->core, $this->options, $this->upload, $this->settings );
+		$mock->__construct( $this->core, $this->options, $this->upload, $this->settings );
 
-		$this->assertAttributeSame( 'path/file', 'plugin_file', $mock );
 		$this->assertAttributeSame( $this->core, 'core', $mock );
 		$this->assertAttributeSame( $this->options, 'options', $mock );
 		$this->assertAttributeSame( $this->upload, 'upload', $mock );

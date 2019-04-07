@@ -117,7 +117,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 		$this->file_cache = m::mock( Filesystem_Cache::class );
 		$this->options    = m::mock( Options::class );
 
-		$this->sut = m::mock( Custom_Default_Icon_Upload_Handler::class, [ 'plugin/file', $this->core, $this->file_cache, $this->options ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Custom_Default_Icon_Upload_Handler::class, [ $this->core, $this->file_cache, $this->options ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -130,7 +130,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	public function test_constructor() {
 		$mock = m::mock( Custom_Default_Icon_Upload_Handler::class )->makePartial();
 
-		$mock->__construct( 'a/plugin/file', $this->core, $this->file_cache, $this->options );
+		$mock->__construct(  $this->core, $this->file_cache, $this->options );
 
 		$this->assertAttributeSame( $this->options, 'options', $mock );
 	}

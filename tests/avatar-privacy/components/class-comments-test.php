@@ -109,7 +109,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Mock required helpers.
 		$this->core = m::mock( Core::class );
 
-		$this->sut = m::mock( Comments::class, [ 'plugin/file', $this->core ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Comments::class, [ $this->core ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -120,9 +120,8 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Comments::class )->makePartial();
 
-		$mock->__construct( 'a/plugin/file', $this->core );
+		$mock->__construct( $this->core );
 
-		$this->assertAttributeSame( 'a/plugin/file', 'plugin_file', $mock );
 		$this->assertAttributeSame( $this->core, 'core', $mock );
 	}
 

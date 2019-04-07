@@ -138,7 +138,7 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->database        = m::mock( Database::class );
 		$this->file_cache      = m::mock( Filesystem_Cache::class );
 
-		$this->sut = m::mock( Uninstallation::class, [ 'plugin/file', $this->options, $this->network_options, $this->transients, $this->site_transients, $this->database, $this->file_cache ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Uninstallation::class, [ $this->options, $this->network_options, $this->transients, $this->site_transients, $this->database, $this->file_cache ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -149,9 +149,8 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Uninstallation::class )->makePartial();
 
-		$mock->__construct( 'path/file', $this->options, $this->network_options, $this->transients, $this->site_transients, $this->database, $this->file_cache );
+		$mock->__construct( $this->options, $this->network_options, $this->transients, $this->site_transients, $this->database, $this->file_cache );
 
-		$this->assertAttributeSame( 'path/file', 'plugin_file', $mock );
 		$this->assertAttributeSame( $this->options, 'options', $mock );
 		$this->assertAttributeSame( $this->network_options, 'network_options', $mock );
 		$this->assertAttributeSame( $this->transients, 'transients', $mock );

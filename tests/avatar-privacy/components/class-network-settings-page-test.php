@@ -126,7 +126,7 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->transients      = m::mock( Transients::class );
 		$this->multisite       = m::mock( Multisite::class );
 
-		$this->sut = m::mock( Network_Settings_Page::class, [ 'plugin/file', $this->core, $this->network_options, $this->transients, $this->settings, $this->multisite ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Network_Settings_Page::class, [ $this->core, $this->network_options, $this->transients, $this->settings, $this->multisite ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -138,7 +138,6 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		$mock = m::mock( Network_Settings_Page::class )->makePartial();
 
 		$mock->__construct(
-			'path/file',
 			$this->core,
 			$this->network_options,
 			$this->transients,
@@ -146,7 +145,6 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 			$this->multisite
 		);
 
-		$this->assertAttributeSame( 'path/file', 'plugin_file', $mock );
 		$this->assertAttributeSame( $this->core, 'core', $mock );
 		$this->assertAttributeSame( $this->network_options, 'network_options', $mock );
 		$this->assertAttributeSame( $this->settings, 'settings', $mock );
@@ -374,7 +372,7 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		$version    = '9.9.9';
 
 		$this->core->shouldReceive( 'get_version' )->once()->andReturn( $version );
-		Functions\expect( 'plugins_url' )->once()->with( 'admin/css/settings.css', 'plugin/file' )->andReturn( $plugin_url );
+		Functions\expect( 'plugins_url' )->once()->with( 'admin/css/settings.css', AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $plugin_url );
 		Functions\expect( 'wp_enqueue_style' )->once()->with( 'avatar-privacy-settings', $plugin_url, [], $version, 'all' );
 
 		$this->assertNull( $this->sut->print_styles() );

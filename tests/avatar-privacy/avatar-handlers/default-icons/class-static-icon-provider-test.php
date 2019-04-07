@@ -54,13 +54,11 @@ class Static_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		$mock        = m::mock( Static_Icon_Provider::class )->makePartial()->shouldAllowMockingProtectedMethods();
 		$valid_types = [ 'foobar', 'barfoo', 'rhabarber' ];
 		$basename    = 'image-basename';
-		$plugin_file = 'some/fake/plugin/path';
 
-		$mock->__construct( $valid_types, $basename, $plugin_file );
+		$mock->__construct( $valid_types, $basename );
 
 		$this->assertAttributeSame( \array_flip( $valid_types ), 'valid_types', $mock, Abstract_Icon_Provider::class );
 		$this->assertAttributeSame( $basename, 'icon_basename', $mock );
-		$this->assertAttributeSame( $plugin_file, 'plugin_file', $mock );
 	}
 
 	/**
@@ -74,13 +72,11 @@ class Static_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		$mock        = m::mock( Static_Icon_Provider::class )->makePartial()->shouldAllowMockingProtectedMethods();
 		$valid_types = 'foobar';
 		$basename    = 'image-basename';
-		$plugin_file = 'some/fake/plugin/path';
 
-		$mock->__construct( $valid_types, $basename, $plugin_file );
+		$mock->__construct( $valid_types, $basename );
 
 		$this->assertAttributeSame( [ 'foobar' => 0 ], 'valid_types', $mock, Abstract_Icon_Provider::class );
 		$this->assertAttributeSame( $basename, 'icon_basename', $mock );
-		$this->assertAttributeSame( $plugin_file, 'plugin_file', $mock );
 	}
 
 	/**
@@ -92,10 +88,9 @@ class Static_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Abstract_Icon_Provider::__construct
 	 */
 	public function test_get_icon_url_small() {
-		$types       = [ 'foobar', 'barfoo', 'rhabarber' ];
-		$basename    = 'image-basename';
-		$plugin_file = 'some/fake/plugin/path';
-		$sut         = m::mock( Static_Icon_Provider::class, [ $types, $basename, $plugin_file ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$types    = [ 'foobar', 'barfoo', 'rhabarber' ];
+		$basename = 'image-basename';
+		$sut      = m::mock( Static_Icon_Provider::class, [ $types, $basename ] )->makePartial()->shouldAllowMockingProtectedMethods();
 
 		// Input parameters.
 		$identity = 'someidentityhash';
@@ -104,7 +99,7 @@ class Static_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Expected result.
 		$url = 'some URL';
 
-		Functions\expect( 'plugins_url' )->once()->with( "public/images/{$basename}-64.png", $plugin_file )->andReturn( $url );
+		Functions\expect( 'plugins_url' )->once()->with( "public/images/{$basename}-64.png", AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $url );
 
 		$this->assertSame( $url, $sut->get_icon_url( $identity, $size ) );
 	}
@@ -118,10 +113,9 @@ class Static_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Abstract_Icon_Provider::__construct
 	 */
 	public function test_get_icon_large() {
-		$types       = [ 'foobar', 'barfoo', 'rhabarber' ];
-		$basename    = 'image-basename';
-		$plugin_file = 'some/fake/plugin/path';
-		$sut         = m::mock( Static_Icon_Provider::class, [ $types, $basename, $plugin_file ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$types    = [ 'foobar', 'barfoo', 'rhabarber' ];
+		$basename = 'image-basename';
+		$sut      = m::mock( Static_Icon_Provider::class, [ $types, $basename ] )->makePartial()->shouldAllowMockingProtectedMethods();
 
 		// Input parameters.
 		$identity = 'someidentityhash';
@@ -130,7 +124,7 @@ class Static_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Expected result.
 		$url = 'some URL';
 
-		Functions\expect( 'plugins_url' )->once()->with( "public/images/{$basename}-128.png", $plugin_file )->andReturn( $url );
+		Functions\expect( 'plugins_url' )->once()->with( "public/images/{$basename}-128.png", AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $url );
 
 		$this->assertSame( $url, $sut->get_icon_url( $identity, $size ) );
 	}

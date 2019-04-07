@@ -54,10 +54,9 @@ class SVG_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Abstract_Icon_Provider::__construct
 	 */
 	public function test_get_icon_url_small() {
-		$types       = [ 'foobar', 'barfoo', 'rhabarber' ];
-		$basename    = 'image-basename';
-		$plugin_file = 'some/fake/plugin/path';
-		$sut         = m::mock( SVG_Icon_Provider::class, [ $types, $basename, $plugin_file ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$types    = [ 'foobar', 'barfoo', 'rhabarber' ];
+		$basename = 'image-basename';
+		$sut      = m::mock( SVG_Icon_Provider::class, [ $types, $basename ] )->makePartial()->shouldAllowMockingProtectedMethods();
 
 		// Input parameters.
 		$identity = 'someidentityhash';
@@ -66,7 +65,7 @@ class SVG_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Expected result.
 		$url = 'some URL';
 
-		Functions\expect( 'plugins_url' )->once()->with( "public/images/{$basename}.svg", $plugin_file )->andReturn( $url );
+		Functions\expect( 'plugins_url' )->once()->with( "public/images/{$basename}.svg", AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $url );
 
 		$this->assertSame( $url, $sut->get_icon_url( $identity, $size ) );
 	}
@@ -81,10 +80,9 @@ class SVG_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Abstract_Icon_Provider::__construct
 	 */
 	public function test_get_icon_large() {
-		$types       = [ 'foobar', 'barfoo', 'rhabarber' ];
-		$basename    = 'image-basename';
-		$plugin_file = 'some/fake/plugin/path';
-		$sut         = m::mock( SVG_Icon_Provider::class, [ $types, $basename, $plugin_file ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$types    = [ 'foobar', 'barfoo', 'rhabarber' ];
+		$basename = 'image-basename';
+		$sut      = m::mock( SVG_Icon_Provider::class, [ $types, $basename ] )->makePartial()->shouldAllowMockingProtectedMethods();
 
 		// Input parameters.
 		$identity = 'someidentityhash';
@@ -93,7 +91,7 @@ class SVG_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Expected result.
 		$url = 'some URL';
 
-		Functions\expect( 'plugins_url' )->once()->with( "public/images/{$basename}.svg", $plugin_file )->andReturn( $url );
+		Functions\expect( 'plugins_url' )->once()->with( "public/images/{$basename}.svg", AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $url );
 
 		$this->assertSame( $url, $sut->get_icon_url( $identity, $size ) );
 	}
