@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -56,14 +56,14 @@ abstract class Generating_Icon_Provider extends Abstract_Icon_Provider {
 	 * Creates a new instance.
 	 *
 	 * @since 2.0.0 Parameter $name added.
+	 * @since 2.1.0 Parameter $name removed to allow proper translation loading.
 	 *
 	 * @param Generator        $generator  An image generator.
 	 * @param Filesystem_Cache $file_cache The file cache handler.
 	 * @param string[]         $types      An array of valid types. The first entry is used as the cache sub-directory.
-	 * @param string           $name       Optional. A translated user-visible name. Default ''.
 	 */
-	protected function __construct( Generator $generator, Filesystem_Cache $file_cache, array $types, $name = '' ) {
-		parent::__construct( $types, $name );
+	protected function __construct( Generator $generator, Filesystem_Cache $file_cache, array $types ) {
+		parent::__construct( $types );
 
 		$this->generator  = $generator;
 		$this->file_cache = $file_cache;

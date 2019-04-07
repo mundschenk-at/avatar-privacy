@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,16 +27,62 @@
 namespace Avatar_Privacy\Tools\Images;
 
 /**
- * A collection of utlitiy methods for using the \WP_Image_Editor class.
+ * A utility class providing in-memory \WP_Image_Editor support.
  *
  * @since 1.0.0
+ * @since 2.1.0 Made concrete.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-abstract class Editor {
+class Editor {
 
-	const MEMORY_HANDLE = 'image_editor/dummy/path';
-	const STREAM        = Image_Stream::PROTOCOL . '://' . self::MEMORY_HANDLE;
+	const DEFAULT_STREAM = 'avprimg://image_editor/dummy/path';
+
+	/**
+	 * A stream wrapper URL.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @var string
+	 */
+	private $stream_url;
+
+	/**
+	 * The stream implmentation to use.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @var string
+	 */
+	private $stream_class;
+
+	/**
+	 * The handle (hostname/path) parsed from the stream URL.
+	 *
+	 * @var string
+	 */
+	private $handle;
+
+	/**
+	 * Creates a new image editor helper.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param string $url          Optional. The stream URL to be used for in-memory-images. Default self::DEFAULT_STREAM.
+	 * @param string $stream_class Optional. The stream wrapper class that should be used. Default Image_Stream.
+	 */
+	public function __construct( $url = self::DEFAULT_STREAM, $stream_class = Image_Stream::class ) {
+		$this->stream_url   = $url;
+		$this->stream_class = $stream_class;
+
+		// Also save the memory handle.
+		$parts        = \parse_url( $url ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+		$host         = ! empty( $parts['host'] ) ? $parts['host'] : '';
+		$path         = ! empty( $parts['path'] ) ? $parts['path'] : '';
+		$this->handle = "{$host}{$path}";
+
+		$stream_class::register( $parts['scheme'] );
+	}
 
 	/**
 	 * Creates a \WP_Image_Editor from a given stream wrapper.
@@ -45,12 +91,13 @@ abstract class Editor {
 	 *
 	 * @return \WP_Image_Editor|\WP_Error
 	 */
-	public static function create_from_stream( $stream ) {
+	public function create_from_stream( $stream ) {
 		// Create image editor instance from stream, but strongly prefer GD implementations.
-		$result = self::get_image_editor( $stream );
+		$result = $this->get_image_editor( $stream );
 
 		// Clean up stream data.
-		Image_Stream::delete_handle( Image_Stream::get_handle_from_url( $stream ) );
+		$stream_class = $this->stream_class; // PHP 5.6 workaround.
+		$stream_class::delete_handle( $stream_class::get_handle_from_url( $stream ) );
 
 		// Return image editor.
 		return $result;
@@ -63,11 +110,11 @@ abstract class Editor {
 	 *
 	 * @return \WP_Image_Editor|\WP_Error
 	 */
-	public static function create_from_string( $data ) {
+	public function create_from_string( $data ) {
 		// Copy data to stream implementation.
-		\file_put_contents( self::STREAM, $data, LOCK_EX ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+		\file_put_contents( $this->stream_url, $data ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
 
-		return self::create_from_stream( self::STREAM );
+		return $this->create_from_stream( $this->stream_url );
 	}
 
 	/**
@@ -78,16 +125,16 @@ abstract class Editor {
 	 *
 	 * @return \WP_Image_Editor|\WP_Error
 	 */
-	public static function create_from_image_resource( $image ) {
-		if ( \is_resource( $image ) && \imagepng( $image, self::STREAM ) ) {
+	public function create_from_image_resource( $image ) {
+		if ( \is_resource( $image ) && \imagepng( $image, $this->stream_url ) ) {
 			// Clean up resource.
 			\imagedestroy( $image );
 
 			// Create editor.
-			return self::create_from_stream( self::STREAM );
+			return $this->create_from_stream( $this->stream_url );
 		}
 
-		return new \WP_Error( 'invalid_image', __( 'Resource is not an image.', 'avatar-privacy' ) );
+		return new \WP_Error( 'invalid_image', \__( 'Resource is not an image.', 'avatar-privacy' ) );
 	}
 
 	/**
@@ -98,7 +145,7 @@ abstract class Editor {
 	 *
 	 * @return string
 	 */
-	public static function get_image_data( $image, $format = 'image/png' ) {
+	public function get_image_data( $image, $format = 'image/png' ) {
 		// Needed for PHP 5.6 compatibility.
 		$file_extensions = [
 			'image/jpeg' => 'jpg',
@@ -112,12 +159,13 @@ abstract class Editor {
 
 		// Convert the image the given format and extract data.
 		$extension = ".{$file_extensions[ $format ]}";
-		if ( $image->save( self::STREAM . $extension, $format ) instanceof \WP_Error ) {
+		if ( $image->save( $this->stream_url . $extension, $format ) instanceof \WP_Error ) {
 			return '';
 		}
 
 		// Read the data from memory stream and clean up.
-		return Image_Stream::get_data( self::MEMORY_HANDLE . $extension, true );
+		$stream_class = $this->stream_class; // HPP 5.6 workaround.
+		return $stream_class::get_data( $this->handle . $extension, true );
 	}
 
 	/**
@@ -133,7 +181,7 @@ abstract class Editor {
 	 *
 	 * @return string
 	 */
-	public static function get_resized_image_data( $image, $width, $height, $deprecated = false, $format = 'image/png' ) {
+	public function get_resized_image_data( $image, $width, $height, $deprecated = false, $format = 'image/png' ) {
 
 		// Try to resize only if we haven't been handed an error object.
 		if ( $image instanceof \WP_Error ) {
@@ -147,7 +195,7 @@ abstract class Editor {
 		if ( $image->crop( 0, 0, $current['width'], $current['height'], $width, $height, false ) instanceof \WP_Error ) {
 			$result = '';
 		} else {
-			$result = self::get_image_data( $image, $format );
+			$result = $this->get_image_data( $image, $format );
 		}
 
 		return $result;
@@ -162,11 +210,11 @@ abstract class Editor {
 	 *
 	 * @return \WP_Image_Editor|\WP_Error
 	 */
-	public static function get_image_editor( $path, array $args = [] ) {
+	public function get_image_editor( $path, array $args = [] ) {
 		// Create image editor instance from path, but strongly prefer GD implementations.
-		\add_filter( 'wp_image_editors', [ __CLASS__, 'prefer_gd_image_editor' ], 9999 );
+		\add_filter( 'wp_image_editors', [ $this, 'prefer_gd_image_editor' ], 9999 );
 		$result = \wp_get_image_editor( $path, $args );
-		\remove_filter( 'wp_image_editors', [ __CLASS__, 'prefer_gd_image_editor' ], 9999 );
+		\remove_filter( 'wp_image_editors', [ $this, 'prefer_gd_image_editor' ], 9999 );
 
 		return $result;
 	}
@@ -178,7 +226,7 @@ abstract class Editor {
 	 *
 	 * @return string[]
 	 */
-	public static function prefer_gd_image_editor( array $editors ) {
+	public function prefer_gd_image_editor( array $editors ) {
 		$preferred_editors = [];
 		$imagick_editors   = [];
 		foreach ( $editors as $key => $editor ) {

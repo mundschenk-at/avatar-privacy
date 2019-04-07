@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -65,14 +65,23 @@ class User_Avatar_Handler implements Avatar_Handler {
 	private $base_dir;
 
 	/**
+	 * The image editor support class.
+	 *
+	 * @var Images\Editor
+	 */
+	private $images;
+
+	/**
 	 * Creates a new instance.
 	 *
-	 * @param Core             $core        The core API.
-	 * @param Filesystem_Cache $file_cache  The file cache handler.
+	 * @param Core             $core       The core API.
+	 * @param Filesystem_Cache $file_cache The file cache handler.
+	 * @param Images\Editor    $images     The image editing handler.
 	 */
-	public function __construct( Core $core, Filesystem_Cache $file_cache ) {
+	public function __construct( Core $core, Filesystem_Cache $file_cache, Images\Editor $images ) {
 		$this->core       = $core;
 		$this->file_cache = $file_cache;
+		$this->images     = $images;
 	}
 
 	/**
@@ -108,17 +117,17 @@ class User_Avatar_Handler implements Avatar_Handler {
 		$args      = \wp_parse_args( $args, $defaults );
 		$extension = Images\Type::FILE_EXTENSION[ $args['mimetype'] ];
 		$filename  = "user/{$this->get_sub_dir( $hash )}/{$hash}-{$size}.{$extension}";
-		$target    = "{$this->base_dir}{$filename}";
+		
+		if ( $args['force'] || ! \file_exists( "{$this->base_dir}{$filename}" ) ) {
+			$data = $this->images->get_resized_image_data(
+				$this->images->get_image_editor( $args['avatar'] ), $size, $size, true, $args['mimetype']
+			);
 
-		if ( $args['force'] || ! \file_exists( $target ) ) {
-			$data = Images\Editor::get_resized_image_data( Images\Editor::get_image_editor( $args['avatar'] ), $size, $size, true, $args['mimetype'] );
-			if ( empty( $data ) ) {
+			// Save the generated PNG file (empty files will fail this check).
+			if ( ! $this->file_cache->set( $filename, $data, $args['force'] ) ) {
 				// Something went wrong..
 				return $url;
 			}
-
-			// Save the generated PNG file.
-			$this->file_cache->set( $filename, $data, $args['force'] );
 		}
 
 		return $this->file_cache->get_url( $filename );
@@ -127,11 +136,13 @@ class User_Avatar_Handler implements Avatar_Handler {
 	/**
 	 * Calculates the subdirectory from the given identity hash.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  string $identity The identity (mail address) hash.
 	 *
 	 * @return string
 	 */
-	private function get_sub_dir( $identity ) {
+	protected function get_sub_dir( $identity ) {
 		return \implode( '/', \str_split( \substr( $identity, 0, 2 ) ) );
 	}
 

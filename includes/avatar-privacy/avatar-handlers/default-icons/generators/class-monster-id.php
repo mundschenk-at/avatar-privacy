@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  * Copyright 2007-2014 Scott Sherrill-Mix.
  * Copyright 2007 Andreas Gohr.
  *
@@ -230,20 +230,20 @@ class Monster_ID extends PNG_Generator {
 	 */
 	private $part_optimization;
 
-
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param string $plugin_file The full path to the base plugin file.
+	 * @param string        $plugin_file The full path to the base plugin file.
+	 * @param Images\Editor $images      The image editing handler.
 	 */
-	public function __construct( $plugin_file ) {
+	public function __construct( $plugin_file, Images\Editor $images ) {
 		// Needed for PHP 5.6 compatibility.
 		$this->same_color_parts     = self::SAME_COLOR_PARTS;
 		$this->specific_color_parts = self::SPECIFIC_COLOR_PARTS;
 		$this->random_color_parts   = self::RANDOM_COLOR_PARTS;
 		$this->part_optimization    = self::PART_OPTIMIZATION;
 
-		parent::__construct( \dirname( $plugin_file ) . '/public/images/monster-id' );
+		parent::__construct( \dirname( $plugin_file ) . '/public/images/monster-id', $images );
 	}
 
 	/**
@@ -298,8 +298,13 @@ class Monster_ID extends PNG_Generator {
 
 		foreach ( $parts as $key => $value ) {
 			foreach ( $value as $part ) {
-				$file    = "{$this->parts_dir}/{$part}";
-				$im      = @\imagecreatefrompng( $file );
+				$im = @\imagecreatefrompng( "{$this->parts_dir}/{$part}" );
+
+				if ( false === $im ) {
+					// Not a valid image file.
+					continue;
+				}
+
 				$imgw    = \imagesx( $im );
 				$imgh    = \imagesy( $im );
 				$xbounds = [ 999999, 0 ];
@@ -400,7 +405,7 @@ class Monster_ID extends PNG_Generator {
 		\mt_srand(); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand
 
 		// Resize if necessary.
-		return Images\Editor::get_resized_image_data( Images\Editor::create_from_image_resource( $monster ), $size, $size, false, 'image/png' );
+		return $this->get_resized_image_data( $monster, $size );
 	}
 
 	/**

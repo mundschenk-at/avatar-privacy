@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -45,13 +45,6 @@ class Image_Stream {
 	 * @var string[]
 	 */
 	private static $handles = [];
-
-	/**
-	 * The handle.
-	 *
-	 * @var string
-	 */
-	private $h;
 
 	/**
 	 * The contents of the stream.
@@ -106,8 +99,7 @@ class Image_Stream {
 	 * @return bool
 	 */
 	public function stream_open( $path, $mode, $options, /* @scrutinizer ignore-unused */ &$opened_path ) {
-		$this->h       = self::get_handle_from_url( $path );
-		$this->data    = &self::get_handle( $this->h );
+		$this->data    = &static::get_data_reference( static::get_handle_from_url( $path ) );
 		$this->options = $options;
 
 		// Strip binary/text flags from mode for comparison.
@@ -145,13 +137,13 @@ class Image_Stream {
 			case 'a':
 				$this->read     = false;
 				$this->write    = true;
-				$this->position = strlen( $this->data );
+				$this->position = \strlen( $this->data );
 				break;
 
 			case 'a+':
 				$this->read     = true;
 				$this->write    = true;
-				$this->position = strlen( $this->data );
+				$this->position = \strlen( $this->data );
 				break;
 
 			case 'c':
@@ -164,7 +156,7 @@ class Image_Stream {
 				if ( $this->options & STREAM_REPORT_ERRORS ) {
 					\trigger_error( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 						'Invalid mode specified (mode specified makes no sense for this stream implementation)',
-						E_ERROR
+						E_USER_ERROR
 					);
 				} else {
 					return false;
@@ -187,9 +179,9 @@ class Image_Stream {
 			$this->position += \strlen( $read );
 
 			return $read;
-		} else {
-			return false;
 		}
+
+		return false;
 	}
 
 	/**
@@ -317,10 +309,15 @@ class Image_Stream {
 	 * @param  int    $flags Additional flags set by the streams API.
 	 * @return array
 	 */
-	public function url_stat( $path, /* @scrutinizer ignore-unused */ $flags ) {
-		if ( self::handle_exists( self::get_handle_from_url( $path ) ) ) {
+	public function url_stat( $path, $flags ) {
+		if ( static::handle_exists( static::get_handle_from_url( $path ) ) ) {
 			// If fopen() fails, we are in trouble anyway.
 			return \fstat( /* @scrutinizer ignore-type */ \fopen( $path, 'r' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+		} elseif ( ! ( $flags & STREAM_URL_STAT_QUIET ) ) {
+			\trigger_error( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+				"Invalid path, cannot stat: {$path}", // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				E_USER_ERROR
+			);
 		}
 
 		return [
@@ -362,25 +359,27 @@ class Image_Stream {
 	 * @return bool
 	 */
 	public function unlink( $path ) {
-		$handle = self::get_handle_from_url( $path );
+		$handle = static::get_handle_from_url( $path );
 
 		if ( empty( $handle ) ) {
 			return false;
 		}
 
-		self::delete_handle( $handle );
+		static::delete_handle( $handle );
 		return true;
 	}
 
 	/**
 	 * Retrieves a reference to the handle and creates it if necessary.
 	 *
+	 * @since 2.1.0 Visibility changed to protected and renamed to get_data_reference.
+	 *
 	 * @param  string $handle The stream handle.
 	 *
 	 * @return string         A reference to the stream data.
 	 */
-	private static function &get_handle( $handle ) {
-		if ( ! self::handle_exists( $handle ) ) {
+	protected static function &get_data_reference( $handle ) {
+		if ( ! static::handle_exists( $handle ) ) {
 			self::$handles[ $handle ] = '';
 		}
 
@@ -390,11 +389,13 @@ class Image_Stream {
 	/**
 	 * Determines if the given handle already exists.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  string $handle The stream handle.
 	 *
 	 * @return bool
 	 */
-	private static function handle_exists( $handle ) {
+	protected static function handle_exists( $handle ) {
 		return isset( self::$handles[ $handle ] );
 	}
 
@@ -407,16 +408,16 @@ class Image_Stream {
 	 * @return string|null    The stream data or null.
 	 */
 	public static function get_data( $handle, $delete = false ) {
-		if ( ! isset( self::$handles[ $handle ] ) ) {
+		if ( ! static::handle_exists( $handle ) ) {
 			return null;
 		}
 
 		// Save data.
-		$result = self::$handles[ $handle ];
+		$result = static::get_data_reference( $handle );
 
 		// Clean up, if requested.
 		if ( $delete ) {
-			self::delete_handle( $handle );
+			static::delete_handle( $handle );
 		}
 
 		return $result;
@@ -443,7 +444,15 @@ class Image_Stream {
 
 		return $parts['host'] . $parts['path'];
 	}
-}
 
-// Register image stream wrapper.
-\stream_register_wrapper( Image_Stream::PROTOCOL, Image_Stream::class );
+	/**
+	 * Registers the stream wrapper.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param  string $protocol Optional. The wrapper-specific URL protocol. Default 'avprimg'.
+	 */
+	public static function register( $protocol = self::PROTOCOL ) {
+		\stream_wrapper_register( $protocol, static::class );
+	}
+}

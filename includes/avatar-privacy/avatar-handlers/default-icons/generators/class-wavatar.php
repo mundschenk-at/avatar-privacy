@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  * Copyright 2007-2008 Shamus Young.
  *
  * This program is free software; you can redistribute it and/or
@@ -49,10 +49,11 @@ class Wavatar extends PNG_Generator {
 	/**
 	 * Creates a new Wavatars generator.
 	 *
-	 * @param string $plugin_file The full path to the base plugin file.
+	 * @param string        $plugin_file The full path to the base plugin file.
+	 * @param Images\Editor $images      The image editing handler.
 	 */
-	public function __construct( $plugin_file ) {
-		parent::__construct( \dirname( $plugin_file ) . '/public/images/wavatars' );
+	public function __construct( $plugin_file, Images\Editor $images ) {
+		parent::__construct( \dirname( $plugin_file ) . '/public/images/wavatars', $images );
 	}
 
 	/**
@@ -75,7 +76,7 @@ class Wavatar extends PNG_Generator {
 	 * @param  string $seed The seed data (hash).
 	 * @param  int    $size The size in pixels.
 	 *
-	 * @return string       The image data.
+	 * @return string       The image data (or the empty string on error).
 	 */
 	public function build( $seed, $size ) {
 		// Look at the seed (an md5 hash) and use pairs of digits to determine our
@@ -92,6 +93,11 @@ class Wavatar extends PNG_Generator {
 		// Create backgound.
 		$avatar = \imagecreatetruecolor( self::SIZE, self::SIZE );
 
+		// Check for valid image resource.
+		if ( false === $avatar ) {
+			return '';
+		}
+
 		// Pick a random color for the background.
 		$this->fill( $avatar, $bg_color, 94, 20, 1, 1 );
 
@@ -106,6 +112,6 @@ class Wavatar extends PNG_Generator {
 		$this->apply_image( $avatar, "mouth{$mouth}.png", self::SIZE, self::SIZE );
 
 		// Resize if needed.
-		return Images\Editor::get_resized_image_data( Images\Editor::create_from_image_resource( $avatar ), $size, $size, false, 'image/png' );
+		return $this->get_resized_image_data( $avatar, $size );
 	}
 }

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,60 +24,43 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Avatar_Handlers\Default_Icons;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons;
+
+use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generating_Icon_Provider;
+use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
+
+use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
 /**
- * A default icon provider implementation using static images.
+ * An icon provider for "monsterid" style icons.
  *
  * @since 1.0.0
  * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons
+ * @since 2.1.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Static_Icon_Provider extends Abstract_Icon_Provider {
-
-	/**
-	 * The basename of the icon files residing in `public/images`.
-	 *
-	 * @var string
-	 */
-	protected $icon_basename;
-
-	/**
-	 * The full path to the main plugin file.
-	 *
-	 * @var string
-	 */
-	protected $plugin_file;
+class Monster_ID_Icon_Provider extends Generating_Icon_Provider {
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @since 2.0.0 Parameter $name added.
-	 * @since 2.1.0 Parameter $name removed to allow proper translation loading.
-	 *
-	 * @param string[]|string $types       Either a single identifier string or an array thereof.
-	 * @param string          $basename    The icon basename (without extension or size suffix).
-	 * @param string          $plugin_file The full path to the base plugin file.
+	 * @param Generators\Monster_ID $generator   A generator instance.
+	 * @param Filesystem_Cache      $file_cache  The file cache handler.
 	 */
-	public function __construct( $types, $basename, $plugin_file ) {
-		parent::__construct( (array) $types );
-
-		$this->icon_basename = $basename;
-		$this->plugin_file   = $plugin_file;
+	public function __construct( Generators\Monster_ID $generator, Filesystem_Cache $file_cache ) {
+		parent::__construct( $generator, $file_cache, [ 'monsterid' ] );
 	}
 
 	/**
-	 * Retrieves the default icon.
+	 * Retrieves the filename (including the sub-directory and file extension).
 	 *
 	 * @param  string $identity The identity (mail address) hash. Ignored.
 	 * @param  int    $size     The requested size in pixels.
 	 *
 	 * @return string
 	 */
-	public function get_icon_url( $identity, $size ) {
-		$use_size = ( $size > 64 ) ? '128' : '64';
-
-		return plugins_url( "public/images/{$this->icon_basename}-{$use_size}.png", $this->plugin_file );
+	protected function get_filename( $identity, $size ) {
+		return "monsterid/{$this->get_sub_dir( $identity )}/{$identity}-{$size}.png";
 	}
 }

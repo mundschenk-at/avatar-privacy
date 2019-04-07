@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,51 +24,36 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons;
 
-use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generator;
+use Avatar_Privacy\Avatar_Handlers\Default_Icons\SVG_Icon_Provider;
 
 /**
- * Generates an SVG icon based on a hash.
+ * An icon provider for the "silhouette" icon.
  *
- * @since 1.0.0
- * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators
+ * @since 2.1.0
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Jdenticon implements Generator {
-
-	/**
-	 * The identicon instance.
-	 *
-	 * @var \Jdenticon\Identicon
-	 */
-	private $identicon;
+class Silhouette_Icon_Provider extends SVG_Icon_Provider {
 
 	/**
 	 * Creates a new instance.
+	 *
+	 * @param string $plugin_file The full path to the base plugin file.
 	 */
-	public function __construct() {
-		$args = [
-			'style' => new \Jdenticon\IdenticonStyle( [ 'padding' => 0 ] ),
-		];
-
-		$this->identicon = new \Jdenticon\Identicon( $args );
+	public function __construct( $plugin_file ) {
+		parent::__construct( [ 'silhouette', 'view-media-artist' ], 'silhouette', $plugin_file );
 	}
 
 	/**
-	 * Builds an icon based on the given seed returns the image data.
+	 * Retrieves the user-visible, translated name.
 	 *
-	 * @param  string $seed The seed data (hash).
-	 * @param  int    $size Optional. The size in pixels. Default 128 (but really ignored).
+	 * @since 2.1.0
 	 *
 	 * @return string
 	 */
-	public function build( $seed, $size = 128 ) {
-		$this->identicon->hash = $seed;
-		$this->identicon->size = $size;
-
-		return $this->identicon->getImageData( 'svg' );
+	public function get_name() {
+		return \__( 'Silhouette', 'avatar-privacy' );
 	}
-
 }

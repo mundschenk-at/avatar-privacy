@@ -128,7 +128,7 @@ class Filesystem_Cache {
 	 * Stores data in the filesystem cache.
 	 *
 	 * @param  string $filename The filename (including any sub directory).
-	 * @param  mixed  $data     The data.
+	 * @param  mixed  $data     The data. Will not be cached if empty.
 	 * @param  bool   $force    Optional. The cached file will only be overwritten if set to true. Default false.
 	 *
 	 * @return bool             True if the file was successfully stored in the cache, false otherwise.

@@ -157,28 +157,31 @@ class Gravatar_Cache_Handler implements Avatar_Handler {
 		$filename = "gravatar/{$subdir}/{$hash}-{$size}." . Images\Type::FILE_EXTENSION[ $args['mimetype'] ];
 
 		// Only retrieve new Gravatar if necessary.
-		if ( ! \file_exists( "{$this->file_cache->get_base_dir()}{$filename}" ) || $args['force'] ) {
-			// Retrieve & store icon.
+		if ( $args['force'] || ! \file_exists( "{$this->file_cache->get_base_dir()}{$filename}" ) ) {
+			// Retrieve the gravatar icon.
 			$icon = $this->gravatar->get_image( $args['email'], $size, $args['rating'] );
-			if ( ! empty( $icon ) && $this->file_cache->set( $filename, $icon ) ) {
-				$url = $this->file_cache->get_url( $filename );
+
+			// Store it (empty files will fail this check).
+			if ( ! $this->file_cache->set( $filename, $icon, $args['force'] ) ) {
+				// Something went wrong..
+				return $url;
 			}
-		} else {
-			$url = $this->file_cache->get_url( $filename );
 		}
 
-		return $url;
+		return $this->file_cache->get_url( $filename );
 	}
 
 	/**
 	 * Calculates the subdirectory from the given identity hash.
+	 *
+	 * @since 2.1.0 Visibility changed to protected.
 	 *
 	 * @param  string $identity The identity (mail address) hash.
 	 * @param  bool   $user     If we need to encode the type as "user".
 	 *
 	 * @return string
 	 */
-	private function get_sub_dir( $identity, $user = false ) {
+	protected function get_sub_dir( $identity, $user = false ) {
 		$first  = \substr( $identity, 0, 1 );
 		$second = \substr( $identity, 1, 1 );
 
@@ -196,7 +199,7 @@ class Gravatar_Cache_Handler implements Avatar_Handler {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param  string $type      The image (sub-)type.
+	 * @param  string $type      The image (sub-)type. Ignored.
 	 * @param  string $hash      The hashed mail address.
 	 * @param  int    $size      The requested size in pixels.
 	 * @param  string $subdir    The requested sub-directory.
