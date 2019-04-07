@@ -179,9 +179,9 @@ class Image_Stream {
 			$this->position += \strlen( $read );
 
 			return $read;
-		} else {
-			return false;
 		}
+
+		return false;
 	}
 
 	/**
