@@ -156,7 +156,7 @@ class Image_Stream {
 				if ( $this->options & STREAM_REPORT_ERRORS ) {
 					\trigger_error( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 						'Invalid mode specified (mode specified makes no sense for this stream implementation)',
-						E_ERROR
+						E_USER_ERROR
 					);
 				} else {
 					return false;
