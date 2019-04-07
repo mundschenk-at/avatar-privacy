@@ -523,51 +523,10 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::url_stat.
 	 *
 	 * @covers ::url_stat
-	 *
-	 * @expectedExceptionMessage Invalid path, cannot stat
 	 */
 	public function test_url_stat_error() {
 		$path  = vfsStream::url( 'root/folder/filename.txt' );
-		$flags = 0;
-
-		$this->sut->shouldReceive( 'get_handle_from_url' )->once()->with( $path )->andReturn( 'handle' );
-		$this->sut->shouldReceive( 'handle_exists' )->once()->with( 'handle' )->andReturn( false );
-
-		// PHP < 7.0 raises an error instead of throwing an "exception".
-		if ( version_compare( phpversion(), '7.0.0', '<' ) ) {
-			$this->expectException( \PHPUnit_Framework_Error::class );
-		} else {
-			$this->expectException( \PHPUnit\Framework\Error\Error::class );
-		}
-
-		$this->assertSame(
-			[
-				'dev'     => 0,
-				'ino'     => 0,
-				'mode'    => 0,
-				'nlink'   => 0,
-				'uid'     => 0,
-				'gid'     => 0,
-				'rdev'    => 0,
-				'size'    => 0,
-				'atime'   => 0,
-				'mtime'   => 0,
-				'ctime'   => 0,
-				'blksize' => -1,
-				'blocks'  => -1,
-			],
-			$this->sut->url_stat( $path, $flags )
-		);
-	}
-
-	/**
-	 * Tests ::url_stat.
-	 *
-	 * @covers ::url_stat
-	 */
-	public function test_url_stat_quiet_failure() {
-		$path  = vfsStream::url( 'root/folder/filename.txt' );
-		$flags = STREAM_URL_STAT_QUIET;
+		$flags = 0; // STREAM_URL_STAT_QUIET does not have to be explicitely set.
 
 		$this->sut->shouldReceive( 'get_handle_from_url' )->once()->with( $path )->andReturn( 'handle' );
 		$this->sut->shouldReceive( 'handle_exists' )->once()->with( 'handle' )->andReturn( false );
