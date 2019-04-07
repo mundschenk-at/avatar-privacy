@@ -309,10 +309,15 @@ class Image_Stream {
 	 * @param  int    $flags Additional flags set by the streams API.
 	 * @return array
 	 */
-	public function url_stat( $path, /* @scrutinizer ignore-unused */ $flags ) {
+	public function url_stat( $path, $flags ) {
 		if ( static::handle_exists( static::get_handle_from_url( $path ) ) ) {
 			// If fopen() fails, we are in trouble anyway.
 			return \fstat( /* @scrutinizer ignore-type */ \fopen( $path, 'r' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+		} elseif ( ! ( $flags & STREAM_URL_STAT_QUIET ) ) {
+			\trigger_error( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+				"Invalid path, cannot stat: {$path}", // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				E_USER_ERROR
+			);
 		}
 
 		return [
