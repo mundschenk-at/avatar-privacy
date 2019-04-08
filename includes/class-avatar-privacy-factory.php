@@ -127,8 +127,7 @@ abstract class Avatar_Privacy_Factory {
 				User_Avatar_Handler::class                      => self::SHARED,
 
 				// Default icon generators.
-				Generators\Monster_ID::class                    => self::SHARED,
-				Generators\Wavatar::class                       => self::SHARED,
+				Default_Icons\Generator::class                  => self::SHARED,
 
 				// Upload handlers.
 				Upload_Handler::class                           => self::SHARED,
