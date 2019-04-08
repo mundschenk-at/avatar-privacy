@@ -174,7 +174,7 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->file_cache->shouldReceive( 'get_base_dir' )->once()->with()->andReturn( $basedir );
 
 		$this->images->shouldReceive( 'get_image_editor' )->once()->with( $icon['file'] )->andReturn( m::mock( \WP_Image_Editor::class ) );
-		$this->images->shouldReceive( 'get_resized_image_data' )->once()->with( m::type( \WP_Image_Editor::class ), $size, $size, true, $icon['type'] )->andReturn( $data );
+		$this->images->shouldReceive( 'get_resized_image_data' )->once()->with( m::type( \WP_Image_Editor::class ), $size, $size, $icon['type'] )->andReturn( $data );
 
 		$this->file_cache->shouldReceive( 'set' )->once()->with( $filename, $data )->andReturn( true );
 		$this->file_cache->shouldReceive( 'get_url' )->once()->with( $filename )->andReturn( $url );
@@ -260,7 +260,7 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->file_cache->shouldReceive( 'get_base_dir' )->once()->with()->andReturn( $basedir );
 
 		$this->images->shouldReceive( 'get_image_editor' )->once()->with( $icon['file'] )->andReturn( m::mock( \WP_Image_Editor::class ) );
-		$this->images->shouldReceive( 'get_resized_image_data' )->once()->with( m::type( \WP_Image_Editor::class ), $size, $size, true, $icon['type'] )->andReturn( $data );
+		$this->images->shouldReceive( 'get_resized_image_data' )->once()->with( m::type( \WP_Image_Editor::class ), $size, $size, $icon['type'] )->andReturn( $data );
 
 		$this->file_cache->shouldReceive( 'set' )->never();
 		$this->file_cache->shouldReceive( 'get_url' )->never();

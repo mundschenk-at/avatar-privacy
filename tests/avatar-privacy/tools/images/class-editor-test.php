@@ -264,7 +264,7 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'get_image_data' )->once()->with( $editor, $format )->andReturn( $data );
 
-		$this->assertSame( $data, $this->sut->get_resized_image_data( $editor, $width, $height, false, $format ) );
+		$this->assertSame( $data, $this->sut->get_resized_image_data( $editor, $width, $height, $format ) );
 	}
 
 	/**
@@ -284,7 +284,7 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'get_image_data' )->never();
 
-		$this->assertSame( '', $this->sut->get_resized_image_data( $editor, $width, $height, false, $format ) );
+		$this->assertSame( '', $this->sut->get_resized_image_data( $editor, $width, $height, $format ) );
 	}
 
 	/**
@@ -313,7 +313,7 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'get_image_data' )->never();
 
-		$this->assertSame( '', $this->sut->get_resized_image_data( $editor, $width, $height, false, $format ) );
+		$this->assertSame( '', $this->sut->get_resized_image_data( $editor, $width, $height, $format ) );
 	}
 
 	/**

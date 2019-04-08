@@ -172,16 +172,16 @@ class Editor {
 	 * Resizes the given image and returns the image data.
 	 *
 	 * @since 2.0.5 Parameter $crop has been deprecated.
+	 * @since 2.1.0 Parameter $crop has been removed.
 	 *
 	 * @param  \WP_Image_Editor|\WP_Error $image      The image.
 	 * @param  int                        $width      The width in pixels.
 	 * @param  int                        $height     The height in pixels.
-	 * @param  bool                       $deprecated Optional. This deprecated argument is ignored. Default false.
 	 * @param  string                     $format     Optional. The image mimetype. Default 'image/png'.
 	 *
 	 * @return string
 	 */
-	public function get_resized_image_data( $image, $width, $height, $deprecated = false, $format = 'image/png' ) {
+	public function get_resized_image_data( $image, $width, $height, $format = 'image/png' ) {
 
 		// Try to resize only if we haven't been handed an error object.
 		if ( $image instanceof \WP_Error ) {
