@@ -90,10 +90,6 @@ abstract class Avatar_Privacy_Factory {
 	 */
 	public static function get() {
 		if ( ! isset( self::$factory ) ) {
-			// Load version from plugin data.
-			if ( ! function_exists( 'get_plugin_data' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/plugin.php';
-			}
 
 			// Define rules.
 			$rules = [
@@ -109,9 +105,7 @@ abstract class Avatar_Privacy_Factory {
 
 				// Core API.
 				Core::class                                     => [
-					'constructParams' => [
-						\get_plugin_data( AVATAR_PRIVACY_PLUGIN_FILE, false, false )['Version'],
-					],
+					'constructParams' => [ self::get_plugin_version( AVATAR_PRIVACY_PLUGIN_FILE ) ],
 				],
 
 				// Components.
@@ -177,5 +171,23 @@ abstract class Avatar_Privacy_Factory {
 		}
 
 		return self::$factory;
+	}
+
+	/**
+	 * Retrieves the plugin version.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param  string $plugin_file The full plugin path.
+	 *
+	 * @return string
+	 */
+	protected static function get_plugin_version( $plugin_file ) {
+		// Load version from plugin data.
+		if ( ! function_exists( 'get_plugin_data' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		return \get_plugin_data( $plugin_file, false, false )['Version'];
 	}
 }
