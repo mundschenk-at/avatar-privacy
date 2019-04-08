@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -90,21 +90,6 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Set up virtual filesystem.
 		$root = vfsStream::setup( 'root', null, $filesystem );
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
-
-		// Necessary constants.
-		if ( ! defined( 'COOKIEHASH' ) ) {
-			define( 'COOKIEHASH', 'somehash' );
-		}
-		if ( ! defined( 'YEAR_IN_SECONDS' ) ) {
-			define( 'YEAR_IN_SECONDS', 60 * 60 * 24 * 365 );
-		}
-		if ( ! defined( 'COOKIEPATH' ) ) {
-			define( 'COOKIEPATH', 'some/path' );
-		}
-		if ( ! defined( 'COOKIE_DOMAIN' ) ) {
-			define( 'COOKIE_DOMAIN', 'some.blog' );
-		}
-
 
 		// Mock required helpers.
 		$this->core = m::mock( Core::class );
@@ -328,7 +313,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::get_gravatar_checkbox
 	 */
 	public function test_get_gravatar_checkbox() {
-		$this->assertSame( 'USE_GRAVATAR', Comments::get_gravatar_checkbox( 'plugin/file' ) );
+		$this->assertSame( 'USE_GRAVATAR', Comments::get_gravatar_checkbox() );
 	}
 
 	/**

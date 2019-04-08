@@ -520,13 +520,6 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$result = (object) [ 'foo' => 'bar' ];
 		$key    = \Avatar_Privacy\Core::EMAIL_CACHE_PREFIX . $hash;
 
-		if ( ! defined( 'OBJECT' ) ) {
-			define( 'OBJECT', 'object' );
-		}
-		if ( ! defined( 'MINUTE_IN_SECONDS' ) ) {
-			define( 'MINUTE_IN_SECONDS', 60 );
-		}
-
 		global $wpdb;
 		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->avatar_privacy = 'avatar_privacy_table';
@@ -550,13 +543,6 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$hash   = 'foo_hashed';
 		$result = (object) [ 'foo' => 'bar' ];
 		$key    = \Avatar_Privacy\Core::EMAIL_CACHE_PREFIX . $hash;
-
-		if ( ! defined( 'OBJECT' ) ) {
-			define( 'OBJECT', 'object' );
-		}
-		if ( ! defined( 'MINUTE_IN_SECONDS' ) ) {
-			define( 'MINUTE_IN_SECONDS', 60 );
-		}
 
 		global $wpdb;
 		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -602,13 +588,6 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$result = (object) [ 'foo' => 'bar' ];
 		$key    = \Avatar_Privacy\Core::EMAIL_CACHE_PREFIX . $hash;
 
-		if ( ! defined( 'OBJECT' ) ) {
-			define( 'OBJECT', 'object' );
-		}
-		if ( ! defined( 'MINUTE_IN_SECONDS' ) ) {
-			define( 'MINUTE_IN_SECONDS', 60 );
-		}
-
 		global $wpdb;
 		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->avatar_privacy = 'avatar_privacy_table';
@@ -630,13 +609,6 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$hash   = 'foo_hashed';
 		$result = (object) [ 'foo' => 'bar' ];
 		$key    = \Avatar_Privacy\Core::EMAIL_CACHE_PREFIX . $hash;
-
-		if ( ! defined( 'OBJECT' ) ) {
-			define( 'OBJECT', 'object' );
-		}
-		if ( ! defined( 'MINUTE_IN_SECONDS' ) ) {
-			define( 'MINUTE_IN_SECONDS', 60 );
-		}
 
 		global $wpdb;
 		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited

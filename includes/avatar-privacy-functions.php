@@ -34,18 +34,14 @@ if ( ! function_exists( 'avapr_get_avatar_checkbox' ) ) {
 	 * This is intended as a template function for older or highly-customized
 	 * themes. Output the result with echo or print.
 	 *
-	 * @since 2.1.0 Added optional $path parameter.
-	 *
-	 * @param  string $path Optional. The path to the main plugin file (used only for unit testing). Default empty.
-	 *
 	 * @return string       The HTML code for the checkbox or an empty string.
 	 */
-	function avapr_get_avatar_checkbox( $path = '' ) {
+	function avapr_get_avatar_checkbox() {
 		// The checkbox is meaningless for logged-in users.
 		if ( \is_user_logged_in() ) {
 			return '';
 		}
 
-		return Comments::get_gravatar_checkbox( $path ?: __DIR__ );
+		return Comments::get_gravatar_checkbox();
 	}
 }
