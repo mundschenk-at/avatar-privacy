@@ -121,21 +121,7 @@ abstract class Avatar_Privacy_Factory {
 				// Avatar handlers.
 				Default_Icons_Handler::class                    => [
 					'shared'          => true,
-					'constructParams' => [
-						[
-							// These are sorted as the should appear for selection in the discussion settings.
-							[ 'instance' => Static_Icons\Mystery_Icon_Provider::class ],
-							[ 'instance' => Generated_Icons\Identicon_Icon_Provider::class ],
-							[ 'instance' => Generated_Icons\Wavatar_Icon_Provider::class ],
-							[ 'instance' => Generated_Icons\Monster_ID_Icon_Provider::class ],
-							[ 'instance' => Generated_Icons\Retro_Icon_Provider::class ],
-							[ 'instance' => Generated_Icons\Rings_Icon_Provider::class ],
-							[ 'instance' => Static_Icons\Speech_Bubble_Icon_Provider::class ],
-							[ 'instance' => Static_Icons\Bowling_Pin_Icon_Provider::class ],
-							[ 'instance' => Static_Icons\Silhouette_Icon_Provider::class ],
-							[ 'instance' => Default_Icons\Custom_Icon_Provider::class ],
-						],
-					],
+					'constructParams' => [ self::get_default_icons() ],
 				],
 				Gravatar_Cache_Handler::class                   => self::SHARED,
 				User_Avatar_Handler::class                      => self::SHARED,
@@ -190,5 +176,34 @@ abstract class Avatar_Privacy_Factory {
 		}
 
 		return \get_plugin_data( $plugin_file, false, false )['Version'];
+	}
+
+	/**
+	 * Retrieves a list of default icon providers suitable for inclusion in a `Dice` rule.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @return array {
+	 *     An array of `Icon_Provider` instances in `Dice` syntax.
+	 *
+	 *     @type array {
+	 *         @type string $instance The classname.
+	 *     }
+	 * }
+	 */
+	protected static function get_default_icons() {
+		return [
+			// These are sorted as the should appear for selection in the discussion settings.
+			[ 'instance' => Static_Icons\Mystery_Icon_Provider::class ],
+			[ 'instance' => Generated_Icons\Identicon_Icon_Provider::class ],
+			[ 'instance' => Generated_Icons\Wavatar_Icon_Provider::class ],
+			[ 'instance' => Generated_Icons\Monster_ID_Icon_Provider::class ],
+			[ 'instance' => Generated_Icons\Retro_Icon_Provider::class ],
+			[ 'instance' => Generated_Icons\Rings_Icon_Provider::class ],
+			[ 'instance' => Static_Icons\Speech_Bubble_Icon_Provider::class ],
+			[ 'instance' => Static_Icons\Bowling_Pin_Icon_Provider::class ],
+			[ 'instance' => Static_Icons\Silhouette_Icon_Provider::class ],
+			[ 'instance' => Default_Icons\Custom_Icon_Provider::class ],
+		];
 	}
 }
