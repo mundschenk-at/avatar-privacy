@@ -58,6 +58,7 @@ use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons;
 
+use Avatar_Privacy\Integrations\Plugin_Integration;
 use Avatar_Privacy\Integrations\BBPress_Integration;
 
 use Avatar_Privacy\Tools\Images;
@@ -98,12 +99,6 @@ abstract class Avatar_Privacy_Factory {
 			foreach ( static::get_rules() as $classname => $rule ) {
 				self::$factory->addRule( $classname, $rule );
 			}
-
-			// Plugin integrations list.
-			$integrations = [
-				self::$factory->create( BBPress_Integration::class ),
-			];
-			self::$factory->addRule( Integrations::class, [ 'constructParams' => [ $integrations ] ] );
 		}
 
 		return self::$factory;
@@ -135,6 +130,9 @@ abstract class Avatar_Privacy_Factory {
 			],
 
 			// Components.
+			Integrations::class                             => [
+				'constructParams' => [ static::get_plugin_integrations() ],
+			],
 			User_Profile::class                             => self::SHARED,
 
 			// Default icon providers.
@@ -211,6 +209,25 @@ abstract class Avatar_Privacy_Factory {
 			[ 'instance' => Static_Icons\Bowling_Pin_Icon_Provider::class ],
 			[ 'instance' => Static_Icons\Silhouette_Icon_Provider::class ],
 			[ 'instance' => Default_Icons\Custom_Icon_Provider::class ],
+		];
+	}
+
+	/**
+	 * Retrieves a list of plugin integrations.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @return array {
+	 *     An array of `Plugin_Integration` instances in `Dice` syntax.
+	 *
+	 *     @type array {
+	 *         @type string $instance The classname.
+	 *     }
+	 * }
+	 */
+	protected static function get_plugin_integrations() {
+		return [
+			[ 'instance' => BBPress_Integration::class ],
 		];
 	}
 }
