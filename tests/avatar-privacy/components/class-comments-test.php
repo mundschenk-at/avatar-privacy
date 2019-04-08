@@ -91,21 +91,6 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 		$root = vfsStream::setup( 'root', null, $filesystem );
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
-		// Necessary constants.
-		if ( ! defined( 'COOKIEHASH' ) ) {
-			define( 'COOKIEHASH', 'somehash' );
-		}
-		if ( ! defined( 'YEAR_IN_SECONDS' ) ) {
-			define( 'YEAR_IN_SECONDS', 60 * 60 * 24 * 365 );
-		}
-		if ( ! defined( 'COOKIEPATH' ) ) {
-			define( 'COOKIEPATH', 'some/path' );
-		}
-		if ( ! defined( 'COOKIE_DOMAIN' ) ) {
-			define( 'COOKIE_DOMAIN', 'some.blog' );
-		}
-
-
 		// Mock required helpers.
 		$this->core = m::mock( Core::class );
 

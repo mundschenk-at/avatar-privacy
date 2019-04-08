@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -29,9 +29,11 @@
  */
 require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 
-// Necessary constants.
-if ( ! defined( 'ABSPATH' ) ) {
-	define( 'ABSPATH', 'wordpress/path/' );
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
+
+// WordPress time constants.
+if ( ! defined( 'YEAR_IN_SECONDS' ) ) {
+	define( 'YEAR_IN_SECONDS', 60 * 60 * 24 * 365 );
 }
 if ( ! defined( 'WEEK_IN_SECONDS' ) ) {
 	define( 'WEEK_IN_SECONDS', 7 * 24 * 60 * 60 );
@@ -45,9 +47,30 @@ if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
 if ( ! defined( 'MINUTE_IN_SECONDS' ) ) {
 	define( 'MINUTE_IN_SECONDS', 60 );
 }
+
+// WordPress cookie constants.
+if ( ! defined( 'COOKIEHASH' ) ) {
+	define( 'COOKIEHASH', 'somehash' );
+}
+if ( ! defined( 'COOKIEPATH' ) ) {
+	define( 'COOKIEPATH', 'some/path' );
+}
+if ( ! defined( 'COOKIE_DOMAIN' ) ) {
+	define( 'COOKIE_DOMAIN', 'some.blog' );
+}
+
+// Other WordPress constants.
+if ( ! defined( 'ABSPATH' ) ) {
+	define( 'ABSPATH', 'wordpress/path/' );
+}
+if ( ! defined( 'OBJECT' ) ) {
+	define( 'OBJECT', 'OBJECT' );
+}
 if ( ! defined( 'OBJECT_K' ) ) {
 	define( 'OBJECT_K', 'OBJECT_K' );
 }
+
+// Avatar Privacy constants.
 if ( ! defined( 'AVATAR_PRIVACY_PLUGIN_FILE' ) ) {
 	define( 'AVATAR_PRIVACY_PLUGIN_FILE', 'plugin/file' );
 }
