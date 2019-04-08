@@ -453,7 +453,7 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param  mixed  $new_value New value of the network option.
 	 * @param  mixed  $old_value Old value of the network option.
 	 * @param  bool   $triggered If a migration should be triggered.
-	 * @param  bool   $triggered Optional. If running migrations should be ended. Default false.
+	 * @param  bool   $cleaned   Optional. If running migrations should be ended. Default false.
 	 */
 	public function test_start_migration_from_global_table( $option, $new_value, $old_value, $triggered, $cleaned = false ) {
 		$use_global_table = 'my_use_global_table';
