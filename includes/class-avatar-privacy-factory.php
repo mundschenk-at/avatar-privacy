@@ -91,61 +91,11 @@ abstract class Avatar_Privacy_Factory {
 	public static function get() {
 		if ( ! isset( self::$factory ) ) {
 
-			// Define rules.
-			$rules = [
-				// Shared helpers.
-				Cache::class                                    => self::SHARED,
-				Database::class                                 => self::SHARED,
-				Transients::class                               => self::SHARED,
-				Site_Transients::class                          => self::SHARED,
-				Options::class                                  => self::SHARED,
-				Network_Options::class                          => self::SHARED,
-				Filesystem_Cache::class                         => self::SHARED,
-				Settings::class                                 => self::SHARED,
-
-				// Core API.
-				Core::class                                     => [
-					'shared'          => true,
-					'constructParams' => [ self::get_plugin_version( AVATAR_PRIVACY_PLUGIN_FILE ) ],
-				],
-
-				// Components.
-				User_Profile::class                             => self::SHARED,
-
-				// Default icon providers.
-				Static_Icons\Mystery_Icon_Provider::class       => self::SHARED,
-				Static_Icons\Speech_Bubble_Icon_Provider::class => self::SHARED,
-				Static_Icons\Bowling_Pin_Icon_Provider::class   => self::SHARED,
-				Static_Icons\Silhouette_Icon_Provider::class    => self::SHARED,
-
-				// Avatar handlers.
-				Default_Icons_Handler::class                    => [
-					'shared'          => true,
-					'constructParams' => [ self::get_default_icons() ],
-				],
-				Gravatar_Cache_Handler::class                   => self::SHARED,
-				User_Avatar_Handler::class                      => self::SHARED,
-
-				// Default icon generators.
-				Default_Icons\Generator::class                  => self::SHARED,
-
-				// Upload handlers.
-				Upload_Handler::class                           => self::SHARED,
-
-				// Plugin integrations.
-				BBPress_Integration::class                      => self::SHARED,
-
-				// Tools.
-				Images\Editor::class                            => self::SHARED,
-				Multisite_Tools::class                          => self::SHARED,
-				Gravatar_Service::class                         => self::SHARED,
-			];
-
 			// Create factory.
 			self::$factory = new Dice();
 
 			// Add rules.
-			foreach ( $rules as $classname => $rule ) {
+			foreach ( static::get_rules() as $classname => $rule ) {
 				self::$factory->addRule( $classname, $rule );
 			}
 
@@ -157,6 +107,64 @@ abstract class Avatar_Privacy_Factory {
 		}
 
 		return self::$factory;
+	}
+
+	/**
+	 * Retrieves the rules for setting up the plugin.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @return array
+	 */
+	protected static function get_rules() {
+		return [
+			// Shared helpers.
+			Cache::class                                    => self::SHARED,
+			Database::class                                 => self::SHARED,
+			Transients::class                               => self::SHARED,
+			Site_Transients::class                          => self::SHARED,
+			Options::class                                  => self::SHARED,
+			Network_Options::class                          => self::SHARED,
+			Filesystem_Cache::class                         => self::SHARED,
+			Settings::class                                 => self::SHARED,
+
+			// Core API.
+			Core::class                                     => [
+				'shared'          => true,
+				'constructParams' => [ static::get_plugin_version( AVATAR_PRIVACY_PLUGIN_FILE ) ],
+			],
+
+			// Components.
+			User_Profile::class                             => self::SHARED,
+
+			// Default icon providers.
+			Static_Icons\Mystery_Icon_Provider::class       => self::SHARED,
+			Static_Icons\Speech_Bubble_Icon_Provider::class => self::SHARED,
+			Static_Icons\Bowling_Pin_Icon_Provider::class   => self::SHARED,
+			Static_Icons\Silhouette_Icon_Provider::class    => self::SHARED,
+
+			// Avatar handlers.
+			Default_Icons_Handler::class                    => [
+				'shared'          => true,
+				'constructParams' => [ static::get_default_icons() ],
+			],
+			Gravatar_Cache_Handler::class                   => self::SHARED,
+			User_Avatar_Handler::class                      => self::SHARED,
+
+			// Default icon generators.
+			Default_Icons\Generator::class                  => self::SHARED,
+
+			// Upload handlers.
+			Upload_Handler::class                           => self::SHARED,
+
+			// Plugin integrations.
+			BBPress_Integration::class                      => self::SHARED,
+
+			// Tools.
+			Images\Editor::class                            => self::SHARED,
+			Multisite_Tools::class                          => self::SHARED,
+			Gravatar_Service::class                         => self::SHARED,
+		];
 	}
 
 	/**
