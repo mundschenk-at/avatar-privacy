@@ -107,7 +107,7 @@ class Comments implements \Avatar_Privacy\Component {
 		}
 
 		// Define the new checkbox field.
-		$new_field = self::get_gravatar_checkbox( AVATAR_PRIVACY_PLUGIN_FILE );
+		$new_field = self::get_gravatar_checkbox();
 
 		/**
 		 * Filters the insert position for the `use_gravatar` checkbox.
@@ -186,16 +186,16 @@ class Comments implements \Avatar_Privacy\Component {
 	/**
 	 * Retrieves the markup for the use_gravatar checkbox for the comment form.
 	 *
-	 * @param  string $path The path to the main plugin file.
+	 * @since 2.1.0 Parameter $path removed.
 	 *
 	 * @return string
 	 */
-	public static function get_gravatar_checkbox( $path ) {
+	public static function get_gravatar_checkbox() {
 		// Start output buffering.
 		\ob_start();
 
 		// Include the partial.
-		require \dirname( $path ) . '/public/partials/comments/use-gravatar.php';
+		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/partials/comments/use-gravatar.php';
 
 		// Return included markup.
 		return \ob_get_clean();

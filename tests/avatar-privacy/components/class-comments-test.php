@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -328,7 +328,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::get_gravatar_checkbox
 	 */
 	public function test_get_gravatar_checkbox() {
-		$this->assertSame( 'USE_GRAVATAR', Comments::get_gravatar_checkbox( 'plugin/file' ) );
+		$this->assertSame( 'USE_GRAVATAR', Comments::get_gravatar_checkbox() );
 	}
 
 	/**
