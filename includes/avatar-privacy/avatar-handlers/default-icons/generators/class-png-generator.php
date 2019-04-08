@@ -130,7 +130,7 @@ abstract class PNG_Generator implements Generator {
 	 */
 	protected function get_resized_image_data( $image, $size ) {
 		return $this->images->get_resized_image_data(
-			$this->images->create_from_image_resource( $image ), $size, $size, false, 'image/png'
+			$this->images->create_from_image_resource( $image ), $size, $size, 'image/png'
 		);
 	}
 }

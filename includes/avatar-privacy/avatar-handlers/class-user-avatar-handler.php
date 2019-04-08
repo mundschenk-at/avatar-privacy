@@ -120,7 +120,7 @@ class User_Avatar_Handler implements Avatar_Handler {
 
 		if ( $args['force'] || ! \file_exists( "{$this->base_dir}{$filename}" ) ) {
 			$data = $this->images->get_resized_image_data(
-				$this->images->get_image_editor( $args['avatar'] ), $size, $size, true, $args['mimetype']
+				$this->images->get_image_editor( $args['avatar'] ), $size, $size, $args['mimetype']
 			);
 
 			// Save the generated PNG file (empty files will fail this check).
