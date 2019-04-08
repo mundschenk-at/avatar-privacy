@@ -39,10 +39,8 @@ class Mystery_Icon_Provider extends SVG_Icon_Provider {
 
 	/**
 	 * Creates a new instance.
-	 *
-	 * @param string $plugin_file The full path to the base plugin file.
 	 */
-	public function __construct( $plugin_file ) {
-		parent::__construct( [ 'mystery', 'mystery-man', 'mm' ], 'mystery', $plugin_file );
+	public function __construct() {
+		parent::__construct( [ 'mystery', 'mystery-man', 'mm' ], 'mystery' );
 	}
 }

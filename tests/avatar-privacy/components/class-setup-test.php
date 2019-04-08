@@ -132,7 +132,6 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut = m::mock(
 			Setup::class,
 			[
-				'plugin/file',
 				$this->core,
 				$this->transients,
 				$this->site_transients,
@@ -153,7 +152,6 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$mock = m::mock( Setup::class )->makePartial();
 
 		$mock->__construct(
-			'path/file',
 			$this->core,
 			$this->transients,
 			$this->site_transients,
@@ -163,7 +161,6 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 			$this->multisite
 		);
 
-		$this->assertAttributeSame( 'path/file', 'plugin_file', $mock );
 		$this->assertAttributeSame( $this->core, 'core', $mock );
 		$this->assertAttributeSame( $this->transients, 'transients', $mock );
 		$this->assertAttributeSame( $this->site_transients, 'site_transients', $mock );
@@ -179,7 +176,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::run
 	 */
 	public function test_run() {
-		Functions\expect( 'register_deactivation_hook' )->once()->with( 'plugin/file', [ $this->sut, 'deactivate' ] );
+		Functions\expect( 'register_deactivation_hook' )->once()->with( AVATAR_PRIVACY_PLUGIN_FILE, [ $this->sut, 'deactivate' ] );
 
 		Actions\expectAdded( 'plugins_loaded' )->once()->with( [ $this->sut, 'update_check' ] );
 

@@ -127,7 +127,6 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut = m::mock(
 			Default_Icons_Handler::class,
 			[
-				'plugin/file',
 				$this->file_cache,
 				$this->icon_providers,
 			]
@@ -141,16 +140,14 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_constructor() {
 		$mock           = m::mock( Default_Icons_Handler::class )->makePartial()->shouldAllowMockingProtectedMethods();
-		$plugin_file    = 'plugin/file';
 		$file_cache     = m::mock( Filesystem_Cache::class );
 		$icon_providers = [
 			m::mock( Icon_Provider::class ),
 			m::mock( Icon_Provider::class ),
 		];
 
-		$mock->__construct( $plugin_file, $file_cache, $icon_providers );
+		$mock->__construct( $file_cache, $icon_providers );
 
-		$this->assertAttributeSame( $plugin_file, 'plugin_file', $mock );
 		$this->assertAttributeSame( $file_cache, 'file_cache', $mock );
 		$this->assertAttributeSame( $icon_providers, 'icon_providers', $mock );
 	}

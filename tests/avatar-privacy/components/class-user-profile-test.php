@@ -90,7 +90,7 @@ class User_Profile_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->upload = m::mock( User_Avatar_Upload_Handler::class );
 
-		$this->sut = m::mock( User_Profile::class, [ 'plugin/file', $this->upload ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( User_Profile::class, [ $this->upload ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -101,9 +101,8 @@ class User_Profile_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( User_Profile::class )->makePartial();
 
-		$mock->__construct( 'path/file', $this->upload );
+		$mock->__construct( $this->upload );
 
-		$this->assertAttributeSame( 'path/file', 'plugin_file', $mock );
 		$this->assertAttributeSame( $this->upload, 'upload', $mock );
 	}
 

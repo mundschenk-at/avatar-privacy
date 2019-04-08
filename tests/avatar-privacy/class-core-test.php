@@ -102,9 +102,6 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	// Mock version.
 	const VERSION = '1.0.0';
 
-	// Mock plugin file.
-	const PLUGIN_FILE_PATH = 'path/to/my/plugin/file.php';
-
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
@@ -124,7 +121,6 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut = m::mock(
 			\Avatar_Privacy\Core::class,
 			[
-				self::PLUGIN_FILE_PATH,
 				self::VERSION,
 				$this->transients,
 				$this->site_transients,
@@ -163,7 +159,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$settings        = m::mock( Settings::class );
 
 		$core = m::mock( \Avatar_Privacy\Core::class )->makePartial();
-		$core->__construct( 'some/file', '6.6.6', $transients, $site_transients, $cache, $options, $network_options, $settings );
+		$core->__construct( '6.6.6', $transients, $site_transients, $cache, $options, $network_options, $settings );
 
 		$this->assertSame( '6.6.6', $core->get_version() );
 	}
@@ -229,7 +225,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::get_plugin_file
 	 */
 	public function test_get_plugin_file() {
-		$this->assertSame( self::PLUGIN_FILE_PATH, $this->sut->get_plugin_file() );
+		$this->assertSame( AVATAR_PRIVACY_PLUGIN_FILE, $this->sut->get_plugin_file() );
 	}
 
 	/**

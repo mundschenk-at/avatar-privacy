@@ -111,7 +111,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->options  = m::mock( Options::class );
 		$this->gravatar = m::mock( Gravatar_Service::class );
 
-		$this->sut = m::mock( Avatar_Handling::class, [ 'plugin/file', $this->core, $this->options, $this->gravatar ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Avatar_Handling::class, [ $this->core, $this->options, $this->gravatar ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -122,9 +122,8 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Avatar_Handling::class )->makePartial();
 
-		$mock->__construct( 'a/plugin/file', $this->core, $this->options, $this->gravatar );
+		$mock->__construct( $this->core, $this->options, $this->gravatar );
 
-		$this->assertAttributeSame( 'a/plugin/file', 'plugin_file', $mock );
 		$this->assertAttributeSame( $this->core, 'core', $mock );
 		$this->assertAttributeSame( $this->options, 'options', $mock );
 		$this->assertAttributeSame( $this->gravatar, 'gravatar', $mock );

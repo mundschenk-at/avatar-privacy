@@ -74,13 +74,11 @@ class BBPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 					'existing_file.txt'  => 'CONTENT',
 				],
 			],
-			'a'       => [
-				'plugin' => [
-					'public' => [
-						'partials' => [
-							'bbpress' => [
-								'user-profile-picture.php' => 'PROFILE_PICTURE_MARKUP',
-							],
+			'plugin'  => [
+				'public' => [
+					'partials' => [
+						'bbpress' => [
+							'user-profile-picture.php' => 'PROFILE_PICTURE_MARKUP',
 						],
 					],
 				],
@@ -95,7 +93,7 @@ class BBPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->profile = m::mock( \Avatar_Privacy\Components\User_Profile::class );
 
 		// Partially mock system under test.
-		$this->sut = m::mock( BBPress_Integration::class, [ 'a/plugin/file', $this->profile ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( BBPress_Integration::class, [ $this->profile ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -107,7 +105,7 @@ class BBPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 		$mock    = m::mock( BBPress_Integration::class )->makePartial()->shouldAllowMockingProtectedMethods();
 		$profile = m::mock( \Avatar_Privacy\Components\User_Profile::class );
 
-		$mock->__construct( 'plugin/file', $profile );
+		$mock->__construct( $profile );
 
 		$this->assertAttributeSame( $profile, 'profile', $mock );
 	}

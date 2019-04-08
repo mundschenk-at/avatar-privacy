@@ -39,11 +39,9 @@ class Bowling_Pin_Icon_Provider extends SVG_Icon_Provider {
 
 	/**
 	 * Creates a new instance.
-	 *
-	 * @param string $plugin_file The full path to the base plugin file.
 	 */
-	public function __construct( $plugin_file ) {
-		parent::__construct( [ 'bowling-pin', 'im-user-offline' ], 'shaded-cone', $plugin_file );
+	public function __construct() {
+		parent::__construct( [ 'bowling-pin', 'im-user-offline' ], 'shaded-cone' );
 	}
 
 	/**

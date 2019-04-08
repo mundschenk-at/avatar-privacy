@@ -104,7 +104,7 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->core       = m::mock( Core::class );
 		$this->file_cache = m::mock( Filesystem_Cache::class );
 
-		$this->sut = m::mock( Upload_Handler::class, [ 'plugin/file', 'uploads', $this->core, $this->file_cache ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Upload_Handler::class, [ 'uploads', $this->core, $this->file_cache ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -115,7 +115,7 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Upload_Handler::class )->makePartial();
 
-		$mock->__construct( 'a/plugin/file', 'uploads', $this->core, $this->file_cache );
+		$mock->__construct( 'uploads', $this->core, $this->file_cache );
 
 		$this->assertAttributeSame( $this->core, 'core', $mock );
 		$this->assertAttributeSame( $this->file_cache, 'file_cache', $mock );

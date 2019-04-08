@@ -40,6 +40,11 @@ if ( ! defined( 'ABSPATH' ) || ! defined( 'WPINC' ) ) {
 	die();
 }
 
+// Make plugin file path available globally.
+if ( ! defined( 'AVATAR_PRIVACY_PLUGIN_FILE' ) ) {
+	define( 'AVATAR_PRIVACY_PLUGIN_FILE', __FILE__ );
+}
+
 require_once dirname( __FILE__ ) . '/includes/class-avatar-privacy-requirements.php';
 
 /**
@@ -49,14 +54,14 @@ require_once dirname( __FILE__ ) . '/includes/class-avatar-privacy-requirements.
  */
 function avatar_privacy_run() {
 
-	$requirements = new Avatar_Privacy_Requirements( __FILE__ );
+	$requirements = new Avatar_Privacy_Requirements();
 
 	if ( $requirements->check() ) {
 		// Autoload the rest of your classes.
 		require_once __DIR__ . '/vendor/autoload.php'; // phpcs:ignore PHPCompatibility.Keywords.NewKeywords.t_dirFound
 
 		// Create and start the plugin.
-		$plugin = Avatar_Privacy_Factory::get( __FILE__ )->create( 'Avatar_Privacy\Controller' );
+		$plugin = Avatar_Privacy_Factory::get()->create( 'Avatar_Privacy\Controller' );
 		$plugin->run();
 	}
 }

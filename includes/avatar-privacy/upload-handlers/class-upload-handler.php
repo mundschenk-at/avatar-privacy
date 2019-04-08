@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -48,13 +48,6 @@ abstract class Upload_Handler {
 	];
 
 	/**
-	 * The full path to the main plugin file.
-	 *
-	 * @var   string
-	 */
-	protected $plugin_file;
-
-	/**
 	 * The filesystem cache handler.
 	 *
 	 * @var Filesystem_Cache
@@ -78,16 +71,16 @@ abstract class Upload_Handler {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param string           $plugin_file The full path to the base plugin file.
+	 * @since 2.1.0 Parameter $plugin_file removed.
+	 *
 	 * @param string           $upload_dir  The subfolder used for our uploaded files. Has to start with /.
 	 * @param Core             $core        The core API.
 	 * @param Filesystem_Cache $file_cache  The file cache handler.
 	 */
-	public function __construct( $plugin_file, $upload_dir, Core $core, Filesystem_Cache $file_cache ) {
-		$this->plugin_file = $plugin_file;
-		$this->upload_dir  = $upload_dir;
-		$this->core        = $core;
-		$this->file_cache  = $file_cache;
+	public function __construct( $upload_dir, Core $core, Filesystem_Cache $file_cache ) {
+		$this->upload_dir = $upload_dir;
+		$this->core       = $core;
+		$this->file_cache = $file_cache;
 	}
 
 	/**

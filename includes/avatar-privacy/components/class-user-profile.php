@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -67,15 +67,6 @@ class User_Profile implements \Avatar_Privacy\Component {
 	 */
 	const CHECKBOX_ALLOW_ANONYMOUS = 'avatar_privacy_allow_anonymous_gravatar';
 
-
-
-	/**
-	 * The full path to the main plugin file.
-	 *
-	 * @var   string
-	 */
-	private $plugin_file;
-
 	/**
 	 * The markup to inject.
 	 *
@@ -100,13 +91,13 @@ class User_Profile implements \Avatar_Privacy\Component {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param string                     $plugin_file The full path to the base plugin file.
-	 * @param User_Avatar_Upload_Handler $upload      The avatar upload handler.
+	 * @since 2.1.0 Parameter $plugin_file removed.
+	 *
+	 * @param User_Avatar_Upload_Handler $upload The avatar upload handler.
 	 */
-	public function __construct( $plugin_file, User_Avatar_Upload_Handler $upload ) {
-		$this->plugin_file = $plugin_file;
-		$this->upload      = $upload;
-		$this->buffering   = false;
+	public function __construct( User_Avatar_Upload_Handler $upload ) {
+		$this->upload    = $upload;
+		$this->buffering = false;
 	}
 
 	/**
@@ -205,8 +196,8 @@ class User_Profile implements \Avatar_Privacy\Component {
 		$allow_anonymous = 'true' === \get_user_meta( $user->ID, Core::ALLOW_ANONYMOUS_META_KEY, true );
 
 		\ob_start();
-		require \dirname( $this->plugin_file ) . '/admin/partials/profile/use-gravatar.php';
-		require \dirname( $this->plugin_file ) . '/admin/partials/profile/allow-anonymous.php';
+		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/admin/partials/profile/use-gravatar.php';
+		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/admin/partials/profile/allow-anonymous.php';
 		return \ob_get_clean();
 	}
 

@@ -28,6 +28,11 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	die();
 }
 
+// Make plugin file path available globally (even if we probably don't need it during uninstallaton).
+if ( ! defined( 'AVATAR_PRIVACY_PLUGIN_FILE' ) ) {
+	define( 'AVATAR_PRIVACY_PLUGIN_FILE', dirname( __FILE__ ) . '/avatar-privacy.php' );
+}
+
 require_once dirname( __FILE__ ) . '/includes/class-avatar-privacy-uninstallation-requirements.php';
 
 /**
@@ -37,14 +42,14 @@ require_once dirname( __FILE__ ) . '/includes/class-avatar-privacy-uninstallatio
  */
 function avatar_privacy_uninstall() {
 
-	$requirements = new Avatar_Privacy_Uninstallation_Requirements( __FILE__ );
+	$requirements = new Avatar_Privacy_Uninstallation_Requirements();
 
 	if ( $requirements->check() ) {
 		// Autoload the rest of your classes.
 		require_once __DIR__ . '/vendor/autoload.php'; // phpcs:ignore PHPCompatibility.Keywords.NewKeywords.t_dirFound
 
 		// Create and start the uninstallation handler.
-		$uninstaller = Avatar_Privacy_Factory::get( __FILE__ )->create( 'Avatar_Privacy\Components\Uninstallation' );
+		$uninstaller = Avatar_Privacy_Factory::get()->create( 'Avatar_Privacy\Components\Uninstallation' );
 		$uninstaller->run();
 	}
 }

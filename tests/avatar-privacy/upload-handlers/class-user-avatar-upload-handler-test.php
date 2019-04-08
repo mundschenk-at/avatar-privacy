@@ -109,7 +109,7 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->core       = m::mock( Core::class );
 		$this->file_cache = m::mock( Filesystem_Cache::class );
 
-		$this->sut = m::mock( User_Avatar_Upload_Handler::class, [ 'plugin/file', $this->core, $this->file_cache ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( User_Avatar_Upload_Handler::class, [ $this->core, $this->file_cache ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -122,7 +122,7 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( User_Avatar_Upload_Handler::class )->makePartial();
 
-		$mock->__construct( 'a/plugin/file', $this->core, $this->file_cache );
+		$mock->__construct( $this->core, $this->file_cache );
 
 		$this->assertAttributeSame( User_Avatar_Upload_Handler::UPLOAD_DIR, 'upload_dir', $mock );
 	}

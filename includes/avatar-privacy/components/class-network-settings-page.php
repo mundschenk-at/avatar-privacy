@@ -50,13 +50,6 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	const ACTION       = 'edit-avatar-privacy-network-settings';
 
 	/**
-	 * The full path to the main plugin file.
-	 *
-	 * @var   string
-	 */
-	private $plugin_file;
-
-	/**
 	 * The options handler.
 	 *
 	 * @var Network_Options
@@ -108,7 +101,8 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param string          $plugin_file     The full path to the base plugin file.
+	 * @since 2.1.0 Parameter $plugin_file removed.
+	 *
 	 * @param Core            $core            The core API.
 	 * @param Network_Options $network_options The network options handler.
 	 * @param Transients      $transients      The transients handler.
@@ -116,14 +110,12 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	 * @param Multisite       $multisite       The the multisite handler.
 	 */
 	public function __construct(
-		$plugin_file,
 		Core $core,
 		Network_Options $network_options,
 		Transients $transients,
 		Settings $settings,
 		Multisite $multisite
 	) {
-		$this->plugin_file     = $plugin_file;
 		$this->core            = $core;
 		$this->network_options = $network_options;
 		$this->transients      = $transients;
@@ -187,7 +179,7 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	 */
 	public function print_settings_page() {
 		// Load the settings page HTML.
-		require \dirname( $this->plugin_file ) . '/admin/partials/network/settings-page.php';
+		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/admin/partials/network/settings-page.php';
 	}
 
 	/**
@@ -257,7 +249,7 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 		$description = \__( 'General settings applying to all sites in the network.', 'avatar-privacy' );
 
 		// Load the settings page HTML.
-		require \dirname( $this->plugin_file ) . '/admin/partials/network/section.php';
+		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/admin/partials/network/section.php';
 	}
 
 	/**
@@ -275,7 +267,7 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	 * Enqueue stylesheet for options page.
 	 */
 	public function print_styles() {
-		\wp_enqueue_style( 'avatar-privacy-settings', \plugins_url( 'admin/css/settings.css', $this->plugin_file ), [], $this->core->get_version(), 'all' );
+		\wp_enqueue_style( 'avatar-privacy-settings', \plugins_url( 'admin/css/settings.css', AVATAR_PRIVACY_PLUGIN_FILE ), [], $this->core->get_version(), 'all' );
 	}
 
 	/**

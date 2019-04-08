@@ -66,13 +66,14 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param string           $plugin_file The full path to the base plugin file.
+	 * @since 2.1.0 Parameter $plugin_file removed.
+	 *
 	 * @param Core             $core        The core API.
 	 * @param Filesystem_Cache $file_cache  The file cache handler.
 	 * @param Options          $options     The options handler.
 	 */
-	public function __construct( $plugin_file, Core $core, Filesystem_Cache $file_cache, Options $options ) {
-		parent::__construct( $plugin_file, self::UPLOAD_DIR, $core, $file_cache );
+	public function __construct( Core $core, Filesystem_Cache $file_cache, Options $options ) {
+		parent::__construct( self::UPLOAD_DIR, $core, $file_cache );
 
 		$this->options = $options;
 	}

@@ -48,3 +48,6 @@ if ( ! defined( 'MINUTE_IN_SECONDS' ) ) {
 if ( ! defined( 'OBJECT_K' ) ) {
 	define( 'OBJECT_K', 'OBJECT_K' );
 }
+if ( ! defined( 'AVATAR_PRIVACY_PLUGIN_FILE' ) ) {
+	define( 'AVATAR_PRIVACY_PLUGIN_FILE', 'plugin/file' );
+}
