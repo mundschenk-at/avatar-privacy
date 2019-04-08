@@ -105,6 +105,7 @@ abstract class Avatar_Privacy_Factory {
 
 				// Core API.
 				Core::class                                     => [
+					'shared'          => true,
 					'constructParams' => [ self::get_plugin_version( AVATAR_PRIVACY_PLUGIN_FILE ) ],
 				],
 
