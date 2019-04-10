@@ -69,36 +69,42 @@ use Avatar_Privacy\Tools\Network\Gravatar_Service;
  * A factory for creating Avatar_Privacy instances via dependency injection.
  *
  * @since 1.0.0
+ * @since 2.1.0 Class made concrete.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-abstract class Avatar_Privacy_Factory {
+class Avatar_Privacy_Factory extends Dice {
 	const SHARED = [ 'shared' => true ];
 
 	/**
 	 * The factory instance.
 	 *
-	 * @var Dice
+	 * @var Avatar_Privacy_Factory
 	 */
 	private static $factory;
+
+	/**
+	 * Creates a new instance.
+	 */
+	protected function __construct() {
+		// Add rules.
+		foreach ( $this->get_rules() as $classname => $rule ) {
+			$this->addRule( $classname, $rule );
+		}
+	}
 
 	/**
 	 * Retrieves a factory set up for creating Avatar_Privacy instances.
 	 *
 	 * @since 2.1.0 Parameter $full_plugin_path replaced with AVATAR_PRIVACY_PLUGIN_FILE constant.
 	 *
-	 * @return Dice
+	 * @return Avatar_Privacy_Factory
 	 */
 	public static function get() {
 		if ( ! isset( self::$factory ) ) {
 
 			// Create factory.
-			self::$factory = new Dice();
-
-			// Add rules.
-			foreach ( static::get_rules() as $classname => $rule ) {
-				self::$factory->addRule( $classname, $rule );
-			}
+			self::$factory = new static();
 		}
 
 		return self::$factory;
@@ -111,7 +117,7 @@ abstract class Avatar_Privacy_Factory {
 	 *
 	 * @return array
 	 */
-	protected static function get_rules() {
+	protected function get_rules() {
 		return [
 			// Shared helpers.
 			Cache::class                                    => self::SHARED,
@@ -126,12 +132,12 @@ abstract class Avatar_Privacy_Factory {
 			// Core API.
 			Core::class                                     => [
 				'shared'          => true,
-				'constructParams' => [ static::get_plugin_version( AVATAR_PRIVACY_PLUGIN_FILE ) ],
+				'constructParams' => [ $this->get_plugin_version( AVATAR_PRIVACY_PLUGIN_FILE ) ],
 			],
 
 			// Components.
 			Integrations::class                             => [
-				'constructParams' => [ static::get_plugin_integrations() ],
+				'constructParams' => [ $this->get_plugin_integrations() ],
 			],
 			User_Profile::class                             => self::SHARED,
 
@@ -144,7 +150,7 @@ abstract class Avatar_Privacy_Factory {
 			// Avatar handlers.
 			Default_Icons_Handler::class                    => [
 				'shared'          => true,
-				'constructParams' => [ static::get_default_icons() ],
+				'constructParams' => [ $this->get_default_icons() ],
 			],
 			Gravatar_Cache_Handler::class                   => self::SHARED,
 			User_Avatar_Handler::class                      => self::SHARED,
@@ -174,7 +180,7 @@ abstract class Avatar_Privacy_Factory {
 	 *
 	 * @return string
 	 */
-	protected static function get_plugin_version( $plugin_file ) {
+	protected function get_plugin_version( $plugin_file ) {
 		// Load version from plugin data.
 		if ( ! function_exists( 'get_plugin_data' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -196,7 +202,7 @@ abstract class Avatar_Privacy_Factory {
 	 *     }
 	 * }
 	 */
-	protected static function get_default_icons() {
+	protected function get_default_icons() {
 		return [
 			// These are sorted as the should appear for selection in the discussion settings.
 			[ 'instance' => Static_Icons\Mystery_Icon_Provider::class ],
@@ -225,7 +231,7 @@ abstract class Avatar_Privacy_Factory {
 	 *     }
 	 * }
 	 */
-	protected static function get_plugin_integrations() {
+	protected function get_plugin_integrations() {
 		return [
 			[ 'instance' => BBPress_Integration::class ],
 		];
