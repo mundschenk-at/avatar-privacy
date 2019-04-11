@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -45,6 +45,13 @@ use Mockery as m;
 class Avatar_Privacy_Factory_Test extends TestCase {
 
 	/**
+	 * The system-under-test.
+	 *
+	 * @var \Avatar_Privacy_Factory
+	 */
+	private $sut;
+
+	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
@@ -56,7 +63,7 @@ class Avatar_Privacy_Factory_Test extends TestCase {
 				'path' => [
 					'wp-admin' => [
 						'includes' => [
-							'plugin.php' => "<?php Brain\\Monkey\\Functions\\expect( 'get_plugin_data' )->once()->andReturn( [ 'Version' => '6.6.6' ] ); ?>",
+							'plugin.php' => "<?php \\Brain\\Monkey\\Functions\\expect( 'get_plugin_data' )->andReturn( [ 'Version' => '6.6.6' ] ); ?>",
 						],
 					],
 				],
@@ -66,39 +73,123 @@ class Avatar_Privacy_Factory_Test extends TestCase {
 		// Set up virtual filesystem.
 		vfsStream::setup( 'root', null, $filesystem );
 		set_include_path( 'vfs://root/' ); // @codingStandardsIgnoreLine
+
+		// Set up the mock.
+		$this->sut = m::mock( \Avatar_Privacy_Factory::class )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
-	 * Test ::get.
+	 * Tests the constructor.
+	 *
+	 * @covers ::__construct
+	 */
+	public function test_constructor() {
+		$rules = [
+			'Fake_Class_A' => [
+				'shared'          => true,
+				'constructParams' => [ 'A', 'B' ],
+			],
+			'Fake_Class_B' => [
+				'constructParams' => [ 'C' ],
+			],
+		];
+
+		$this->sut->shouldReceive( 'get_rules' )->once()->andReturn( $rules );
+
+		// Manually call constructor.
+		$this->sut->__construct();
+
+		$this->assertAttributeCount( \count( $rules ), 'rules', $this->sut );
+		$this->assertAttributeInternalType( 'array', 'rules', $this->sut );
+	}
+
+	/**
+	 * Test ::get_rules.
+	 *
+	 * @covers ::get_rules
+	 */
+	public function test_get_rules() {
+		$version       = '6.6.6';
+		$integrations  = [
+			[ 'instance' => \Avatar_Privacy\Integrations\BBPress_Integration::class ],
+		];
+		$default_icons = [
+			[ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons\Mystery_Icon_Provider::class ],
+			[ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons\Identicon_Icon_Provider::class ],
+			[ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons\Wavatar_Icon_Provider::class ],
+		];
+
+		$this->sut->shouldReceive( 'get_plugin_version' )->once()->with( AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $version );
+		$this->sut->shouldReceive( 'get_plugin_integrations' )->once()->andReturn( $integrations );
+		$this->sut->shouldReceive( 'get_default_icons' )->once()->andReturn( $default_icons );
+
+		$result = $this->sut->get_rules();
+
+		$this->assertInternalType( 'array', $result );
+		$this->assertArrayHasKey( \Avatar_Privacy\Core::class, $result );
+		$this->assertArrayHasKey( \Avatar_Privacy\Avatar_Handlers\Gravatar_Cache_Handler::class, $result );
+	}
+
+	/**
+	 * Test ::get_plugin_version.
+	 *
+	 * @covers ::get_plugin_version
+	 */
+	public function test_get_plugin_version() {
+		$version     = '6.6.6';
+		$plugin_file = '/the/main/plugin/file.php';
+
+		$this->assertSame( $version, $this->sut->get_plugin_version( $plugin_file ) );
+	}
+
+	/**
+	 * Test ::get. Should be run after tet_get_plugin_version.
 	 *
 	 * @covers ::get
 	 *
-	 * The Integrations list should be handled differently to prevent premature object creation.
-	 *
-	 * @uses \Avatar_Privacy\Components\User_Profile::__construct
-	 * @uses \Avatar_Privacy\Core::__construct
-	 * @uses \Avatar_Privacy\Data_Storage\Cache::__construct
-	 * @uses \Avatar_Privacy\Data_Storage\Filesystem_Cache::__construct
-	 * @uses \Avatar_Privacy\Data_Storage\Filesystem_Cache::get_base_dir
-	 * @uses \Avatar_Privacy\Data_Storage\Filesystem_Cache::get_upload_dir
-	 * @uses \Avatar_Privacy\Data_Storage\Network_Options::__construct
-	 * @uses \Avatar_Privacy\Data_Storage\Options::__construct
-	 * @uses \Avatar_Privacy\Data_Storage\Site_Transients::__construct
-	 * @uses \Avatar_Privacy\Data_Storage\Transients::__construct
-	 * @uses \Avatar_Privacy\Integrations\BBPress_Integration::__construct
-	 * @uses \Avatar_Privacy\Upload_Handlers\Upload_Handler::__construct
-	 * @uses \Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler::__construct
+	 * @uses Avatar_Privacy_Factory::__construct
+	 * @uses Avatar_Privacy_Factory::get_default_icons
+	 * @uses Avatar_Privacy_Factory::get_plugin_integrations
+	 * @uses Avatar_Privacy_Factory::get_plugin_version
+	 * @uses Avatar_Privacy_Factory::get_rules
 	 */
 	public function test_get() {
-		Functions\expect( 'get_transient' )->once()->andReturn( 1 );
-		Functions\expect( 'get_site_transient' )->once()->andReturn( 1 );
-		Functions\expect( 'wp_cache_get' )->once()->andReturn( false );
-		Functions\expect( 'wp_cache_set' )->once()->andReturn( true );
-		Functions\expect( 'get_current_network_id' )->once()->andReturn( false );
-		Functions\expect( 'is_multisite' )->once()->andReturn( false );
-		Functions\expect( 'wp_get_upload_dir' )->once()->andReturn( false );
-		Functions\expect( 'wp_mkdir_p' )->once()->andReturn( true );
+		Functions\expect( 'get_plugin_data' )->once()->with( m::type( 'string' ), false, false )->andReturn( [ 'Version' => '42' ] );
 
-		$this->assertInstanceOf( Dice::class, \Avatar_Privacy_Factory::get( '/dummy/path' ) );
+		$result1 = \Avatar_Privacy_Factory::get();
+
+		$this->assertInstanceOf( \Avatar_Privacy_Factory::class, $result1 );
+
+		$result2 = \Avatar_Privacy_Factory::get();
+
+		$this->assertSame( $result1, $result2 );
+	}
+
+	/**
+	 * Test ::get_default_icons.
+	 *
+	 * @covers ::get_default_icons
+	 */
+	public function test_get_default_icons() {
+		$result = $this->sut->get_default_icons();
+
+		$this->assertInternalType( 'array', $result );
+		$this->assertContains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons\Mystery_Icon_Provider::class ], $result, 'Default icon missing.', false, true, true );
+		$this->assertContains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons\Identicon_Icon_Provider::class ], $result, 'Default icon missing.', false, true, true );
+		$this->assertContains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons\Speech_Bubble_Icon_Provider::class ], $result, 'Default icon missing.', false, true, true );
+		$this->assertContains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons\Bowling_Pin_Icon_Provider::class ], $result, 'Default icon missing.', false, true, true );
+		$this->assertContains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Custom_Icon_Provider::class ], $result, 'Default icon missing.', false, true, true );
+	}
+
+	/**
+	 * Test ::get_plugin_integrations.
+	 *
+	 * @covers ::get_plugin_integrations
+	 */
+	public function test_get_plugin_integrations() {
+		$result = $this->sut->get_plugin_integrations();
+
+		$this->assertInternalType( 'array', $result );
+		$this->assertContains( [ 'instance' => \Avatar_Privacy\Integrations\BBPress_Integration::class ], $result, 'Default icon missing.', false, true, true );
 	}
 }
