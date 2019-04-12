@@ -47,13 +47,13 @@ class Jdenticon implements Generator {
 
 	/**
 	 * Creates a new instance.
+	 *
+	 * @since 2.1.0 Parameter $identicon added.
+	 *
+	 * @param \Jdenticon\Identicon $identicon The Jdenticon implementation.
 	 */
-	public function __construct() {
-		$args = [
-			'style' => new \Jdenticon\IdenticonStyle( [ 'padding' => 0 ] ),
-		];
-
-		$this->identicon = new \Jdenticon\Identicon( $args );
+	public function __construct( \Jdenticon\Identicon $identicon ) {
+		$this->identicon = $identicon;
 	}
 
 	/**

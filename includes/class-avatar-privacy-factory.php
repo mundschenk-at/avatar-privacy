@@ -157,6 +157,19 @@ class Avatar_Privacy_Factory extends Dice {
 
 			// Default icon generators.
 			Default_Icons\Generator::class                  => self::SHARED,
+			Default_Icons\Generators\Jdenticon::class       => [
+				'substitutions' => [
+					\Jdenticon\Identicon::class => [ 'instance' => '$JdenticonIdenticon' ],
+				],
+			],
+
+			// Icon components.
+			'$JdenticonIdenticon'                           => [
+				'constructParams' => [
+					// Some extra styling for the Jdenticon instance.
+					[ 'style' => [ 'padding' => 0 ] ],
+				],
+			],
 
 			// Upload handlers.
 			Upload_Handler::class                           => self::SHARED,
