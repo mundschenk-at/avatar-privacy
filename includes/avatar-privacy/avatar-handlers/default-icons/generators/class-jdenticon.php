@@ -65,8 +65,8 @@ class Jdenticon implements Generator {
 	 * @return string
 	 */
 	public function build( $seed, $size = 128 ) {
-		$this->identicon->hash = $seed;
-		$this->identicon->size = $size;
+		$this->identicon->setHash( $seed );
+		$this->identicon->setSize( $size );
 
 		return $this->identicon->getImageData( 'svg' );
 	}
