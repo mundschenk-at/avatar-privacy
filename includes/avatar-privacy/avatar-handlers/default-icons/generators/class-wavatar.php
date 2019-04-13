@@ -60,6 +60,8 @@ class Wavatar extends PNG_Generator {
 	/**
 	 * Extract a "random" value from the seed string.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  string $seed   The seed.
 	 * @param  int    $index  The index.
 	 * @param  int    $length The number of bytes.
@@ -67,7 +69,7 @@ class Wavatar extends PNG_Generator {
 	 *
 	 * @return int
 	 */
-	private function seed( $seed, $index, $length, $modulo ) {
+	protected function seed( $seed, $index, $length, $modulo ) {
 		return \hexdec( \substr( $seed, $index, $length ) ) % $modulo;
 	}
 
