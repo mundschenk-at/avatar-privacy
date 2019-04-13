@@ -67,6 +67,13 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $editor;
 
 	/**
+	 * The full path of the folder containing the real images.
+	 *
+	 * @var string
+	 */
+	private $real_image_path;
+
+	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
@@ -100,6 +107,9 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Set up virtual filesystem.
 		$root = vfsStream::setup( 'root', null, $filesystem );
+
+		// Provide access to the real images.
+		$this->real_image_path = \dirname( \dirname( \dirname( \dirname( \dirname( __DIR__ ) ) ) ) ) . '/public/images/monster-id';
 
 		// Helper mocks.
 		$this->editor = m::mock( Editor::class );
@@ -226,8 +236,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Override the parts directory.
-		$real_image_path = \dirname( \dirname( \dirname( \dirname( \dirname( __DIR__ ) ) ) ) ) . '/public/images/monster-id';
-		$this->setValue( $this->sut, 'parts_dir', $real_image_path );
+		$this->setValue( $this->sut, 'parts_dir', $this->real_image_path );
 
 		$this->sut->shouldReceive( 'locate_parts' )->once()->with( Monster_ID::EMPTY_PARTS_LIST )->andReturn( $parts );
 
@@ -257,8 +266,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 		$expected = "'body_1.png' => [[22,99],[17,90]], 'body_2.png' => [[14,104],[16,89]], 'arms_S8.png' => [[2,119],[18,98]], ";
 
 		// Override the parts directory.
-		$real_image_path = \dirname( \dirname( \dirname( \dirname( \dirname( __DIR__ ) ) ) ) ) . '/public/images/monster-id';
-		$this->setValue( $this->sut, 'parts_dir', $real_image_path );
+		$this->setValue( $this->sut, 'parts_dir', $this->real_image_path );
 
 		$this->sut->shouldReceive( 'locate_parts' )->once()->with( Monster_ID::EMPTY_PARTS_LIST )->andReturn( $parts );
 
