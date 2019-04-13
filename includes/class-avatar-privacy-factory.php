@@ -165,6 +165,7 @@ class Avatar_Privacy_Factory extends Dice {
 
 			// Icon components.
 			'$JdenticonIdenticon'                           => [
+				'instanceOf'      => \Jdenticon\Identicon::class,
 				'constructParams' => [
 					// Some extra styling for the Jdenticon instance.
 					[ 'style' => [ 'padding' => 0 ] ],
