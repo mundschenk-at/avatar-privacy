@@ -171,6 +171,16 @@ class Avatar_Privacy_Factory extends Dice {
 					[ 'style' => [ 'padding' => 0 ] ],
 				],
 			],
+			Default_Icons\Generators\Ring_Icon::class       => [
+				'shared'          => true, // Not really necessary, but ...
+				'constructParams' => [
+					512, // The bounding box dimensions.
+					3,   // The number of rings.
+				],
+				'call'            => [
+					[ 'setMono', [ true ] ], // The rings should be monochrome.
+				],
+			],
 
 			// Upload handlers.
 			Upload_Handler::class                           => self::SHARED,
