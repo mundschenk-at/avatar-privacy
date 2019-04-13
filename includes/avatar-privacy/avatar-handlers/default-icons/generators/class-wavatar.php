@@ -98,7 +98,7 @@ class Wavatar extends PNG_Generator {
 
 		// Check for valid image resource.
 		if ( false === $avatar ) {
-			return '';
+			return ''; // @codeCoverageIgnore
 		}
 
 		// Pick a random color for the background.
