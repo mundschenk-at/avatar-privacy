@@ -138,7 +138,7 @@ class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$orig_base_data = ob_get_clean();
 
 		// Run the test.
-		$this->sut->apply_image( $base, $image, $width, $height );
+		$this->assertTrue( $this->sut->apply_image( $base, $image, $width, $height ) );
 
 		// Get the new base image data.
 		\ob_start();
@@ -175,7 +175,7 @@ class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$orig_base_data = ob_get_clean();
 
 		// Run the test.
-		$this->sut->apply_image( $base, $image, $width, $height );
+		$this->assertFalse( $this->sut->apply_image( $base, $image, $width, $height ) );
 
 		// Get the new base image data.
 		\ob_start();
