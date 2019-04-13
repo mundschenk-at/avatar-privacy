@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -37,17 +37,34 @@ use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generator;
 class Rings implements Generator {
 
 	/**
+	 * The "real" icon generator.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @var Ring_Icon
+	 */
+	private $ring_icon;
+
+	/**
+	 * Creates a new instance.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param Ring_Icon $ring_icon The configured Ring_Icon instance.
+	 */
+	public function __construct( Ring_Icon $ring_icon ) {
+		$this->ring_icon = $ring_icon;
+	}
+
+	/**
 	 * Builds an icon based on the given seed returns the image data.
 	 *
 	 * @param  string $seed The seed data (hash).
-	 * @param  int    $size The size in pixels.
+	 * @param  int    $size The size in pixels (ignored for SVG images).
 	 *
 	 * @return string|false
 	 */
-	public function build( $seed, $size ) {
-		$ring_icon = new Ring_Icon( $size, 3 );
-		$ring_icon->setMono( true );
-
-		return $ring_icon->get_svg_image_data( $seed );
+	public function build( $seed, /* @scrutinizer-ignore */ $size ) {
+		return $this->ring_icon->get_svg_image_data( $seed );
 	}
 }

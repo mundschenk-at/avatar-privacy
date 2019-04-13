@@ -73,10 +73,14 @@ abstract class PNG_Generator implements Generator {
 	 * Helper function for building avatar images. This loads an image and adds it to
 	 * our composite using the given color values. The image resource is freed at the end.
 	 *
+	 * @since 2.1.0 Returns true on success, false on error.
+	 *
 	 * @param  resource        $base   The avatar image resource.
 	 * @param  string|resource $image  The name of the image file relative to the parts directory, or an existing image resource.
 	 * @param  int             $width  Image width in pixels.
 	 * @param  int             $height Image height in pixels.
+	 *
+	 * @return bool
 	 */
 	protected function apply_image( $base, $image, $width, $height ) {
 
@@ -87,14 +91,17 @@ abstract class PNG_Generator implements Generator {
 
 		// Abort if $image is not a valid resource.
 		if ( ! \is_resource( $image ) ) {
-			return; // Abort.
+			return false; // Abort.
 		}
 
 		// Copy the image to the base.
-		\imagecopy( $base, $image, 0, 0, 0, 0, $width, $height );
+		$result = \imagecopy( $base, $image, 0, 0, 0, 0, $width, $height );
 
 		// Clean up.
 		\imagedestroy( $image );
+
+		// Return copy success status.
+		return $result;
 	}
 
 	/**

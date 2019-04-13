@@ -157,6 +157,41 @@ class Avatar_Privacy_Factory extends Dice {
 
 			// Default icon generators.
 			Default_Icons\Generator::class                  => self::SHARED,
+			Default_Icons\Generators\Jdenticon::class       => [
+				'substitutions' => [
+					\Jdenticon\Identicon::class => [ 'instance' => '$JdenticonIdenticon' ],
+				],
+			],
+			Default_Icons\Generators\Retro::class           => [
+				'substitutions' => [
+					\Identicon\Identicon::class => [ 'instance' => '$RetroIdenticon' ],
+				],
+			],
+
+			// Icon components.
+			'$JdenticonIdenticon'                           => [
+				'instanceOf'      => \Jdenticon\Identicon::class,
+				'constructParams' => [
+					// Some extra styling for the Jdenticon instance.
+					[ 'style' => [ 'padding' => 0 ] ],
+				],
+			],
+			'$RetroIdenticon'                               => [
+				'instanceOf'    => \Identicon\Identicon::class,
+				'substitutions' => [
+					\Identicon\Generator\GeneratorInterface::class => [ 'instance' => \Identicon\Generator\SvgGenerator::class ],
+				],
+			],
+			Default_Icons\Generators\Ring_Icon::class       => [
+				'shared'          => true, // Not really necessary, but ...
+				'constructParams' => [
+					512, // The bounding box dimensions.
+					3,   // The number of rings.
+				],
+				'call'            => [
+					[ 'setMono', [ true ] ], // The rings should be monochrome.
+				],
+			],
 
 			// Upload handlers.
 			Upload_Handler::class                           => self::SHARED,

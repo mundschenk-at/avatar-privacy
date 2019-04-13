@@ -250,13 +250,15 @@ class Monster_ID extends PNG_Generator {
 	/**
 	 * Finds all the monster parts images.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  array $parts An array of arrays indexed by body parts.
 	 *
 	 * @return array
 	 *
 	 * @throws \RuntimeException The part files could not be found.
 	 */
-	private function locate_parts( array $parts ) {
+	protected function locate_parts( array $parts ) {
 		$noparts = true;
 		if ( false !== ( $dh = \opendir( $this->parts_dir ) ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found,WordPress.CodeAnalysis.AssignmentInCondition.Found
 			while ( false !== ( $file = \readdir( $dh ) ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found,WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
@@ -285,13 +287,16 @@ class Monster_ID extends PNG_Generator {
 	}
 
 	/**
-	 * Determines exact dimensions for individual parts.
+	 * Determines exact dimensions for individual parts. Mainly useful for subclasses
+	 * exchanging the provided images.
+	 *
+	 * @since 2.1.0 Visibility changed to protected.
 	 *
 	 * @param  bool $text A flag that determines whether a human readable result should be returned.
 	 *
 	 * @return string|array
 	 */
-	private function get_parts_dimensions( $text = false ) {
+	protected function get_parts_dimensions( $text = false ) {
 		$parts = $this->locate_parts( self::EMPTY_PARTS_LIST );
 
 		$bounds      = [];
@@ -412,6 +417,8 @@ class Monster_ID extends PNG_Generator {
 	/**
 	 * Adds color to the given image.
 	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 *
 	 * @param  resource $image      The image.
 	 * @param  int      $hue        The hue (0-360).
 	 * @param  int      $saturation The saturation (0-100).
@@ -419,7 +426,7 @@ class Monster_ID extends PNG_Generator {
 	 *
 	 * @return resource             The image, for chaining.
 	 */
-	private function image_colorize( $image, $hue = 360, $saturation = 100, $part = '' ) {
+	protected function image_colorize( $image, $hue = 360, $saturation = 100, $part = '' ) {
 		$imgw = \imagesx( $image );
 		$imgh = \imagesy( $image );
 
