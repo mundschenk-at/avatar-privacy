@@ -391,4 +391,53 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertFalse( $this->sut->build( $seed, $size ) );
 	}
+
+	/**
+	 * Tests ::image_colorize.
+	 *
+	 * @covers ::image_colorize
+	 *
+	 * @uses Scriptura\Color\Helpers\HSLtoRGB
+	 */
+	public function test_image_colorize() {
+		// Input.
+		$hue        = 66;
+		$saturation = 70;
+		$part       = 'arms_S8.png';
+
+		// The image.
+		$resource = \imagecreatefrompng( "{$this->real_image_path}/{$part}" );
+
+		$result = $this->sut->image_colorize( $resource, $hue, $saturation, $part );
+
+		$this->assertInternalType( 'resource', $result );
+
+		// Clean up.
+		\imagedestroy( $resource );
+	}
+
+	/**
+	 * Tests ::image_colorize.
+	 *
+	 * @covers ::image_colorize
+	 *
+	 * @uses Scriptura\Color\Helpers\HSLtoRGB
+	 */
+	public function test_image_colorize_no_optimization() {
+		// Input.
+		$hue        = 66;
+		$saturation = 70;
+		$part       = 'fake.png';
+
+		// The image.
+		$size     = 200;
+		$resource = \imagecreate( $size, $size );
+
+		$result = $this->sut->image_colorize( $resource, $hue, $saturation, $part );
+
+		$this->assertInternalType( 'resource', $result );
+
+		// Clean up.
+		\imagedestroy( $resource );
+	}
 }
