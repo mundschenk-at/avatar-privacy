@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -49,9 +49,13 @@ class Retro implements Generator {
 
 	/**
 	 * Creates a new instance.
+	 *
+	 * @since 2.1.0 Parameter $identicon added.
+	 *
+	 * @param \Identicon\Identicon $identicon The identicon implementation.
 	 */
-	public function __construct() {
-		$this->identicon = new \Identicon\Identicon( new \Identicon\Generator\SvgGenerator() );
+	public function __construct( \Identicon\Identicon $identicon ) {
+		$this->identicon = $identicon;
 	}
 
 	/**

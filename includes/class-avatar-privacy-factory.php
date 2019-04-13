@@ -162,6 +162,11 @@ class Avatar_Privacy_Factory extends Dice {
 					\Jdenticon\Identicon::class => [ 'instance' => '$JdenticonIdenticon' ],
 				],
 			],
+			Default_Icons\Generators\Retro::class           => [
+				'substitutions' => [
+					\Identicon\Identicon::class => [ 'instance' => '$RetroIdenticon' ],
+				],
+			],
 
 			// Icon components.
 			'$JdenticonIdenticon'                           => [
@@ -169,6 +174,12 @@ class Avatar_Privacy_Factory extends Dice {
 				'constructParams' => [
 					// Some extra styling for the Jdenticon instance.
 					[ 'style' => [ 'padding' => 0 ] ],
+				],
+			],
+			'$RetroIdenticon'                               => [
+				'instanceOf'    => \Identicon\Identicon::class,
+				'substitutions' => [
+					\Identicon\Generator\GeneratorInterface::class => [ 'instance' => \Identicon\Generator\SvgGenerator::class ],
 				],
 			],
 			Default_Icons\Generators\Ring_Icon::class       => [
