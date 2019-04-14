@@ -144,7 +144,7 @@ class Database {
 
 		// Fix $wpdb object if table already exists, unless we need an update.
 		if ( ! $db_needs_update && $this->table_exists( $table_name ) ) {
-			$wpdb->avatar_privacy = $table_name;
+			$this->register_table( $wpdb, $table_name );
 			return false;
 		}
 
@@ -163,12 +163,32 @@ class Database {
 		$this->db_delta( $sql );
 
 		if ( $this->table_exists( $table_name ) ) {
-			$wpdb->avatar_privacy = $table_name;
+			$this->register_table( $wpdb, $table_name );
 			return true;
 		}
 
 		// Should not ever happen.
 		return false;
+	}
+
+	/**
+	 * Registers the table with the given \wpdb instance.
+	 *
+	 * @param  \wpdb  $db         The database instance.
+	 * @param  string $table_name The table name (with prefix).
+	 */
+	protected function register_table( \wpdb $db, $table_name ) {
+		$basename = self::TABLE_BASENAME;
+
+		// Make sure that $wpdb knows about our table.
+		if ( \is_multisite() && $this->use_global_table() ) {
+			$db->ms_global_tables[] = $basename;
+		} else {
+			$db->tables[] = $basename;
+		}
+
+		// Also register the "shortcut" property.
+		$db->$basename = $table_name;
 	}
 
 	/**
