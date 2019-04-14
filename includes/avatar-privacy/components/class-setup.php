@@ -301,7 +301,7 @@ class Setup implements \Avatar_Privacy\Component {
 
 		if ( \count( $affected_users ) > 0 ) {
 			// Update the database table.
-			$rows = $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->usermeta} SET meta_key = %s WHERE meta_key = %s", Core::GRAVATAR_USE_META_KEY, 'use_gravatar' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			$rows = $wpdb->update( $wpdb->usermeta, [ 'meta_key' => Core::GRAVATAR_USE_META_KEY ], [ 'meta_key' => 'use_gravatar' ] ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
 			// If there were any keys to update, we also have to clear the user_meta cache group.
 			if ( false !== $rows && $rows > 0 ) {

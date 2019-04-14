@@ -4,10 +4,10 @@ Plugin Name: Avatar Privacy
 Plugin URI: https://code.mundschenk.at/avatar-privacy/
 Author URI: https://code.mundschenk.at/
 Tags: gravatar, avatar, privacy, caching, bbpress
-Requires at least: 4.9
+Requires at least: 5.1
 Requires PHP: 5.6
-Tested up to: 5.1
-Stable tag: 2.0.5
+Tested up to: 5.2
+Stable tag: 2.1.0
 License: GPLv2 or later
 
 Enhances the privacy of your users and visitors with gravatar opt-in and local avatars.
@@ -133,6 +133,13 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 
 == Changelog ==
+
+= 2.1.0 (2019-04-14) =
+* _Feature_: Improved compatibility with multisite installations. Plugin data will be properly deleted on uninstallation or when a site is removed. ("Large Networks" will still have to take manual action to prevent timeouts.)
+* _Feature_: Network settings for enabling/disabling global table use on multisite. Existing global data will be migrated to the site-specific tables when global table use is disabled (but not in the other direction).
+* _Change_: `usermeta` keys are now prefixed (`avatar_privacy_use_gravatar` instead of `use_gravatar`).
+* _Change_: Generally improved code quality through unit tests.
+* _Bugfix_: New multisite installations were incorrectly detected as "legacy", making them use the global table (instead of per-site tables). Affected installations can be switched via the new network settings page.
 
 = 2.0.5 (2019-02-23) =
 * _Bugfix_: Fixed a previously undiscovered compatibility issue with recent versions of EWWW Image Optimizer.

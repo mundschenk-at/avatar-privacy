@@ -149,7 +149,7 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	 */
 	public function register_network_settings() {
 		// Create our options page.
-		$page = \add_submenu_page( 'settings.php', \__( 'My Network Options', 'avatar-privacy' ), \__( 'Avatar Privacy', 'avatar-privacy' ), 'manage_network_options', self::OPTION_GROUP, [ $this, 'print_settings_page' ] );
+		$page = \add_submenu_page( 'settings.php', \__( 'Avatar Privacy Network Settings', 'avatar-privacy' ), \__( 'Avatar Privacy', 'avatar-privacy' ), 'manage_network_options', self::OPTION_GROUP, [ $this, 'print_settings_page' ] );
 
 		// Add the section(s).
 		\add_settings_section( self::SECTION, '', [ $this, 'print_settings_section' ], self::OPTION_GROUP );
@@ -190,7 +190,7 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	public function save_network_settings() {
 		// Check if the user has the correct permissions.
 		if ( ! \current_user_can( 'manage_network_options' ) ) {
-			\wp_die( \esc_html( \__( 'Sorry, you are not allowed to edit network options.', 'avatar-privacy' ) ), 403 );
+			\wp_die( \esc_html( \__( 'Sorry, you are not allowed to access this page.', 'avatar-privacy' ) ), 403 );
 		}
 
 		// Make sure we are posting from our options page.
@@ -218,7 +218,7 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 
 		$settings_errors = \get_settings_errors();
 		if ( empty( $settings_errors ) ) {
-			\add_settings_error( self::OPTION_GROUP, 'settings_updated', \__( 'Settings updated.', 'avatar-privacy' ), 'updated' );
+			\add_settings_error( self::OPTION_GROUP, 'settings_updated', \__( 'Settings saved.', 'avatar-privacy' ), 'updated' );
 		}
 
 		// Save the settings errors until after the redirect.
@@ -327,7 +327,7 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 			$this->network_options->set( Network_Options::START_GLOBAL_TABLE_MIGRATION, $queue );
 
 			// Notify admins.
-			$this->trigger_admin_notice( Network_Options::USE_GLOBAL_TABLE, 'settings_updated', \__( 'Settings updated. Consent data will be migrated to site-specific tables.', 'avatar-privacy' ), 'updated' );
+			$this->trigger_admin_notice( Network_Options::USE_GLOBAL_TABLE, 'settings_updated', \__( 'Settings saved. Consent data will be migrated to site-specific tables.', 'avatar-privacy' ), 'updated' );
 		} elseif ( ! empty( $value ) && empty( $old_value ) ) {
 			// Clean up any running migrations on the next page load.
 			$this->network_options->set( Network_Options::START_GLOBAL_TABLE_MIGRATION, [] );

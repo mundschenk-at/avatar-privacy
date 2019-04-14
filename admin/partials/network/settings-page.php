@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,7 +27,7 @@
 use Avatar_Privacy\Data_Storage\Network_Options;
 
 ?><div class='wrap'>
-	<h1><?php \esc_html_e( 'Avatar Privacy Settings', 'avatar-privacy' ); ?></h1>
+	<h1><?php \esc_html_e( 'Avatar Privacy Network Settings', 'avatar-privacy' ); ?></h1>
 
 	<form method="post" action="<?php echo \esc_url( 'edit.php?action=' . self::ACTION ); ?>">
 		<?php \settings_fields( self::OPTION_GROUP ); ?>
