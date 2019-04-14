@@ -439,8 +439,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Update meta keys.
 		$wpdb->shouldReceive( 'prepare' )->once()->with( "SELECT DISTINCT user_id FROM {$wpdb->usermeta} WHERE meta_key = %s", 'use_gravatar' )->andReturn( 'select_query' );
 		$wpdb->shouldReceive( 'get_col' )->once()->with( 'select_query' )->andReturn( $user_ids );
-		$wpdb->shouldReceive( 'prepare' )->once()->with( "UPDATE {$wpdb->usermeta} SET meta_key = %s WHERE meta_key = %s", Core::GRAVATAR_USE_META_KEY, 'use_gravatar' )->andReturn( 'update_query' );
-		$wpdb->shouldReceive( 'query' )->once()->with( 'update_query' )->andReturn( $rows );
+		$wpdb->shouldReceive( 'update' )->once()->with( $wpdb->usermeta, [ 'meta_key' => Core::GRAVATAR_USE_META_KEY ], [ 'meta_key' => 'use_gravatar' ] )->andReturn( $rows ); // phpcs:ignore WordPress.DB.SlowDBQuery
 
 		// Clear cache.
 		Functions\expect( 'wp_cache_delete' )->times( $rows )->with( m::type( 'int' ), 'user_meta' );
