@@ -255,6 +255,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 			$this->sut->shouldReceive( 'get_table_name' )->never();
 			$this->sut->shouldReceive( 'table_exists' )->never();
 			$this->sut->shouldReceive( 'db_delta' )->never();
+			$this->sut->shouldReceive( 'register_table' )->never();
 		} else {
 			$this->sut->shouldReceive( 'get_table_name' )->once()->andReturn( $table_name );
 
@@ -271,10 +272,11 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 					$this->sut->shouldReceive( 'table_exists' )->once()->with( $table_name )->andReturn( true );
 				}
 			}
+
+			$this->sut->shouldReceive( 'register_table' )->once()->with( $wpdb, $table_name );
 		}
 
 		$this->assertSame( $result, $this->sut->maybe_create_table( $previous ) );
-		$this->assertAttributeSame( $table_name, 'avatar_privacy', $wpdb );
 	}
 
 	/**
@@ -298,9 +300,80 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'db_delta' )->once()->with( m::type( 'string' ) );
 
+		$this->sut->shouldReceive( 'register_table' )->never();
+
 		// This should never happen in the real world.
 		$this->assertFalse( $this->sut->maybe_create_table( $previous ) );
 		$this->assertFalse( isset( $wpdb->avatar_privacy ) );
+	}
+
+	/**
+	 * Tests ::register_table.
+	 *
+	 * @covers ::register_table
+	 */
+	public function test_register_table() {
+		$table_name = 'my_table_name';
+		$db         = m::mock( \wpdb::class );
+
+		// Make sure the $wpdb properties exist for the test.
+		$db->tables           = [];
+		$db->ms_global_tables = [];
+
+		Functions\expect( 'is_multisite' )->once()->andReturn( false );
+		$this->sut->shouldReceive( 'use_global_table' )->never();
+
+		$this->assertNull( $this->sut->register_table( $db, $table_name ) );
+
+		$this->assertAttributeContains( Database::TABLE_BASENAME, 'tables', $db );
+		$this->assertAttributeNotContains( Database::TABLE_BASENAME, 'ms_global_tables', $db );
+		$this->assertAttributeSame( $table_name, Database::TABLE_BASENAME, $db );
+	}
+
+	/**
+	 * Tests ::register_table.
+	 *
+	 * @covers ::register_table
+	 */
+	public function test_register_table_multisite_no_global_table() {
+		$table_name = 'my_table_name';
+		$db         = m::mock( \wpdb::class );
+
+		// Make sure the $wpdb properties exist for the test.
+		$db->tables           = [];
+		$db->ms_global_tables = [];
+
+		Functions\expect( 'is_multisite' )->once()->andReturn( true );
+		$this->sut->shouldReceive( 'use_global_table' )->once()->andReturn( false );
+
+		$this->assertNull( $this->sut->register_table( $db, $table_name ) );
+
+		$this->assertAttributeContains( Database::TABLE_BASENAME, 'tables', $db );
+		$this->assertAttributeNotContains( Database::TABLE_BASENAME, 'ms_global_tables', $db );
+		$this->assertAttributeSame( $table_name, Database::TABLE_BASENAME, $db );
+	}
+
+	/**
+	 * Tests ::register_table.
+	 *
+	 * @covers ::register_table
+	 */
+	public function test_register_table_multisite_with_global_table() {
+		$table_name = 'my_table_name';
+		$db         = m::mock( \wpdb::class );
+
+		// Make sure the $wpdb properties exist for the test.
+		$db->tables          = [];
+		$db->ms_globaltables = [];
+
+		Functions\expect( 'is_multisite' )->once()->andReturn( true );
+		$this->sut->shouldReceive( 'use_global_table' )->once()->andReturn( true );
+
+		$this->assertNull( $this->sut->register_table( $db, $table_name ) );
+
+		$this->assertAttributeNotContains( Database::TABLE_BASENAME, 'tables', $db );
+		$this->assertAttributeContains( Database::TABLE_BASENAME, 'ms_global_tables', $db );
+		$this->assertAttributeSame( $table_name, Database::TABLE_BASENAME, $db );
 	}
 
 	/**

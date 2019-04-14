@@ -36,6 +36,13 @@ namespace Avatar_Privacy\Data_Storage;
 class Database {
 
 	/**
+	 * The table basename without the prefix.
+	 *
+	 * @var string
+	 */
+	const TABLE_BASENAME = 'avatar_privacy';
+
+	/**
 	 * The options handler.
 	 *
 	 * @var Network_Options
@@ -76,7 +83,7 @@ class Database {
 	 * @return string
 	 */
 	protected function get_table_name( $site_id = null ) {
-		return $this->get_table_prefix( $site_id ) . 'avatar_privacy';
+		return $this->get_table_prefix( $site_id ) . self::TABLE_BASENAME;
 	}
 
 	/**
@@ -128,7 +135,7 @@ class Database {
 		$db_needs_update = \version_compare( $previous_version, '0.5', '<' );
 
 		// Check if the table exists.
-		if ( ! $db_needs_update && \property_exists( $wpdb, 'avatar_privacy' ) ) {
+		if ( ! $db_needs_update && \property_exists( $wpdb, self::TABLE_BASENAME ) ) {
 			return false;
 		}
 
@@ -137,7 +144,7 @@ class Database {
 
 		// Fix $wpdb object if table already exists, unless we need an update.
 		if ( ! $db_needs_update && $this->table_exists( $table_name ) ) {
-			$wpdb->avatar_privacy = $table_name;
+			$this->register_table( $wpdb, $table_name );
 			return false;
 		}
 
@@ -156,12 +163,32 @@ class Database {
 		$this->db_delta( $sql );
 
 		if ( $this->table_exists( $table_name ) ) {
-			$wpdb->avatar_privacy = $table_name;
+			$this->register_table( $wpdb, $table_name );
 			return true;
 		}
 
 		// Should not ever happen.
 		return false;
+	}
+
+	/**
+	 * Registers the table with the given \wpdb instance.
+	 *
+	 * @param  \wpdb  $db         The database instance.
+	 * @param  string $table_name The table name (with prefix).
+	 */
+	protected function register_table( \wpdb $db, $table_name ) {
+		$basename = self::TABLE_BASENAME;
+
+		// Make sure that $wpdb knows about our table.
+		if ( \is_multisite() && $this->use_global_table() ) {
+			$db->ms_global_tables[] = $basename;
+		} else {
+			$db->tables[] = $basename;
+		}
+
+		// Also register the "shortcut" property.
+		$db->$basename = $table_name;
 	}
 
 	/**
