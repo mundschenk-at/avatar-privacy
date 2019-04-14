@@ -36,6 +36,13 @@ namespace Avatar_Privacy\Data_Storage;
 class Database {
 
 	/**
+	 * The table basename without the prefix.
+	 *
+	 * @var string
+	 */
+	const TABLE_BASENAME = 'avatar_privacy';
+
+	/**
 	 * The options handler.
 	 *
 	 * @var Network_Options
@@ -76,7 +83,7 @@ class Database {
 	 * @return string
 	 */
 	protected function get_table_name( $site_id = null ) {
-		return $this->get_table_prefix( $site_id ) . 'avatar_privacy';
+		return $this->get_table_prefix( $site_id ) . self::TABLE_BASENAME;
 	}
 
 	/**
@@ -128,7 +135,7 @@ class Database {
 		$db_needs_update = \version_compare( $previous_version, '0.5', '<' );
 
 		// Check if the table exists.
-		if ( ! $db_needs_update && \property_exists( $wpdb, 'avatar_privacy' ) ) {
+		if ( ! $db_needs_update && \property_exists( $wpdb, self::TABLE_BASENAME ) ) {
 			return false;
 		}
 
