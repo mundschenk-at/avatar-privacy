@@ -149,7 +149,7 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	 */
 	public function register_network_settings() {
 		// Create our options page.
-		$page = \add_submenu_page( 'settings.php', \__( 'My Network Options', 'avatar-privacy' ), \__( 'Avatar Privacy', 'avatar-privacy' ), 'manage_network_options', self::OPTION_GROUP, [ $this, 'print_settings_page' ] );
+		$page = \add_submenu_page( 'settings.php', \__( 'Avatar Privacy Network Settings', 'avatar-privacy' ), \__( 'Avatar Privacy', 'avatar-privacy' ), 'manage_network_options', self::OPTION_GROUP, [ $this, 'print_settings_page' ] );
 
 		// Add the section(s).
 		\add_settings_section( self::SECTION, '', [ $this, 'print_settings_section' ], self::OPTION_GROUP );
