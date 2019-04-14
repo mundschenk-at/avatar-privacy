@@ -177,9 +177,10 @@ class Avatar_Privacy_Factory extends Dice {
 				],
 			],
 			'$RetroIdenticon'                               => [
-				'instanceOf'    => \Identicon\Identicon::class,
-				'substitutions' => [
-					\Identicon\Generator\GeneratorInterface::class => [ 'instance' => \Identicon\Generator\SvgGenerator::class ],
+				'instanceOf'      => \Identicon\Identicon::class,
+				'constructParams' => [
+					// The constructor argument is not type-hinted.
+					[ 'instance' => \Identicon\Generator\SvgGenerator::class ],
 				],
 			],
 			Default_Icons\Generators\Ring_Icon::class       => [
