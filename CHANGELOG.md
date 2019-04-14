@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.1.0 (2019-04-xx)
+## 2.1.0 (2019-04-14)
 *   _Feature_: Improved compatibility with multisite installations. Plugin data will
     be properly deleted on uninstallation or when a site is removed. ("Large Networks"
     will still have to take manual action to prevent timeouts.)
