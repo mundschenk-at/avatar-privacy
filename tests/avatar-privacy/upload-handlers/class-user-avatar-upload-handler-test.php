@@ -475,12 +475,41 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$hash   = 'some_hash';
 		$avatar = [ 'file' => vfsStream::url( $file ) ];
 
-		$this->core->shouldReceive( 'get_user_hash' )->once()->with( $user_id )->andReturn( $hash );
-		$this->file_cache->shouldReceive( 'invalidate' )->once()->with( 'user', "#/{$hash}-[1-9][0-9]*\.[a-z]{3}\$#" );
+		$this->sut->shouldReceive( 'invalidate_user_avatar_cache' )->once()->with( $user_id );
 
 		Functions\expect( 'get_user_meta' )->once()->with( $user_id, User_Avatar_Upload_Handler::USER_META_KEY, true )->andReturn( $avatar );
 		Functions\expect( 'delete_user_meta' )->times( (int) $result )->with( $user_id, User_Avatar_Upload_Handler::USER_META_KEY );
 
 		$this->assertNull( $this->sut->delete_uploaded_avatar( $user_id ) );
+	}
+
+	/**
+	 * Tests ::invalidate_user_avatar_cache.
+	 *
+	 * @covers ::invalidate_user_avatar_cache
+	 */
+	public function test_invalidate_user_avatar_cache() {
+		$user_id = '777';
+		$hash    = 'some_hash';
+
+		$this->core->shouldReceive( 'get_user_hash' )->once()->with( $user_id )->andReturn( $hash );
+		$this->file_cache->shouldReceive( 'invalidate' )->once()->with( 'user', "#/{$hash}-[1-9][0-9]*\.[a-z]{3}\$#" );
+
+		$this->assertNull( $this->sut->invalidate_user_avatar_cache( $user_id ) );
+	}
+
+	/**
+	 * Tests ::invalidate_user_avatar_cache.
+	 *
+	 * @covers ::invalidate_user_avatar_cache
+	 */
+	public function test_invalidate_user_avatar_cache_no_hash() {
+		$user_id = '777';
+		$hash    = '';
+
+		$this->core->shouldReceive( 'get_user_hash' )->once()->with( $user_id )->andReturn( $hash );
+		$this->file_cache->shouldReceive( 'invalidate' )->never();
+
+		$this->assertNull( $this->sut->invalidate_user_avatar_cache( $user_id ) );
 	}
 }
