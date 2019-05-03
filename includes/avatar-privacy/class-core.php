@@ -613,4 +613,39 @@ class Core {
 
 		return $users[0];
 	}
+
+	/**
+	 * Retrieves the full-size local avatar for a user (if one exists).
+	 *
+	 * @since 2.2.0
+	 *
+	 * @param  int $user_id The user ID.
+	 *
+	 * @return string[] {
+	 *     @type string $file The local filename.
+	 *     @type string $type The MIME type.
+	 * }
+	 */
+	public function get_user_avatar( $user_id ) {
+		/**
+		 * Filters whether to retrieve the user avatar early. If the filtered result
+		 * contains both a filename and a MIME type, those will be returned immediately.
+		 *
+		 * @since 2.2.0
+		 *
+		 * @param array|null {
+		 *     Optional. The user avatar information. Default null.
+		 *
+		 *     @type string $file The local filename.
+		 *     @type string $type The MIME type.
+		 * }
+		 * @param int $user_id The user ID.
+		 */
+		$avatar = \apply_filters( 'avatar_privacy_pre_get_user_avatar', null, $user_id );
+		if ( ! empty( $avatar ) && ! empty( $avatar['file'] ) && ! empty( $avatar['type'] ) ) {
+			return $avatar;
+		}
+
+		return \get_user_meta( $user_id, User_Avatar_Upload_Handler::USER_META_KEY, true );
+	}
 }

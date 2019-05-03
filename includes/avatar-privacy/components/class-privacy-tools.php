@@ -185,6 +185,7 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 		];
 
 		// Export the uploaded avatar.
+		// We don't want to use the filtered value here.
 		$local_avatar = \get_user_meta( $user->ID, User_Avatar_Upload_Handler::USER_META_KEY, true );
 		if ( ! empty( $local_avatar['file'] ) ) {
 			$user_data[] = [

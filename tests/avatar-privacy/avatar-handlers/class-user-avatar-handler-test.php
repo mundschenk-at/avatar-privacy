@@ -269,8 +269,7 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		$this->core->shouldReceive( 'get_user_by_hash' )->once()->with( $hash )->andReturn( $user );
-
-		Functions\expect( 'get_user_meta' )->once()->with( $user->ID, User_Avatar_Upload_Handler::USER_META_KEY, true )->andReturn( $local_avatar );
+		$this->core->shouldReceive( 'get_user_avatar' )->once()->with( $user->ID )->andReturn( $local_avatar );
 
 		$this->sut->shouldReceive( 'get_url' )->once()->with( '', $hash, $size, $args )->andReturn( 'https://foobar.org/cached_avatar_url' );
 
@@ -294,8 +293,7 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$user = null;
 
 		$this->core->shouldReceive( 'get_user_by_hash' )->once()->with( $hash )->andReturn( $user );
-
-		Functions\expect( 'get_user_meta' )->never();
+		$this->core->shouldReceive( 'get_user_avatar' )->never();
 
 		$this->sut->shouldReceive( 'get_url' )->never();
 
@@ -320,8 +318,7 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$user->ID = '666';
 
 		$this->core->shouldReceive( 'get_user_by_hash' )->once()->with( $hash )->andReturn( $user );
-
-		Functions\expect( 'get_user_meta' )->once()->with( $user->ID, User_Avatar_Upload_Handler::USER_META_KEY, true )->andReturn( false );
+		$this->core->shouldReceive( 'get_user_avatar' )->once()->with( $user->ID )->andReturn( false );
 
 		$this->sut->shouldReceive( 'get_url' )->never();
 
