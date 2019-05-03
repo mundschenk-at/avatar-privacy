@@ -49,21 +49,21 @@ class Core {
 	const SETTINGS_NAME = 'settings';
 
 	/**
-	 * The meta key for the hashed email.
+	 * The user meta key for the hashed email.
 	 *
 	 * @var string
 	 */
 	const EMAIL_HASH_META_KEY = 'avatar_privacy_hash';
 
 	/**
-	 * The meta key for the gravatar use flag.
+	 * The user meta key for the gravatar use flag.
 	 *
 	 * @var string
 	 */
 	const GRAVATAR_USE_META_KEY = 'avatar_privacy_use_gravatar';
 
 	/**
-	 * The meta key for the gravatar use flag.
+	 * The user meta key for the gravatar use flag.
 	 *
 	 * @var string
 	 */
