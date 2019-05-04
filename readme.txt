@@ -16,7 +16,7 @@ Enhances the privacy of your users and visitors with gravatar opt-in and local a
 
 Avatars from Gravatar.com are great, but they come with certain privacy implications. You as site admin may already know this, but your visitors and users probably don't. Avatar Privacy can help to improve the privacy situation by making some subtle changes to the way avatars are displayed on your site.
 
-The plugin works without changing your theme files if you use a modern theme, and it does support (simple) multisite installations. It requires at least PHP 5.6 and WordPress 4.9. For the plugin to do anything for you, you need to visit the discussion settings page in the WordPress admin area and save the new settings. Please note that the plugin does not provide an options page of its own, it rather adds to the existing discussion settings page.
+The plugin works without changing your theme files if you use a modern theme, and it does support multisite installations. For the plugin to do anything for you, you need to visit the discussion settings page in the WordPress admin area and save the new settings. Please note that the plugin does not provide an options page of its own, it rather adds to the existing discussion settings page.
 
 = Features =
 
