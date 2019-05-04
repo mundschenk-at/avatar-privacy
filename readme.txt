@@ -108,6 +108,7 @@ I used Avatar Privacy together with these plugins:
 
 * [AntiSpam Bee](https://wordpress.org/plugins/antispam-bee/)
 * [EWWW Image Optimizer](https://wordpress.org/plugins/ewww-image-optimizer/)
+* [WP User Manager – User Profile Builder & Membership](https://wordpress.org/plugins/wp-user-manager/)
 
 If you find any problems with particular plugins, please tell me!
 
@@ -133,6 +134,10 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 
 == Changelog ==
+
+= 2.2.0 (unreleased) =
+* _Feature_: Integration for the following plugins had been added:
+  - WP User Manager
 
 = 2.1.0 (2019-04-14) =
 * _Feature_: Improved compatibility with multisite installations. Plugin data will be properly deleted on uninstallation or when a site is removed. ("Large Networks" will still have to take manual action to prevent timeouts.)

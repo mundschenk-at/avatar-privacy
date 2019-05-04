@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.0 (unreleased)
+*   _Feature_: Integration for the following plugins had been added:
+    -   WP User Manager
+
 ## 2.1.0 (2019-04-14)
 *   _Feature_: Improved compatibility with multisite installations. Plugin data will
     be properly deleted on uninstallation or when a site is removed. ("Large Networks"
