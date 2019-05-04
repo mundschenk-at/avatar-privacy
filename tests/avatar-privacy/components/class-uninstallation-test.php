@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -194,7 +194,7 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::delete_uploaded_avatars
 	 */
 	public function test_delete_uploaded_avatars() {
-		$user_avatar        = User_Avatar_Upload_Handler::USER_META_KEY;
+		$user_avatar        = Core::USER_AVATAR_META_KEY;
 		$query              = [
 			'meta_key'     => $user_avatar,  // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			'meta_compare' => 'EXISTS',
@@ -256,7 +256,7 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_delete_user_meta() {
 		Functions\expect( 'delete_metadata' )->once()->with( 'user', 0, Core::GRAVATAR_USE_META_KEY, null, true );
 		Functions\expect( 'delete_metadata' )->once()->with( 'user', 0, Core::ALLOW_ANONYMOUS_META_KEY, null, true );
-		Functions\expect( 'delete_metadata' )->once()->with( 'user', 0, User_Avatar_Upload_Handler::USER_META_KEY, null, true );
+		Functions\expect( 'delete_metadata' )->once()->with( 'user', 0, Core::USER_AVATAR_META_KEY, null, true );
 
 		$this->assertNull( $this->sut->delete_user_meta() );
 	}

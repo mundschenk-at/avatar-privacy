@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -497,7 +497,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 			'type' => 'image/png',
 		];
 
-		Functions\expect( 'get_user_meta' )->once()->with( $user_id, \Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler::USER_META_KEY, true )->andReturn( $local );
+		$this->core->shouldReceive( 'get_user_avatar' )->once()->with( $user_id )->andReturn( $local );
 		Filters\expectApplied( 'avatar_privacy_user_avatar_icon_url' )->once()->with( '', $hash, $size, m::type( 'array' ) )->andReturn( $result );
 
 		$this->assertSame( $result, $this->sut->get_local_avatar_url( $user_id, $hash, $size ) );
@@ -513,7 +513,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$hash    = 'some hash';
 		$size    = 100;
 
-		Functions\expect( 'get_user_meta' )->once()->with( $user_id, \Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler::USER_META_KEY, true )->andReturn( [] );
+		$this->core->shouldReceive( 'get_user_avatar' )->once()->with( $user_id )->andReturn( [] );
 		Filters\expectApplied( 'avatar_privacy_user_avatar_icon_url' )->never();
 
 		$this->assertSame( '', $this->sut->get_local_avatar_url( $user_id, $hash, $size ) );
@@ -529,7 +529,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$hash    = 'some hash';
 		$size    = 100;
 
-		Functions\expect( 'get_user_meta' )->never();
+		$this->core->shouldReceive( 'get_user_avatar' )->never();
 		Filters\expectApplied( 'avatar_privacy_user_avatar_icon_url' )->never();
 
 		$this->assertSame( '', $this->sut->get_local_avatar_url( $user_id, $hash, $size ) );

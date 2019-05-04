@@ -24,9 +24,10 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
+use Avatar_Privacy\Core;
 use Avatar_Privacy\Tools\Template;
 
-$current_avatar                = \get_user_meta( $user->ID, self::USER_META_KEY, true );
+$current_avatar                = \get_user_meta( $user->ID, Core::USER_AVATAR_META_KEY, true );
 $current_user_can_upload_files = \current_user_can( 'upload_files' );
 
 if ( $current_user_can_upload_files ) {

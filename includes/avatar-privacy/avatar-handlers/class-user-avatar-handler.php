@@ -30,8 +30,6 @@ use Avatar_Privacy\Core;
 
 use Avatar_Privacy\Tools\Images;
 
-use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
-
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
 /**
@@ -162,7 +160,7 @@ class User_Avatar_Handler implements Avatar_Handler {
 	public function cache_image( $type, $hash, $size, $subdir, $extension ) {
 		$user = $this->core->get_user_by_hash( $hash );
 		if ( ! empty( $user ) ) {
-			$local_avatar = \get_user_meta( $user->ID, User_Avatar_Upload_Handler::USER_META_KEY, true );
+			$local_avatar = $this->core->get_user_avatar( $user->ID );
 		}
 
 		// Could not find user or uploaded avatar.

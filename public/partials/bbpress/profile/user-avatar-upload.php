@@ -27,7 +27,7 @@
 use Avatar_Privacy\Tools\Template;
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
-$current_avatar                = \get_user_meta( $user_id, User_Avatar_Upload_Handler::USER_META_KEY, true );
+$current_avatar                = \get_user_meta( $user_id, Core::USER_AVATAR_META_KEY, true );
 $current_user_can_upload_files = \current_user_can( 'upload_files' );
 
 if ( $current_user_can_upload_files ) {

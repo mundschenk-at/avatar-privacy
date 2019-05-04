@@ -35,8 +35,6 @@ use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Tools\Network\Gravatar_Service;
 
-use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
-
 /**
  * Handles the display of avatars in WordPress.
  *
@@ -365,7 +363,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 
 		// Fetch local avatar from meta and make sure it's properly stzed.
 		$url          = '';
-		$local_avatar = \get_user_meta( $user_id, User_Avatar_Upload_Handler::USER_META_KEY, true );
+		$local_avatar = $this->core->get_user_avatar( $user_id );
 		if ( ! empty( $local_avatar['file'] ) && ! empty( $local_avatar['type'] ) ) {
 			// Prepare filter arguments.
 			$args = [

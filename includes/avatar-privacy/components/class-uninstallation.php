@@ -27,7 +27,6 @@
 namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Core;
-use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
 use Avatar_Privacy\Data_Storage\Database;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
@@ -180,7 +179,7 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	 * @since 2.1.0 Visibility changed to public, made non-static.
 	 */
 	public function delete_uploaded_avatars() {
-		$user_avatar = User_Avatar_Upload_Handler::USER_META_KEY;
+		$user_avatar = Core::USER_AVATAR_META_KEY;
 		$query       = [
 			'meta_key'     => $user_avatar, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			'meta_compare' => 'EXISTS',
@@ -203,7 +202,7 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	public function delete_user_meta() {
 		\delete_metadata( 'user', 0, Core::GRAVATAR_USE_META_KEY, null, true );
 		\delete_metadata( 'user', 0, Core::ALLOW_ANONYMOUS_META_KEY, null, true );
-		\delete_metadata( 'user', 0, User_Avatar_Upload_Handler::USER_META_KEY, null, true );
+		\delete_metadata( 'user', 0, Core::USER_AVATAR_META_KEY, null, true );
 	}
 
 	/**
