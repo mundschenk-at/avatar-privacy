@@ -1040,4 +1040,58 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertNull( $this->sut->get_user_by_hash( $hash ) );
 	}
+
+	/**
+	 * Tests ::get_user_avatar.
+	 *
+	 * @covers ::get_user_avatar
+	 */
+	public function test_get_user_avatar() {
+		$user_id = 42;
+		$avatar  = [
+			'type' => 'image/png',
+			'file' => '/some/fake/file.png',
+		];
+
+		Filters\expectApplied( 'avatar_privacy_pre_get_user_avatar' )->once()->with( null, $user_id )->andReturn( null );
+		Functions\expect( 'get_user_meta' )->once()->with( $user_id, \Avatar_Privacy\Core::USER_AVATAR_META_KEY, true )->andReturn( $avatar );
+
+		$this->assertSame( $avatar, $this->sut->get_user_avatar( $user_id ) );
+	}
+
+	/**
+	 * Tests ::get_user_avatar.
+	 *
+	 * @covers ::get_user_avatar
+	 */
+	public function test_get_user_avatar_invalid_filter_result() {
+		$user_id = 42;
+		$avatar  = [
+			'type' => 'image/png',
+			'file' => '/some/fake/file.png',
+		];
+
+		Filters\expectApplied( 'avatar_privacy_pre_get_user_avatar' )->once()->with( null, $user_id )->andReturn( [ 'file' => '/some/other/file' ] );
+		Functions\expect( 'get_user_meta' )->once()->with( $user_id, \Avatar_Privacy\Core::USER_AVATAR_META_KEY, true )->andReturn( $avatar );
+
+		$this->assertSame( $avatar, $this->sut->get_user_avatar( $user_id ) );
+	}
+
+	/**
+	 * Tests ::get_user_avatar.
+	 *
+	 * @covers ::get_user_avatar
+	 */
+	public function test_get_user_avatar_invalid_filtered() {
+		$user_id = 42;
+		$avatar  = [
+			'type' => 'image/png',
+			'file' => '/some/fake/file.png',
+		];
+
+		Filters\expectApplied( 'avatar_privacy_pre_get_user_avatar' )->once()->with( null, $user_id )->andReturn( $avatar );
+		Functions\expect( 'get_user_meta' )->never();
+
+		$this->assertSame( $avatar, $this->sut->get_user_avatar( $user_id ) );
+	}
 }
