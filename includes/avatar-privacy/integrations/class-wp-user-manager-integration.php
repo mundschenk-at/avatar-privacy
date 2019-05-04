@@ -119,7 +119,7 @@ class WP_User_Manager_Integration implements Plugin_Integration {
 	 * }
 	 */
 	public function enable_wpusermanager_user_avatars( array $avatar = null, $user_id ) {
-		$file = \carbon_get_user_meta( $user_id, self::WP_USER_MANAGER_META_KEY );
+		$file = /* @scrutinizer ignore-call */ \carbon_get_user_meta( $user_id, self::WP_USER_MANAGER_META_KEY );
 		$type = \wp_check_filetype( $file )['type'];
 
 		return [
