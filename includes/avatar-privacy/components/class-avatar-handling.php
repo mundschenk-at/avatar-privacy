@@ -35,8 +35,6 @@ use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Tools\Network\Gravatar_Service;
 
-use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
-
 /**
  * Handles the display of avatars in WordPress.
  *

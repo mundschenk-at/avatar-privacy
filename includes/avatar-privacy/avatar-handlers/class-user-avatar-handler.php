@@ -30,8 +30,6 @@ use Avatar_Privacy\Core;
 
 use Avatar_Privacy\Tools\Images;
 
-use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
-
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
 /**

@@ -70,6 +70,14 @@ class Core {
 	const ALLOW_ANONYMOUS_META_KEY = 'avatar_privacy_allow_anonymous';
 
 	/**
+	 * The user meta key for the local avatar.
+	 *
+	 * @var string
+	 */
+	const USER_AVATAR_META_KEY = 'avatar_privacy_user_avatar';
+
+
+	/**
 	 * Prefix for caching avatar privacy for non-logged-in users.
 	 */
 	const EMAIL_CACHE_PREFIX = 'email_';
@@ -646,6 +654,6 @@ class Core {
 			return $avatar;
 		}
 
-		return \get_user_meta( $user_id, User_Avatar_Upload_Handler::USER_META_KEY, true );
+		return \get_user_meta( $user_id, self::USER_AVATAR_META_KEY, true );
 	}
 }
