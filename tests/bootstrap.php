@@ -69,6 +69,9 @@ if ( ! defined( 'OBJECT' ) ) {
 if ( ! defined( 'OBJECT_K' ) ) {
 	define( 'OBJECT_K', 'OBJECT_K' );
 }
+if ( ! defined( 'SCRIPT_DEBUG' ) ) {
+	define( 'SCRIPT_DEBUG', false );
+}
 
 // Avatar Privacy constants.
 if ( ! defined( 'AVATAR_PRIVACY_PLUGIN_FILE' ) ) {
