@@ -7,7 +7,7 @@ Tags: gravatar, avatar, privacy, caching, bbpress
 Requires at least: 5.1
 Requires PHP: 5.6
 Tested up to: 5.2
-Stable tag: 2.1.0
+Stable tag: 2.2.0
 License: GPLv2 or later
 
 Enhances the privacy of your users and visitors with gravatar opt-in and local avatars.
@@ -31,7 +31,7 @@ A more detailed examination of the [reasons for using Avatar Privacy](https://co
 
 = Feedback =
 
-The plugin is still quite new. Please use it with caution and report any problems. You can use the contact form on [my code site](https://code.mundschenk.at/avatar-privacy/) or [create a topic in the support forum](https://wordpress.org/support/plugin/avatar-privacy). I'll see these pop up in my feed reader and hopefully will reply shortly. ;-) You can contact me in German or English.
+Please report any problems with the plugin, I'll do my best to sort things out. You can use the contact form on [my code site](https://code.mundschenk.at/avatar-privacy/) or [create a topic in the support forum](https://wordpress.org/support/plugin/avatar-privacy). You can contact me in German or English.
 
 = Credits =
 
@@ -136,7 +136,7 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 == Changelog ==
 
-= 2.2.0 (unreleased) =
+= 2.2.0 (2019-05-12) =
 * _Feature_: Integration for the following plugins had been added:
   - [wpDiscuz](https://wordpress.org/plugins/wpdiscuz/)
   - [WP User Manager](https://wordpress.org/plugins/wp-user-manager/)
