@@ -92,10 +92,8 @@ class WP_User_Manager_Integration implements Plugin_Integration {
 
 	/**
 	 * Activate the integration.
-	 *
-	 * @param Core $core The plugin instance.
 	 */
-	public function run( Core $core ) {
+	public function run() {
 		if ( \is_admin() ) {
 			\add_action( 'admin_init', [ $this, 'remove_profile_picture_upload' ] );
 		}

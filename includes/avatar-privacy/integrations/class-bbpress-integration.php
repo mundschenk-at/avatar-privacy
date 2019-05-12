@@ -66,10 +66,8 @@ class BBPress_Integration implements Plugin_Integration {
 
 	/**
 	 * Activate the integration.
-	 *
-	 * @param Core $core The plugin instance.
 	 */
-	public function run( Core $core ) {
+	public function run() {
 		if ( ! \is_admin() ) {
 			\add_action( 'init', [ $this, 'init' ] );
 		}
