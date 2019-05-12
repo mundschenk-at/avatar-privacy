@@ -2,7 +2,8 @@
 
 ## 2.2.0 (unreleased)
 *   _Feature_: Integration for the following plugins had been added:
-    -   WP User Manager
+    -   [wpDiscuz](https://wordpress.org/plugins/wpdiscuz/)
+    -   [WP User Manager](https://wordpress.org/plugins/wp-user-manager/)
 
 ## 2.1.0 (2019-04-14)
 *   _Feature_: Improved compatibility with multisite installations. Plugin data will
