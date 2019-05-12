@@ -7,7 +7,7 @@ Tags: gravatar, avatar, privacy, caching, bbpress
 Requires at least: 5.1
 Requires PHP: 5.6
 Tested up to: 5.2
-Stable tag: 2.1.0
+Stable tag: 2.2.0
 License: GPLv2 or later
 
 Enhances the privacy of your users and visitors with gravatar opt-in and local avatars.
