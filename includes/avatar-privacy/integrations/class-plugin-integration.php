@@ -32,9 +32,11 @@ use Avatar_Privacy\Core;
  * An interface for plugin integrations.
  *
  * @since      1.1.0
+ * @since      2.2.0 Extends the Component interface now (removing the $core parameter from ::run).
+ *
  * @author     Peter Putzer <github@mundschenk.at>
  */
-interface Plugin_Integration {
+interface Plugin_Integration extends \Avatar_Privacy\Component {
 
 	/**
 	 * Check if the ACF integration should be activated.
@@ -42,11 +44,4 @@ interface Plugin_Integration {
 	 * @return bool
 	 */
 	public function check();
-
-	/**
-	 * Activate the integration.
-	 *
-	 * @param Core $core The plugin instance.
-	 */
-	public function run( Core $core );
 }
