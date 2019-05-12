@@ -136,7 +136,7 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 == Changelog ==
 
-= 2.2.0 (unreleased) =
+= 2.2.0 (2019-05-12) =
 * _Feature_: Integration for the following plugins had been added:
   - [wpDiscuz](https://wordpress.org/plugins/wpdiscuz/)
   - [WP User Manager](https://wordpress.org/plugins/wp-user-manager/)
