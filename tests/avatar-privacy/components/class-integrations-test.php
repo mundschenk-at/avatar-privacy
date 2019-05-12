@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -76,14 +76,13 @@ class Integrations_Test extends \Avatar_Privacy\Tests\TestCase {
 		parent::setUp();
 
 		// Mock required helpers.
-		$this->core         = m::mock( Core::class );
 		$this->integrations = [
 			m::mock( Plugin_Integration::class ),
 			m::mock( Plugin_Integration::class ),
 			m::mock( Plugin_Integration::class ),
 		];
 
-		$this->sut = m::mock( Integrations::class, [ $this->core, $this->integrations ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Integrations::class, [ $this->integrations ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -94,9 +93,8 @@ class Integrations_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Integrations::class )->makePartial();
 
-		$mock->__construct( $this->core, $this->integrations );
+		$mock->__construct( $this->integrations );
 
-		$this->assertAttributeSame( $this->core, 'core', $mock );
 		$this->assertAttributeSame( $this->integrations, 'integrations', $mock );
 	}
 
@@ -119,7 +117,7 @@ class Integrations_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_activate() {
 		foreach ( $this->integrations as $plugin ) {
 			$plugin->shouldReceive( 'check' )->once()->andReturn( true );
-			$plugin->shouldReceive( 'run' )->once()->with( $this->core );
+			$plugin->shouldReceive( 'run' )->once()->with();
 		}
 
 		$this->assertNull( $this->sut->activate() );

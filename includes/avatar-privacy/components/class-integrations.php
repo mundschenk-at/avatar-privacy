@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -37,13 +37,6 @@ use Avatar_Privacy\Core;
 class Integrations implements \Avatar_Privacy\Component {
 
 	/**
-	 * The plugin instance used for setting transients.
-	 *
-	 * @var Core
-	 */
-	private $core;
-
-	/**
 	 * An array of plugin integration instances.
 	 *
 	 * @var Plugin_Integration[]
@@ -60,11 +53,11 @@ class Integrations implements \Avatar_Privacy\Component {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param Core                 $core         The core API.
+	 * @since 2.2.0 Parameter $core removed.
+	 *
 	 * @param Plugin_Integration[] $integrations An array of plugin integration instances.
 	 */
-	public function __construct( Core $core, array $integrations ) {
-		$this->core         = $core;
+	public function __construct( array $integrations ) {
 		$this->integrations = $integrations;
 	}
 
@@ -75,7 +68,7 @@ class Integrations implements \Avatar_Privacy\Component {
 		foreach ( $this->integrations as $integration ) {
 			if ( $integration->check() ) {
 				$this->active_integrations[] = $integration;
-				$integration->run( $this->core );
+				$integration->run();
 			}
 		}
 	}
