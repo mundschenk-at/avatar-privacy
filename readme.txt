@@ -107,6 +107,7 @@ No, for registered users the user profile is checked, not the table for the comm
 I used Avatar Privacy together with these plugins:
 
 * [AntiSpam Bee](https://wordpress.org/plugins/antispam-bee/)
+* [Comments – wpDiscuz](https://wordpress.org/plugins/wpdiscuz/)
 * [EWWW Image Optimizer](https://wordpress.org/plugins/ewww-image-optimizer/)
 * [WP User Manager – User Profile Builder & Membership](https://wordpress.org/plugins/wp-user-manager/)
 
@@ -137,7 +138,8 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 = 2.2.0 (unreleased) =
 * _Feature_: Integration for the following plugins had been added:
-  - WP User Manager
+  - [wpDiscuz](https://wordpress.org/plugins/wpdiscuz/)
+  - [WP User Manager](https://wordpress.org/plugins/wp-user-manager/)
 
 = 2.1.0 (2019-04-14) =
 * _Feature_: Improved compatibility with multisite installations. Plugin data will be properly deleted on uninstallation or when a site is removed. ("Large Networks" will still have to take manual action to prevent timeouts.)

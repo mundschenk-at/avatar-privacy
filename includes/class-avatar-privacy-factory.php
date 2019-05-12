@@ -59,6 +59,7 @@ use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons;
 
 use Avatar_Privacy\Integrations\BBPress_Integration;
+use Avatar_Privacy\Integrations\WPDiscuz_Integration;
 use Avatar_Privacy\Integrations\WP_User_Manager_Integration;
 
 use Avatar_Privacy\Tools\Images;
@@ -270,6 +271,7 @@ class Avatar_Privacy_Factory extends Dice {
 	protected function get_plugin_integrations() {
 		return [
 			[ 'instance' => BBPress_Integration::class ],
+			[ 'instance' => WPDiscuz_Integration::class ],
 			[ 'instance' => WP_User_Manager_Integration::class ],
 		];
 	}
