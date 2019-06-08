@@ -108,10 +108,7 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 			$this->user_id_being_edited = $user_id;
 
 			// Upload to our custom directory.
-			$avatar = $this->upload(
-				/* @scrutinizer ignore-type */
-				\wp_unslash( $_FILES[ self::FILE_UPLOAD ] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- ::upload uses \wp_handle_upload.
-			);
+			$avatar = $this->upload( $_FILES[ self::FILE_UPLOAD ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- ::upload uses \wp_handle_upload, $_FILES does not need wp_unslash.
 
 			// Handle upload failures.
 			if ( empty( $avatar['file'] ) ) {

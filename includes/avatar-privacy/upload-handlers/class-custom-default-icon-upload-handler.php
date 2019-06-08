@@ -90,8 +90,7 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 		}
 
 		$upload_index     = $this->options->get_name( Core::SETTINGS_NAME );
-		$normalized_files = ! empty( $_FILES[ $upload_index ]['name'] ) ? $this->normalize_files_array( /* @scrutinizer ignore-type */ \wp_unslash( $_FILES[ $upload_index ] ) ) : []; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-
+		$normalized_files = ! empty( $_FILES[ $upload_index ]['name'] ) ? $this->normalize_files_array( $_FILES[ $upload_index ] ) : []; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- ::upload uses \wp_handle_upload, $_FILES does not need wp_unslash.
 		if ( ! empty( $normalized_files[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ]['name'] ) ) {
 			// Upload to our custom directory.
 			$icon = $this->upload( $normalized_files[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ], false );

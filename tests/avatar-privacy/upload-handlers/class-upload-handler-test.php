@@ -156,10 +156,14 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function provide_upload_data() {
 		return [
-			[ false, false ],
-			[ false, true ],
-			[ true, false ],
-			[ true, true ],
+			[ false, false, false ],
+			[ false, true, false ],
+			[ true, false, false ],
+			[ true, true, false ],
+			[ false, false, true ],
+			[ false, true, true ],
+			[ true, false, true ],
+			[ true, true, true ],
 		];
 	}
 
@@ -173,10 +177,16 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param bool $is_multisite  The result of is_multisite().
 	 * @param bool $global        A flag indicating global uploads on multisite.
 	 */
-	public function test_upload( $is_multisite, $global ) {
+	public function test_upload( $is_multisite, $global, $has_file ) {
 		$file         = [ 'foo' => 'bar' ];
 		$result       = [ 'bar' => 'foo' ];
 		$main_site_id = 5;
+
+		if ( $has_file ) {
+			$result['file'] = '/my/path';
+
+			Functions\expect( 'wp_normalize_path' )->once()->with( $result['file'] )->andReturn( '/my/normalized/path' );
+		}
 
 		if ( $global ) {
 			Functions\expect( 'is_multisite' )->once()->andReturn( $is_multisite );
@@ -190,6 +200,11 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Filters\expectAdded( 'upload_dir' )->once()->with( [ $this->sut, 'custom_upload_dir' ] );
 		Functions\expect( 'wp_handle_upload' )->once()->with( $file, m::type( 'array' ) )->andReturn( $result );
+
+		if ( $has_file ) {
+			// Path should be normalized in final result.
+			$result['file'] = '/my/normalized/path';
+		}
 
 		$this->assertSame( $result, $this->sut->upload( $file, $global ) );
 		$this->assertFalse( Filters\has( 'upload_dir', [ $this->sut, 'custom_upload_dir' ] ) );

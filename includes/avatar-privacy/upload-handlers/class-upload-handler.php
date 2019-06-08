@@ -140,6 +140,11 @@ abstract class Upload_Handler {
 		// Move uploaded file.
 		$result = \wp_handle_upload( $file, $args );
 
+		// Ensure normalized path on Windows.
+		if ( ! empty( $result['file'] ) ) {
+			$result['file'] = \wp_normalize_path( $result['file'] );
+		}
+
 		// Restore standard upload directory.
 		\remove_filter( 'upload_dir', [ $this, 'custom_upload_dir' ] );
 
