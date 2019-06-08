@@ -130,7 +130,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	public function test_constructor() {
 		$mock = m::mock( Custom_Default_Icon_Upload_Handler::class )->makePartial();
 
-		$mock->__construct(  $this->core, $this->file_cache, $this->options );
+		$mock->__construct( $this->core, $this->file_cache, $this->options );
 
 		$this->assertAttributeSame( $this->options, 'options', $mock );
 	}
