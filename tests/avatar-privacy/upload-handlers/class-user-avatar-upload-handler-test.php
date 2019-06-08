@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -192,7 +192,7 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'sanitize_key' )->once()->with( $nonce )->andReturn( 'sanitized_nonce' );
 		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', User_Avatar_Upload_Handler::ACTION_UPLOAD )->andReturn( true );
 
-		Functions\expect( 'wp_unslash' )->once()->with( $uploaded_file )->andReturn( $uploaded_file );
+		Functions\expect( 'wp_unslash' )->never();
 		$this->sut->shouldReceive( 'upload' )->once()->with( $uploaded_file )->andReturn( $avatar );
 		$this->sut->shouldReceive( 'delete_uploaded_avatar' )->once()->with( $user_id )->andReturn( true );
 		$this->sut->shouldReceive( 'handle_errors' )->never();
@@ -229,7 +229,7 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'sanitize_key' )->once()->with( $nonce )->andReturn( 'sanitized_nonce' );
 		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', User_Avatar_Upload_Handler::ACTION_UPLOAD )->andReturn( true );
 
-		Functions\expect( 'wp_unslash' )->once()->with( $uploaded_file )->andReturn( $uploaded_file );
+		Functions\expect( 'wp_unslash' )->never();
 		$this->sut->shouldReceive( 'upload' )->once()->with( $uploaded_file )->andReturn( $avatar );
 		$this->sut->shouldReceive( 'delete_uploaded_avatar' )->never();
 		$this->sut->shouldReceive( 'handle_errors' )->once()->with( $avatar );
