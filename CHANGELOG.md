@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.2.1 (2019-06-08)
+*   _Bugfix_: Compatibility with Windows servers.
+
 ## 2.2.0 (2019-05-12)
 *   _Feature_: Integration for the following plugins had been added:
     -   [wpDiscuz](https://wordpress.org/plugins/wpdiscuz/)
