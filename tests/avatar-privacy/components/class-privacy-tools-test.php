@@ -130,6 +130,16 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @covers ::add_privacy_notice_content
 	 */
+	public function test_add_privacy_notice_content_old_wordpress() {
+		// No expectation so that the function does not exist.
+		$this->assertNull( $this->sut->add_privacy_notice_content() );
+	}
+
+	/**
+	 * Tests ::add_privacy_notice_content.
+	 *
+	 * @covers ::add_privacy_notice_content
+	 */
 	public function test_add_privacy_notice_content() {
 		Functions\expect( 'wp_add_privacy_policy_content' )->once();
 
