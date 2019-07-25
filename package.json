@@ -29,6 +29,15 @@
     "IE 10",
     "IE 11"
   ],
+  "phpPrefixNamespaces": [
+    "Colors",
+    "Dice",
+    "Identicon",
+    "Jdenticon",
+    "Mundschenk",
+    "Scriptura",
+    "splitbrain"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/mundschenk-at/avatar-privacy.git"

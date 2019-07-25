@@ -39,7 +39,8 @@
         "phpunit/phpunit": "5.*||6.*||7.*",
         "mikey179/vfsstream": "~1",
         "brain/monkey": "^2.2",
-        "roave/security-advisories": "dev-master"
+        "roave/security-advisories": "dev-master",
+        "humbug/php-scoper": "^0.12.4"
     },
 
     "autoload": {
@@ -70,9 +71,13 @@
         "coverage": [
             "phpunit --testsuite AvatarPrivacy --coverage-html tests/coverage"
         ],
+        "scope-dependencies": [
+            "@php vendor/bin/php-scoper add-prefix --config=.scoper.inc.php --force --quiet"
+        ],
         "build-wordpress": [
             "@composer require dangoodman/composer-for-wordpress --no-update",
-            "@composer update --no-dev"
+            "@composer update --no-dev",
+            "@composer dump-autoload --classmap-authoritative --no-dev"
         ]
     }
 }

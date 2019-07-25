@@ -15,10 +15,10 @@ module.exports = function( grunt ) {
 
 		composer: {
 			build: {
-					options: {
-							//flags: ['quiet'],
-							cwd: 'build',
-					},
+				options: {
+					flags: ['quiet'],
+					cwd: 'build',
+				},
 			},
 			dev: {
 					options : {
@@ -28,26 +28,39 @@ module.exports = function( grunt ) {
 			},
 		},
 
-    "string-replace": {
-        autoloader: {
-            files: {
-                "build/": "build/vendor/composer/autoload_{classmap,psr4,static}.php",
-            },
-            options: {
-                replacements: [{
-                    pattern: /\s+'Dangoodman\\\\ComposerForWordpress\\\\' =>\s+array\s*\([^,]+,\s*\),/g,
-                    replacement: ''
-                }, {
-                    pattern: /\s+'Dangoodman\\\\ComposerForWordpress\\\\.*,(?=\n)/g,
-                    replacement: ''
-                }, {
-                    pattern: 'Dangoodman',
-                    replacement: 'FOOBAR'
-                }]
-            }
-        }
-    },
-
+		"string-replace": {
+			autoloader: {
+				files: {
+					"build/": "build/vendor/composer/autoload_{classmap,psr4,static}.php",
+				},
+				options: {
+					replacements: [{
+						pattern: /\s+'Dangoodman\\\\ComposerForWordpress\\\\' =>\s+array\s*\([^,]+,\s*\),/g,
+						replacement: ''
+					}, {
+						pattern: /\s+'Dangoodman\\\\ComposerForWordpress\\\\.*,(?=\n)/g,
+						replacement: ''
+					}, {
+						pattern: 'Dangoodman',
+						replacement: 'FOOBAR'
+					}]
+				}
+			},
+			namespaces: {
+				options: {
+					replacements: [{
+						pattern: '', // Set later.
+						replacement: '$1' + 'Avatar_Privacy\\Vendor\\' + '$2'
+					}],
+				},
+				files: [{
+					expand: true,
+					flatten: false,
+					src: ['build/includes/**/*.php'],
+					dest: '',
+				}]
+			},
+		},
 
 		copy: {
 			main: {
@@ -61,24 +74,10 @@ module.exports = function( grunt ) {
 						'public/**',
 						'includes/**',
 						'!**/scss/**',
-						'composer.*',
-						'vendor/composer/**',
-						'vendor/mundschenk-at/check-wp-requirements/*.php',
-						'vendor/mundschenk-at/check-wp-requirements/partials/*.php',
-						'vendor/mundschenk-at/wp-data-storage/src/**/*.php',
-						'vendor/mundschenk-at/wp-settings-ui/src/**/*.php',
-						'vendor/mundschenk-at/wp-settings-ui/partials/**/*.php',
-						'vendor/mistic100/randomcolor/src/**/*.php',
-						'vendor/level-2/dice/**/*.php',
-						'vendor/jdenticon/jdenticon/src/**/*.php',
-						'vendor/splitbrain/php-ringicon/src/**/*.php',
-						'vendor/scripturadesign/color/src/**/*.php',
-						'vendor/yzalis/identicon/src/**/*.php',
-						'!**/scss/**',
 						'!**/tests/**'
 					],
 					dest: 'build/'
-				}	],
+				}],
 			},
 			meta: {
 				files: [ {
@@ -270,6 +269,12 @@ module.exports = function( grunt ) {
 		},
 	});
 
+	// Set correct pattern for naemspace replacement.
+	grunt.config(
+		'string-replace.namespaces.options.replacements.0.pattern',
+		new RegExp( '([^\\w\\\\]|\\B\\\\?)((?:' + grunt.config('pkg.phpPrefixNamespaces').join('|') + ')\\\\[\\w_]+)', 'g' )
+	);
+
 	// load all tasks
 	require( 'load-grunt-tasks' )( grunt, { scope: 'devDependencies' } );
 
@@ -280,18 +285,21 @@ module.exports = function( grunt ) {
 			'newer:postcss:dev'
 	] );
 
-	grunt.registerTask( 'build', [
-			'clean:build',
-			'newer:sass:dist',
-			'newer:postcss:dist',
-			'newer:minify',
-			'copy:main',
-			'copy:meta',
-			'composer:build:build-wordpress',
-			'composer:build:dump-autoload:classmap-authoritative:no-dev',
-			'clean:autoloader',
-			'string-replace:autoloader',
-	] );
+	grunt.registerTask('build', [
+		'clean:build',
+		'composer:dev:scope-dependencies',
+		'newer:sass:dist',
+		'newer:postcss:dist',
+		'newer:minify',
+		'copy:main',
+		'copy:meta',
+		'composer:build:build-wordpress',
+		'string-replace:namespaces',
+		//			'string-replace:fix_dice_namespace',
+		//			'string-replace:fix_mundschenk_namespace',
+		'clean:autoloader',
+		'string-replace:autoloader',
+	]);
 
 	grunt.registerTask( 'build-beta', [
 			'build',
