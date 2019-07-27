@@ -35,10 +35,10 @@ matrix:
           env:  SCOPE=tests
         # aliased to a recent 7.2 version
         - php:  '7.2'
-          env:  SCOPE=coverage
-        # aliased to a recent 7.3 beta version
-        - php:  '7.3'
           env:  SCOPE=tests
+        # aliased to a recent 7.3 version
+        - php:  '7.3'
+          env:  SCOPE=coverage
 
 # Use this to prepare the system to install prerequisites or dependencies.
 # e.g. sudo apt-get update.
