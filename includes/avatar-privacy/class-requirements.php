@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,18 +24,18 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-// We can't rely on autoloading for the requirements check.
-require_once dirname( dirname( __FILE__ ) ) . '/vendor/mundschenk-at/check-wp-requirements/class-mundschenk-wp-requirements.php'; // @codeCoverageIgnore
+namespace Avatar_Privacy;
 
 /**
  * A custom requirements class to check for additional PHP packages and other
  * prerequisites.
  *
  * @since 1.0.0
+ * @since 2.3.0 Moved to \Avatar_Privacy\Requirements.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Avatar_Privacy_Requirements extends Mundschenk_WP_Requirements {
+class Requirements extends \Mundschenk\WP_Requirements {
 
 	/**
 	 * Creates a new requirements instance.
