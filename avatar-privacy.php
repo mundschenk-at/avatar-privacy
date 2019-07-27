@@ -30,44 +30,55 @@
  * Author: Peter Putzer
  * Author URI: https://code.mundschenk.at
  * Version: 2.4.0-alpha.1
- * Requires at least: 4.9
+ * Requires at least: 5.2
  * Requires PHP: 7.0
  * License: GNU General Public License v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: avatar-privacy
  */
 
+namespace Avatar_Privacy;
+
+use Avatar_Privacy\Controller;
+use Avatar_Privacy\Factory;
+use Avatar_Privacy\Requirements;
+
 // Don't do anything if called directly.
-if ( ! defined( 'ABSPATH' ) || ! defined( 'WPINC' ) ) {
-	die();
+if ( ! \defined( 'ABSPATH' ) || ! \defined( 'WPINC' ) ) {
+	die;
 }
 
 // Make plugin file path available globally.
-if ( ! defined( 'AVATAR_PRIVACY_PLUGIN_FILE' ) ) {
-	define( 'AVATAR_PRIVACY_PLUGIN_FILE', __FILE__ );
+if ( ! \defined( 'AVATAR_PRIVACY_PLUGIN_FILE' ) ) {
+	\define( 'AVATAR_PRIVACY_PLUGIN_FILE', __FILE__ );
 }
-if ( ! defined( 'AVATAR_PRIVACY_PLUGIN_PATH' ) ) {
-	define( 'AVATAR_PRIVACY_PLUGIN_PATH', dirname( __FILE__ ) );
+if ( ! \defined( 'AVATAR_PRIVACY_PLUGIN_PATH' ) ) {
+	\define( 'AVATAR_PRIVACY_PLUGIN_PATH', __DIR__ );
 }
 
-require_once dirname( __FILE__ ) . '/includes/class-avatar-privacy-requirements.php';
+// Initialize autoloader.
+require_once __DIR__ . '/vendor/autoload.php';
 
 /**
- * Load the plugin after checking for the necessary PHP version.
+ * Load the plugin after checking for the necessary PHP version (& other requirements).
  *
- * It's necessary to do this here because main class relies on namespaces.
+ * @since  2.4.0 Moved to Avatar_Privacy\run_avatar_privacy.
+ *
+ * @return void
  */
-function avatar_privacy_run() {
+function run_avatar_privacy() {
 
-	$requirements = new Avatar_Privacy_Requirements();
-
+	// Check plugin requirements.
+	$requirements = new Requirements();
 	if ( $requirements->check() ) {
-		// Autoload the rest of your classes.
-		require_once __DIR__ . '/vendor/autoload.php'; // phpcs:ignore PHPCompatibility.Keywords.NewKeywords.t_dirFound
 
-		// Create and start the plugin.
-		$plugin = Avatar_Privacy_Factory::get()->create( 'Avatar_Privacy\Controller' );
+		/**
+		 * Create and start the plugin.
+		 *
+		 * @var Controller
+		 */
+		$plugin = Factory::get()->create( Controller::class );
 		$plugin->run();
 	}
 }
-avatar_privacy_run();
+run_avatar_privacy();

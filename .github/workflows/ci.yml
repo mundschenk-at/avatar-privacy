@@ -85,5 +85,3 @@ jobs:
         run: composer update --no-progress --prefer-dist --optimize-autoloader
       - name: Run PHPCS checks
         run: vendor/bin/phpcs -q *.php includes/ admin/ public/ --extensions=php --report=checkstyle | cs2pr
-      - name: Run PHPCS checks on bootstrapping files
-        run: vendor/bin/phpcs -q avatar-privacy.php uninstall.php includes/class-avatar-privacy-*requirements.php --runtime-set testVersion 5.2- --report=checkstyle | cs2pr
