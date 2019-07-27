@@ -87,11 +87,11 @@ class Requirements extends \Mundschenk\WP_Requirements {
 	 * @return bool
 	 */
 	protected function check_gd_support() {
-		return function_exists( 'imagecreatefrompng' )
-			&& function_exists( 'imagecopy' )
-			&& function_exists( 'imagedestroy' )
-			&& function_exists( 'imagepng' )
-			&& function_exists( 'imagecreatetruecolor' );
+		return \function_exists( 'imagecreatefrompng' )
+			&& \function_exists( 'imagecopy' )
+			&& \function_exists( 'imagedestroy' )
+			&& \function_exists( 'imagepng' )
+			&& \function_exists( 'imagecreatetruecolor' );
 	}
 
 	/**
@@ -100,10 +100,10 @@ class Requirements extends \Mundschenk\WP_Requirements {
 	public function admin_notices_gd_incompatible() {
 		$this->display_error_notice(
 			/* translators: 1: plugin name 2: GD documentation URL */
-			__( 'The activated plugin %1$s requires the GD PHP extension to be enabled on your server. Please deactivate this plugin, or <a href="%2$s">enable the extension</a>.', 'avatar-privacy' ),
+			\__( 'The activated plugin %1$s requires the GD PHP extension to be enabled on your server. Please deactivate this plugin, or <a href="%2$s">enable the extension</a>.', 'avatar-privacy' ),
 			'<strong>Avatar Privacy</strong>',
 			/* translators: URL with GD PHP extension installation instructions */
-			__( 'http://php.net/manual/en/image.setup.php', 'avatar-privacy' )
+			\__( 'http://php.net/manual/en/image.setup.php', 'avatar-privacy' )
 		);
 	}
 
@@ -113,18 +113,18 @@ class Requirements extends \Mundschenk\WP_Requirements {
 	 * @return bool
 	 */
 	protected function check_uploads_writable() {
-		$uploads = wp_get_upload_dir();
+		$uploads = \wp_get_upload_dir();
 
-		return is_writable( $uploads['basedir'] );
+		return \is_writable( $uploads['basedir'] );
 	}
 
 	/**
-	 * Prints 'GD extension missing' admin notice
+	 * Prints 'GD extension missing' admin notice.
 	 */
 	public function admin_notices_uploads_not_writable() {
 		$this->display_error_notice(
 			/* translators: 1: plugin name */
-			__( 'The activated plugin %1$s requires write access to the WordPress uploads folder on your server. Please check the folder\'s permissions, or deactivate this plugin.', 'avatar-privacy' ),
+			\__( 'The activated plugin %1$s requires write access to the WordPress uploads folder on your server. Please check the folder\'s permissions, or deactivate this plugin.', 'avatar-privacy' ),
 			'<strong>Avatar Privacy</strong>'
 		);
 	}
