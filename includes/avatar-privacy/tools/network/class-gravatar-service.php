@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -219,7 +219,7 @@ class Gravatar_Service {
 		// change, but a NO might change when the user signs up with gravatar.com).
 		$duration = WEEK_IN_SECONDS;
 		if ( empty( $result ) ) {
-			$duration = $age < HOUR_IN_SECONDS ? 10 * MINUTE_IN_SECONDS : $age < DAY_IN_SECONDS ? HOUR_IN_SECONDS : $age < WEEK_IN_SECONDS ? DAY_IN_SECONDS : $duration;
+			$duration = $age < HOUR_IN_SECONDS ? 10 * MINUTE_IN_SECONDS : ( $age < DAY_IN_SECONDS ? HOUR_IN_SECONDS : ( $age < WEEK_IN_SECONDS ? DAY_IN_SECONDS : $duration ) );
 		}
 
 		/**

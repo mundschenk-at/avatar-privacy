@@ -37,17 +37,17 @@ use org\bovigo\vfs\vfsStream;
 use Mockery as m;
 
 /**
- * Avatar_Privacy_Factory unit test.
+ * Avatar_Privacy\Factory unit test.
  *
- * @coversDefaultClass \Avatar_Privacy_Factory
- * @usesDefaultClass \Avatar_Privacy_Factory
+ * @coversDefaultClass \Avatar_Privacy\Factory
+ * @usesDefaultClass \Avatar_Privacy\Factory
  */
-class Avatar_Privacy_Factory_Test extends TestCase {
+class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 
 	/**
 	 * The system-under-test.
 	 *
-	 * @var \Avatar_Privacy_Factory
+	 * @var \Avatar_Privacy\Factory
 	 */
 	private $sut;
 
@@ -72,10 +72,10 @@ class Avatar_Privacy_Factory_Test extends TestCase {
 
 		// Set up virtual filesystem.
 		vfsStream::setup( 'root', null, $filesystem );
-		set_include_path( 'vfs://root/' ); // @codingStandardsIgnoreLine
+		\set_include_path( 'vfs://root/' ); // @codingStandardsIgnoreLine
 
 		// Set up the mock.
-		$this->sut = m::mock( \Avatar_Privacy_Factory::class )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( \Avatar_Privacy\Factory::class )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -147,20 +147,20 @@ class Avatar_Privacy_Factory_Test extends TestCase {
 	 *
 	 * @covers ::get
 	 *
-	 * @uses Avatar_Privacy_Factory::__construct
-	 * @uses Avatar_Privacy_Factory::get_default_icons
-	 * @uses Avatar_Privacy_Factory::get_plugin_integrations
-	 * @uses Avatar_Privacy_Factory::get_plugin_version
-	 * @uses Avatar_Privacy_Factory::get_rules
+	 * @uses Avatar_Privacy\Factory::__construct
+	 * @uses Avatar_Privacy\Factory::get_default_icons
+	 * @uses Avatar_Privacy\Factory::get_plugin_integrations
+	 * @uses Avatar_Privacy\Factory::get_plugin_version
+	 * @uses Avatar_Privacy\Factory::get_rules
 	 */
 	public function test_get() {
 		Functions\expect( 'get_plugin_data' )->once()->with( m::type( 'string' ), false, false )->andReturn( [ 'Version' => '42' ] );
 
-		$result1 = \Avatar_Privacy_Factory::get();
+		$result1 = \Avatar_Privacy\Factory::get();
 
-		$this->assertInstanceOf( \Avatar_Privacy_Factory::class, $result1 );
+		$this->assertInstanceOf( \Avatar_Privacy\Factory::class, $result1 );
 
-		$result2 = \Avatar_Privacy_Factory::get();
+		$result2 = \Avatar_Privacy\Factory::get();
 
 		$this->assertSame( $result1, $result2 );
 	}

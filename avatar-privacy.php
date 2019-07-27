@@ -29,23 +29,22 @@
  * Description: Adds options to enhance the privacy when using avatars.
  * Author: Peter Putzer
  * Author URI: https://code.mundschenk.at
- * Version: 2.2.1
+ * Version: 2.3.0-alpha.1
  * License: GNU General Public License v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: avatar-privacy
  */
 
 // Don't do anything if called directly.
-if ( ! defined( 'ABSPATH' ) || ! defined( 'WPINC' ) ) {
-	die();
+if ( ! \defined( 'ABSPATH' ) || ! \defined( 'WPINC' ) ) {
+	die;
 }
 
 // Make plugin file path available globally.
-if ( ! defined( 'AVATAR_PRIVACY_PLUGIN_FILE' ) ) {
-	define( 'AVATAR_PRIVACY_PLUGIN_FILE', __FILE__ );
-}
+const AVATAR_PRIVACY_PLUGIN_FILE = __FILE__;
 
-require_once dirname( __FILE__ ) . '/includes/class-avatar-privacy-requirements.php';
+// Initialize autoloader.
+require_once __DIR__ . '/vendor/autoload.php';
 
 /**
  * Load the plugin after checking for the necessary PHP version.
@@ -54,14 +53,12 @@ require_once dirname( __FILE__ ) . '/includes/class-avatar-privacy-requirements.
  */
 function avatar_privacy_run() {
 
-	$requirements = new Avatar_Privacy_Requirements();
-
+	// Check plugin requirements.
+	$requirements = new \Avatar_Privacy\Requirements();
 	if ( $requirements->check() ) {
-		// Autoload the rest of your classes.
-		require_once __DIR__ . '/vendor/autoload.php'; // phpcs:ignore PHPCompatibility.Keywords.NewKeywords.t_dirFound
 
 		// Create and start the plugin.
-		$plugin = Avatar_Privacy_Factory::get()->create( 'Avatar_Privacy\Controller' );
+		$plugin = \Avatar_Privacy\Factory::get()->create( \Avatar_Privacy\Controller::class );
 		$plugin->run();
 	}
 }

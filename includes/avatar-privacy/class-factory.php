@@ -24,6 +24,8 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
+namespace Avatar_Privacy;
+
 use Dice\Dice;
 
 use Avatar_Privacy\Core;
@@ -71,16 +73,17 @@ use Avatar_Privacy\Tools\Network\Gravatar_Service;
  *
  * @since 1.0.0
  * @since 2.1.0 Class made concrete.
+ * @since 2.3.0 Moved to Avatar_Privacy\Factory.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Avatar_Privacy_Factory extends Dice {
+class Factory extends Dice {
 	const SHARED = [ 'shared' => true ];
 
 	/**
 	 * The factory instance.
 	 *
-	 * @var Avatar_Privacy_Factory
+	 * @var Factory
 	 */
 	private static $factory;
 
@@ -99,7 +102,7 @@ class Avatar_Privacy_Factory extends Dice {
 	 *
 	 * @since 2.1.0 Parameter $full_plugin_path replaced with AVATAR_PRIVACY_PLUGIN_FILE constant.
 	 *
-	 * @return Avatar_Privacy_Factory
+	 * @return Factory
 	 */
 	public static function get() {
 		if ( ! isset( self::$factory ) ) {
