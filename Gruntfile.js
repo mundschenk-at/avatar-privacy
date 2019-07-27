@@ -1,57 +1,72 @@
 'use strict';
+
+// Which SASS implementation to use.
 const sass = require('sass');
 
-module.exports = function( grunt ) {
+module.exports = function(grunt) {
 
 	grunt.initConfig({
-		pkg: grunt.file.readJSON( 'package.json' ),
+		pkg: grunt.file.readJSON('package.json'),
 
-		wpversion: grunt.file.read( 'avatar-privacy.php' ).toString().match(/Version:\s*([0-9](?:\w|\.|\-)*)\s|\Z/)[1],
+		wpversion: grunt.file.read('avatar-privacy.php').toString().match(/Version:\s*([0-9](?:\w|\.|\-)*)\s|\Z/)[1],
 
-    clean: {
-        build: ["build/*"],
-        autoloader: [ "build/tests", "build/composer.*", "build/vendor/composer/*.json", "build/vendor/dangoodman" ]
-    },
+		clean: {
+			build: ["build/*"],
+			autoloader: ["build/tests", "build/composer.*", "build/vendor/composer/*.json", "build/vendor/dangoodman"]
+		},
 
 		composer: {
 			build: {
-					options: {
-							//flags: ['quiet'],
-							cwd: 'build',
-					},
+				options: {
+					flags: ['quiet'],
+					cwd: 'build',
+				},
 			},
 			dev: {
-					options : {
-							flags: [],
-							cwd: '.',
-					},
+				options: {
+					flags: [],
+					cwd: '.',
+				},
 			},
 		},
 
-    "string-replace": {
-        autoloader: {
-            files: {
-                "build/": "build/vendor/composer/autoload_{classmap,psr4,static}.php",
-            },
-            options: {
-                replacements: [{
-                    pattern: /\s+'Dangoodman\\\\ComposerForWordpress\\\\' =>\s+array\s*\([^,]+,\s*\),/g,
-                    replacement: ''
-                }, {
-                    pattern: /\s+'Dangoodman\\\\ComposerForWordpress\\\\.*,(?=\n)/g,
-                    replacement: ''
-                }, {
-                    pattern: 'Dangoodman',
-                    replacement: 'FOOBAR'
-                }]
-            }
-        }
-    },
-
+		"string-replace": {
+			autoloader: {
+				files: {
+					"build/": "build/vendor/composer/autoload_{classmap,psr4,static}.php",
+				},
+				options: {
+					replacements: [{
+						pattern: /\s+'Dangoodman\\\\ComposerForWordpress\\\\' =>\s+array\s*\([^,]+,\s*\),/g,
+						replacement: ''
+					}, {
+						pattern: /\s+'Dangoodman\\\\ComposerForWordpress\\\\.*,(?=\n)/g,
+						replacement: ''
+					}, {
+						pattern: 'Dangoodman',
+						replacement: 'FOOBAR'
+					}]
+				}
+			},
+			namespaces: {
+				options: {
+					replacements: [{
+						pattern: '', // Set later.
+						replacement: '$1' + 'Avatar_Privacy\\Vendor\\' + '$2'
+					}],
+				},
+				files: [{
+					expand: true,
+					flatten: false,
+					src: ['build/includes/**/*.php'],
+					dest: '',
+				}]
+			},
+		},
 
 		copy: {
 			main: {
-				files: [ {
+				files: [{
 					expand: true,
 					nonull: true,
 					src: [
@@ -61,27 +76,13 @@ module.exports = function( grunt ) {
 						'public/**',
 						'includes/**',
 						'!**/scss/**',
-						'composer.*',
-						'vendor/composer/**',
-						'vendor/mundschenk-at/check-wp-requirements/*.php',
-						'vendor/mundschenk-at/check-wp-requirements/partials/*.php',
-						'vendor/mundschenk-at/wp-data-storage/src/**/*.php',
-						'vendor/mundschenk-at/wp-settings-ui/src/**/*.php',
-						'vendor/mundschenk-at/wp-settings-ui/partials/**/*.php',
-						'vendor/mistic100/randomcolor/src/**/*.php',
-						'vendor/level-2/dice/**/*.php',
-						'vendor/jdenticon/jdenticon/src/**/*.php',
-						'vendor/splitbrain/php-ringicon/src/**/*.php',
-						'vendor/scripturadesign/color/src/**/*.php',
-						'vendor/yzalis/identicon/src/**/*.php',
-						'!**/scss/**',
 						'!**/tests/**'
 					],
 					dest: 'build/'
-				}	],
+				}],
 			},
 			meta: {
-				files: [ {
+				files: [{
 					expand: true,
 					nonull: false,
 					src: [
@@ -92,7 +93,7 @@ module.exports = function( grunt ) {
 						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain,scripturadesign,yzalis}/**/CHANGE*',
 					],
 					dest: 'build/'
-				} ],
+				}],
 			}
 		},
 
@@ -154,20 +155,21 @@ module.exports = function( grunt ) {
 					sourceComments: false,
 					sourcemap: 'none',
 				},
-				files: [ {
-					expand: true,
-					cwd: 'admin/scss',
-					src: [ '**/*.scss' ],
-					dest: 'build/admin/css',
-					ext: '.min.css'
-				},
-				{
-					expand: true,
-					cwd: 'public/scss',
-					src: [ '**/*.scss' ],
-					dest: 'build/public/css',
-					ext: '.min.css'
-				} ]
+				files: [{
+						expand: true,
+						cwd: 'admin/scss',
+						src: ['**/*.scss'],
+						dest: 'build/admin/css',
+						ext: '.min.css'
+					},
+					{
+						expand: true,
+						cwd: 'public/scss',
+						src: ['**/*.scss'],
+						dest: 'build/public/css',
+						ext: '.min.css'
+					}
+				]
 			},
 			dev: {
 				options: {
@@ -175,20 +177,21 @@ module.exports = function( grunt ) {
 					sourceComments: false,
 					sourceMapEmbed: true,
 				},
-				files: [ {
-					expand: true,
-					cwd: 'admin/scss',
-					src: [ '**/*.scss' ],
-					dest: 'admin/css',
-					ext: '.css'
-				},
-				{
-					expand: true,
-					cwd: 'public/scss',
-					src: [ '**/*.scss' ],
-					dest: 'public/css',
-					ext: '.css'
-				} ]
+				files: [{
+						expand: true,
+						cwd: 'admin/scss',
+						src: ['**/*.scss'],
+						dest: 'admin/css',
+						ext: '.css'
+					},
+					{
+						expand: true,
+						cwd: 'public/scss',
+						src: ['**/*.scss'],
+						dest: 'public/css',
+						ext: '.css'
+					}
+				]
 			}
 		},
 
@@ -201,36 +204,38 @@ module.exports = function( grunt ) {
 				]
 			},
 			dev: {
-				files: [ {
-					expand: true,
-					cwd: 'admin/css',
-					src: [ '**/*.css' ],
-					dest: 'admin/css',
-					ext: '.css'
-				},
-				{
-					expand: true,
-					cwd: 'public/css',
-					src: [ '**/*.css' ],
-					dest: 'public/css',
-					ext: '.css'
-				} ]
+				files: [{
+						expand: true,
+						cwd: 'admin/css',
+						src: ['**/*.css'],
+						dest: 'admin/css',
+						ext: '.css'
+					},
+					{
+						expand: true,
+						cwd: 'public/css',
+						src: ['**/*.css'],
+						dest: 'public/css',
+						ext: '.css'
+					}
+				]
 			},
 			dist: {
-				files: [ {
-					expand: true,
-					cwd: 'build/admin/css',
-					src: [ '**/*.css' ],
-					dest: 'build/admin/css',
-					ext: '.css'
-				},
-				{
-					expand: true,
-					cwd: 'build/public/css',
-					src: [ '**/*.css' ],
-					dest: 'build/public/css',
-					ext: '.css'
-				} ]
+				files: [{
+						expand: true,
+						cwd: 'build/admin/css',
+						src: ['**/*.css'],
+						dest: 'build/admin/css',
+						ext: '.css'
+					},
+					{
+						expand: true,
+						cwd: 'build/public/css',
+						src: ['**/*.css'],
+						dest: 'build/public/css',
+						ext: '.css'
+					}
+				]
 			}
 		},
 
@@ -246,7 +251,7 @@ module.exports = function( grunt ) {
 			dist: {
 				expand: true,
 				//dest: 'build/',
-				files: grunt.file.expandMapping( [ 'admin/js/**/*.js', '!admin/js/**/*min.js', 'public/js/**/*.js', '!public/js/**/*min.js' ], 'build/', {
+				files: grunt.file.expandMapping(['admin/js/**/*.js', '!admin/js/**/*min.js', 'public/js/**/*.js', '!public/js/**/*min.js'], 'build/', {
 					rename: function(destBase, destPath) {
 						return destBase + destPath.replace('.js', '.min.js');
 					}
@@ -261,48 +266,59 @@ module.exports = function( grunt ) {
 					archive: '<%= pkg.name %>-<%= wpversion %>.zip'
 				},
 				files: [{
-						expand: true,
-						cwd: 'build/',
-						src: [ '**/*' ],
-						dest: '<%= pkg.name %>/',
+					expand: true,
+					cwd: 'build/',
+					src: ['**/*'],
+					dest: '<%= pkg.name %>/',
 				}],
 			}
 		},
 	});
 
+	// Set correct pattern for naemspace replacement.
+	grunt.config(
+		'string-replace.namespaces.options.replacements.0.pattern',
+		new RegExp( '([^\\w\\\\]|\\B\\\\?)((?:' + grunt.config('pkg.phpPrefixNamespaces').join('|') + ')\\\\[\\w_]+)', 'g' )
+	);
+
 	// load all tasks
-	require( 'load-grunt-tasks' )( grunt, { scope: 'devDependencies' } );
+	require('load-grunt-tasks')(grunt, {
+		scope: 'devDependencies'
+	});
 
-	grunt.registerTask( 'default', [
-			'newer:eslint',
-			'newer:phpcs',
-			'newer:sass:dev',
-			'newer:postcss:dev'
-	] );
+	grunt.registerTask('default', [
+		'newer:eslint',
+		'newer:phpcs',
+		'newer:sass:dev',
+		'newer:postcss:dev'
+	]);
 
-	grunt.registerTask( 'build', [
-			'clean:build',
-			'newer:sass:dist',
-			'newer:postcss:dist',
-			'newer:minify',
-			'copy:main',
-			'copy:meta',
-			'composer:build:build-wordpress',
-			'composer:build:dump-autoload:classmap-authoritative:no-dev',
-			'clean:autoloader',
-			'string-replace:autoloader',
-	] );
+	grunt.registerTask('build', [
+		'clean:build',
+		'composer:dev:scope-dependencies',
+		'newer:sass:dist',
+		'newer:postcss:dist',
+		'newer:minify',
+		'copy:main',
+		'copy:meta',
+		'composer:build:build-wordpress',
+		'string-replace:namespaces',
+		//			'string-replace:fix_dice_namespace',
+		//			'string-replace:fix_mundschenk_namespace',
+		'clean:autoloader',
+		'string-replace:autoloader',
+	]);
 
-	grunt.registerTask( 'build-beta', [
-			'build',
-			'compress:beta',
-	] );
+	grunt.registerTask('build-beta', [
+		'build',
+		'compress:beta',
+	]);
 
 	// dynamically generate uglify targets
-	grunt.registerMultiTask('minify', function () {
-		this.files.forEach(function (file) {
+	grunt.registerMultiTask('minify', function() {
+		this.files.forEach(function(file) {
 			var path = file.src[0],
-			target = path.match(/([^.]*)\.js/)[1];
+				target = path.match(/([^.]*)\.js/)[1];
 
 			// store some information about this file in config
 			grunt.config('ugtargets.' + target, {
@@ -320,23 +336,23 @@ module.exports = function( grunt ) {
 	});
 
 	grunt.registerTask('deploy', [
-			'phpcs',
-			'eslint',
-			'build',
-			'wp_deploy:release'
-	] );
+		'phpcs',
+		'eslint',
+		'build',
+		'wp_deploy:release'
+	]);
 
 	grunt.registerTask('trunk', [
-			'phpcs',
-			'eslint',
-			'build',
-			'wp_deploy:trunk'
-	] );
+		'phpcs',
+		'eslint',
+		'build',
+		'wp_deploy:trunk'
+	]);
 
 	grunt.registerTask('assets', [
-			'clean:build',
-			'copy',
-			'wp_deploy:assets'
-	] );
+		'clean:build',
+		'copy',
+		'wp_deploy:assets'
+	]);
 
 };

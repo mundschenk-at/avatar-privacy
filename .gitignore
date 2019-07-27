@@ -3,6 +3,7 @@ vendor/
 composer.lock
 
 # Grunt
+package-lock.json
 node_modules/
 
 # Build artifacts
