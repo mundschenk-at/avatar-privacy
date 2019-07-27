@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.3.0 (unreleased)
+*   _Feature_: New template function `\Avatar_Privacy\gravatar_checkbox()` for legacy themes added.
+*   _Change_: `avapr_get_avatar_checkbox()` has been deprecated in favor of
+    `\Avatar_Privacy\get_gravatar_checkbox()`.
+
 ## 2.2.1 (2019-06-08)
 *   _Bugfix_: Compatibility with Windows servers.
 
