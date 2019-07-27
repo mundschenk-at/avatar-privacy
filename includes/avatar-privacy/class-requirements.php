@@ -43,13 +43,13 @@ class Requirements extends \Mundschenk\WP_Requirements {
 	 * @since 2.1.0 Parameter $plugin_file replaced with AVATAR_PRIVACY_PLUGIN_FILE constant.
 	 */
 	public function __construct() {
-		$requirements = array(
+		$requirements = [
 			'php'              => '5.6.0',
 			'multibyte'        => false,
 			'utf-8'            => false,
 			'gd'               => true,
 			'uploads_writable' => true,
-		);
+		];
 
 		parent::__construct( 'Avatar Privacy', AVATAR_PRIVACY_PLUGIN_FILE, 'avatar-privacy', $requirements );
 	}
@@ -67,16 +67,16 @@ class Requirements extends \Mundschenk\WP_Requirements {
 	 */
 	protected function get_requirements() {
 		$requirements   = parent::get_requirements();
-		$requirements[] = array(
+		$requirements[] = [
 			'enable_key' => 'gd',
-			'check'      => array( $this, 'check_gd_support' ),
-			'notice'     => array( $this, 'admin_notices_gd_incompatible' ),
-		);
-		$requirements[] = array(
+			'check'      => [ $this, 'check_gd_support' ],
+			'notice'     => [ $this, 'admin_notices_gd_incompatible' ],
+		];
+		$requirements[] = [
 			'enable_key' => 'uploads_writable',
-			'check'      => array( $this, 'check_uploads_writable' ),
-			'notice'     => array( $this, 'admin_notices_uploads_not_writable' ),
-		);
+			'check'      => [ $this, 'check_uploads_writable' ],
+			'notice'     => [ $this, 'admin_notices_uploads_not_writable' ],
+		];
 
 		return $requirements;
 	}
