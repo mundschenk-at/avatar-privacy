@@ -24,33 +24,25 @@
  */
 
 // Don't do anything if called directly.
-if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
-	die();
+if ( ! \defined( 'WP_UNINSTALL_PLUGIN' ) ) {
+	die;
 }
 
 // Make plugin file path available globally (even if we probably don't need it during uninstallaton).
-if ( ! defined( 'AVATAR_PRIVACY_PLUGIN_FILE' ) ) {
-	define( 'AVATAR_PRIVACY_PLUGIN_FILE', dirname( __FILE__ ) . '/avatar-privacy.php' );
-}
+const AVATAR_PRIVACY_PLUGIN_FILE = __DIR__ . '/avatar-privacy.php';
 
-require_once dirname( __FILE__ ) . '/includes/class-avatar-privacy-uninstallation-requirements.php';
+// Initialize autoloader.
+require_once __DIR__ . '/vendor/autoload.php';
 
 /**
- * Uninstall the plugin after checking for the necessary PHP version.
+ * Uninstalls the plugin.
  *
- * It's necessary to do this here because our classes rely on namespaces.
+ * @since 2.3.0 WordPress now requires PHP 5.6, so no further requirements check is necessary.
  */
 function avatar_privacy_uninstall() {
 
-	$requirements = new Avatar_Privacy_Uninstallation_Requirements();
-
-	if ( $requirements->check() ) {
-		// Autoload the rest of your classes.
-		require_once __DIR__ . '/vendor/autoload.php'; // phpcs:ignore PHPCompatibility.Keywords.NewKeywords.t_dirFound
-
-		// Create and start the uninstallation handler.
-		$uninstaller = Avatar_Privacy_Factory::get()->create( 'Avatar_Privacy\Components\Uninstallation' );
-		$uninstaller->run();
-	}
+	// Create and start the uninstallation handler.
+	$uninstaller = \Avatar_Privacy\Factory::get()->create( \Avatar_Privacy\Components\Uninstallation::class );
+	$uninstaller->run();
 }
 avatar_privacy_uninstall();
