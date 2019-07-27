@@ -21,12 +21,13 @@ parameters:
     scanFiles:
         - vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php
     paths:
-      - includes/
-      - admin/partials/
-      - public/partials/
+        - avatar-privacy.php
+        - uninstall.php
+        - includes/
+        - admin/partials/
+        - public/partials/
     excludes_analyse:
         - tests/
     ignoreErrors:
         # Uses func_get_args()
         - '#^Function apply_filters(_ref_array)? invoked with [34567] parameters, 2 required\.$#'
-        - '#^Method Mundschenk_WP_Requirements::display_error_notice\(\) invoked with [234567] parameters, 1 required\.$#'

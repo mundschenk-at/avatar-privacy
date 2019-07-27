@@ -39,7 +39,7 @@ build:
             tests:
                 override:
                     - php-scrutinizer-run --enable-security-analysis
-                    - phpcs-run --standard=phpcs.xml avatar-privacy.php admin/ public/ includes/ --extensions=php
+                    - phpcs-run --standard=phpcs.xml avatar-privacy.php uninstall.php admin/ public/ includes/ --extensions=php
 
 tools:
     php_code_sniffer: false

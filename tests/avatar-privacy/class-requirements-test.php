@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Tests;
+namespace Avatar_Privacy\Tests\Avatar_Privacy;
 
 use Brain\Monkey\Actions;
 use Brain\Monkey\Filters;
@@ -37,17 +37,17 @@ use Mockery as m;
 use Avatar_Privacy\Tests\TestCase;
 
 /**
- * Avatar_Privacy_Requirements unit test.
+ * Avatar_Privacy\Requirements unit test.
  *
- * @coversDefaultClass \Avatar_Privacy_Requirements
- * @usesDefaultClass \Avatar_Privacy_Requirements
+ * @coversDefaultClass \Avatar_Privacy\Requirements
+ * @usesDefaultClass \Avatar_Privacy\Requirements
  */
-class Avatar_Privacy_Requirements_Test extends TestCase {
+class Requirements_Test extends TestCase {
 
 	/**
 	 * The system-under-test.
 	 *
-	 * @var \Avatar_Privacy_Requirements
+	 * @var \Avatar_Privacy\Requirements
 	 */
 	private $sut;
 
@@ -60,7 +60,7 @@ class Avatar_Privacy_Requirements_Test extends TestCase {
 	protected function set_up() {
 		parent::set_up();
 
-		$this->sut = m::mock( \Avatar_Privacy_Requirements::class )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( \Avatar_Privacy\Requirements::class )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -75,12 +75,12 @@ class Avatar_Privacy_Requirements_Test extends TestCase {
 				return \array_merge( $defaults, $args );
 			}
 		);
-		$req = m::mock( \Avatar_Privacy_Requirements::class )->makePartial();
+		$req = m::mock( \Avatar_Privacy\Requirements::class )->makePartial();
 		$req->__construct( 'some_file' );
 
-		$this->assertSame( 'Avatar Privacy', $this->get_value( $req, 'plugin_name' ) );
-		$this->assertSame( 'avatar-privacy', $this->get_value( $req, 'textdomain' ) );
-		$this->assertSame(
+		$this->assert_attribute_same( 'Avatar Privacy', 'plugin_name', $req );
+		$this->assert_attribute_same( 'avatar-privacy', 'textdomain', $req );
+		$this->assert_attribute_same(
 			[
 				'php'              => '7.0.0',
 				'multibyte'        => false,
@@ -88,7 +88,8 @@ class Avatar_Privacy_Requirements_Test extends TestCase {
 				'gd'               => true,
 				'uploads_writable' => true,
 			],
-			$this->get_value( $req, 'install_requirements' )
+			'install_requirements',
+			$req
 		);
 	}
 
@@ -111,11 +112,11 @@ class Avatar_Privacy_Requirements_Test extends TestCase {
 	 */
 	public function test_check_gd_support() {
 		// Mocking tests for PHP extensions is difficult.
-		$gd = function_exists( 'imagecreatefrompng' )
-			&& function_exists( 'imagecopy' )
-			&& function_exists( 'imagedestroy' )
-			&& function_exists( 'imagepng' )
-			&& function_exists( 'imagecreatetruecolor' );
+		$gd = \function_exists( 'imagecreatefrompng' )
+			&& \function_exists( 'imagecopy' )
+			&& \function_exists( 'imagedestroy' )
+			&& \function_exists( 'imagepng' )
+			&& \function_exists( 'imagecreatetruecolor' );
 
 		$this->assertSame( $gd, $this->sut->check_gd_support() );
 	}

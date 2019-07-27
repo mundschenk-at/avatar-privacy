@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,37 +23,41 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
+namespace Avatar_Privacy;
+
+use Avatar_Privacy\Factory;
+use Avatar_Privacy\Components\Uninstallation;
+
+
 // Don't do anything if called directly.
-if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
+if ( ! \defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	die();
 }
 
 // Make plugin file path available globally (even if we probably don't need it during uninstallaton).
-if ( ! defined( 'AVATAR_PRIVACY_PLUGIN_FILE' ) ) {
-	define( 'AVATAR_PRIVACY_PLUGIN_FILE', dirname( __FILE__ ) . '/avatar-privacy.php' );
+if ( ! \defined( 'AVATAR_PRIVACY_PLUGIN_FILE' ) ) {
+	\define( 'AVATAR_PRIVACY_PLUGIN_FILE', __DIR__ . '/avatar-privacy.php' );
 }
-if ( ! defined( 'AVATAR_PRIVACY_PLUGIN_PATH' ) ) {
-	define( 'AVATAR_PRIVACY_PLUGIN_PATH', dirname( __FILE__ ) );
+if ( ! \defined( 'AVATAR_PRIVACY_PLUGIN_PATH' ) ) {
+	\define( 'AVATAR_PRIVACY_PLUGIN_PATH', __DIR__ );
 }
 
-require_once dirname( __FILE__ ) . '/includes/class-avatar-privacy-uninstallation-requirements.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 /**
- * Uninstall the plugin after checking for the necessary PHP version.
+ * Uninstall the plugin.
  *
- * It's necessary to do this here because our classes rely on namespaces.
+ * @since  2.4.0 Moved to Avatar_Privacy\uninstall_avatar_privacy.
+ *
+ * @return void
  */
-function avatar_privacy_uninstall() {
-
-	$requirements = new Avatar_Privacy_Uninstallation_Requirements();
-
-	if ( $requirements->check() ) {
-		// Autoload the rest of your classes.
-		require_once __DIR__ . '/vendor/autoload.php'; // phpcs:ignore PHPCompatibility.Keywords.NewKeywords.t_dirFound
-
-		// Create and start the uninstallation handler.
-		$uninstaller = Avatar_Privacy_Factory::get()->create( 'Avatar_Privacy\Components\Uninstallation' );
-		$uninstaller->run();
-	}
+function uninstall_avatar_privacy() {
+	/**
+	 * Create and start the uninstallation handler.
+	 *
+	 * @var Uninstallation
+	 */
+	$uninstaller = Factory::get()->create( Uninstallation::class );
+	$uninstaller->run();
 }
-avatar_privacy_uninstall();
+uninstall_avatar_privacy();
