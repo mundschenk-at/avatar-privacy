@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,9 +24,9 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-use Avatar_Privacy\Components\Comments;
+use function Avatar_Privacy\get_gravatar_checkbox;
 
-if ( ! function_exists( 'avapr_get_avatar_checkbox' ) ) {
+if ( ! \function_exists( 'avapr_get_avatar_checkbox' ) ) {
 
 	/**
 	 * Returns the 'use gravatar' checkbox for the comment form.
@@ -34,14 +34,11 @@ if ( ! function_exists( 'avapr_get_avatar_checkbox' ) ) {
 	 * This is intended as a template function for older or highly-customized
 	 * themes. Output the result with echo or print.
 	 *
-	 * @return string       The HTML code for the checkbox or an empty string.
+	 * @deprecated 2.3.0 Use \Avatar_Privacy\get_gravatar_checkbox instead.
+	 *
+	 * @return string The HTML code for the checkbox or an empty string.
 	 */
 	function avapr_get_avatar_checkbox() {
-		// The checkbox is meaningless for logged-in users.
-		if ( \is_user_logged_in() ) {
-			return '';
-		}
-
-		return Comments::get_gravatar_checkbox();
+		return get_gravatar_checkbox();
 	}
 }
