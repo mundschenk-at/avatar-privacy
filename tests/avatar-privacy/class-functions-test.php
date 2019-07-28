@@ -24,7 +24,7 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Tests;
+namespace Avatar_Privacy\Tests\Avatar_Privacy;
 
 use Avatar_Privacy\Core;
 
@@ -40,7 +40,7 @@ use Mockery as m;
 /**
  * Unit tests for Avatar Privacy functions.
  */
-class Avatar_Privacy_Functions_Test extends TestCase {
+class Functions_Test extends \Avatar_Privacy\Tests\TestCase {
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -69,27 +69,42 @@ class Avatar_Privacy_Functions_Test extends TestCase {
 	/**
 	 * Tests run method.
 	 *
-	 * @covers ::avapr_get_avatar_checkbox
+	 * @covers \Avatar_Privacy\get_gravatar_checkbox
 	 *
 	 * @uses \Avatar_Privacy\get_gravatar_checkbox
 	 * @uses \Avatar_Privacy\Components\Comments::get_gravatar_checkbox
 	 */
-	public function test_avapr_get_avatar_checkbox() {
+	public function test_get_gravatar_checkbox() {
 		Functions\expect( 'is_user_logged_in' )->once()->andReturn( false );
 
-		$this->assertSame( 'USE_GRAVATAR', \avapr_get_avatar_checkbox() );
+		$this->assertSame( 'USE_GRAVATAR', \Avatar_Privacy\get_gravatar_checkbox() );
 	}
 
 	/**
 	 * Tests run method.
 	 *
-	 * @covers ::avapr_get_avatar_checkbox
+	 * @covers \Avatar_Privacy\get_gravatar_checkbox
 	 *
 	 * @uses \Avatar_Privacy\get_gravatar_checkbox
 	 */
-	public function test_avapr_get_avatar_checkbox_user_is_logged_in() {
+	public function test_get_gravatar_checkbox_user_is_logged_in() {
 		Functions\expect( 'is_user_logged_in' )->once()->andReturn( true );
 
-		$this->assertSame( '', \avapr_get_avatar_checkbox() );
+		$this->assertSame( '', \Avatar_Privacy\get_gravatar_checkbox() );
+	}
+
+	/**
+	 * Tests run method.
+	 *
+	 * @covers \Avatar_Privacy\gravatar_checkbox
+	 *
+	 * @uses \Avatar_Privacy\get_gravatar_checkbox
+	 * @uses \Avatar_Privacy\Components\Comments::get_gravatar_checkbox
+	 */
+	public function test_gravatar_checkbox() {
+		Functions\expect( 'is_user_logged_in' )->once()->andReturn( false );
+
+		$this->expectOutputString( 'USE_GRAVATAR' );
+		$this->assertNull( \Avatar_Privacy\gravatar_checkbox() );
 	}
 }

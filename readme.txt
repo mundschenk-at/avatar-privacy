@@ -72,7 +72,7 @@ Depending on which options you selected, you might not see a change in the way t
 
 Then you probably don't use a modern theme which makes use of the function `comment_form()` to create the comment form. Check if you can find this function used in `comments.php` or a similar file of your theme. If you do and it still doesn't work, tell me. Otherwise chances are that you do have to add the checkbox manually. Use this function:
 
-`<?php if (function_exists('avapr_get_avatar_checkbox')) echo avapr_get_avatar_checkbox(); ?>`
+`<?php if ( \function_exists( 'Avatar_Privacy\gravatar_checkbox' ) ) { \Avatar_Privacy\gravatar_checkbox(); } ?>`
 
 = What happens if I disable the plugin? Are any of the data altered? =
 
@@ -135,6 +135,10 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 
 == Changelog ==
+
+= 2.3.0 (unreleased) =
+* _Feature_: New template function `\Avatar_Privacy\gravatar_checkbox()` for legacy themes added.
+* _Change_: `avapr_get_avatar_checkbox()` has been deprecated in favor of `\Avatar_Privacy\get_gravatar_checkbox()`.
 
 = 2.2.1 (2019-06-08) =
 * _Bugfix_: Compatibility with Windows servers.
