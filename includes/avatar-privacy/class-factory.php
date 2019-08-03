@@ -29,6 +29,7 @@ namespace Avatar_Privacy;
 use Dice\Dice;
 
 use Avatar_Privacy\Core;
+use Avatar_Privacy\Component;
 use Avatar_Privacy\Settings;
 
 use Avatar_Privacy\Upload_Handlers\Upload_Handler;
@@ -38,15 +39,7 @@ use Avatar_Privacy\Avatar_Handlers\Default_Icons_Handler;
 use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache_Handler;
 use Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler;
 
-use Avatar_Privacy\Components\Avatar_Handling;
-use Avatar_Privacy\Components\Comments;
 use Avatar_Privacy\Components\Integrations;
-use Avatar_Privacy\Components\Network_Settings_Page;
-use Avatar_Privacy\Components\Privacy_Tools;
-use Avatar_Privacy\Components\Settings_Page;
-use Avatar_Privacy\Components\Setup;
-use Avatar_Privacy\Components\Uninstallation;
-use Avatar_Privacy\Components\User_Profile;
 
 use Avatar_Privacy\Data_Storage\Cache;
 use Avatar_Privacy\Data_Storage\Database;
@@ -140,10 +133,10 @@ class Factory extends Dice {
 			],
 
 			// Components.
+			Component::class                                => self::SHARED,
 			Integrations::class                             => [
 				'constructParams' => [ $this->get_plugin_integrations() ],
 			],
-			User_Profile::class                             => self::SHARED,
 
 			// Default icon providers.
 			Static_Icons\Mystery_Icon_Provider::class       => self::SHARED,
