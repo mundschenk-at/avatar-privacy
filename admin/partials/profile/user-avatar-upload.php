@@ -27,10 +27,19 @@
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Tools\Template;
 
-$current_avatar                = \get_user_meta( $user->ID, Core::USER_AVATAR_META_KEY, true );
-$current_user_can_upload_files = \current_user_can( 'upload_files' );
+/**
+ * Required template variables:
+ *
+ * @var string $nonce          The nonce itself.
+ * @var string $action         The nonce action.
+ * @var string $upload_field   The name of the uploader `<input>` element.
+ * @var string $erase_field    The name of the erase checkbox `<input>` element.
+ * @var int    $user_id        The ID of the edited user.
+ * @var string $current_avatar The previously set user avatar.
+ * @var bool   $can_upload     Whether the currently active user can upload files.
+ */
 
-if ( $current_user_can_upload_files ) {
+if ( $can_upload ) {
 	if ( empty( $current_avatar ) ) {
 		$description = \sprintf(
 			/* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */
@@ -63,18 +72,18 @@ if ( $current_user_can_upload_files ) {
 }
 
 ?>
-<tr class"avatar-privacy-user-avatar-upload">
+<tr class="avatar-privacy-user-avatar-upload">
 	<th scope="row"><?php \esc_html_e( 'Profile Picture', 'avatar-privacy' ); ?></th>
 	<td>
-		<?php echo /* @scrutinizer ignore-type */ \get_avatar( $user->ID ); ?>
+		<?php echo /* @scrutinizer ignore-type */ \get_avatar( $user_id ); ?>
 
-		<?php if ( $current_user_can_upload_files ) : ?>
+		<?php if ( $can_upload ) : ?>
 			<p class="avatar-privacy-upload-fields">
-				<?php \wp_nonce_field( self::ACTION_UPLOAD, self::NONCE_UPLOAD . $user->ID ); ?>
-				<input type="file" id="<?php echo \esc_attr( self::FILE_UPLOAD ); ?>" name="<?php echo \esc_attr( self::FILE_UPLOAD ); ?>" accept="image/*" />
+				<?php \wp_nonce_field( $action, $nonce ); ?>
+				<input type="file" id="<?php echo \esc_attr( $upload_field ); ?>" name="<?php echo \esc_attr( $upload_field ); ?>" accept="image/*" />
 				<?php if ( ! empty( $current_avatar ) ) : ?>
-					<input type="checkbox" id="<?php echo \esc_attr( self::CHECKBOX_ERASE ); ?>" name="<?php echo \esc_attr( self::CHECKBOX_ERASE ); ?>" value="true" />
-					<label for="<?php echo \esc_attr( self::CHECKBOX_ERASE ); ?>"><?php \esc_html_e( 'Delete local avatar picture.', 'avatar-privacy' ); ?></label><br />
+					<input type="checkbox" id="<?php echo \esc_attr( $erase_field ); ?>" name="<?php echo \esc_attr( $erase_field ); ?>" value="true" />
+					<label for="<?php echo \esc_attr( $erase_field ); ?>"><?php \esc_html_e( 'Delete local avatar picture.', 'avatar-privacy' ); ?></label><br />
 				<?php endif; ?>
 			</p>
 		<?php endif; ?>

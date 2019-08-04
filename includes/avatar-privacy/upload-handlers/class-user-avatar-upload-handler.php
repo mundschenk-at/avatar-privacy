@@ -98,20 +98,28 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 * @global array $_POST  Post request superglobal.
 	 * @global array $_FILES Uploaded files superglobal.
 	 *
-	 * @param  int $user_id The user ID.
+	 * @param  int    $user_id      The user ID.
+	 * @param  string $nonce        The nonce root required for saving the field
+	 *                              (the user ID will be automatically appended).
+	 * @param  string $action       The action required for saving the field.
+	 * @param  string $upload_field The HTML name of the "upload" field.
+	 * @param  string $erase_field  The HTML name of the "erase" checkbox.
 	 */
-	public function save_uploaded_user_avatar( $user_id ) {
-		if ( ! isset( $_POST[ self::NONCE_UPLOAD . $user_id ] ) || ! \wp_verify_nonce( \sanitize_key( $_POST[ self::NONCE_UPLOAD . $user_id ] ), self::ACTION_UPLOAD ) ) { // Input var okay.
+	public function save_uploaded_user_avatar( $user_id, $nonce, $action, $upload_field, $erase_field ) {
+		// Ensure nonce is specific to the ID of the user.
+		$nonce .= $user_id;
+
+		if ( ! isset( $_POST[ $nonce ] ) || ! \wp_verify_nonce( \sanitize_key( $_POST[ $nonce ] ), $action ) ) {
 			return;
 		}
 
-		if ( ! empty( $_FILES[ self::FILE_UPLOAD ]['name'] ) ) { // Input var okay.
+		if ( ! empty( $_FILES[ $upload_field ]['name'] ) ) { // Input var okay.
 
 			// Make user_id known to unique_filename_callback function.
 			$this->user_id_being_edited = $user_id;
 
 			// Upload to our custom directory.
-			$avatar = $this->upload( $_FILES[ self::FILE_UPLOAD ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- ::upload uses \wp_handle_upload, $_FILES does not need wp_unslash.
+			$avatar = $this->upload( $_FILES[ $upload_field ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- ::upload uses \wp_handle_upload, $_FILES does not need wp_unslash.
 
 			// Handle upload failures.
 			if ( empty( $avatar['file'] ) ) {
@@ -121,7 +129,7 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 
 			// Save the new avatar image.
 			$this->assign_new_user_avatar( $user_id, $avatar );
-		} elseif ( ! empty( $_POST[ self::CHECKBOX_ERASE ] ) && 'true' === $_POST[ self::CHECKBOX_ERASE ] ) { // Input var okay.
+		} elseif ( ! empty( $_POST[ $erase_field ] ) && 'true' === $_POST[ $erase_field ] ) {
 			// Just delete the current avatar.
 			$this->delete_uploaded_avatar( $user_id );
 		}

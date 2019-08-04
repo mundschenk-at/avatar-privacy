@@ -32,7 +32,10 @@ use Avatar_Privacy\Core;
 use Avatar_Privacy\Component;
 use Avatar_Privacy\Settings;
 
+use Avatar_Privacy\Components\User_Profile;
+
 use Avatar_Privacy\Upload_Handlers\Upload_Handler;
+use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
 use Avatar_Privacy\Avatar_Handlers\Default_Icons;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons_Handler;
@@ -59,6 +62,7 @@ use Avatar_Privacy\Integrations\WP_User_Manager_Integration;
 
 use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Tools\Multisite as Multisite_Tools;
+use Avatar_Privacy\Tools\HTML\User_Form;
 use Avatar_Privacy\Tools\Network\Gravatar_Service;
 
 /**
@@ -193,6 +197,38 @@ class Factory extends Dice {
 
 			// Upload handlers.
 			Upload_Handler::class                           => self::SHARED,
+
+			// Form helpers.
+			'$UserProfileForm'                              => [
+				'instanceOf'      => User_Form::class,
+				'constructParams' => [
+					[
+						'nonce'   => User_Profile::NONCE_USE_GRAVATAR,
+						'action'  => User_Profile::ACTION_EDIT_USE_GRAVATAR,
+						'field'   => User_Profile::CHECKBOX_FIELD_NAME,
+						'partial' => '/admin/partials/profile/use-gravatar.php',
+					],
+					[
+						'nonce'   => User_Profile::NONCE_ALLOW_ANONYMOUS,
+						'action'  => User_Profile::ACTION_EDIT_ALLOW_ANONYMOUS,
+						'field'   => User_Profile::CHECKBOX_ALLOW_ANONYMOUS,
+						'partial' => '/admin/partials/profile/allow-anonymous.php',
+					],
+					[
+						'nonce'   => User_Avatar_Upload_Handler::NONCE_UPLOAD,
+						'action'  => User_Avatar_Upload_Handler::ACTION_UPLOAD,
+						'field'   => User_Avatar_Upload_Handler::FILE_UPLOAD,
+						'erase'   => User_Avatar_Upload_Handler::CHECKBOX_ERASE,
+						'partial' => '/admin/partials/profile/user-avatar-upload.php',
+					],
+				],
+			],
+
+			User_Profile::class                             => [
+				'substitutions' => [
+					User_Form::class => [ 'instance' => '$UserProfileForm' ],
+				],
+			],
 
 			// Plugin integrations.
 			BBPress_Integration::class                      => self::SHARED,
