@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -30,10 +30,10 @@ $show_avatars_class = empty( $show_avatars ) ? '' : ' hide-if-js';
 ?>
 <div class="avatar-settings-disabled<?php echo $show_avatars_class; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
 	<p>
-		<?php esc_html_e( "The Avatar Privacy plugin modifies the display of avatars. You have not enabled avatars, so this plugin can't do anything for you. :-)", 'avatar-privacy' ); ?>
+		<?php \esc_html_e( "The Avatar Privacy plugin modifies the display of avatars. You have not enabled avatars, so this plugin can't do anything for you. :-)", 'avatar-privacy' ); ?>
 	</p>
 	<p>
-		<?php esc_html_e( 'You can enable profile pictures for users and commenters by selecting "Show Avatars" above. Then you will also see the features enabled by the Avatar Privacy plugin here.', 'avatar-privacy' ); ?>
+		<?php \esc_html_e( 'You can enable profile pictures for users and commenters by selecting "Show Avatars" above. Then you will also see the features enabled by the Avatar Privacy plugin here.', 'avatar-privacy' ); ?>
 	</p>
 </div>
 <?php

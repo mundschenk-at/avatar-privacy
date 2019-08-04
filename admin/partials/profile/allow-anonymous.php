@@ -31,15 +31,15 @@
 	<td>
 		<?php \wp_nonce_field( self::ACTION_EDIT_ALLOW_ANONYMOUS, self::NONCE_ALLOW_ANONYMOUS . $user->ID ); ?>
 		<input
-			id="<?php echo esc_attr( self::CHECKBOX_ALLOW_ANONYMOUS ); ?>"
-			name="<?php echo esc_attr( self::CHECKBOX_ALLOW_ANONYMOUS ); ?>"
+			id="<?php echo \esc_attr( self::CHECKBOX_ALLOW_ANONYMOUS ); ?>"
+			name="<?php echo \esc_attr( self::CHECKBOX_ALLOW_ANONYMOUS ); ?>"
 			type="checkbox"
 			value="true"
-			<?php checked( $allow_anonymous ); ?>
+			<?php \checked( $allow_anonymous ); ?>
 		/>
-		<label for="<?php echo esc_attr( self::CHECKBOX_ALLOW_ANONYMOUS ); ?>"><?php \esc_html_e( 'Allow logged-out comments with my profile picture.', 'avatar-privacy' ); ?></label><br />
+		<label for="<?php echo \esc_attr( self::CHECKBOX_ALLOW_ANONYMOUS ); ?>"><?php \esc_html_e( 'Allow logged-out comments with my profile picture.', 'avatar-privacy' ); ?></label><br />
 		<p class="description">
-			<?php esc_html_e( 'Check this box if you want to be able to use your profile picture while logged-out.', 'avatar-privacy' ); ?>
+			<?php \esc_html_e( 'Check this box if you want to be able to use your profile picture while logged-out.', 'avatar-privacy' ); ?>
 		</p>
 	</td>
 </tr>

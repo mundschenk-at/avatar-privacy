@@ -31,12 +31,12 @@ $allowed_html       = [ 'strong' => [] ];
 ?>
 <div class="avatar-settings-enabled<?php echo $show_avatars_class; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
 	<p>
-		<?php esc_html_e( 'To protect the privacy of your users, visitors and commenters, the Avatar Privacy plugin has enabled the following features:', 'avatar-privacy' ); ?>
+		<?php \esc_html_e( 'To protect the privacy of your users, visitors and commenters, the Avatar Privacy plugin has enabled the following features:', 'avatar-privacy' ); ?>
 	</p>
 	<ul class="ul-disc">
-		<li><strong><?php esc_html_e( 'Consent:', 'avatar-privacy' ); ?></strong> <?php esc_html_e( 'We only try to load an avatar from Gravatar.com when users and commenters have explicitly consented.', 'avatar-privacy' ); ?></li>
-		<li><strong><?php esc_html_e( 'Check:', 'avatar-privacy' ); ?></strong> <?php esc_html_e( 'Even when people opt-in, we check if they really have a gravatar associated with their e-mail address.', 'avatar-privacy' ); ?></li>
-		<li><strong><?php esc_html_e( 'Cache:', 'avatar-privacy' ); ?></strong> <?php esc_html_e( 'To prevent tracking of your visitors, gravatars are cached locally and all default images are hosted on your server.', 'avatar-privacy' ); ?></li>
+		<li><strong><?php \esc_html_e( 'Consent:', 'avatar-privacy' ); ?></strong> <?php \esc_html_e( 'We only try to load an avatar from Gravatar.com when users and commenters have explicitly consented.', 'avatar-privacy' ); ?></li>
+		<li><strong><?php \esc_html_e( 'Check:', 'avatar-privacy' ); ?></strong> <?php \esc_html_e( 'Even when people opt-in, we check if they really have a gravatar associated with their e-mail address.', 'avatar-privacy' ); ?></li>
+		<li><strong><?php \esc_html_e( 'Cache:', 'avatar-privacy' ); ?></strong> <?php \esc_html_e( 'To prevent tracking of your visitors, gravatars are cached locally and all default images are hosted on your server.', 'avatar-privacy' ); ?></li>
 	</ul>
 </div>
 <?php

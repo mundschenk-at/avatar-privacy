@@ -29,20 +29,20 @@ use Avatar_Privacy\Tools\Template;
 
 ?>
 <tr class"avatar-privacy-use-gravatar">
-	<th scope="row"><?php esc_html_e( 'Gravatars', 'avatar-privacy' ); ?></th>
+	<th scope="row"><?php \esc_html_e( 'Gravatars', 'avatar-privacy' ); ?></th>
 	<td>
 		<?php \wp_nonce_field( self::ACTION_EDIT_USE_GRAVATAR, self::NONCE_USE_GRAVATAR . $user->ID ); ?>
 		<input
-			id="<?php echo esc_attr( self::CHECKBOX_FIELD_NAME ); ?>"
-			name="<?php echo esc_attr( self::CHECKBOX_FIELD_NAME ); ?>"
+			id="<?php echo \esc_attr( self::CHECKBOX_FIELD_NAME ); ?>"
+			name="<?php echo \esc_attr( self::CHECKBOX_FIELD_NAME ); ?>"
 			type="checkbox"
 			value="true"
-			<?php checked( $use_gravatar ); ?>
+			<?php \checked( $use_gravatar ); ?>
 		/>
-		<label for="<?php echo \esc_attr( self::CHECKBOX_FIELD_NAME ); ?>"><?php echo \wp_kses( sprintf( /* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */ __( 'Display a <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a> image for my e-mail address.', 'avatar-privacy' ), __( 'https://en.gravatar.com/', 'avatar-privacy' ), Template::get_gravatar_link_rel(), Template::get_gravatar_link_target() ), Template::ALLOWED_HTML_LABEL ); ?></label><br />
+		<label for="<?php echo \esc_attr( self::CHECKBOX_FIELD_NAME ); ?>"><?php echo \wp_kses( sprintf( /* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */ \__( 'Display a <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a> image for my e-mail address.', 'avatar-privacy' ), \__( 'https://en.gravatar.com/', 'avatar-privacy' ), Template::get_gravatar_link_rel(), Template::get_gravatar_link_target() ), Template::ALLOWED_HTML_LABEL ); ?></label><br />
 		<p class="description">
-			<?php esc_html_e( "Uncheck this box if you don't want to display the gravatar for your e-mail address (or don't have an account on Gravatar.com).", 'avatar-privacy' ); ?>
-			<?php esc_html_e( 'This setting will only take effect if you have not uploaded a local profile picture.', 'avatar-privacy' ); ?>
+			<?php \esc_html_e( "Uncheck this box if you don't want to display the gravatar for your e-mail address (or don't have an account on Gravatar.com).", 'avatar-privacy' ); ?>
+			<?php \esc_html_e( 'This setting will only take effect if you have not uploaded a local profile picture.', 'avatar-privacy' ); ?>
 		</p>
 	</td>
 </tr>
