@@ -70,7 +70,7 @@ class Controller {
 	 * @param Comments              $comments         The comments handler.
 	 * @param User_Profile          $profile          The user profile handler.
 	 * @param Settings_Page         $settings         The admin settings handler.
-	 * @param Network_Settings_Page $network_settings The admin settings handler.
+	 * @param Network_Settings_Page $network_settings The network settings handler.
 	 * @param Privacy_Tools         $privacy          The privacy tools handler.
 	 * @param REST_API              $rest_api         The REST API handler.
 	 * @param Integrations          $integrations     The third-party plugin integrations handler.
