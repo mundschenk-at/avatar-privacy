@@ -28,15 +28,6 @@
 use Avatar_Privacy\Components\Comments;
 use Avatar_Privacy\Tools\Template;
 
-// Allowed HTML tags in the checkbox label.
-$allowed_html = [
-	'a' => [
-		'href'   => true,
-		'rel'    => true,
-		'target' => true,
-	],
-];
-
 // Determine if the checkbox should be checked.
 $cookie_name = Comments::COOKIE_PREFIX . COOKIEHASH;
 $is_checked  = false;
@@ -56,7 +47,7 @@ if ( isset( $_POST[ Comments::CHECKBOX_FIELD_NAME ] ) ) { // phpcs:ignore WordPr
 			<label
 				class="wpd-field-label wpd-cursor-pointer"
 				for="<?php echo \esc_attr( Comments::CHECKBOX_FIELD_NAME ); ?>"
-			><?php echo \wp_kses( \sprintf( /* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */ \__( 'Display a <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a> image next to my comments.', 'avatar-privacy' ), __( 'https://en.gravatar.com/', 'avatar-privacy' ), Template::get_gravatar_link_rel(), Template::get_gravatar_link_target() ), $allowed_html ); ?></label>
+			><?php echo \wp_kses( \sprintf( /* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */ \__( 'Display a <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a> image next to my comments.', 'avatar-privacy' ), \__( 'https://en.gravatar.com/', 'avatar-privacy' ), Template::get_gravatar_link_rel(), Template::get_gravatar_link_target() ), Template::ALLOWED_HTML_LABEL ); ?></label>
 		</div>
 	</div>
 	<div class="wpd-field-desc">

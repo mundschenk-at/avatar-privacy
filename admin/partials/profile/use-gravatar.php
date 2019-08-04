@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -27,15 +27,6 @@
 
 use Avatar_Privacy\Tools\Template;
 
-// Allowed HTML tags in the checkbox label.
-$allowed_html = [
-	'a' => [
-		'href'   => true,
-		'rel'    => true,
-		'target' => true,
-	],
-];
-
 ?>
 <tr class"avatar-privacy-use-gravatar">
 	<th scope="row"><?php esc_html_e( 'Gravatars', 'avatar-privacy' ); ?></th>
@@ -48,7 +39,7 @@ $allowed_html = [
 			value="true"
 			<?php checked( $use_gravatar ); ?>
 		/>
-		<label for="<?php echo esc_attr( self::CHECKBOX_FIELD_NAME ); ?>"><?php echo wp_kses( sprintf( /* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */ __( 'Display a <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a> image for my e-mail address.', 'avatar-privacy' ), __( 'https://en.gravatar.com/', 'avatar-privacy' ), Template::get_gravatar_link_rel(), Template::get_gravatar_link_target() ), $allowed_html ); ?></label><br />
+		<label for="<?php echo \esc_attr( self::CHECKBOX_FIELD_NAME ); ?>"><?php echo \wp_kses( sprintf( /* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */ __( 'Display a <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a> image for my e-mail address.', 'avatar-privacy' ), __( 'https://en.gravatar.com/', 'avatar-privacy' ), Template::get_gravatar_link_rel(), Template::get_gravatar_link_target() ), Template::ALLOWED_HTML_LABEL ); ?></label><br />
 		<p class="description">
 			<?php esc_html_e( "Uncheck this box if you don't want to display the gravatar for your e-mail address (or don't have an account on Gravatar.com).", 'avatar-privacy' ); ?>
 			<?php esc_html_e( 'This setting will only take effect if you have not uploaded a local profile picture.', 'avatar-privacy' ); ?>

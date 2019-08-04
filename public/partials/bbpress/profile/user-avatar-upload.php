@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -77,7 +77,7 @@ if ( $current_user_can_upload_files ) {
 		<?php endif; ?>
 	<?php endif; ?>
 	<span class="description indicator-hint" style="width:100%;margin-left:0;">
-		<?php echo \wp_kses( $description, [ 'a' => [ 'href' => true ] ] ); ?>
+		<?php echo \wp_kses( $description, Template::ALLOWED_HTML_LABEL ); ?>
 	</span>
 </div>
 <?php

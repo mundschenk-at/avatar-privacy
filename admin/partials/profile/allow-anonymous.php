@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -24,15 +24,6 @@
  * @package mundschenk-at/avatar-privacy
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
-
-// Allowed HTML tags in the checkbox label.
-$allowed_html = [
-	'a' => [
-		'href'   => true,
-		'rel'    => true,
-		'target' => true,
-	],
-];
 
 ?>
 <tr class"avatar-privacy-allow-anonymous">
