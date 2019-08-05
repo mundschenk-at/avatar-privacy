@@ -185,7 +185,8 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	/**
 	 * Saves the network settings.
 	 *
-	 * @global $new_whitelist_options The options whitelisted by the settings API.
+	 * @global array $_POST                 Post request superglobal.
+	 * @global array $new_whitelist_options The options whitelisted by the settings API.
 	 */
 	public function save_network_settings() {
 		// Check if the user has the correct permissions.

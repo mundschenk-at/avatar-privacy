@@ -95,6 +95,9 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	/**
 	 * Stores the uploaded avatar image in the proper directory.
 	 *
+	 * @global array $_POST  Post request superglobal.
+	 * @global array $_FILES Uploaded files superglobal.
+	 *
 	 * @param  int $user_id The user ID.
 	 */
 	public function save_uploaded_user_avatar( $user_id ) {

@@ -203,7 +203,9 @@ class User_Profile implements \Avatar_Privacy\Component {
 
 	/**
 	 * Saves the custom fields from the user profile in
-	 * the database.
+	 * the database. The data is taken from the $_POST superglobal.
+	 *
+	 * @global array $_POST Post request superglobal.
 	 *
 	 * @param int $user_id The ID of the user that has just been saved.
 	 */
