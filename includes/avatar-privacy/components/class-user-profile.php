@@ -37,39 +37,9 @@ use Avatar_Privacy\Tools\HTML\User_Form;
  * @since 1.0.0
  * @since 2.3.0 Public methods save_use_gravatar_checkbox,
  *              save_allow_anonymous_checkbox and save_user_profile_fields have
- *              been removed.
+ *              been removed. The obsolete class constants have also been removed.
  */
 class User_Profile implements \Avatar_Privacy\Component {
-
-	/**
-	 * The name of the checkbox field in the user profile.
-	 */
-	const CHECKBOX_FIELD_NAME = 'use_gravatar';
-
-	/**
-	 * The nonce action for updating the 'use_gravatar' meta field.
-	 */
-	const ACTION_EDIT_USE_GRAVATAR = 'avatar_privacy_edit_use_gravatar';
-
-	/**
-	 * The nonce used for updating the 'use_gravatar' meta field.
-	 */
-	const NONCE_USE_GRAVATAR = 'avatar_privacy_use_gravatar_nonce_';
-
-	/**
-	 * The nonce action for updating the 'allow_anonymous' meta field.
-	 */
-	const ACTION_EDIT_ALLOW_ANONYMOUS = 'avatar_privacy_edit_allow_anonymous';
-
-	/**
-	 * The nonce used for updating the 'allow_anonymous' meta field.
-	 */
-	const NONCE_ALLOW_ANONYMOUS = 'avatar_privacy_allow_anonymous_nonce_';
-
-	/**
-	 * The name of the checkbox field in the user profile.
-	 */
-	const CHECKBOX_ALLOW_ANONYMOUS = 'avatar_privacy_allow_anonymous_gravatar';
 
 	/**
 	 * The markup to inject.

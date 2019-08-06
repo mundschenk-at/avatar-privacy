@@ -39,23 +39,11 @@ use Avatar_Privacy\Tools\Images as Image_Tools;
  *
  * @since 1.0.0
  * @since 2.0.0 Image generation moved to new class Avatar_Handlers\User_Avatar_Handler, the upload handler is now a subclass of Upload_Handler.
+ * @since 2.3.0 Obsolete class constants removed.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
 class User_Avatar_Upload_Handler extends Upload_Handler {
-
-	/**
-	 * The nonce action for updating custom user avatars.
-	 */
-	const ACTION_UPLOAD = 'avatar_privacy_upload_avatar';
-
-	/**
-	 * The nonce used for updating custom user avatars.
-	 */
-	const NONCE_UPLOAD = 'avatar_privacy_upload_avatar_nonce_';
-
-	const CHECKBOX_ERASE = 'avatar-privacy-user-avatar-erase';
-	const FILE_UPLOAD    = 'avatar-privacy-user-avatar-upload';
 
 	const UPLOAD_DIR = '/avatar-privacy/user-avatar';
 
@@ -65,7 +53,6 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 * @var int
 	 */
 	private $user_id_being_edited;
-
 
 	/**
 	 * Creates a new instance.
