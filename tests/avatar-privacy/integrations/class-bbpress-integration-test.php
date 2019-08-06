@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -37,6 +37,8 @@ use org\bovigo\vfs\vfsStreamDirectory;
 
 use Avatar_Privacy\Integrations\BBPress_Integration;
 
+use Avatar_Privacy\Tools\HTML\User_Form;
+
 /**
  * Avatar_Privacy\Integrations\BBPress_Integration unit test.
  *
@@ -57,9 +59,9 @@ class BBPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * A test fixture.
 	 *
-	 * @var \Avatar_Privacy\Components\User_Profile
+	 * @var User_Form
 	 */
-	private $profile;
+	private $form;
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -89,11 +91,11 @@ class BBPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 		$root = vfsStream::setup( 'root', null, $filesystem );
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
-		// User profile component mock.
-		$this->profile = m::mock( \Avatar_Privacy\Components\User_Profile::class );
+		// User form helper mock.
+		$this->form = m::mock( User_Form::class );
 
 		// Partially mock system under test.
-		$this->sut = m::mock( BBPress_Integration::class, [ $this->profile ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( BBPress_Integration::class, [ $this->form ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -102,12 +104,12 @@ class BBPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::__construct
 	 */
 	public function test_constructor() {
-		$mock    = m::mock( BBPress_Integration::class )->makePartial()->shouldAllowMockingProtectedMethods();
-		$profile = m::mock( \Avatar_Privacy\Components\User_Profile::class );
+		$mock = m::mock( BBPress_Integration::class )->makePartial()->shouldAllowMockingProtectedMethods();
+		$form = m::mock( User_Form::class );
 
-		$mock->__construct( $profile );
+		$mock->__construct( $form );
 
-		$this->assertAttributeSame( $profile, 'profile', $mock );
+		$this->assertAttributeSame( $form, 'form', $mock );
 	}
 
 	/**
@@ -145,8 +147,8 @@ class BBPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_init() {
 		Filters\expectAdded( 'avatar_privacy_parse_id_or_email' )->once()->with( [ $this->sut, 'parse_id_or_email' ] );
 		Actions\expectAdded( 'bbp_user_edit_after' )->once()->with( [ $this->sut, 'add_user_profile_fields' ] );
-		Actions\expectAdded( 'personal_options_update' )->once()->with( [ $this->profile, 'save_user_profile_fields' ] );
-		Actions\expectAdded( 'edit_user_profile_update' )->once()->with( [ $this->profile, 'save_user_profile_fields' ] );
+		Actions\expectAdded( 'personal_options_update' )->once()->with( [ $this->form, 'save' ] );
+		Actions\expectAdded( 'edit_user_profile_update' )->once()->with( [ $this->form, 'save' ] );
 
 		$this->assertNull( $this->sut->init() );
 	}
@@ -225,7 +227,6 @@ class BBPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 		$use_gravatar = 'true';
 
 		Functions\expect( 'bbp_get_user_id' )->once()->with( 0, true, false )->andReturn( $user_id );
-		Functions\expect( 'get_user_meta' )->once()->with( $user_id, \Avatar_Privacy\Core::GRAVATAR_USE_META_KEY, true )->andReturn( $use_gravatar );
 
 		$this->expectOutputString( 'PROFILE_PICTURE_MARKUP' );
 		$this->assertNull( $this->sut->add_user_profile_fields() );
@@ -238,7 +239,6 @@ class BBPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_add_user_profile_fields_failure() {
 		Functions\expect( 'bbp_get_user_id' )->once()->with( 0, true, false )->andReturn( false );
-		Functions\expect( 'get_user_meta' )->never();
 
 		$this->expectOutputString( '' );
 		$this->assertNull( $this->sut->add_user_profile_fields() );

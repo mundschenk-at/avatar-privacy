@@ -27,22 +27,32 @@
 use Avatar_Privacy\Components\User_Profile;
 use Avatar_Privacy\Tools\Template;
 
+/**
+ * Template for bbPress use_gravatar checkbox.
+ *
+ * Required template variables:
+ *
+ * @var string $nonce      The nonce itself.
+ * @var string $action     The nonce action.
+ * @var string $field_name The name of the checkbox `<input>` element.
+ * @var string $value      The checkbox value.
+ */
 ?>
 <div class="avatar-privacy-use-gravatar">
-	<?php \wp_nonce_field( User_Profile::ACTION_EDIT_USE_GRAVATAR, User_Profile::NONCE_USE_GRAVATAR . $user_id ); ?>
+	<?php \wp_nonce_field( $action, $nonce ); ?>
 	<label>
 		<input
-			id="<?php echo \esc_attr( User_Profile::CHECKBOX_FIELD_NAME ); ?>"
-			name="<?php echo \esc_attr( User_Profile::CHECKBOX_FIELD_NAME ); ?>"
+			id="<?php echo \esc_attr( $field_name ); ?>"
+			name="<?php echo \esc_attr( $field_name ); ?>"
 			class="checkbox"
 			type="checkbox"
 			value="true"
-			<?php \checked( $use_gravatar ); ?>
+			<?php \checked( $value ); ?>
 		/>
 		<?php echo \wp_kses( \sprintf( /* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */ \__( 'Display a <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a> image for my e-mail address.', 'avatar-privacy' ), \__( 'https://en.gravatar.com/', 'avatar-privacy' ), Template::get_gravatar_link_rel(), Template::get_gravatar_link_target() ), Template::ALLOWED_HTML_LABEL ); ?>
 	</label>
 	<span class="description indicator-hint" style="width:100%;margin-left:0;">
 		<?php \esc_html_e( 'An uploaded profile picture takes precedence over your gravatar.', 'avatar-privacy' ); ?>
 	</span>
-<div>
+</div>
 <?php

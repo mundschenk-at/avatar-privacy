@@ -223,6 +223,30 @@ class Factory extends Dice {
 					],
 				],
 			],
+			'$bbPressProfileForm'                           => [
+				'instanceOf'      => User_Form::class,
+				'constructParams' => [
+					[
+						'nonce'   => User_Profile::NONCE_USE_GRAVATAR,
+						'action'  => User_Profile::ACTION_EDIT_USE_GRAVATAR,
+						'field'   => User_Profile::CHECKBOX_FIELD_NAME,
+						'partial' => '/public/partials/bbpress/profile/use-gravatar.php',
+					],
+					[
+						'nonce'   => User_Profile::NONCE_ALLOW_ANONYMOUS,
+						'action'  => User_Profile::ACTION_EDIT_ALLOW_ANONYMOUS,
+						'field'   => User_Profile::CHECKBOX_ALLOW_ANONYMOUS,
+						'partial' => '/public/partials/bbpress/profile/allow-anonymous.php',
+					],
+					[
+						'nonce'   => User_Avatar_Upload_Handler::NONCE_UPLOAD,
+						'action'  => User_Avatar_Upload_Handler::ACTION_UPLOAD,
+						'field'   => User_Avatar_Upload_Handler::FILE_UPLOAD,
+						'erase'   => User_Avatar_Upload_Handler::CHECKBOX_ERASE,
+						'partial' => '/public/partials/bbpress/profile/user-avatar-upload.php',
+					],
+				],
+			],
 
 			User_Profile::class                             => [
 				'substitutions' => [
@@ -231,7 +255,12 @@ class Factory extends Dice {
 			],
 
 			// Plugin integrations.
-			BBPress_Integration::class                      => self::SHARED,
+			BBPress_Integration::class                      => [
+				'shared'        => true,
+				'substitutions' => [
+					User_Form::class => [ 'instance' => '$bbPressProfileForm' ],
+				],
+			],
 
 			// Tools.
 			Images\Editor::class                            => self::SHARED,

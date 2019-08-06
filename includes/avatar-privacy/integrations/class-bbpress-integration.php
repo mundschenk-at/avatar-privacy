@@ -28,6 +28,7 @@ namespace Avatar_Privacy\Integrations;
 
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Components\User_Profile;
+use Avatar_Privacy\Tools\HTML\User_Form;
 
 /**
  * An integration for bbPress.
@@ -38,21 +39,22 @@ use Avatar_Privacy\Components\User_Profile;
 class BBPress_Integration implements Plugin_Integration {
 
 	/**
-	 * The user profile component.
+	 * The form helper.
 	 *
-	 * @var User_Profile
+	 * @var User_Form
 	 */
-	private $profile;
+	private $form;
 
 	/**
 	 * Creates a new instance.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
+	 * @since 2.3.0 Parameter $user_profile replaced by $form.
 	 *
-	 * @param User_Profile $profile     The user profile component.
+	 * @param User_Form $form The form handling helper.
 	 */
-	public function __construct( User_Profile $profile ) {
-		$this->profile = $profile;
+	public function __construct( User_Form $form ) {
+		$this->form = $form;
 	}
 
 	/**
@@ -82,8 +84,8 @@ class BBPress_Integration implements Plugin_Integration {
 
 		// Add profile picture upload and `use_gravatar` checkbox to frontend profile editor.
 		\add_action( 'bbp_user_edit_after',      [ $this, 'add_user_profile_fields' ] );
-		\add_action( 'personal_options_update',  [ $this->profile, 'save_user_profile_fields' ] );
-		\add_action( 'edit_user_profile_update', [ $this->profile, 'save_user_profile_fields' ] );
+		\add_action( 'personal_options_update',  [ $this->form, 'save' ] );
+		\add_action( 'edit_user_profile_update', [ $this->form, 'save' ] );
 	}
 
 	/**
@@ -123,13 +125,16 @@ class BBPress_Integration implements Plugin_Integration {
 	 * Add user profile fields for bbPress.
 	 */
 	public function add_user_profile_fields() {
+		// Get user ID from bbPress.
 		$user_id = /* @scrutinizer ignore-call */ \bbp_get_user_id( 0, true, false );
 		if ( empty( $user_id ) ) {
 			return;
 		}
 
+		// Make form helper available to partial.
+		$form = $this->form;
+
 		// Include partials.
-		$use_gravatar = 'true' === \get_user_meta( $user_id, Core::GRAVATAR_USE_META_KEY, true );
 		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/partials/bbpress/user-profile-picture.php';
 	}
 }
