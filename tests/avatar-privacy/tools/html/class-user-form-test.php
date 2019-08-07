@@ -497,4 +497,32 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertNull( $this->sut->save( $user_id ) );
 	}
+
+	/**
+	 * Tests ::process_form_submission.
+	 *
+	 * @covers ::process_form_submission
+	 */
+	public function test_process_form_submission() {
+		$user_id = 5;
+
+		Functions\expect( 'get_current_user_id' )->once()->andReturn( $user_id );
+
+		$this->sut->shouldReceive( 'save' )->once()->with( $user_id );
+
+		$this->assertNull( $this->sut->process_form_submission() );
+	}
+
+	/**
+	 * Tests ::process_form_submission.
+	 *
+	 * @covers ::process_form_submission
+	 */
+	public function test_process_form_submission_not_logged_in() {
+		Functions\expect( 'get_current_user_id' )->once()->andReturn( 0 );
+
+		$this->sut->shouldReceive( 'save' )->never();
+
+		$this->assertNull( $this->sut->process_form_submission() );
+	}
 }

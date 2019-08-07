@@ -305,4 +305,24 @@ class User_Form {
 		$this->save_allow_anonymous_checkbox( $user_id );
 		$this->save_uploaded_user_avatar( $user_id );
 	}
+
+	/**
+	 * Processes a form submission. Currently, it is limited to "self-editing".
+	 *
+	 * This method should only be hooked for frontend forms (via the `init`
+	 * action hook).
+	 *
+	 * @global array $_POST  Post request superglobal.
+	 * @global array $_FILES Uploaded files superglobal.
+	 */
+	public function process_form_submission() {
+		// Check that user is logged in.
+		$user_id = \get_current_user_id();
+		if ( empty( $user_id ) ) {
+			return;
+		}
+
+		// Process upload.
+		$this->save( $user_id );
+	}
 }
