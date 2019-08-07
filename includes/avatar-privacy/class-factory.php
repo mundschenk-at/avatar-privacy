@@ -205,13 +205,13 @@ class Factory extends Dice {
 					[
 						'nonce'   => 'avatar_privacy_use_gravatar_nonce_',
 						'action'  => 'avatar_privacy_edit_use_gravatar',
-						'field'   => 'avatar_privacy_use_gravatar',
+						'field'   => 'avatar-privacy-use-gravatar',
 						'partial' => '/admin/partials/profile/use-gravatar.php',
 					],
 					[
 						'nonce'   => 'avatar_privacy_allow_anonymous_nonce_',
 						'action'  => 'avatar_privacy_edit_allow_anonymous',
-						'field'   => 'avatar_privacy_allow_anonymous',
+						'field'   => 'avatar-privacy-allow-anonymous',
 						'partial' => '/admin/partials/profile/allow-anonymous.php',
 					],
 					[
@@ -229,20 +229,20 @@ class Factory extends Dice {
 					[
 						'nonce'   => 'avatar_privacy_bbpress_use_gravatar_nonce_',
 						'action'  => 'avatar_privacy_bbpress_edit_use_gravatar',
-						'field'   => 'avatar_privacy_bbpress_use_gravatar',
+						'field'   => 'avatar-privacy-bbpress-use-gravatar',
 						'partial' => '/public/partials/bbpress/profile/use-gravatar.php',
 					],
 					[
 						'nonce'   => 'avatar_privacy_bbpress_allow_anonymous_nonce_',
 						'action'  => 'avatar_privacy_bbpress_edit_allow_anonymous',
-						'field'   => 'avatar_privacy_bbpress_allow_anonymous',
+						'field'   => 'avatar-privacy-bbpress-allow-anonymous',
 						'partial' => '/public/partials/bbpress/profile/allow-anonymous.php',
 					],
 					[
 						'nonce'   => 'avatar_privacy_bbpress_upload_avatar_nonce_',
 						'action'  => 'avatar_privacy_bbpress_upload_avatar',
-						'field'   => 'avatar-privacy-bbpress_user-avatar-upload',
-						'erase'   => 'avatar-privacy-bbpress_user-avatar-erase',
+						'field'   => 'avatar-privacy-bbpress-user-avatar-upload',
+						'erase'   => 'avatar-privacy-bbpress-user-avatar-erase',
 						'partial' => '/public/partials/bbpress/profile/user-avatar-upload.php',
 					],
 				],
