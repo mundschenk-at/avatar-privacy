@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,13 +32,10 @@ use Brain\Monkey\Functions;
 
 use Mockery as m;
 
-use org\bovigo\vfs\vfsStream;
-
 use Avatar_Privacy\Components\User_Profile;
 
 use Avatar_Privacy\Core;
-
-use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
+use Avatar_Privacy\Tools\HTML\User_Form;
 
 /**
  * Avatar_Privacy\Components\User_Profile unit test.
@@ -60,9 +57,9 @@ class User_Profile_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Mocked helper object.
 	 *
-	 * @var User_Avatar_Upload_Handler
+	 * @var User_Form
 	 */
-	private $upload;
+	private $form;
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -71,26 +68,9 @@ class User_Profile_Test extends \Avatar_Privacy\Tests\TestCase {
 	protected function setUp() {
 		parent::setUp();
 
-		$filesystem = [
-			'plugin'    => [
-				'admin' => [
-					'partials' => [
-						'profile' => [
-							'use-gravatar.php'    => 'USE_GRAVATAR',
-							'allow-anonymous.php' => 'ALLOW_ANONYMOUS',
-						],
-					],
-				],
-			],
-		];
+		$this->form = m::mock( User_Form::class );
 
-		// Set up virtual filesystem.
-		$root = vfsStream::setup( 'root', null, $filesystem );
-		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
-
-		$this->upload = m::mock( User_Avatar_Upload_Handler::class );
-
-		$this->sut = m::mock( User_Profile::class, [ $this->upload ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( User_Profile::class, [ $this->form ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -101,9 +81,9 @@ class User_Profile_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( User_Profile::class )->makePartial();
 
-		$mock->__construct( $this->upload );
+		$mock->__construct( $this->form );
 
-		$this->assertAttributeSame( $this->upload, 'upload', $mock );
+		$this->assertAttributeSame( $this->form, 'form', $mock );
 	}
 
 
@@ -139,11 +119,11 @@ class User_Profile_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::admin_init
 	 */
 	public function test_admin_init() {
+		Actions\expectAdded( 'user_edit_form_tag' )->once()->with( [ $this->sut, 'print_form_encoding' ] );
 		Actions\expectAdded( 'show_user_profile' )->once()->with( [ $this->sut, 'add_user_profile_fields' ] );
 		Actions\expectAdded( 'edit_user_profile' )->once()->with( [ $this->sut, 'add_user_profile_fields' ] );
-		Actions\expectAdded( 'personal_options_update' )->once()->with( [ $this->sut, 'save_user_profile_fields' ] );
-		Actions\expectAdded( 'edit_user_profile_update' )->once()->with( [ $this->sut, 'save_user_profile_fields' ] );
-		Actions\expectAdded( 'user_edit_form_tag' )->once()->with( [ $this->sut, 'print_form_encoding' ] );
+		Actions\expectAdded( 'personal_options_update' )->once()->with( [ $this->form, 'save' ] );
+		Actions\expectAdded( 'edit_user_profile_update' )->once()->with( [ $this->form, 'save' ] );
 
 		Actions\expectAdded( 'admin_head-profile.php' )->once()->with( [ $this->sut, 'admin_head' ] );
 		Actions\expectAdded( 'admin_head-user-edit.php' )->once()->with( [ $this->sut, 'admin_head' ] );
@@ -222,161 +202,14 @@ class User_Profile_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::add_user_profile_fields
 	 */
 	public function test_add_user_profile_fields() {
-		$user = m::mock( 'WP_User' );
+		$user     = m::mock( 'WP_User' );
+		$user->ID = '55';
 
-		$this->upload->shouldReceive( 'get_avatar_upload_markup' )->once()->with( $user )->andReturn( 'FOO' );
-		$this->sut->shouldReceive( 'get_use_gravatar_markup' )->once()->with( $user )->andReturn( 'BAR' );
+		$this->form->shouldReceive( 'get_avatar_uploader' )->once()->with( $user->ID )->andReturn( 'FOO' );
+		$this->form->shouldReceive( 'get_use_gravatar_checkbox' )->once()->with( $user->ID )->andReturn( 'BAR' );
+		$this->form->shouldReceive( 'get_allow_anonymous_checkbox' )->once()->with( $user->ID )->andReturn( 'BAZ' );
 
 		$this->assertNull( $this->sut->add_user_profile_fields( $user ) );
-		$this->assertSame( 'FOOBAR', $this->getValue( $this->sut, 'markup', User_Profile::class ) );
-	}
-
-	/**
-	 * Tests ::get_use_gravatar_markup.
-	 *
-	 * @covers ::get_use_gravatar_markup
-	 */
-	public function test_get_use_gravatar_markup() {
-		$user     = m::mock( 'WP_User' );
-		$user->ID = 5;
-
-		Functions\expect( 'get_user_meta' )->once()->with( m::type( 'int' ), Core::GRAVATAR_USE_META_KEY, true )->andReturn( 'true' );
-		Functions\expect( 'get_user_meta' )->once()->with( m::type( 'int' ), Core::ALLOW_ANONYMOUS_META_KEY, true )->andReturn( 'true' );
-
-		$this->assertSame( 'USE_GRAVATARALLOW_ANONYMOUS', $this->sut->get_use_gravatar_markup( $user ) );
-	}
-
-	/**
-	 * Tests ::save_user_profile_fields.
-	 *
-	 * @covers ::save_user_profile_fields
-	 */
-	public function test_save_user_profile_fields() {
-		$user_id = 5;
-
-		Functions\expect( 'current_user_can' )->once()->with( 'edit_user', $user_id )->andReturn( true );
-
-		$this->sut->shouldReceive( 'save_use_gravatar_checkbox' )->once()->with( $user_id );
-		$this->sut->shouldReceive( 'save_allow_anonymous_checkbox' )->once()->with( $user_id );
-		$this->upload->shouldReceive( 'save_uploaded_user_avatar' )->once()->with( $user_id );
-
-		$this->assertNull( $this->sut->save_user_profile_fields( $user_id ) );
-	}
-
-	/**
-	 * Tests ::save_user_profile_fields.
-	 *
-	 * @covers ::save_user_profile_fields
-	 */
-	public function test_save_user_profile_fields_no_permissions() {
-		$user_id = 5;
-
-		Functions\expect( 'current_user_can' )->once()->with( 'edit_user', $user_id )->andReturn( false );
-
-		$this->sut->shouldReceive( 'save_use_gravatar_checkbox' )->never();
-		$this->sut->shouldReceive( 'save_allow_anonymous_checkbox' )->never();
-		$this->upload->shouldReceive( 'save_uploaded_user_avatar' )->never();
-
-		// FIXME: Should probably just return.
-		$this->assertFalse( $this->sut->save_user_profile_fields( $user_id ) );
-	}
-
-	/**
-	 * Provides data for testing save_use_gravatar_checkbox.
-	 *
-	 * @return array
-	 */
-	public function provide_save_some_checkbox_data() {
-		return [
-			[ true, 'true', 'true' ],
-			[ false, 'true', null ],
-			[ null, 'true', null ],
-			[ true, 'false', 'false' ],
-			[ true, 0, 'false' ],
-		];
-	}
-
-	/**
-	 * Tests ::save_use_gravatar_checkbox.
-	 *
-	 * @covers ::save_use_gravatar_checkbox
-	 *
-	 * @dataProvider provide_save_some_checkbox_data
-	 *
-	 * @param  bool|null   $verify       The result of verify_nonce (or null, if it should not be set at all).
-	 * @param  string|null $checkbox     The checkbox value, or null if it should not be set at all.
-	 * @param  string|null $result       The expected result for `use_gravatar` (or null if the value should not be updated).
-	 */
-	public function test_save_use_gravatar_checkbox( $verify, $checkbox, $result ) {
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-
-		// Input data.
-		$user_id = 5;
-
-		// Set up fake request.
-		$nonce = '12345';
-		$_POST = [];
-		if ( null !== $checkbox ) {
-			$_POST[ User_Profile::CHECKBOX_FIELD_NAME ] = $checkbox;
-		}
-
-		// Great Expectations.
-		if ( null !== $verify ) {
-			$_POST[ User_Profile::NONCE_USE_GRAVATAR . $user_id ] = $nonce;
-			Functions\expect( 'sanitize_key' )->once()->with( $nonce )->andReturn( 'sanitized_nonce' );
-			Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', User_Profile::ACTION_EDIT_USE_GRAVATAR )->andReturn( $verify );
-		} else {
-			Functions\expect( 'sanitize_key' )->never();
-			Functions\expect( 'wp_verify_nonce' )->never();
-		}
-		if ( null !== $result ) {
-			Functions\expect( 'update_user_meta' )->once()->with( $user_id, Core::GRAVATAR_USE_META_KEY, $result );
-		} else {
-			Functions\expect( 'update_user_meta' )->never();
-		}
-
-		$this->assertNull( $this->sut->save_use_gravatar_checkbox( $user_id ) );
-	}
-
-	/**
-	 * Tests ::save_allow_anonymous_checkbox.
-	 *
-	 * @covers ::save_allow_anonymous_checkbox
-	 *
-	 * @dataProvider provide_save_some_checkbox_data
-	 *
-	 * @param  bool|null   $verify       The result of verify_nonce (or null, if it should not be set at all).
-	 * @param  string|null $checkbox     The checkbox value, or null if it should not be set at all.
-	 * @param  string|null $result       The expected result for `use_gravatar` (or null if the value should not be updated).
-	 */
-	public function test_save_allow_anonymous_checkbox( $verify, $checkbox, $result ) {
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-
-		// Input data.
-		$user_id = 5;
-
-		// Set up fake request.
-		$nonce = '12345';
-		$_POST = [];
-		if ( null !== $checkbox ) {
-			$_POST[ User_Profile::CHECKBOX_ALLOW_ANONYMOUS ] = $checkbox;
-		}
-
-		// Great Expectations.
-		if ( null !== $verify ) {
-			$_POST[ User_Profile::NONCE_ALLOW_ANONYMOUS . $user_id ] = $nonce;
-			Functions\expect( 'sanitize_key' )->once()->with( $nonce )->andReturn( 'sanitized_nonce' );
-			Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', User_Profile::ACTION_EDIT_ALLOW_ANONYMOUS )->andReturn( $verify );
-		} else {
-			Functions\expect( 'sanitize_key' )->never();
-			Functions\expect( 'wp_verify_nonce' )->never();
-		}
-		if ( null !== $result ) {
-			Functions\expect( 'update_user_meta' )->once()->with( $user_id, Core::ALLOW_ANONYMOUS_META_KEY, $result );
-		} else {
-			Functions\expect( 'update_user_meta' )->never();
-		}
-
-		$this->assertNull( $this->sut->save_allow_anonymous_checkbox( $user_id ) );
+		$this->assertSame( 'FOOBARBAZ', $this->getValue( $this->sut, 'markup', User_Profile::class ) );
 	}
 }

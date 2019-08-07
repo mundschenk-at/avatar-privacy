@@ -81,6 +81,9 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	/**
 	 * Stores the uploaded default icon in the proper directory.
 	 *
+	 * @global array $_POST  Post request superglobal.
+	 * @global array $_FILES Uploaded files superglobal.
+	 *
 	 * @param  int             $site_id      A site ID.
 	 * @param  string|string[] $option_value The option value. Passed by reference.
 	 */

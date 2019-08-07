@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -34,6 +34,19 @@ namespace Avatar_Privacy\Tools;
  * @author Peter Putzer <github@mundschenk.at>
  */
 abstract class Template {
+
+	/**
+	 * The allowed HTML tags and attributes for checkbox labels.
+	 *
+	 * @var array
+	 */
+	const ALLOWED_HTML_LABEL = [
+		'a' => [
+			'href'   => true,
+			'rel'    => true,
+			'target' => true,
+		],
+	];
 
 	/**
 	 * Retrieves and filters the `rel` attribute for links to gravatar.com.

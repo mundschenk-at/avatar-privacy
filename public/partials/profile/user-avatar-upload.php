@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,6 +27,8 @@
 use Avatar_Privacy\Tools\Template;
 
 /**
+ * Frontend profile form user avatar uploader.
+ *
  * Required template variables:
  *
  * @var string $nonce          The nonce itself.
@@ -36,6 +38,7 @@ use Avatar_Privacy\Tools\Template;
  * @var int    $user_id        The ID of the edited user.
  * @var string $current_avatar The previously set user avatar.
  * @var bool   $can_upload     Whether the currently active user can upload files.
+ * @var int    $size           The width/height of the avatar preview image (in pixels).
  */
 
 if ( $can_upload ) {
@@ -71,21 +74,21 @@ if ( $can_upload ) {
 }
 
 ?>
-<div class="avatar-pricacy-profile-picture-upload">
-	<?php echo /* @scrutinizer ignore-type */ \get_avatar( $user_id ); ?>
+<div class="avatar-privacy-user-avatar-upload">
+	<?php echo /* @scrutinizer ignore-type */ \get_avatar( $user_id, $size ); ?>
 
 	<?php if ( $can_upload ) : ?>
-		<?php \wp_nonce_field( $action, $nonce ); ?>
-		<input type="file" id="<?php echo \esc_attr( $upload_field ); ?>" name="<?php echo \esc_attr( $upload_field ); ?>" accept="image/*" />
-		<?php if ( ! empty( $current_avatar ) ) : ?>
-			<label>
-				<input type="checkbox" class="checkbox" id="<?php echo \esc_attr( $erase_field ); ?>" name="<?php echo \esc_attr( $erase_field ); ?>" value="true" />
-				<?php \esc_html_e( 'Delete local avatar picture.', 'avatar-privacy' ); ?>
-			</label>
-		<?php endif; ?>
+		<p class="avatar-privacy-upload-fields">
+			<?php \wp_nonce_field( $action, $nonce ); ?>
+			<input type="file" id="<?php echo \esc_attr( $upload_field ); ?>" name="<?php echo \esc_attr( $upload_field ); ?>" accept="image/*" />
+			<?php if ( ! empty( $current_avatar ) ) : ?>
+				<input type="checkbox" id="<?php echo \esc_attr( $erase_field ); ?>" name="<?php echo \esc_attr( $erase_field ); ?>" value="true" />
+				<label for="<?php echo \esc_attr( $erase_field ); ?>"><?php \esc_html_e( 'Delete local avatar picture.', 'avatar-privacy' ); ?></label><br />
+			<?php endif; ?>
+		</p>
 	<?php endif; ?>
-	<span class="description indicator-hint" style="width:100%;margin-left:0;">
+	<p class="description">
 		<?php echo \wp_kses( $description, Template::ALLOWED_HTML_LABEL ); ?>
-	</span>
+	</p>
 </div>
 <?php

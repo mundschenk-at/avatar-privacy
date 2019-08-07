@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -37,6 +37,7 @@ use Avatar_Privacy\Components\Privacy_Tools;
 use Avatar_Privacy\Components\REST_API;
 use Avatar_Privacy\Components\Setup;
 use Avatar_Privacy\Components\Settings_Page;
+use Avatar_Privacy\Components\Shortcodes;
 use Avatar_Privacy\Components\User_Profile;
 
 use Brain\Monkey\Actions;
@@ -88,6 +89,7 @@ class Controller_Test extends \Avatar_Privacy\Tests\TestCase {
 				m::mock( Privacy_Tools::class ),
 				m::mock( REST_API::class ),
 				m::mock( Integrations::class ),
+				m::mock( Shortcodes::class ),
 			]
 		)->makePartial();
 

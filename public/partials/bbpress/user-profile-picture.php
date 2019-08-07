@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,13 +24,20 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-use Avatar_Privacy\Integrations\BBPress_Integration;
+use Avatar_Privacy\Tools\HTML\User_Form;
 
+/**
+ * Required template variables:
+ *
+ * @var User_Form $form    The form helper.
+ * @var int       $user_id The ID of the user whose profile we are editing.
+ */
 ?>
 <h2 class="entry-title"><?php \esc_html_e( 'Profile Picture', 'avatar-privacy' ); ?></h2>
 <fieldset class="bbp-form">
 	<legend><?php \esc_html_e( 'Profile Picture', 'avatar-privacy' ); ?></legend>
-	<?php require __DIR__ . '/profile/user-avatar-upload.php'; ?>
-	<?php require __DIR__ . '/profile/use-gravatar.php'; ?>
+	<?php $form->avatar_uploader( $user_id ); ?>
+	<?php $form->use_gravatar_checkbox( $user_id ); ?>
+	<?php $form->allow_anonymous_checkbox( $user_id ); ?>
 </fieldset>
 <?php

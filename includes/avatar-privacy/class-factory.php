@@ -29,7 +29,11 @@ namespace Avatar_Privacy;
 use Dice\Dice;
 
 use Avatar_Privacy\Core;
+use Avatar_Privacy\Component;
 use Avatar_Privacy\Settings;
+
+use Avatar_Privacy\Components\User_Profile;
+use Avatar_Privacy\Components\Shortcodes;
 
 use Avatar_Privacy\Upload_Handlers\Upload_Handler;
 
@@ -38,15 +42,7 @@ use Avatar_Privacy\Avatar_Handlers\Default_Icons_Handler;
 use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache_Handler;
 use Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler;
 
-use Avatar_Privacy\Components\Avatar_Handling;
-use Avatar_Privacy\Components\Comments;
 use Avatar_Privacy\Components\Integrations;
-use Avatar_Privacy\Components\Network_Settings_Page;
-use Avatar_Privacy\Components\Privacy_Tools;
-use Avatar_Privacy\Components\Settings_Page;
-use Avatar_Privacy\Components\Setup;
-use Avatar_Privacy\Components\Uninstallation;
-use Avatar_Privacy\Components\User_Profile;
 
 use Avatar_Privacy\Data_Storage\Cache;
 use Avatar_Privacy\Data_Storage\Database;
@@ -66,6 +62,7 @@ use Avatar_Privacy\Integrations\WP_User_Manager_Integration;
 
 use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Tools\Multisite as Multisite_Tools;
+use Avatar_Privacy\Tools\HTML\User_Form;
 use Avatar_Privacy\Tools\Network\Gravatar_Service;
 
 /**
@@ -140,10 +137,10 @@ class Factory extends Dice {
 			],
 
 			// Components.
+			Component::class                                => self::SHARED,
 			Integrations::class                             => [
 				'constructParams' => [ $this->get_plugin_integrations() ],
 			],
-			User_Profile::class                             => self::SHARED,
 
 			// Default icon providers.
 			Static_Icons\Mystery_Icon_Provider::class       => self::SHARED,
@@ -201,8 +198,98 @@ class Factory extends Dice {
 			// Upload handlers.
 			Upload_Handler::class                           => self::SHARED,
 
+			// Form helpers.
+			'$UserProfileForm'                              => [
+				'instanceOf'      => User_Form::class,
+				'constructParams' => [
+					[
+						'nonce'   => 'avatar_privacy_use_gravatar_nonce_',
+						'action'  => 'avatar_privacy_edit_use_gravatar',
+						'field'   => 'avatar-privacy-use-gravatar',
+						'partial' => '/admin/partials/profile/use-gravatar.php',
+					],
+					[
+						'nonce'   => 'avatar_privacy_allow_anonymous_nonce_',
+						'action'  => 'avatar_privacy_edit_allow_anonymous',
+						'field'   => 'avatar-privacy-allow-anonymous',
+						'partial' => '/admin/partials/profile/allow-anonymous.php',
+					],
+					[
+						'nonce'   => 'avatar_privacy_upload_avatar_nonce_',
+						'action'  => 'avatar_privacy_upload_avatar',
+						'field'   => 'avatar-privacy-user-avatar-upload',
+						'erase'   => 'avatar-privacy-user-avatar-erase',
+						'partial' => '/admin/partials/profile/user-avatar-upload.php',
+					],
+				],
+			],
+			'$bbPressProfileForm'                           => [
+				'instanceOf'      => User_Form::class,
+				'constructParams' => [
+					[
+						'nonce'   => 'avatar_privacy_bbpress_use_gravatar_nonce_',
+						'action'  => 'avatar_privacy_bbpress_edit_use_gravatar',
+						'field'   => 'avatar-privacy-bbpress-use-gravatar',
+						'partial' => '/public/partials/bbpress/profile/use-gravatar.php',
+					],
+					[
+						'nonce'   => 'avatar_privacy_bbpress_allow_anonymous_nonce_',
+						'action'  => 'avatar_privacy_bbpress_edit_allow_anonymous',
+						'field'   => 'avatar-privacy-bbpress-allow-anonymous',
+						'partial' => '/public/partials/bbpress/profile/allow-anonymous.php',
+					],
+					[
+						'nonce'   => 'avatar_privacy_bbpress_upload_avatar_nonce_',
+						'action'  => 'avatar_privacy_bbpress_upload_avatar',
+						'field'   => 'avatar-privacy-bbpress-user-avatar-upload',
+						'erase'   => 'avatar-privacy-bbpress-user-avatar-erase',
+						'partial' => '/public/partials/bbpress/profile/user-avatar-upload.php',
+					],
+				],
+			],
+			'$FrontendUserForm'                             => [
+				'instanceOf'      => User_Form::class,
+				'constructParams' => [
+					[
+						'nonce'   => 'avatar_privacy_frontend_use_gravatar_nonce_',
+						'action'  => 'avatar_privacy_frontend_edit_use_gravatar',
+						'field'   => 'avatar-privacy-frontend-use-gravatar',
+						'partial' => '/public/partials/profile/use-gravatar.php',
+					],
+					[
+						'nonce'   => 'avatar_privacy_frontend_allow_anonymous_nonce_',
+						'action'  => 'avatar_privacy_frontend_edit_allow_anonymous',
+						'field'   => 'avatar_privacy_frontend-allow_anonymous',
+						'partial' => '/public/partials/profile/allow-anonymous.php',
+					],
+					[
+						'nonce'   => 'avatar_privacy_frontend_upload_avatar_nonce_',
+						'action'  => 'avatar_privacy_frontend_upload_avatar',
+						'field'   => 'avatar-privacy-frontend-user-avatar-upload',
+						'erase'   => 'avatar-privacy-frontend-user-avatar-erase',
+						'partial' => '/public/partials/profile/user-avatar-upload.php',
+					],
+				],
+			],
+
+			User_Profile::class                             => [
+				'substitutions' => [
+					User_Form::class => [ 'instance' => '$UserProfileForm' ],
+				],
+			],
+			Shortcodes::class                               => [
+				'substitutions' => [
+					User_Form::class => [ 'instance' => '$FrontendUserForm' ],
+				],
+			],
+
 			// Plugin integrations.
-			BBPress_Integration::class                      => self::SHARED,
+			BBPress_Integration::class                      => [
+				'shared'        => true,
+				'substitutions' => [
+					User_Form::class => [ 'instance' => '$bbPressProfileForm' ],
+				],
+			],
 
 			// Tools.
 			Images\Editor::class                            => self::SHARED,

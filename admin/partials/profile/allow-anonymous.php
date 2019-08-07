@@ -2,8 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
- * Copyright 2012-2013 Johannes Freudendahl.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,30 +24,29 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-// Allowed HTML tags in the checkbox label.
-$allowed_html = [
-	'a' => [
-		'href'   => true,
-		'rel'    => true,
-		'target' => true,
-	],
-];
-
+/**
+ * Required template variables:
+ *
+ * @var string $nonce      The nonce itself.
+ * @var string $action     The nonce action.
+ * @var string $field_name The name of the checkbox `<input>` element.
+ * @var string $value      The checkbox value.
+ */
 ?>
-<tr class"avatar-privacy-allow-anonymous">
+<tr class="avatar-privacy-allow-anonymous">
 	<th scope="row"><?php \esc_html_e( 'Logged-out Commenting', 'avatar-privacy' ); ?></th>
 	<td>
-		<?php \wp_nonce_field( self::ACTION_EDIT_ALLOW_ANONYMOUS, self::NONCE_ALLOW_ANONYMOUS . $user->ID ); ?>
+		<?php \wp_nonce_field( $action, $nonce ); ?>
 		<input
-			id="<?php echo esc_attr( self::CHECKBOX_ALLOW_ANONYMOUS ); ?>"
-			name="<?php echo esc_attr( self::CHECKBOX_ALLOW_ANONYMOUS ); ?>"
+			id="<?php echo \esc_attr( $field_name ); ?>"
+			name="<?php echo \esc_attr( $field_name ); ?>"
 			type="checkbox"
 			value="true"
-			<?php checked( $allow_anonymous ); ?>
+			<?php \checked( $value ); ?>
 		/>
-		<label for="<?php echo esc_attr( self::CHECKBOX_ALLOW_ANONYMOUS ); ?>"><?php \esc_html_e( 'Allow logged-out comments with my profile picture.', 'avatar-privacy' ); ?></label><br />
+		<label for="<?php echo \esc_attr( $field_name ); ?>"><?php \esc_html_e( 'Allow logged-out comments with my profile picture.', 'avatar-privacy' ); ?></label><br />
 		<p class="description">
-			<?php esc_html_e( 'Check this box if you want to be able to use your profile picture while logged-out.', 'avatar-privacy' ); ?>
+			<?php \esc_html_e( 'Check this box if you want to be able to use your profile picture while logged-out.', 'avatar-privacy' ); ?>
 		</p>
 	</td>
 </tr>

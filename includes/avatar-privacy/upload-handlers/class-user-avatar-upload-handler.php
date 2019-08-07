@@ -39,23 +39,11 @@ use Avatar_Privacy\Tools\Images as Image_Tools;
  *
  * @since 1.0.0
  * @since 2.0.0 Image generation moved to new class Avatar_Handlers\User_Avatar_Handler, the upload handler is now a subclass of Upload_Handler.
+ * @since 2.3.0 Obsolete class constants removed.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
 class User_Avatar_Upload_Handler extends Upload_Handler {
-
-	/**
-	 * The nonce action for updating custom user avatars.
-	 */
-	const ACTION_UPLOAD = 'avatar_privacy_upload_avatar';
-
-	/**
-	 * The nonce used for updating custom user avatars.
-	 */
-	const NONCE_UPLOAD = 'avatar_privacy_upload_avatar_nonce_';
-
-	const CHECKBOX_ERASE = 'avatar-privacy-user-avatar-erase';
-	const FILE_UPLOAD    = 'avatar-privacy-user-avatar-upload';
 
 	const UPLOAD_DIR = '/avatar-privacy/user-avatar';
 
@@ -65,7 +53,6 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 * @var int
 	 */
 	private $user_id_being_edited;
-
 
 	/**
 	 * Creates a new instance.
@@ -95,20 +82,31 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	/**
 	 * Stores the uploaded avatar image in the proper directory.
 	 *
-	 * @param  int $user_id The user ID.
+	 * @global array $_POST  Post request superglobal.
+	 * @global array $_FILES Uploaded files superglobal.
+	 *
+	 * @param  int    $user_id      The user ID.
+	 * @param  string $nonce        The nonce root required for saving the field
+	 *                              (the user ID will be automatically appended).
+	 * @param  string $action       The action required for saving the field.
+	 * @param  string $upload_field The HTML name of the "upload" field.
+	 * @param  string $erase_field  The HTML name of the "erase" checkbox.
 	 */
-	public function save_uploaded_user_avatar( $user_id ) {
-		if ( ! isset( $_POST[ self::NONCE_UPLOAD . $user_id ] ) || ! \wp_verify_nonce( \sanitize_key( $_POST[ self::NONCE_UPLOAD . $user_id ] ), self::ACTION_UPLOAD ) ) { // Input var okay.
+	public function save_uploaded_user_avatar( $user_id, $nonce, $action, $upload_field, $erase_field ) {
+		// Ensure nonce is specific to the ID of the user.
+		$nonce .= $user_id;
+
+		if ( ! isset( $_POST[ $nonce ] ) || ! \wp_verify_nonce( \sanitize_key( $_POST[ $nonce ] ), $action ) ) {
 			return;
 		}
 
-		if ( ! empty( $_FILES[ self::FILE_UPLOAD ]['name'] ) ) { // Input var okay.
+		if ( ! empty( $_FILES[ $upload_field ]['name'] ) ) { // Input var okay.
 
 			// Make user_id known to unique_filename_callback function.
 			$this->user_id_being_edited = $user_id;
 
 			// Upload to our custom directory.
-			$avatar = $this->upload( $_FILES[ self::FILE_UPLOAD ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- ::upload uses \wp_handle_upload, $_FILES does not need wp_unslash.
+			$avatar = $this->upload( $_FILES[ $upload_field ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- ::upload uses \wp_handle_upload, $_FILES does not need wp_unslash.
 
 			// Handle upload failures.
 			if ( empty( $avatar['file'] ) ) {
@@ -118,7 +116,7 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 
 			// Save the new avatar image.
 			$this->assign_new_user_avatar( $user_id, $avatar );
-		} elseif ( ! empty( $_POST[ self::CHECKBOX_ERASE ] ) && 'true' === $_POST[ self::CHECKBOX_ERASE ] ) { // Input var okay.
+		} elseif ( ! empty( $_POST[ $erase_field ] ) && 'true' === $_POST[ $erase_field ] ) {
 			// Just delete the current avatar.
 			$this->delete_uploaded_avatar( $user_id );
 		}

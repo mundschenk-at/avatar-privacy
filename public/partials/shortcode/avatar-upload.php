@@ -2,8 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
- * Copyright 2012-2013 Johannes Freudendahl.
+ * Copyright 2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,15 +24,24 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-$show_avatars_class = empty( $show_avatars ) ? '' : ' hide-if-js';
+use Avatar_Privacy\Tools\HTML\User_Form;
 
+/**
+ * Required template variables:
+ *
+ * @var User_Form $form    The form helper.
+ * @var int       $user_id The ID of the user whose profile we are editing.
+ * @var array     $atts {
+ *     The shortcode attributes.
+ *
+ *     @type int $avatar_size The width/height of the avatar preview image (in pixels).
+ * }
+ */
 ?>
-<div class="avatar-settings-disabled<?php echo $show_avatars_class; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
-	<p>
-		<?php \esc_html_e( "The Avatar Privacy plugin modifies the display of avatars. You have not enabled avatars, so this plugin can't do anything for you. :-)", 'avatar-privacy' ); ?>
-	</p>
-	<p>
-		<?php \esc_html_e( 'You can enable profile pictures for users and commenters by selecting "Show Avatars" above. Then you will also see the features enabled by the Avatar Privacy plugin here.', 'avatar-privacy' ); ?>
-	</p>
-</div>
+<form class="avatar-privacy-frontend avatar-privacy-shortcode" method="post" enctype="multipart/form-data">
+	<?php $form->avatar_uploader( $user_id, $atts['avatar_size'] ); ?>
+	<?php $form->use_gravatar_checkbox( $user_id ); ?>
+	<?php $form->allow_anonymous_checkbox( $user_id ); ?>
+	<input type="submit" value="<?php \esc_attr_e( 'Save', 'avatar-privacy' ); ?>" />
+</form>
 <?php

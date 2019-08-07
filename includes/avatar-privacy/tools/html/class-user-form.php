@@ -1,0 +1,329 @@
+<?php
+/**
+ * This file is part of Avatar Privacy.
+ *
+ * Copyright 2019 Peter Putzer.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ *  ***
+ *
+ * @package mundschenk-at/avatar-privacy
+ * @license http://www.gnu.org/licenses/gpl-2.0.html
+ */
+
+namespace Avatar_Privacy\Tools\HTML;
+
+use Avatar_Privacy\Core;
+use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler as Upload;
+
+/**
+ * An abstraction layer for working with user profile forms, including the
+ * upload handling. The form helper instances are normally not shared.
+ *
+ * @since 2.3.0
+ *
+ * @author Peter Putzer <github@mundschenk.at>
+ */
+class User_Form {
+
+	/**
+	 * The upload handler.
+	 *
+	 * @var Upload
+	 */
+	protected $upload;
+
+	/**
+	 * The configuration data for the `use_gravatar` checkbox.
+	 *
+	 * @var array {
+	 *     @type string $nonce   The nonce root (the ID of the user in question
+	 *                           will be automatically added).
+	 *     @type string $action  The nonce action.
+	 *     @type string $field   The ID/name of the actual `<input>` element.
+	 *     @type string $partial The path to the partial template file (relative
+	 *                           to the plugin path).
+	 * }
+	 */
+	protected $use_gravatar;
+
+	/**
+	 * The configuration data for the `allow_anonymous` checkbox.
+	 *
+	 * @var array {
+	 *     @type string $nonce   The nonce root (the ID of the user in question
+	 *                           will be automatically added).
+	 *     @type string $action  The nonce action.
+	 *     @type string $field   The ID/name of the actual `<input>` element.
+	 *     @type string $partial The path to the partial template file (relative
+	 *                           to the plugin path).
+	 * }
+	 */
+	protected $allow_anonymous;
+
+	/**
+	 * The configuration data for the user avatar uploader.
+	 *
+	 * @var array {
+	 *     @type string $nonce   The nonce root (the ID of the user in question
+	 *                           will be automatically added).
+	 *     @type string $action  The nonce action.
+	 *     @type string $field   The ID/name of the upload `<input>` element.
+	 *     @type string $erase   The ID/name of the erase checkbox `<input>` element.
+	 *     @type string $partial The path to the partial template file (relative
+	 *                           to the plugin path).
+	 * }
+	 */
+	protected $user_avatar;
+
+	/**
+	 * Creates a new form helper instance.
+	 *
+	 * @param Upload $upload          The upload handler.
+	 * @param array  $use_gravatar {
+	 *     The configuration data for the `use_gravatar` checkbox.
+	 *
+	 *     @type string $nonce   The nonce root (the ID of the user in question
+	 *                           will be automatically added).
+	 *     @type string $action  The nonce action.
+	 *     @type string $field   The ID/name of the actual `<input>` element.
+	 *     @type string $partial The path to the partial template file (relative
+	 *                           to the plugin path).
+	 * }
+	 * @param array  $allow_anonymous {
+	 *     The configuration data for the `allow_anonymous` checkbox.
+	 *
+	 *     @type string $nonce   The nonce root (the ID of the user in question
+	 *                           will be automatically added).
+	 *     @type string $action  The nonce action.
+	 *     @type string $field   The ID/name of the actual `<input>` element.
+	 *     @type string $partial The path to the partial template file (relative
+	 *                           to the plugin path).
+	 * }
+	 * @param array  $user_avatar {
+	 *     The configuration data for the user avatar uploader.
+	 *
+	 *     @type string $nonce   The nonce root (the ID of the user in question
+	 *                           will be automatically added).
+	 *     @type string $action  The nonce action.
+	 *     @type string $field   The ID/name of the upload `<input>` element.
+	 *     @type string $erase   The ID/name of the erase checkbox `<input>` element.
+	 *     @type string $partial The path to the partial template file (relative
+	 *                           to the plugin path).
+	 * }
+	 */
+	public function __construct( Upload $upload, array $use_gravatar, array $allow_anonymous, array $user_avatar ) {
+		$this->upload          = $upload;
+		$this->use_gravatar    = $use_gravatar;
+		$this->allow_anonymous = $allow_anonymous;
+		$this->user_avatar     = $user_avatar;
+	}
+
+	/**
+	 * Prints the markup for the `use_gravatar` checkbox.
+	 *
+	 * @param  int $user_id The ID of the user to edit.
+	 */
+	public function use_gravatar_checkbox( $user_id ) {
+		$this->checkbox( $user_id, $this->use_gravatar['nonce'], $this->use_gravatar['action'], $this->use_gravatar['field'], Core::GRAVATAR_USE_META_KEY, $this->use_gravatar['partial'] );
+	}
+
+	/**
+	 * Retrieves the markup for the `use_gravatar` checkbox.
+	 *
+	 * @param  int $user_id The ID of the user to edit.
+	 *
+	 * @return string
+	 */
+	public function get_use_gravatar_checkbox( $user_id ) {
+		\ob_start();
+		$this->use_gravatar_checkbox( $user_id );
+		return \ob_get_clean();
+	}
+
+	/**
+	 * Prints the markup for the `allow_anonymous` checkbox.
+	 *
+	 * @param  int $user_id The ID of the user to edit.
+	 */
+	public function allow_anonymous_checkbox( $user_id ) {
+		$this->checkbox( $user_id, $this->allow_anonymous['nonce'], $this->allow_anonymous['action'], $this->allow_anonymous['field'], Core::ALLOW_ANONYMOUS_META_KEY, $this->allow_anonymous['partial'] );
+	}
+
+	/**
+	 * Retrieves the markup for the `allow_anonymous` checkbox.
+	 *
+	 * @param  int $user_id The ID of the user to edit.
+	 *
+	 * @return string
+	 */
+	public function get_allow_anonymous_checkbox( $user_id ) {
+		\ob_start();
+		$this->allow_anonymous_checkbox( $user_id );
+		return \ob_get_clean();
+	}
+
+	/**
+	 * Prints the markup for uploading user avatars.
+	 *
+	 * @param  int $user_id The ID of the user to edit.
+	 * @param  int $size    Optional. The width/height of the avatar preview image (in pixels). Default 96.
+	 */
+	public function avatar_uploader( $user_id, $size = 96 ) {
+		// Set up variables used by the included partial.
+		$nonce          = "{$this->user_avatar['nonce']}{$user_id}";
+		$action         = $this->user_avatar['action'];
+		$upload_field   = $this->user_avatar['field'];
+		$erase_field    = $this->user_avatar['erase'];
+		$current_avatar = \get_user_meta( $user_id, Core::USER_AVATAR_META_KEY, true );
+		$can_upload     = \current_user_can( 'upload_files' );
+
+		// Include partial.
+		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . $this->user_avatar['partial'];
+	}
+
+	/**
+	 * Retrieves the markup for uploading user avatars.
+	 *
+	 * @param  int $user_id The ID of the user to edit.
+	 * @param  int $size    Optional. The width/height of the avatar preview image (in pixels). Default 96.
+	 *
+	 * @return string
+	 */
+	public function get_avatar_uploader( $user_id, $size = 96 ) {
+		\ob_start();
+		$this->avatar_uploader( $user_id, $size );
+		return \ob_get_clean();
+	}
+
+	/**
+	 * Prints checkbox markup, initialized from the given user meta key.
+	 *
+	 * @param  int    $user_id    The ID of the user to edit.
+	 * @param  string $nonce      The nonce root required for saving the field
+	 *                            (the user ID will be automatically appended).
+	 * @param  string $action     The action required for saving the field.
+	 * @param  string $field_name The HTML name of the checkbox field.
+	 * @param  string $meta_key   The user meta key to load data from.
+	 * @param  string $partial    The relative path to the partial to load.
+	 */
+	protected function checkbox( $user_id, $nonce, $action, $field_name, $meta_key, $partial ) {
+		// Set up variables used by the included partial.
+		$value  = 'true' === \get_user_meta( $user_id, $meta_key, true );
+		$nonce .= $user_id; // Ensure nonce is specific to the ID of the user.
+
+		// Include partial.
+		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . $partial;
+	}
+
+	/**
+	 * Saves the value of the 'use_gravatar' checkbox from the user profile in
+	 * the database.
+	 *
+	 * @global array $_POST Post request superglobal.
+	 *
+	 * @param int $user_id The ID of the user that has just been saved.
+	 */
+	public function save_use_gravatar_checkbox( $user_id ) {
+		$this->save_checkbox( $user_id, $this->use_gravatar['nonce'], $this->use_gravatar['action'], $this->use_gravatar['field'], Core::GRAVATAR_USE_META_KEY );
+	}
+
+	/**
+	 * Saves the value of the 'allow_anonymous' checkbox from the user profile in
+	 * the database.
+	 *
+	 * @global array $_POST Post request superglobal.
+	 *
+	 * @param int $user_id The ID of the user that has just been saved.
+	 */
+	public function save_allow_anonymous_checkbox( $user_id ) {
+		$this->save_checkbox( $user_id, $this->allow_anonymous['nonce'], $this->allow_anonymous['action'], $this->allow_anonymous['field'], Core::ALLOW_ANONYMOUS_META_KEY );
+	}
+
+	/**
+	 * Saves the value of a checkbox to user meta.
+	 *
+	 * @param int    $user_id    The ID of the user that has just been saved.
+	 * @param string $nonce      The nonce root required for saving the field
+	 *                           (the user ID will be automatically appended).
+	 * @param string $action     The action required for saving the field.
+	 * @param string $field_name The HTML name of the field to be saved.
+	 * @param string $meta_key   The user meta key to save to.
+	 */
+	protected function save_checkbox( $user_id, $nonce, $action, $field_name, $meta_key ) {
+		// Ensure nonce is specific to the ID of the user.
+		$nonce .= $user_id;
+
+		if ( isset( $_POST[ $nonce ] ) && \wp_verify_nonce( \sanitize_key( $_POST[ $nonce ] ), $action ) ) {
+			// Use true/false instead of 1/0 since a '0' value is removed from
+			// the database and then we can't differentiate between "has opted-out"
+			// and "never saved a value".
+			$value = isset( $_POST[ $field_name ] ) && ( 'true' === $_POST[ $field_name ] ) ? 'true' : 'false';
+			\update_user_meta( $user_id, $meta_key, $value );
+		}
+	}
+
+	/**
+	 * Saves the uploaded avatar image to the proper directory.
+	 *
+	 * @param  int $user_id The user ID.
+	 */
+	public function save_uploaded_user_avatar( $user_id ) {
+		$this->upload->save_uploaded_user_avatar( $user_id, $this->user_avatar['nonce'], $this->user_avatar['action'], $this->user_avatar['field'], $this->user_avatar['erase'] );
+	}
+
+	/**
+	 * Saves all the custom fields of the user form into the database/the
+	 * the filesystem. The data is taken from the $_POST and $_FILES superglobals.
+	 *
+	 * If the current user lacks the capability to edit the profile of the given
+	 * user_id, the data is not saved.
+	 *
+	 * @global array $_POST  Post request superglobal.
+	 * @global array $_FILES Uploaded files superglobal.
+	 *
+	 * @param  int $user_id The ID of the edited user.
+	 */
+	public function save( $user_id ) {
+		if ( ! \current_user_can( 'edit_user', $user_id ) ) {
+			return;
+		}
+
+		$this->save_use_gravatar_checkbox( $user_id );
+		$this->save_allow_anonymous_checkbox( $user_id );
+		$this->save_uploaded_user_avatar( $user_id );
+	}
+
+	/**
+	 * Processes a form submission. Currently, it is limited to "self-editing".
+	 *
+	 * This method should only be hooked for frontend forms (via the `init`
+	 * action hook).
+	 *
+	 * @global array $_POST  Post request superglobal.
+	 * @global array $_FILES Uploaded files superglobal.
+	 */
+	public function process_form_submission() {
+		// Check that user is logged in.
+		$user_id = \get_current_user_id();
+		if ( empty( $user_id ) ) {
+			return;
+		}
+
+		// Process upload.
+		$this->save( $user_id );
+	}
+}
