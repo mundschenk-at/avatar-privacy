@@ -33,9 +33,9 @@ use Avatar_Privacy\Component;
 use Avatar_Privacy\Settings;
 
 use Avatar_Privacy\Components\User_Profile;
+use Avatar_Privacy\Components\Shortcodes;
 
 use Avatar_Privacy\Upload_Handlers\Upload_Handler;
-use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
 use Avatar_Privacy\Avatar_Handlers\Default_Icons;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons_Handler;
@@ -247,10 +247,39 @@ class Factory extends Dice {
 					],
 				],
 			],
+			'$FrontendUserForm'                             => [
+				'instanceOf'      => User_Form::class,
+				'constructParams' => [
+					[
+						'nonce'   => 'avatar_privacy_frontend_use_gravatar_nonce_',
+						'action'  => 'avatar_privacy_frontend_edit_use_gravatar',
+						'field'   => 'avatar-privacy-frontend-use-gravatar',
+						'partial' => '/public/partials/profile/use-gravatar.php',
+					],
+					[
+						'nonce'   => 'avatar_privacy_frontend_allow_anonymous_nonce_',
+						'action'  => 'avatar_privacy_frontend_edit_allow_anonymous',
+						'field'   => 'avatar_privacy_frontend-allow_anonymous',
+						'partial' => '/public/partials/profile/allow-anonymous.php',
+					],
+					[
+						'nonce'   => 'avatar_privacy_frontend_upload_avatar_nonce_',
+						'action'  => 'avatar_privacy_frontend_upload_avatar',
+						'field'   => 'avatar-privacy-frontend-user-avatar-upload',
+						'erase'   => 'avatar-privacy-frontend-user-avatar-erase',
+						'partial' => '/public/partials/profile/user-avatar-upload.php',
+					],
+				],
+			],
 
 			User_Profile::class                             => [
 				'substitutions' => [
 					User_Form::class => [ 'instance' => '$UserProfileForm' ],
+				],
+			],
+			Shortcodes::class                               => [
+				'substitutions' => [
+					User_Form::class => [ 'instance' => '$FrontendUserForm' ],
 				],
 			],
 

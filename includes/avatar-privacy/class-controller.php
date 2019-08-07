@@ -36,6 +36,7 @@ use Avatar_Privacy\Components\Privacy_Tools;
 use Avatar_Privacy\Components\REST_API;
 use Avatar_Privacy\Components\Setup;
 use Avatar_Privacy\Components\Settings_Page;
+use Avatar_Privacy\Components\Shortcodes;
 use Avatar_Privacy\Components\User_Profile;
 
 /**
@@ -74,8 +75,22 @@ class Controller {
 	 * @param Privacy_Tools         $privacy          The privacy tools handler.
 	 * @param REST_API              $rest_api         The REST API handler.
 	 * @param Integrations          $integrations     The third-party plugin integrations handler.
+	 * @param Shortcodes            $shortcodes       The shortcodes handler.
 	 */
-	public function __construct( Core $core, Setup $setup, Image_Proxy $image_proxy, Avatar_Handling $avatars, Comments $comments, User_Profile $profile, Settings_Page $settings, Network_Settings_Page $network_settings, Privacy_Tools $privacy, REST_API $rest_api, Integrations $integrations ) {
+	public function __construct(
+		Core $core,
+		Setup $setup,
+		Image_Proxy $image_proxy,
+		Avatar_Handling $avatars,
+		Comments $comments,
+		User_Profile $profile,
+		Settings_Page $settings,
+		Network_Settings_Page $network_settings,
+		Privacy_Tools $privacy,
+		REST_API $rest_api,
+		Integrations $integrations,
+		Shortcodes $shortcodes
+	) {
 		$this->core         = $core;
 		$this->components[] = $setup;
 		$this->components[] = $avatars;
@@ -87,6 +102,7 @@ class Controller {
 		$this->components[] = $privacy;
 		$this->components[] = $rest_api;
 		$this->components[] = $integrations;
+		$this->components[] = $shortcodes;
 	}
 
 	/**
