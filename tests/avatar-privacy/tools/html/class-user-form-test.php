@@ -186,7 +186,10 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_avatar_uploader() {
 		// Input parameters.
-		$user_id    = 5;
+		$user_id = 5;
+		$size    = 666;
+
+		// Object state.
 		$nonce      = 'my_nonce';
 		$action     = 'my_action';
 		$field_name = 'my_input_id';
@@ -213,7 +216,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->expectOutputString( 'MY_PARTIAL' );
 
-		$this->assertNull( $this->sut->avatar_uploader( $user_id ) );
+		$this->assertNull( $this->sut->avatar_uploader( $user_id, $size ) );
 	}
 
 	/**
@@ -224,14 +227,15 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_avatar_uploader() {
 		// Input parameters.
 		$user_id = 5;
+		$size    = 666;
 
-		$this->sut->shouldReceive( 'avatar_uploader' )->once()->with( $user_id )->andReturnUsing(
+		$this->sut->shouldReceive( 'avatar_uploader' )->once()->with( $user_id, $size )->andReturnUsing(
 			function() {
 				echo 'UPLOADER';
 			}
 		);
 
-		$this->assertSame( 'UPLOADER', $this->sut->get_avatar_uploader( $user_id ) );
+		$this->assertSame( 'UPLOADER', $this->sut->get_avatar_uploader( $user_id, $size ) );
 	}
 
 

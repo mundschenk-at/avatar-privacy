@@ -27,7 +27,6 @@
 namespace Avatar_Privacy\Tools\HTML;
 
 use Avatar_Privacy\Core;
-
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler as Upload;
 
 /**
@@ -181,8 +180,9 @@ class User_Form {
 	 * Prints the markup for uploading user avatars.
 	 *
 	 * @param  int $user_id The ID of the user to edit.
+	 * @param  int $size    Optional. The width/height of the avatar preview image (in pixels). Default 96.
 	 */
-	public function avatar_uploader( $user_id ) {
+	public function avatar_uploader( $user_id, $size = 96 ) {
 		// Set up variables used by the included partial.
 		$nonce          = "{$this->user_avatar['nonce']}{$user_id}";
 		$action         = $this->user_avatar['action'];
@@ -199,12 +199,13 @@ class User_Form {
 	 * Retrieves the markup for uploading user avatars.
 	 *
 	 * @param  int $user_id The ID of the user to edit.
+	 * @param  int $size    Optional. The width/height of the avatar preview image (in pixels). Default 96.
 	 *
 	 * @return string
 	 */
-	public function get_avatar_uploader( $user_id ) {
+	public function get_avatar_uploader( $user_id, $size = 96 ) {
 		\ob_start();
-		$this->avatar_uploader( $user_id );
+		$this->avatar_uploader( $user_id, $size );
 		return \ob_get_clean();
 	}
 

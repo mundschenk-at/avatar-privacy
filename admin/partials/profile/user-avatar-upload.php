@@ -37,6 +37,7 @@ use Avatar_Privacy\Tools\Template;
  * @var int    $user_id        The ID of the edited user.
  * @var string $current_avatar The previously set user avatar.
  * @var bool   $can_upload     Whether the currently active user can upload files.
+ * @var int    $size           The width/height of the avatar preview image (in pixels).
  */
 
 if ( $can_upload ) {
@@ -75,7 +76,7 @@ if ( $can_upload ) {
 <tr class="avatar-privacy-user-avatar-upload">
 	<th scope="row"><?php \esc_html_e( 'Profile Picture', 'avatar-privacy' ); ?></th>
 	<td>
-		<?php echo /* @scrutinizer ignore-type */ \get_avatar( $user_id ); ?>
+		<?php echo /* @scrutinizer ignore-type */ \get_avatar( $user_id, $size ); ?>
 
 		<?php if ( $can_upload ) : ?>
 			<p class="avatar-privacy-upload-fields">
