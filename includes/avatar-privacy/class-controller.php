@@ -28,6 +28,7 @@
 namespace Avatar_Privacy;
 
 use Avatar_Privacy\Components\Avatar_Handling;
+use Avatar_Privacy\Components\Block_Editor;
 use Avatar_Privacy\Components\Comments;
 use Avatar_Privacy\Components\Image_Proxy;
 use Avatar_Privacy\Components\Integrations;
@@ -76,6 +77,7 @@ class Controller {
 	 * @param REST_API              $rest_api         The REST API handler.
 	 * @param Integrations          $integrations     The third-party plugin integrations handler.
 	 * @param Shortcodes            $shortcodes       The shortcodes handler.
+	 * @param Block_Editor          $block_editor     The block editor handler.
 	 */
 	public function __construct(
 		Core $core,
@@ -89,7 +91,8 @@ class Controller {
 		Privacy_Tools $privacy,
 		REST_API $rest_api,
 		Integrations $integrations,
-		Shortcodes $shortcodes
+		Shortcodes $shortcodes,
+		Block_Editor $block_editor
 	) {
 		$this->core         = $core;
 		$this->components[] = $setup;
@@ -103,6 +106,7 @@ class Controller {
 		$this->components[] = $rest_api;
 		$this->components[] = $integrations;
 		$this->components[] = $shortcodes;
+		$this->components[] = $block_editor;
 	}
 
 	/**

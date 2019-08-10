@@ -29,6 +29,7 @@ namespace Avatar_Privacy\Tests\Avatar_Privacy;
 use Avatar_Privacy\Core;
 
 use Avatar_Privacy\Components\Avatar_Handling;
+use Avatar_Privacy\Components\Block_Editor;
 use Avatar_Privacy\Components\Comments;
 use Avatar_Privacy\Components\Image_Proxy;
 use Avatar_Privacy\Components\Integrations;
@@ -90,6 +91,7 @@ class Controller_Test extends \Avatar_Privacy\Tests\TestCase {
 				m::mock( REST_API::class ),
 				m::mock( Integrations::class ),
 				m::mock( Shortcodes::class ),
+				m::mock( Block_Editor::class ),
 			]
 		)->makePartial();
 
