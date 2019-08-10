@@ -158,6 +158,7 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 		$deps     = [ 'foo', 'bar' ];
 
 		Functions\expect( 'plugin_dir_url' )->once()->with( \AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $base_url );
+		Functions\expect( 'plugin_dir_path' )->once()->with( \AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $path );
 
 		$this->core->shouldReceive( 'get_version' )->once()->andReturn( $version );
 
@@ -170,10 +171,17 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 			$version,
 			false
 		);
+		Functions\expect( 'wp_register_style' )->once()->with(
+			'avatar-privacy-gutenberg-style',
+			"{$base_url}admin/css/blocks{$suffix}.css",
+			[],
+			$version
+		);
 		Functions\expect( 'register_block_type' )->once()->with(
 			'avatar-privacy/form',
 			[
 				'editor_script'   => 'avatar-privacy-gutenberg',
+				'editor_style'    => 'avatar-privacy-gutenberg-style',
 				'render_callback' => [ $this->sut, 'render_frontend_form' ],
 				'attributes'      => [
 					'avatar_size' => [

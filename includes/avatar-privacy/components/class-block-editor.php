@@ -89,11 +89,15 @@ class Block_Editor implements Component {
 		$block_js = 'admin/blocks/js/blocks.js';
 		\wp_register_script( 'avatar-privacy-gutenberg', "{$plugin_dir}{$block_js}", $this->get_dependencies( \plugin_dir_path( \AVATAR_PRIVACY_PLUGIN_FILE ) . $block_js ), $version, false );
 
+		// Register the stylesheet for the blocks.
+		\wp_register_style( 'avatar-privacy-gutenberg-style', "{$plugin_dir}admin/css/blocks{$suffix}.css", [], $version );
+
 		// Register each individual block type.
 		\register_block_type(
 			'avatar-privacy/form',
 			[
 				'editor_script'   => 'avatar-privacy-gutenberg',
+				'editor_style'    => 'avatar-privacy-gutenberg-style',
 				'render_callback' => [ $this, 'render_frontend_form' ],
 				'attributes'      => [
 					'avatar_size' => [
