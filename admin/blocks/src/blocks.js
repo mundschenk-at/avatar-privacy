@@ -12,3 +12,4 @@
  * Internal dependencies
  */
 import './frontend-form.js';
+import './avatar.js';

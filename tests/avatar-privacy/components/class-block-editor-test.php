@@ -83,6 +83,7 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 					'partials' => [
 						'block' => [
 							'frontend-form.php'    => 'BLOCK',
+							'avatar.php'           => 'AVATAR',
 						],
 					],
 				],
@@ -203,6 +204,33 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 				],
 			]
 		);
+		Functions\expect( 'register_block_type' )->once()->with(
+			'avatar-privacy/avatar',
+			[
+				'editor_script'   => 'avatar-privacy-gutenberg',
+				'editor_style'    => 'avatar-privacy-gutenberg-style',
+				'render_callback' => [ $this->sut, 'render_avatar' ],
+				'attributes'      => [
+					'avatar_size' => [
+						'type'    => 'integer',
+						'default' => 96,
+					],
+					'user_id'     => [
+						'type'    => 'integer',
+						'default' => 0,
+					],
+					'align'       => [
+						'type'    => 'string',
+						'default' => '',
+					],
+					'className'   => [
+						'type'    => 'string',
+						'default' => '',
+					],
+
+				],
+			]
+		);
 
 		$this->assertNull( $this->sut->register_blocks() );
 	}
@@ -237,7 +265,7 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 			'avatar_size' => 120,
 		];
 
-		// Systme state.
+		// System state.
 		$user_id = 42;
 
 		Functions\expect( 'get_current_user_id' )->once()->andReturn( $user_id );
@@ -273,12 +301,52 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 			'preview'     => true,
 		];
 
-		// Systme state.
+		// System state.
 		$user_id = 42;
 
 		Functions\expect( 'get_current_user_id' )->once()->andReturn( $user_id );
 
 		// Cleanup should probably be a separate method for testing.
 		$this->assertSame( 'BLOCK', $this->sut->render_frontend_form( $atts ) );
+	}
+
+	/**
+	 * Tests ::render_avatar.
+	 *
+	 * @covers ::render_avatar
+	 */
+	public function test_render_avatar() {
+		// Input data.
+		$user_id = 42;
+		$atts    = [
+			'user_id'     => $user_id,
+			'avatar_size' => 120,
+			'className'   => 'foo',
+			'align'       => 'bar',
+		];
+
+		Functions\expect( 'get_user_by' )->once()->with( 'ID', $user_id )->andReturn( m::mock( \WP_User::class ) );
+
+		$this->assertSame( 'AVATAR', $this->sut->render_avatar( $atts ) );
+	}
+
+	/**
+	 * Tests ::render_avatar.
+	 *
+	 * @covers ::render_avatar
+	 */
+	public function test_render_avatar_invalid_user() {
+		// Input data.
+		$user_id = 42;
+		$atts    = [
+			'user_id'     => $user_id,
+			'avatar_size' => 120,
+			'className'   => 'foo',
+			'align'       => 'bar',
+		];
+
+		Functions\expect( 'get_user_by' )->once()->with( 'ID', $user_id )->andReturn( null );
+
+		$this->assertSame( '', $this->sut->render_avatar( $atts ) );
 	}
 }
