@@ -135,54 +135,79 @@ class User_Form {
 	/**
 	 * Prints the markup for the `use_gravatar` checkbox.
 	 *
-	 * @param  int $user_id The ID of the user to edit.
+	 * @param  int   $user_id The ID of the user to edit.
+	 * @param  array $args {
+	 *     Additional arguments for the template.
+	 *
+	 *     @type bool $show_description True if the long description should be displayed. Default true.
+	 * }
 	 */
-	public function use_gravatar_checkbox( $user_id ) {
-		$this->checkbox( $user_id, $this->use_gravatar['nonce'], $this->use_gravatar['action'], $this->use_gravatar['field'], Core::GRAVATAR_USE_META_KEY, $this->use_gravatar['partial'] );
+	public function use_gravatar_checkbox( $user_id, array $args = [] ) {
+		$this->checkbox( $user_id, $this->use_gravatar['nonce'], $this->use_gravatar['action'], $this->use_gravatar['field'], Core::GRAVATAR_USE_META_KEY, $this->use_gravatar['partial'], $args );
 	}
 
 	/**
 	 * Retrieves the markup for the `use_gravatar` checkbox.
 	 *
-	 * @param  int $user_id The ID of the user to edit.
+	 * @param  int   $user_id The ID of the user to edit.
+	 * @param  array $args {
+	 *     Additional arguments for the template.
+	 *
+	 *     @type bool $show_descriptions True if the long description should be displayed. Default true.
+	 * }
 	 *
 	 * @return string
 	 */
-	public function get_use_gravatar_checkbox( $user_id ) {
+	public function get_use_gravatar_checkbox( $user_id, array $args = [] ) {
 		\ob_start();
-		$this->use_gravatar_checkbox( $user_id );
+		$this->use_gravatar_checkbox( $user_id, $args );
 		return \ob_get_clean();
 	}
 
 	/**
 	 * Prints the markup for the `allow_anonymous` checkbox.
 	 *
-	 * @param  int $user_id The ID of the user to edit.
+	 * @param  int   $user_id The ID of the user to edit.
+	 * @param  array $args {
+	 *     Additional arguments for the template.
+	 *
+	 *     @type bool $show_descriptions True if the long description should be displayed. Default true.
+	 * }
 	 */
-	public function allow_anonymous_checkbox( $user_id ) {
-		$this->checkbox( $user_id, $this->allow_anonymous['nonce'], $this->allow_anonymous['action'], $this->allow_anonymous['field'], Core::ALLOW_ANONYMOUS_META_KEY, $this->allow_anonymous['partial'] );
+	public function allow_anonymous_checkbox( $user_id, array $args = [] ) {
+		$this->checkbox( $user_id, $this->allow_anonymous['nonce'], $this->allow_anonymous['action'], $this->allow_anonymous['field'], Core::ALLOW_ANONYMOUS_META_KEY, $this->allow_anonymous['partial'], $args );
 	}
 
 	/**
 	 * Retrieves the markup for the `allow_anonymous` checkbox.
 	 *
-	 * @param  int $user_id The ID of the user to edit.
+	 * @param  int   $user_id The ID of the user to edit.
+	 * @param  array $args {
+	 *     Additional arguments for the template.
+	 *
+	 *     @type bool $show_descriptions True if the long description should be displayed. Default true.
+	 * }
 	 *
 	 * @return string
 	 */
-	public function get_allow_anonymous_checkbox( $user_id ) {
+	public function get_allow_anonymous_checkbox( $user_id, array $args = [] ) {
 		\ob_start();
-		$this->allow_anonymous_checkbox( $user_id );
+		$this->allow_anonymous_checkbox( $user_id, $args );
 		return \ob_get_clean();
 	}
 
 	/**
 	 * Prints the markup for uploading user avatars.
 	 *
-	 * @param  int $user_id The ID of the user to edit.
-	 * @param  int $size    Optional. The width/height of the avatar preview image (in pixels). Default 96.
+	 * @param  int   $user_id The ID of the user to edit.
+	 * @param  array $args {
+	 *     Additional arguments for the template.
+	 *
+	 *     @type int  $avatar_size       The width/height of the avatar preview image (in pixels). Default 96.
+	 *     @type bool $show_descriptions True if the long description should be displayed. Default true.
+	 * }
 	 */
-	public function avatar_uploader( $user_id, $size = 96 ) {
+	public function avatar_uploader( $user_id, array $args = [] ) {
 		// Set up variables used by the included partial.
 		$nonce          = "{$this->user_avatar['nonce']}{$user_id}";
 		$action         = $this->user_avatar['action'];
@@ -191,6 +216,16 @@ class User_Form {
 		$current_avatar = \get_user_meta( $user_id, Core::USER_AVATAR_META_KEY, true );
 		$can_upload     = \current_user_can( 'upload_files' );
 
+		// Merge default arguments.
+		$args = \wp_parse_args( $args, [
+			'avatar_size'       => 96,
+			'show_descriptions' => true,
+		] );
+
+		// Make additional arguments available to the template as well.
+		$size             = $args['avatar_size'];
+		$show_description = $args['show_descriptions'];
+
 		// Include partial.
 		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . $this->user_avatar['partial'];
 	}
@@ -198,14 +233,19 @@ class User_Form {
 	/**
 	 * Retrieves the markup for uploading user avatars.
 	 *
-	 * @param  int $user_id The ID of the user to edit.
-	 * @param  int $size    Optional. The width/height of the avatar preview image (in pixels). Default 96.
+	 * @param  int   $user_id The ID of the user to edit.
+	 * @param  array $args {
+	 *     Additional arguments for the template.
+	 *
+	 *     @type int  $avatar_size       The width/height of the avatar preview image (in pixels). Default 96.
+	 *     @type bool $show_descriptions True if the long description should be displayed. Default true.
+	 * }
 	 *
 	 * @return string
 	 */
-	public function get_avatar_uploader( $user_id, $size = 96 ) {
+	public function get_avatar_uploader( $user_id, array $args = [] ) {
 		\ob_start();
-		$this->avatar_uploader( $user_id, $size );
+		$this->avatar_uploader( $user_id, $args );
 		return \ob_get_clean();
 	}
 
@@ -219,11 +259,24 @@ class User_Form {
 	 * @param  string $field_name The HTML name of the checkbox field.
 	 * @param  string $meta_key   The user meta key to load data from.
 	 * @param  string $partial    The relative path to the partial to load.
+	 * @param  array  $args {
+	 *     Additional arguments for the template.
+	 *
+	 *     @type bool $show_descriptions True if the long description should be displayed. Default true.
+	 * }
 	 */
-	protected function checkbox( $user_id, $nonce, $action, $field_name, $meta_key, $partial ) {
+	protected function checkbox( $user_id, $nonce, $action, $field_name, $meta_key, $partial, array $args = [] ) {
 		// Set up variables used by the included partial.
 		$value  = 'true' === \get_user_meta( $user_id, $meta_key, true );
 		$nonce .= $user_id; // Ensure nonce is specific to the ID of the user.
+
+		// Merge default arguments.
+		$args = \wp_parse_args( $args, [
+			'show_descriptions' => true,
+		] );
+
+		// Make additional arguments available to the template as well.
+		$show_description = $args['show_descriptions'];
 
 		// Include partial.
 		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . $partial;

@@ -43,9 +43,9 @@ use Avatar_Privacy\Tools\HTML\User_Form;
 <?php if ( ! empty( $attributes['preview'] ) ) : ?>
 	<fieldset disabled="disabled">
 <?php endif; ?>
-	<?php $form->avatar_uploader( $user_id, $attributes['avatar_size'] ); ?>
 	<?php $form->use_gravatar_checkbox( $user_id ); ?>
 	<?php $form->allow_anonymous_checkbox( $user_id ); ?>
+	<?php $form->avatar_uploader( $user_id, $attributes ); ?>
 	<input type="submit" value="<?php \esc_attr_e( 'Save', 'avatar-privacy' ); ?>" />
 <?php if ( ! empty( $attributes['preview'] ) ) : ?>
 	</fieldset>
