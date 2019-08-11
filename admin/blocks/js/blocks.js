@@ -321,14 +321,10 @@ __webpack_require__.r(__webpack_exports__);
  * }
  */
 
-Object(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_1__["registerBlockType"])('avatar-privacy/form', // Name of the block with a required name space
-{
-  title: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__["__"])('Avatar Privacy Form'),
-  // Title, displayed in the editor
+Object(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_1__["registerBlockType"])('avatar-privacy/form', {
+  title: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__["__"])('Avatar Privacy Form', 'avatar-privacy'),
   icon: 'admin-users',
-  // Icon, from dashicons
   category: 'common',
-  // Block category, where the block will be added in the editor
 
   /**
    * An object containing the block attributes and their storage location.
@@ -364,9 +360,9 @@ Object(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_1__["registerBlockType"])('ava
         className = _ref.className,
         setAttributes = _ref.setAttributes;
     return Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__["Fragment"], null, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_wordpress_editor__WEBPACK_IMPORTED_MODULE_3__["InspectorControls"], null, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__["PanelBody"], {
-      title: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__["__"])('Form')
+      title: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__["__"])('Form', 'avatar-privacy')
     }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__["PanelRow"], null, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__["RangeControl"], {
-      label: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__["__"])('Avatar Size'),
+      label: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__["__"])('Avatar Size', 'avatar-privacy'),
       value: attributes.avatar_size,
       initialPosition: attributes.avatar_size,
       onChange: function onChange(newSize) {
@@ -377,7 +373,7 @@ Object(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_1__["registerBlockType"])('ava
       min: 48,
       max: 240
     })), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__["PanelRow"], null, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__["ToggleControl"], {
-      label: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__["__"])('Show Descriptions'),
+      label: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__["__"])('Show Descriptions', 'avatar-privacy'),
       checked: !!attributes.show_descriptions,
       onChange: function onChange() {
         return setAttributes({
