@@ -148,6 +148,9 @@ class Block_Editor implements Component {
 				],
 			]
 		);
+
+		// Enable i18n.
+		\wp_set_script_translations( 'avatar-privacy-gutenberg', 'avatar-privacy' );
 	}
 
 	/**

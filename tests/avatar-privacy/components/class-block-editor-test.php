@@ -231,6 +231,7 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 				],
 			]
 		);
+		Functions\expect( 'wp_set_script_translations' )->once()->with( 'avatar-privacy-gutenberg', 'avatar-privacy' );
 
 		$this->assertNull( $this->sut->register_blocks() );
 	}
