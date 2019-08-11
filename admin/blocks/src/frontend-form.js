@@ -10,7 +10,7 @@
  * WordPress dependencies
  */
 import { registerBlockType } from '@wordpress/blocks';
-import { PanelBody, PanelRow, RangeControl, ServerSideRender } from '@wordpress/components';
+import { PanelBody, PanelRow, RangeControl, ServerSideRender, ToggleControl } from '@wordpress/components';
 import { InspectorControls } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -42,8 +42,12 @@ registerBlockType(
 		 */
 		attributes: {
 			avatar_size: {
-				type: 'int',
+				type: 'integer',
 				default: 96,
+			},
+			show_descriptions: {
+				type: 'boolean',
+				default: true,
 			},
 		},
 
@@ -75,12 +79,20 @@ registerBlockType(
 									max={ 240 }
 								/>
 							</PanelRow>
+							<PanelRow>
+								<ToggleControl
+									label={ __( 'Show Descriptions' ) }
+									checked={ !! attributes.show_descriptions }
+									onChange={ () => setAttributes( { show_descriptions: ! attributes.show_descriptions } ) }
+								/>
+							</PanelRow>
 						</PanelBody>
 					</InspectorControls>
 					<ServerSideRender
 						block="avatar-privacy/form"
 						attributes={ {
 							avatar_size: attributes.avatar_size,
+							show_descriptions: attributes.show_descriptions,
 							className,
 							preview: true,
 						} }

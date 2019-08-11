@@ -31,14 +31,15 @@ use Avatar_Privacy\Tools\Template;
  *
  * Required template variables:
  *
- * @var string $nonce          The nonce itself.
- * @var string $action         The nonce action.
- * @var string $upload_field   The name of the uploader `<input>` element.
- * @var string $erase_field    The name of the erase checkbox `<input>` element.
- * @var int    $user_id        The ID of the edited user.
- * @var string $current_avatar The previously set user avatar.
- * @var bool   $can_upload     Whether the currently active user can upload files.
- * @var int    $size           The width/height of the avatar preview image (in pixels).
+ * @var string $nonce            The nonce itself.
+ * @var string $action           The nonce action.
+ * @var string $upload_field     The name of the uploader `<input>` element.
+ * @var string $erase_field      The name of the erase checkbox `<input>` element.
+ * @var int    $user_id          The ID of the edited user.
+ * @var string $current_avatar   The previously set user avatar.
+ * @var bool   $can_upload       Whether the currently active user can upload files.
+ * @var int    $size             The width/height of the avatar preview image (in pixels).
+ * @var string $show_description True if the long description should be displayed.
  */
 
 if ( $can_upload ) {
@@ -87,8 +88,10 @@ if ( $can_upload ) {
 			<?php endif; ?>
 		</p>
 	<?php endif; ?>
-	<p class="description">
-		<?php echo \wp_kses( $description, Template::ALLOWED_HTML_LABEL ); ?>
-	</p>
+	<?php if ( ! empty( $show_description ) ) : ?>
+		<p class="description">
+			<?php echo \wp_kses( $description, Template::ALLOWED_HTML_LABEL ); ?>
+		</p>
+	<?php endif; ?>
 </div>
 <?php

@@ -164,8 +164,12 @@ Object(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_1__["registerBlockType"])('ava
    */
   attributes: {
     avatar_size: {
-      type: 'int',
+      type: 'integer',
       default: 96
+    },
+    show_descriptions: {
+      type: 'boolean',
+      default: true
     }
   },
 
@@ -199,10 +203,19 @@ Object(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_1__["registerBlockType"])('ava
       },
       min: 48,
       max: 240
+    })), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__["PanelRow"], null, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__["ToggleControl"], {
+      label: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__["__"])('Show Descriptions'),
+      checked: !!attributes.show_descriptions,
+      onChange: function onChange() {
+        return setAttributes({
+          show_descriptions: !attributes.show_descriptions
+        });
+      }
     })))), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__["ServerSideRender"], {
       block: "avatar-privacy/form",
       attributes: {
         avatar_size: attributes.avatar_size,
+        show_descriptions: attributes.show_descriptions,
         className: className,
         preview: true
       }

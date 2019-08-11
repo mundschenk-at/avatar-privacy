@@ -39,9 +39,9 @@ use Avatar_Privacy\Tools\HTML\User_Form;
  */
 ?>
 <form class="avatar-privacy-frontend avatar-privacy-shortcode" method="post" enctype="multipart/form-data">
-	<?php $form->avatar_uploader( $user_id, $atts['avatar_size'] ); ?>
-	<?php $form->use_gravatar_checkbox( $user_id ); ?>
-	<?php $form->allow_anonymous_checkbox( $user_id ); ?>
+	<?php $form->avatar_uploader( $user_id, $atts ); ?>
+	<?php $form->use_gravatar_checkbox( $user_id, $atts ); ?>
+	<?php $form->allow_anonymous_checkbox( $user_id, $atts ); ?>
 	<input type="submit" value="<?php \esc_attr_e( 'Save', 'avatar-privacy' ); ?>" />
 </form>
 <?php

@@ -34,8 +34,9 @@ use Avatar_Privacy\Tools\HTML\User_Form;
  * @var array     $attributes {
  *     The block attributes.
  *
- *     @type int  $avatar_size The width/height of the avatar preview image (in pixels).
- *     @type bool $preview     True if this is only a preview for the block editor.
+ *     @type int  $avatar_size       The width/height of the avatar preview image (in pixels).
+ *     @type bool $show_descriptions True if the long description should be displayed.
+ *     @type bool $preview           True if this is only a preview for the block editor.
  * }
  */
 ?>
@@ -43,9 +44,9 @@ use Avatar_Privacy\Tools\HTML\User_Form;
 <?php if ( ! empty( $attributes['preview'] ) ) : ?>
 	<fieldset disabled="disabled">
 <?php endif; ?>
-	<?php $form->use_gravatar_checkbox( $user_id ); ?>
-	<?php $form->allow_anonymous_checkbox( $user_id ); ?>
 	<?php $form->avatar_uploader( $user_id, $attributes ); ?>
+	<?php $form->use_gravatar_checkbox( $user_id, $attributes ); ?>
+	<?php $form->allow_anonymous_checkbox( $user_id, $attributes ); ?>
 	<input type="submit" value="<?php \esc_attr_e( 'Save', 'avatar-privacy' ); ?>" />
 <?php if ( ! empty( $attributes['preview'] ) ) : ?>
 	</fieldset>

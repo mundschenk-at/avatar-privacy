@@ -100,15 +100,19 @@ class Block_Editor implements Component {
 				'editor_style'    => 'avatar-privacy-gutenberg-style',
 				'render_callback' => [ $this, 'render_frontend_form' ],
 				'attributes'      => [
-					'avatar_size' => [
+					'avatar_size'       => [
 						'type'    => 'integer',
 						'default' => 96,
 					],
-					'className'   => [
+					'show_descriptions' => [
+						'type'    => 'boolean',
+						'default' => true,
+					],
+					'className'         => [
 						'type'    => 'string',
 						'default' => '',
 					],
-					'preview'     => [
+					'preview'           => [
 						'type'    => 'boolean',
 						'default' => false,
 					],
