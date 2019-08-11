@@ -29,10 +29,11 @@
  *
  * Required template variables:
  *
- * @var string $nonce      The nonce itself.
- * @var string $action     The nonce action.
- * @var string $field_name The name of the checkbox `<input>` element.
- * @var string $value      The checkbox value.
+ * @var string $nonce            The nonce itself.
+ * @var string $action           The nonce action.
+ * @var string $field_name       The name of the checkbox `<input>` element.
+ * @var string $value            The checkbox value.
+ * @var string $show_description True if the long description should be displayed.
  */
 ?>
 <div class="avatar-privacy-allow-anonymous">
@@ -45,8 +46,10 @@
 		<?php \checked( $value ); ?>
 	/>
 	<label for="<?php echo \esc_attr( $field_name ); ?>"><?php \esc_html_e( 'Allow logged-out comments with my profile picture.', 'avatar-privacy' ); ?></label><br />
-	<p class="description">
-			<?php \esc_html_e( 'Check this box if you want to be able to use your profile picture while logged-out.', 'avatar-privacy' ); ?>
-	</p>
+	<?php if ( ! empty( $show_description ) ) : ?>
+		<p class="description">
+				<?php \esc_html_e( 'Check this box if you want to be able to use your profile picture while logged-out.', 'avatar-privacy' ); ?>
+		</p>
+	<?php endif; ?>
 </div>
 <?php

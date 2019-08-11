@@ -1,27 +1,9 @@
 {
   "name": "avatar-privacy",
-  "devDependencies": {
-    "autoprefixer": "^9.6.1",
-    "eslint-config-wordpress": "^2.0.0",
-    "grunt": "^1.0.4",
-    "grunt-cli": "^1.3.2",
-    "grunt-composer": "^0.4",
-    "grunt-contrib-clean": "^2.0",
-    "grunt-contrib-compress": "^1.5.0",
-    "grunt-contrib-copy": "^1.0.0",
-    "grunt-contrib-uglify": "^4.0.1",
-    "grunt-eslint": "^21.1.0",
-    "grunt-newer": "^1.2.0",
-    "grunt-phpcs": "^0.4.0",
-    "grunt-postcss": "^0.9.0",
-    "grunt-sass": "^3.0.2",
-    "grunt-string-replace": "^1.3",
-    "grunt-wp-deploy": "^2.0",
-    "jshint-stylish": "^2.2.1",
-    "load-grunt-tasks": "^5.0",
-    "pixrem": "^5.0",
-    "sass": "^1.22.7"
-  },
+  "description": "GDPR-conformant avatar handling for WordPress",
+  "author": "Peter Putzer",
+  "license": "GPL-2.0-or-later",
+  "homepage": "https://code.mundschenk.at/avatar-privacy",
   "browserslist": [
     "last 2 version",
     "> 1%",
@@ -42,5 +24,44 @@
     "type": "git",
     "url": "https://github.com/mundschenk-at/avatar-privacy.git"
   },
-  "license": "GPL-2.0+"
+  "bugs": {
+    "url": "https://github.com/mundschenk-at/avatar-privacy/issues"
+  },
+  "devDependencies": {
+    "@wordpress/eslint-plugin": "^2.4.0",
+    "@wordpress/scripts": "^3.4.0",
+    "autoprefixer": "^9.6.1",
+    "grunt": "^1.0.4",
+    "grunt-cli": "^1.3.2",
+    "grunt-composer": "^0.4.5",
+    "grunt-contrib-clean": "^2.0.0",
+    "grunt-contrib-compress": "^1.5.0",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-uglify": "^4.0.1",
+    "grunt-eslint": "^22.0.0",
+    "grunt-load-npm-run-tasks": "^1.0.3",
+    "grunt-newer": "^1.3.0",
+    "grunt-phpcs": "^0.4.0",
+    "grunt-postcss": "^0.9.0",
+    "grunt-sass": "^3.0.2",
+    "grunt-string-replace": "^1.3.1",
+    "grunt-wp-deploy": "^2.0.0",
+    "jshint-stylish": "^2.2.1",
+    "load-grunt-tasks": "^5.1.0",
+    "pixrem": "^5.0.0",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "sass": "^1.22.9"
+  },
+  "scripts": {
+    "build": "wp-scripts build admin/blocks/src/blocks.js --output-path=build/admin/blocks/js",
+    "check-engines": "wp-scripts check-engines",
+    "check-licenses": "wp-scripts check-licenses",
+    "lint:css": "wp-scripts lint-style",
+    "lint:js": "wp-scripts lint-js admin/blocks/src",
+    "lint:pkg-json": "wp-scripts lint-pkg-json ./package.json",
+    "start": "wp-scripts start admin/blocks/src/blocks.js --output-path=admin/blocks/js",
+    "test:e2e": "wp-scripts test-e2e",
+    "test:unit": "wp-scripts test-unit-js"
+  }
 }

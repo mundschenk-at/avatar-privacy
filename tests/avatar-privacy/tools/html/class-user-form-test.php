@@ -108,14 +108,17 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_use_gravatar_checkbox() {
 		// Input parameters.
 		$user_id = 5;
+		$args    = [
+			'foo' => 'bar',
+		];
 
-		$this->sut->shouldReceive( 'use_gravatar_checkbox' )->once()->with( $user_id )->andReturnUsing(
+		$this->sut->shouldReceive( 'use_gravatar_checkbox' )->once()->with( $user_id, $args )->andReturnUsing(
 			function() {
 				echo 'USE_GRAVATAR';
 			}
 		);
 
-		$this->assertSame( 'USE_GRAVATAR', $this->sut->get_use_gravatar_checkbox( $user_id ) );
+		$this->assertSame( 'USE_GRAVATAR', $this->sut->get_use_gravatar_checkbox( $user_id, $args ) );
 	}
 
 	/**
@@ -130,6 +133,9 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 		$action     = 'my_action';
 		$field_name = 'my_checkbox_id';
 		$partial    = '/some/fake/partial.php';
+		$args       = [
+			'foo' => 'bar',
+		];
 
 		$this->sut->__construct(
 			m::mock( Upload::class ), // Ignored for this testcase.
@@ -149,7 +155,8 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 			$action,
 			$field_name,
 			Core::GRAVATAR_USE_META_KEY,
-			$partial
+			$partial,
+			m::type( 'array' )
 		)->andReturnUsing(
 			function() {
 				echo 'USE_GRAVATAR';
@@ -158,7 +165,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->expectOutputString( 'USE_GRAVATAR' );
 
-		$this->assertNull( $this->sut->use_gravatar_checkbox( $user_id ) );
+		$this->assertNull( $this->sut->use_gravatar_checkbox( $user_id, $args ) );
 	}
 
 	/**
@@ -169,14 +176,17 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_allow_anonymous_checkbox() {
 		// Input parameters.
 		$user_id = 5;
+		$args    = [
+			'foo' => 'bar',
+		];
 
-		$this->sut->shouldReceive( 'allow_anonymous_checkbox' )->once()->with( $user_id )->andReturnUsing(
+		$this->sut->shouldReceive( 'allow_anonymous_checkbox' )->once()->with( $user_id, $args )->andReturnUsing(
 			function() {
 				echo 'ALLOW_ANON';
 			}
 		);
 
-		$this->assertSame( 'ALLOW_ANON', $this->sut->get_allow_anonymous_checkbox( $user_id ) );
+		$this->assertSame( 'ALLOW_ANON', $this->sut->get_allow_anonymous_checkbox( $user_id, $args ) );
 	}
 
 	/**
@@ -187,7 +197,9 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_avatar_uploader() {
 		// Input parameters.
 		$user_id = 5;
-		$size    = 666;
+		$args    = [
+			'avatar_size' => 666,
+		];
 
 		// Object state.
 		$nonce      = 'my_nonce';
@@ -213,10 +225,19 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'get_user_meta' )->once()->with( $user_id,  Core::USER_AVATAR_META_KEY, true )->andReturn( [ 'fake avatar' ] );
 		Functions\expect( 'current_user_can' )->once()->with( 'upload_files' )->andReturn( true );
+		Functions\expect( 'wp_parse_args' )->once()->with(
+			$args,
+			[
+				'avatar_size'       => 96,
+				'show_descriptions' => true,
+			]
+		)->andReturnUsing( function( $args, $defaults ) {
+			return \array_merge( $defaults, $args );
+		} );
 
 		$this->expectOutputString( 'MY_PARTIAL' );
 
-		$this->assertNull( $this->sut->avatar_uploader( $user_id, $size ) );
+		$this->assertNull( $this->sut->avatar_uploader( $user_id, $args ) );
 	}
 
 	/**
@@ -227,15 +248,17 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_avatar_uploader() {
 		// Input parameters.
 		$user_id = 5;
-		$size    = 666;
+		$args    = [
+			'avatar_size' => 555,
+		];
 
-		$this->sut->shouldReceive( 'avatar_uploader' )->once()->with( $user_id, $size )->andReturnUsing(
+		$this->sut->shouldReceive( 'avatar_uploader' )->once()->with( $user_id, $args )->andReturnUsing(
 			function() {
 				echo 'UPLOADER';
 			}
 		);
 
-		$this->assertSame( 'UPLOADER', $this->sut->get_avatar_uploader( $user_id, $size ) );
+		$this->assertSame( 'UPLOADER', $this->sut->get_avatar_uploader( $user_id, $args ) );
 	}
 
 
@@ -251,6 +274,9 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 		$action     = 'my_action';
 		$field_name = 'my_checkbox_id';
 		$partial    = '/some/fake/partial.php';
+		$args       = [
+			'foo' => 'bar',
+		];
 
 		$this->sut->__construct(
 			m::mock( Upload::class ), // Ignored for this testcase.
@@ -270,7 +296,8 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 			$action,
 			$field_name,
 			Core::ALLOW_ANONYMOUS_META_KEY,
-			$partial
+			$partial,
+			$args
 		)->andReturnUsing(
 			function() {
 				echo 'ALLOW_ANON';
@@ -279,7 +306,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->expectOutputString( 'ALLOW_ANON' );
 
-		$this->assertNull( $this->sut->allow_anonymous_checkbox( $user_id ) );
+		$this->assertNull( $this->sut->allow_anonymous_checkbox( $user_id, $args ) );
 	}
 
 	/**
@@ -295,12 +322,18 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 		$field_name = 'my_checkbox_id';
 		$meta_key   = 'my_meta_key';
 		$partial    = '/some/fake/partial.php';
+		$args       = [
+			'foo' => 'bar',
+		];
 
 		Functions\expect( 'get_user_meta' )->once()->with( $user_id, $meta_key, true )->andReturn( 'true' );
+		Functions\expect( 'wp_parse_args' )->once()->with( $args, [ 'show_descriptions' => true ] )->andReturnUsing( function( $args, $defaults ) {
+			return \array_merge( $defaults, $args );
+		} );
 
 		$this->expectOutputString( 'MY_PARTIAL' );
 
-		$this->assertNull( $this->sut->checkbox( $user_id, $nonce, $action, $field_name, $meta_key, $partial ) );
+		$this->assertNull( $this->sut->checkbox( $user_id, $nonce, $action, $field_name, $meta_key, $partial, $args ) );
 	}
 
 	/**

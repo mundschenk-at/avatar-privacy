@@ -19,12 +19,8 @@ matrix:
     fast_finish: true
 
     include:
-        # Current $required_php_version for WordPress: 5.2.4
-        # aliased to 5.2.17
-        - php:  '5.2'
-          dist: precise
-          env:  SCOPE=php52
-        # minimum version for activating Avatar Privacy, aliased to a recent 5.6.x version
+        # Current $required_php_version for WordPress:  5.6.20
+        # Minimum version for activating Avatar Privacy, aliased to a recent 5.6.x version
         - php:  '5.6'
           env:  SCOPE=tests
         # aliased to a recent 7.0 version
@@ -61,12 +57,7 @@ before_script:
 # All commands must exit with code 0 on success. Anything else is considered failure.
 script:
     # Search for PHP syntax errors.
-    - if [[ "$SCOPE" == "php52" ]]; then
-            find -L . -name 'avatar-privacy.php' -print0 | xargs -0 -n 1 -P 4 php -l;
-            find -L . -name 'class-avatar-privacy-requirements.php' -print0 | xargs -0 -n 1 -P 4 php -l;
-      else
-            find -L . -not \( -path ./tests -prune \) -not \( -path ./vendor -prune \) -name '*.php' -not \( -name .scoper.inc.php -prune \) -print0 | xargs -0 -n 1 -P 4 php -l;
-      fi
+    - find -L . -not \( -path ./tests -prune \) -not \( -path ./vendor -prune \) -name '*.php' -not \( -name .scoper.inc.php -prune \) -print0 | xargs -0 -n 1 -P 4 php -l;
     # WordPress Coding Standards.
     - if [[ "$PHPCS" == "1" ]]; then composer phpcs; fi
     # Unit tests.

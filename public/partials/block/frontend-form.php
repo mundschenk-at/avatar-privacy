@@ -31,17 +31,25 @@ use Avatar_Privacy\Tools\HTML\User_Form;
  *
  * @var User_Form $form    The form helper.
  * @var int       $user_id The ID of the user whose profile we are editing.
- * @var array     $atts {
- *     The shortcode attributes.
+ * @var array     $attributes {
+ *     The block attributes.
  *
- *     @type int $avatar_size The width/height of the avatar preview image (in pixels).
+ *     @type int  $avatar_size       The width/height of the avatar preview image (in pixels).
+ *     @type bool $show_descriptions True if the long description should be displayed.
+ *     @type bool $preview           True if this is only a preview for the block editor.
  * }
  */
 ?>
-<form class="avatar-privacy-frontend avatar-privacy-shortcode" method="post" enctype="multipart/form-data">
-	<?php $form->avatar_uploader( $user_id, $atts ); ?>
-	<?php $form->use_gravatar_checkbox( $user_id, $atts ); ?>
-	<?php $form->allow_anonymous_checkbox( $user_id, $atts ); ?>
+<form class="<?php echo \esc_attr( \trim( "avatar-privacy-frontend avatar-privacy-block {$attributes['className']}" ) ); ?>" method="post" enctype="multipart/form-data">
+<?php if ( ! empty( $attributes['preview'] ) ) : ?>
+	<fieldset disabled="disabled">
+<?php endif; ?>
+	<?php $form->avatar_uploader( $user_id, $attributes ); ?>
+	<?php $form->use_gravatar_checkbox( $user_id, $attributes ); ?>
+	<?php $form->allow_anonymous_checkbox( $user_id, $attributes ); ?>
 	<input type="submit" value="<?php \esc_attr_e( 'Save', 'avatar-privacy' ); ?>" />
+<?php if ( ! empty( $attributes['preview'] ) ) : ?>
+	</fieldset>
+<?php endif; ?>
 </form>
 <?php

@@ -12,7 +12,12 @@ module.exports = function(grunt) {
 
 		clean: {
 			build: ["build/*"],
-			autoloader: ["build/tests", "build/composer.*", "build/vendor/composer/*.json", "build/vendor/dangoodman"]
+			autoloader: [
+				"build/tests",
+				"build/composer.*",
+				"build/vendor/composer/*.json",
+				"build/vendor/dangoodman"
+			],
 		},
 
 		composer: {
@@ -73,6 +78,7 @@ module.exports = function(grunt) {
 						'readme.txt',
 						'*.php',
 						'admin/**',
+						'!admin/blocks/js/**',
 						'public/**',
 						'includes/**',
 						'!**/scss/**',
@@ -130,6 +136,7 @@ module.exports = function(grunt) {
 		eslint: {
 			src: [
 				'admin/js/**/*.js',
+				'admin/blocks/src/**/*.js',
 				'public/js/**/*.js',
 				'!**/*.min.js',
 			]
@@ -286,6 +293,9 @@ module.exports = function(grunt) {
 		scope: 'devDependencies'
 	});
 
+	// Load NPM scripts as tasks.
+	require('grunt-load-npm-run-tasks')(grunt);
+
 	grunt.registerTask('default', [
 		'newer:eslint',
 		'newer:phpcs',
@@ -301,10 +311,9 @@ module.exports = function(grunt) {
 		'newer:minify',
 		'copy:main',
 		'copy:meta',
+		'npmRun:build', // Build blocks.js
 		'composer:build:build-wordpress',
 		'string-replace:namespaces',
-		//			'string-replace:fix_dice_namespace',
-		//			'string-replace:fix_mundschenk_namespace',
 		'clean:autoloader',
 		'string-replace:autoloader',
 	]);

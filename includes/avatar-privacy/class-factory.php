@@ -32,8 +32,9 @@ use Avatar_Privacy\Core;
 use Avatar_Privacy\Component;
 use Avatar_Privacy\Settings;
 
-use Avatar_Privacy\Components\User_Profile;
+use Avatar_Privacy\Components\Block_Editor;
 use Avatar_Privacy\Components\Shortcodes;
+use Avatar_Privacy\Components\User_Profile;
 
 use Avatar_Privacy\Upload_Handlers\Upload_Handler;
 
@@ -272,14 +273,19 @@ class Factory extends Dice {
 				],
 			],
 
-			User_Profile::class                             => [
+			Block_Editor::class                             => [
 				'substitutions' => [
-					User_Form::class => [ 'instance' => '$UserProfileForm' ],
+					User_Form::class => [ 'instance' => '$FrontendUserForm' ],
 				],
 			],
 			Shortcodes::class                               => [
 				'substitutions' => [
 					User_Form::class => [ 'instance' => '$FrontendUserForm' ],
+				],
+			],
+			User_Profile::class                             => [
+				'substitutions' => [
+					User_Form::class => [ 'instance' => '$UserProfileForm' ],
 				],
 			],
 
