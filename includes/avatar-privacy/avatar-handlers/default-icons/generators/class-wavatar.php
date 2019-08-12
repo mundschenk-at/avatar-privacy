@@ -34,17 +34,32 @@ use Avatar_Privacy\Tools\Images;
  *
  * @since 1.0.0
  * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators
+ * @since 2.3.0 Refactored to use standard parts mechanisms, various obsolete
+ *              constants removed.
  */
 class Wavatar extends PNG_Parts_Generator {
 
 	const SIZE = 80;
 
-	const WAVATAR_BACKGROUNDS = 4;
-	const WAVATAR_FACES       = 11;
-	const WAVATAR_BROWS       = 8;
-	const WAVATAR_EYES        = 13;
-	const WAVATAR_PUPILS      = 11;
-	const WAVATAR_MOUTHS      = 19;
+	/**
+	 * A mapping from part types to the seed positions to take their values from.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @var int[string]
+	 */
+	const SEED_INDEX = [
+		// Mask and shine form the face, so they use the same random element.
+		'mask'           => 1,
+		'shine'          => 1,
+		'background_hue' => 3, // Not a part type, but part of the sequence.
+		'fade'           => 5,
+		'wavatar_hue'    => 7, // Not a part type, but part of the sequence.
+		'brow'           => 9,
+		'eyes'           => 11,
+		'pupils'         => 13,
+		'mouth'          => 15,
+	];
 
 	/**
 	 * Creates a new Wavatars generator.
@@ -54,7 +69,11 @@ class Wavatar extends PNG_Parts_Generator {
 	 * @param Images\Editor $images      The image editing handler.
 	 */
 	public function __construct( Images\Editor $images ) {
-		parent::__construct( \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/images/wavatars', $images );
+		parent::__construct(
+			\dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/images/wavatars',
+			[ 'fade', 'mask', 'shine', 'brow', 'eyes', 'pupils', 'mouth' ],
+			$images
+		);
 	}
 
 	/**
@@ -82,37 +101,37 @@ class Wavatar extends PNG_Parts_Generator {
 	 * @return string       The image data (or the empty string on error).
 	 */
 	public function build( $seed, $size ) {
-		// Look at the seed (an md5 hash) and use pairs of digits to determine our
-		// "random" parts and colors.
-		$face      = 1 + $this->seed( $seed, 1, 2, self::WAVATAR_FACES );
-		$bg_color  = ( $this->seed( $seed, 3, 2, 240 ) / 255 * self::DEGREE );
-		$fade      = 1 + $this->seed( $seed, 5, 2, self::WAVATAR_BACKGROUNDS );
-		$wav_color = $this->seed( $seed, 7, 2, 240 ) / 255 * self::DEGREE;
-		$brow      = 1 + $this->seed( $seed, 9, 2, self::WAVATAR_BROWS );
-		$eyes      = 1 + $this->seed( $seed, 11, 2, self::WAVATAR_EYES );
-		$pupil     = 1 + $this->seed( $seed, 13, 2, self::WAVATAR_PUPILS );
-		$mouth     = 1 + $this->seed( $seed, 15, 2, self::WAVATAR_MOUTHS );
+		// Look at the seed (an MD5 hash) and use pairs of digits to determine
+		// our "random" parts.
+		$parts = $this->get_randomized_parts(
+			function( $min, $max, $type ) use ( $seed ) {
+				return $this->seed( $seed, self::SEED_INDEX[ $type ], 2, $max + 1 ); // @codeCoverageIgnore
+			}
+		);
+
+		// Also randomize the colors.
+		$background_hue = $this->seed( $seed, self::SEED_INDEX['background_hue'], 2, 240 ) / 255 * self::DEGREE;
+		$wavatar_hue    = $this->seed( $seed, self::SEED_INDEX['wavatar_hue'], 2, 240 ) / 255 * self::DEGREE;
 
 		// Create backgound.
-		$avatar = \imagecreatetruecolor( self::SIZE, self::SIZE );
+		$avatar = \imageCreateTrueColor( self::SIZE, self::SIZE );
 
 		// Check for valid image resource.
 		if ( false === $avatar ) {
 			return ''; // @codeCoverageIgnore
 		}
 
-		// Pick a random color for the background.
-		$this->fill( $avatar, $bg_color, 94, 20, 1, 1 );
+		// Fill in the background color.
+		$this->fill( $avatar, $background_hue, 94, 20, 1, 1 );
 
 		// Now add the various layers onto the image.
-		$this->apply_image( $avatar, "fade{$fade}.png", self::SIZE, self::SIZE );
-		$this->apply_image( $avatar, "mask{$face}.png", self::SIZE, self::SIZE );
-		$this->fill( $avatar, $wav_color, 94, 66, (int) ( self::SIZE / 2 ), (int) ( self::SIZE / 2 ) );
-		$this->apply_image( $avatar, "shine{$face}.png", self::SIZE, self::SIZE );
-		$this->apply_image( $avatar, "brow${brow}.png", self::SIZE, self::SIZE );
-		$this->apply_image( $avatar, "eyes{$eyes}.png", self::SIZE, self::SIZE );
-		$this->apply_image( $avatar, "pupils{$pupil}.png", self::SIZE, self::SIZE );
-		$this->apply_image( $avatar, "mouth{$mouth}.png", self::SIZE, self::SIZE );
+		foreach ( $parts as $type => $file ) {
+			$this->apply_image( $avatar, $file, self::SIZE, self::SIZE );
+
+			if ( 'mask' === $type ) {
+				$this->fill( $avatar, $wavatar_hue, 94, 66, (int) ( self::SIZE / 2 ), (int) ( self::SIZE / 2 ) );
+			}
+		}
 
 		// Resize if needed.
 		return $this->get_resized_image_data( $avatar, $size );
