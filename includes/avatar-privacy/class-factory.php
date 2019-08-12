@@ -200,6 +200,7 @@ class Factory extends Dice {
 			Upload_Handler::class                           => self::SHARED,
 
 			// Form helpers.
+			User_Form::class                                => self::SHARED,
 			'$UserProfileForm'                              => [
 				'instanceOf'      => User_Form::class,
 				'constructParams' => [

@@ -73,7 +73,7 @@ class Block_Editor implements Component {
 
 		// Only process forms on the frontend.
 		if ( ! \is_admin() ) {
-			\add_action( 'init', [ $this->form, 'process_form_submission' ] );
+			$this->form->register_form_submission();
 		}
 	}
 
@@ -92,7 +92,8 @@ class Block_Editor implements Component {
 		// Register the stylesheet for the blocks.
 		\wp_register_style( 'avatar-privacy-gutenberg-style', "{$plugin_dir}admin/css/blocks{$suffix}.css", [], $version );
 
-		// Register each individual block type.
+		// Register each individual block type:
+		// The frontend form block.
 		\register_block_type(
 			'avatar-privacy/form',
 			[
@@ -119,6 +120,37 @@ class Block_Editor implements Component {
 				],
 			]
 		);
+
+		// The avatar block.
+		\register_block_type(
+			'avatar-privacy/avatar',
+			[
+				'editor_script'   => 'avatar-privacy-gutenberg',
+				'editor_style'    => 'avatar-privacy-gutenberg-style',
+				'render_callback' => [ $this, 'render_avatar' ],
+				'attributes'      => [
+					'avatar_size' => [
+						'type'    => 'integer',
+						'default' => 96,
+					],
+					'user_id'     => [
+						'type'    => 'integer',
+						'default' => 0,
+					],
+					'align'       => [
+						'type'    => 'string',
+						'default' => '',
+					],
+					'className'   => [
+						'type'    => 'string',
+						'default' => '',
+					],
+				],
+			]
+		);
+
+		// Enable i18n.
+		\wp_set_script_translations( 'avatar-privacy-gutenberg', 'avatar-privacy' );
 	}
 
 	/**
@@ -173,5 +205,38 @@ class Block_Editor implements Component {
 		}
 
 		return $markup;
+	}
+
+	/**
+	 * Renders the avatar block.
+	 *
+	 * @param  array $attributes {
+	 *     The `avatar-privacy/avatar` block attributes.
+	 *
+	 *     @type int    $user_id     The ID of the user whose avatar should be displayed.
+	 *     @type int    $avatar_size The width/height of the avatar preview image (in pixels).
+	 *     @type string $className   The additional classname defined in the Block Editor.
+	 * }
+	 *
+	 * @return string
+	 */
+	public function render_avatar( array $attributes ) {
+		// Attempt to retrieve user.
+		$user = \get_user_by( 'ID', $attributes['user_id'] );
+
+		// No valid user given.
+		if ( empty( $user ) ) {
+			return '';
+		}
+
+		// Make size to partial.
+		$size       = $attributes['avatar_size'];
+		$class_name = $attributes['className'];
+		$align      = ! empty( $attributes['align'] ) ? "align{$attributes['align']}" : '';
+
+		// Include partial.
+		\ob_start();
+		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/partials/block/avatar.php';
+		return \ob_get_clean();
 	}
 }
