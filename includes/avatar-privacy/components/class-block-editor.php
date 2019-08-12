@@ -73,7 +73,7 @@ class Block_Editor implements Component {
 
 		// Only process forms on the frontend.
 		if ( ! \is_admin() ) {
-			\add_action( 'init', [ $this->form, 'process_form_submission' ] );
+			$this->form->register_form_submission();
 		}
 	}
 

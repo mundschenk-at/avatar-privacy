@@ -126,7 +126,8 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'is_admin' )->once()->andReturn( false );
 
 		Actions\expectAdded( 'init' )->once()->with( [ $this->sut, 'register_blocks' ] );
-		Actions\expectAdded( 'init' )->once()->with( [ $this->form, 'process_form_submission' ] );
+
+		$this->form->shouldReceive( 'register_form_submission' )->once();
 
 		$this->assertNull( $this->sut->run() );
 	}
@@ -140,7 +141,8 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'is_admin' )->once()->andReturn( true );
 
 		Actions\expectAdded( 'init' )->once()->with( [ $this->sut, 'register_blocks' ] );
-		Actions\expectAdded( 'init' )->never()->with( [ $this->form, 'process_form_submission' ] );
+
+		$this->form->shouldReceive( 'register_form_submission' )->never();
 
 		$this->assertNull( $this->sut->run() );
 	}

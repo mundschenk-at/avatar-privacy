@@ -562,4 +562,32 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertNull( $this->sut->process_form_submission() );
 	}
+
+	/**
+	 * Tests ::register_form_submission.
+	 *
+	 * @covers ::register_form_submission
+	 */
+	public function test_register_form_submission() {
+		$callable = [ $this->sut, 'process_form_submission' ];
+
+		Functions\expect( 'has_action' )->once()->with( 'init', $callable )->andReturn( false );
+		Functions\expect( 'add_action' )->once()->with( 'init', $callable );
+
+		$this->assertNull( $this->sut->register_form_submission() );
+	}
+
+	/**
+	 * Tests ::register_form_submission.
+	 *
+	 * @covers ::register_form_submission
+	 */
+	public function test_register_form_submission_already_registered() {
+		$callable = [ $this->sut, 'process_form_submission' ];
+
+		Functions\expect( 'has_action' )->once()->with( 'init', $callable )->andReturn( true );
+		Functions\expect( 'add_action' )->never();
+
+		$this->assertNull( $this->sut->register_form_submission() );
+	}
 }

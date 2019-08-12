@@ -379,4 +379,14 @@ class User_Form {
 		// Process upload.
 		$this->save( $user_id );
 	}
+
+	/**
+	 * Registers the `process_form_submission` method with the `init` hook, but
+	 * makes sure not to do it twice.
+	 */
+	public function register_form_submission() {
+		if ( ! \has_action( 'init', [ $this, 'process_form_submission' ] ) ) {
+			\add_action( 'init', [ $this, 'process_form_submission' ] );
+		}
+	}
 }
