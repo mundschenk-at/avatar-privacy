@@ -48,6 +48,11 @@ registerBlockType( 'avatar-privacy/form', {
 			default: true,
 		},
 	},
+	supports: {
+		html: false,
+		multiple: false,
+		reusable: false,
+	},
 
 	/**
 	 * Edits the block attributes.
