@@ -30,7 +30,7 @@ import { __ } from '@wordpress/i18n';
  */
 registerBlockType( 'avatar-privacy/form', {
 	title: __( 'Avatar Privacy Form', 'avatar-privacy' ),
-	icon: 'admin-users',
+	icon: 'id-alt',
 	category: 'common',
 
 	/**

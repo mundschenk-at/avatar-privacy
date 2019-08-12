@@ -323,7 +323,7 @@ __webpack_require__.r(__webpack_exports__);
 
 Object(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_1__["registerBlockType"])('avatar-privacy/form', {
   title: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__["__"])('Avatar Privacy Form', 'avatar-privacy'),
-  icon: 'admin-users',
+  icon: 'id-alt',
   category: 'common',
 
   /**
