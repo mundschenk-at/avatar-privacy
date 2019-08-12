@@ -140,4 +140,43 @@ abstract class PNG_Generator implements Generator {
 			$this->images->create_from_image_resource( $image ), $size, $size, 'image/png'
 		);
 	}
+
+	/**
+	 * Finds all avatar parts images.
+	 *
+	 * @since 2.3.0 Moved to PNG_Generator class.
+	 *
+	 * @param  array $parts An array of arrays indexed by body parts.
+	 *
+	 * @return array
+	 *
+	 * @throws \RuntimeException The part files could not be found.
+	 */
+	protected function locate_parts( array $parts ) {
+		$noparts = true;
+		if ( false !== ( $dh = \opendir( $this->parts_dir ) ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found,WordPress.CodeAnalysis.AssignmentInCondition.Found
+			while ( false !== ( $file = \readdir( $dh ) ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found,WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+				if ( \is_file( "{$this->parts_dir}/{$file}" ) ) {
+					list( $partname, ) = \explode( '_', $file );
+					if ( isset( $parts[ $partname ] ) ) {
+						$parts[ $partname ][] = $file;
+						$noparts              = false;
+					}
+				}
+			}
+
+			\closedir( $dh );
+		}
+
+		if ( $noparts ) {
+			throw new \RuntimeException( "Could not find parts images in {$this->parts_dir}" );
+		}
+
+		// Sort for consistency across servers.
+		foreach ( $parts as $key => $value ) {
+			\sort( $parts[ $key ], \SORT_NATURAL );
+		}
+
+		return $parts;
+	}
 }

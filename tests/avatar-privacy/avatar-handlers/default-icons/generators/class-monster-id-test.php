@@ -140,68 +140,6 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::locate_parts.
-	 *
-	 * @covers ::locate_parts
-	 */
-	public function test_locate_parts() {
-		// Input data.
-		$parts = [
-			'body'  => [],
-			'arms'  => [],
-			'legs'  => [],
-			'mouth' => [],
-		];
-
-		// Expected result.
-		$result = [
-			'body'  => [
-				'body_1.png',
-				'body_2.png',
-			],
-			'arms'  => [
-				'arms_S8.png',
-			],
-			'legs'  => [
-				'legs_1.png',
-			],
-			'mouth' => [
-				'mouth_6.png',
-			],
-		];
-
-		// Run test.
-		$this->assertSame( $result, $this->sut->locate_parts( $parts ) );
-	}
-
-	/**
-	 * Tests ::locate_parts.
-	 *
-	 * @covers ::locate_parts
-	 *
-	 * @expectedException RuntimeException
-	 * @expectedExceptionMessage Could not find parts images
-	 */
-	public function test_locate_parts_incorrect_parts_dir() {
-		// Input data.
-		$parts = [
-			'body'  => [],
-			'arms'  => [],
-			'legs'  => [],
-			'mouth' => [],
-		];
-
-		// Expected result.
-		$result = [];
-
-		// Override the parts directory.
-		$this->setValue( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/monster-id-empty' ) );
-
-		// Run test.
-		$this->assertSame( $result, $this->sut->locate_parts( $parts ) );
-	}
-
-	/**
 	 * Tests ::get_parts_dimensions.
 	 *
 	 * @covers ::get_parts_dimensions

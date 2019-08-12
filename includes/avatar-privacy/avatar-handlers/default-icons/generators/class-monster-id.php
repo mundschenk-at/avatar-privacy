@@ -248,45 +248,6 @@ class Monster_ID extends PNG_Generator {
 	}
 
 	/**
-	 * Finds all the monster parts images.
-	 *
-	 * @since 2.1.0 Visibility changed to protected.
-	 *
-	 * @param  array $parts An array of arrays indexed by body parts.
-	 *
-	 * @return array
-	 *
-	 * @throws \RuntimeException The part files could not be found.
-	 */
-	protected function locate_parts( array $parts ) {
-		$noparts = true;
-		if ( false !== ( $dh = \opendir( $this->parts_dir ) ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found,WordPress.CodeAnalysis.AssignmentInCondition.Found
-			while ( false !== ( $file = \readdir( $dh ) ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found,WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-				if ( \is_file( "{$this->parts_dir}/{$file}" ) ) {
-					list( $partname, ) = \explode( '_', $file );
-					if ( isset( $parts[ $partname ] ) ) {
-						$parts[ $partname ][] = $file;
-						$noparts              = false;
-					}
-				}
-			}
-
-			\closedir( $dh );
-		}
-
-		if ( $noparts ) {
-			throw new \RuntimeException( "Could not find parts images in {$this->parts_dir}" );
-		}
-
-		// Sort for consistency across servers.
-		foreach ( $parts as $key => $value ) {
-			\sort( $parts[ $key ], SORT_NATURAL );
-		}
-
-		return $parts;
-	}
-
-	/**
 	 * Determines exact dimensions for individual parts. Mainly useful for subclasses
 	 * exchanging the provided images.
 	 *

@@ -83,6 +83,19 @@ class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 				'my_parts_dir' => [
 					'somefile.png' => $png_data,
 				],
+				'public'       => [
+					'images' => [
+						'monster-id'       => [
+							'back.png'    => $png_data,
+							'body_1.png'  => $png_data,
+							'body_2.png'  => $png_data,
+							'arms_S8.png' => $png_data,
+							'legs_1.png'  => $png_data,
+							'mouth_6.png' => $png_data,
+						],
+						'monster-id-empty' => [],
+					],
+				],
 			],
 		];
 
@@ -257,5 +270,70 @@ class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->editor->shouldReceive( 'get_resized_image_data' )->once()->with( m::type( \WP_Image_Editor::class ), $size, $size, 'image/png' )->andReturn( $result );
 
 		$this->assertSame( $result, $this->sut->get_resized_image_data( $fake_resource, $size ) );
+	}
+
+	/**
+	 * Tests ::locate_parts.
+	 *
+	 * @covers ::locate_parts
+	 */
+	public function test_locate_parts() {
+		// Input data.
+		$parts = [
+			'body'  => [],
+			'arms'  => [],
+			'legs'  => [],
+			'mouth' => [],
+		];
+
+		// Expected result.
+		$result = [
+			'body'  => [
+				'body_1.png',
+				'body_2.png',
+			],
+			'arms'  => [
+				'arms_S8.png',
+			],
+			'legs'  => [
+				'legs_1.png',
+			],
+			'mouth' => [
+				'mouth_6.png',
+			],
+		];
+
+		// Override the parts directory.
+		$this->setValue( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/monster-id' ) );
+
+		// Run test.
+		$this->assertSame( $result, $this->sut->locate_parts( $parts ) );
+	}
+
+	/**
+	 * Tests ::locate_parts.
+	 *
+	 * @covers ::locate_parts
+	 *
+	 * @expectedException RuntimeException
+	 * @expectedExceptionMessage Could not find parts images
+	 */
+	public function test_locate_parts_incorrect_parts_dir() {
+		// Input data.
+		$parts = [
+			'body'  => [],
+			'arms'  => [],
+			'legs'  => [],
+			'mouth' => [],
+		];
+
+		// Expected result.
+		$result = [];
+
+		// Override the parts directory.
+		$this->setValue( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/monster-id-empty' ) );
+
+		// Run test.
+		$this->assertSame( $result, $this->sut->locate_parts( $parts ) );
 	}
 }
