@@ -38,7 +38,7 @@ use function Scriptura\Color\Helpers\HSLtoRGB;
  * @since 1.0.0
  * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators
  */
-class Monster_ID extends PNG_Generator {
+class Monster_ID extends PNG_Parts_Generator {
 	const SIZE = 120;
 
 	const EMPTY_PARTS_LIST = [
