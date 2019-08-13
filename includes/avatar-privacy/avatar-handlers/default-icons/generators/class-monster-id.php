@@ -37,18 +37,11 @@ use function Scriptura\Color\Helpers\HSLtoRGB;
  *
  * @since 1.0.0
  * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators
+ * @since 2.3.0 Refactored to use standard parts mechanisms, various obsolete
+ *              constants removed.
  */
 class Monster_ID extends PNG_Parts_Generator {
 	const SIZE = 120;
-
-	const EMPTY_PARTS_LIST = [
-		'legs'  => [],
-		'hair'  => [],
-		'arms'  => [],
-		'body'  => [],
-		'eyes'  => [],
-		'mouth' => [],
-	];
 
 	const SAME_COLOR_PARTS     = [
 		'arms_S8.png'  => true,
@@ -244,7 +237,11 @@ class Monster_ID extends PNG_Parts_Generator {
 		$this->random_color_parts   = self::RANDOM_COLOR_PARTS;
 		$this->part_optimization    = self::PART_OPTIMIZATION;
 
-		parent::__construct( \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/images/monster-id', $images );
+		parent::__construct(
+			\dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/images/monster-id',
+			[ 'legs', 'hair', 'arms', 'body', 'eyes', 'mouth' ],
+			$images
+		);
 	}
 
 	/**
@@ -257,19 +254,18 @@ class Monster_ID extends PNG_Parts_Generator {
 	 */
 	public function build( $seed, $size ) {
 
-		// Init random seed.
-		$id = \substr( $seed, 0, 8 );
-
-		// Get possible parts files.
-		$parts_array = $this->locate_parts( self::EMPTY_PARTS_LIST );
-
-		// Set randomness.
-		\mt_srand( (int) \hexdec( $id ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand -- we need deterministic "randomness".
+		// Set randomness from seed.
+		\mt_srand( (int) \hexdec( \substr( $seed, 0, 8 ) ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand -- we need deterministic "randomness".
 
 		// Throw the dice for body parts.
-		foreach ( $parts_array as $part => $files ) {
-			$parts_array[ $part ] = $files[ \mt_rand( 0, \count( $files ) - 1 ) ]; // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
-		}
+		$parts = $this->get_randomized_parts(
+			// Wrapper function needed because \mt_rand complains about the
+			// extraneous $type parameter if used directly.
+			function( $min, $max ) {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
+				return \mt_rand( $min, $max ); // @codeCoverageIgnore
+			}
+		);
 
 		// Create background.
 		$monster = @\imagecreatefrompng( "{$this->parts_dir}/back.png" );
@@ -286,7 +282,7 @@ class Monster_ID extends PNG_Parts_Generator {
 		$saturation = \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT; // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
 
 		// Add parts.
-		foreach ( $parts_array as $part => $file ) {
+		foreach ( $parts as $part => $file ) {
 			$im = @\imagecreatefrompng( "{$this->parts_dir}/{$file}" );
 			if ( ! $im ) {
 				return false; // Something went wrong but don't want to mess up blog layout.

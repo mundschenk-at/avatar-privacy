@@ -48,6 +48,7 @@ use Avatar_Privacy\Tools\Images\Editor;
  * @usesDefaultClass \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Monster_ID
  *
  * @uses ::__construct
+ * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Parts_Generator::__construct
  * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator::__construct
  */
 class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
@@ -151,23 +152,14 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Intermediate results.
 		$parts        = [
-			'body'  => [
-				'body_1.png',
-				'body_2.png',
-			],
-			'arms'  => [
-				'arms_S8.png', // SAME_COLOR_PARTS.
-			],
-			'legs'  => [
-				'legs_1.png', // RANDOM_COLOR_PARTS.
-			],
-			'mouth' => [
-				'mouth_6.png', // SPECIFIC_COLOR_PARTS.
-			],
+			'body'  => 'body_2.png',
+			'arms'  => 'arms_S8.png', // SAME_COLOR_PARTS.
+			'legs'  => 'legs_1.png', // RANDOM_COLOR_PARTS.
+			'mouth' => 'mouth_6.png', // SPECIFIC_COLOR_PARTS.
 		];
 		$parts_number = \count( $parts );
 
-		$this->sut->shouldReceive( 'locate_parts' )->once()->with( Monster_ID::EMPTY_PARTS_LIST )->andReturn( $parts );
+		$this->sut->shouldReceive( 'get_randomized_parts' )->once()->with( m::type( 'callable' ) )->andReturn( $parts );
 
 		// The method takes int arguments in theory, but might be floats.
 		$this->sut->shouldReceive( 'image_colorize' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'numeric' ), m::type( 'numeric' ), m::type( 'string' ) );
@@ -189,26 +181,17 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Intermediate results.
 		$parts        = [
-			'body'  => [
-				'body_1.png',
-				'body_2.png',
-			],
-			'arms'  => [
-				'arms_S8.png', // SAME_COLOR_PARTS.
-			],
-			'legs'  => [
-				'legs_1.png', // RANDOM_COLOR_PARTS.
-			],
-			'mouth' => [
-				'mouth_6.png', // SPECIFIC_COLOR_PARTS.
-			],
+			'body'  => 'body_2.png',
+			'arms'  => 'arms_S8.png', // SAME_COLOR_PARTS.
+			'legs'  => 'legs_1.png', // RANDOM_COLOR_PARTS.
+			'mouth' => 'mouth_6.png', // SPECIFIC_COLOR_PARTS.
 		];
 		$parts_number = \count( $parts );
 
 		// Delete the background file.
 		\unlink( vfsStream::url( 'root/plugin/public/images/monster-id/back.png' ) );
 
-		$this->sut->shouldReceive( 'locate_parts' )->once()->with( Monster_ID::EMPTY_PARTS_LIST )->andReturn( $parts );
+		$this->sut->shouldReceive( 'get_randomized_parts' )->once()->with( m::type( 'callable' ) )->andReturn( $parts );
 
 		$this->sut->shouldReceive( 'image_colorize' )->never();
 		$this->sut->shouldReceive( 'apply_image' )->never();
@@ -228,26 +211,17 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Intermediate results.
 		$parts        = [
-			'body'  => [
-				'body_1.png',
-				'body_2.png',
-			],
-			'arms'  => [
-				'arms_S8.png', // SAME_COLOR_PARTS.
-			],
-			'legs'  => [
-				'legs_1.png', // RANDOM_COLOR_PARTS.
-			],
-			'mouth' => [
-				'mouth_6.png', // SPECIFIC_COLOR_PARTS.
-			],
+			'body'  => 'body_2.png',
+			'arms'  => 'arms_S8.png', // SAME_COLOR_PARTS.
+			'legs'  => 'legs_1.png', // RANDOM_COLOR_PARTS.
+			'mouth' => 'mouth_6.png', // SPECIFIC_COLOR_PARTS.
 		];
 		$parts_number = \count( $parts );
 
 		// Delete body part.
 		\unlink( vfsStream::url( 'root/plugin/public/images/monster-id/mouth_6.png' ) );
 
-		$this->sut->shouldReceive( 'locate_parts' )->once()->with( Monster_ID::EMPTY_PARTS_LIST )->andReturn( $parts );
+		$this->sut->shouldReceive( 'get_randomized_parts' )->once()->with( m::type( 'callable' ) )->andReturn( $parts );
 
 		// The method takes int arguments in theory, but might be floats.
 		$this->sut->shouldReceive( 'image_colorize' )->times( $parts_number - 1 )->with( m::type( 'resource' ), m::type( 'numeric' ), m::type( 'numeric' ), m::type( 'string' ) );
