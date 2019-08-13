@@ -39,7 +39,6 @@ use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Parts_Generator;
 
 use Avatar_Privacy\Tools\Images\Editor;
 
-
 /**
  * Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Parts_Generator unit test.
  *
@@ -64,6 +63,13 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var Editor
 	 */
 	private $editor;
+
+	/**
+	 * The full path of the folder containing the real images.
+	 *
+	 * @var string
+	 */
+	private $real_image_path;
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -102,6 +108,9 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Set up virtual filesystem.
 		$root = vfsStream::setup( 'root', null, $filesystem );
+
+		// Provide access to the real images.
+		$this->real_image_path = \dirname( \dirname( \dirname( \dirname( \dirname( __DIR__ ) ) ) ) ) . '/public/images/monster-id';
 
 		// Helper mocks.
 		$this->editor = m::mock( Editor::class );
@@ -358,5 +367,91 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Run test.
 		$this->assertSame( $result, $this->sut->randomize_parts( $parts, $randomize ) );
+	}
+
+	/**
+	 * Tests ::get_parts_dimensions.
+	 *
+	 * @covers ::get_parts_dimensions
+	 */
+	public function test_get_parts_dimensions() {
+		// Input data.
+		$part_types = [
+			'body',
+			'arms',
+		];
+
+		// Intermediate results.
+		$parts = [
+			'body'  => [
+				'body_1.png',
+				'body_2.png',
+			],
+			'arms'  => [
+				'arms_FOOBAR.png',  // Does not exist and will be ignored.
+				'arms_S8.png',
+			],
+		];
+
+		// Expected result.
+		$expected = [
+			'body_1.png'  => [
+				[ 22, 99 ],
+				[ 17, 90 ],
+			],
+			'body_2.png'  => [
+				[ 14, 104 ],
+				[ 16, 89 ],
+			],
+			'arms_S8.png' => [
+				[ 2, 119 ],
+				[ 18, 98 ],
+			],
+		];
+
+		// Override the parts directory and types.
+		$this->setValue( $this->sut, 'parts_dir', $this->real_image_path );
+		$this->setValue( $this->sut, 'part_types', $part_types );
+
+		$this->sut->shouldReceive( 'locate_parts' )->once()->with( \array_fill_keys( $part_types, [] ) )->andReturn( $parts );
+
+		$result = $this->sut->get_parts_dimensions( false );
+		$this->assertSame( $expected, $result );
+	}
+
+	/**
+	 * Tests ::get_parts_dimensions.
+	 *
+	 * @covers ::get_parts_dimensions
+	 */
+	public function test_get_parts_dimensions_as_text() {
+		// Input data.
+		$part_types = [
+			'body',
+			'arms',
+		];
+
+		// Intermediate results.
+		$parts = [
+			'body'  => [
+				'body_1.png',
+				'body_2.png',
+			],
+			'arms'  => [
+				'arms_FOOBAR.png', // Does not exist and will be ignored.
+				'arms_S8.png',
+			],
+		];
+
+		// Expected result.
+		$expected = "'body_1.png' => [[22,99],[17,90]], 'body_2.png' => [[14,104],[16,89]], 'arms_S8.png' => [[2,119],[18,98]], ";
+
+		// Override the parts directory and types.
+		$this->setValue( $this->sut, 'parts_dir', $this->real_image_path );
+		$this->setValue( $this->sut, 'part_types', $part_types );
+
+		$this->sut->shouldReceive( 'locate_parts' )->once()->with( \array_fill_keys( $part_types, [] ) )->andReturn( $parts );
+
+		$this->assertSame( $expected, $this->sut->get_parts_dimensions( true ) );
 	}
 }

@@ -3,7 +3,9 @@
  * This file is part of Avatar Privacy.
  *
  * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2007-2014 Scott Sherrill-Mix.
  * Copyright 2007-2008 Shamus Young.
+ * Copyright 2007 Andreas Gohr.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -174,5 +176,63 @@ abstract class PNG_Parts_Generator extends PNG_Generator {
 		}
 
 		return $parts;
+	}
+
+	/**
+	 * Determines exact dimensions for individual parts. Mainly useful for subclasses
+	 * exchanging the provided images.
+	 *
+	 * @since 2.1.0 Visibility changed to protected.
+	 * @since 2.3.0 Moved to PNG_Parts_Generator class.
+	 *
+	 * @param  bool $text A flag that determines whether a human readable result should be returned.
+	 *
+	 * @return string|array
+	 */
+	protected function get_parts_dimensions( $text = false ) {
+		$parts = $this->locate_parts( \array_fill_keys( $this->part_types, [] ) );
+
+		$bounds      = [];
+		$result_text = '';
+
+		foreach ( $parts as $key => $value ) {
+			foreach ( $value as $part ) {
+				$im = @\imageCreateFromPNG( "{$this->parts_dir}/{$part}" );
+
+				if ( false === $im ) {
+					// Not a valid image file.
+					continue;
+				}
+
+				$imgw    = \imageSX( $im );
+				$imgh    = \imageSY( $im );
+				$xbounds = [ 999999, 0 ];
+				$ybounds = [ 999999, 0 ];
+				for ( $i = 0;$i < $imgw;$i++ ) {
+					for ( $j = 0;$j < $imgh;$j++ ) {
+						$rgb       = \ImageColorAt( $im, $i, $j );
+						$r         = ( $rgb >> 16 ) & 0xFF;
+						$g         = ( $rgb >> 8 ) & 0xFF;
+						$b         = $rgb & 0xFF;
+						$alpha     = ( $rgb & 0x7F000000 ) >> 24;
+						$lightness = ( $r + $g + $b ) / 3 / 255 * self::PERCENT;
+						if ( $lightness > 10 && $lightness < 99 && $alpha < 115 ) {
+							$xbounds[0] = \min( $xbounds[0],$i );
+							$xbounds[1] = \max( $xbounds[1],$i );
+							$ybounds[0] = \min( $ybounds[0],$j );
+							$ybounds[1] = \max( $ybounds[1],$j );
+						}
+					}
+				}
+				$result_text    .= "'$part' => [[${xbounds[0]},${xbounds[1]}],[${ybounds[0]},${ybounds[1]}]], ";
+				$bounds[ $part ] = [ $xbounds, $ybounds ];
+			}
+		}
+
+		if ( $text ) {
+			return $result_text;
+		} else {
+			return $bounds;
+		}
 	}
 }

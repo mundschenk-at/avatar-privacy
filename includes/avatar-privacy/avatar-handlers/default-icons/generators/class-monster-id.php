@@ -248,63 +248,6 @@ class Monster_ID extends PNG_Parts_Generator {
 	}
 
 	/**
-	 * Determines exact dimensions for individual parts. Mainly useful for subclasses
-	 * exchanging the provided images.
-	 *
-	 * @since 2.1.0 Visibility changed to protected.
-	 *
-	 * @param  bool $text A flag that determines whether a human readable result should be returned.
-	 *
-	 * @return string|array
-	 */
-	protected function get_parts_dimensions( $text = false ) {
-		$parts = $this->locate_parts( self::EMPTY_PARTS_LIST );
-
-		$bounds      = [];
-		$result_text = '';
-
-		foreach ( $parts as $key => $value ) {
-			foreach ( $value as $part ) {
-				$im = @\imagecreatefrompng( "{$this->parts_dir}/{$part}" );
-
-				if ( false === $im ) {
-					// Not a valid image file.
-					continue;
-				}
-
-				$imgw    = \imagesx( $im );
-				$imgh    = \imagesy( $im );
-				$xbounds = [ 999999, 0 ];
-				$ybounds = [ 999999, 0 ];
-				for ( $i = 0;$i < $imgw;$i++ ) {
-					for ( $j = 0;$j < $imgh;$j++ ) {
-						$rgb       = \ImageColorAt( $im, $i, $j );
-						$r         = ( $rgb >> 16 ) & 0xFF;
-						$g         = ( $rgb >> 8 ) & 0xFF;
-						$b         = $rgb & 0xFF;
-						$alpha     = ( $rgb & 0x7F000000 ) >> 24;
-						$lightness = ( $r + $g + $b ) / 3 / 255 * self::PERCENT;
-						if ( $lightness > 10 && $lightness < 99 && $alpha < 115 ) {
-							$xbounds[0] = \min( $xbounds[0],$i );
-							$xbounds[1] = \max( $xbounds[1],$i );
-							$ybounds[0] = \min( $ybounds[0],$j );
-							$ybounds[1] = \max( $ybounds[1],$j );
-						}
-					}
-				}
-				$result_text    .= "'$part' => [[${xbounds[0]},${xbounds[1]}],[${ybounds[0]},${ybounds[1]}]], ";
-				$bounds[ $part ] = [ $xbounds, $ybounds ];
-			}
-		}
-
-		if ( $text ) {
-			return $result_text;
-		} else {
-			return $bounds;
-		}
-	}
-
-	/**
 	 * Builds a monster icon and returns the image data.
 	 *
 	 * @param  string $seed The seed data (hash).
