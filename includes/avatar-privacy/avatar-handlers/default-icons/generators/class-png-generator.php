@@ -64,6 +64,88 @@ abstract class PNG_Generator implements Generator {
 	}
 
 	/**
+	 * Creates an image resource of the chosen type.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @param  string $type   The type of background to create. Valid: 'white', 'black', 'transparent'.
+	 * @param  int    $width  Image width in pixels.
+	 * @param  int    $height Image height in pixels.
+	 *
+	 * @return resource
+	 *
+	 * @throws \RuntimeException The image could not be copied.
+	 */
+	protected function create_image( $type, $width, $height ) {
+		$image = \imageCreateTrueColor( $width, $height );
+
+		// Something went wrong, badly.
+		if ( ! \is_resource( $image ) ) {
+			throw new \RuntimeException( "The image of type {$type} ($width x $height) could not be created." );  // @codeCoverageIgnore
+		}
+
+		// Fix transparent background.
+		\imageAlphaBlending( $image, true );
+		\imageSaveAlpha( $image, true );
+
+		try {
+			// Fill image with appropriate color.
+			switch ( $type ) {
+				case 'transparent':
+					$color = \imageColorAllocateAlpha( $image, 0, 0, 0, 127 );
+					break;
+
+				case 'white':
+					$color = \imageColorAllocateAlpha( $image, 255, 255, 255, 0 );
+					break;
+
+				case 'black':
+					// No need to do anything else.
+					return $image;
+
+				default:
+					throw new \RuntimeException( "Invalid image type $type." );
+			}
+
+			if ( ! $color || ! \imageFill( $image, 0, 0, $color ) ) {
+				throw new \RuntimeException( "Error filling image of type $type." ); // @codeCoverageIgnore
+			}
+		} catch ( \RuntimeException $e ) {
+			// Clean up and re-throw exception.
+			\imageDestroy( $image );
+			throw $e;
+		}
+
+		return $image;
+	}
+
+	/**
+	 * Creates an image resource from the given file.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @param  string $file   An absolute path to a PNG image file.
+	 *
+	 * @return resource
+	 *
+	 * @throws \RuntimeException The image could not be copied.
+	 */
+	protected function create_image_from_file( $file ) {
+		$image = @\imageCreateFromPNG( $file );
+
+		// Something went wrong, badly.
+		if ( ! \is_resource( $image ) ) {
+			throw new \RuntimeException( "The PNG image {$file} could not be read." );
+		}
+
+		// Fix transparent background.
+		\imageAlphaBlending( $image, true );
+		\imageSaveAlpha( $image, true );
+
+		return $image;
+	}
+
+	/**
 	 * Copies an image onto an existing base image. The image resource is freed
 	 * after copying.
 	 *

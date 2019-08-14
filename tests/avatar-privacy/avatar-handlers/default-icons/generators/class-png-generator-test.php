@@ -127,6 +127,144 @@ class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Tests ::create_image.
+	 *
+	 * @covers ::create_image
+	 */
+	public function test_create_image_white() {
+		// The base image.
+		$width  = 200;
+		$height = 100;
+
+		$image = $this->sut->create_image( 'white', $width, $height );
+
+		$this->assertInternalType( 'resource', $image );
+		$this->assertSame( $width, \imageSX( $image ) );
+		$this->assertSame( $height, \imageSY( $image ) );
+		$this->assertSame(
+			[
+				'red'   => 255,
+				'green' => 255,
+				'blue'  => 255,
+				'alpha' => 0,
+			],
+			\imagecolorsforindex( $image, \imagecolorat( $image, 1, 1 ) )
+		);
+
+		// Clean up.
+		\imagedestroy( $image );
+	}
+
+	/**
+	 * Tests ::create_image.
+	 *
+	 * @covers ::create_image
+	 */
+	public function test_create_image_black() {
+		// The base image.
+		$width  = 200;
+		$height = 100;
+
+		$image = $this->sut->create_image( 'black', $width, $height );
+
+		$this->assertInternalType( 'resource', $image );
+		$this->assertSame( $width, \imageSX( $image ) );
+		$this->assertSame( $height, \imageSY( $image ) );
+		$this->assertSame(
+			[
+				'red'   => 0,
+				'green' => 0,
+				'blue'  => 0,
+				'alpha' => 0,
+			],
+			\imageColorsForIndex( $image, \imageColorAt( $image, 1, 1 ) )
+		);
+
+		// Clean up.
+		\imageDestroy( $image );
+	}
+
+	/**
+	 * Tests ::create_image.
+	 *
+	 * @covers ::create_image
+	 */
+	public function test_create_image_transparent() {
+		// The base image.
+		$width  = 200;
+		$height = 100;
+
+		$image = $this->sut->create_image( 'transparent', $width, $height );
+
+		$this->assertInternalType( 'resource', $image );
+		$this->assertSame( $width, \imageSX( $image ) );
+		$this->assertSame( $height, \imageSY( $image ) );
+		$this->assertSame(
+			[
+				'red'   => 0,
+				'green' => 0,
+				'blue'  => 0,
+				'alpha' => 127,
+			],
+			\imageColorsForIndex( $image, \imageColorAt( $image, 1, 1 ) )
+		);
+
+		// Clean up.
+		\imageDestroy( $image );
+	}
+
+	/**
+	 * Tests ::create_image.
+	 *
+	 * @covers ::create_image
+	 */
+	public function test_create_image_invalid_type() {
+		// The base image.
+		$width  = 200;
+		$height = 18;
+
+		// Expect failure.
+		$this->expectException( \RuntimeException::class );
+
+		$image = $this->sut->create_image( 'yellow', $width, $height );
+
+		// Clean up.
+		\imageDestroy( $image );
+	}
+
+	/**
+	 * Tests ::create_image_from_file.
+	 *
+	 * @covers ::create_image_from_file
+	 */
+	public function test_create_image_from_file() {
+		// The base image.
+		$width  = 28;
+		$height = 18;
+
+		$image = $this->sut->create_image_from_file( vfsStream::url( 'root/plugin/my_parts_dir/somefile.png' ) );
+
+		$this->assertInternalType( 'resource', $image );
+		$this->assertSame( $width, \imageSX( $image ) );
+		$this->assertSame( $height, \imageSY( $image ) );
+
+		// Clean up.
+		\imageDestroy( $image );
+	}
+
+	/**
+	 * Tests ::create_image_from_file.
+	 *
+	 * @covers ::create_image_from_file
+	 */
+	public function test_create_image_from_file_invalid() {
+
+		$this->expectException( \RuntimeException::class );
+
+		$this->assertNull( $this->sut->create_image_from_file( '/not/a/valid/PNG' ) );
+	}
+
+	/**
 	 * Tests ::apply_image.
 	 *
 	 * @covers ::apply_image
