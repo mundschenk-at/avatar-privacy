@@ -62,15 +62,24 @@ abstract class PNG_Parts_Generator extends PNG_Generator {
 	protected $parts;
 
 	/**
-	 * Creates a new Wavatars generator.
+	 * The base size of the generated avatar.
+	 *
+	 * @var int
+	 */
+	protected $size;
+
+	/**
+	 * Creates a new generator.
 	 *
 	 * @param string        $parts_dir  The directory containing our image parts.
 	 * @param string[]      $part_types The valid part types for this generator.
+	 * @param int           $size       The width and height of the generated image (in pixels).
 	 * @param Images\Editor $images     The image editing handler.
 	 */
-	public function __construct( $parts_dir, array $part_types, Images\Editor $images ) {
+	public function __construct( $parts_dir, array $part_types, $size, Images\Editor $images ) {
 		$this->parts_dir  = $parts_dir;
 		$this->part_types = $part_types;
+		$this->size       = $size;
 
 		parent::__construct( $images );
 	}
@@ -95,21 +104,57 @@ abstract class PNG_Parts_Generator extends PNG_Generator {
 	}
 
 	/**
+	 * Creates an image resource of the chosen type.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @param  string $type   The type of background to create. Valid: 'white', 'black', 'transparent'.
+	 * @param  int    $width  Optional. Image width in pixels. Default is the base size.
+	 * @param  int    $height Optional. Image height in pixels. Default is the base size.
+	 *
+	 * @return resource
+	 *
+	 * @throws \RuntimeException The image could not be copied.
+	 */
+	protected function create_image( $type, $width = null, $height = null ) {
+
+		// Apply image width and height defaults.
+		if ( empty( $width ) ) {
+			$width = $this->size;
+		}
+		if ( empty( $height ) ) {
+			$height = $this->size;
+		}
+
+		return parent::create_image( $type, $width, $height );
+	}
+
+	/**
 	 * Copies an image onto an existing base image. This implementation adds the
-	 * ability to dynamically load image parts from the parts directory. The
-	 * image resource is freed after copying.
+	 * ability to dynamically load image parts from the parts directory, and the
+	 * the width and height arguments are optional.
+	 *
+	 * The image resource is freed after copying.
 	 *
 	 * @param  resource        $base   The avatar image resource.
 	 * @param  string|resource $image  The image to be copied onto the base. Can
 	 *                                 be either the name of the image file
 	 *                                 relative to the parts directory, or an
 	 *                                 existing image resource.
-	 * @param  int             $width  Image width in pixels.
-	 * @param  int             $height Image height in pixels.
+	 * @param  int             $width  Optional. Image width in pixels. Default is the base size.
+	 * @param  int             $height Optional. Image height in pixels. Default is the base size.
 	 *
 	 * @throws \RuntimeException The image could not be copied.
 	 */
-	protected function apply_image( $base, $image, $width, $height ) {
+	protected function apply_image( $base, $image, $width = null, $height = null ) {
+
+		// Apply image width and height defaults.
+		if ( empty( $width ) ) {
+			$width = $this->size;
+		}
+		if ( empty( $height ) ) {
+			$height = $this->size;
+		}
 
 		// Load image if we are given a filename.
 		if ( \is_string( $image ) ) {

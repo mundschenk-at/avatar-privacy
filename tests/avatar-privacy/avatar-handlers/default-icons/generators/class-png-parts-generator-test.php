@@ -72,6 +72,13 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $real_image_path;
 
 	/**
+	 * The set image size.
+	 *
+	 * @var int
+	 */
+	private $size;
+
+	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
@@ -112,6 +119,9 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Provide access to the real images.
 		$this->real_image_path = \dirname( \dirname( \dirname( \dirname( \dirname( __DIR__ ) ) ) ) ) . '/public/images/monster-id';
 
+		// Image size (width/height).
+		$this->size = 300;
+
 		// Helper mocks.
 		$this->editor = m::mock( Editor::class );
 
@@ -119,6 +129,7 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut = m::mock( PNG_Parts_Generator::class, [
 			vfsStream::url( 'root/plugin/my_parts_dir' ),
 			[ 'foo', 'bar' ],
+			$this->size,
 			$this->editor,
 		] )
 			->makePartial()
@@ -133,14 +144,16 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$fake_path  = 'some/fake/path';
 		$part_types = [ 'foo', 'bar', 'baz' ];
+		$size       = 300;
 		$editor     = m::mock( Editor::class );
 		$mock       = m::mock( PNG_Parts_Generator::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $mock, '__construct', [ $fake_path, $part_types, $editor ] );
+		$this->invokeMethod( $mock, '__construct', [ $fake_path, $part_types, $size, $editor ] );
 
 		// An attribute of the PNG_Parts_Generator superclass.
 		$this->assertAttributeSame( $fake_path, 'parts_dir', $mock );
 		$this->assertAttributeSame( $part_types, 'part_types', $mock );
+		$this->assertAttributeSame( $size, 'size', $mock );
 	}
 
 
@@ -185,6 +198,33 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Tests ::create_image.
+	 *
+	 * @covers ::create_image
+	 *
+	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator::create_image
+	 */
+	public function test_create_image_default_size() {
+		$image = $this->sut->create_image( 'white' );
+
+		$this->assertInternalType( 'resource', $image );
+		$this->assertSame( $this->size, \imageSX( $image ) );
+		$this->assertSame( $this->size, \imageSY( $image ) );
+		$this->assertSame(
+			[
+				'red'   => 255,
+				'green' => 255,
+				'blue'  => 255,
+				'alpha' => 0,
+			],
+			\imagecolorsforindex( $image, \imagecolorat( $image, 1, 1 ) )
+		);
+
+		// Clean up.
+		\imagedestroy( $image );
+	}
+
+	/**
 	 * Tests ::apply_image.
 	 *
 	 * @covers ::apply_image
@@ -210,6 +250,43 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Run the test.
 		$this->assertNull( $this->sut->apply_image( $base, $image, $width, $height ) );
+
+		// Get the new base image data.
+		\ob_start();
+		\imagepng( $base );
+		$new_base_data = ob_get_clean();
+
+		// Check that they are different because of the applied image.
+		$this->assertNotSame( $orig_base_data, $new_base_data );
+
+		// Clean up.
+		\imagedestroy( $base );
+	}
+
+	/**
+	 * Tests ::apply_image.
+	 *
+	 * @covers ::apply_image
+	 *
+	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator::apply_image
+	 */
+	public function test_apply_image_no_size() {
+		// The base image.
+		$base = \imagecreatetruecolor( $this->size, $this->size );
+
+		// Make the base image white.
+		\imagefill( $base, 0, 0, \imagecolorallocate( $base, 255, 255, 255 ) );
+
+		// The second image.
+		$image = \imagecreatefrompng( vfsStream::url( 'root/plugin/my_parts_dir/somefile.png' ) );
+
+		// Store base image data for comparison.
+		\ob_start();
+		\imagepng( $base );
+		$orig_base_data = ob_get_clean();
+
+		// Run the test.
+		$this->assertNull( $this->sut->apply_image( $base, $image ) );
 
 		// Get the new base image data.
 		\ob_start();
