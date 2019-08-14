@@ -39,8 +39,6 @@ use function Scriptura\Color\Helpers\HSLtoRGB;
  * @since 2.3.0
  */
 class Cat_Avatar extends PNG_Parts_Generator {
-	const SIZE = 512;
-
 	/**
 	 * Creates a new instance.
 	 *
@@ -50,6 +48,7 @@ class Cat_Avatar extends PNG_Parts_Generator {
 		parent::__construct(
 			\dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/images/cats',
 			[ 'body', 'fur', 'eyes', 'mouth', 'accessoire' ],
+			512,
 			$images
 		);
 	}
@@ -63,39 +62,34 @@ class Cat_Avatar extends PNG_Parts_Generator {
 	 * @return string|false
 	 */
 	public function build( $seed, $size ) {
+		try {
+			// Set randomness from seed.
+			\mt_srand( (int) \hexdec( \substr( $seed, 0, 8 ) ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand -- we need deterministic "randomness".
 
-		// Set randomness from seed.
-		\mt_srand( (int) \hexdec( \substr( $seed, 0, 8 ) ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand -- we need deterministic "randomness".
+			// Throw the dice for body parts.
+			$parts = $this->get_randomized_parts(
+				// Wrapper function needed because \mt_rand complains about the
+				// extraneous $type parameter if used directly.
+				function( $min, $max ) {
+					// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
+					return \mt_rand( $min, $max ); // @codeCoverageIgnore
+				}
+			);
 
-		// Throw the dice for body parts.
-		$parts = $this->get_randomized_parts(
-			// Wrapper function needed because \mt_rand complains about the
-			// extraneous $type parameter if used directly.
-			function( $min, $max ) {
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
-				return \mt_rand( $min, $max ); // @codeCoverageIgnore
+			// Create background.
+			$cat = $this->create_image( 'transparent' );
+
+			// Add parts.
+			foreach ( $parts as $part_type => $file ) {
+				$this->apply_image( $cat, $file );
 			}
-		);
-
-		// Create background.
-		$cat = \imageCreateTrueColor( self::SIZE, self::SIZE );
-		if ( false === $cat ) {
+		} catch ( \RuntimeException $e ) {
 			// Something went wrong but don't want to mess up blog layout.
-			return false; // @codeCoverageIgnore
+			return false;
+		} finally {
+			// Reset randomness.
+			\mt_srand(); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand
 		}
-
-		// Fix transparent background.
-		\imageAlphaBlending( $cat, true );
-		\imageSaveAlpha( $cat, true );
-		\imageFill( $cat, 0, 0, \imageColorAllocateAlpha( $cat, 0, 0, 0, 127 ) );
-
-		// Add parts.
-		foreach ( $parts as $part_type => $file ) {
-			$this->apply_image( $cat, $file, self::SIZE, self::SIZE );
-		}
-
-		// Reset randomness.
-		\mt_srand(); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand
 
 		// Resize if necessary.
 		return $this->get_resized_image_data( $cat, $size );

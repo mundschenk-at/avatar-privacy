@@ -39,8 +39,6 @@ use Avatar_Privacy\Tools\Images;
  */
 class Wavatar extends PNG_Parts_Generator {
 
-	const SIZE = 80;
-
 	/**
 	 * A mapping from part types to the seed positions to take their values from.
 	 *
@@ -72,6 +70,7 @@ class Wavatar extends PNG_Parts_Generator {
 		parent::__construct(
 			\dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/images/wavatars',
 			[ 'fade', 'mask', 'shine', 'brow', 'eyes', 'pupils', 'mouth' ],
+			80,
 			$images
 		);
 	}
@@ -101,36 +100,36 @@ class Wavatar extends PNG_Parts_Generator {
 	 * @return string       The image data (or the empty string on error).
 	 */
 	public function build( $seed, $size ) {
-		// Look at the seed (an MD5 hash) and use pairs of digits to determine
-		// our "random" parts.
-		$parts = $this->get_randomized_parts(
-			function( $min, $max, $type ) use ( $seed ) {
-				return $this->seed( $seed, self::SEED_INDEX[ $type ], 2, $max + 1 ); // @codeCoverageIgnore
+		try {
+			// Look at the seed (an MD5 hash) and use pairs of digits to determine
+			// our "random" parts.
+			$parts = $this->get_randomized_parts(
+				function( $min, $max, $type ) use ( $seed ) {
+					return $this->seed( $seed, self::SEED_INDEX[ $type ], 2, $max + 1 ); // @codeCoverageIgnore
+				}
+			);
+
+			// Also randomize the colors.
+			$background_hue = $this->seed( $seed, self::SEED_INDEX['background_hue'], 2, 240 ) / 255 * self::DEGREE;
+			$wavatar_hue    = $this->seed( $seed, self::SEED_INDEX['wavatar_hue'], 2, 240 ) / 255 * self::DEGREE;
+
+			// Create background.
+			$avatar = $this->create_image( 'white' );
+
+			// Fill in the background color.
+			$this->fill( $avatar, $background_hue, 94, 20, 1, 1 );
+
+			// Now add the various layers onto the image.
+			foreach ( $parts as $type => $file ) {
+				$this->apply_image( $avatar, $file );
+
+				if ( 'mask' === $type ) {
+					$this->fill( $avatar, $wavatar_hue, 94, 66, (int) ( $this->size / 2 ), (int) ( $this->size / 2 ) );
+				}
 			}
-		);
-
-		// Also randomize the colors.
-		$background_hue = $this->seed( $seed, self::SEED_INDEX['background_hue'], 2, 240 ) / 255 * self::DEGREE;
-		$wavatar_hue    = $this->seed( $seed, self::SEED_INDEX['wavatar_hue'], 2, 240 ) / 255 * self::DEGREE;
-
-		// Create backgound.
-		$avatar = \imageCreateTrueColor( self::SIZE, self::SIZE );
-
-		// Check for valid image resource.
-		if ( false === $avatar ) {
-			return ''; // @codeCoverageIgnore
-		}
-
-		// Fill in the background color.
-		$this->fill( $avatar, $background_hue, 94, 20, 1, 1 );
-
-		// Now add the various layers onto the image.
-		foreach ( $parts as $type => $file ) {
-			$this->apply_image( $avatar, $file, self::SIZE, self::SIZE );
-
-			if ( 'mask' === $type ) {
-				$this->fill( $avatar, $wavatar_hue, 94, 66, (int) ( self::SIZE / 2 ), (int) ( self::SIZE / 2 ) );
-			}
+		} catch ( \RuntimeException $e ) {
+			// Something went wrong but don't want to mess up blog layout.
+			return false;
 		}
 
 		// Resize if needed.

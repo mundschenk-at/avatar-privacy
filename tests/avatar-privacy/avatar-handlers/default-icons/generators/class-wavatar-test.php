@@ -189,6 +189,7 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 		$parts_count = \count( $parts );
 		$bg_hue      = 23;
 		$wavatar_hue = 42;
+		$fake_image  = \imageCreateTrueColor( $size, $size );
 
 		$this->sut->shouldReceive( 'get_randomized_parts' )->once()->with( m::type( 'callable' ) )->andReturn( $parts );
 
@@ -199,13 +200,55 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 		$bg_hue      = $bg_hue / 255 * Wavatar::DEGREE;
 		$wavatar_hue = $wavatar_hue / 255 * Wavatar::DEGREE;
 
+		$this->sut->shouldReceive( 'create_image' )->once()->with( 'white' )->andReturn( $fake_image );
 		$this->sut->shouldReceive( 'fill' )->once()->with( m::type( 'resource' ), $bg_hue, 94, 20, 1, 1 );
 
-		$this->sut->shouldReceive( 'apply_image' )->times( $parts_count )->with( m::type( 'resource' ), m::type( 'string' ), Wavatar::SIZE, Wavatar::SIZE );
-		$this->sut->shouldReceive( 'fill' )->once()->with( m::type( 'resource' ), $wavatar_hue, 94, 66, (int) ( Wavatar::SIZE / 2 ), (int) ( Wavatar::SIZE / 2 ) );
+		$this->sut->shouldReceive( 'apply_image' )->times( $parts_count )->with( m::type( 'resource' ), m::type( 'string' ) );
+		$this->sut->shouldReceive( 'fill' )->once()->with( m::type( 'resource' ), $wavatar_hue, 94, 66, m::type( 'int' ), m::type( 'int' ) );
 
 		$this->sut->shouldReceive( 'get_resized_image_data' )->once()->with( m::type( 'resource' ), $size )->andReturn( $data );
 
 		$this->assertSame( $data, $this->sut->build( $seed, $size ) );
+	}
+
+	/**
+	 * Tests ::build.
+	 *
+	 * @covers ::build
+	 */
+	public function test_build_failed() {
+		$seed = 'fake email hash';
+		$size = 42;
+		$data = 'fake SVG image';
+
+		// Intermediary results.
+		$parts       = [
+			'foo'  => '/some/path/foo_1.png',
+			'mask' => '/some/path/mask_23.png',
+			'bar'  => '/some/path/baz_2.png',
+		];
+		$parts_count = \count( $parts );
+		$bg_hue      = 23;
+		$wavatar_hue = 42;
+		$fake_image  = \imageCreateTrueColor( $size, $size );
+
+		$this->sut->shouldReceive( 'get_randomized_parts' )->once()->with( m::type( 'callable' ) )->andReturn( $parts );
+
+		$this->sut->shouldReceive( 'seed' )->once()->with( $seed, Wavatar::SEED_INDEX['background_hue'], 2, 240 )->andReturn( $bg_hue );
+		$this->sut->shouldReceive( 'seed' )->once()->with( $seed, Wavatar::SEED_INDEX['wavatar_hue'], 2, 240 )->andReturn( $wavatar_hue );
+
+		// Account for transformation of hues into degree format.
+		$bg_hue      = $bg_hue / 255 * Wavatar::DEGREE;
+		$wavatar_hue = $wavatar_hue / 255 * Wavatar::DEGREE;
+
+		$this->sut->shouldReceive( 'create_image' )->once()->with( 'white' )->andThrow( \RuntimeException::class );
+		$this->sut->shouldReceive( 'fill' )->never();
+
+		$this->sut->shouldReceive( 'apply_image' )->never();
+		$this->sut->shouldReceive( 'fill' )->never();
+
+		$this->sut->shouldReceive( 'get_resized_image_data' )->never();
+
+		$this->assertSame( false, $this->sut->build( $seed, $size ) );
 	}
 }

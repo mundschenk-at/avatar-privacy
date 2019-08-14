@@ -158,12 +158,15 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 			'mouth' => 'mouth_6.png', // SPECIFIC_COLOR_PARTS.
 		];
 		$parts_number = \count( $parts );
+		$fake_image   = \imageCreateTrueColor( $size, $size );
 
 		$this->sut->shouldReceive( 'get_randomized_parts' )->once()->with( m::type( 'callable' ) )->andReturn( $parts );
 
-		// The method takes int arguments in theory, but might be floats.
+		$this->sut->shouldReceive( 'create_image_from_file' )->once()->with( vfsStream::url( 'root/plugin/public/images/monster-id/back.png' ) )->andReturn( $fake_image );
+		$this->sut->shouldReceive( 'create_image_from_file' )->times( $parts_number )->with( m::type( 'string' ) )->andReturn( $fake_image );
+
 		$this->sut->shouldReceive( 'image_colorize' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'numeric' ), m::type( 'numeric' ), m::type( 'string' ) );
-		$this->sut->shouldReceive( 'apply_image' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'resource' ), Monster_ID::SIZE, Monster_ID::SIZE );
+		$this->sut->shouldReceive( 'apply_image' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'resource' ) );
 
 		$this->sut->shouldReceive( 'get_resized_image_data' )->once()->with( m::type( 'resource' ), $size )->andReturn( $data );
 
@@ -193,6 +196,8 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'get_randomized_parts' )->once()->with( m::type( 'callable' ) )->andReturn( $parts );
 
+		$this->sut->shouldReceive( 'create_image_from_file' )->once()->with( vfsStream::url( 'root/plugin/public/images/monster-id/back.png' ) )->andThrow( \RuntimeException::class );
+
 		$this->sut->shouldReceive( 'image_colorize' )->never();
 		$this->sut->shouldReceive( 'apply_image' )->never();
 		$this->sut->shouldReceive( 'get_resized_image_data' )->never();
@@ -217,15 +222,20 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 			'mouth' => 'mouth_6.png', // SPECIFIC_COLOR_PARTS.
 		];
 		$parts_number = \count( $parts );
+		$fake_image   = \imageCreateTrueColor( $size, $size );
 
 		// Delete body part.
 		\unlink( vfsStream::url( 'root/plugin/public/images/monster-id/mouth_6.png' ) );
 
 		$this->sut->shouldReceive( 'get_randomized_parts' )->once()->with( m::type( 'callable' ) )->andReturn( $parts );
 
-		// The method takes int arguments in theory, but might be floats.
+		$this->sut->shouldReceive( 'create_image_from_file' )->once()->with( vfsStream::url( 'root/plugin/public/images/monster-id/back.png' ) )->andReturn( $fake_image );
+
+		$this->sut->shouldReceive( 'create_image_from_file' )->once()->with( vfsStream::url( 'root/plugin/public/images/monster-id/mouth_6.png' ) )->andThrow( \RuntimeException::class );
+		$this->sut->shouldReceive( 'create_image_from_file' )->times( $parts_number - 1 )->with( m::type( 'string' ) )->andReturn( $fake_image, $fake_image, $fake_image, false );
+
 		$this->sut->shouldReceive( 'image_colorize' )->times( $parts_number - 1 )->with( m::type( 'resource' ), m::type( 'numeric' ), m::type( 'numeric' ), m::type( 'string' ) );
-		$this->sut->shouldReceive( 'apply_image' )->times( $parts_number - 1 )->with( m::type( 'resource' ), m::type( 'resource' ), Monster_ID::SIZE, Monster_ID::SIZE );
+		$this->sut->shouldReceive( 'apply_image' )->times( $parts_number - 1 )->with( m::type( 'resource' ), m::type( 'resource' ) );
 
 		$this->sut->shouldReceive( 'get_resized_image_data' )->never();
 

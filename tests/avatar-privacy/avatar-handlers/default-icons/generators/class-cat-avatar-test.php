@@ -158,14 +158,47 @@ class Cat_Avatar_Test extends \Avatar_Privacy\Tests\TestCase {
 			'mouth' => 'mouth_6.png',
 		];
 		$parts_number = \count( $parts );
+		$fake_image   = \imageCreateTrueColor( $size, $size );
 
 		$this->sut->shouldReceive( 'get_randomized_parts' )->once()->with( m::type( 'callable' ) )->andReturn( $parts );
 
-		// The method takes int arguments in theory, but might be floats.
-		$this->sut->shouldReceive( 'apply_image' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'string' ), Cat_Avatar::SIZE, Cat_Avatar::SIZE );
+		$this->sut->shouldReceive( 'create_image' )->once()->with( 'transparent' )->andReturn( $fake_image );
+
+		$this->sut->shouldReceive( 'apply_image' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'string' ) );
 
 		$this->sut->shouldReceive( 'get_resized_image_data' )->once()->with( m::type( 'resource' ), $size )->andReturn( $data );
 
 		$this->assertSame( $data, $this->sut->build( $seed, $size ) );
+	}
+
+	/**
+	 * Tests ::build.
+	 *
+	 * @covers ::build
+	 */
+	public function test_build_failed() {
+		$seed = 'fake email hash';
+		$size = 42;
+		$data = 'fake SVG image';
+
+		// Intermediate results.
+		$parts        = [
+			'body'  => 'body_2.png',
+			'arms'  => 'arms_S8.png',
+			'legs'  => 'legs_1.png',
+			'mouth' => 'mouth_6.png',
+		];
+		$parts_number = \count( $parts );
+		$fake_image   = \imageCreateTrueColor( $size, $size );
+
+		$this->sut->shouldReceive( 'get_randomized_parts' )->once()->with( m::type( 'callable' ) )->andReturn( $parts );
+
+		$this->sut->shouldReceive( 'create_image' )->once()->with( 'transparent' )->andThrow( \RuntimeException::class );
+
+		$this->sut->shouldReceive( 'apply_image' )->never();
+
+		$this->sut->shouldReceive( 'get_resized_image_data' )->never();
+
+		$this->assertSame( false, $this->sut->build( $seed, $size ) );
 	}
 }
