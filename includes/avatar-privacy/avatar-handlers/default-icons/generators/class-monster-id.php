@@ -321,13 +321,13 @@ class Monster_ID extends PNG_Parts_Generator {
 	 * @return resource             The image, for chaining.
 	 */
 	protected function image_colorize( $image, $hue = 360, $saturation = 100, $part = '' ) {
-		$imgw = \imagesx( $image );
-		$imgh = \imagesy( $image );
+		$imgw = \imageSX( $image );
+		$imgh = \imageSY( $image );
 
 		// Ensure non-negative hue.
 		$hue = $hue < 0 ? self::DEGREE + $hue : $hue;
 
-		\imagealphablending( $image, false );
+		\imageAlphaBlending( $image, false );
 		if ( isset( $this->part_optimization[ $part ] ) ) {
 			$xmin = $this->part_optimization[ $part ][0][0];
 			$xmax = $this->part_optimization[ $part ][0][1];
@@ -342,7 +342,7 @@ class Monster_ID extends PNG_Parts_Generator {
 
 		for ( $i = $xmin; $i <= $xmax; $i++ ) {
 			for ( $j = $ymin; $j <= $ymax; $j++ ) {
-				$rgb       = \imagecolorat( $image, $i, $j );
+				$rgb       = \imageColorAt( $image, $i, $j );
 				$r         = ( $rgb >> 16 ) & 0xFF;
 				$g         = ( $rgb >> 8 ) & 0xFF;
 				$b         = $rgb & 0xFF;
@@ -352,12 +352,12 @@ class Monster_ID extends PNG_Parts_Generator {
 					$newrgb = HSLtoRGB( $hue, $saturation, $lightness );
 					// The green and blue were switched in the original hsl_2_rgb function, so we keep
 					// the same behavior for backwards compatibility reasons.
-					$color = \imagecolorallocatealpha( $image, $newrgb[0], $newrgb[2], $newrgb[1], $alpha );
-					\imagesetpixel( $image, $i, $j, $color );
+					$color = \imageColorAllocateAlpha( $image, $newrgb[0], $newrgb[2], $newrgb[1], $alpha );
+					\imageSetPixel( $image, $i, $j, $color );
 				}
 			}
 		}
-		\imagealphablending( $image, true );
+		\imageAlphaBlending( $image, true );
 
 		return $image;
 	}

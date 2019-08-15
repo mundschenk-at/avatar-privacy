@@ -256,14 +256,14 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 		$part       = 'arms_S8.png';
 
 		// The image.
-		$resource = \imagecreatefrompng( "{$this->real_image_path}/{$part}" );
+		$resource = \imageCreateFromPNG( "{$this->real_image_path}/{$part}" );
 
 		$result = $this->sut->image_colorize( $resource, $hue, $saturation, $part );
 
 		$this->assertInternalType( 'resource', $result );
 
 		// Clean up.
-		\imagedestroy( $resource );
+		\imageDestroy( $resource );
 	}
 
 	/**
@@ -281,13 +281,13 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// The image.
 		$size     = 200;
-		$resource = \imagecreate( $size, $size );
+		$resource = \imageCreate( $size, $size );
 
 		$result = $this->sut->image_colorize( $resource, $hue, $saturation, $part );
 
 		$this->assertInternalType( 'resource', $result );
 
 		// Clean up.
-		\imagedestroy( $resource );
+		\imageDestroy( $resource );
 	}
 }

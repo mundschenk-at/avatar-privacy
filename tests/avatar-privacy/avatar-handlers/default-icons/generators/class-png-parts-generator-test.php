@@ -217,11 +217,11 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 				'blue'  => 255,
 				'alpha' => 0,
 			],
-			\imagecolorsforindex( $image, \imagecolorat( $image, 1, 1 ) )
+			\imageColorsForIndex( $image, \imageColorAt( $image, 1, 1 ) )
 		);
 
 		// Clean up.
-		\imagedestroy( $image );
+		\imageDestroy( $image );
 	}
 
 	/**
@@ -235,32 +235,32 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		// The base image.
 		$width  = 200;
 		$height = 100;
-		$base   = \imagecreatetruecolor( $width, $height );
+		$base   = \imageCreateTrueColor( $width, $height );
 
 		// Make the base image white.
-		\imagefill( $base, 0, 0, \imagecolorallocate( $base, 255, 255, 255 ) );
+		\imageFill( $base, 0, 0, \imageColorAllocate( $base, 255, 255, 255 ) );
 
 		// The second image.
 		$image = 'somefile.png';
 
 		// Store base image data for comparison.
 		\ob_start();
-		\imagepng( $base );
-		$orig_base_data = ob_get_clean();
+		\imagePNG( $base );
+		$orig_base_data = \ob_get_clean();
 
 		// Run the test.
 		$this->assertNull( $this->sut->apply_image( $base, $image, $width, $height ) );
 
 		// Get the new base image data.
 		\ob_start();
-		\imagepng( $base );
-		$new_base_data = ob_get_clean();
+		\imagePNG( $base );
+		$new_base_data = \ob_get_clean();
 
 		// Check that they are different because of the applied image.
 		$this->assertNotSame( $orig_base_data, $new_base_data );
 
 		// Clean up.
-		\imagedestroy( $base );
+		\imageDestroy( $base );
 	}
 
 	/**
@@ -272,17 +272,17 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_apply_image_no_size() {
 		// The base image.
-		$base = \imagecreatetruecolor( $this->size, $this->size );
+		$base = \imageCreateTrueColor( $this->size, $this->size );
 
 		// Make the base image white.
-		\imagefill( $base, 0, 0, \imagecolorallocate( $base, 255, 255, 255 ) );
+		\imageFill( $base, 0, 0, \imageColorAllocate( $base, 255, 255, 255 ) );
 
 		// The second image.
-		$image = \imagecreatefrompng( vfsStream::url( 'root/plugin/my_parts_dir/somefile.png' ) );
+		$image = \imageCreateFromPNG( vfsStream::url( 'root/plugin/my_parts_dir/somefile.png' ) );
 
 		// Store base image data for comparison.
 		\ob_start();
-		\imagepng( $base );
+		\imagePNG( $base );
 		$orig_base_data = ob_get_clean();
 
 		// Run the test.
@@ -290,14 +290,14 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Get the new base image data.
 		\ob_start();
-		\imagepng( $base );
+		\imagePNG( $base );
 		$new_base_data = ob_get_clean();
 
 		// Check that they are different because of the applied image.
 		$this->assertNotSame( $orig_base_data, $new_base_data );
 
 		// Clean up.
-		\imagedestroy( $base );
+		\imageDestroy( $base );
 	}
 
 	/**
@@ -311,17 +311,17 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		// The base image.
 		$width  = 200;
 		$height = 100;
-		$base   = \imagecreatetruecolor( $width, $height );
+		$base   = \imageCreateTrueColor( $width, $height );
 
 		// Make the base image white.
-		\imagefill( $base, 0, 0, \imagecolorallocate( $base, 255, 255, 255 ) );
+		\imageFill( $base, 0, 0, \imageColorAllocate( $base, 255, 255, 255 ) );
 
 		// The second image does not exist.
 		$image = 'fakename.png';
 
 		// Store base image data for comparison.
 		\ob_start();
-		\imagepng( $base );
+		\imagePNG( $base );
 		$orig_base_data = ob_get_clean();
 
 		// Expect failure.
@@ -332,14 +332,14 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Get the new base image data.
 		\ob_start();
-		\imagepng( $base );
+		\imagePNG( $base );
 		$new_base_data = ob_get_clean();
 
 		// Check that they are different because of the applied image.
 		$this->assertSame( $orig_base_data, $new_base_data );
 
 		// Clean up.
-		\imagedestroy( $base );
+		\imageDestroy( $base );
 	}
 
 	/**

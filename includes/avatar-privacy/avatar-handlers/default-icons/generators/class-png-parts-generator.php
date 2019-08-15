@@ -158,7 +158,7 @@ abstract class PNG_Parts_Generator extends PNG_Generator {
 
 		// Load image if we are given a filename.
 		if ( \is_string( $image ) ) {
-			$image = @\imagecreatefrompng( "{$this->parts_dir}/{$image}" );
+			$image = @\imageCreateFromPNG( "{$this->parts_dir}/{$image}" );
 		}
 
 		parent::apply_image( $base, /* @scrutinizer ignore-type */ $image, $width, $height );
@@ -255,7 +255,7 @@ abstract class PNG_Parts_Generator extends PNG_Generator {
 				$ybounds = [ 999999, 0 ];
 				for ( $i = 0;$i < $imgw;$i++ ) {
 					for ( $j = 0;$j < $imgh;$j++ ) {
-						$rgb       = \ImageColorAt( $im, $i, $j );
+						$rgb       = \imageColorAt( $im, $i, $j );
 						$r         = ( $rgb >> 16 ) & 0xFF;
 						$g         = ( $rgb >> 8 ) & 0xFF;
 						$b         = $rgb & 0xFF;

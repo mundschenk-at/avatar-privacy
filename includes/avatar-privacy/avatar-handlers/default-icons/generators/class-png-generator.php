@@ -168,10 +168,10 @@ abstract class PNG_Generator implements Generator {
 		}
 
 		// Copy the image to the base.
-		$result = \imagecopy( $base, $image, 0, 0, 0, 0, $width, $height );
+		$result = \imageCopy( $base, $image, 0, 0, 0, 0, $width, $height );
 
 		// Clean up.
-		\imagedestroy( $image );
+		\imageDestroy( $image );
 
 		// Return copy success status.
 		if ( ! $result ) {
@@ -193,10 +193,10 @@ abstract class PNG_Generator implements Generator {
 	 */
 	protected function fill( $image, $hue, $saturation, $lightness, $x, $y ) {
 		$rgb   = HSLtoRGB( $hue, $saturation, $lightness );
-		$color = \imagecolorallocate( $image, $rgb[0], $rgb[1], $rgb[2] );
+		$color = \imageColorAllocate( $image, $rgb[0], $rgb[1], $rgb[2] );
 
 		if ( false !== $color ) {
-			return \imagefill( $image, $x, $y, $color );
+			return \imageFill( $image, $x, $y, $color );
 		}
 
 		return false;
