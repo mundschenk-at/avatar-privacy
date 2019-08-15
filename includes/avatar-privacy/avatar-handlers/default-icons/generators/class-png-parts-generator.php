@@ -96,11 +96,7 @@ abstract class PNG_Parts_Generator extends PNG_Generator {
 	 * @throws \RuntimeException The part files could not be found.
 	 */
 	protected function get_randomized_parts( callable $randomize ) {
-		if ( empty( $this->parts ) ) {
-			$this->parts = $this->locate_parts( \array_fill_keys( $this->part_types, [] ) );
-		}
-
-		return $this->randomize_parts( $this->parts, $randomize );
+		return $this->randomize_parts( $this->locate_parts(), $randomize );
 	}
 
 	/**
@@ -167,40 +163,47 @@ abstract class PNG_Parts_Generator extends PNG_Generator {
 	/**
 	 * Finds all avatar parts images.
 	 *
-	 * @since 2.3.0 Moved to PNG_Parts_Generator class.
-	 *
-	 * @param  array $parts An array of arrays indexed by body parts.
+	 * @since 2.3.0 Moved to PNG_Parts_Generator class. Parameter $parts removed.
 	 *
 	 * @return array
 	 *
 	 * @throws \RuntimeException The part files could not be found.
 	 */
-	protected function locate_parts( array $parts ) {
-		$noparts = true;
-		if ( false !== ( $dh = \opendir( $this->parts_dir ) ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found,WordPress.CodeAnalysis.AssignmentInCondition.Found
-			while ( false !== ( $file = \readdir( $dh ) ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found,WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-				if ( \is_file( "{$this->parts_dir}/{$file}" ) ) {
-					list( $partname, ) = \explode( '_', $file );
-					if ( isset( $parts[ $partname ] ) ) {
-						$parts[ $partname ][] = $file;
-						$noparts              = false;
-					}
+	protected function locate_parts() {
+		if ( empty( $this->parts ) ) {
+			// Make sure the keys are in the correct order.
+			$this->parts = \array_fill_keys( $this->part_types, [] );
+
+			// Keep copy of original array check if we found anything.
+			$empty = $this->parts;
+
+			// Iterate over the files in the parts directory.
+			$dir = new \FilesystemIterator(
+				$this->parts_dir,
+				\FilesystemIterator::KEY_AS_FILENAME |
+				\FilesystemIterator::CURRENT_AS_FILEINFO |
+				\FilesystemIterator::SKIP_DOTS
+			);
+			foreach ( $dir as $file => $info ) {
+				list( $partname, ) = \explode( '_', $file );
+				if ( isset( $this->parts[ $partname ] ) ) {
+					$this->parts[ $partname ][] = $file;
 				}
 			}
 
-			\closedir( $dh );
+			// Sort for consistency across servers.
+			foreach ( $this->parts as $key => $value ) {
+				\sort( $this->parts[ $key ], \SORT_NATURAL );
+			}
+
+			// Raise an exception if there were no files found.
+			if ( $this->parts === $empty ) {
+				unset( $this->parts );
+				throw new \RuntimeException( "Could not find parts images in {$this->parts_dir}" );
+			}
 		}
 
-		if ( $noparts ) {
-			throw new \RuntimeException( "Could not find parts images in {$this->parts_dir}" );
-		}
-
-		// Sort for consistency across servers.
-		foreach ( $parts as $key => $value ) {
-			\sort( $parts[ $key ], \SORT_NATURAL );
-		}
-
-		return $parts;
+		return $this->parts;
 	}
 
 	/**
@@ -244,7 +247,7 @@ abstract class PNG_Parts_Generator extends PNG_Generator {
 	 * }
 	 */
 	protected function get_parts_dimensions() {
-		$parts  = $this->locate_parts( \array_fill_keys( $this->part_types, [] ) );
+		$parts  = $this->locate_parts();
 		$bounds = [];
 
 		foreach ( $parts as $part_type => $file_list ) {

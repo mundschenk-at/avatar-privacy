@@ -190,7 +190,7 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Override the parts directory.
 		$this->setValue( $this->sut, 'part_types', $part_types );
 
-		$this->sut->shouldReceive( 'locate_parts' )->once()->with( \array_fill_keys( $part_types, [] ) )->andReturn( $found_parts );
+		$this->sut->shouldReceive( 'locate_parts' )->once()->andReturn( $found_parts );
 		$this->sut->shouldReceive( 'randomize_parts' )->once()->with( $found_parts, $randomize )->andReturn( $randomized_parts );
 
 		// Run test.
@@ -350,10 +350,10 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_locate_parts() {
 		// Input data.
 		$parts = [
-			'body'  => [],
-			'arms'  => [],
-			'legs'  => [],
-			'mouth' => [],
+			'body',
+			'arms',
+			'legs',
+			'mouth',
 		];
 
 		// Expected result.
@@ -373,11 +373,12 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 			],
 		];
 
-		// Override the parts directory.
+		// Override necessary properties.
 		$this->setValue( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/monster-id' ) );
+		$this->setValue( $this->sut, 'part_types', $parts );
 
 		// Run test.
-		$this->assertSame( $result, $this->sut->locate_parts( $parts ) );
+		$this->assertSame( $result, $this->sut->locate_parts() );
 	}
 
 	/**
@@ -391,20 +392,21 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_locate_parts_incorrect_parts_dir() {
 		// Input data.
 		$parts = [
-			'body'  => [],
-			'arms'  => [],
-			'legs'  => [],
-			'mouth' => [],
+			'body',
+			'arms',
+			'legs',
+			'mouth',
 		];
 
 		// Expected result.
 		$result = [];
 
-		// Override the parts directory.
+		// Override necessary properties.
 		$this->setValue( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/monster-id-empty' ) );
+		$this->setValue( $this->sut, 'part_types', $parts );
 
 		// Run test.
-		$this->assertSame( $result, $this->sut->locate_parts( $parts ) );
+		$this->assertSame( $result, $this->sut->locate_parts() );
 	}
 	/**
 	 * Tests ::randomize_parts.
@@ -490,7 +492,7 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->setValue( $this->sut, 'parts_dir', $this->real_image_path );
 		$this->setValue( $this->sut, 'part_types', $part_types );
 
-		$this->sut->shouldReceive( 'locate_parts' )->once()->with( \array_fill_keys( $part_types, [] ) )->andReturn( $parts );
+		$this->sut->shouldReceive( 'locate_parts' )->once()->andReturn( $parts );
 
 		$result = $this->sut->get_parts_dimensions();
 		$this->assertSame( $expected, $result );
@@ -529,7 +531,7 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->setValue( $this->sut, 'parts_dir', $this->real_image_path );
 		$this->setValue( $this->sut, 'part_types', $part_types );
 
-		$this->sut->shouldReceive( 'locate_parts' )->once()->with( \array_fill_keys( $part_types, [] ) )->andReturn( $parts );
+		$this->sut->shouldReceive( 'locate_parts' )->once()->andReturn( $parts );
 
 		$this->assertSame( $expected, $this->sut->get_parts_dimensions_as_text() );
 	}
