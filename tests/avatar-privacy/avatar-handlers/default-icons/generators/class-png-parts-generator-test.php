@@ -492,14 +492,16 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'locate_parts' )->once()->with( \array_fill_keys( $part_types, [] ) )->andReturn( $parts );
 
-		$result = $this->sut->get_parts_dimensions( false );
+		$result = $this->sut->get_parts_dimensions();
 		$this->assertSame( $expected, $result );
 	}
 
 	/**
-	 * Tests ::get_parts_dimensions.
+	 * Tests ::get_parts_dimensions_as_text.
 	 *
-	 * @covers ::get_parts_dimensions
+	 * @covers ::get_parts_dimensions_as_text
+	 *
+	 * @uses ::get_parts_dimensions
 	 */
 	public function test_get_parts_dimensions_as_text() {
 		// Input data.
@@ -521,7 +523,7 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Expected result.
-		$expected = "'body_1.png' => [[22,99],[17,90]], 'body_2.png' => [[14,104],[16,89]], 'arms_S8.png' => [[2,119],[18,98]], ";
+		$expected = "'body_1.png' => [ [ 22, 99 ], [ 17, 90 ] ],\n'body_2.png' => [ [ 14, 104 ], [ 16, 89 ] ],\n'arms_S8.png' => [ [ 2, 119 ], [ 18, 98 ] ],\n";
 
 		// Override the parts directory and types.
 		$this->setValue( $this->sut, 'parts_dir', $this->real_image_path );
@@ -529,6 +531,6 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'locate_parts' )->once()->with( \array_fill_keys( $part_types, [] ) )->andReturn( $parts );
 
-		$this->assertSame( $expected, $this->sut->get_parts_dimensions( true ) );
+		$this->assertSame( $expected, $this->sut->get_parts_dimensions_as_text() );
 	}
 }

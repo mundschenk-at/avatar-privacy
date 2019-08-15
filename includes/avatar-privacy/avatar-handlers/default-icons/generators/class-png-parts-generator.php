@@ -228,21 +228,28 @@ abstract class PNG_Parts_Generator extends PNG_Generator {
 	 * exchanging the provided images.
 	 *
 	 * @since 2.1.0 Visibility changed to protected.
-	 * @since 2.3.0 Moved to PNG_Parts_Generator class.
+	 * @since 2.3.0 Moved to PNG_Parts_Generator class and paramter $text removed.
+	 *              Use new method `get_parts_dimensions_as_text` to retrieve the
+	 *              human-readable array definition.
 	 *
-	 * @param  bool $text A flag that determines whether a human readable result should be returned.
+	 * @return array {
+	 *     An array of boundary coordinates indexed by filename.
 	 *
-	 * @return string|array
+	 *     @type array $file {
+	 *         The boundary coordinates for a single file.
+	 *
+	 *         @type int[] $xbounds The low and high boundary on the X axis.
+	 *         @type int[] $ybounds The low and high boundary on the Y axis.
+	 *     }
+	 * }
 	 */
-	protected function get_parts_dimensions( $text = false ) {
-		$parts = $this->locate_parts( \array_fill_keys( $this->part_types, [] ) );
+	protected function get_parts_dimensions() {
+		$parts  = $this->locate_parts( \array_fill_keys( $this->part_types, [] ) );
+		$bounds = [];
 
-		$bounds      = [];
-		$result_text = '';
-
-		foreach ( $parts as $key => $value ) {
-			foreach ( $value as $part ) {
-				$im = @\imageCreateFromPNG( "{$this->parts_dir}/{$part}" );
+		foreach ( $parts as $part_type => $file_list ) {
+			foreach ( $file_list as $file ) {
+				$im = @\imageCreateFromPNG( "{$this->parts_dir}/{$file}" );
 
 				if ( false === $im ) {
 					// Not a valid image file.
@@ -269,15 +276,33 @@ abstract class PNG_Parts_Generator extends PNG_Generator {
 						}
 					}
 				}
-				$result_text    .= "'$part' => [[${xbounds[0]},${xbounds[1]}],[${ybounds[0]},${ybounds[1]}]], ";
-				$bounds[ $part ] = [ $xbounds, $ybounds ];
+
+				$bounds[ $file ] = [ $xbounds, $ybounds ];
 			}
 		}
 
-		if ( $text ) {
-			return $result_text;
-		} else {
-			return $bounds;
+		return $bounds;
+	}
+
+	/**
+	 * Prints the exact dimensions for individual parts as human-readable PHP
+	 * array definitions.
+	 *
+	 * Mainly useful for subclasses exchanging the provided images.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @return string
+	 */
+	protected function get_parts_dimensions_as_text() {
+		$result = '';
+
+		foreach ( $this->get_parts_dimensions() as $part => $bounds ) {
+			list( $xbounds, $ybounds ) = $bounds;
+
+			$result .= "'$part' => [ [ {$xbounds[0]}, {$xbounds[1]} ], [ {$ybounds[0]}, {$ybounds[1]} ] ],\n";
 		}
+
+		return $result;
 	}
 }
