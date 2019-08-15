@@ -48,6 +48,7 @@ use Avatar_Privacy\Tools\Images\Editor;
  * @usesDefaultClass \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Monster_ID
  *
  * @uses ::__construct
+ * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Parts_Generator::__construct
  * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator::__construct
  */
 class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
@@ -140,140 +141,6 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::locate_parts.
-	 *
-	 * @covers ::locate_parts
-	 */
-	public function test_locate_parts() {
-		// Input data.
-		$parts = [
-			'body'  => [],
-			'arms'  => [],
-			'legs'  => [],
-			'mouth' => [],
-		];
-
-		// Expected result.
-		$result = [
-			'body'  => [
-				'body_1.png',
-				'body_2.png',
-			],
-			'arms'  => [
-				'arms_S8.png',
-			],
-			'legs'  => [
-				'legs_1.png',
-			],
-			'mouth' => [
-				'mouth_6.png',
-			],
-		];
-
-		// Run test.
-		$this->assertSame( $result, $this->sut->locate_parts( $parts ) );
-	}
-
-	/**
-	 * Tests ::locate_parts.
-	 *
-	 * @covers ::locate_parts
-	 *
-	 * @expectedException RuntimeException
-	 * @expectedExceptionMessage Could not find parts images
-	 */
-	public function test_locate_parts_incorrect_parts_dir() {
-		// Input data.
-		$parts = [
-			'body'  => [],
-			'arms'  => [],
-			'legs'  => [],
-			'mouth' => [],
-		];
-
-		// Expected result.
-		$result = [];
-
-		// Override the parts directory.
-		$this->setValue( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/monster-id-empty' ) );
-
-		// Run test.
-		$this->assertSame( $result, $this->sut->locate_parts( $parts ) );
-	}
-
-	/**
-	 * Tests ::get_parts_dimensions.
-	 *
-	 * @covers ::get_parts_dimensions
-	 */
-	public function test_get_parts_dimensions() {
-		// Intermediate results.
-		$parts = [
-			'body'  => [
-				'body_1.png',
-				'body_2.png',
-			],
-			'arms'  => [
-				'arms_FOOBAR.png',  // Does not exist and will be ignored.
-				'arms_S8.png',
-			],
-		];
-
-		// Expected result.
-		$expected = [
-			'body_1.png'  => [
-				[ 22, 99 ],
-				[ 17, 90 ],
-			],
-			'body_2.png'  => [
-				[ 14, 104 ],
-				[ 16, 89 ],
-			],
-			'arms_S8.png' => [
-				[ 2, 119 ],
-				[ 18, 98 ],
-			],
-		];
-
-		// Override the parts directory.
-		$this->setValue( $this->sut, 'parts_dir', $this->real_image_path );
-
-		$this->sut->shouldReceive( 'locate_parts' )->once()->with( Monster_ID::EMPTY_PARTS_LIST )->andReturn( $parts );
-
-		$result = $this->sut->get_parts_dimensions( false );
-		$this->assertSame( $expected, $result );
-	}
-
-	/**
-	 * Tests ::get_parts_dimensions.
-	 *
-	 * @covers ::get_parts_dimensions
-	 */
-	public function test_get_parts_dimensions_as_text() {
-		// Intermediate results.
-		$parts = [
-			'body'  => [
-				'body_1.png',
-				'body_2.png',
-			],
-			'arms'  => [
-				'arms_FOOBAR.png', // Does not exist and will be ignored.
-				'arms_S8.png',
-			],
-		];
-
-		// Expected result.
-		$expected = "'body_1.png' => [[22,99],[17,90]], 'body_2.png' => [[14,104],[16,89]], 'arms_S8.png' => [[2,119],[18,98]], ";
-
-		// Override the parts directory.
-		$this->setValue( $this->sut, 'parts_dir', $this->real_image_path );
-
-		$this->sut->shouldReceive( 'locate_parts' )->once()->with( Monster_ID::EMPTY_PARTS_LIST )->andReturn( $parts );
-
-		$this->assertSame( $expected, $this->sut->get_parts_dimensions( true ) );
-	}
-
-	/**
 	 * Tests ::build.
 	 *
 	 * @covers ::build
@@ -285,27 +152,21 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Intermediate results.
 		$parts        = [
-			'body'  => [
-				'body_1.png',
-				'body_2.png',
-			],
-			'arms'  => [
-				'arms_S8.png', // SAME_COLOR_PARTS.
-			],
-			'legs'  => [
-				'legs_1.png', // RANDOM_COLOR_PARTS.
-			],
-			'mouth' => [
-				'mouth_6.png', // SPECIFIC_COLOR_PARTS.
-			],
+			'body'  => 'body_2.png',
+			'arms'  => 'arms_S8.png', // SAME_COLOR_PARTS.
+			'legs'  => 'legs_1.png', // RANDOM_COLOR_PARTS.
+			'mouth' => 'mouth_6.png', // SPECIFIC_COLOR_PARTS.
 		];
 		$parts_number = \count( $parts );
+		$fake_image   = \imageCreateTrueColor( $size, $size );
 
-		$this->sut->shouldReceive( 'locate_parts' )->once()->with( Monster_ID::EMPTY_PARTS_LIST )->andReturn( $parts );
+		$this->sut->shouldReceive( 'get_randomized_parts' )->once()->with( m::type( 'callable' ) )->andReturn( $parts );
 
-		// The method takes int arguments in theory, but might be floats.
+		$this->sut->shouldReceive( 'create_image_from_file' )->once()->with( vfsStream::url( 'root/plugin/public/images/monster-id/back.png' ) )->andReturn( $fake_image );
+		$this->sut->shouldReceive( 'create_image_from_file' )->times( $parts_number )->with( m::type( 'string' ) )->andReturn( $fake_image );
+
 		$this->sut->shouldReceive( 'image_colorize' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'numeric' ), m::type( 'numeric' ), m::type( 'string' ) );
-		$this->sut->shouldReceive( 'apply_image' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'resource' ), Monster_ID::SIZE, Monster_ID::SIZE );
+		$this->sut->shouldReceive( 'apply_image' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'resource' ) );
 
 		$this->sut->shouldReceive( 'get_resized_image_data' )->once()->with( m::type( 'resource' ), $size )->andReturn( $data );
 
@@ -323,26 +184,19 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Intermediate results.
 		$parts        = [
-			'body'  => [
-				'body_1.png',
-				'body_2.png',
-			],
-			'arms'  => [
-				'arms_S8.png', // SAME_COLOR_PARTS.
-			],
-			'legs'  => [
-				'legs_1.png', // RANDOM_COLOR_PARTS.
-			],
-			'mouth' => [
-				'mouth_6.png', // SPECIFIC_COLOR_PARTS.
-			],
+			'body'  => 'body_2.png',
+			'arms'  => 'arms_S8.png', // SAME_COLOR_PARTS.
+			'legs'  => 'legs_1.png', // RANDOM_COLOR_PARTS.
+			'mouth' => 'mouth_6.png', // SPECIFIC_COLOR_PARTS.
 		];
 		$parts_number = \count( $parts );
 
 		// Delete the background file.
 		\unlink( vfsStream::url( 'root/plugin/public/images/monster-id/back.png' ) );
 
-		$this->sut->shouldReceive( 'locate_parts' )->once()->with( Monster_ID::EMPTY_PARTS_LIST )->andReturn( $parts );
+		$this->sut->shouldReceive( 'get_randomized_parts' )->once()->with( m::type( 'callable' ) )->andReturn( $parts );
+
+		$this->sut->shouldReceive( 'create_image_from_file' )->once()->with( vfsStream::url( 'root/plugin/public/images/monster-id/back.png' ) )->andThrow( \RuntimeException::class );
 
 		$this->sut->shouldReceive( 'image_colorize' )->never();
 		$this->sut->shouldReceive( 'apply_image' )->never();
@@ -362,30 +216,26 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Intermediate results.
 		$parts        = [
-			'body'  => [
-				'body_1.png',
-				'body_2.png',
-			],
-			'arms'  => [
-				'arms_S8.png', // SAME_COLOR_PARTS.
-			],
-			'legs'  => [
-				'legs_1.png', // RANDOM_COLOR_PARTS.
-			],
-			'mouth' => [
-				'mouth_6.png', // SPECIFIC_COLOR_PARTS.
-			],
+			'body'  => 'body_2.png',
+			'arms'  => 'arms_S8.png', // SAME_COLOR_PARTS.
+			'legs'  => 'legs_1.png', // RANDOM_COLOR_PARTS.
+			'mouth' => 'mouth_6.png', // SPECIFIC_COLOR_PARTS.
 		];
 		$parts_number = \count( $parts );
+		$fake_image   = \imageCreateTrueColor( $size, $size );
 
 		// Delete body part.
 		\unlink( vfsStream::url( 'root/plugin/public/images/monster-id/mouth_6.png' ) );
 
-		$this->sut->shouldReceive( 'locate_parts' )->once()->with( Monster_ID::EMPTY_PARTS_LIST )->andReturn( $parts );
+		$this->sut->shouldReceive( 'get_randomized_parts' )->once()->with( m::type( 'callable' ) )->andReturn( $parts );
 
-		// The method takes int arguments in theory, but might be floats.
+		$this->sut->shouldReceive( 'create_image_from_file' )->once()->with( vfsStream::url( 'root/plugin/public/images/monster-id/back.png' ) )->andReturn( $fake_image );
+
+		$this->sut->shouldReceive( 'create_image_from_file' )->once()->with( vfsStream::url( 'root/plugin/public/images/monster-id/mouth_6.png' ) )->andThrow( \RuntimeException::class );
+		$this->sut->shouldReceive( 'create_image_from_file' )->times( $parts_number - 1 )->with( m::type( 'string' ) )->andReturn( $fake_image, $fake_image, $fake_image, false );
+
 		$this->sut->shouldReceive( 'image_colorize' )->times( $parts_number - 1 )->with( m::type( 'resource' ), m::type( 'numeric' ), m::type( 'numeric' ), m::type( 'string' ) );
-		$this->sut->shouldReceive( 'apply_image' )->times( $parts_number - 1 )->with( m::type( 'resource' ), m::type( 'resource' ), Monster_ID::SIZE, Monster_ID::SIZE );
+		$this->sut->shouldReceive( 'apply_image' )->times( $parts_number - 1 )->with( m::type( 'resource' ), m::type( 'resource' ) );
 
 		$this->sut->shouldReceive( 'get_resized_image_data' )->never();
 
@@ -406,14 +256,14 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 		$part       = 'arms_S8.png';
 
 		// The image.
-		$resource = \imagecreatefrompng( "{$this->real_image_path}/{$part}" );
+		$resource = \imageCreateFromPNG( "{$this->real_image_path}/{$part}" );
 
 		$result = $this->sut->image_colorize( $resource, $hue, $saturation, $part );
 
 		$this->assertInternalType( 'resource', $result );
 
 		// Clean up.
-		\imagedestroy( $resource );
+		\imageDestroy( $resource );
 	}
 
 	/**
@@ -431,13 +281,13 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// The image.
 		$size     = 200;
-		$resource = \imagecreate( $size, $size );
+		$resource = \imageCreate( $size, $size );
 
 		$result = $this->sut->image_colorize( $resource, $hue, $saturation, $part );
 
 		$this->assertInternalType( 'resource', $result );
 
 		// Clean up.
-		\imagedestroy( $resource );
+		\imageDestroy( $resource );
 	}
 }

@@ -27,6 +27,15 @@ URL: <https://github.com/KDE/oxygen-icons>
 License: LGPLv3
 License URL: <https://github.com/KDE/oxygen-icons/blob/master/COPYING>
 
+## cats/*.png
+
+The Cat Avatars implementation is based on the original package by David Revoy.
+
+Copyright: David Revoy (2016)
+URL: <https://framagit.org/Deevad/cat-avatar-generator/>
+License: CC-By 4.0 (attribution _David Revoy_), with the following exception: "Generated cats used as Avatar (for blog,forum,social-network) don't need direct attribution and so, can be used as regular avatars without pasting David Revoy's name all over the place."
+License URL: <https://creativecommons.org/licenses/by/4.0/>
+
 ## monster-id/*.png
 
 The MonsterID implementation is based on the hand-drawn icons provided in Scott Sherrill-Mix's WP_MonsterID plugin.

@@ -37,18 +37,10 @@ use function Scriptura\Color\Helpers\HSLtoRGB;
  *
  * @since 1.0.0
  * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators
+ * @since 2.3.0 Refactored to use standard parts mechanisms, various obsolete
+ *              constants removed.
  */
-class Monster_ID extends PNG_Generator {
-	const SIZE = 120;
-
-	const EMPTY_PARTS_LIST = [
-		'legs'  => [],
-		'hair'  => [],
-		'arms'  => [],
-		'body'  => [],
-		'eyes'  => [],
-		'mouth' => [],
-	];
+class Monster_ID extends PNG_Parts_Generator {
 
 	const SAME_COLOR_PARTS     = [
 		'arms_S8.png'  => true,
@@ -244,103 +236,12 @@ class Monster_ID extends PNG_Generator {
 		$this->random_color_parts   = self::RANDOM_COLOR_PARTS;
 		$this->part_optimization    = self::PART_OPTIMIZATION;
 
-		parent::__construct( \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/images/monster-id', $images );
-	}
-
-	/**
-	 * Finds all the monster parts images.
-	 *
-	 * @since 2.1.0 Visibility changed to protected.
-	 *
-	 * @param  array $parts An array of arrays indexed by body parts.
-	 *
-	 * @return array
-	 *
-	 * @throws \RuntimeException The part files could not be found.
-	 */
-	protected function locate_parts( array $parts ) {
-		$noparts = true;
-		if ( false !== ( $dh = \opendir( $this->parts_dir ) ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found,WordPress.CodeAnalysis.AssignmentInCondition.Found
-			while ( false !== ( $file = \readdir( $dh ) ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found,WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-				if ( \is_file( "{$this->parts_dir}/{$file}" ) ) {
-					list( $partname, ) = \explode( '_', $file );
-					if ( isset( $parts[ $partname ] ) ) {
-						$parts[ $partname ][] = $file;
-						$noparts              = false;
-					}
-				}
-			}
-
-			\closedir( $dh );
-		}
-
-		if ( $noparts ) {
-			throw new \RuntimeException( "Could not find parts images in {$this->parts_dir}" );
-		}
-
-		// Sort for consistency across servers.
-		foreach ( $parts as $key => $value ) {
-			\sort( $parts[ $key ], SORT_NATURAL );
-		}
-
-		return $parts;
-	}
-
-	/**
-	 * Determines exact dimensions for individual parts. Mainly useful for subclasses
-	 * exchanging the provided images.
-	 *
-	 * @since 2.1.0 Visibility changed to protected.
-	 *
-	 * @param  bool $text A flag that determines whether a human readable result should be returned.
-	 *
-	 * @return string|array
-	 */
-	protected function get_parts_dimensions( $text = false ) {
-		$parts = $this->locate_parts( self::EMPTY_PARTS_LIST );
-
-		$bounds      = [];
-		$result_text = '';
-
-		foreach ( $parts as $key => $value ) {
-			foreach ( $value as $part ) {
-				$im = @\imagecreatefrompng( "{$this->parts_dir}/{$part}" );
-
-				if ( false === $im ) {
-					// Not a valid image file.
-					continue;
-				}
-
-				$imgw    = \imagesx( $im );
-				$imgh    = \imagesy( $im );
-				$xbounds = [ 999999, 0 ];
-				$ybounds = [ 999999, 0 ];
-				for ( $i = 0;$i < $imgw;$i++ ) {
-					for ( $j = 0;$j < $imgh;$j++ ) {
-						$rgb       = \ImageColorAt( $im, $i, $j );
-						$r         = ( $rgb >> 16 ) & 0xFF;
-						$g         = ( $rgb >> 8 ) & 0xFF;
-						$b         = $rgb & 0xFF;
-						$alpha     = ( $rgb & 0x7F000000 ) >> 24;
-						$lightness = ( $r + $g + $b ) / 3 / 255 * self::PERCENT;
-						if ( $lightness > 10 && $lightness < 99 && $alpha < 115 ) {
-							$xbounds[0] = \min( $xbounds[0],$i );
-							$xbounds[1] = \max( $xbounds[1],$i );
-							$ybounds[0] = \min( $ybounds[0],$j );
-							$ybounds[1] = \max( $ybounds[1],$j );
-						}
-					}
-				}
-				$result_text    .= "'$part' => [[${xbounds[0]},${xbounds[1]}],[${ybounds[0]},${ybounds[1]}]], ";
-				$bounds[ $part ] = [ $xbounds, $ybounds ];
-			}
-		}
-
-		if ( $text ) {
-			return $result_text;
-		} else {
-			return $bounds;
-		}
+		parent::__construct(
+			\dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/images/monster-id',
+			[ 'legs', 'hair', 'arms', 'body', 'eyes', 'mouth' ],
+			120,
+			$images
+		);
 	}
 
 	/**
@@ -352,63 +253,56 @@ class Monster_ID extends PNG_Generator {
 	 * @return string|false
 	 */
 	public function build( $seed, $size ) {
+		try {
+			// Set randomness from seed.
+			\mt_srand( (int) \hexdec( \substr( $seed, 0, 8 ) ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand -- we need deterministic "randomness".
 
-		// Init random seed.
-		$id = \substr( $seed, 0, 8 );
+			// Throw the dice for body parts.
+			$parts = $this->get_randomized_parts(
+				// Wrapper function needed because \mt_rand complains about the
+				// extraneous $type parameter if used directly.
+				function( $min, $max ) {
+					// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
+					return \mt_rand( $min, $max ); // @codeCoverageIgnore
+				}
+			);
 
-		// Get possible parts files.
-		$parts_array = $this->locate_parts( self::EMPTY_PARTS_LIST );
+			// Create background.
+			$monster = $this->create_image_from_file( "{$this->parts_dir}/back.png" );
 
-		// Set randomness.
-		\mt_srand( (int) \hexdec( $id ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand -- we need deterministic "randomness".
+			// Randomize colors.
+			$max_rand   = \mt_getrandmax();
+			$hue        = ( ( \mt_rand( 1, $max_rand ) - 1 ) / $max_rand ) * self::DEGREE; // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand -- real_halfopen.
+			$saturation = \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT; // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
 
-		// Throw the dice for body parts.
-		foreach ( $parts_array as $part => $files ) {
-			$parts_array[ $part ] = $files[ \mt_rand( 0, \count( $files ) - 1 ) ]; // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
-		}
+			// Add parts.
+			foreach ( $parts as $part => $file ) {
+				$im = $this->create_image_from_file( "{$this->parts_dir}/{$file}" );
 
-		// Create background.
-		$monster = @\imagecreatefrompng( "{$this->parts_dir}/back.png" );
-		if ( false === $monster ) {
-			return false; // Something went wrong but don't want to mess up blog layout.
-		}
+				// Randomly color body parts.
+				if ( 'body' === $part ) {
+					$this->image_colorize( $im, $hue, $saturation, $file );
+				} elseif ( isset( $this->same_color_parts[ $file ] ) ) {
+					$this->image_colorize( $im, $hue, $saturation, $file );
+				} elseif ( isset( $this->random_color_parts[ $file ] ) ) {
+					// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
+					$this->image_colorize( $im, ( \mt_rand( 1, $max_rand ) - 1 ) / $max_rand * self::DEGREE, \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
+				} elseif ( isset( $this->specific_color_parts[ $file ] ) ) {
+					$low  = $this->specific_color_parts[ $file ][0] * 10000;
+					$high = $this->specific_color_parts[ $file ][1] * 10000;
+					// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
+					$this->image_colorize( $im, \mt_rand( $low, $high ) / 10000 * self::DEGREE, \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
+				}
 
-		// Fix transparent background.
-		\imageAlphaBlending( $monster, true );
-		\imageSaveAlpha( $monster, true );
-
-		$max_rand   = \mt_getrandmax();
-		$hue        = ( ( \mt_rand( 1, $max_rand ) - 1 ) / $max_rand ) * self::DEGREE; // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand -- real_halfopen.
-		$saturation = \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT; // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
-
-		// Add parts.
-		foreach ( $parts_array as $part => $file ) {
-			$im = @\imagecreatefrompng( "{$this->parts_dir}/{$file}" );
-			if ( ! $im ) {
-				return false; // Something went wrong but don't want to mess up blog layout.
+				$this->apply_image( $monster, $im );
 			}
-			\imageSaveAlpha( $im, true );
-
-			// Randomly color body parts.
-			if ( 'body' === $part ) {
-				$this->image_colorize( $im, $hue, $saturation, $file );
-			} elseif ( isset( $this->same_color_parts[ $file ] ) ) {
-				$this->image_colorize( $im, $hue, $saturation, $file );
-			} elseif ( isset( $this->random_color_parts[ $file ] ) ) {
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
-				$this->image_colorize( $im, ( \mt_rand( 1, $max_rand ) - 1 ) / $max_rand * self::DEGREE, \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
-			} elseif ( isset( $this->specific_color_parts[ $file ] ) ) {
-				$low  = $this->specific_color_parts[ $file ][0] * 10000;
-				$high = $this->specific_color_parts[ $file ][1] * 10000;
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
-				$this->image_colorize( $im, \mt_rand( $low, $high ) / 10000 * self::DEGREE, \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
-			}
-
-			$this->apply_image( $monster, $im, self::SIZE, self::SIZE );
+		} catch ( \RuntimeException $e ) {
+			// Something went wrong but don't want to mess up blog layout.
+			return false;
+		} finally {
+			// Reset randomness.
+			\mt_srand(); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand
 		}
-
-		// Reset randomness.
-		\mt_srand(); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand
 
 		// Resize if necessary.
 		return $this->get_resized_image_data( $monster, $size );
@@ -427,13 +321,13 @@ class Monster_ID extends PNG_Generator {
 	 * @return resource             The image, for chaining.
 	 */
 	protected function image_colorize( $image, $hue = 360, $saturation = 100, $part = '' ) {
-		$imgw = \imagesx( $image );
-		$imgh = \imagesy( $image );
+		$imgw = \imageSX( $image );
+		$imgh = \imageSY( $image );
 
 		// Ensure non-negative hue.
 		$hue = $hue < 0 ? self::DEGREE + $hue : $hue;
 
-		\imagealphablending( $image, false );
+		\imageAlphaBlending( $image, false );
 		if ( isset( $this->part_optimization[ $part ] ) ) {
 			$xmin = $this->part_optimization[ $part ][0][0];
 			$xmax = $this->part_optimization[ $part ][0][1];
@@ -448,7 +342,7 @@ class Monster_ID extends PNG_Generator {
 
 		for ( $i = $xmin; $i <= $xmax; $i++ ) {
 			for ( $j = $ymin; $j <= $ymax; $j++ ) {
-				$rgb       = \imagecolorat( $image, $i, $j );
+				$rgb       = \imageColorAt( $image, $i, $j );
 				$r         = ( $rgb >> 16 ) & 0xFF;
 				$g         = ( $rgb >> 8 ) & 0xFF;
 				$b         = $rgb & 0xFF;
@@ -458,12 +352,12 @@ class Monster_ID extends PNG_Generator {
 					$newrgb = HSLtoRGB( $hue, $saturation, $lightness );
 					// The green and blue were switched in the original hsl_2_rgb function, so we keep
 					// the same behavior for backwards compatibility reasons.
-					$color = \imagecolorallocatealpha( $image, $newrgb[0], $newrgb[2], $newrgb[1], $alpha );
-					\imagesetpixel( $image, $i, $j, $color );
+					$color = \imageColorAllocateAlpha( $image, $newrgb[0], $newrgb[2], $newrgb[1], $alpha );
+					\imageSetPixel( $image, $i, $j, $color );
 				}
 			}
 		}
-		\imagealphablending( $image, true );
+		\imageAlphaBlending( $image, true );
 
 		return $image;
 	}

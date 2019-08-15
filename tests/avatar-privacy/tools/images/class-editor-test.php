@@ -147,7 +147,7 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::create_from_image_resource
 	 */
 	public function test_create_from_image_resource() {
-		$resource = \imagecreatetruecolor( 20, 20 );
+		$resource = \imageCreateTrueColor( 20, 20 );
 
 		$this->sut->shouldReceive( 'create_from_stream' )->once()->with( $this->stream_url )->andReturn( m::mock( \WP_Image_Editor::class ) );
 

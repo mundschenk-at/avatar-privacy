@@ -83,6 +83,19 @@ class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 				'my_parts_dir' => [
 					'somefile.png' => $png_data,
 				],
+				'public'       => [
+					'images' => [
+						'monster-id'       => [
+							'back.png'    => $png_data,
+							'body_1.png'  => $png_data,
+							'body_2.png'  => $png_data,
+							'arms_S8.png' => $png_data,
+							'legs_1.png'  => $png_data,
+							'mouth_6.png' => $png_data,
+						],
+						'monster-id-empty' => [],
+					],
+				],
 			],
 		];
 
@@ -93,7 +106,7 @@ class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->editor = m::mock( Editor::class );
 
 		// Partially mock system under test.
-		$this->sut = m::mock( PNG_Generator::class, [ vfsStream::url( 'root/plugin/my_parts_dir' ), $this->editor ] )
+		$this->sut = m::mock( PNG_Generator::class, [ $this->editor ] )
 			->makePartial()
 			->shouldAllowMockingProtectedMethods();
 	}
@@ -104,15 +117,151 @@ class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::__construct
 	 */
 	public function test_constructor() {
-		$fake_path = 'some/fake/path';
-		$editor    = m::mock( Editor::class );
-		$mock      = m::mock( PNG_Generator::class )->makePartial()->shouldAllowMockingProtectedMethods();
+		$editor = m::mock( Editor::class );
+		$mock   = m::mock( PNG_Generator::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $mock, '__construct', [ $fake_path, $editor ] );
+		$this->invokeMethod( $mock, '__construct', [ $editor ] );
 
 		// An attribute of the PNG_Generator superclass.
-		$this->assertAttributeSame( $fake_path, 'parts_dir', $mock );
 		$this->assertAttributeSame( $editor, 'images', $mock );
+	}
+
+	/**
+	 * Tests ::create_image.
+	 *
+	 * @covers ::create_image
+	 */
+	public function test_create_image_white() {
+		// The base image.
+		$width  = 200;
+		$height = 100;
+
+		$image = $this->sut->create_image( 'white', $width, $height );
+
+		$this->assertInternalType( 'resource', $image );
+		$this->assertSame( $width, \imageSX( $image ) );
+		$this->assertSame( $height, \imageSY( $image ) );
+		$this->assertSame(
+			[
+				'red'   => 255,
+				'green' => 255,
+				'blue'  => 255,
+				'alpha' => 0,
+			],
+			\imageColorsForIndex( $image, \imageColorAt( $image, 1, 1 ) )
+		);
+
+		// Clean up.
+		\imageDestroy( $image );
+	}
+
+	/**
+	 * Tests ::create_image.
+	 *
+	 * @covers ::create_image
+	 */
+	public function test_create_image_black() {
+		// The base image.
+		$width  = 200;
+		$height = 100;
+
+		$image = $this->sut->create_image( 'black', $width, $height );
+
+		$this->assertInternalType( 'resource', $image );
+		$this->assertSame( $width, \imageSX( $image ) );
+		$this->assertSame( $height, \imageSY( $image ) );
+		$this->assertSame(
+			[
+				'red'   => 0,
+				'green' => 0,
+				'blue'  => 0,
+				'alpha' => 0,
+			],
+			\imageColorsForIndex( $image, \imageColorAt( $image, 1, 1 ) )
+		);
+
+		// Clean up.
+		\imageDestroy( $image );
+	}
+
+	/**
+	 * Tests ::create_image.
+	 *
+	 * @covers ::create_image
+	 */
+	public function test_create_image_transparent() {
+		// The base image.
+		$width  = 200;
+		$height = 100;
+
+		$image = $this->sut->create_image( 'transparent', $width, $height );
+
+		$this->assertInternalType( 'resource', $image );
+		$this->assertSame( $width, \imageSX( $image ) );
+		$this->assertSame( $height, \imageSY( $image ) );
+		$this->assertSame(
+			[
+				'red'   => 0,
+				'green' => 0,
+				'blue'  => 0,
+				'alpha' => 127,
+			],
+			\imageColorsForIndex( $image, \imageColorAt( $image, 1, 1 ) )
+		);
+
+		// Clean up.
+		\imageDestroy( $image );
+	}
+
+	/**
+	 * Tests ::create_image.
+	 *
+	 * @covers ::create_image
+	 */
+	public function test_create_image_invalid_type() {
+		// The base image.
+		$width  = 200;
+		$height = 18;
+
+		// Expect failure.
+		$this->expectException( \RuntimeException::class );
+
+		$image = $this->sut->create_image( 'yellow', $width, $height );
+
+		// Clean up.
+		\imageDestroy( $image );
+	}
+
+	/**
+	 * Tests ::create_image_from_file.
+	 *
+	 * @covers ::create_image_from_file
+	 */
+	public function test_create_image_from_file() {
+		// The base image.
+		$width  = 28;
+		$height = 18;
+
+		$image = $this->sut->create_image_from_file( vfsStream::url( 'root/plugin/my_parts_dir/somefile.png' ) );
+
+		$this->assertInternalType( 'resource', $image );
+		$this->assertSame( $width, \imageSX( $image ) );
+		$this->assertSame( $height, \imageSY( $image ) );
+
+		// Clean up.
+		\imageDestroy( $image );
+	}
+
+	/**
+	 * Tests ::create_image_from_file.
+	 *
+	 * @covers ::create_image_from_file
+	 */
+	public function test_create_image_from_file_invalid() {
+
+		$this->expectException( \RuntimeException::class );
+
+		$this->assertNull( $this->sut->create_image_from_file( '/not/a/valid/PNG' ) );
 	}
 
 	/**
@@ -124,32 +273,32 @@ class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		// The base image.
 		$width  = 200;
 		$height = 100;
-		$base   = \imagecreatetruecolor( $width, $height );
+		$base   = \imageCreateTrueColor( $width, $height );
 
 		// Make the base image white.
-		\imagefill( $base, 0, 0, \imagecolorallocate( $base, 255, 255, 255 ) );
+		\imageFill( $base, 0, 0, \imageColorAllocate( $base, 255, 255, 255 ) );
 
 		// The second image.
-		$image = 'somefile.png';
+		$image = \imageCreateFromPNG( vfsStream::url( 'root/plugin/my_parts_dir/somefile.png' ) );
 
 		// Store base image data for comparison.
 		\ob_start();
-		\imagepng( $base );
+		\imagePNG( $base );
 		$orig_base_data = ob_get_clean();
 
 		// Run the test.
-		$this->assertTrue( $this->sut->apply_image( $base, $image, $width, $height ) );
+		$this->assertNull( $this->sut->apply_image( $base, $image, $width, $height ) );
 
 		// Get the new base image data.
 		\ob_start();
-		\imagepng( $base );
+		\imagePNG( $base );
 		$new_base_data = ob_get_clean();
 
 		// Check that they are different because of the applied image.
 		$this->assertNotSame( $orig_base_data, $new_base_data );
 
 		// Clean up.
-		\imagedestroy( $base );
+		\imageDestroy( $base );
 	}
 
 	/**
@@ -161,32 +310,35 @@ class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		// The base image.
 		$width  = 200;
 		$height = 100;
-		$base   = \imagecreatetruecolor( $width, $height );
+		$base   = \imageCreateTrueColor( $width, $height );
 
 		// Make the base image white.
-		\imagefill( $base, 0, 0, \imagecolorallocate( $base, 255, 255, 255 ) );
+		\imageFill( $base, 0, 0, \imageColorAllocate( $base, 255, 255, 255 ) );
 
 		// The second image does not exist.
 		$image = 'fakename.png';
 
 		// Store base image data for comparison.
 		\ob_start();
-		\imagepng( $base );
+		\imagePNG( $base );
 		$orig_base_data = ob_get_clean();
 
+		// Expect failure.
+		$this->expectException( \RuntimeException::class );
+
 		// Run the test.
-		$this->assertFalse( $this->sut->apply_image( $base, $image, $width, $height ) );
+		$this->sut->apply_image( $base, $image, $width, $height );
 
 		// Get the new base image data.
 		\ob_start();
-		\imagepng( $base );
+		\imagePNG( $base );
 		$new_base_data = ob_get_clean();
 
 		// Check that they are different because of the applied image.
 		$this->assertSame( $orig_base_data, $new_base_data );
 
 		// Clean up.
-		\imagedestroy( $base );
+		\imageDestroy( $base );
 	}
 
 	/**
@@ -205,12 +357,12 @@ class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		// The image.
 		$width    = 200;
 		$height   = 100;
-		$resource = \imagecreate( $width, $height );
+		$resource = \imageCreate( $width, $height );
 
 		$this->assertTrue( $this->sut->fill( $resource, $hue, $saturation, $lightness, $x, $y ) );
 
 		// Clean up.
-		\imagedestroy( $resource );
+		\imageDestroy( $resource );
 	}
 
 
@@ -230,17 +382,17 @@ class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		// The image.
 		$width    = 200;
 		$height   = 100;
-		$resource = \imagecreate( $width, $height );
+		$resource = \imageCreate( $width, $height );
 
 		// Eat up all color slots.
 		for ( $i = 0; $i < 256; ++$i ) {
-			\imagecolorallocate( $resource, 0, 0, 0 );
+			\imageColorAllocate( $resource, 0, 0, 0 );
 		}
 
 		$this->assertFalse( $this->sut->fill( $resource, $hue, $saturation, $lightness, $x, $y ) );
 
 		// Clean up.
-		\imagedestroy( $resource );
+		\imageDestroy( $resource );
 	}
 
 	/**

@@ -126,9 +126,9 @@ class Editor {
 	 * @return \WP_Image_Editor|\WP_Error
 	 */
 	public function create_from_image_resource( $image ) {
-		if ( \is_resource( $image ) && \imagepng( $image, $this->stream_url ) ) {
+		if ( \is_resource( $image ) && \imagePNG( $image, $this->stream_url ) ) {
 			// Clean up resource.
-			\imagedestroy( $image );
+			\imageDestroy( $image );
 
 			// Create editor.
 			return $this->create_from_stream( $this->stream_url );
