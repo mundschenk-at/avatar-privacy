@@ -3,9 +3,6 @@
  * This file is part of Avatar Privacy.
  *
  * Copyright 2019 Peter Putzer.
- * Copyright 2016 David Revoy.
- * Copyright 2007-2014 Scott Sherrill-Mix.
- * Copyright 2007 Andreas Gohr.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -34,7 +31,9 @@ use Avatar_Privacy\Tools\Images;
 use function Scriptura\Color\Helpers\HSLtoRGB;
 
 /**
- * A cat avatar generator.
+ * A cat avatar generator for the images created by David Revoy.
+ *
+ * See https://www.davidrevoy.com/article591/cat-avatar-generator
  *
  * @since 2.3.0
  */
