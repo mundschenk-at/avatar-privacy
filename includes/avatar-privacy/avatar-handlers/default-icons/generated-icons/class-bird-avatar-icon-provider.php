@@ -32,22 +32,22 @@ use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
 /**
- * An icon provider for "cats" style icons.
+ * An icon provider for "birds" style icons.
  *
  * @since 2.3.0
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Cat_Avatar_Icon_Provider extends Generating_Icon_Provider {
+class Bird_Avatar_Icon_Provider extends Generating_Icon_Provider {
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param Generators\Cat_Avatar $generator   A generator instance.
-	 * @param Filesystem_Cache      $file_cache  The file cache handler.
+	 * @param Generators\Bird_Avatar $generator   A generator instance.
+	 * @param Filesystem_Cache       $file_cache  The file cache handler.
 	 */
-	public function __construct( Generators\Cat_Avatar $generator, Filesystem_Cache $file_cache ) {
-		parent::__construct( $generator, $file_cache, [ 'cat' ] );
+	public function __construct( Generators\Bird_Avatar $generator, Filesystem_Cache $file_cache ) {
+		parent::__construct( $generator, $file_cache, [ 'bird' ] );
 	}
 
 	/**
@@ -59,7 +59,7 @@ class Cat_Avatar_Icon_Provider extends Generating_Icon_Provider {
 	 * @return string
 	 */
 	protected function get_filename( $identity, $size ) {
-		return "cat/{$this->get_sub_dir( $identity )}/{$identity}-{$size}.png";
+		return "bird/{$this->get_sub_dir( $identity )}/{$identity}-{$size}.png";
 	}
 
 	/**
@@ -68,6 +68,6 @@ class Cat_Avatar_Icon_Provider extends Generating_Icon_Provider {
 	 * @return string
 	 */
 	public function get_name() {
-		return \__( 'Cats (Generated)', 'avatar-privacy' );
+		return \__( 'Birds (Generated)', 'avatar-privacy' );
 	}
 }

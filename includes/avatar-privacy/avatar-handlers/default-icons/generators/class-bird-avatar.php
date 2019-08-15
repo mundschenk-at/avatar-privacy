@@ -31,13 +31,13 @@ use Avatar_Privacy\Tools\Images;
 use function Scriptura\Color\Helpers\HSLtoRGB;
 
 /**
- * A cat avatar generator for the images created by David Revoy.
+ * A bird avatar generator for the images created by David Revoy.
  *
- * See https://www.davidrevoy.com/article591/cat-avatar-generator
+ * See https://www.peppercarrot.com/extras/html/2019_bird-generator/
  *
  * @since 2.3.0
  */
-class Cat_Avatar extends PNG_Parts_Generator {
+class Bird_Avatar extends PNG_Parts_Generator {
 	/**
 	 * Creates a new instance.
 	 *
@@ -45,15 +45,15 @@ class Cat_Avatar extends PNG_Parts_Generator {
 	 */
 	public function __construct( Images\Editor $images ) {
 		parent::__construct(
-			\dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/images/cats',
-			[ 'body', 'fur', 'eyes', 'mouth', 'accessoire' ],
+			\dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/images/birds',
+			[ 'tail', 'hoop', 'body', 'wing', 'eyes', 'beak', 'accessoire' ],
 			512,
 			$images
 		);
 	}
 
 	/**
-	 * Builds a monster icon and returns the image data.
+	 * Builds an icon based on the given seed returns the image data.
 	 *
 	 * @param  string $seed The seed data (hash).
 	 * @param  int    $size The size in pixels.
@@ -76,11 +76,11 @@ class Cat_Avatar extends PNG_Parts_Generator {
 			);
 
 			// Create background.
-			$cat = $this->create_image( 'transparent' );
+			$bird = $this->create_image( 'transparent' );
 
 			// Add parts.
 			foreach ( $parts as $part_type => $file ) {
-				$this->apply_image( $cat, $file );
+				$this->apply_image( $bird, $file );
 			}
 		} catch ( \RuntimeException $e ) {
 			// Something went wrong but don't want to mess up blog layout.
@@ -91,6 +91,6 @@ class Cat_Avatar extends PNG_Parts_Generator {
 		}
 
 		// Resize if necessary.
-		return $this->get_resized_image_data( $cat, $size );
+		return $this->get_resized_image_data( $bird, $size );
 	}
 }
