@@ -92,12 +92,12 @@ class Wavatar extends PNG_Parts_Generator {
 	}
 
 	/**
-	 * Build the avatar icon.
+	 * Builds an icon based on the given seed returns the image data.
 	 *
 	 * @param  string $seed The seed data (hash).
 	 * @param  int    $size The size in pixels.
 	 *
-	 * @return string       The image data (or the empty string on error).
+	 * @return string|false
 	 */
 	public function build( $seed, $size ) {
 		try {
