@@ -65,8 +65,6 @@ class Cat_Avatar_Icon_Provider extends Generating_Icon_Provider {
 	/**
 	 * Retrieves the user-visible, translated name.
 	 *
-	 * @since 2.1.0
-	 *
 	 * @return string
 	 */
 	public function get_name() {
