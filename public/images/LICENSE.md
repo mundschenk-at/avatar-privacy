@@ -27,13 +27,28 @@ URL: <https://github.com/KDE/oxygen-icons>
 License: LGPLv3
 License URL: <https://github.com/KDE/oxygen-icons/blob/master/COPYING>
 
+## birds/*.png
+
+The Bird Avatars implementation is based on the original package by David Revoy.
+
+Copyright: David Revoy (2019)
+URL: <https://www.davidrevoy.com/article720/bird-avatar-generator/>
+License: CC-By 4.0 (attribution _David Revoy_), with the following exception:
+"Generated pictures used as Avatar (for blog,forum,social-network) don't need
+direct attribution and so, can be used as regular avatars without pasting David
+Revoy's name all over the place."
+License URL: <https://creativecommons.org/licenses/by/4.0/>
+
 ## cats/*.png
 
 The Cat Avatars implementation is based on the original package by David Revoy.
 
 Copyright: David Revoy (2016)
 URL: <https://framagit.org/Deevad/cat-avatar-generator/>
-License: CC-By 4.0 (attribution _David Revoy_), with the following exception: "Generated cats used as Avatar (for blog,forum,social-network) don't need direct attribution and so, can be used as regular avatars without pasting David Revoy's name all over the place."
+License: CC-By 4.0 (attribution _David Revoy_), with the following exception:
+"Generated cats used as Avatar (for blog,forum,social-network) don't need direct
+attribution and so, can be used as regular avatars without pasting David Revoy's
+name all over the place."
 License URL: <https://creativecommons.org/licenses/by/4.0/>
 
 ## monster-id/*.png
