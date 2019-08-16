@@ -130,7 +130,7 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	public function settings_footer() {
 		// Add show/hide javascript.
 		if ( \wp_script_is( 'jquery', 'done' ) ) {
-			require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/admin/partials/sections/avatars-disabled-script.php';
+			require \AVATAR_PRIVACY_PLUGIN_PATH . '/admin/partials/sections/avatars-disabled-script.php';
 		}
 
 		// Clean up output buffering.
@@ -174,8 +174,8 @@ class Settings_Page implements \Avatar_Privacy\Component {
 		$show_avatars = $this->options->get( 'show_avatars', false, true );
 
 		\ob_start();
-		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/admin/partials/sections/avatars-disabled.php';
-		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/admin/partials/sections/avatars-enabled.php';
+		require \AVATAR_PRIVACY_PLUGIN_PATH . '/admin/partials/sections/avatars-disabled.php';
+		require \AVATAR_PRIVACY_PLUGIN_PATH . '/admin/partials/sections/avatars-enabled.php';
 		return \ob_get_clean();
 	}
 

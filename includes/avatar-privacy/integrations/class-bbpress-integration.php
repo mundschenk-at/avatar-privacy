@@ -135,6 +135,6 @@ class BBPress_Integration implements Plugin_Integration {
 		$form = $this->form;
 
 		// Include partials.
-		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/partials/bbpress/user-profile-picture.php';
+		require \AVATAR_PRIVACY_PLUGIN_PATH . '/public/partials/bbpress/user-profile-picture.php';
 	}
 }

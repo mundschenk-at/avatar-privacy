@@ -237,7 +237,7 @@ class Monster_ID extends PNG_Parts_Generator {
 		$this->part_optimization    = self::PART_OPTIMIZATION;
 
 		parent::__construct(
-			\dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/images/monster-id',
+			\AVATAR_PRIVACY_PLUGIN_PATH . '/public/images/monster-id',
 			[ 'legs', 'hair', 'arms', 'body', 'eyes', 'mouth' ],
 			120,
 			$images

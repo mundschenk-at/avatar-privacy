@@ -45,7 +45,7 @@ class Bird_Avatar extends PNG_Parts_Generator {
 	 */
 	public function __construct( Images\Editor $images ) {
 		parent::__construct(
-			\dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/images/birds',
+			\AVATAR_PRIVACY_PLUGIN_PATH . '/public/images/birds',
 			[ 'tail', 'hoop', 'body', 'wing', 'eyes', 'beak', 'accessoire' ],
 			512,
 			$images

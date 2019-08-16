@@ -29,6 +29,7 @@ if ( ! \defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 }
 
 // Make plugin file path available globally (even if we probably don't need it during uninstallaton).
+const AVATAR_PRIVACY_PLUGIN_PATH = __DIR__;
 const AVATAR_PRIVACY_PLUGIN_FILE = __DIR__ . '/avatar-privacy.php';
 
 // Initialize autoloader.

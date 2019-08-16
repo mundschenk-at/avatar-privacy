@@ -68,7 +68,7 @@ class Wavatar extends PNG_Parts_Generator {
 	 */
 	public function __construct( Images\Editor $images ) {
 		parent::__construct(
-			\dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/images/wavatars',
+			\AVATAR_PRIVACY_PLUGIN_PATH . '/public/images/wavatars',
 			[ 'fade', 'mask', 'shine', 'brow', 'eyes', 'pupils', 'mouth' ],
 			80,
 			$images

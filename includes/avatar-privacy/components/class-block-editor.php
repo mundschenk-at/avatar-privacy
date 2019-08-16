@@ -192,7 +192,7 @@ class Block_Editor implements Component {
 
 		// Include partials.
 		\ob_start();
-		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/partials/block/frontend-form.php';
+		require \AVATAR_PRIVACY_PLUGIN_PATH . '/public/partials/block/frontend-form.php';
 		$markup = \ob_get_clean();
 
 		// As an additional precaution, remove some data if we are in preview mode.
@@ -236,7 +236,7 @@ class Block_Editor implements Component {
 
 		// Include partial.
 		\ob_start();
-		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/partials/block/avatar.php';
+		require \AVATAR_PRIVACY_PLUGIN_PATH . '/public/partials/block/avatar.php';
 		return \ob_get_clean();
 	}
 }

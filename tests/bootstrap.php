@@ -77,3 +77,6 @@ if ( ! defined( 'SCRIPT_DEBUG' ) ) {
 if ( ! defined( 'AVATAR_PRIVACY_PLUGIN_FILE' ) ) {
 	define( 'AVATAR_PRIVACY_PLUGIN_FILE', 'plugin/file' );
 }
+if ( ! defined( 'AVATAR_PRIVACY_PLUGIN_PATH' ) ) {
+	define( 'AVATAR_PRIVACY_PLUGIN_PATH', 'plugin' );
+}

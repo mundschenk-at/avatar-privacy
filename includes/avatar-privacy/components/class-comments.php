@@ -195,7 +195,7 @@ class Comments implements \Avatar_Privacy\Component {
 		\ob_start();
 
 		// Include the partial.
-		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/partials/comments/use-gravatar.php';
+		require \AVATAR_PRIVACY_PLUGIN_PATH . '/public/partials/comments/use-gravatar.php';
 
 		// Return included markup.
 		return \ob_get_clean();
