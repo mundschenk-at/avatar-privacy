@@ -45,6 +45,6 @@ class SVG_Icon_Provider extends Static_Icon_Provider {
 	 * @return string
 	 */
 	public function get_icon_url( $identity, $size ) {
-		return \plugins_url( "public/images/{$this->icon_basename}.svg", AVATAR_PRIVACY_PLUGIN_FILE );
+		return \plugins_url( "public/images/{$this->icon_basename}.svg", \AVATAR_PRIVACY_PLUGIN_FILE );
 	}
 }

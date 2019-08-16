@@ -213,7 +213,7 @@ class WPDiscuz_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_enqeue_styles_and_scripts() {
 		$version = '6.6.6';
 
-		Functions\expect( 'plugin_dir_url' )->once()->with( AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( 'some/url' );
+		Functions\expect( 'plugin_dir_url' )->once()->with( \AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( 'some/url' );
 
 		$this->core->shouldReceive( 'get_version' )->once()->andReturn( $version );
 

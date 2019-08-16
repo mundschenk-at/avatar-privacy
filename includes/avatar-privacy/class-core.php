@@ -247,7 +247,7 @@ class Core {
 	 * @return string
 	 */
 	public function get_plugin_file() {
-		return AVATAR_PRIVACY_PLUGIN_FILE;
+		return \AVATAR_PRIVACY_PLUGIN_FILE;
 	}
 
 	/**

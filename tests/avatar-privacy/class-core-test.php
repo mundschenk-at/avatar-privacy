@@ -225,7 +225,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::get_plugin_file
 	 */
 	public function test_get_plugin_file() {
-		$this->assertSame( AVATAR_PRIVACY_PLUGIN_FILE, $this->sut->get_plugin_file() );
+		$this->assertSame( \AVATAR_PRIVACY_PLUGIN_FILE, $this->sut->get_plugin_file() );
 	}
 
 	/**

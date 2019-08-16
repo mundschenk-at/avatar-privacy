@@ -150,7 +150,7 @@ class Setup implements \Avatar_Privacy\Component {
 	 */
 	public function run() {
 		// Register deactivation hook. Activation is handled by the update check instead.
-		\register_deactivation_hook( AVATAR_PRIVACY_PLUGIN_FILE, [ $this, 'deactivate' ] );
+		\register_deactivation_hook( \AVATAR_PRIVACY_PLUGIN_FILE, [ $this, 'deactivate' ] );
 
 		// Update settings and database if necessary.
 		\add_action( 'plugins_loaded', [ $this, 'update_check' ] );
@@ -408,7 +408,7 @@ class Setup implements \Avatar_Privacy\Component {
 
 		if (
 			// The plugin is not network-activated (or not on a multisite installation).
-			! \is_plugin_active_for_network( \plugin_basename( AVATAR_PRIVACY_PLUGIN_FILE ) ) ||
+			! \is_plugin_active_for_network( \plugin_basename( \AVATAR_PRIVACY_PLUGIN_FILE ) ) ||
 			// The queue is empty.
 			! $this->network_options->get( Network_Options::GLOBAL_TABLE_MIGRATION ) ||
 			// The queue is locked. Try again next time.

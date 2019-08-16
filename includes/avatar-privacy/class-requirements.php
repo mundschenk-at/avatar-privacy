@@ -51,7 +51,7 @@ class Requirements extends \Mundschenk\WP_Requirements {
 			'uploads_writable' => true,
 		];
 
-		parent::__construct( 'Avatar Privacy', AVATAR_PRIVACY_PLUGIN_FILE, 'avatar-privacy', $requirements );
+		parent::__construct( 'Avatar Privacy', \AVATAR_PRIVACY_PLUGIN_FILE, 'avatar-privacy', $requirements );
 	}
 
 	/**
