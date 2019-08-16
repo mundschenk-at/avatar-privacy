@@ -244,6 +244,8 @@ class Core {
 	/**
 	 * Retrieves the full path to the main plugin file.
 	 *
+	 * @deprecated 2.3.0 Use AVATAR_PRIVACY_PLUGIN_FILE instead.
+	 *
 	 * @return string
 	 */
 	public function get_plugin_file() {
