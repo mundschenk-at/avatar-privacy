@@ -37,6 +37,7 @@ use org\bovigo\vfs\vfsStreamDirectory;
 
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Parts_Generator;
 
+use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Tools\Images\Editor;
 
 /**
@@ -63,6 +64,13 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var Editor
 	 */
 	private $editor;
+
+	/**
+	 * The site transients handler mock.
+	 *
+	 * @var Site_Transients
+	 */
+	private $site_transients;
 
 	/**
 	 * The full path of the folder containing the real images.
@@ -123,7 +131,8 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->size = 300;
 
 		// Helper mocks.
-		$this->editor = m::mock( Editor::class );
+		$this->editor          = m::mock( Editor::class );
+		$this->site_transients = m::mock( Site_Transients::class );
 
 		// Partially mock system under test.
 		$this->sut = m::mock( PNG_Parts_Generator::class, [
@@ -131,6 +140,7 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 			[ 'foo', 'bar' ],
 			$this->size,
 			$this->editor,
+			$this->site_transients,
 		] )
 			->makePartial()
 			->shouldAllowMockingProtectedMethods();
@@ -146,14 +156,16 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$part_types = [ 'foo', 'bar', 'baz' ];
 		$size       = 300;
 		$editor     = m::mock( Editor::class );
+		$transients = m::mock( Site_Transients::class );
 		$mock       = m::mock( PNG_Parts_Generator::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $mock, '__construct', [ $fake_path, $part_types, $size, $editor ] );
+		$this->invokeMethod( $mock, '__construct', [ $fake_path, $part_types, $size, $editor, $transients ] );
 
 		// An attribute of the PNG_Parts_Generator superclass.
 		$this->assertAttributeSame( $fake_path, 'parts_dir', $mock );
 		$this->assertAttributeSame( $part_types, 'part_types', $mock );
 		$this->assertAttributeSame( $size, 'size', $mock );
+		$this->assertAttributeSame( $transients, 'site_transients', $mock );
 	}
 
 
@@ -190,7 +202,7 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Override the parts directory.
 		$this->setValue( $this->sut, 'part_types', $part_types );
 
-		$this->sut->shouldReceive( 'locate_parts' )->once()->andReturn( $found_parts );
+		$this->sut->shouldReceive( 'get_parts' )->once()->andReturn( $found_parts );
 		$this->sut->shouldReceive( 'randomize_parts' )->once()->with( $found_parts, $randomize )->andReturn( $randomized_parts );
 
 		// Run test.
@@ -343,6 +355,102 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Tests ::get_parts.
+	 *
+	 * @covers ::get_parts
+	 */
+	public function test_get_parts() {
+		// Input data.
+		$basename = 'monster-id';
+		$path     = "/some/fake/path/$basename";
+		$parts    = [
+			'body'  => [
+				'body_1.png',
+				'body_2.png',
+			],
+			'arms'  => [
+				'arms_S8.png',
+			],
+			'legs'  => [
+				'legs_1.png',
+			],
+			'mouth' => [
+				'mouth_6.png',
+			],
+		];
+
+		// Override necessary properties.
+		$this->setValue( $this->sut, 'parts_dir', $path );
+
+		$this->site_transients->shouldReceive( 'get' )->once()->with( "avatar_privacy_{$basename}_png_parts" )->andReturn( false );
+		$this->sut->shouldReceive( 'locate_parts' )->once()->andReturn( $parts );
+		$this->site_transients->shouldReceive( 'set' )->once()->with( "avatar_privacy_{$basename}_png_parts", $parts );
+
+		// Run test.
+		$this->assertSame( $parts, $this->sut->get_parts() );
+	}
+
+	/**
+	 * Tests ::get_parts.
+	 *
+	 * @covers ::get_parts
+	 */
+	public function test_get_parts_cached() {
+		// Input data.
+		$basename = 'monster-id';
+		$path     = "/some/fake/path/$basename";
+		$parts    = [
+			'body'  => [
+				'body_1.png',
+				'body_2.png',
+			],
+			'arms'  => [
+				'arms_S8.png',
+			],
+			'legs'  => [
+				'legs_1.png',
+			],
+			'mouth' => [
+				'mouth_6.png',
+			],
+		];
+
+		// Override necessary properties.
+		$this->setValue( $this->sut, 'parts_dir', $path );
+
+		$this->site_transients->shouldReceive( 'get' )->once()->with( "avatar_privacy_{$basename}_png_parts" )->andReturn( $parts );
+		$this->sut->shouldReceive( 'locate_parts' )->never();
+		$this->site_transients->shouldReceive( 'set' )->never();
+
+		// Run test.
+		$this->assertSame( $parts, $this->sut->get_parts() );
+	}
+
+	/**
+	 * Tests ::get_parts.
+	 *
+	 * @covers ::get_parts
+	 */
+	public function test_get_parts_nothing_found() {
+		// Input data.
+		$basename = 'monster-id';
+		$path     = "/some/fake/path/$basename";
+		$parts    = [];
+
+		// Override necessary properties.
+		$this->setValue( $this->sut, 'parts_dir', $path );
+
+		$this->site_transients->shouldReceive( 'get' )->once()->with( "avatar_privacy_{$basename}_png_parts" )->andReturn( false );
+		$this->sut->shouldReceive( 'locate_parts' )->once()->andReturn( $parts );
+		$this->site_transients->shouldReceive( 'set' )->never();
+
+		$this->expectException( \RuntimeException::class );
+
+		// Run test.
+		$this->assertSame( $parts, $this->sut->get_parts() );
+	}
+
+	/**
 	 * Tests ::locate_parts.
 	 *
 	 * @covers ::locate_parts
@@ -385,9 +493,6 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::locate_parts.
 	 *
 	 * @covers ::locate_parts
-	 *
-	 * @expectedException RuntimeException
-	 * @expectedExceptionMessage Could not find parts images
 	 */
 	public function test_locate_parts_incorrect_parts_dir() {
 		// Input data.
@@ -408,6 +513,7 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Run test.
 		$this->assertSame( $result, $this->sut->locate_parts() );
 	}
+
 	/**
 	 * Tests ::randomize_parts.
 	 *
@@ -492,7 +598,7 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->setValue( $this->sut, 'parts_dir', $this->real_image_path );
 		$this->setValue( $this->sut, 'part_types', $part_types );
 
-		$this->sut->shouldReceive( 'locate_parts' )->once()->andReturn( $parts );
+		$this->sut->shouldReceive( 'get_parts' )->once()->andReturn( $parts );
 
 		$result = $this->sut->get_parts_dimensions();
 		$this->assertSame( $expected, $result );
@@ -531,7 +637,7 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->setValue( $this->sut, 'parts_dir', $this->real_image_path );
 		$this->setValue( $this->sut, 'part_types', $part_types );
 
-		$this->sut->shouldReceive( 'locate_parts' )->once()->andReturn( $parts );
+		$this->sut->shouldReceive( 'get_parts' )->once()->andReturn( $parts );
 
 		$this->assertSame( $expected, $this->sut->get_parts_dimensions_as_text() );
 	}

@@ -29,6 +29,7 @@
 namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
 use Avatar_Privacy\Tools\Images;
+use Avatar_Privacy\Data_Storage\Site_Transients;
 
 use function Scriptura\Color\Helpers\HSLtoRGB;
 
@@ -227,9 +228,10 @@ class Monster_ID extends PNG_Parts_Generator {
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
 	 *
-	 * @param Images\Editor $images The image editing handler.
+	 * @param Images\Editor   $images          The image editing handler.
+	 * @param Site_Transients $site_transients The site transients handler.
 	 */
-	public function __construct( Images\Editor $images ) {
+	public function __construct( Images\Editor $images, Site_Transients $site_transients ) {
 		// Needed for PHP 5.6 compatibility.
 		$this->same_color_parts     = self::SAME_COLOR_PARTS;
 		$this->specific_color_parts = self::SPECIFIC_COLOR_PARTS;
@@ -240,7 +242,8 @@ class Monster_ID extends PNG_Parts_Generator {
 			\AVATAR_PRIVACY_PLUGIN_PATH . '/public/images/monster-id',
 			[ 'legs', 'hair', 'arms', 'body', 'eyes', 'mouth' ],
 			120,
-			$images
+			$images,
+			$site_transients
 		);
 	}
 

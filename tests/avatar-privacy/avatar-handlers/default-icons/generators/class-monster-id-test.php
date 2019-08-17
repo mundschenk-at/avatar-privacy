@@ -37,7 +37,7 @@ use org\bovigo\vfs\vfsStreamDirectory;
 
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Monster_ID;
 
-use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator;
+use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Tools\Images\Editor;
 
 
@@ -59,13 +59,6 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var Monster_ID
 	 */
 	private $sut;
-
-	/**
-	 * The Images\Editor mock.
-	 *
-	 * @var Editor
-	 */
-	private $editor;
 
 	/**
 	 * The full path of the folder containing the real images.
@@ -113,13 +106,11 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->real_image_path = \dirname( \dirname( \dirname( \dirname( \dirname( __DIR__ ) ) ) ) ) . '/public/images/monster-id';
 
 		// Helper mocks.
-		$this->editor = m::mock( Editor::class );
+		$editor     = m::mock( Editor::class );
+		$transients = m::mock( Site_Transients::class );
 
 		// Partially mock system under test.
-		$this->sut = m::mock( Monster_ID::class )->makePartial()->shouldAllowMockingProtectedMethods();
-
-		// Manually invoke the constructor as it is protected.
-		$this->invokeMethod( $this->sut, '__construct', [ $this->editor ] );
+		$this->sut = m::mock( Monster_ID::class, [ $editor, $transients ] )->makePartial()->shouldAllowMockingProtectedMethods();
 
 		// Override the parts directory.
 		$this->setValue( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/monster-id' ) );
@@ -129,12 +120,16 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::__construct.
 	 *
 	 * @covers ::__construct
+	 *
+	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator::__construct
+	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Parts_Generator::__construct
 	 */
 	public function test_constructor() {
-		$editor = m::mock( Editor::class );
-		$mock   = m::mock( Monster_ID::class )->makePartial()->shouldAllowMockingProtectedMethods();
+		$editor     = m::mock( Editor::class );
+		$transients = m::mock( Site_Transients::class );
+		$mock       = m::mock( Monster_ID::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $mock, '__construct', [ $editor ] );
+		$this->invokeMethod( $mock, '__construct', [ $editor, $transients ] );
 
 		// An attribute of the PNG_Generator superclass.
 		$this->assertAttributeSame( $editor, 'images', $mock );

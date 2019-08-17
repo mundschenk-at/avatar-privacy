@@ -27,6 +27,7 @@
 namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
 use Avatar_Privacy\Tools\Images;
+use Avatar_Privacy\Data_Storage\Site_Transients;
 
 use function Scriptura\Color\Helpers\HSLtoRGB;
 
@@ -41,14 +42,16 @@ class Cat_Avatar extends PNG_Parts_Generator {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param Images\Editor $images The image editing handler.
+	 * @param Images\Editor   $images          The image editing handler.
+	 * @param Site_Transients $site_transients The site transients handler.
 	 */
-	public function __construct( Images\Editor $images ) {
+	public function __construct( Images\Editor $images, Site_Transients $site_transients ) {
 		parent::__construct(
 			\AVATAR_PRIVACY_PLUGIN_PATH . '/public/images/cats',
 			[ 'body', 'fur', 'eyes', 'mouth', 'accessoire' ],
 			512,
-			$images
+			$images,
+			$site_transients
 		);
 	}
 
