@@ -29,8 +29,6 @@ namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 
-use function Scriptura\Color\Helpers\HSLtoRGB;
-
 /**
  * A cat avatar generator for the images created by David Revoy.
  *
