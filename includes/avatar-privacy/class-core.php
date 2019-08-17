@@ -265,7 +265,7 @@ class Core {
 		// Force a re-read if the cached settings do not appear to be from the current version.
 		if ( empty( $this->settings ) || empty( $this->settings[ Options::INSTALLED_VERSION ] )
 			|| $this->version !== $this->settings[ Options::INSTALLED_VERSION ] || $force ) {
-			$this->settings = $this->options->get( self::SETTINGS_NAME, $this->settings_template->get_defaults() );
+			$this->settings = (array) $this->options->get( self::SETTINGS_NAME, $this->settings_template->get_defaults() );
 		}
 
 		return $this->settings;
