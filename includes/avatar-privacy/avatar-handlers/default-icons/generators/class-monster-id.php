@@ -283,9 +283,7 @@ class Monster_ID extends PNG_Parts_Generator {
 				$im = $this->create_image_from_file( "{$this->parts_dir}/{$file}" );
 
 				// Randomly color body parts.
-				if ( 'body' === $part ) {
-					$this->image_colorize( $im, $hue, $saturation, $file );
-				} elseif ( isset( $this->same_color_parts[ $file ] ) ) {
+				if ( 'body' === $part || isset( $this->same_color_parts[ $file ] ) ) {
 					$this->image_colorize( $im, $hue, $saturation, $file );
 				} elseif ( isset( $this->random_color_parts[ $file ] ) ) {
 					// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
