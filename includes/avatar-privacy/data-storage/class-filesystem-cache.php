@@ -140,7 +140,7 @@ class Filesystem_Cache {
 			return true;
 		}
 
-		if ( 0 === \strlen( $data ) || ! \wp_mkdir_p( \dirname( $file ) ) || false === \file_put_contents( $file, $data, LOCK_EX ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+		if ( 0 === \strlen( $data ) || ! \wp_mkdir_p( \dirname( $file ) ) || false === \file_put_contents( $file, $data, \LOCK_EX ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
 			return false;
 		} else {
 			return true;
