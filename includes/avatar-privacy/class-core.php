@@ -631,7 +631,9 @@ class Core {
 	 *
 	 * @param  int $user_id The user ID.
 	 *
-	 * @return string[] {
+	 * @return array {
+	 *     An avatar definition, or the empty array.
+	 *
 	 *     @type string $file The local filename.
 	 *     @type string $type The MIME type.
 	 * }
@@ -656,6 +658,11 @@ class Core {
 			return $avatar;
 		}
 
-		return \get_user_meta( $user_id, self::USER_AVATAR_META_KEY, true );
+		$avatar = \get_user_meta( $user_id, self::USER_AVATAR_META_KEY, true );
+		if ( empty( $avatar ) ) {
+			$avatar = [];
+		}
+
+		return $avatar;
 	}
 }
