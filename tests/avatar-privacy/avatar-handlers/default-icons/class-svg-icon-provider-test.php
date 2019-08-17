@@ -65,7 +65,7 @@ class SVG_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Expected result.
 		$url = 'some URL';
 
-		Functions\expect( 'plugins_url' )->once()->with( "public/images/{$basename}.svg", AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $url );
+		Functions\expect( 'plugins_url' )->once()->with( "public/images/{$basename}.svg", \AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $url );
 
 		$this->assertSame( $url, $sut->get_icon_url( $identity, $size ) );
 	}
@@ -91,7 +91,7 @@ class SVG_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Expected result.
 		$url = 'some URL';
 
-		Functions\expect( 'plugins_url' )->once()->with( "public/images/{$basename}.svg", AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $url );
+		Functions\expect( 'plugins_url' )->once()->with( "public/images/{$basename}.svg", \AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $url );
 
 		$this->assertSame( $url, $sut->get_icon_url( $identity, $size ) );
 	}

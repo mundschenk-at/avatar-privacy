@@ -37,7 +37,7 @@ use org\bovigo\vfs\vfsStreamDirectory;
 
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Bird_Avatar;
 
-use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator;
+use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Tools\Images\Editor;
 
 
@@ -46,10 +46,6 @@ use Avatar_Privacy\Tools\Images\Editor;
  *
  * @coversDefaultClass \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Bird_Avatar
  * @usesDefaultClass \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Bird_Avatar
- *
- * @uses ::__construct
- * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Parts_Generator::__construct
- * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator::__construct
  */
 class Bird_Avatar_Test extends \Avatar_Privacy\Tests\TestCase {
 
@@ -59,13 +55,6 @@ class Bird_Avatar_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var Bird_Avatar
 	 */
 	private $sut;
-
-	/**
-	 * The Images\Editor mock.
-	 *
-	 * @var Editor
-	 */
-	private $editor;
 
 	/**
 	 * The full path of the folder containing the real images.
@@ -112,16 +101,10 @@ class Bird_Avatar_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Provide access to the real images.
 		$this->real_image_path = \dirname( \dirname( \dirname( \dirname( \dirname( __DIR__ ) ) ) ) ) . '/public/images/birds';
 
-		// Helper mocks.
-		$this->editor = m::mock( Editor::class );
-
 		// Partially mock system under test.
 		$this->sut = m::mock( Bird_Avatar::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		// Manually invoke the constructor as it is protected.
-		$this->invokeMethod( $this->sut, '__construct', [ $this->editor ] );
-
-		// Override the parts directory.
+		// Override the parts directory as the constructor is never invoked.
 		$this->setValue( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/birds' ) );
 	}
 
@@ -129,12 +112,16 @@ class Bird_Avatar_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::__construct.
 	 *
 	 * @covers ::__construct
+	 *
+	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator::__construct
+	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Parts_Generator::__construct
 	 */
 	public function test_constructor() {
-		$editor = m::mock( Editor::class );
-		$mock   = m::mock( Bird_Avatar::class )->makePartial()->shouldAllowMockingProtectedMethods();
+		$editor     = m::mock( Editor::class );
+		$transients = m::mock( Site_Transients::class );
+		$mock       = m::mock( Bird_Avatar::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $mock, '__construct', [ $editor ] );
+		$this->invokeMethod( $mock, '__construct', [ $editor, $transients ] );
 
 		// An attribute of the PNG_Generator superclass.
 		$this->assertAttributeSame( $editor, 'images', $mock );

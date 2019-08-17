@@ -29,6 +29,7 @@
 
 namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
+use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Tools\Images;
 
 /**
@@ -69,17 +70,26 @@ abstract class PNG_Parts_Generator extends PNG_Generator {
 	protected $size;
 
 	/**
+	 * The site transients handler.
+	 *
+	 * @var Site_Transients
+	 */
+	private $site_transients;
+
+	/**
 	 * Creates a new generator.
 	 *
-	 * @param string        $parts_dir  The directory containing our image parts.
-	 * @param string[]      $part_types The valid part types for this generator.
-	 * @param int           $size       The width and height of the generated image (in pixels).
-	 * @param Images\Editor $images     The image editing handler.
+	 * @param string          $parts_dir       The directory containing our image parts.
+	 * @param string[]        $part_types      The valid part types for this generator.
+	 * @param int             $size            The width and height of the generated image (in pixels).
+	 * @param Images\Editor   $images          The image editing handler.
+	 * @param Site_Transients $site_transients The site transients handler.
 	 */
-	public function __construct( $parts_dir, array $part_types, $size, Images\Editor $images ) {
-		$this->parts_dir  = $parts_dir;
-		$this->part_types = $part_types;
-		$this->size       = $size;
+	public function __construct( $parts_dir, array $part_types, $size, Images\Editor $images, Site_Transients $site_transients ) {
+		$this->parts_dir       = $parts_dir;
+		$this->part_types      = $part_types;
+		$this->size            = $size;
+		$this->site_transients = $site_transients;
 
 		parent::__construct( $images );
 	}
@@ -96,7 +106,7 @@ abstract class PNG_Parts_Generator extends PNG_Generator {
 	 * @throws \RuntimeException The part files could not be found.
 	 */
 	protected function get_randomized_parts( callable $randomize ) {
-		return $this->randomize_parts( $this->locate_parts(), $randomize );
+		return $this->randomize_parts( $this->get_parts(), $randomize );
 	}
 
 	/**
@@ -161,49 +171,88 @@ abstract class PNG_Parts_Generator extends PNG_Generator {
 	}
 
 	/**
-	 * Finds all avatar parts images.
+	 * Retrieves the avatar parts image files.
 	 *
-	 * @since 2.3.0 Moved to PNG_Parts_Generator class. Parameter $parts removed.
+	 * @return array {
+	 *     An array of file lists indexed by the part name.
 	 *
-	 * @return array
+	 *     @type string[] $part An array of filenames (without the path).
+	 * }
 	 *
 	 * @throws \RuntimeException The part files could not be found.
 	 */
-	protected function locate_parts() {
+	protected function get_parts() {
 		if ( empty( $this->parts ) ) {
-			// Make sure the keys are in the correct order.
-			$this->parts = \array_fill_keys( $this->part_types, [] );
+			// Calculate transient key.
+			$basename = \basename( $this->parts_dir );
+			$key      = "avatar_privacy_{$basename}_png_parts";
 
-			// Keep copy of original array check if we found anything.
-			$empty = $this->parts;
+			// Check existence of transient.
+			$this->parts = $this->site_transients->get( $key );
+			if ( empty( $this->parts ) ) {
+				// Look at the actual filesystem.
+				$this->parts = $this->locate_parts();
 
-			// Iterate over the files in the parts directory.
-			$dir = new \FilesystemIterator(
-				$this->parts_dir,
-				\FilesystemIterator::KEY_AS_FILENAME |
-				\FilesystemIterator::CURRENT_AS_FILEINFO |
-				\FilesystemIterator::SKIP_DOTS
-			);
-			foreach ( $dir as $file => $info ) {
-				list( $partname, ) = \explode( '_', $file );
-				if ( isset( $this->parts[ $partname ] ) ) {
-					$this->parts[ $partname ][] = $file;
+				// Only store transient if we got a result.
+				if ( ! empty( $this->parts ) ) {
+					$this->site_transients->set( $key, $this->parts );
 				}
-			}
-
-			// Sort for consistency across servers.
-			foreach ( $this->parts as $key => $value ) {
-				\sort( $this->parts[ $key ], \SORT_NATURAL );
-			}
-
-			// Raise an exception if there were no files found.
-			if ( $this->parts === $empty ) {
-				unset( $this->parts );
-				throw new \RuntimeException( "Could not find parts images in {$this->parts_dir}" );
 			}
 		}
 
+		// Raise an exception if there were no files found.
+		if ( empty( $this->parts ) ) {
+			throw new \RuntimeException( "Could not find parts images in {$this->parts_dir}" );
+		}
+
 		return $this->parts;
+	}
+
+	/**
+	 * Finds all avatar parts images on the filesystem. Normally you should use
+	 * the cached function `get_parts()` instead.
+	 *
+	 * @since 2.3.0 Moved to PNG_Parts_Generator class. Parameter $parts removed.
+	 *              Made internal.
+	 *
+	 * @return array {
+	 *     An array of file lists indexed by the part name, or the empty array.
+	 *
+	 *     @type string[] $part An array of filenames (without the path).
+	 * }
+	 */
+	protected function locate_parts() {
+		// Make sure the keys are in the correct order.
+		$parts = \array_fill_keys( $this->part_types, [] );
+
+		// Keep copy of original array check if we found anything.
+		$empty = $parts;
+
+		// Iterate over the files in the parts directory.
+		$dir = new \FilesystemIterator(
+			$this->parts_dir,
+			\FilesystemIterator::KEY_AS_FILENAME |
+			\FilesystemIterator::CURRENT_AS_PATHNAME |
+			\FilesystemIterator::SKIP_DOTS
+		);
+		foreach ( $dir as $file => $path ) {
+			list( $partname, ) = \explode( '_', $file );
+			if ( isset( $parts[ $partname ] ) ) {
+				$parts[ $partname ][] = $file;
+			}
+		}
+
+		// Sort for consistency across servers.
+		foreach ( $parts as $key => $value ) {
+			\sort( $parts[ $key ], \SORT_NATURAL );
+		}
+
+		// Return an empty array if there were no files found.
+		if ( $parts === $empty ) {
+			$parts = [];
+		}
+
+		return $parts;
 	}
 
 	/**
@@ -247,7 +296,7 @@ abstract class PNG_Parts_Generator extends PNG_Generator {
 	 * }
 	 */
 	protected function get_parts_dimensions() {
-		$parts  = $this->locate_parts();
+		$parts  = $this->get_parts();
 		$bounds = [];
 
 		foreach ( $parts as $part_type => $file_list ) {

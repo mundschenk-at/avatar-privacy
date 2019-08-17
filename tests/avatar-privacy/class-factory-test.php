@@ -119,7 +119,7 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 			[ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons\Wavatar_Icon_Provider::class ],
 		];
 
-		$this->sut->shouldReceive( 'get_plugin_version' )->once()->with( AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $version );
+		$this->sut->shouldReceive( 'get_plugin_version' )->once()->with( \AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $version );
 		$this->sut->shouldReceive( 'get_plugin_integrations' )->once()->andReturn( $integrations );
 		$this->sut->shouldReceive( 'get_default_icons' )->once()->andReturn( $default_icons );
 

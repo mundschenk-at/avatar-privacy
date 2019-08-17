@@ -109,7 +109,7 @@ class WPDiscuz_Integration implements Plugin_Integration {
 	 */
 	public function print_gravatar_checkbox() {
 		// Include the partial.
-		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/partials/wpdiscuz/use-gravatar.php';
+		require \AVATAR_PRIVACY_PLUGIN_PATH . '/public/partials/wpdiscuz/use-gravatar.php';
 	}
 
 
@@ -118,7 +118,7 @@ class WPDiscuz_Integration implements Plugin_Integration {
 	 */
 	public function enqeue_styles_and_scripts() {
 		// Set up resource file information.
-		$url    = \plugin_dir_url( AVATAR_PRIVACY_PLUGIN_FILE );
+		$url    = \plugin_dir_url( \AVATAR_PRIVACY_PLUGIN_FILE );
 		$suffix = SCRIPT_DEBUG ? '' : '.min';
 
 		// Set up the localized script data.

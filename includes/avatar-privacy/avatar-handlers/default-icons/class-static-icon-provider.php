@@ -69,6 +69,6 @@ class Static_Icon_Provider extends Abstract_Icon_Provider {
 	public function get_icon_url( $identity, $size ) {
 		$use_size = ( $size > 64 ) ? '128' : '64';
 
-		return plugins_url( "public/images/{$this->icon_basename}-{$use_size}.png", AVATAR_PRIVACY_PLUGIN_FILE );
+		return plugins_url( "public/images/{$this->icon_basename}-{$use_size}.png", \AVATAR_PRIVACY_PLUGIN_FILE );
 	}
 }

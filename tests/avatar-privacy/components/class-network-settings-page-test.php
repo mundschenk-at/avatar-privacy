@@ -372,7 +372,7 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		$version    = '9.9.9';
 
 		$this->core->shouldReceive( 'get_version' )->once()->andReturn( $version );
-		Functions\expect( 'plugins_url' )->once()->with( 'admin/css/settings.css', AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $plugin_url );
+		Functions\expect( 'plugins_url' )->once()->with( 'admin/css/settings.css', \AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $plugin_url );
 		Functions\expect( 'wp_enqueue_style' )->once()->with( 'avatar-privacy-settings', $plugin_url, [], $version, 'all' );
 
 		$this->assertNull( $this->sut->print_styles() );

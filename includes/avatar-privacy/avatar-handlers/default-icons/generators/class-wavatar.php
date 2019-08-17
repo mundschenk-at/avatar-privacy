@@ -28,6 +28,7 @@
 namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
 use Avatar_Privacy\Tools\Images;
+use Avatar_Privacy\Data_Storage\Site_Transients;
 
 /**
  * A wavatar generator.
@@ -64,14 +65,16 @@ class Wavatar extends PNG_Parts_Generator {
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
 	 *
-	 * @param Images\Editor $images      The image editing handler.
+	 * @param Images\Editor   $images          The image editing handler.
+	 * @param Site_Transients $site_transients The site transients handler.
 	 */
-	public function __construct( Images\Editor $images ) {
+	public function __construct( Images\Editor $images, Site_Transients $site_transients ) {
 		parent::__construct(
-			\dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/images/wavatars',
+			\AVATAR_PRIVACY_PLUGIN_PATH . '/public/images/wavatars',
 			[ 'fade', 'mask', 'shine', 'brow', 'eyes', 'pupils', 'mouth' ],
 			80,
-			$images
+			$images,
+			$site_transients
 		);
 	}
 

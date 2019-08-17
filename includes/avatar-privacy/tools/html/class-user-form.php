@@ -227,7 +227,7 @@ class User_Form {
 		$show_description = $args['show_descriptions'];
 
 		// Include partial.
-		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . $this->user_avatar['partial'];
+		require \AVATAR_PRIVACY_PLUGIN_PATH . $this->user_avatar['partial'];
 	}
 
 	/**
@@ -279,7 +279,7 @@ class User_Form {
 		$show_description = $args['show_descriptions'];
 
 		// Include partial.
-		require \dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . $partial;
+		require \AVATAR_PRIVACY_PLUGIN_PATH . $partial;
 	}
 
 	/**

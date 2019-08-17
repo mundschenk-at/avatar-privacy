@@ -37,7 +37,7 @@ use org\bovigo\vfs\vfsStreamDirectory;
 
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Monster_ID;
 
-use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator;
+use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Tools\Images\Editor;
 
 
@@ -59,13 +59,6 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var Monster_ID
 	 */
 	private $sut;
-
-	/**
-	 * The Images\Editor mock.
-	 *
-	 * @var Editor
-	 */
-	private $editor;
 
 	/**
 	 * The full path of the folder containing the real images.
@@ -113,13 +106,11 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->real_image_path = \dirname( \dirname( \dirname( \dirname( \dirname( __DIR__ ) ) ) ) ) . '/public/images/monster-id';
 
 		// Helper mocks.
-		$this->editor = m::mock( Editor::class );
+		$editor     = m::mock( Editor::class );
+		$transients = m::mock( Site_Transients::class );
 
 		// Partially mock system under test.
-		$this->sut = m::mock( Monster_ID::class )->makePartial()->shouldAllowMockingProtectedMethods();
-
-		// Manually invoke the constructor as it is protected.
-		$this->invokeMethod( $this->sut, '__construct', [ $this->editor ] );
+		$this->sut = m::mock( Monster_ID::class, [ $editor, $transients ] )->makePartial()->shouldAllowMockingProtectedMethods();
 
 		// Override the parts directory.
 		$this->setValue( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/monster-id' ) );
@@ -129,12 +120,16 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::__construct.
 	 *
 	 * @covers ::__construct
+	 *
+	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator::__construct
+	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Parts_Generator::__construct
 	 */
 	public function test_constructor() {
-		$editor = m::mock( Editor::class );
-		$mock   = m::mock( Monster_ID::class )->makePartial()->shouldAllowMockingProtectedMethods();
+		$editor     = m::mock( Editor::class );
+		$transients = m::mock( Site_Transients::class );
+		$mock       = m::mock( Monster_ID::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $mock, '__construct', [ $editor ] );
+		$this->invokeMethod( $mock, '__construct', [ $editor, $transients ] );
 
 		// An attribute of the PNG_Generator superclass.
 		$this->assertAttributeSame( $editor, 'images', $mock );
@@ -165,7 +160,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'create_image_from_file' )->once()->with( vfsStream::url( 'root/plugin/public/images/monster-id/back.png' ) )->andReturn( $fake_image );
 		$this->sut->shouldReceive( 'create_image_from_file' )->times( $parts_number )->with( m::type( 'string' ) )->andReturn( $fake_image );
 
-		$this->sut->shouldReceive( 'image_colorize' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'numeric' ), m::type( 'numeric' ), m::type( 'string' ) );
+		$this->sut->shouldReceive( 'colorize_image' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'numeric' ), m::type( 'numeric' ), m::type( 'string' ) );
 		$this->sut->shouldReceive( 'apply_image' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'resource' ) );
 
 		$this->sut->shouldReceive( 'get_resized_image_data' )->once()->with( m::type( 'resource' ), $size )->andReturn( $data );
@@ -198,7 +193,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'create_image_from_file' )->once()->with( vfsStream::url( 'root/plugin/public/images/monster-id/back.png' ) )->andThrow( \RuntimeException::class );
 
-		$this->sut->shouldReceive( 'image_colorize' )->never();
+		$this->sut->shouldReceive( 'colorize_image' )->never();
 		$this->sut->shouldReceive( 'apply_image' )->never();
 		$this->sut->shouldReceive( 'get_resized_image_data' )->never();
 
@@ -234,7 +229,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'create_image_from_file' )->once()->with( vfsStream::url( 'root/plugin/public/images/monster-id/mouth_6.png' ) )->andThrow( \RuntimeException::class );
 		$this->sut->shouldReceive( 'create_image_from_file' )->times( $parts_number - 1 )->with( m::type( 'string' ) )->andReturn( $fake_image, $fake_image, $fake_image, false );
 
-		$this->sut->shouldReceive( 'image_colorize' )->times( $parts_number - 1 )->with( m::type( 'resource' ), m::type( 'numeric' ), m::type( 'numeric' ), m::type( 'string' ) );
+		$this->sut->shouldReceive( 'colorize_image' )->times( $parts_number - 1 )->with( m::type( 'resource' ), m::type( 'numeric' ), m::type( 'numeric' ), m::type( 'string' ) );
 		$this->sut->shouldReceive( 'apply_image' )->times( $parts_number - 1 )->with( m::type( 'resource' ), m::type( 'resource' ) );
 
 		$this->sut->shouldReceive( 'get_resized_image_data' )->never();
@@ -243,13 +238,13 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::image_colorize.
+	 * Tests ::colorize_image.
 	 *
-	 * @covers ::image_colorize
+	 * @covers ::colorize_image
 	 *
 	 * @uses Scriptura\Color\Helpers\HSLtoRGB
 	 */
-	public function test_image_colorize() {
+	public function test_colorize_image() {
 		// Input.
 		$hue        = 66;
 		$saturation = 70;
@@ -258,7 +253,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 		// The image.
 		$resource = \imageCreateFromPNG( "{$this->real_image_path}/{$part}" );
 
-		$result = $this->sut->image_colorize( $resource, $hue, $saturation, $part );
+		$result = $this->sut->colorize_image( $resource, $hue, $saturation, $part );
 
 		$this->assertInternalType( 'resource', $result );
 
@@ -267,13 +262,13 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::image_colorize.
+	 * Tests ::colorize_image.
 	 *
-	 * @covers ::image_colorize
+	 * @covers ::colorize_image
 	 *
 	 * @uses Scriptura\Color\Helpers\HSLtoRGB
 	 */
-	public function test_image_colorize_no_optimization() {
+	public function test_colorize_image_no_optimization() {
 		// Input.
 		$hue        = 66;
 		$saturation = 70;
@@ -283,7 +278,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 		$size     = 200;
 		$resource = \imageCreate( $size, $size );
 
-		$result = $this->sut->image_colorize( $resource, $hue, $saturation, $part );
+		$result = $this->sut->colorize_image( $resource, $hue, $saturation, $part );
 
 		$this->assertInternalType( 'resource', $result );
 

@@ -244,10 +244,12 @@ class Core {
 	/**
 	 * Retrieves the full path to the main plugin file.
 	 *
+	 * @deprecated 2.3.0 Use AVATAR_PRIVACY_PLUGIN_FILE instead.
+	 *
 	 * @return string
 	 */
 	public function get_plugin_file() {
-		return AVATAR_PRIVACY_PLUGIN_FILE;
+		return \AVATAR_PRIVACY_PLUGIN_FILE;
 	}
 
 	/**
@@ -263,7 +265,7 @@ class Core {
 		// Force a re-read if the cached settings do not appear to be from the current version.
 		if ( empty( $this->settings ) || empty( $this->settings[ Options::INSTALLED_VERSION ] )
 			|| $this->version !== $this->settings[ Options::INSTALLED_VERSION ] || $force ) {
-			$this->settings = $this->options->get( self::SETTINGS_NAME, $this->settings_template->get_defaults() );
+			$this->settings = (array) $this->options->get( self::SETTINGS_NAME, $this->settings_template->get_defaults() );
 		}
 
 		return $this->settings;
@@ -629,7 +631,9 @@ class Core {
 	 *
 	 * @param  int $user_id The user ID.
 	 *
-	 * @return string[] {
+	 * @return array {
+	 *     An avatar definition, or the empty array.
+	 *
 	 *     @type string $file The local filename.
 	 *     @type string $type The MIME type.
 	 * }
@@ -654,6 +658,11 @@ class Core {
 			return $avatar;
 		}
 
-		return \get_user_meta( $user_id, self::USER_AVATAR_META_KEY, true );
+		$avatar = \get_user_meta( $user_id, self::USER_AVATAR_META_KEY, true );
+		if ( empty( $avatar ) ) {
+			$avatar = [];
+		}
+
+		return $avatar;
 	}
 }

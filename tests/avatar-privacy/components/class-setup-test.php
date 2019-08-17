@@ -176,7 +176,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::run
 	 */
 	public function test_run() {
-		Functions\expect( 'register_deactivation_hook' )->once()->with( AVATAR_PRIVACY_PLUGIN_FILE, [ $this->sut, 'deactivate' ] );
+		Functions\expect( 'register_deactivation_hook' )->once()->with( \AVATAR_PRIVACY_PLUGIN_FILE, [ $this->sut, 'deactivate' ] );
 
 		Actions\expectAdded( 'plugins_loaded' )->once()->with( [ $this->sut, 'update_check' ] );
 

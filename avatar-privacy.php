@@ -41,6 +41,7 @@ if ( ! \defined( 'ABSPATH' ) || ! \defined( 'WPINC' ) ) {
 }
 
 // Make plugin file path available globally.
+const AVATAR_PRIVACY_PLUGIN_PATH = __DIR__;
 const AVATAR_PRIVACY_PLUGIN_FILE = __FILE__;
 
 // Initialize autoloader.

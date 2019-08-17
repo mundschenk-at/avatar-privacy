@@ -27,8 +27,7 @@
 namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
 use Avatar_Privacy\Tools\Images;
-
-use function Scriptura\Color\Helpers\HSLtoRGB;
+use Avatar_Privacy\Data_Storage\Site_Transients;
 
 /**
  * A bird avatar generator for the images created by David Revoy.
@@ -41,14 +40,16 @@ class Bird_Avatar extends PNG_Parts_Generator {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param Images\Editor $images The image editing handler.
+	 * @param Images\Editor   $images          The image editing handler.
+	 * @param Site_Transients $site_transients The site transients handler.
 	 */
-	public function __construct( Images\Editor $images ) {
+	public function __construct( Images\Editor $images, Site_Transients $site_transients ) {
 		parent::__construct(
-			\dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/images/birds',
+			\AVATAR_PRIVACY_PLUGIN_PATH . '/public/images/birds',
 			[ 'tail', 'hoop', 'body', 'wing', 'eyes', 'beak', 'accessoire' ],
 			512,
-			$images
+			$images,
+			$site_transients
 		);
 	}
 

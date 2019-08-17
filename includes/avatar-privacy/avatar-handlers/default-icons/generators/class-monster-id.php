@@ -29,6 +29,7 @@
 namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
 use Avatar_Privacy\Tools\Images;
+use Avatar_Privacy\Data_Storage\Site_Transients;
 
 use function Scriptura\Color\Helpers\HSLtoRGB;
 
@@ -227,9 +228,10 @@ class Monster_ID extends PNG_Parts_Generator {
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
 	 *
-	 * @param Images\Editor $images The image editing handler.
+	 * @param Images\Editor   $images          The image editing handler.
+	 * @param Site_Transients $site_transients The site transients handler.
 	 */
-	public function __construct( Images\Editor $images ) {
+	public function __construct( Images\Editor $images, Site_Transients $site_transients ) {
 		// Needed for PHP 5.6 compatibility.
 		$this->same_color_parts     = self::SAME_COLOR_PARTS;
 		$this->specific_color_parts = self::SPECIFIC_COLOR_PARTS;
@@ -237,10 +239,11 @@ class Monster_ID extends PNG_Parts_Generator {
 		$this->part_optimization    = self::PART_OPTIMIZATION;
 
 		parent::__construct(
-			\dirname( AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/images/monster-id',
+			\AVATAR_PRIVACY_PLUGIN_PATH . '/public/images/monster-id',
 			[ 'legs', 'hair', 'arms', 'body', 'eyes', 'mouth' ],
 			120,
-			$images
+			$images,
+			$site_transients
 		);
 	}
 
@@ -272,7 +275,7 @@ class Monster_ID extends PNG_Parts_Generator {
 
 			// Randomize colors.
 			$max_rand   = \mt_getrandmax();
-			$hue        = ( ( \mt_rand( 1, $max_rand ) - 1 ) / $max_rand ) * self::DEGREE; // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand -- real_halfopen.
+			$hue        = ( \mt_rand( 1, $max_rand ) - 1 ) / $max_rand * self::DEGREE; // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand -- real_halfopen.
 			$saturation = \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT; // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
 
 			// Add parts.
@@ -280,18 +283,16 @@ class Monster_ID extends PNG_Parts_Generator {
 				$im = $this->create_image_from_file( "{$this->parts_dir}/{$file}" );
 
 				// Randomly color body parts.
-				if ( 'body' === $part ) {
-					$this->image_colorize( $im, $hue, $saturation, $file );
-				} elseif ( isset( $this->same_color_parts[ $file ] ) ) {
-					$this->image_colorize( $im, $hue, $saturation, $file );
+				if ( 'body' === $part || isset( $this->same_color_parts[ $file ] ) ) {
+					$this->colorize_image( $im, $hue, $saturation, $file );
 				} elseif ( isset( $this->random_color_parts[ $file ] ) ) {
 					// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
-					$this->image_colorize( $im, ( \mt_rand( 1, $max_rand ) - 1 ) / $max_rand * self::DEGREE, \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
+					$this->colorize_image( $im, ( \mt_rand( 1, $max_rand ) - 1 ) / $max_rand * self::DEGREE, \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
 				} elseif ( isset( $this->specific_color_parts[ $file ] ) ) {
 					$low  = $this->specific_color_parts[ $file ][0] * 10000;
 					$high = $this->specific_color_parts[ $file ][1] * 10000;
 					// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
-					$this->image_colorize( $im, \mt_rand( $low, $high ) / 10000 * self::DEGREE, \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
+					$this->colorize_image( $im, \mt_rand( $low, $high ) / 10000 * self::DEGREE, \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
 				}
 
 				$this->apply_image( $monster, $im );
@@ -312,6 +313,7 @@ class Monster_ID extends PNG_Parts_Generator {
 	 * Adds color to the given image.
 	 *
 	 * @since 2.1.0 Visibility changed to protected.
+	 * @since 2.3.0 Name changed to colorize_image() for consistency.
 	 *
 	 * @param  resource $image      The image.
 	 * @param  int      $hue        The hue (0-360).
@@ -320,7 +322,7 @@ class Monster_ID extends PNG_Parts_Generator {
 	 *
 	 * @return resource             The image, for chaining.
 	 */
-	protected function image_colorize( $image, $hue = 360, $saturation = 100, $part = '' ) {
+	protected function colorize_image( $image, $hue = 360, $saturation = 100, $part = '' ) {
 		$imgw = \imageSX( $image );
 		$imgh = \imageSY( $image );
 
