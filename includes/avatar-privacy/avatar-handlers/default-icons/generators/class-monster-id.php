@@ -275,7 +275,7 @@ class Monster_ID extends PNG_Parts_Generator {
 
 			// Randomize colors.
 			$max_rand   = \mt_getrandmax();
-			$hue        = ( ( \mt_rand( 1, $max_rand ) - 1 ) / $max_rand ) * self::DEGREE; // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand -- real_halfopen.
+			$hue        = ( \mt_rand( 1, $max_rand ) - 1 ) / $max_rand * self::DEGREE; // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand -- real_halfopen.
 			$saturation = \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT; // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
 
 			// Add parts.
