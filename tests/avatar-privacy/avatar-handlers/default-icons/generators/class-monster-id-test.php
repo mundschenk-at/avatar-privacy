@@ -160,7 +160,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'create_image_from_file' )->once()->with( vfsStream::url( 'root/plugin/public/images/monster-id/back.png' ) )->andReturn( $fake_image );
 		$this->sut->shouldReceive( 'create_image_from_file' )->times( $parts_number )->with( m::type( 'string' ) )->andReturn( $fake_image );
 
-		$this->sut->shouldReceive( 'image_colorize' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'numeric' ), m::type( 'numeric' ), m::type( 'string' ) );
+		$this->sut->shouldReceive( 'colorize_image' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'numeric' ), m::type( 'numeric' ), m::type( 'string' ) );
 		$this->sut->shouldReceive( 'apply_image' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'resource' ) );
 
 		$this->sut->shouldReceive( 'get_resized_image_data' )->once()->with( m::type( 'resource' ), $size )->andReturn( $data );
@@ -193,7 +193,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'create_image_from_file' )->once()->with( vfsStream::url( 'root/plugin/public/images/monster-id/back.png' ) )->andThrow( \RuntimeException::class );
 
-		$this->sut->shouldReceive( 'image_colorize' )->never();
+		$this->sut->shouldReceive( 'colorize_image' )->never();
 		$this->sut->shouldReceive( 'apply_image' )->never();
 		$this->sut->shouldReceive( 'get_resized_image_data' )->never();
 
@@ -229,7 +229,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'create_image_from_file' )->once()->with( vfsStream::url( 'root/plugin/public/images/monster-id/mouth_6.png' ) )->andThrow( \RuntimeException::class );
 		$this->sut->shouldReceive( 'create_image_from_file' )->times( $parts_number - 1 )->with( m::type( 'string' ) )->andReturn( $fake_image, $fake_image, $fake_image, false );
 
-		$this->sut->shouldReceive( 'image_colorize' )->times( $parts_number - 1 )->with( m::type( 'resource' ), m::type( 'numeric' ), m::type( 'numeric' ), m::type( 'string' ) );
+		$this->sut->shouldReceive( 'colorize_image' )->times( $parts_number - 1 )->with( m::type( 'resource' ), m::type( 'numeric' ), m::type( 'numeric' ), m::type( 'string' ) );
 		$this->sut->shouldReceive( 'apply_image' )->times( $parts_number - 1 )->with( m::type( 'resource' ), m::type( 'resource' ) );
 
 		$this->sut->shouldReceive( 'get_resized_image_data' )->never();
@@ -238,13 +238,13 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::image_colorize.
+	 * Tests ::colorize_image.
 	 *
-	 * @covers ::image_colorize
+	 * @covers ::colorize_image
 	 *
 	 * @uses Scriptura\Color\Helpers\HSLtoRGB
 	 */
-	public function test_image_colorize() {
+	public function test_colorize_image() {
 		// Input.
 		$hue        = 66;
 		$saturation = 70;
@@ -253,7 +253,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 		// The image.
 		$resource = \imageCreateFromPNG( "{$this->real_image_path}/{$part}" );
 
-		$result = $this->sut->image_colorize( $resource, $hue, $saturation, $part );
+		$result = $this->sut->colorize_image( $resource, $hue, $saturation, $part );
 
 		$this->assertInternalType( 'resource', $result );
 
@@ -262,13 +262,13 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::image_colorize.
+	 * Tests ::colorize_image.
 	 *
-	 * @covers ::image_colorize
+	 * @covers ::colorize_image
 	 *
 	 * @uses Scriptura\Color\Helpers\HSLtoRGB
 	 */
-	public function test_image_colorize_no_optimization() {
+	public function test_colorize_image_no_optimization() {
 		// Input.
 		$hue        = 66;
 		$saturation = 70;
@@ -278,7 +278,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 		$size     = 200;
 		$resource = \imageCreate( $size, $size );
 
-		$result = $this->sut->image_colorize( $resource, $hue, $saturation, $part );
+		$result = $this->sut->colorize_image( $resource, $hue, $saturation, $part );
 
 		$this->assertInternalType( 'resource', $result );
 

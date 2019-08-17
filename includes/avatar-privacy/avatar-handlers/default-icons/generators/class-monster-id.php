@@ -284,15 +284,15 @@ class Monster_ID extends PNG_Parts_Generator {
 
 				// Randomly color body parts.
 				if ( 'body' === $part || isset( $this->same_color_parts[ $file ] ) ) {
-					$this->image_colorize( $im, $hue, $saturation, $file );
+					$this->colorize_image( $im, $hue, $saturation, $file );
 				} elseif ( isset( $this->random_color_parts[ $file ] ) ) {
 					// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
-					$this->image_colorize( $im, ( \mt_rand( 1, $max_rand ) - 1 ) / $max_rand * self::DEGREE, \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
+					$this->colorize_image( $im, ( \mt_rand( 1, $max_rand ) - 1 ) / $max_rand * self::DEGREE, \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
 				} elseif ( isset( $this->specific_color_parts[ $file ] ) ) {
 					$low  = $this->specific_color_parts[ $file ][0] * 10000;
 					$high = $this->specific_color_parts[ $file ][1] * 10000;
 					// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
-					$this->image_colorize( $im, \mt_rand( $low, $high ) / 10000 * self::DEGREE, \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
+					$this->colorize_image( $im, \mt_rand( $low, $high ) / 10000 * self::DEGREE, \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
 				}
 
 				$this->apply_image( $monster, $im );
@@ -313,6 +313,7 @@ class Monster_ID extends PNG_Parts_Generator {
 	 * Adds color to the given image.
 	 *
 	 * @since 2.1.0 Visibility changed to protected.
+	 * @since 2.3.0 Name changed to colorize_image() for consistency.
 	 *
 	 * @param  resource $image      The image.
 	 * @param  int      $hue        The hue (0-360).
@@ -321,7 +322,7 @@ class Monster_ID extends PNG_Parts_Generator {
 	 *
 	 * @return resource             The image, for chaining.
 	 */
-	protected function image_colorize( $image, $hue = 360, $saturation = 100, $part = '' ) {
+	protected function colorize_image( $image, $hue = 360, $saturation = 100, $part = '' ) {
 		$imgw = \imageSX( $image );
 		$imgh = \imageSY( $image );
 
