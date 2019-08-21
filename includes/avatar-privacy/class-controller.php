@@ -29,6 +29,7 @@ namespace Avatar_Privacy;
 
 use Avatar_Privacy\Components\Avatar_Handling;
 use Avatar_Privacy\Components\Block_Editor;
+use Avatar_Privacy\Components\Command_Line_Interface;
 use Avatar_Privacy\Components\Comments;
 use Avatar_Privacy\Components\Image_Proxy;
 use Avatar_Privacy\Components\Integrations;
@@ -65,19 +66,20 @@ class Controller {
 	/**
 	 * Creates an instance of the plugin controller.
 	 *
-	 * @param Core                  $core             The core API.
-	 * @param Setup                 $setup            The (de-)activation handling.
-	 * @param Image_Proxy           $image_proxy      The image handler.
-	 * @param Avatar_Handling       $avatars          The avatar handler.
-	 * @param Comments              $comments         The comments handler.
-	 * @param User_Profile          $profile          The user profile handler.
-	 * @param Settings_Page         $settings         The admin settings handler.
-	 * @param Network_Settings_Page $network_settings The network settings handler.
-	 * @param Privacy_Tools         $privacy          The privacy tools handler.
-	 * @param REST_API              $rest_api         The REST API handler.
-	 * @param Integrations          $integrations     The third-party plugin integrations handler.
-	 * @param Shortcodes            $shortcodes       The shortcodes handler.
-	 * @param Block_Editor          $block_editor     The block editor handler.
+	 * @param Core                   $core             The core API.
+	 * @param Setup                  $setup            The (de-)activation handling.
+	 * @param Image_Proxy            $image_proxy      The image handler.
+	 * @param Avatar_Handling        $avatars          The avatar handler.
+	 * @param Comments               $comments         The comments handler.
+	 * @param User_Profile           $profile          The user profile handler.
+	 * @param Settings_Page          $settings         The admin settings handler.
+	 * @param Network_Settings_Page  $network_settings The network settings handler.
+	 * @param Privacy_Tools          $privacy          The privacy tools handler.
+	 * @param REST_API               $rest_api         The REST API handler.
+	 * @param Integrations           $integrations     The third-party plugin integrations handler.
+	 * @param Shortcodes             $shortcodes       The shortcodes handler.
+	 * @param Block_Editor           $block_editor     The block editor handler.
+	 * @param Command_Line_Interface $cli             The CLI handler.
 	 */
 	public function __construct(
 		Core $core,
@@ -92,7 +94,8 @@ class Controller {
 		REST_API $rest_api,
 		Integrations $integrations,
 		Shortcodes $shortcodes,
-		Block_Editor $block_editor
+		Block_Editor $block_editor,
+		Command_Line_Interface $cli
 	) {
 		$this->core         = $core;
 		$this->components[] = $setup;
@@ -107,6 +110,7 @@ class Controller {
 		$this->components[] = $integrations;
 		$this->components[] = $shortcodes;
 		$this->components[] = $block_editor;
+		$this->components[] = $cli;
 	}
 
 	/**

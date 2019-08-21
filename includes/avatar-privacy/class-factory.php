@@ -30,9 +30,11 @@ use Dice\Dice;
 
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Component;
+use Avatar_Privacy\CLI;
 use Avatar_Privacy\Settings;
 
 use Avatar_Privacy\Components\Block_Editor;
+use Avatar_Privacy\Components\Command_Line_Interface;
 use Avatar_Privacy\Components\Shortcodes;
 use Avatar_Privacy\Components\User_Profile;
 
@@ -139,6 +141,9 @@ class Factory extends Dice {
 
 			// Components.
 			Component::class                                => self::SHARED,
+			Command_Line_Interface::class                   => [
+				'constructParams' => [ $this->get_cli_commands() ],
+			],
 			Integrations::class                             => [
 				'constructParams' => [ $this->get_plugin_integrations() ],
 			],
@@ -372,6 +377,24 @@ class Factory extends Dice {
 			[ 'instance' => BBPress_Integration::class ],
 			[ 'instance' => WPDiscuz_Integration::class ],
 			[ 'instance' => WP_User_Manager_Integration::class ],
+		];
+	}
+
+	/**
+	 * Retrieves a list of CLI commands.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @return array {
+	 *     An array of `Command` instances in `Dice` syntax.
+	 *
+	 *     @type array {
+	 *         @type string $instance The classname.
+	 *     }
+	 * }
+	 */
+	protected function get_cli_commands() {
+		return [
 		];
 	}
 }
