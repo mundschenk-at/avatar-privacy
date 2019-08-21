@@ -26,19 +26,7 @@
 
 namespace Avatar_Privacy;
 
-use Avatar_Privacy\Components\Avatar_Handling;
-use Avatar_Privacy\Components\Block_Editor;
-use Avatar_Privacy\Components\Command_Line_Interface;
-use Avatar_Privacy\Components\Comments;
-use Avatar_Privacy\Components\Image_Proxy;
-use Avatar_Privacy\Components\Integrations;
-use Avatar_Privacy\Components\Network_Settings_Page;
-use Avatar_Privacy\Components\Privacy_Tools;
-use Avatar_Privacy\Components\REST_API;
-use Avatar_Privacy\Components\Setup;
-use Avatar_Privacy\Components\Settings_Page;
-use Avatar_Privacy\Components\Shortcodes;
-use Avatar_Privacy\Components\User_Profile;
+use Avatar_Privacy\Component;
 
 /**
  * Initialize Avatar Privacy plugin.
@@ -51,7 +39,7 @@ class Controller {
 	/**
 	 * The settings page handler.
 	 *
-	 * @var Avatar_Privacy\Component[]
+	 * @var Component[]
 	 */
 	private $components = [];
 
@@ -65,51 +53,14 @@ class Controller {
 	/**
 	 * Creates an instance of the plugin controller.
 	 *
-	 * @param Core                   $core             The core API.
-	 * @param Setup                  $setup            The (de-)activation handling.
-	 * @param Image_Proxy            $image_proxy      The image handler.
-	 * @param Avatar_Handling        $avatars          The avatar handler.
-	 * @param Comments               $comments         The comments handler.
-	 * @param User_Profile           $profile          The user profile handler.
-	 * @param Settings_Page          $settings         The admin settings handler.
-	 * @param Network_Settings_Page  $network_settings The network settings handler.
-	 * @param Privacy_Tools          $privacy          The privacy tools handler.
-	 * @param REST_API               $rest_api         The REST API handler.
-	 * @param Integrations           $integrations     The third-party plugin integrations handler.
-	 * @param Shortcodes             $shortcodes       The shortcodes handler.
-	 * @param Block_Editor           $block_editor     The block editor handler.
-	 * @param Command_Line_Interface $cli             The CLI handler.
+	 * @since 2.3.0 Component parameters replaced with factory-cofigured array.
+	 *
+	 * @param Core        $core       The core API.
+	 * @param Component[] $components An array of plugin components.
 	 */
-	public function __construct(
-		Core $core,
-		Setup $setup,
-		Image_Proxy $image_proxy,
-		Avatar_Handling $avatars,
-		Comments $comments,
-		User_Profile $profile,
-		Settings_Page $settings,
-		Network_Settings_Page $network_settings,
-		Privacy_Tools $privacy,
-		REST_API $rest_api,
-		Integrations $integrations,
-		Shortcodes $shortcodes,
-		Block_Editor $block_editor,
-		Command_Line_Interface $cli
-	) {
-		$this->core         = $core;
-		$this->components[] = $setup;
-		$this->components[] = $avatars;
-		$this->components[] = $image_proxy;
-		$this->components[] = $comments;
-		$this->components[] = $profile;
-		$this->components[] = $settings;
-		$this->components[] = $network_settings;
-		$this->components[] = $privacy;
-		$this->components[] = $rest_api;
-		$this->components[] = $integrations;
-		$this->components[] = $shortcodes;
-		$this->components[] = $block_editor;
-		$this->components[] = $cli;
+	public function __construct( Core $core, array $components ) {
+		$this->core       = $core;
+		$this->components = $components;
 	}
 
 	/**
