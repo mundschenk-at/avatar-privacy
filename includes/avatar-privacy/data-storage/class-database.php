@@ -78,11 +78,13 @@ class Database {
 	/**
 	 * Retrieves the table name to use (for a given site or the current site).
 	 *
+	 * @since 2.3.0 Visibility changed to public.
+	 *
 	 * @param int|null $site_id Optional. The site ID. Null means the current $blog_id. Default null.
 	 *
 	 * @return string
 	 */
-	protected function get_table_name( $site_id = null ) {
+	public function get_table_name( $site_id = null ) {
 		return $this->get_table_prefix( $site_id ) . self::TABLE_BASENAME;
 	}
 
@@ -103,9 +105,11 @@ class Database {
 	 * Determines whether this (multisite) installation uses the global table.
 	 * Result is ignored for single-site installations.
 	 *
+	 * @since 2.3.0 Visibility changed to public.
+	 *
 	 * @return bool
 	 */
-	protected function use_global_table() {
+	public function use_global_table() {
 		$global_table = $this->network_options->get( Network_Options::USE_GLOBAL_TABLE, false );
 
 		/**
