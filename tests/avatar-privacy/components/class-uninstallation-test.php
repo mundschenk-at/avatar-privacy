@@ -268,6 +268,7 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'delete_metadata' )->once()->with( 'user', 0, Core::GRAVATAR_USE_META_KEY, null, true );
 		Functions\expect( 'delete_metadata' )->once()->with( 'user', 0, Core::ALLOW_ANONYMOUS_META_KEY, null, true );
 		Functions\expect( 'delete_metadata' )->once()->with( 'user', 0, Core::USER_AVATAR_META_KEY, null, true );
+		Functions\expect( 'delete_metadata' )->once()->with( 'user', 0, Core::EMAIL_HASH_META_KEY, null, true );
 
 		$this->assertNull( $this->sut->delete_user_meta() );
 	}

@@ -214,6 +214,7 @@ class Uninstallation implements \Avatar_Privacy\Component {
 		\delete_metadata( 'user', 0, Core::GRAVATAR_USE_META_KEY, null, true );
 		\delete_metadata( 'user', 0, Core::ALLOW_ANONYMOUS_META_KEY, null, true );
 		\delete_metadata( 'user', 0, Core::USER_AVATAR_META_KEY, null, true );
+		\delete_metadata( 'user', 0, Core::EMAIL_HASH_META_KEY, null, true );
 	}
 
 	/**
