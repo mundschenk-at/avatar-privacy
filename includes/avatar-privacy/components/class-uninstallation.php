@@ -114,6 +114,25 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	 * @return void
 	 */
 	public function run() {
+		// Enqueue necessary tasks.
+		$this->enqueue_cleanup_tasks();
+
+		// Clean up the site-specific artifacts.
+		$this->do_site_cleanups();
+
+		/**
+		 * Cleans up any remaining global artifacts.
+		 */
+		\do_action( 'avatar_privacy_uninstallation_global' );
+	}
+
+	/**
+	 * Enqeueus the necessary uninstallation tasks to the `avatar_privacy_uninstallation_site`
+	 * and `avatar_privacy_uninstallation_global` actions.
+	 *
+	 * @since 2.3.0
+	 */
+	public function enqueue_cleanup_tasks() {
 		// Delete cached files.
 		\add_action( 'avatar_privacy_uninstallation_global', [ $this->file_cache, 'invalidate' ], 10, 0 );
 
@@ -133,14 +152,6 @@ class Uninstallation implements \Avatar_Privacy\Component {
 
 		// Drop all our tables.
 		\add_action( 'avatar_privacy_uninstallation_site', [ $this->database, 'drop_table' ], 12, 1 );
-
-		// Clean up the site-specific artifacts.
-		$this->do_site_cleanups();
-
-		/**
-		 * Cleans up any remaining global artifacts.
-		 */
-		\do_action( 'avatar_privacy_uninstallation_global' );
 	}
 
 	/**

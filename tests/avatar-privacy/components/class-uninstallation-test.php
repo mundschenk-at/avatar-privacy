@@ -165,6 +165,20 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::run
 	 */
 	public function test_run() {
+		$this->sut->shouldReceive( 'enqueue_cleanup_tasks' )->once();
+		$this->sut->shouldReceive( 'do_site_cleanups' )->once();
+
+		Actions\expectDone( 'avatar_privacy_uninstallation_global' )->once();
+
+		$this->assertNull( $this->sut->run() );
+	}
+
+	/**
+	 * Tests ::enqueue_cleanup_tasks.
+	 *
+	 * @covers ::enqueue_cleanup_tasks
+	 */
+	public function test_enqeueu_cleanup_tasks() {
 		Actions\expectAdded( 'avatar_privacy_uninstallation_global' )->once()->with( [ $this->file_cache, 'invalidate' ], m::type( 'int' ), 0 );
 		Actions\expectAdded( 'avatar_privacy_uninstallation_global' )->once()->with( [ $this->sut, 'delete_uploaded_avatars' ], m::type( 'int' ), 0 );
 
@@ -182,10 +196,7 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Drop all our tables.
 		Actions\expectAdded( 'avatar_privacy_uninstallation_site' )->once()->with( [ $this->database, 'drop_table' ], m::type( 'int' ), 1 );
 
-		$this->sut->shouldReceive( 'do_site_cleanups' )->once();
-		Actions\expectDone( 'avatar_privacy_uninstallation_global' )->once();
-
-		$this->assertNull( $this->sut->run() );
+		$this->assertNull( $this->sut->enqueue_cleanup_tasks() );
 	}
 
 	/**
