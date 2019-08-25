@@ -231,5 +231,6 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 		$result = $this->sut->get_cli_commands();
 
 		$this->assertInternalType( 'array', $result );
+		$this->assertContains( [ 'instance' => \Avatar_Privacy\CLI\Database_Command::class ], $result, 'Command missing.', false, true, true );
 	}
 }

@@ -427,6 +427,7 @@ class Factory extends Dice {
 	 */
 	protected function get_cli_commands() {
 		return [
+			[ 'instance' => CLI\Database_Command::class ],
 		];
 	}
 }
