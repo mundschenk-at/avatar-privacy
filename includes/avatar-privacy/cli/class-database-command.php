@@ -34,6 +34,7 @@ use WP_CLI\Formatter;
 use WP_CLI\Iterators\Table as Table_Iterator;
 
 use function WP_CLI\Utils\format_items;
+use function WP_CLI\Utils\get_flag_value;
 
 /**
  * CLI commands for accessing the Avatar Privacy database tables.
@@ -76,6 +77,7 @@ class Database_Command extends Abstract_Command {
 	 * @return void
 	 */
 	public function register() {
+		WP_CLI::add_command( 'avatar-privacy db create', [ $this, 'create' ] );
 		WP_CLI::add_command( 'avatar-privacy db show', [ $this, 'show' ] );
 		WP_CLI::add_command( 'avatar-privacy db list', [ $this, 'list_' ] );
 	}
@@ -125,7 +127,6 @@ class Database_Command extends Abstract_Command {
 		WP_CLI::line( WP_CLI::colorize( "The table currently contains %g{$count} rows%n." ) );
 		WP_CLI::line( '' );
 	}
-
 
 	/**
 	 * Lists the contents of Avatar Privacy's consent logging database for comment authors that were not logged in at the time.
@@ -210,5 +211,48 @@ class Database_Command extends Abstract_Command {
 		// Display everything in a nice way.
 		$formatter = new Formatter( $assoc_args, null );
 		$formatter->display_items( /* @scrutinizer ignore-type */ $items );
+	}
+
+	/**
+	 * Creates the table for logging gravatar use consent for comment authors that are not logged-in WordPress users (e.g. anonymous comments).
+	 *
+	 * ## OPTIONS
+	 *
+	 * [ --global ]
+	 * Creates the global table. Only valid in a multisite environment with global table use enabled.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *    # Creates the database table.
+	 *    $ wp avatar-privacy db create
+	 *    Success: Table wp_avatar_privacy created/updated successfully.
+	 *
+	 * @param  array $args       The positional arguments.
+	 * @param  array $assoc_args The associative arguments.
+	 */
+	public function create( /* @scrutinizer ignore-unused */ array $args, array $assoc_args ) {
+		$global    = get_flag_value( $assoc_args, 'global', false );
+		$multisite = \is_multisite();
+		if ( $global ) {
+			if ( ! $multisite ) {
+				WP_CLI::error( 'This is not a multisite installation.' );
+			} elseif ( ! $this->db->use_global_table() ) {
+				WP_CLI::error( 'Cannot create global table because global table use is disabled.' );
+			}
+		} elseif ( $multisite && $this->db->use_global_table() && ! \is_main_site() ) {
+			WP_CLI::error( 'Cannot create site-specific table because the global is used for all sites. Use `--global` switch to create the global table instead.' );
+		}
+
+		$table_name = $this->db->get_table_name();
+
+		if ( $this->db->table_exists( $table_name ) ) {
+			WP_CLI::error( WP_CLI::colorize( "Table %B{$table_name}%n already exists." ) );
+		}
+
+		if ( $this->db->maybe_create_table( '' ) ) {
+			WP_CLI::success( WP_CLI::colorize( "Table %B{$table_name}%n created/updated successfully." ) );
+		} else {
+			WP_CLI::error( WP_CLI::colorize( "An error occured while creating the table %B{$table_name}%n." ) );
+		}
 	}
 }

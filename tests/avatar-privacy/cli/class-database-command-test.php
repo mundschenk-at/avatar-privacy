@@ -125,7 +125,7 @@ class Database_Command_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::register
 	 */
 	public function test_register() {
-
+		$this->wp_cli->shouldReceive( 'add_command' )->once()->with( 'avatar-privacy db create', [ $this->sut, 'create' ] );
 		$this->wp_cli->shouldReceive( 'add_command' )->once()->with( 'avatar-privacy db show', [ $this->sut, 'show' ] );
 		$this->wp_cli->shouldReceive( 'add_command' )->once()->with( 'avatar-privacy db list', [ $this->sut, 'list_' ] );
 
@@ -330,5 +330,174 @@ class Database_Command_Test extends \Avatar_Privacy\Tests\TestCase {
 		$formatter->shouldReceive( 'display_items' )->once()->with( m::type( 'array' ) );
 
 		$this->assertNull( $this->sut->list_( $args, $assoc_args ) );
+	}
+
+	/**
+	 * Provides data for testing ::create.
+	 *
+	 * @return array
+	 */
+	public function provide_create_data() {
+		return [
+			// Not --global, singlesite.
+			[ false, false, true ],
+			// Not --global, multisite.
+			[ false, true, false ],
+			[ false, true, true ],
+			// --global, singlesite.
+			[ true, false, true ],
+			// --global, multisite.
+			[ true, true, false ],
+			[ true, true, true ],
+		];
+	}
+
+	/**
+	 * Mocks WP_CLI::error.
+	 *
+	 * @param  object|null $expectation Optional. A mockery type expectation, or null. Default null.
+	 */
+	protected function expect_wp_cli_error( $expectation = null ) {
+		$this->expectException( \RuntimeException::class );
+
+		if ( ! empty( $expectation ) ) {
+			$this->wp_cli->shouldReceive( 'error' )->once()->with( $expectation )->andThrow( \RuntimeException::class );
+		} else {
+			$this->wp_cli->shouldReceive( 'error' )->once()->andThrow( \RuntimeException::class );
+		}
+	}
+
+	/**
+	 * Mocks WP_CLI::success.
+	 *
+	 * @param  object|null $expectation Optional. A mockery type expectation, or null. Default null.
+	 */
+	protected function expect_wp_cli_success( $expectation = null ) {
+		$this->wp_cli->shouldReceive( 'error' )->never();
+
+		if ( ! empty( $expectation ) ) {
+			$this->wp_cli->shouldReceive( 'success' )->once()->with( $expectation );
+		} else {
+			$this->wp_cli->shouldReceive( 'success' )->once();
+		}
+	}
+
+	/**
+	 * Tests ::create.
+	 *
+	 * @covers ::create
+	 *
+	 * @dataProvider provide_create_data
+	 *
+	 * @param  bool $global       The --global flag.
+	 * @param  bool $multisite    Optional. Whether this is a multisite installation. Default false.
+	 * @param  bool $global_table Optional. Whether the installation uses the global table. Default true.
+	 */
+	public function test_create( $global, $multisite, $global_table ) {
+		$args       = [];
+		$assoc_args = [
+			'global' => $global,
+		];
+
+		// Intermediary data.
+		$table = 'fake_table';
+
+		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'global', false )->andReturn( $global );
+		Functions\expect( 'is_multisite' )->once()->andReturn( $multisite );
+
+		// May not be triggered.
+		$this->database->shouldReceive( 'use_global_table' )->zeroOrMoreTimes()->andReturn( $global_table );
+
+		if ( $global && ( ! $multisite || ! $global_table ) ) {
+			$this->expect_wp_cli_error();
+		} else {
+			// May not be triggered.
+			Functions\expect( 'is_main_site' )->zeroOrMoreTimes()->andReturn( true );
+
+			$this->database->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
+			$this->database->shouldReceive( 'table_exists' )->once()->with( $table )->andReturn( false );
+			$this->database->shouldReceive( 'maybe_create_table' )->once()->with( '' )->andReturn( true );
+
+			$this->expect_wp_cli_success();
+		}
+
+		$this->assertNull( $this->sut->create( $args, $assoc_args ) );
+	}
+
+	/**
+	 * Tests ::create.
+	 *
+	 * @covers ::create
+	 */
+	public function test_create_already_exists() {
+		$args       = [];
+		$assoc_args = [];
+
+		// Intermediary data.
+		$table = 'fake_table';
+
+		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'global', false )->andReturn( false );
+		Functions\expect( 'is_multisite' )->once()->andReturn( false );
+
+		$this->database->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
+		$this->database->shouldReceive( 'table_exists' )->once()->with( $table )->andReturn( true );
+		$this->expect_wp_cli_error();
+		$this->database->shouldReceive( 'maybe_create_table' )->never();
+
+		$this->assertNull( $this->sut->create( $args, $assoc_args ) );
+	}
+
+	/**
+	 * Tests ::create.
+	 *
+	 * @covers ::create
+	 */
+	public function test_create_failure() {
+		$args       = [];
+		$assoc_args = [];
+
+		// Intermediary data.
+		$table = 'fake_table';
+
+		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'global', false )->andReturn( false );
+		Functions\expect( 'is_multisite' )->once()->andReturn( false );
+
+		$this->database->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
+		$this->database->shouldReceive( 'table_exists' )->once()->with( $table )->andReturn( false );
+		$this->database->shouldReceive( 'maybe_create_table' )->once()->with( '' )->andReturn( false );
+
+		$this->expect_wp_cli_error();
+		$this->database->shouldReceive( 'maybe_create_table' )->never();
+
+		$this->assertNull( $this->sut->create( $args, $assoc_args ) );
+	}
+
+	/**
+	 * Tests ::create.
+	 *
+	 * @covers ::create
+	 */
+	public function test_create_not_main_site() {
+		$args       = [];
+		$assoc_args = [
+			'global' => false,
+		];
+
+		// Intermediary data.
+		$table = 'fake_table';
+
+		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'global', false )->andReturn( false );
+		Functions\expect( 'is_multisite' )->once()->andReturn( true );
+		Functions\expect( 'is_main_site' )->once()->andReturn( false );
+
+		$this->database->shouldReceive( 'use_global_table' )->once()->andReturn( true );
+
+		$this->expect_wp_cli_error();
+
+		$this->database->shouldReceive( 'get_table_name' )->never();
+		$this->database->shouldReceive( 'table_exists' )->never();
+		$this->database->shouldReceive( 'maybe_create_table' )->never();
+
+		$this->assertNull( $this->sut->create( $args, $assoc_args ) );
 	}
 }
