@@ -43,11 +43,50 @@ class Database {
 	const TABLE_BASENAME = 'avatar_privacy';
 
 	/**
+	 * Column names.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @var string[]
+	 */
+	const COLUMNS = [
+		'email',
+		'hash',
+		'use_gravatar',
+		'last_updated',
+		'log_message',
+	];
+
+	/**
+	 * A column/field to placeholder mapping.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @var string[]
+	 */
+	const PLACEHOLDER = [
+		'id'           => '%d',
+		'email'        => '%s',
+		'hash'         => '%s',
+		'use_gravatar' => '%d',
+		'last_updated' => '%s',
+		'log_message'  => '%s',
+	];
+	/**
 	 * The options handler.
 	 *
 	 * @var Network_Options
 	 */
 	private $network_options;
+
+	/**
+	 * A column/field to placeholder mapping.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @var string[]
+	 */
+	private $placeholder;
 
 	/**
 	 * Creates a new instance.
@@ -56,6 +95,9 @@ class Database {
 	 */
 	public function __construct( Network_Options $network_options ) {
 		$this->network_options = $network_options;
+
+		// Workaround for PHP 5.6.
+		$this->placeholder = self::PLACEHOLDER;
 	}
 
 	/**
@@ -312,57 +354,132 @@ class Database {
 	/**
 	 * Prepares the query for inserting or updating the database.
 	 *
+	 * @since 2.3.0 Optional parameter `$fields` added.
 	 *
 	 * @global \wpdb    $wpdb            The WordPress Database Access Abstraction.
 	 *
-	 * @param  object[] $rows_to_update  The table rows to update (existing ID).
+	 * @param  object[] $rows_to_update  The table rows to update (existing ID, passed as index).
 	 * @param  object[] $rows_to_migrate The table rows to insert (new autoincrement ID).
 	 * @param  string   $table           The table name.
+	 * @param  string[] $fields          Optional. The fields to migrate. Default [ 'email', 'hash', 'use_gravatar', 'last_updated', 'log_message' ].
 	 *
 	 * @return string|false              The prepared query, or false.
 	 */
-	protected function prepare_insert_update_query( array $rows_to_update, array $rows_to_migrate, $table ) {
+	protected function prepare_insert_update_query( array $rows_to_update, array $rows_to_migrate, $table, array $fields = [ 'email', 'hash', 'use_gravatar', 'last_updated', 'log_message' ] ) {
 		global $wpdb;
 
-		if ( ( empty( $rows_to_update ) && empty( $rows_to_migrate ) ) || empty( $table ) ) {
+		// Allow only valid fields.
+		$fields = \array_intersect( $fields, self::COLUMNS );
+
+		if ( ( empty( $rows_to_update ) && empty( $rows_to_migrate ) ) || empty( $table ) || empty( $fields ) ) {
 			return false;
 		}
 
-		$values_clause_parts = [];
-		$prepared_values     = [];
+		// Prepare placeholders with ID.
+		$prepared_update_values = $this->get_prepared_values( $rows_to_update, $fields, true );
+		$values_clause_parts    = \array_fill( 0, \count( $rows_to_update ), $this->get_placeholders( $fields, true ) );
 
-		foreach ( $rows_to_update as $id => $row ) {
-			$values_clause_parts[] = '(%d,%s,%s,%d,%s,%s)';
-			$prepared_values[]     = $id;
-			$prepared_values[]     = $row->email;
-			$prepared_values[]     = $row->hash;
-			$prepared_values[]     = $row->use_gravatar;
-			$prepared_values[]     = $row->last_updated;
-			$prepared_values[]     = $row->log_message;
-		}
+		// Prepare placeholders without ID.
+		$prepared_insert_values = $this->get_prepared_values( $rows_to_migrate, $fields, false );
+		$values_clause_parts    = \array_merge(
+			$values_clause_parts,
+			\array_fill( 0, \count( $rows_to_migrate ), $this->get_placeholders( $fields, false ) )
+		);
 
-		foreach ( $rows_to_migrate as $row ) {
-			$values_clause_parts[] = '(NULL,%s,%s,%d,%s,%s)';
-			$prepared_values[]     = $row->email;
-			$prepared_values[]     = $row->hash;
-			$prepared_values[]     = $row->use_gravatar;
-			$prepared_values[]     = $row->last_updated;
-			$prepared_values[]     = $row->log_message;
-		}
-
-		$values_clause = \join( ',', $values_clause_parts );
+		// Finalize columns, values clause and prepared values array.
+		$columns         = '(id,' . \join( ',', $fields ) . ')';
+		$prepared_values = \array_merge( $prepared_update_values, $prepared_insert_values );
+		$values_clause   = \join( ',', $values_clause_parts );
+		$update_clause   = $this->get_update_clause( $fields );
 
 		return $wpdb->prepare(  // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-			"INSERT INTO `{$table}` (id,email,hash,use_gravatar,last_updated,log_message)
+			"INSERT INTO `{$table}` {$columns}
 			 VALUES {$values_clause}
-			 ON DUPLICATE KEY UPDATE
-				 email = VALUES(email),
-				 hash = VALUES(hash),
-				 use_gravatar = VALUES(use_gravatar),
-				 last_updated = VALUES(last_updated),
-				 log_message = VALUES(log_message)",
+			 ON DUPLICATE KEY UPDATE {$update_clause}",
 			$prepared_values
 		); // phpcs:enable WordPress.DB
+	}
+
+	/**
+	 * Retrieves the update clause based on the updated fields.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @param  string[] $fields  An array of database columns.
+	 *
+	 * @return string
+	 */
+	protected function get_update_clause( array $fields ) {
+
+		$updated_fields      = \array_flip( $fields );
+		$update_clause_parts = [];
+
+		foreach ( self::COLUMNS as $field ) {
+			if ( isset( $updated_fields[ $field ] ) ) {
+				$update_clause_parts[] = "{$field} = VALUES({$field})";
+			} else {
+				$update_clause_parts[] = "{$field} = {$field}";
+			}
+		}
+
+		return \join( ",\n", $update_clause_parts );
+	}
+
+	/**
+	 * Filters an array of values from a raw database result set based on the given columns.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @param  object[] $rows    A query result set.
+	 * @param  string[] $fields  An array of database columns.
+	 * @param  bool     $with_id Optional. Whether to include the ID as the first field. Default true.
+	 *
+	 * @return array
+	 */
+	protected function get_prepared_values( array $rows, array $fields, $with_id = true ) {
+		$values = [];
+
+		foreach ( $rows as $id => $row ) {
+			// Optionally include ID.
+			if ( $with_id ) {
+				$values[] = $id;
+			}
+
+			// Add the selected fields.
+			foreach ( $fields as $field ) {
+				$values[] = $row->$field;
+			}
+		}
+
+		return $values;
+	}
+
+	/**
+	 * Returns the placeholder string for the given fields.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @param  string[] $fields  An array of database columns.
+	 * @param  bool     $with_id Optional. Whether to include the ID as the first field. Default true.
+	 *
+	 * @return string   The comma-separated placeholders inside a pair of parentheses.
+	 */
+	protected function get_placeholders( array $fields, $with_id = true ) {
+		$placeholders = [];
+
+		// ID is always included first.
+		if ( $with_id ) {
+			$placeholders[] = $this->placeholder['id'];
+		} else {
+			$placeholders[] = 'NULL';
+		}
+
+		// Add the selected fields.
+		foreach ( $fields as $field ) {
+			$placeholders[] = $this->placeholder[ $field ];
+		}
+
+		return '(' . \join( ',', $placeholders ) . ')';
 	}
 
 	/**
