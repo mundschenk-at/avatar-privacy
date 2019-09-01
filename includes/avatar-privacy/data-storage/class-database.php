@@ -61,7 +61,9 @@ class Database {
 	/**
 	 * Retrieves the table prefix to use (for a given site or the current site).
 	 *
-	 * @param int|null $site_id Optional. The site ID. Null means the current $blog_id. Default null.
+	 * @global \wpdb    $wpdb    The WordPress Database Access Abstraction.
+	 *
+	 * @param  int|null $site_id Optional. The site ID. Null means the current $blog_id. Default null.
 	 *
 	 * @return string
 	 */
@@ -129,6 +131,8 @@ class Database {
 	 * Creates the plugin's database table if it doesn't already exist. The
 	 * table may be created as a global table for legacy multisite installations.
 	 * Makes the name of the table available through $wpdb->avatar_privacy.
+	 *
+	 * @global \wpdb $wpdb             The WordPress Database Access Abstraction.
 	 *
 	 * @param string $previous_version The previously installed plugin version.
 	 *
@@ -217,6 +221,8 @@ class Database {
 	/**
 	 * Drops the table for the given site.
 	 *
+	 * @global \wpdb $wpdb The WordPress Database Access Abstraction.
+	 *
 	 * @param int|null $site_id Optional. The site ID. Null means the current $blog_id. Ddefault null.
 	 */
 	public function drop_table( $site_id = null ) {
@@ -228,6 +234,8 @@ class Database {
 
 	/**
 	 * Migrates data from the global database to the given site database.
+	 *
+	 * @global \wpdb    $wpdb    The WordPress Database Access Abstraction.
 	 *
 	 * @param  int|null $site_id Optional. The site ID. Null means the current $blog_id. Ddefault null.
 	 *
@@ -304,6 +312,9 @@ class Database {
 	/**
 	 * Prepares the query for inserting or updating the database.
 	 *
+	 *
+	 * @global \wpdb    $wpdb            The WordPress Database Access Abstraction.
+	 *
 	 * @param  object[] $rows_to_update  The table rows to update (existing ID).
 	 * @param  object[] $rows_to_migrate The table rows to insert (new autoincrement ID).
 	 * @param  string   $table           The table name.
@@ -357,6 +368,8 @@ class Database {
 	/**
 	 * Prepares the query for selecting existing rows by email.
 	 *
+	 * @global \wpdb    $wpdb    The WordPress Database Access Abstraction.
+	 *
 	 * @param  string[] $emails  An array of email adresses.
 	 * @param  string   $table   The table name.
 	 *
@@ -377,6 +390,8 @@ class Database {
 
 	/**
 	 * Prepares the query for deleting obsolete rows from the database.
+	 *
+	 * @global \wpdb  $wpdb          The WordPress Database Access Abstraction.
 	 *
 	 * @param  int[]  $ids_to_delete The IDs to delete.
 	 * @param  string $table         The table name.
