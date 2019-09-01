@@ -35,6 +35,7 @@ use Mockery as m;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 
+use Avatar_Privacy\Core;
 use Avatar_Privacy\Data_Storage\Database;
 use Avatar_Privacy\Data_Storage\Network_Options;
 
@@ -54,6 +55,13 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var \Avatar_Privacy\Data_Storage\Database
 	 */
 	private $sut;
+
+	/**
+	 * Helper object.
+	 *
+	 * @var Core
+	 */
+	private $core;
 
 	/**
 	 * Helper object.
@@ -85,10 +93,11 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 		$root = vfsStream::setup( 'root', null, $filesystem );
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
+		$this->core            = m::mock( Core::class );
 		$this->network_options = m::mock( Network_Options::class );
 
 		// Partially mock system under test.
-		$this->sut = m::mock( Database::class, [ $this->network_options ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Database::class, [ $this->core, $this->network_options ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -98,9 +107,11 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_constructor() {
 		$mock = m::mock( Database::class )->makePartial();
-		$mock->__construct( $this->network_options );
+		$mock->__construct( $this->core, $this->network_options );
 
+		$this->assertAttributeSame( $this->core, 'core', $mock );
 		$this->assertAttributeSame( $this->network_options, 'network_options', $mock );
+		$this->assertAttributeInternalType( 'array', 'placeholder', $mock );
 	}
 
 	/**
@@ -992,5 +1003,86 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 		$wpdb->shouldReceive( 'prepare' )->never();
 
 		$this->assertSame( $result, $this->sut->prepare_delete_query( $ids, $table_name ) );
+	}
+
+	/**
+	 * Tests ::maybe_upgrade_table_data.
+	 *
+	 * @covers ::maybe_upgrade_table_data
+	 */
+	public function test_maybe_upgrade_table_data() {
+		$network_id = 5;
+		$site_id    = 3;
+		$rows       = [
+			3  => (object) [
+				'id'           => 3,
+				'email'        => 'foo@bar.org',
+			],
+			11 => (object) [
+				'id'           => 11,
+				'email'        => 'xxx@foobar.org',
+			],
+		];
+		$fields     = [
+			'email',
+			'use_gravatar',
+			'last_updated',
+		];
+		$result     = 2; // Affected row count.
+
+		// Fake global.
+		global $wpdb;
+		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$table_name = 'my_table';
+
+		$this->sut->shouldReceive( 'get_table_name' )->once()->andReturn( $table_name );
+
+		$wpdb->shouldReceive( 'get_results' )->once()->with( "SELECT id, email FROM {$table_name} WHERE hash is null", \OBJECT_K )->andReturn( $rows );
+		$this->core->shouldReceive( 'get_hash' )->times( \count( $rows ) )->with( m::type( 'string' ) )->andReturn( 'hashed email' );
+
+		$this->sut->shouldReceive( 'prepare_insert_update_query' )->once()->with( $rows, [], $table_name, [ 'hash' ] )->andReturn( 'UPDATE_QUERY' );
+		$wpdb->shouldReceive( 'query' )->once()->with( 'UPDATE_QUERY' );
+
+		$this->assertSame( $result, $this->sut->maybe_upgrade_table_data() );
+	}
+
+	/**
+	 * Tests ::maybe_upgrade_table_data.
+	 *
+	 * @covers ::maybe_upgrade_table_data
+	 */
+	public function test_maybe_upgrade_table_data_error() {
+		$network_id = 5;
+		$site_id    = 3;
+		$rows       = [
+			3  => (object) [
+				'id'           => 3,
+				'email'        => 'foo@bar.org',
+			],
+			11 => (object) [
+				'id'           => 11,
+				'email'        => 'xxx@foobar.org',
+			],
+		];
+		$fields     = [
+			'email',
+			'use_gravatar',
+			'last_updated',
+		];
+
+		// Fake global.
+		global $wpdb;
+		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$table_name = 'my_table';
+
+		$this->sut->shouldReceive( 'get_table_name' )->once()->andReturn( $table_name );
+
+		$wpdb->shouldReceive( 'get_results' )->once()->with( "SELECT id, email FROM {$table_name} WHERE hash is null", \OBJECT_K )->andReturn( $rows );
+		$this->core->shouldReceive( 'get_hash' )->times( \count( $rows ) )->with( m::type( 'string' ) )->andReturn( 'hashed email' );
+
+		$this->sut->shouldReceive( 'prepare_insert_update_query' )->once()->with( $rows, [], $table_name, [ 'hash' ] )->andReturn( false );
+		$wpdb->shouldReceive( 'query' )->never();
+
+		$this->assertSame( 0, $this->sut->maybe_upgrade_table_data() );
 	}
 }

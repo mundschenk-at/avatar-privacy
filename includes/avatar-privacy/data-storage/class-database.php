@@ -26,6 +26,8 @@
 
 namespace Avatar_Privacy\Data_Storage;
 
+use Avatar_Privacy\Core;
+
 /**
  * A plugin-specific database handler.
  *
@@ -72,6 +74,16 @@ class Database {
 		'last_updated' => '%s',
 		'log_message'  => '%s',
 	];
+
+	/**
+	 * The core API.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @var Core
+	 */
+	private $core;
+
 	/**
 	 * The options handler.
 	 *
@@ -91,9 +103,13 @@ class Database {
 	/**
 	 * Creates a new instance.
 	 *
+	 * @since 2.3.0 Parameter $core added.
+	 *
+	 * @param Core            $core            The core API.
 	 * @param Network_Options $network_options The network options handler.
 	 */
-	public function __construct( Network_Options $network_options ) {
+	public function __construct( Core $core, Network_Options $network_options ) {
+		$this->core            = $core;
 		$this->network_options = $network_options;
 
 		// Workaround for PHP 5.6.
@@ -526,5 +542,44 @@ class Database {
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 		return $wpdb->prepare( "DELETE FROM `{$table}` WHERE id IN ({$placeholders})", $ids_to_delete );
+	}
+
+	/**
+	 * Upgrades the table data if necessary.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @global \wpdb $wpdb The WordPress Database Access Abstraction.
+	 *
+	 * @return int  The number of upgraded rows.
+	 */
+	public function maybe_upgrade_table_data() {
+		global $wpdb;
+
+		// Prepare data used for all upgrade routines.
+		$table_name = $this->get_table_name();
+
+		// Add hashes when they are missing.
+		$rows      = $wpdb->get_results( "SELECT id, email FROM {$table_name} WHERE hash is null", \OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
+		$row_count = \count( $rows );
+
+		if ( $row_count > 0 ) {
+			// Add hashes for all retrieved rows.
+			foreach ( $rows as $r ) {
+				$r->hash = $this->core->get_hash( $r->email );
+			}
+
+			// Do UPDATEs in one query.
+			$update_query = $this->prepare_insert_update_query( $rows, [], $table_name, [ 'hash' ] );
+
+			// Abort if there was an error. FIXME: Should be replaced with Exception.
+			if ( false === $update_query ) {
+				return 0;
+			}
+
+			$wpdb->query( $update_query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery
+		}
+
+		return $row_count;
 	}
 }
