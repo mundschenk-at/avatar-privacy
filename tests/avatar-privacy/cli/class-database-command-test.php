@@ -128,6 +128,7 @@ class Database_Command_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->wp_cli->shouldReceive( 'add_command' )->once()->with( 'avatar-privacy db create', [ $this->sut, 'create' ] );
 		$this->wp_cli->shouldReceive( 'add_command' )->once()->with( 'avatar-privacy db show', [ $this->sut, 'show' ] );
 		$this->wp_cli->shouldReceive( 'add_command' )->once()->with( 'avatar-privacy db list', [ $this->sut, 'list_' ] );
+		$this->wp_cli->shouldReceive( 'add_command' )->once()->with( 'avatar-privacy db upgrade', [ $this->sut, 'upgrade' ] );
 
 		$this->assertNull( $this->sut->register() );
 	}
@@ -499,5 +500,159 @@ class Database_Command_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->database->shouldReceive( 'maybe_create_table' )->never();
 
 		$this->assertNull( $this->sut->create( $args, $assoc_args ) );
+	}
+
+	/**
+	 * Tests ::upgrade.
+	 *
+	 * @covers ::upgrade
+	 *
+	 * @dataProvider provide_create_data
+	 *
+	 * @param  bool $global       The --global flag.
+	 * @param  bool $multisite    Optional. Whether this is a multisite installation. Default false.
+	 * @param  bool $global_table Optional. Whether the installation uses the global table. Default true.
+	 */
+	public function test_upgrade( $global, $multisite, $global_table ) {
+		$args       = [];
+		$assoc_args = [
+			'global' => $global,
+		];
+
+		// Intermediary data.
+		$table = 'fake_table';
+		$rows  = 6;
+
+		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'global', false )->andReturn( $global );
+		Functions\expect( 'is_multisite' )->once()->andReturn( $multisite );
+
+		// May not be triggered.
+		$this->database->shouldReceive( 'use_global_table' )->zeroOrMoreTimes()->andReturn( $global_table );
+
+		if ( $global && ( ! $multisite || ! $global_table ) ) {
+			$this->expect_wp_cli_error();
+		} else {
+			// May not be triggered.
+			Functions\expect( 'is_main_site' )->zeroOrMoreTimes()->andReturn( true );
+
+			$this->database->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
+			$this->database->shouldReceive( 'table_exists' )->once()->with( $table )->andReturn( true );
+			$this->database->shouldReceive( 'maybe_create_table' )->once()->with( '' )->andReturn( true );
+			$this->database->shouldReceive( 'maybe_upgrade_table_data' )->once()->andReturn( $rows );
+
+			$this->expect_wp_cli_success();
+		}
+
+		$this->assertNull( $this->sut->upgrade( $args, $assoc_args ) );
+	}
+
+	/**
+	 * Tests ::upgrade.
+	 *
+	 * @covers ::upgrade
+	 */
+	public function test_upgrade_does_not_exist() {
+		$args       = [];
+		$assoc_args = [];
+
+		// Intermediary data.
+		$table = 'fake_table';
+		$rows  = 0;
+
+		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'global', false )->andReturn( false );
+		Functions\expect( 'is_multisite' )->once()->andReturn( false );
+
+		$this->database->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
+		$this->database->shouldReceive( 'table_exists' )->once()->with( $table )->andReturn( false );
+
+		$this->expect_wp_cli_error();
+
+		$this->database->shouldReceive( 'maybe_create_table' )->never();
+		$this->database->shouldReceive( 'maybe_upgrade_table_data' )->never();
+
+		$this->assertNull( $this->sut->upgrade( $args, $assoc_args ) );
+	}
+
+	/**
+	 * Tests ::upgrade.
+	 *
+	 * @covers ::upgrade
+	 */
+	public function test_upgrade_error_during_structure_upgrade() {
+		$args       = [];
+		$assoc_args = [];
+
+		// Intermediary data.
+		$table = 'fake_table';
+		$rows  = 0;
+
+		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'global', false )->andReturn( false );
+		Functions\expect( 'is_multisite' )->once()->andReturn( false );
+
+		$this->database->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
+		$this->database->shouldReceive( 'table_exists' )->once()->with( $table )->andReturn( true );
+		$this->database->shouldReceive( 'maybe_create_table' )->once()->with( '' )->andReturn( false );
+
+		$this->expect_wp_cli_error();
+
+		$this->database->shouldReceive( 'maybe_upgrade_table_data' )->never();
+
+		$this->assertNull( $this->sut->upgrade( $args, $assoc_args ) );
+	}
+
+	/**
+	 * Tests ::upgrade.
+	 *
+	 * @covers ::upgrade
+	 */
+	public function test_upgrade_no_rows() {
+		$args       = [];
+		$assoc_args = [];
+
+		// Intermediary data.
+		$table = 'fake_table';
+		$rows  = 0;
+
+		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'global', false )->andReturn( false );
+		Functions\expect( 'is_multisite' )->once()->andReturn( false );
+
+		$this->database->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
+		$this->database->shouldReceive( 'table_exists' )->once()->with( $table )->andReturn( true );
+		$this->database->shouldReceive( 'maybe_create_table' )->once()->with( '' )->andReturn( true );
+		$this->database->shouldReceive( 'maybe_upgrade_table_data' )->once()->andReturn( $rows );
+
+		$this->expect_wp_cli_success();
+
+		$this->assertNull( $this->sut->upgrade( $args, $assoc_args ) );
+	}
+
+	/**
+	 * Tests ::upgrade.
+	 *
+	 * @covers ::upgrade
+	 */
+	public function test_upgrade_not_main_site() {
+		$args       = [];
+		$assoc_args = [
+			'global' => false,
+		];
+
+		// Intermediary data.
+		$table = 'fake_table';
+
+		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'global', false )->andReturn( false );
+		Functions\expect( 'is_multisite' )->once()->andReturn( true );
+		Functions\expect( 'is_main_site' )->once()->andReturn( false );
+
+		$this->database->shouldReceive( 'use_global_table' )->once()->andReturn( true );
+
+		$this->expect_wp_cli_error();
+
+		$this->database->shouldReceive( 'get_table_name' )->never();
+		$this->database->shouldReceive( 'table_exists' )->never();
+		$this->database->shouldReceive( 'maybe_create_table' )->never();
+		$this->database->shouldReceive( 'maybe_upgrade_table_data' )->never();
+
+		$this->assertNull( $this->sut->upgrade( $args, $assoc_args ) );
 	}
 }

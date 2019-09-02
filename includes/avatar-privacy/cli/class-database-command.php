@@ -80,6 +80,7 @@ class Database_Command extends Abstract_Command {
 		WP_CLI::add_command( 'avatar-privacy db create', [ $this, 'create' ] );
 		WP_CLI::add_command( 'avatar-privacy db show', [ $this, 'show' ] );
 		WP_CLI::add_command( 'avatar-privacy db list', [ $this, 'list_' ] );
+		WP_CLI::add_command( 'avatar-privacy db upgrade', [ $this, 'upgrade' ] );
 	}
 
 	/**
@@ -253,6 +254,57 @@ class Database_Command extends Abstract_Command {
 			WP_CLI::success( WP_CLI::colorize( "Table %B{$table_name}%n created/updated successfully." ) );
 		} else {
 			WP_CLI::error( WP_CLI::colorize( "An error occured while creating the table %B{$table_name}%n." ) );
+		}
+	}
+
+	/**
+	 * Upgrades the gravatar-use consent data.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [ --global ]
+	 * Upgrades the global table. Only valid in a multisite environment with global table use enabled.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *    # Creates the database table.
+	 *    $ wp avatar-privacy db upgrade
+	 *    Success: Table wp_avatar_privacy upgraded successfully.
+	 *
+	 * @param  array $args       The positional arguments.
+	 * @param  array $assoc_args The associative arguments.
+	 */
+	public function upgrade( /* @scrutinizer ignore-unused */ array $args, array $assoc_args ) {
+		$global    = get_flag_value( $assoc_args, 'global', false );
+		$multisite = \is_multisite();
+		if ( $global ) {
+			if ( ! $multisite ) {
+				WP_CLI::error( 'This is not a multisite installation.' );
+			} elseif ( ! $this->db->use_global_table() ) {
+				WP_CLI::error( 'Cannot upgrade global table because global table use is disabled.' );
+			}
+		} elseif ( $multisite && $this->db->use_global_table() && ! \is_main_site() ) {
+			WP_CLI::error( 'Cannot upgrade site-specific table because the global is used for all sites. Use `--global` switch to create the global table instead.' );
+		}
+
+		// Check for existence of table.
+		$table = $this->db->get_table_name();
+		if ( ! $this->db->table_exists( $table ) ) {
+			WP_CLI::error( WP_CLI::colorize( "Table %B{$table}%n does not exist. Use `wp avatar-privacy db create` to create it." ) );
+		}
+
+		// Upgrade table structure.
+		if ( ! $this->db->maybe_create_table( '' ) ) {
+			WP_CLI::error( WP_CLI::colorize( "An error occured while creating or updating the table %B{$table}%n." ) );
+		}
+
+		// Upgrade data.
+		$rows = $this->db->maybe_upgrade_table_data();
+
+		if ( $rows > 0 ) {
+			WP_CLI::success( "Upgraded {$rows} rows in table {$table}." );
+		} else {
+			WP_CLI::success( "No rows to upgrade in table {$table}." );
 		}
 	}
 }
