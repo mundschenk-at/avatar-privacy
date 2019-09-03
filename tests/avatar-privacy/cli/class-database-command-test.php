@@ -45,7 +45,7 @@ use Avatar_Privacy\Data_Storage\Database;
  *
  * @uses ::__construct
  */
-class Database_Command_Test extends \Avatar_Privacy\Tests\TestCase {
+class Database_Command_Test extends TestCase {
 
 	/**
 	 * The system under test.
@@ -69,21 +69,11 @@ class Database_Command_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $database;
 
 	/**
-	 * Alias mock for static WP_CLI methods.
-	 *
-	 * @var \WP_CLI
-	 */
-	private $wp_cli;
-
-	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
 	protected function setUp() {
 		parent::setUp();
-
-		// API class mock.
-		$this->wp_cli = m::mock( 'alias:' . \WP_CLI::class );
 
 		// Helper mocks.
 		$this->core     = m::mock( Core::class );
@@ -351,36 +341,6 @@ class Database_Command_Test extends \Avatar_Privacy\Tests\TestCase {
 			[ true, true, false ],
 			[ true, true, true ],
 		];
-	}
-
-	/**
-	 * Mocks WP_CLI::error.
-	 *
-	 * @param  object|null $expectation Optional. A mockery type expectation, or null. Default null.
-	 */
-	protected function expect_wp_cli_error( $expectation = null ) {
-		$this->expectException( \RuntimeException::class );
-
-		if ( ! empty( $expectation ) ) {
-			$this->wp_cli->shouldReceive( 'error' )->once()->with( $expectation )->andThrow( \RuntimeException::class );
-		} else {
-			$this->wp_cli->shouldReceive( 'error' )->once()->andThrow( \RuntimeException::class );
-		}
-	}
-
-	/**
-	 * Mocks WP_CLI::success.
-	 *
-	 * @param  object|null $expectation Optional. A mockery type expectation, or null. Default null.
-	 */
-	protected function expect_wp_cli_success( $expectation = null ) {
-		$this->wp_cli->shouldReceive( 'error' )->never();
-
-		if ( ! empty( $expectation ) ) {
-			$this->wp_cli->shouldReceive( 'success' )->once()->with( $expectation );
-		} else {
-			$this->wp_cli->shouldReceive( 'success' )->once();
-		}
 	}
 
 	/**

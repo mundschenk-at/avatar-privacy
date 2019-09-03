@@ -46,7 +46,7 @@ use Avatar_Privacy\Data_Storage\Database;
  *
  * @uses ::__construct
  */
-class Uninstall_Command_Test extends \Avatar_Privacy\Tests\TestCase {
+class Uninstall_Command_Test extends TestCase {
 
 	/**
 	 * The system under test.
@@ -77,21 +77,11 @@ class Uninstall_Command_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $database;
 
 	/**
-	 * Alias mock for static WP_CLI methods.
-	 *
-	 * @var \WP_CLI
-	 */
-	private $wp_cli;
-
-	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
 	protected function setUp() {
 		parent::setUp();
-
-		// API class mock.
-		$this->wp_cli = m::mock( 'alias:' . \WP_CLI::class );
 
 		// Helper mocks.
 		$this->setup     = m::mock( Setup::class );
@@ -186,8 +176,8 @@ class Uninstall_Command_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		if ( $global && ! $multi ) {
 			// The script ends prematurely.
-			$this->expectException( \RuntimeException::class );
-			$this->wp_cli->shouldReceive( 'error' )->once()->with( m::type( 'string' ) )->andThrow( \RuntimeException::class );
+			$this->expect_wp_cli_error( m::type( 'string' ) );
+
 			$this->sut->shouldReceive( 'print_data_to_delete' )->never();
 			$this->sut->shouldReceive( 'delete_data' )->never();
 		} else {
@@ -198,7 +188,7 @@ class Uninstall_Command_Test extends \Avatar_Privacy\Tests\TestCase {
 			if ( ! $live ) {
 				// Dry run.
 				$this->wp_cli->shouldReceive( 'warning' )->once()->with( 'Starting dry run.' );
-				$this->wp_cli->shouldReceive( 'success' )->once()->with( 'Dry run finished.' );
+				$this->expect_wp_cli_success( 'Dry run finished.' );
 				$this->wp_cli->shouldReceive( 'confirm' )->never();
 				$this->sut->shouldReceive( 'delete_data' )->never();
 			} else {
@@ -256,7 +246,7 @@ class Uninstall_Command_Test extends \Avatar_Privacy\Tests\TestCase {
 		}
 
 		// Signalling success.
-		$this->wp_cli->shouldReceive( 'success' )->atLeast()->once()->with( m::type( 'string' ) );
+		$this->expect_wp_cli_success( m::type( 'string' ), true );
 
 		// Run test.
 		$this->assertNull( $this->sut->delete_data( $blog_id, $for_site, $global ) );
