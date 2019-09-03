@@ -427,6 +427,7 @@ class Factory extends Dice {
 	 */
 	protected function get_cli_commands() {
 		return [
+			[ 'instance' => CLI\Cron_Command::class ],
 			[ 'instance' => CLI\Database_Command::class ],
 			[ 'instance' => CLI\Uninstall_Command::class ],
 		];
