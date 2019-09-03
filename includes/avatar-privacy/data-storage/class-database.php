@@ -91,11 +91,13 @@ class Database {
 	/**
 	 * Checks if the given table exists.
 	 *
+	 * @since 2.3.0 Visibility changed to public.
+	 *
 	 * @param  string $table_name A table name.
 	 *
 	 * @return bool
 	 */
-	protected function table_exists( $table_name ) {
+	public function table_exists( $table_name ) {
 		global $wpdb;
 
 		return $table_name === $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) ); // WPCS: db call ok, cache ok.
