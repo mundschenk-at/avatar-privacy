@@ -504,26 +504,9 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::maybe_update_table_data
 	 */
 	public function test_maybe_update_table_data() {
-		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wpdb->avatar_privacy = 'avatar_privacy';
-		$previous             = '0.4';
-		$rows                 = [
-			(object) [
-				'id'    => 1,
-				'email' => 'mail@foobar.org',
-			],
-			(object) [
-				'id'    => 3,
-				'email' => 'foo@example.org',
-			],
-		];
+		$previous = '0.4';
 
-		$wpdb->shouldReceive( 'get_results' )->once()->with( "SELECT id, email FROM {$wpdb->avatar_privacy} WHERE hash is null" )->andReturn( $rows );
-
-		foreach ( $rows as $r ) {
-			$this->core->shouldReceive( 'update_comment_author_hash' )->once()->with( $r->id, $r->email );
-		}
+		$this->database->shouldReceive( 'maybe_upgrade_table_data' )->once();
 
 		$this->assertNull( $this->sut->maybe_update_table_data( $previous ) );
 	}
@@ -534,13 +517,9 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::maybe_update_table_data
 	 */
 	public function test_maybe_update_table_data_no_need() {
-		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wpdb->avatar_privacy = 'avatar_privacy';
-		$previous             = '0.5';
+		$previous = '0.5';
 
-		$wpdb->shouldReceive( 'get_results' )->never();
-		$this->core->shouldReceive( 'update_comment_author_hash' )->never();
+		$this->database->shouldReceive( 'maybe_upgrade_table_data' )->never();
 
 		$this->assertNull( $this->sut->maybe_update_table_data( $previous ) );
 	}

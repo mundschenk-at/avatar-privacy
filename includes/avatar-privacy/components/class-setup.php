@@ -348,17 +348,14 @@ class Setup implements \Avatar_Privacy\Component {
 	 * Sometimes, the table data needs to updated when upgrading.
 	 *
 	 * @since 2.1.0 Visibility changed to protected.
+	 * @since 2.3.0 Now uses Database::maybe_upgrade_table_data()
 	 *
 	 * @param string $previous_version The previously installed plugin version.
 	 */
 	protected function maybe_update_table_data( $previous_version ) {
-		global $wpdb;
 
 		if ( \version_compare( $previous_version, '0.5', '<' ) ) {
-			$rows = $wpdb->get_results( "SELECT id, email FROM {$wpdb->avatar_privacy} WHERE hash is null" ); // WPCS: db call ok, cache ok.
-			foreach ( $rows as $r ) {
-				$this->core->update_comment_author_hash( $r->id, $r->email );
-			}
+			$this->database->maybe_upgrade_table_data();
 		}
 	}
 

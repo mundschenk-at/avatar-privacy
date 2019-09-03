@@ -110,6 +110,10 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_get_rules() {
 		$version       = '6.6.6';
+		$components    = [
+			[ 'instance' => \Avatar_Privacy\Components\Setup::class ],
+			[ 'instance' => \Avatar_Privacy\Components\Avatar_Handling::class ],
+		];
 		$integrations  = [
 			[ 'instance' => \Avatar_Privacy\Integrations\BBPress_Integration::class ],
 		];
@@ -118,10 +122,15 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 			[ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons\Identicon_Icon_Provider::class ],
 			[ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons\Wavatar_Icon_Provider::class ],
 		];
+		$cli_commands  = [
+			[ 'instance' => \Avatar_Privacy\CLI\Database_Command::class ],
+		];
 
 		$this->sut->shouldReceive( 'get_plugin_version' )->once()->with( \AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $version );
+		$this->sut->shouldReceive( 'get_components' )->once()->andReturn( $components );
 		$this->sut->shouldReceive( 'get_plugin_integrations' )->once()->andReturn( $integrations );
 		$this->sut->shouldReceive( 'get_default_icons' )->once()->andReturn( $default_icons );
+		$this->sut->shouldReceive( 'get_cli_commands' )->once()->andReturn( $cli_commands );
 
 		$result = $this->sut->get_rules();
 
@@ -149,6 +158,8 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @uses Avatar_Privacy\Factory::__construct
 	 * @uses Avatar_Privacy\Factory::get_default_icons
+	 * @uses Avatar_Privacy\Factory::get_cli_commands
+	 * @uses Avatar_Privacy\Factory::get_components
 	 * @uses Avatar_Privacy\Factory::get_plugin_integrations
 	 * @uses Avatar_Privacy\Factory::get_plugin_version
 	 * @uses Avatar_Privacy\Factory::get_rules
@@ -163,6 +174,24 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 		$result2 = \Avatar_Privacy\Factory::get();
 
 		$this->assertSame( $result1, $result2 );
+	}
+
+	/**
+	 * Test ::get_components.
+	 *
+	 * @covers ::get_components
+	 */
+	public function test_get_components() {
+		$result = $this->sut->get_components();
+
+		$this->assertInternalType( 'array', $result );
+
+		// Check some exemplary components.
+		$this->assertContains( [ 'instance' => \Avatar_Privacy\Components\Avatar_Handling::class ], $result, 'Component missing.', false, true, true );
+		$this->assertContains( [ 'instance' => \Avatar_Privacy\Components\Setup::class ], $result, 'Component missing.', false, true, true );
+
+		// Uninstallation must not (!) be included.
+		$this->assertNotContains( [ 'instance' => \Avatar_Privacy\Components\Uninstallation::class ], $result, 'Uninstallation component should not be included.', false, true, true );
 	}
 
 	/**
@@ -191,5 +220,17 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertInternalType( 'array', $result );
 		$this->assertContains( [ 'instance' => \Avatar_Privacy\Integrations\BBPress_Integration::class ], $result, 'Default icon missing.', false, true, true );
+	}
+
+	/**
+	 * Test ::get_cli_commands.
+	 *
+	 * @covers ::get_cli_commands
+	 */
+	public function test_get_cli_commands() {
+		$result = $this->sut->get_cli_commands();
+
+		$this->assertInternalType( 'array', $result );
+		$this->assertContains( [ 'instance' => \Avatar_Privacy\CLI\Database_Command::class ], $result, 'Command missing.', false, true, true );
 	}
 }

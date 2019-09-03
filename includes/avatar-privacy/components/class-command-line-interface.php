@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,54 +24,47 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy;
+namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Component;
+use Avatar_Privacy\CLI\Command;
 
 /**
- * Initialize Avatar Privacy plugin.
+ * The component providing CLI commands.
  *
- * @since 1.0.0
- * @since 2.1.0 Renamed to Avatar_Privacy\Controller.
+ * @since 2.3.0
  */
-class Controller {
+class Command_Line_Interface implements Component {
 
 	/**
-	 * The settings page handler.
+	 * An array of CLI commands.
 	 *
-	 * @var Component[]
+	 * @var Command[]
 	 */
-	private $components = [];
+	private $commands;
 
 	/**
-	 * The core plugin API.
+	 * Initialize the class and set its properties.
 	 *
-	 * @var Core
+	 * @param Command[] $commands An array of CLI commands to register.
 	 */
-	private $core;
-
-	/**
-	 * Creates an instance of the plugin controller.
-	 *
-	 * @since 2.3.0 Component parameters replaced with factory-cofigured array.
-	 *
-	 * @param Core        $core       The core API.
-	 * @param Component[] $components An array of plugin components.
-	 */
-	public function __construct( Core $core, array $components ) {
-		$this->core       = $core;
-		$this->components = $components;
+	public function __construct( array $commands ) {
+		$this->commands = $commands;
 	}
 
 	/**
-	 * Starts the plugin for real.
+	 * Sets up the various hooks for the plugin component.
 	 */
 	public function run() {
-		// Set plugin singleton.
-		Core::set_instance( $this->core );
+		\add_action( 'cli_init', [ $this, 'register_commands' ] );
+	}
 
-		foreach ( $this->components as $component ) {
-			$component->run();
+	/**
+	 * Registeres all the different CLI commands.
+	 */
+	public function register_commands() {
+		foreach ( $this->commands as $cmd ) {
+			$cmd->register();
 		}
 	}
 }

@@ -30,11 +30,10 @@ use Dice\Dice;
 
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Component;
+use Avatar_Privacy\Components;
+use Avatar_Privacy\Controller;
+use Avatar_Privacy\CLI;
 use Avatar_Privacy\Settings;
-
-use Avatar_Privacy\Components\Block_Editor;
-use Avatar_Privacy\Components\Shortcodes;
-use Avatar_Privacy\Components\User_Profile;
 
 use Avatar_Privacy\Upload_Handlers\Upload_Handler;
 
@@ -137,9 +136,17 @@ class Factory extends Dice {
 				'constructParams' => [ $this->get_plugin_version( \AVATAR_PRIVACY_PLUGIN_FILE ) ],
 			],
 
+			// The plugin controller.
+			Controller::class                               => [
+				'constructParams' => [ $this->get_components() ],
+			],
+
 			// Components.
 			Component::class                                => self::SHARED,
-			Integrations::class                             => [
+			Components\Command_Line_Interface::class        => [
+				'constructParams' => [ $this->get_cli_commands() ],
+			],
+			Components\Integrations::class                  => [
 				'constructParams' => [ $this->get_plugin_integrations() ],
 			],
 
@@ -274,17 +281,17 @@ class Factory extends Dice {
 				],
 			],
 
-			Block_Editor::class                             => [
+			Components\Block_Editor::class                  => [
 				'substitutions' => [
 					User_Form::class => [ 'instance' => '$FrontendUserForm' ],
 				],
 			],
-			Shortcodes::class                               => [
+			Components\Shortcodes::class                    => [
 				'substitutions' => [
 					User_Form::class => [ 'instance' => '$FrontendUserForm' ],
 				],
 			],
-			User_Profile::class                             => [
+			Components\User_Profile::class                  => [
 				'substitutions' => [
 					User_Form::class => [ 'instance' => '$UserProfileForm' ],
 				],
@@ -316,11 +323,41 @@ class Factory extends Dice {
 	 */
 	protected function get_plugin_version( $plugin_file ) {
 		// Load version from plugin data.
-		if ( ! function_exists( 'get_plugin_data' ) ) {
+		if ( ! \function_exists( 'get_plugin_data' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
 		return \get_plugin_data( $plugin_file, false, false )['Version'];
+	}
+
+	/**
+	 * Retrieves the list of plugin components run during normal operations
+	 * (i.e. not including the Uninstallation component).
+	 *
+	 * @return array {
+	 *     An array of `Component` instances in `Dice` syntax.
+	 *
+	 *     @type array {
+	 *         @type string $instance The classname.
+	 *     }
+	 * }
+	 */
+	protected function get_components() {
+		return [
+			[ 'instance' => Components\Setup::class ],
+			[ 'instance' => Components\Image_Proxy::class ],
+			[ 'instance' => Components\Avatar_Handling::class ],
+			[ 'instance' => Components\Comments::class ],
+			[ 'instance' => Components\User_Profile::class ],
+			[ 'instance' => Components\Settings_Page::class ],
+			[ 'instance' => Components\Network_Settings_Page::class ],
+			[ 'instance' => Components\Privacy_Tools::class ],
+			[ 'instance' => Components\REST_API::class ],
+			[ 'instance' => Components\Integrations::class ],
+			[ 'instance' => Components\Shortcodes::class ],
+			[ 'instance' => Components\Block_Editor::class ],
+			[ 'instance' => Components\Command_Line_Interface::class ],
+		];
 	}
 
 	/**
@@ -372,6 +409,27 @@ class Factory extends Dice {
 			[ 'instance' => BBPress_Integration::class ],
 			[ 'instance' => WPDiscuz_Integration::class ],
 			[ 'instance' => WP_User_Manager_Integration::class ],
+		];
+	}
+
+	/**
+	 * Retrieves a list of CLI commands.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @return array {
+	 *     An array of `Command` instances in `Dice` syntax.
+	 *
+	 *     @type array {
+	 *         @type string $instance The classname.
+	 *     }
+	 * }
+	 */
+	protected function get_cli_commands() {
+		return [
+			[ 'instance' => CLI\Cron_Command::class ],
+			[ 'instance' => CLI\Database_Command::class ],
+			[ 'instance' => CLI\Uninstall_Command::class ],
 		];
 	}
 }

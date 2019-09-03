@@ -56,21 +56,6 @@ use Mockery as m;
 class Controller_Test extends \Avatar_Privacy\Tests\TestCase {
 
 	/**
-	 * Sets up the fixture, for example, opens a network connection.
-	 * This method is called before a test is executed.
-	 */
-	protected function setUp() { // @codingStandardsIgnoreLine
-		parent::setUp();
-	}
-
-	/**
-	 * Necesssary clean-up work.
-	 */
-	protected function tearDown() { // @codingStandardsIgnoreLine
-		parent::tearDown();
-	}
-
-	/**
 	 * Tests constructor.
 	 *
 	 * @covers ::__construct
@@ -80,18 +65,21 @@ class Controller_Test extends \Avatar_Privacy\Tests\TestCase {
 			\Avatar_Privacy\Controller::class,
 			[
 				m::mock( Core::class ),
-				m::mock( Setup::class ),
-				m::mock( Image_Proxy::class ),
-				m::mock( Avatar_Handling::class ),
-				m::mock( Comments::class ),
-				m::mock( User_Profile::class ),
-				m::mock( Settings_Page::class ),
-				m::mock( Network_Settings_Page::class ),
-				m::mock( Privacy_Tools::class ),
-				m::mock( REST_API::class ),
-				m::mock( Integrations::class ),
-				m::mock( Shortcodes::class ),
-				m::mock( Block_Editor::class ),
+				[
+					// This does not have to include all components anymore.
+					m::mock( Setup::class ),
+					m::mock( Image_Proxy::class ),
+					m::mock( Avatar_Handling::class ),
+					m::mock( Comments::class ),
+					m::mock( User_Profile::class ),
+					m::mock( Settings_Page::class ),
+					m::mock( Network_Settings_Page::class ),
+					m::mock( Privacy_Tools::class ),
+					m::mock( REST_API::class ),
+					m::mock( Integrations::class ),
+					m::mock( Shortcodes::class ),
+					m::mock( Block_Editor::class ),
+				],
 			]
 		)->makePartial();
 

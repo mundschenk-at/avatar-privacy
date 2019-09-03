@@ -35,6 +35,7 @@ use Mockery as m;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 
+use Avatar_Privacy\Core;
 use Avatar_Privacy\Data_Storage\Database;
 use Avatar_Privacy\Data_Storage\Network_Options;
 
@@ -54,6 +55,13 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var \Avatar_Privacy\Data_Storage\Database
 	 */
 	private $sut;
+
+	/**
+	 * Helper object.
+	 *
+	 * @var Core
+	 */
+	private $core;
 
 	/**
 	 * Helper object.
@@ -85,10 +93,11 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 		$root = vfsStream::setup( 'root', null, $filesystem );
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
+		$this->core            = m::mock( Core::class );
 		$this->network_options = m::mock( Network_Options::class );
 
 		// Partially mock system under test.
-		$this->sut = m::mock( Database::class, [ $this->network_options ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Database::class, [ $this->core, $this->network_options ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -98,9 +107,11 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_constructor() {
 		$mock = m::mock( Database::class )->makePartial();
-		$mock->__construct( $this->network_options );
+		$mock->__construct( $this->core, $this->network_options );
 
+		$this->assertAttributeSame( $this->core, 'core', $mock );
 		$this->assertAttributeSame( $this->network_options, 'network_options', $mock );
+		$this->assertAttributeInternalType( 'array', 'placeholder', $mock );
 	}
 
 	/**
@@ -572,6 +583,10 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::prepare_insert_update_query.
 	 *
 	 * @covers ::prepare_insert_update_query
+	 *
+	 * @uses Avatar_Privacy\Data_Storage\Database::get_placeholders
+	 * @uses Avatar_Privacy\Data_Storage\Database::get_prepared_values
+	 * @uses Avatar_Privacy\Data_Storage\Database::get_update_clause
 	 */
 	public function test_prepare_insert_update_query() {
 		global $wpdb;
@@ -714,6 +729,179 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Tests ::prepare_insert_update_query.
+	 *
+	 * @covers ::prepare_insert_update_query
+	 */
+	public function test_prepare_insert_update_query_no_valid_fields() {
+		global $wpdb;
+		$wpdb            = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$network_id      = 5;
+		$site_id         = 3;
+		$rows_to_update  = [
+			3  => (object) [
+				'id'           => 1,
+				'email'        => 'foo@bar.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-17 22:23:08',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 1,
+			],
+			11 => (object) [
+				'id'           => 7,
+				'email'        => 'xxx@foobar.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-19 10:00:00',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 1,
+			],
+		];
+		$rows_to_migrate = [
+			(object) [
+				'id'           => 32,
+				'email'        => 'foobar@bar.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-18 10:00:00',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 0,
+			],
+			(object) [
+				'id'           => 33,
+				'email'        => 'bar@foo.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-18 10:00:00',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 1,
+			],
+			(object) [
+				'id'           => 66,
+				'email'        => 'x@foobar.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-18 10:00:00',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 0,
+			],
+		];
+		$table_name      = 'foobar';
+		$fields          = [ 'foobar' ];
+		$result          = false;
+
+		$wpdb->shouldReceive( 'prepare' )->never();
+
+		$this->assertSame( $result, $this->sut->prepare_insert_update_query( $rows_to_update, $rows_to_migrate, $table_name, $fields ) );
+	}
+
+	/**
+	 * Provides data for testing get_update_clause.
+	 *
+	 * @return array
+	 */
+	public function provide_get_update_clause_data() {
+		return [
+			[
+				[ 'email', 'hash', 'use_gravatar' ],
+				"email = VALUES(email),\nhash = VALUES(hash),\nuse_gravatar = VALUES(use_gravatar),\nlast_updated = last_updated,\nlog_message = log_message",
+			],
+			[
+				[ 'log_message' ],
+				"email = email,\nhash = hash,\nuse_gravatar = use_gravatar,\nlast_updated = last_updated,\nlog_message = VALUES(log_message)",
+			],
+			[
+				[ 'email', 'hash', 'use_gravatar', 'last_updated', 'log_message' ],
+				"email = VALUES(email),\nhash = VALUES(hash),\nuse_gravatar = VALUES(use_gravatar),\nlast_updated = VALUES(last_updated),\nlog_message = VALUES(log_message)",
+			],
+
+		];
+	}
+
+	/**
+	 * Tests ::get_update_clause.
+	 *
+	 * @covers ::get_update_clause
+	 *
+	 * @dataProvider provide_get_update_clause_data
+	 *
+	 * @param string[] $fields  A list of columns.
+	 * @param string   $result  The expected result.
+	 */
+	public function test_get_update_clause( array $fields, $result ) {
+		$this->assertSame( $result, $this->sut->get_update_clause( $fields ) );
+	}
+
+	/**
+	 * Tests ::get_prepared_values.
+	 *
+	 * @covers ::get_prepared_values
+	 */
+	public function test_get_prepared_values() {
+		$network_id = 5;
+		$site_id    = 3;
+		$rows       = [
+			3  => (object) [
+				'id'           => 1,
+				'email'        => 'foo@bar.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-17 22:23:08',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 1,
+			],
+			11 => (object) [
+				'id'           => 7,
+				'email'        => 'xxx@foobar.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-19 10:00:00',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 1,
+			],
+		];
+		$fields     = [
+			'email',
+			'use_gravatar',
+			'last_updated',
+		];
+		$result     = [
+			3, // real ID.
+			'foo@bar.org',
+			1, // use_gravatar.
+			'2018-12-17 22:23:08',
+			11, // real ID.
+			'xxx@foobar.org',
+			1, // use_gravatar.
+			'2018-12-19 10:00:00',
+		];
+
+		$this->assertSame( $result, $this->sut->get_prepared_values( $rows, $fields, true ) );
+	}
+
+	/**
+	 * Provides data for testing get_placeholders.
+	 *
+	 * @return array
+	 */
+	public function provide_get_placeholders_data() {
+		return [
+			[ [ 'email', 'hash', 'use_gravatar' ], true, '(%d,%s,%s,%d)' ],
+			[ [ 'email', 'hash', 'use_gravatar' ], false, '(NULL,%s,%s,%d)' ],
+			[ [ 'email', 'hash', 'use_gravatar', 'last_updated', 'log_message' ], true, '(%d,%s,%s,%d,%s,%s)' ],
+		];
+	}
+
+	/**
+	 * Tests ::get_placeholders.
+	 *
+	 * @covers ::get_placeholders
+	 *
+	 * @dataProvider provide_get_placeholders_data
+	 *
+	 * @param string[] $fields  A list of columns.
+	 * @param bool     $with_id Whether the ID should be included.
+	 * @param string   $result  The expected result.
+	 */
+	public function test_get_placeholders( array $fields, $with_id, $result ) {
+		$this->assertSame( $result, $this->sut->get_placeholders( $fields, $with_id ) );
+	}
+
+	/**
 	 * Tests ::prepare_email_query.
 	 *
 	 * @covers ::prepare_email_query
@@ -815,5 +1003,86 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 		$wpdb->shouldReceive( 'prepare' )->never();
 
 		$this->assertSame( $result, $this->sut->prepare_delete_query( $ids, $table_name ) );
+	}
+
+	/**
+	 * Tests ::maybe_upgrade_table_data.
+	 *
+	 * @covers ::maybe_upgrade_table_data
+	 */
+	public function test_maybe_upgrade_table_data() {
+		$network_id = 5;
+		$site_id    = 3;
+		$rows       = [
+			3  => (object) [
+				'id'           => 3,
+				'email'        => 'foo@bar.org',
+			],
+			11 => (object) [
+				'id'           => 11,
+				'email'        => 'xxx@foobar.org',
+			],
+		];
+		$fields     = [
+			'email',
+			'use_gravatar',
+			'last_updated',
+		];
+		$result     = 2; // Affected row count.
+
+		// Fake global.
+		global $wpdb;
+		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$table_name = 'my_table';
+
+		$this->sut->shouldReceive( 'get_table_name' )->once()->andReturn( $table_name );
+
+		$wpdb->shouldReceive( 'get_results' )->once()->with( "SELECT id, email FROM {$table_name} WHERE hash is null", \OBJECT_K )->andReturn( $rows );
+		$this->core->shouldReceive( 'get_hash' )->times( \count( $rows ) )->with( m::type( 'string' ) )->andReturn( 'hashed email' );
+
+		$this->sut->shouldReceive( 'prepare_insert_update_query' )->once()->with( $rows, [], $table_name, [ 'hash' ] )->andReturn( 'UPDATE_QUERY' );
+		$wpdb->shouldReceive( 'query' )->once()->with( 'UPDATE_QUERY' );
+
+		$this->assertSame( $result, $this->sut->maybe_upgrade_table_data() );
+	}
+
+	/**
+	 * Tests ::maybe_upgrade_table_data.
+	 *
+	 * @covers ::maybe_upgrade_table_data
+	 */
+	public function test_maybe_upgrade_table_data_error() {
+		$network_id = 5;
+		$site_id    = 3;
+		$rows       = [
+			3  => (object) [
+				'id'           => 3,
+				'email'        => 'foo@bar.org',
+			],
+			11 => (object) [
+				'id'           => 11,
+				'email'        => 'xxx@foobar.org',
+			],
+		];
+		$fields     = [
+			'email',
+			'use_gravatar',
+			'last_updated',
+		];
+
+		// Fake global.
+		global $wpdb;
+		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$table_name = 'my_table';
+
+		$this->sut->shouldReceive( 'get_table_name' )->once()->andReturn( $table_name );
+
+		$wpdb->shouldReceive( 'get_results' )->once()->with( "SELECT id, email FROM {$table_name} WHERE hash is null", \OBJECT_K )->andReturn( $rows );
+		$this->core->shouldReceive( 'get_hash' )->times( \count( $rows ) )->with( m::type( 'string' ) )->andReturn( 'hashed email' );
+
+		$this->sut->shouldReceive( 'prepare_insert_update_query' )->once()->with( $rows, [], $table_name, [ 'hash' ] )->andReturn( false );
+		$wpdb->shouldReceive( 'query' )->never();
+
+		$this->assertSame( 0, $this->sut->maybe_upgrade_table_data() );
 	}
 }
