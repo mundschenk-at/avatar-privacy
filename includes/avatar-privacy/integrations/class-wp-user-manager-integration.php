@@ -35,19 +35,14 @@ use Carbon_Fields\Field\Field;
 /**
  * An integration for WP User Manager.
  *
- * @since      2.2.0
- * @author     Peter Putzer <github@mundschenk.at>
+ * @since  2.2.0
+ * @since  2.3.0 Methods and properties related to obsolete profile picture upload hnadling removed.
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
 class WP_User_Manager_Integration implements Plugin_Integration {
 
 	const WP_USER_MANAGER_META_KEY = 'current_user_avatar';
-
-	/**
-	 * The user profile component.
-	 *
-	 * @var User_Profile
-	 */
-	private $profile;
 
 	/**
 	 * The avatar upload handler.
@@ -64,21 +59,12 @@ class WP_User_Manager_Integration implements Plugin_Integration {
 	private $flush_cache = false;
 
 	/**
-	 * Indiciates whether the settings page is buffering its output.
-	 *
-	 * @var bool
-	 */
-	private $buffering;
-
-	/**
 	 * Creates a new instance.
 	 *
-	 * @param User_Profile               $profile The user profile component.
 	 * @param User_Avatar_Upload_Handler $upload  The avatar upload handler.
 	 */
-	public function __construct( User_Profile $profile, User_Avatar_Upload_Handler $upload ) {
-		$this->profile = $profile;
-		$this->upload  = $upload;
+	public function __construct( User_Avatar_Upload_Handler $upload ) {
+		$this->upload = $upload;
 	}
 
 	/**
@@ -94,10 +80,10 @@ class WP_User_Manager_Integration implements Plugin_Integration {
 	 * Activate the integration.
 	 */
 	public function run() {
-		if ( \is_admin() ) {
-			\add_action( 'admin_init', [ $this, 'remove_profile_picture_upload' ] );
-		}
+		// Disable profile image uploading.
+		\add_filter( 'avatar_privacy_profile_picture_upload_disabled', '__return_true' );
 
+		// Serve WP User Manager profile pictures via the filesystem cache.
 		\add_filter( 'avatar_privacy_pre_get_user_avatar',      [ $this, 'enable_wpusermanager_user_avatars' ], 10, 2 );
 		\add_filter( 'carbon_fields_should_save_field_value',   [ $this, 'maybe_mark_user_avater_for_cache_flushing' ], 9999, 3 );
 		\add_action( 'carbon_fields_user_meta_container_saved', [ $this, 'maybe_flush_cache_after_saving_user_avatar' ], 10, 1 );
@@ -124,54 +110,6 @@ class WP_User_Manager_Integration implements Plugin_Integration {
 			'file' => $file,
 			'type' => $type,
 		];
-	}
-
-	/**
-	 * Enables output buffering.
-	 */
-	public function admin_head() {
-		if ( \ob_start( [ $this, 'remove_profile_picture_section' ] ) ) {
-			$this->buffering = true;
-		}
-	}
-
-	/**
-	 * Cleans up any output buffering.
-	 */
-	public function admin_footer() {
-		// Clean up output buffering.
-		if ( $this->buffering && \ob_get_level() > 0 ) {
-			\ob_end_flush();
-			$this->buffering = false;
-		}
-	}
-
-	/**
-	 * Remove the profile picture section from the user profile screen.
-	 *
-	 * @param  string $content The captured HTML output.
-	 *
-	 * @return string
-	 */
-	public function remove_profile_picture_section( $content ) {
-		return \preg_replace( '#(<tr class="user-profile-picture">.*<p class="description">).*(</p>.*</tr>)#Usi', '$1$2', $content );
-	}
-
-	/**
-	 * Removes the profile picture upload handling.
-	 */
-	public function remove_profile_picture_upload() {
-		// Unhook the default handlers.
-		\remove_action( 'admin_head-profile.php',     [ $this->profile, 'admin_head' ] );
-		\remove_action( 'admin_head-user-edit.php',   [ $this->profile, 'admin_head' ] );
-		\remove_action( 'admin_footer-profile.php',   [ $this->profile, 'admin_footer' ] );
-		\remove_action( 'admin_footer-user-edit.php', [ $this->profile, 'admin_footer' ] );
-
-		// Remove the profile picture setting completely.
-		\add_action( 'admin_head-profile.php',     [ $this, 'admin_head' ] );
-		\add_action( 'admin_head-user-edit.php',   [ $this, 'admin_head' ] );
-		\add_action( 'admin_footer-profile.php',   [ $this, 'admin_footer' ] );
-		\add_action( 'admin_footer-user-edit.php', [ $this, 'admin_footer' ] );
 	}
 
 	/**

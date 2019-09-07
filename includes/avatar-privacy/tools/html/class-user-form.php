@@ -214,7 +214,17 @@ class User_Form {
 		$upload_field   = $this->user_avatar['field'];
 		$erase_field    = $this->user_avatar['erase'];
 		$current_avatar = \get_user_meta( $user_id, Core::USER_AVATAR_META_KEY, true );
-		$can_upload     = \current_user_can( 'upload_files' );
+
+		/**
+		 * Filters whether native profile picture uploading is disabled for some
+		 * reasone (e.g. because another plugin already provides for that).
+		 *
+		 * @since 2.3.0
+		 *
+		 * @param bool $disabled Default false.
+		 */
+		$uploads_disabled = \apply_filters( 'avatar_privacy_profile_picture_upload_disabled', false );
+		$can_upload       = empty( $uploads_disabled ) && \current_user_can( 'upload_files' );
 
 		// Merge default arguments.
 		$args = \wp_parse_args( $args, [

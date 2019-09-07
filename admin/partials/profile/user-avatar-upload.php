@@ -30,17 +30,21 @@ use Avatar_Privacy\Tools\Template;
 /**
  * Required template variables:
  *
- * @var string $nonce          The nonce itself.
- * @var string $action         The nonce action.
- * @var string $upload_field   The name of the uploader `<input>` element.
- * @var string $erase_field    The name of the erase checkbox `<input>` element.
- * @var int    $user_id        The ID of the edited user.
- * @var string $current_avatar The previously set user avatar.
- * @var bool   $can_upload     Whether the currently active user can upload files.
- * @var int    $size           The width/height of the avatar preview image (in pixels).
+ * @var string $nonce            The nonce itself.
+ * @var string $action           The nonce action.
+ * @var string $upload_field     The name of the uploader `<input>` element.
+ * @var string $erase_field      The name of the erase checkbox `<input>` element.
+ * @var int    $user_id          The ID of the edited user.
+ * @var string $current_avatar   The previously set user avatar.
+ * @var bool   $can_upload       Whether the currently active user can upload files.
+ * @var bool   $uploads_disabled Whether the uploads system has been disabled completely..
+ * @var int    $size             The width/height of the avatar preview image (in pixels).
  */
 
-if ( $can_upload ) {
+if ( $uploads_disabled ) {
+	// We integrate with some other plugin, so skip the description.
+	$description = '';
+} elseif ( $can_upload ) {
 	if ( empty( $current_avatar ) ) {
 		$description = \sprintf(
 			/* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */

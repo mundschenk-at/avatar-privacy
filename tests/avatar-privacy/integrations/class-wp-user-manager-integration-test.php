@@ -62,13 +62,6 @@ class WP_User_Manager_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Mocked helper object.
 	 *
-	 * @var User_Profile
-	 */
-	private $profile;
-
-	/**
-	 * Mocked helper object.
-	 *
 	 * @var User_Avatar_Upload_Handler
 	 */
 	private $upload;
@@ -80,10 +73,9 @@ class WP_User_Manager_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	protected function setUp() {
 		parent::setUp();
 
-		$this->profile = m::mock( User_Profile::class );
-		$this->upload  = m::mock( User_Avatar_Upload_Handler::class );
+		$this->upload = m::mock( User_Avatar_Upload_Handler::class );
 
-		$this->sut = m::mock( WP_User_Manager_Integration::class, [ $this->profile, $this->upload ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( WP_User_Manager_Integration::class, [ $this->upload ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -94,9 +86,8 @@ class WP_User_Manager_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( WP_User_Manager_Integration::class )->makePartial();
 
-		$mock->__construct( $this->profile, $this->upload );
+		$mock->__construct( $this->upload );
 
-		$this->assertAttributeSame( $this->profile, 'profile', $mock );
 		$this->assertAttributeSame( $this->upload, 'upload', $mock );
 	}
 
@@ -120,14 +111,16 @@ class WP_User_Manager_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::run
 	 */
 	public function test_run() {
-		$core = m::mock( \Avatar_Privacy\Core::class );
 
-		Functions\expect( 'is_admin' )->once()->andReturn( false );
+		Filters\expectAdded( 'avatar_privacy_profile_picture_upload_disabled' )->once()->with( '__return_true' );
+		Filters\expectAdded( 'avatar_privacy_pre_get_user_avatar' )->once()->with( [ $this->sut, 'enable_wpusermanager_user_avatars' ], 10, 2 );
+		Filters\expectAdded( 'carbon_fields_should_save_field_value' )->once()->with( [ $this->sut, 'maybe_mark_user_avater_for_cache_flushing' ], 9999, 3 );
 
-		Actions\expectAdded( 'admin_init' )->never();
+		Actions\expectAdded( 'carbon_fields_user_meta_container_saved' )->once()->with( [ $this->sut, 'maybe_flush_cache_after_saving_user_avatar' ], 10, 1 );
 
-		$this->assertNull( $this->sut->run( $core ) );
+		$this->assertNull( $this->sut->run() );
 	}
+
 
 	/**
 	 * Tests ::enable_wpusermanager_user_avatars.
@@ -147,89 +140,6 @@ class WP_User_Manager_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'wp_check_filetype' )->once()->with( $file )->andReturn( [ 'type' => $type ] );
 
 		$this->assertSame( $result, $this->sut->enable_wpusermanager_user_avatars( null, $user_id ) );
-	}
-
-	/**
-	 * Tests ::run.
-	 *
-	 * @covers ::run
-	 */
-	public function test_run_admin() {
-		$core = m::mock( \Avatar_Privacy\Core::class );
-
-		Functions\expect( 'is_admin' )->once()->andReturn( true );
-
-		Actions\expectAdded( 'admin_init' )->once()->with( [ $this->sut, 'remove_profile_picture_upload' ] );
-
-		$this->assertNull( $this->sut->run( $core ) );
-	}
-
-	/**
-	 * Tests ::admin_head.
-	 *
-	 * @covers ::admin_head
-	 */
-	public function test_admin_head() {
-		$this->assertNull( $this->sut->admin_head() );
-		$this->assertAttributeSame( true, 'buffering', $this->sut );
-
-		$this->sut->shouldReceive( 'remove_profile_picture_section' )->once();
-
-		// Clean up.
-		\ob_end_flush();
-	}
-
-	/**
-	 * Tests ::admin_footer.
-	 *
-	 * @covers ::admin_footer
-	 */
-	public function test_admin_footer() {
-		// Fake settings_head.
-		\ob_start();
-		$this->setValue( $this->sut, 'buffering', true, WP_User_Manager_Integration::class );
-
-		$this->assertNull( $this->sut->admin_footer() );
-		$this->assertAttributeSame( false, 'buffering', $this->sut );
-	}
-
-
-	/**
-	 * Tests ::remove_profile_picture_section.
-	 *
-	 * @covers ::remove_profile_picture_section
-	 */
-	public function test_remove_profile_picture_section() {
-		// Content should be unchanged, as `markup` is empty.
-		$content = 'some content with <tr class="user-profile-picture">foobar</tr>';
-		$this->assertSame( $content, $this->sut->remove_profile_picture_section( $content ) );
-
-		// Content should be unchanged because the pattern does not match.
-		$content = 'some content with <tr class="foobar">foobar<p class="description">FOOBAR</p></tr>';
-		$this->assertSame( $content, $this->sut->remove_profile_picture_section( $content ) );
-
-		// Finally, the content should be modified.
-		$content = 'some content with <tr class="user-profile-picture">foobar<p class="description">FOOBAR</p></tr>';
-		$this->assertSame( 'some content with <tr class="user-profile-picture">foobar<p class="description"></p></tr>', $this->sut->remove_profile_picture_section( $content ) );
-	}
-
-	/**
-	 * Tests ::remove_profile_picture_upload.
-	 *
-	 * @covers ::remove_profile_picture_upload
-	 */
-	public function test_remove_profile_picture_upload() {
-		Functions\expect( 'remove_action' )->once()->with( 'admin_head-profile.php', [ $this->profile, 'admin_head' ] );
-		Functions\expect( 'remove_action' )->once()->with( 'admin_head-user-edit.php', [ $this->profile, 'admin_head' ] );
-		Functions\expect( 'remove_action' )->once()->with( 'admin_footer-profile.php', [ $this->profile, 'admin_footer' ] );
-		Functions\expect( 'remove_action' )->once()->with( 'admin_footer-user-edit.php', [ $this->profile, 'admin_footer' ] );
-
-		Actions\expectAdded( 'admin_head-profile.php' )->once()->with( [ $this->sut, 'admin_head' ] );
-		Actions\expectAdded( 'admin_head-user-edit.php' )->once()->with( [ $this->sut, 'admin_head' ] );
-		Actions\expectAdded( 'admin_footer-profile.php' )->once()->with( [ $this->sut, 'admin_footer' ] );
-		Actions\expectAdded( 'admin_footer-user-edit.php' )->once()->with( [ $this->sut, 'admin_footer' ] );
-
-		$this->assertNull( $this->sut->remove_profile_picture_upload() );
 	}
 
 	/**
