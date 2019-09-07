@@ -223,6 +223,9 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 			]
 		);
 
+		// FIXME: We should check for template variables.
+		Filters\expectApplied( 'avatar_privacy_profile_picture_upload_disabled' )->once()->with( false )->andReturn( false );
+
 		Functions\expect( 'get_user_meta' )->once()->with( $user_id,  Core::USER_AVATAR_META_KEY, true )->andReturn( [ 'fake avatar' ] );
 		Functions\expect( 'current_user_can' )->once()->with( 'upload_files' )->andReturn( true );
 		Functions\expect( 'wp_parse_args' )->once()->with(
