@@ -60,6 +60,18 @@ URL: <http://scott.sherrillmix.com/blog/blogger/wp_monsterid-update-hand-drawn-m
 License: GPLv2 or later\
 License URL: <https://www.gnu.org/licenses/gpl-2.0.en.html>
 
+## robohash/*.svg
+
+The RoboHash implementation is based on Nimiq's SVG version of the original images
+created by Zikri Kader for Colin Davis RoboHash.org project.
+
+Copyright: Zikri Kader, Colin Davis (2011), Nimiq (2017)\
+URL (PNG): <https://github.com/e1ven/Robohash/>\
+URL (SVG): <https://github.com/nimiq/robohash/>\
+License: CC-BY 4.0 (attribution _Zikri Kader_)\
+License URL: <https://creativecommons.org/licenses/by/4.0/>
+
+
 ## wavatars/*.png
 
 The Wavatars impelementation is based on the original WordPress plugin by Shamus Young.
