@@ -338,9 +338,6 @@ class Monster_ID extends PNG_Parts_Generator {
 	 * @return resource             The image, for chaining.
 	 */
 	protected function colorize_image( $image, $hue = 360, $saturation = 100, $part = '' ) {
-		$imgw = \imageSX( $image );
-		$imgh = \imageSY( $image );
-
 		// Ensure non-negative hue.
 		$hue = $hue < 0 ? self::DEGREE + $hue : $hue;
 
@@ -352,9 +349,9 @@ class Monster_ID extends PNG_Parts_Generator {
 			$ymax = $this->part_optimization[ $part ][1][1];
 		} else {
 			$xmin = 0;
-			$xmax = $imgw - 1;
+			$xmax = \imageSX( $image ) - 1;
 			$ymin = 0;
-			$ymax = $imgh - 1;
+			$ymax = \imageSY( $image ) - 1;
 		}
 
 		for ( $i = $xmin; $i <= $xmax; $i++ ) {
