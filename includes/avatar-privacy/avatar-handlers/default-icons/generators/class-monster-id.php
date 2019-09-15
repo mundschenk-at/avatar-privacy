@@ -52,14 +52,16 @@ class Monster_ID extends PNG_Parts_Generator {
 		'mouth_S4.png' => true,
 	];
 	const SPECIFIC_COLOR_PARTS = [
-		'hair_S4.png'  => [ .6, .75 ],
-		'arms_S2.png'  => [ -.05, .05 ],
-		'hair_S6.png'  => [ -.05, .05 ],
-		'mouth_9.png'  => [ -.05, .05 ],
-		'mouth_6.png'  => [ -.05, .05 ],
-		'mouth_S2.png' => [ -.05, .05 ],
+		// Blue (values are hue degrees).
+		'hair_S4.png'  => [ 216, 270 ],
+		// Red (values are hue degrees).
+		'arms_S2.png'  => [ -18, 18 ],
+		'hair_S6.png'  => [ -18, 18 ],
+		'mouth_9.png'  => [ -18, 18 ],
+		'mouth_6.png'  => [ -18, 18 ],
+		'mouth_S2.png' => [ -18, 18 ],
 	];
-	const RANDOM_COLOR_PARTS   = [
+	const RANDOM_COLOR_PARTS = [
 		'arms_3.png'   => true,
 		'arms_4.png'   => true,
 		'arms_5.png'   => true,
@@ -268,14 +270,12 @@ class Monster_ID extends PNG_Parts_Generator {
 	 */
 	protected function get_additional_arguments( $seed, $size, array $parts ) {
 		// Randomize colors.
-		$max_rand   = \mt_getrandmax();
-		$hue        = $this->number_generator->get( 0, $max_rand - 1 ) / $max_rand * self::DEGREE;
-		$saturation = $this->number_generator->get( 25000, 100000 ) / 100000 * self::PERCENT;
+		$hue        = $this->number_generator->get( 0, self::DEGREE - 1 );
+		$saturation = $this->number_generator->get( 25, self::PERCENT );
 
 		return [
 			'hue'        => $hue,
 			'saturation' => $saturation,
-			'max_rand'   => $max_rand,
 		];
 	}
 
@@ -302,18 +302,18 @@ class Monster_ID extends PNG_Parts_Generator {
 			} elseif ( isset( $this->random_color_parts[ $file ] ) ) {
 				$this->colorize_image(
 					$im,
-					$this->number_generator->get( 0, $args['max_rand'] - 1 ) / $args['max_rand'] * self::DEGREE,
-					$this->number_generator->get( 25000, 100000 ) / 100000 * self::PERCENT,
+					$this->number_generator->get( 0, self::DEGREE - 1 ),
+					$this->number_generator->get( 25, self::PERCENT ),
 					$file
 				);
 			} elseif ( isset( $this->specific_color_parts[ $file ] ) ) {
-				$low  = (int) $this->specific_color_parts[ $file ][0] * 10000;
-				$high = (int) $this->specific_color_parts[ $file ][1] * 10000;
+				// Retrieve specific hue range.
+				list( $low, $high ) = $this->specific_color_parts[ $file ];
 
 				$this->colorize_image(
 					$im,
-					$this->number_generator->get( $low, $high ) / 10000 * self::DEGREE,
-					$this->number_generator->get( 25000, 100000 ) / 100000 * self::PERCENT,
+					$this->number_generator->get( $low, $high ),
+					$this->number_generator->get( 25, self::PERCENT ),
 					$file
 				);
 			}
