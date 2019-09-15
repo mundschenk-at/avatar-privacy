@@ -38,8 +38,9 @@ use org\bovigo\vfs\vfsStreamDirectory;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Monster_ID;
 
 use Avatar_Privacy\Data_Storage\Site_Transients;
+use Avatar_Privacy\Tools\Number_Generator;
 use Avatar_Privacy\Tools\Images\Editor;
-
+use Avatar_Privacy\Tools\Images\PNG;
 
 /**
  * Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Monster_ID unit test.
@@ -49,7 +50,7 @@ use Avatar_Privacy\Tools\Images\Editor;
  *
  * @uses ::__construct
  * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Parts_Generator::__construct
- * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator::__construct
+ * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Parts_Generator::__construct
  */
 class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
@@ -59,6 +60,20 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var Monster_ID
 	 */
 	private $sut;
+
+	/**
+	 * The Images\PNG mock.
+	 *
+	 * @var PNG
+	 */
+	private $png;
+
+	/**
+	 * The Number_Generator mock.
+	 *
+	 * @var Number_Generator
+	 */
+	private $number_generator;
 
 	/**
 	 * The full path of the folder containing the real images.
@@ -106,13 +121,15 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->real_image_path = \dirname( \dirname( \dirname( \dirname( \dirname( __DIR__ ) ) ) ) ) . '/public/images/monster-id';
 
 		// Helper mocks.
-		$editor     = m::mock( Editor::class );
-		$transients = m::mock( Site_Transients::class );
+		$editor                 = m::mock( Editor::class );
+		$this->png              = m::mock( PNG::class );
+		$this->number_generator = m::mock( Number_Generator::class );
+		$transients             = m::mock( Site_Transients::class );
 
 		// Partially mock system under test.
-		$this->sut = m::mock( Monster_ID::class, [ $editor, $transients ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Monster_ID::class, [ $editor, $this->png, $this->number_generator, $transients ] )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		// Override the parts directory.
+		// Override necessary properties.
 		$this->setValue( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/monster-id' ) );
 	}
 
@@ -121,120 +138,78 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @covers ::__construct
 	 *
-	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator::__construct
+	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Parts_Generator::__construct
 	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Parts_Generator::__construct
 	 */
 	public function test_constructor() {
-		$editor     = m::mock( Editor::class );
-		$transients = m::mock( Site_Transients::class );
-		$mock       = m::mock( Monster_ID::class )->makePartial()->shouldAllowMockingProtectedMethods();
+		$editor           = m::mock( Editor::class );
+		$png              = m::mock( PNG::class );
+		$number_generator = m::mock( Number_Generator::class );
+		$transients       = m::mock( Site_Transients::class );
+		$mock             = m::mock( Monster_ID::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $mock, '__construct', [ $editor, $transients ] );
+		$this->invokeMethod( $mock, '__construct', [ $editor, $png, $number_generator, $transients ] );
 
-		// An attribute of the PNG_Generator superclass.
-		$this->assertAttributeSame( $editor, 'images', $mock );
+		// An attribute of the PNG_Parts_Generator superclass.
+		$this->assertAttributeSame( $editor, 'editor', $mock );
 	}
 
 	/**
-	 * Tests ::build.
+	 * Tests ::get_additional_arguments.
 	 *
-	 * @covers ::build
+	 * @covers ::get_additional_arguments
 	 */
-	public function test_build() {
-		$seed = 'fake email hash';
-		$size = 42;
-		$data = 'fake SVG image';
-
-		// Intermediate results.
-		$parts        = [
+	public function test_get_additional_arguments() {
+		$seed  = 'fake email hash';
+		$size  = 42;
+		$parts = [
 			'body'  => 'body_2.png',
 			'arms'  => 'arms_S8.png', // SAME_COLOR_PARTS.
 			'legs'  => 'legs_1.png', // RANDOM_COLOR_PARTS.
 			'mouth' => 'mouth_6.png', // SPECIFIC_COLOR_PARTS.
 		];
+
+		$this->number_generator->shouldReceive( 'get' )->times( 2 )->with( m::type( 'int' ), m::type( 'int' ) )->andReturn( 8000, 25500 );
+
+		$result = $this->sut->get_additional_arguments( $seed, $size, $parts );
+
+		$this->assertInternalType( 'array', $result );
+		$this->assertArrayHasKey( 'hue', $result );
+		$this->assertArrayHasKey( 'saturation', $result );
+		$this->assertArrayHasKey( 'max_rand', $result );
+	}
+
+	/**
+	 * Tests ::render_avatar.
+	 *
+	 * @covers ::render_avatar
+	 */
+	public function test_render_avatar() {
+		// Input.
+		$parts        = [
+			'body'  => 'body_2.png',
+			'arms'  => 'arms_S8.png', // SAME_COLOR_PARTS.
+			'legs'  => 'legs_1.png',  // RANDOM_COLOR_PARTS.
+			'mouth' => 'mouth_6.png', // SPECIFIC_COLOR_PARTS.
+		];
+		$args         = [
+			'hue'        => 350.55,
+			'saturation' => 77.3,
+			'max_rand'   => \mt_getrandmax(),
+		];
 		$parts_number = \count( $parts );
-		$fake_image   = \imageCreateTrueColor( $size, $size );
+		$background   = \imageCreateTrueColor( 50, 50 );
+		$fake_image   = \imageCreateTrueColor( 50, 50 );
 
-		$this->sut->shouldReceive( 'get_randomized_parts' )->once()->with( m::type( 'callable' ) )->andReturn( $parts );
+		$this->number_generator->shouldReceive( 'get' )->times( 4 )->with( m::type( 'int' ), m::type( 'int' ) )->andReturn( 8008000, 25500, 10000, 606000 );
 
-		$this->sut->shouldReceive( 'create_image_from_file' )->once()->with( vfsStream::url( 'root/plugin/public/images/monster-id/back.png' ) )->andReturn( $fake_image );
-		$this->sut->shouldReceive( 'create_image_from_file' )->times( $parts_number )->with( m::type( 'string' ) )->andReturn( $fake_image );
+		$this->png->shouldReceive( 'create_from_file' )->once()->with( m::pattern( '/\bback\.png$/' ) )->andReturn( $background );
+		$this->png->shouldReceive( 'create_from_file' )->times( $parts_number )->with( m::type( 'string' ) )->andReturn( $fake_image );
 
 		$this->sut->shouldReceive( 'colorize_image' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'numeric' ), m::type( 'numeric' ), m::type( 'string' ) );
-		$this->sut->shouldReceive( 'apply_image' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'resource' ) );
+		$this->sut->shouldReceive( 'combine_images' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'resource' ) );
 
-		$this->sut->shouldReceive( 'get_resized_image_data' )->once()->with( m::type( 'resource' ), $size )->andReturn( $data );
-
-		$this->assertSame( $data, $this->sut->build( $seed, $size ) );
-	}
-
-	/**
-	 * Tests ::build.
-	 *
-	 * @covers ::build
-	 */
-	public function test_build_missing_background() {
-		$seed = 'fake email hash';
-		$size = 42;
-
-		// Intermediate results.
-		$parts        = [
-			'body'  => 'body_2.png',
-			'arms'  => 'arms_S8.png', // SAME_COLOR_PARTS.
-			'legs'  => 'legs_1.png', // RANDOM_COLOR_PARTS.
-			'mouth' => 'mouth_6.png', // SPECIFIC_COLOR_PARTS.
-		];
-		$parts_number = \count( $parts );
-
-		// Delete the background file.
-		\unlink( vfsStream::url( 'root/plugin/public/images/monster-id/back.png' ) );
-
-		$this->sut->shouldReceive( 'get_randomized_parts' )->once()->with( m::type( 'callable' ) )->andReturn( $parts );
-
-		$this->sut->shouldReceive( 'create_image_from_file' )->once()->with( vfsStream::url( 'root/plugin/public/images/monster-id/back.png' ) )->andThrow( \RuntimeException::class );
-
-		$this->sut->shouldReceive( 'colorize_image' )->never();
-		$this->sut->shouldReceive( 'apply_image' )->never();
-		$this->sut->shouldReceive( 'get_resized_image_data' )->never();
-
-		$this->assertFalse( $this->sut->build( $seed, $size ) );
-	}
-
-	/**
-	 * Tests ::build.
-	 *
-	 * @covers ::build
-	 */
-	public function test_build_missing_part() {
-		$seed = 'fake email hash';
-		$size = 42;
-
-		// Intermediate results.
-		$parts        = [
-			'body'  => 'body_2.png',
-			'arms'  => 'arms_S8.png', // SAME_COLOR_PARTS.
-			'legs'  => 'legs_1.png', // RANDOM_COLOR_PARTS.
-			'mouth' => 'mouth_6.png', // SPECIFIC_COLOR_PARTS.
-		];
-		$parts_number = \count( $parts );
-		$fake_image   = \imageCreateTrueColor( $size, $size );
-
-		// Delete body part.
-		\unlink( vfsStream::url( 'root/plugin/public/images/monster-id/mouth_6.png' ) );
-
-		$this->sut->shouldReceive( 'get_randomized_parts' )->once()->with( m::type( 'callable' ) )->andReturn( $parts );
-
-		$this->sut->shouldReceive( 'create_image_from_file' )->once()->with( vfsStream::url( 'root/plugin/public/images/monster-id/back.png' ) )->andReturn( $fake_image );
-
-		$this->sut->shouldReceive( 'create_image_from_file' )->once()->with( vfsStream::url( 'root/plugin/public/images/monster-id/mouth_6.png' ) )->andThrow( \RuntimeException::class );
-		$this->sut->shouldReceive( 'create_image_from_file' )->times( $parts_number - 1 )->with( m::type( 'string' ) )->andReturn( $fake_image, $fake_image, $fake_image, false );
-
-		$this->sut->shouldReceive( 'colorize_image' )->times( $parts_number - 1 )->with( m::type( 'resource' ), m::type( 'numeric' ), m::type( 'numeric' ), m::type( 'string' ) );
-		$this->sut->shouldReceive( 'apply_image' )->times( $parts_number - 1 )->with( m::type( 'resource' ), m::type( 'resource' ) );
-
-		$this->sut->shouldReceive( 'get_resized_image_data' )->never();
-
-		$this->assertFalse( $this->sut->build( $seed, $size ) );
+		$this->assertSame( $background, $this->sut->render_avatar( $parts, $args ) );
 	}
 
 	/**

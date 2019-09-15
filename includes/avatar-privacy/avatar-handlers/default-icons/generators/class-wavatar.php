@@ -27,8 +27,9 @@
 
 namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
-use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Data_Storage\Site_Transients;
+use Avatar_Privacy\Tools\Images;
+use Avatar_Privacy\Tools\Number_Generator;
 
 /**
  * A wavatar generator.
@@ -61,21 +62,100 @@ class Wavatar extends PNG_Parts_Generator {
 	];
 
 	/**
+	 * The seed string used in the last call to `::build()`.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @var string
+	 */
+	private $current_seed;
+
+	/**
 	 * Creates a new Wavatars generator.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
+	 * @since 2.3.0 Parameter $images renamed to $editor. Parameters $png and
+	 *              $number_generator added.
 	 *
-	 * @param Images\Editor   $images          The image editing handler.
-	 * @param Site_Transients $site_transients The site transients handler.
+	 * @param Images\Editor    $editor           The image editing handler.
+	 * @param Images\PNG       $png              The PNG image helper.
+	 * @param Number_Generator $number_generator A pseudo-random number generator.
+	 * @param Site_Transients  $site_transients  The site transients handler.
 	 */
-	public function __construct( Images\Editor $images, Site_Transients $site_transients ) {
+	public function __construct(
+		Images\Editor $editor,
+		Images\PNG $png,
+		Number_Generator $number_generator,
+		Site_Transients $site_transients
+	) {
 		parent::__construct(
 			\AVATAR_PRIVACY_PLUGIN_PATH . '/public/images/wavatars',
 			[ 'fade', 'mask', 'shine', 'brow', 'eyes', 'pupils', 'mouth' ],
 			80,
-			$images,
+			$editor,
+			$png,
+			$number_generator,
 			$site_transients
 		);
+	}
+
+	/**
+	 * Prepares additional arguments needed for rendering the avatar image.
+	 *
+	 * @param  string $seed  The seed data (hash).
+	 * @param  int    $size  The size in pixels.
+	 * @param  array  $parts The (randomized) avatar parts.
+	 *
+	 * @return array
+	 */
+	protected function get_additional_arguments( $seed, $size, array $parts ) {
+		// Also randomize the colors.
+		$background_hue = $this->seed( $seed, self::SEED_INDEX['background_hue'], 2, 240 ) / 255 * self::DEGREE;
+		$wavatar_hue    = $this->seed( $seed, self::SEED_INDEX['wavatar_hue'], 2, 240 ) / 255 * self::DEGREE;
+
+		return [
+			'background_hue' => $background_hue,
+			'wavatar_hue'    => $wavatar_hue,
+		];
+	}
+
+	/**
+	 * Renders the avatar from its parts, using any of the given additional arguments.
+	 *
+	 * @param  array $parts The (randomized) avatar parts.
+	 * @param  array $args  Any additional arguments defined by the subclass.
+	 *
+	 * @return resource
+	 */
+	protected function render_avatar( array $parts, array $args ) {
+		// Create background.
+		$avatar = $this->create_image( 'white' );
+
+		// Fill in the background color.
+		$this->png->fill_hsl( $avatar, $args['background_hue'], 94, 20, 1, 1 );
+
+		// Now add the various layers onto the image.
+		foreach ( $parts as $type => $file ) {
+			$this->combine_images( $avatar, $file );
+
+			if ( 'mask' === $type ) {
+				$this->png->fill_hsl( $avatar, $args['wavatar_hue'], 94, 66, (int) ( $this->size / 2 ), (int) ( $this->size / 2 ) );
+			}
+		}
+
+		return $avatar;
+	}
+
+	/**
+	 * Generates a random but valid part index based on the type and number of parts.
+	 *
+	 * @param  string $type  The part type.
+	 * @param  int    $count The number of different parts of the type.
+	 *
+	 * @return int
+	 */
+	protected function get_random_part_index( $type, $count ) {
+		return $this->seed( $this->current_seed, self::SEED_INDEX[ $type ], 2, $count );
 	}
 
 	/**
@@ -103,39 +183,9 @@ class Wavatar extends PNG_Parts_Generator {
 	 * @return string|false
 	 */
 	public function build( $seed, $size ) {
-		try {
-			// Look at the seed (an MD5 hash) and use pairs of digits to determine
-			// our "random" parts.
-			$parts = $this->get_randomized_parts(
-				function( $min, $max, $type ) use ( $seed ) {
-					return $this->seed( $seed, self::SEED_INDEX[ $type ], 2, $max + 1 ); // @codeCoverageIgnore
-				}
-			);
+		// Save seed for part randomization.
+		$this->current_seed = $seed;
 
-			// Also randomize the colors.
-			$background_hue = $this->seed( $seed, self::SEED_INDEX['background_hue'], 2, 240 ) / 255 * self::DEGREE;
-			$wavatar_hue    = $this->seed( $seed, self::SEED_INDEX['wavatar_hue'], 2, 240 ) / 255 * self::DEGREE;
-
-			// Create background.
-			$avatar = $this->create_image( 'white' );
-
-			// Fill in the background color.
-			$this->fill( $avatar, $background_hue, 94, 20, 1, 1 );
-
-			// Now add the various layers onto the image.
-			foreach ( $parts as $type => $file ) {
-				$this->apply_image( $avatar, $file );
-
-				if ( 'mask' === $type ) {
-					$this->fill( $avatar, $wavatar_hue, 94, 66, (int) ( $this->size / 2 ), (int) ( $this->size / 2 ) );
-				}
-			}
-		} catch ( \RuntimeException $e ) {
-			// Something went wrong but don't want to mess up blog layout.
-			return false;
-		}
-
-		// Resize if needed.
-		return $this->get_resized_image_data( $avatar, $size );
+		return parent::build( $seed, $size );
 	}
 }

@@ -32,14 +32,12 @@ use Brain\Monkey\Functions;
 
 use Mockery as m;
 
-use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamDirectory;
-
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Cat_Avatar;
 
 use Avatar_Privacy\Data_Storage\Site_Transients;
+use Avatar_Privacy\Tools\Number_Generator;
 use Avatar_Privacy\Tools\Images\Editor;
-
+use Avatar_Privacy\Tools\Images\PNG;
 
 /**
  * Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Cat_Avatar unit test.
@@ -57,55 +55,14 @@ class Cat_Avatar_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $sut;
 
 	/**
-	 * The full path of the folder containing the real images.
-	 *
-	 * @var string
-	 */
-	private $real_image_path;
-
-	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
 	protected function setUp() {
 		parent::setUp();
 
-		$png_data = \base64_decode( // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions
-			'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl' .
-			'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr' .
-			'EX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r' .
-			'8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg=='
-		);
-
-		$filesystem = [
-			'plugin' => [
-				'public' => [
-					'images' => [
-						'cats'       => [
-							'back.png'    => $png_data,
-							'body_1.png'  => $png_data,
-							'body_2.png'  => $png_data,
-							'arms_S8.png' => $png_data,
-							'legs_1.png'  => $png_data,
-							'mouth_6.png' => $png_data,
-						],
-						'cats-empty' => [],
-					],
-				],
-			],
-		];
-
-		// Set up virtual filesystem.
-		$root = vfsStream::setup( 'root', null, $filesystem );
-
-		// Provide access to the real images.
-		$this->real_image_path = \dirname( \dirname( \dirname( \dirname( \dirname( __DIR__ ) ) ) ) ) . '/public/images/cats';
-
 		// Partially mock system under test.
 		$this->sut = m::mock( Cat_Avatar::class )->makePartial()->shouldAllowMockingProtectedMethods();
-
-		// Override the parts directory as the constructor is never invoked.
-		$this->setValue( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/cats' ) );
 	}
 
 	/**
@@ -113,31 +70,29 @@ class Cat_Avatar_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @covers ::__construct
 	 *
-	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator::__construct
+	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Parts_Generator::__construct
 	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Parts_Generator::__construct
 	 */
 	public function test_constructor() {
-		$editor     = m::mock( Editor::class );
-		$transients = m::mock( Site_Transients::class );
-		$mock       = m::mock( Cat_Avatar::class )->makePartial()->shouldAllowMockingProtectedMethods();
+		$editor           = m::mock( Editor::class );
+		$png              = m::mock( PNG::class );
+		$number_generator = m::mock( Number_Generator::class );
+		$transients       = m::mock( Site_Transients::class );
+		$mock             = m::mock( Cat_Avatar::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $mock, '__construct', [ $editor, $transients ] );
+		$this->invokeMethod( $mock, '__construct', [ $editor, $png, $number_generator, $transients ] );
 
-		// An attribute of the PNG_Generator superclass.
-		$this->assertAttributeSame( $editor, 'images', $mock );
+		// An attribute of the PNG_Parts_Generator superclass.
+		$this->assertAttributeSame( $editor, 'editor', $mock );
 	}
 
 	/**
-	 * Tests ::build.
+	 * Tests ::render_avatar.
 	 *
-	 * @covers ::build
+	 * @covers ::render_avatar
 	 */
-	public function test_build() {
-		$seed = 'fake email hash';
-		$size = 42;
-		$data = 'fake SVG image';
-
-		// Intermediate results.
+	public function test_render_avatar() {
+		// Input.
 		$parts        = [
 			'body'  => 'body_2.png',
 			'arms'  => 'arms_S8.png',
@@ -145,47 +100,12 @@ class Cat_Avatar_Test extends \Avatar_Privacy\Tests\TestCase {
 			'mouth' => 'mouth_6.png',
 		];
 		$parts_number = \count( $parts );
-		$fake_image   = \imageCreateTrueColor( $size, $size );
+		$background   = \imageCreateTrueColor( 50, 50 );
 
-		$this->sut->shouldReceive( 'get_randomized_parts' )->once()->with( m::type( 'callable' ) )->andReturn( $parts );
+		$this->sut->shouldReceive( 'create_image' )->once()->with( 'transparent' )->andReturn( $background );
 
-		$this->sut->shouldReceive( 'create_image' )->once()->with( 'transparent' )->andReturn( $fake_image );
+		$this->sut->shouldReceive( 'combine_images' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'string' ) );
 
-		$this->sut->shouldReceive( 'apply_image' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'string' ) );
-
-		$this->sut->shouldReceive( 'get_resized_image_data' )->once()->with( m::type( 'resource' ), $size )->andReturn( $data );
-
-		$this->assertSame( $data, $this->sut->build( $seed, $size ) );
-	}
-
-	/**
-	 * Tests ::build.
-	 *
-	 * @covers ::build
-	 */
-	public function test_build_failed() {
-		$seed = 'fake email hash';
-		$size = 42;
-		$data = 'fake SVG image';
-
-		// Intermediate results.
-		$parts        = [
-			'body'  => 'body_2.png',
-			'arms'  => 'arms_S8.png',
-			'legs'  => 'legs_1.png',
-			'mouth' => 'mouth_6.png',
-		];
-		$parts_number = \count( $parts );
-		$fake_image   = \imageCreateTrueColor( $size, $size );
-
-		$this->sut->shouldReceive( 'get_randomized_parts' )->once()->with( m::type( 'callable' ) )->andReturn( $parts );
-
-		$this->sut->shouldReceive( 'create_image' )->once()->with( 'transparent' )->andThrow( \RuntimeException::class );
-
-		$this->sut->shouldReceive( 'apply_image' )->never();
-
-		$this->sut->shouldReceive( 'get_resized_image_data' )->never();
-
-		$this->assertSame( false, $this->sut->build( $seed, $size ) );
+		$this->assertSame( $background, $this->sut->render_avatar( $parts, [] ) );
 	}
 }
