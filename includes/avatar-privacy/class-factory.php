@@ -385,6 +385,7 @@ class Factory extends Dice {
 			[ 'instance' => Generated_Icons\Rings_Icon_Provider::class ],
 			[ 'instance' => Generated_Icons\Bird_Avatar_Icon_Provider::class ],
 			[ 'instance' => Generated_Icons\Cat_Avatar_Icon_Provider::class ],
+			[ 'instance' => Generated_Icons\Robohash_Icon_Provider::class ],
 			[ 'instance' => Static_Icons\Speech_Bubble_Icon_Provider::class ],
 			[ 'instance' => Static_Icons\Bowling_Pin_Icon_Provider::class ],
 			[ 'instance' => Static_Icons\Silhouette_Icon_Provider::class ],
