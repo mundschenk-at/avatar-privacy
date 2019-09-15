@@ -24,7 +24,7 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Tests\Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
+namespace Avatar_Privacy\Tests\Avatar_Privacy\Tools\Images;
 
 use Brain\Monkey\Actions;
 use Brain\Monkey\Filters;
@@ -35,34 +35,22 @@ use Mockery as m;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 
-use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator;
-
-use Avatar_Privacy\Tools\Images\Editor;
-
+use Avatar_Privacy\Tools\Images\PNG;
 
 /**
- * Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator unit test.
+ * Avatar_Privacy\Tools\Images\PNG unit test.
  *
- * @coversDefaultClass \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator
- * @usesDefaultClass \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator
- *
- * @uses ::__construct
+ * @coversDefaultClass \Avatar_Privacy\Tools\Images\PNG
+ * @usesDefaultClass \Avatar_Privacy\Tools\Images\PNG
  */
-class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
+class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 
 	/**
 	 * The system-under-test.
 	 *
-	 * @var PNG_Generator
+	 * @var PNG
 	 */
 	private $sut;
-
-	/**
-	 * The Images\Editor mock.
-	 *
-	 * @var Editor
-	 */
-	private $editor;
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -102,41 +90,20 @@ class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Set up virtual filesystem.
 		$root = vfsStream::setup( 'root', null, $filesystem );
 
-		// Helper mocks.
-		$this->editor = m::mock( Editor::class );
-
-		// Partially mock system under test.
-		$this->sut = m::mock( PNG_Generator::class, [ $this->editor ] )
-			->makePartial()
-			->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( PNG::class )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
-	 * Tests ::__construct.
+	 * Tests ::create.
 	 *
-	 * @covers ::__construct
+	 * @covers ::create
 	 */
-	public function test_constructor() {
-		$editor = m::mock( Editor::class );
-		$mock   = m::mock( PNG_Generator::class )->makePartial()->shouldAllowMockingProtectedMethods();
-
-		$this->invokeMethod( $mock, '__construct', [ $editor ] );
-
-		// An attribute of the PNG_Generator superclass.
-		$this->assertAttributeSame( $editor, 'images', $mock );
-	}
-
-	/**
-	 * Tests ::create_image.
-	 *
-	 * @covers ::create_image
-	 */
-	public function test_create_image_white() {
+	public function test_create_white() {
 		// The base image.
 		$width  = 200;
 		$height = 100;
 
-		$image = $this->sut->create_image( 'white', $width, $height );
+		$image = $this->sut->create( 'white', $width, $height );
 
 		$this->assertInternalType( 'resource', $image );
 		$this->assertSame( $width, \imageSX( $image ) );
@@ -156,16 +123,16 @@ class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::create_image.
+	 * Tests ::create.
 	 *
-	 * @covers ::create_image
+	 * @covers ::create
 	 */
-	public function test_create_image_black() {
+	public function test_create_black() {
 		// The base image.
 		$width  = 200;
 		$height = 100;
 
-		$image = $this->sut->create_image( 'black', $width, $height );
+		$image = $this->sut->create( 'black', $width, $height );
 
 		$this->assertInternalType( 'resource', $image );
 		$this->assertSame( $width, \imageSX( $image ) );
@@ -185,16 +152,16 @@ class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::create_image.
+	 * Tests ::create.
 	 *
-	 * @covers ::create_image
+	 * @covers ::create
 	 */
-	public function test_create_image_transparent() {
+	public function test_create_transparent() {
 		// The base image.
 		$width  = 200;
 		$height = 100;
 
-		$image = $this->sut->create_image( 'transparent', $width, $height );
+		$image = $this->sut->create( 'transparent', $width, $height );
 
 		$this->assertInternalType( 'resource', $image );
 		$this->assertSame( $width, \imageSX( $image ) );
@@ -214,35 +181,35 @@ class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::create_image.
+	 * Tests ::create.
 	 *
-	 * @covers ::create_image
+	 * @covers ::create
 	 */
-	public function test_create_image_invalid_type() {
+	public function test_create_invalid_type() {
 		// The base image.
 		$width  = 200;
 		$height = 18;
 
 		// Expect failure.
-		$this->expectException( \RuntimeException::class );
+		$this->expectException( \InvalidArgumentException::class );
 
-		$image = $this->sut->create_image( 'yellow', $width, $height );
+		$image = $this->sut->create( 'yellow', $width, $height );
 
 		// Clean up.
 		\imageDestroy( $image );
 	}
 
 	/**
-	 * Tests ::create_image_from_file.
+	 * Tests ::create_from_file.
 	 *
-	 * @covers ::create_image_from_file
+	 * @covers ::create_from_file
 	 */
-	public function test_create_image_from_file() {
+	public function test_create_from_file() {
 		// The base image.
 		$width  = 28;
 		$height = 18;
 
-		$image = $this->sut->create_image_from_file( vfsStream::url( 'root/plugin/my_parts_dir/somefile.png' ) );
+		$image = $this->sut->create_from_file( vfsStream::url( 'root/plugin/my_parts_dir/somefile.png' ) );
 
 		$this->assertInternalType( 'resource', $image );
 		$this->assertSame( $width, \imageSX( $image ) );
@@ -253,23 +220,23 @@ class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::create_image_from_file.
+	 * Tests ::create_from_file.
 	 *
-	 * @covers ::create_image_from_file
+	 * @covers ::create_from_file
 	 */
-	public function test_create_image_from_file_invalid() {
+	public function test_create_from_file_invalid() {
 
 		$this->expectException( \RuntimeException::class );
 
-		$this->assertNull( $this->sut->create_image_from_file( '/not/a/valid/PNG' ) );
+		$this->assertNull( $this->sut->create_from_file( '/not/a/valid/PNG' ) );
 	}
 
 	/**
-	 * Tests ::apply_image.
+	 * Tests ::combine.
 	 *
-	 * @covers ::apply_image
+	 * @covers ::combine
 	 */
-	public function test_apply_image() {
+	public function test_combine() {
 		// The base image.
 		$width  = 200;
 		$height = 100;
@@ -287,7 +254,7 @@ class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$orig_base_data = ob_get_clean();
 
 		// Run the test.
-		$this->assertNull( $this->sut->apply_image( $base, $image, $width, $height ) );
+		$this->assertNull( $this->sut->combine( $base, $image, $width, $height ) );
 
 		// Get the new base image data.
 		\ob_start();
@@ -302,11 +269,11 @@ class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::apply_image.
+	 * Tests ::combine.
 	 *
-	 * @covers ::apply_image
+	 * @covers ::combine
 	 */
-	public function test_apply_image_error() {
+	public function test_combine_error() {
 		// The base image.
 		$width  = 200;
 		$height = 100;
@@ -324,10 +291,10 @@ class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$orig_base_data = ob_get_clean();
 
 		// Expect failure.
-		$this->expectException( \RuntimeException::class );
+		$this->expectException( \InvalidArgumentException::class );
 
 		// Run the test.
-		$this->sut->apply_image( $base, $image, $width, $height );
+		$this->sut->combine( $base, $image, $width, $height );
 
 		// Get the new base image data.
 		\ob_start();
@@ -342,11 +309,11 @@ class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::fill.
+	 * Tests ::fill_hsl.
 	 *
-	 * @covers ::fill
+	 * @covers ::fill_hsl
 	 */
-	public function test_fill() {
+	public function test_fill_hsl() {
 		// Input.
 		$hue        = 345;
 		$saturation = 99;
@@ -359,19 +326,42 @@ class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$height   = 100;
 		$resource = \imageCreate( $width, $height );
 
-		$this->assertTrue( $this->sut->fill( $resource, $hue, $saturation, $lightness, $x, $y ) );
+		$this->assertNull( $this->sut->fill_hsl( $resource, $hue, $saturation, $lightness, $x, $y ) );
 
 		// Clean up.
 		\imageDestroy( $resource );
 	}
 
+	/**
+	 * Tests ::fill_hsl.
+	 *
+	 * @covers ::fill_hsl
+	 */
+	public function test_fill_hsl_not_an_image() {
+		// Input.
+		$hue        = 0;
+		$saturation = 99;
+		$lightness  = 10;
+		$x          = 23;
+		$y          = 42;
+
+		// The image.
+		$width    = 200;
+		$height   = 100;
+		$resource = 'foo';
+
+		// Expect failure.
+		$this->expectException( \InvalidArgumentException::class );
+
+		$this->sut->fill_hsl( $resource, $hue, $saturation, $lightness, $x, $y );
+	}
 
 	/**
-	 * Tests ::fill.
+	 * Tests ::fill_hsl.
 	 *
-	 * @covers ::fill
+	 * @covers ::fill_hsl
 	 */
-	public function test_fill_error() {
+	public function test_fill_hsl_error() {
 		// Input.
 		$hue        = 0;
 		$saturation = 99;
@@ -389,25 +379,12 @@ class PNG_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 			\imageColorAllocate( $resource, 0, 0, 0 );
 		}
 
-		$this->assertFalse( $this->sut->fill( $resource, $hue, $saturation, $lightness, $x, $y ) );
+		// Expect failure.
+		$this->expectException( \RuntimeException::class );
+
+		$this->sut->fill_hsl( $resource, $hue, $saturation, $lightness, $x, $y );
 
 		// Clean up.
 		\imageDestroy( $resource );
-	}
-
-	/**
-	 * Tests ::get_resized_image_data.
-	 *
-	 * @covers ::get_resized_image_data
-	 */
-	public function test_get_resized_image_data() {
-		$fake_resource = 'should be a resource';
-		$size          = 42;
-		$result        = 'the image data';
-
-		$this->editor->shouldReceive( 'create_from_image_resource' )->once()->with( $fake_resource )->andReturn( m::mock( \WP_Image_Editor::class ) );
-		$this->editor->shouldReceive( 'get_resized_image_data' )->once()->with( m::type( \WP_Image_Editor::class ), $size, $size, 'image/png' )->andReturn( $result );
-
-		$this->assertSame( $result, $this->sut->get_resized_image_data( $fake_resource, $size ) );
 	}
 }

@@ -2,8 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
- * Copyright 2007-2008 Shamus Young.
+ * Copyright 2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,48 +24,20 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
-
-use Avatar_Privacy\Tools\Images;
-use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generator;
+namespace Avatar_Privacy\Tools\Images;
 
 use function Scriptura\Color\Helpers\HSLtoRGB;
 
 /**
- * A base class for PNG-based icon generators.
+ * A utility class providing some methods for dealing with PNG images.
  *
- * @since 1.0.0
- * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators
- * @since 2.3.0 The $parts_dir property has been moved to the new PNG_Parts_Generator class.
+ * @since 2.3.0
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
-abstract class PNG_Generator implements Generator {
-
-	// Units used in HSL colors.
-	const PERCENT = 100;
-	const DEGREE  = 360;
-
-	/**
-	 * The image editor support class.
-	 *
-	 * @var Images\Editor
-	 */
-	private $images;
-
-	/**
-	 * Creates a new generator.
-	 *
-	 * @since 2.3.0 The $parts_dir parameter has been removed.
-	 *
-	 * @param Images\Editor $images The image editing handler.
-	 */
-	public function __construct( Images\Editor $images ) {
-		$this->images = $images;
-	}
-
+class PNG {
 	/**
 	 * Creates an image resource of the chosen type.
-	 *
-	 * @since 2.3.0
 	 *
 	 * @param  string $type   The type of background to create. Valid: 'white', 'black', 'transparent'.
 	 * @param  int    $width  Image width in pixels.
@@ -74,9 +45,10 @@ abstract class PNG_Generator implements Generator {
 	 *
 	 * @return resource
 	 *
-	 * @throws \RuntimeException The image could not be copied.
+	 * @throws \InvalidArgumentException Called with an incorrect type.
+	 * @throws \RuntimeException         The image could not be created.
 	 */
-	protected function create_image( $type, $width, $height ) {
+	public function create( $type, $width, $height ) {
 		$image = \imageCreateTrueColor( $width, $height );
 
 		// Something went wrong, badly.
@@ -104,16 +76,16 @@ abstract class PNG_Generator implements Generator {
 					return $image;
 
 				default:
-					throw new \RuntimeException( "Invalid image type $type." );
+					throw new \InvalidArgumentException( "Invalid image type $type." );
 			}
 
-			if ( ! $color || ! \imageFill( $image, 0, 0, $color ) ) {
+			if ( false === $color || ! \imageFill( $image, 0, 0, $color ) ) {
 				throw new \RuntimeException( "Error filling image of type $type." ); // @codeCoverageIgnore
 			}
 		} catch ( \RuntimeException $e ) {
 			// Clean up and re-throw exception.
-			\imageDestroy( $image );
-			throw $e;
+			\imageDestroy( $image ); // @codeCoverageIgnoreStart
+			throw $e;                // @codeCoverageIgnoreEnd
 		}
 
 		return $image;
@@ -122,15 +94,13 @@ abstract class PNG_Generator implements Generator {
 	/**
 	 * Creates an image resource from the given file.
 	 *
-	 * @since 2.3.0
-	 *
-	 * @param  string $file   An absolute path to a PNG image file.
+	 * @param  string $file The absolute path to a PNG image file.
 	 *
 	 * @return resource
 	 *
-	 * @throws \RuntimeException The image could not be copied.
+	 * @throws \RuntimeException The image could not be read.
 	 */
-	protected function create_image_from_file( $file ) {
+	public function create_from_file( $file ) {
 		$image = @\imageCreateFromPNG( $file );
 
 		// Something went wrong, badly.
@@ -149,22 +119,19 @@ abstract class PNG_Generator implements Generator {
 	 * Copies an image onto an existing base image. The image resource is freed
 	 * after copying.
 	 *
-	 * @since 2.1.0 Returns true on success, false on error.
-	 * @since 2.3.0 Throws a RuntimeException instead of returning a boolean.
-	 *              The $image parameter now only takes a resource, not a string.
-	 *
 	 * @param  resource $base   The avatar image resource.
 	 * @param  resource $image  The image to be copied onto the base.
 	 * @param  int      $width  Image width in pixels.
 	 * @param  int      $height Image height in pixels.
 	 *
-	 * @throws \RuntimeException The image could not be copied.
+	 * @throws \InvalidArgumentException One of the first two parameters was not a valid image resource.
+	 * @throws \RuntimeException         The image could not be copied.
 	 */
-	protected function apply_image( $base, $image, $width, $height ) {
+	public function combine( $base, $image, $width, $height ) {
 
 		// Abort if $image is not a valid resource.
 		if ( ! \is_resource( $base ) || ! \is_resource( $image ) ) {
-			throw new \RuntimeException( 'Invalid image resource.' );
+			throw new \InvalidArgumentException( 'Invalid image resource.' );
 		}
 
 		// Copy the image to the base.
@@ -180,7 +147,7 @@ abstract class PNG_Generator implements Generator {
 	}
 
 	/**
-	 * Fill the given image with a HSL color.
+	 * Fills the given image with a HSL color.
 	 *
 	 * @param  resource $image      The image.
 	 * @param  int      $hue        The hue (0-360).
@@ -189,30 +156,20 @@ abstract class PNG_Generator implements Generator {
 	 * @param  int      $x          The horizontal coordinate.
 	 * @param  int      $y          The vertical coordinate.
 	 *
-	 * @return bool
+	 * @throws \InvalidArgumentException Not a valid image resource.
+	 * @throws \RuntimeException         The image could not be filled.
 	 */
-	protected function fill( $image, $hue, $saturation, $lightness, $x, $y ) {
-		$rgb   = HSLtoRGB( $hue, $saturation, $lightness );
-		$color = \imageColorAllocate( $image, $rgb[0], $rgb[1], $rgb[2] );
-
-		if ( false !== $color ) {
-			return \imageFill( $image, $x, $y, $color );
+	public function fill_hsl( $image, $hue, $saturation, $lightness, $x, $y ) {
+		// Abort if $image is not a valid resource.
+		if ( ! \is_resource( $image ) ) {
+			throw new \InvalidArgumentException( 'Invalid image resource.' );
 		}
 
-		return false;
-	}
+		list( $red, $green, $blue ) = HSLtoRGB( $hue, $saturation, $lightness );
+		$color                      = \imageColorAllocate( $image, $red, $green, $blue );
 
-	/**
-	 * Resizes the image and returns the raw data.
-	 *
-	 * @param  resource $image The image resource.
-	 * @param  int      $size  The size in pixels.
-	 *
-	 * @return string          The image data (or the empty string on error).
-	 */
-	protected function get_resized_image_data( $image, $size ) {
-		return $this->images->get_resized_image_data(
-			$this->images->create_from_image_resource( $image ), $size, $size, 'image/png'
-		);
+		if ( false === $color || ! \imageFill( $image, $x, $y, $color ) ) {
+			throw new \RuntimeException( "Error filling image with HSL ({$hue}, {$saturation}, {$lightness})." ); // @codeCoverageIgnore
+		}
 	}
 }

@@ -28,8 +28,9 @@
 
 namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
-use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Data_Storage\Site_Transients;
+use Avatar_Privacy\Tools\Images;
+use Avatar_Privacy\Tools\Number_Generator;
 
 use function Scriptura\Color\Helpers\HSLtoRGB;
 
@@ -228,10 +229,17 @@ class Monster_ID extends PNG_Parts_Generator {
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
 	 *
-	 * @param Images\Editor   $images          The image editing handler.
-	 * @param Site_Transients $site_transients The site transients handler.
+	 * @param Images\Editor    $editor           The image editing handler.
+	 * @param Images\PNG       $png              The PNG image helper.
+	 * @param Number_Generator $number_generator A pseudo-random number generator.
+	 * @param Site_Transients  $site_transients  The site transients handler.
 	 */
-	public function __construct( Images\Editor $images, Site_Transients $site_transients ) {
+	public function __construct(
+		Images\Editor $editor,
+		Images\PNG $png,
+		Number_Generator $number_generator,
+		Site_Transients $site_transients
+	) {
 		// Needed for PHP 5.6 compatibility.
 		$this->same_color_parts     = self::SAME_COLOR_PARTS;
 		$this->specific_color_parts = self::SPECIFIC_COLOR_PARTS;
@@ -242,71 +250,78 @@ class Monster_ID extends PNG_Parts_Generator {
 			\AVATAR_PRIVACY_PLUGIN_PATH . '/public/images/monster-id',
 			[ 'legs', 'hair', 'arms', 'body', 'eyes', 'mouth' ],
 			120,
-			$images,
+			$editor,
+			$png,
+			$number_generator,
 			$site_transients
 		);
 	}
 
 	/**
-	 * Builds a monster icon and returns the image data.
+	 * Prepares additional arguments needed for rendering the avatar image.
 	 *
-	 * @param  string $seed The seed data (hash).
-	 * @param  int    $size The size in pixels.
+	 * @param  string $seed  The seed data (hash).
+	 * @param  int    $size  The size in pixels.
+	 * @param  array  $parts The (randomized) avatar parts.
 	 *
-	 * @return string|false
+	 * @return array
 	 */
-	public function build( $seed, $size ) {
-		try {
-			// Set randomness from seed.
-			\mt_srand( (int) \hexdec( \substr( $seed, 0, 8 ) ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand -- we need deterministic "randomness".
+	protected function get_additional_arguments( $seed, $size, array $parts ) {
+		// Randomize colors.
+		$max_rand   = \mt_getrandmax();
+		$hue        = $this->number_generator->get( 0, $max_rand - 1 ) / $max_rand * self::DEGREE;
+		$saturation = $this->number_generator->get( 25000, 100000 ) / 100000 * self::PERCENT;
 
-			// Throw the dice for body parts.
-			$parts = $this->get_randomized_parts(
-				// Wrapper function needed because \mt_rand complains about the
-				// extraneous $type parameter if used directly.
-				function( $min, $max ) {
-					// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
-					return \mt_rand( $min, $max ); // @codeCoverageIgnore
-				}
-			);
+		return [
+			'hue'        => $hue,
+			'saturation' => $saturation,
+			'max_rand'   => $max_rand,
+		];
+	}
 
-			// Create background.
-			$monster = $this->create_image_from_file( "{$this->parts_dir}/back.png" );
+	/**
+	 * Renders the avatar from its parts, using any of the given additional arguments.
+	 *
+	 * @param  array $parts The (randomized) avatar parts.
+	 * @param  array $args  Any additional arguments defined by the subclass.
+	 *
+	 * @return resource
+	 */
+	protected function render_avatar( array $parts, array $args ) {
+		// Create background.
+		$monster = $this->png->create_from_file( "{$this->parts_dir}/back.png" );
 
-			// Randomize colors.
-			$max_rand   = \mt_getrandmax();
-			$hue        = ( \mt_rand( 1, $max_rand ) - 1 ) / $max_rand * self::DEGREE; // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand -- real_halfopen.
-			$saturation = \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT; // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
+		// Add parts.
+		foreach ( $parts as $part => $file ) {
+			$im = $this->png->create_from_file( "{$this->parts_dir}/{$file}" );
 
-			// Add parts.
-			foreach ( $parts as $part => $file ) {
-				$im = $this->create_image_from_file( "{$this->parts_dir}/{$file}" );
+			// Randomly color body parts.
+			if ( 'body' === $part || isset( $this->same_color_parts[ $file ] ) ) {
+				// Use the main color.
+				$this->colorize_image( $im, $args['hue'], $args['saturation'], $file );
+			} elseif ( isset( $this->random_color_parts[ $file ] ) ) {
+				$this->colorize_image(
+					$im,
+					$this->number_generator->get( 0, $args['max_rand'] - 1 ) / $args['max_rand'] * self::DEGREE,
+					$this->number_generator->get( 25000, 100000 ) / 100000 * self::PERCENT,
+					$file
+				);
+			} elseif ( isset( $this->specific_color_parts[ $file ] ) ) {
+				$low  = (int) $this->specific_color_parts[ $file ][0] * 10000;
+				$high = (int) $this->specific_color_parts[ $file ][1] * 10000;
 
-				// Randomly color body parts.
-				if ( 'body' === $part || isset( $this->same_color_parts[ $file ] ) ) {
-					$this->colorize_image( $im, $hue, $saturation, $file );
-				} elseif ( isset( $this->random_color_parts[ $file ] ) ) {
-					// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
-					$this->colorize_image( $im, ( \mt_rand( 1, $max_rand ) - 1 ) / $max_rand * self::DEGREE, \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
-				} elseif ( isset( $this->specific_color_parts[ $file ] ) ) {
-					$low  = $this->specific_color_parts[ $file ][0] * 10000;
-					$high = $this->specific_color_parts[ $file ][1] * 10000;
-					// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
-					$this->colorize_image( $im, \mt_rand( $low, $high ) / 10000 * self::DEGREE, \mt_rand( 25000, 100000 ) / 100000 * self::PERCENT, $file );
-				}
-
-				$this->apply_image( $monster, $im );
+				$this->colorize_image(
+					$im,
+					$this->number_generator->get( $low, $high ) / 10000 * self::DEGREE,
+					$this->number_generator->get( 25000, 100000 ) / 100000 * self::PERCENT,
+					$file
+				);
 			}
-		} catch ( \RuntimeException $e ) {
-			// Something went wrong but don't want to mess up blog layout.
-			return false;
-		} finally {
-			// Reset randomness.
-			\mt_srand(); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand
+
+			$this->combine_images( $monster, $im );
 		}
 
-		// Resize if necessary.
-		return $this->get_resized_image_data( $monster, $size );
+		return $monster;
 	}
 
 	/**

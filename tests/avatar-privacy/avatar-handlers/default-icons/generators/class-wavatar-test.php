@@ -38,7 +38,9 @@ use org\bovigo\vfs\vfsStreamDirectory;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Wavatar;
 
 use Avatar_Privacy\Data_Storage\Site_Transients;
+use Avatar_Privacy\Tools\Number_Generator;
 use Avatar_Privacy\Tools\Images\Editor;
+use Avatar_Privacy\Tools\Images\PNG;
 
 
 /**
@@ -55,6 +57,20 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var Wavatar
 	 */
 	private $sut;
+
+	/**
+	 * The Images\PNG mock.
+	 *
+	 * @var PNG
+	 */
+	private $png;
+
+	/**
+	 * The Number_Generator mock.
+	 *
+	 * @var Number_Generator
+	 */
+	private $number_generator;
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -91,11 +107,16 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Set up virtual filesystem.
 		$root = vfsStream::setup( 'root', null, $filesystem );
 
+		// Mocked helpers.
+		$this->png              = m::mock( PNG::class );
+		$this->number_generator = m::mock( Number_Generator::class );
+
 		// Partially mock system under test.
 		$this->sut = m::mock( Wavatar::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		// Override the parts directory as the constructor is never invoked.
-		$this->setValue( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/monster-id' ) );
+		// Override necessary properties as the constructor is never invoked.
+		$this->setValue( $this->sut, 'png', $this->png );
+		$this->setValue( $this->sut, 'number_generator', $this->number_generator );
 	}
 
 	/**
@@ -103,18 +124,71 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @covers ::__construct
 	 *
-	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator::__construct
+	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Parts_Generator::__construct
 	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Parts_Generator::__construct
 	 */
 	public function test_constructor() {
-		$editor     = m::mock( Editor::class );
-		$transients = m::mock( Site_Transients::class );
-		$mock       = m::mock( Wavatar::class )->makePartial()->shouldAllowMockingProtectedMethods();
+		$editor           = m::mock( Editor::class );
+		$png              = m::mock( PNG::class );
+		$number_generator = m::mock( Number_Generator::class );
+		$transients       = m::mock( Site_Transients::class );
+		$mock             = m::mock( Wavatar::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $mock, '__construct', [ $editor, $transients ] );
+		$this->invokeMethod( $mock, '__construct', [ $editor, $png, $number_generator, $transients ] );
 
-		// An attribute of the PNG_Generator superclass.
-		$this->assertAttributeSame( $editor, 'images', $mock );
+		// An attribute of the PNG_Parts_Generator superclass.
+		$this->assertAttributeSame( $editor, 'editor', $mock );
+	}
+
+	/**
+	 * Tests ::get_additional_arguments.
+	 *
+	 * @covers ::get_additional_arguments
+	 */
+	public function test_get_additional_arguments() {
+		$seed  = 'fake email hash';
+		$size  = 42;
+		$parts = [
+			'body'  => 'fake_part.png',
+			'arms'  => 'fake_part.png',
+		];
+
+		$this->sut->shouldReceive( 'seed' )->times( 2 )->with( $seed, m::type( 'int' ), 2, 240 )->andReturn( 123, 200 );
+
+		$result = $this->sut->get_additional_arguments( $seed, $size, $parts );
+
+		$this->assertInternalType( 'array', $result );
+		$this->assertArrayHasKey( 'background_hue', $result );
+		$this->assertArrayHasKey( 'wavatar_hue', $result );
+	}
+
+	/**
+	 * Tests ::render_avatar.
+	 *
+	 * @covers ::render_avatar
+	 */
+	public function test_render_avatar() {
+		// Input.
+		$parts        = [
+			'mask'  => 'mask_2.png',
+			'shine' => 'shine_2.png',
+			'eyes'  => 'eyes_8.png',
+			'mouth' => 'mouth_6.png',
+		];
+		$args         = [
+			'background_hue' => 239,
+			'wavatar_hue'    => 110,
+		];
+		$parts_number = \count( $parts );
+		$background   = \imageCreateTrueColor( 50, 50 );
+
+		$this->sut->shouldReceive( 'create_image' )->once()->with( 'white' )->andReturn( $background );
+		$this->png->shouldReceive( 'fill_hsl' )->once()->with( $background, $args['background_hue'], m::type( 'int' ), m::type( 'int' ), 1, 1 );
+
+		$this->sut->shouldReceive( 'combine_images' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'string' ) );
+		$this->png->shouldReceive( 'fill_hsl' )->once()->with( $background, $args['wavatar_hue'], m::type( 'int' ), m::type( 'int' ), m::type( 'int' ), m::type( 'int' ) );
+
+		$this->assertSame( $background, $this->sut->render_avatar( $parts, $args ) );
 	}
 
 	/**
@@ -161,81 +235,60 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::build.
 	 *
 	 * @covers ::build
+	 *
+	 * @uses \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Parts_Generator::build
+	 *
+	 * @return Wavatar The system under test.
 	 */
 	public function test_build() {
-		$seed = 'fake email hash';
+		// Input.
+		$seed = 'a3cca2b2aa1e3b5b3b5aad99a8529074';
 		$size = 42;
-		$data = 'fake SVG image';
 
-		// Intermediary results.
-		$parts       = [
-			'foo'  => '/some/path/foo_1.png',
-			'mask' => '/some/path/mask_23.png',
-			'bar'  => '/some/path/baz_2.png',
+		// Intermediate results.
+		$data  = 'fake image';
+		$parts = [
+			'body'  => 'body_2.png',
+			'arms'  => 'arms_S8.png',
+			'legs'  => 'legs_1.png',
+			'mouth' => 'mouth_6.png',
 		];
-		$parts_count = \count( $parts );
-		$bg_hue      = 23;
-		$wavatar_hue = 42;
-		$fake_image  = \imageCreateTrueColor( $size, $size );
+		$args  = [
+			'fake' => 'args',
+			'we'   => 'do not actually care for',
+		];
 
-		$this->sut->shouldReceive( 'get_randomized_parts' )->once()->with( m::type( 'callable' ) )->andReturn( $parts );
+		$this->number_generator->shouldReceive( 'seed' )->once()->with( $seed );
+		$this->number_generator->shouldReceive( 'reset' )->once();
 
-		$this->sut->shouldReceive( 'seed' )->once()->with( $seed, Wavatar::SEED_INDEX['background_hue'], 2, 240 )->andReturn( $bg_hue );
-		$this->sut->shouldReceive( 'seed' )->once()->with( $seed, Wavatar::SEED_INDEX['wavatar_hue'], 2, 240 )->andReturn( $wavatar_hue );
-
-		// Account for transformation of hues into degree format.
-		$bg_hue      = $bg_hue / 255 * Wavatar::DEGREE;
-		$wavatar_hue = $wavatar_hue / 255 * Wavatar::DEGREE;
-
-		$this->sut->shouldReceive( 'create_image' )->once()->with( 'white' )->andReturn( $fake_image );
-		$this->sut->shouldReceive( 'fill' )->once()->with( m::type( 'resource' ), $bg_hue, 94, 20, 1, 1 );
-
-		$this->sut->shouldReceive( 'apply_image' )->times( $parts_count )->with( m::type( 'resource' ), m::type( 'string' ) );
-		$this->sut->shouldReceive( 'fill' )->once()->with( m::type( 'resource' ), $wavatar_hue, 94, 66, m::type( 'int' ), m::type( 'int' ) );
-
-		$this->sut->shouldReceive( 'get_resized_image_data' )->once()->with( m::type( 'resource' ), $size )->andReturn( $data );
+		$this->sut->shouldReceive( 'get_randomized_parts' )->once()->andReturn( $parts );
+		$this->sut->shouldReceive( 'get_additional_arguments' )->once()->with( $seed, $size, $parts )->andReturn( $args );
+		$this->sut->shouldReceive( 'get_avatar' )->once()->with( $size, $parts, $args )->andReturn( $data );
 
 		$this->assertSame( $data, $this->sut->build( $seed, $size ) );
+
+		$this->assertAttributeSame( $seed, 'current_seed', $this->sut );
+
+		return $this->sut;
 	}
 
 	/**
-	 * Tests ::build.
+	 * Tests ::get_random_part_index.
 	 *
-	 * @covers ::build
+	 * @covers ::get_random_part_index
+	 *
+	 * @depends test_build
+	 *
+	 * @param  Wavatar $sut The system under test.
 	 */
-	public function test_build_failed() {
-		$seed = 'fake email hash';
-		$size = 42;
-		$data = 'fake SVG image';
+	public function test_get_random_part_index( Wavatar $sut ) {
+		$count = 731;
+		$type  = 'mask';
 
-		// Intermediary results.
-		$parts       = [
-			'foo'  => '/some/path/foo_1.png',
-			'mask' => '/some/path/mask_23.png',
-			'bar'  => '/some/path/baz_2.png',
-		];
-		$parts_count = \count( $parts );
-		$bg_hue      = 23;
-		$wavatar_hue = 42;
-		$fake_image  = \imageCreateTrueColor( $size, $size );
+		$result = 60;
 
-		$this->sut->shouldReceive( 'get_randomized_parts' )->once()->with( m::type( 'callable' ) )->andReturn( $parts );
+		$sut->shouldReceive( 'seed' )->once()->with( m::type( 'string' ), m::type( 'int' ), 2, $count )->andReturn( $result );
 
-		$this->sut->shouldReceive( 'seed' )->once()->with( $seed, Wavatar::SEED_INDEX['background_hue'], 2, 240 )->andReturn( $bg_hue );
-		$this->sut->shouldReceive( 'seed' )->once()->with( $seed, Wavatar::SEED_INDEX['wavatar_hue'], 2, 240 )->andReturn( $wavatar_hue );
-
-		// Account for transformation of hues into degree format.
-		$bg_hue      = $bg_hue / 255 * Wavatar::DEGREE;
-		$wavatar_hue = $wavatar_hue / 255 * Wavatar::DEGREE;
-
-		$this->sut->shouldReceive( 'create_image' )->once()->with( 'white' )->andThrow( \RuntimeException::class );
-		$this->sut->shouldReceive( 'fill' )->never();
-
-		$this->sut->shouldReceive( 'apply_image' )->never();
-		$this->sut->shouldReceive( 'fill' )->never();
-
-		$this->sut->shouldReceive( 'get_resized_image_data' )->never();
-
-		$this->assertSame( false, $this->sut->build( $seed, $size ) );
+		$this->assertSame( $result, $sut->get_random_part_index( $type, $count ) );
 	}
 }

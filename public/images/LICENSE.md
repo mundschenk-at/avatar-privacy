@@ -33,7 +33,7 @@ The Bird Avatars implementation is based on the original package by David Revoy.
 
 Copyright: David Revoy (2019)\
 URL: <https://www.davidrevoy.com/article720/bird-avatar-generator/>\
-License: CC-By 4.0 (attribution _David Revoy_), with the following exception:
+License: CC-BY 4.0 (attribution _David Revoy_), with the following exception:
 "Generated pictures used as Avatar (for blog,forum,social-network) don't need
 direct attribution and so, can be used as regular avatars without pasting David
 Revoy's name all over the place."\
@@ -45,7 +45,7 @@ The Cat Avatars implementation is based on the original package by David Revoy.
 
 Copyright: David Revoy (2016)\
 URL: <https://framagit.org/Deevad/cat-avatar-generator/>\
-License: CC-By 4.0 (attribution _David Revoy_), with the following exception:
+License: CC-BY 4.0 (attribution _David Revoy_), with the following exception:
 "Generated cats used as Avatar (for blog,forum,social-network) don't need direct
 attribution and so, can be used as regular avatars without pasting David Revoy's
 name all over the place."\
@@ -59,6 +59,18 @@ Copyright: Katherine Garner (2008)\
 URL: <http://scott.sherrillmix.com/blog/blogger/wp_monsterid-update-hand-drawn-monsters/>\
 License: GPLv2 or later\
 License URL: <https://www.gnu.org/licenses/gpl-2.0.en.html>
+
+## robohash/*.svg
+
+The RoboHash implementation is based on Nimiq's SVG version of the original images
+created by Zikri Kader for Colin Davis RoboHash.org project.
+
+Copyright: Zikri Kader, Colin Davis (2011), Nimiq (2017)\
+URL (PNG): <https://github.com/e1ven/Robohash/>\
+URL (SVG): <https://github.com/nimiq/robohash/>\
+License: CC-BY 4.0 (attribution _Zikri Kader_)\
+License URL: <https://creativecommons.org/licenses/by/4.0/>
+
 
 ## wavatars/*.png
 

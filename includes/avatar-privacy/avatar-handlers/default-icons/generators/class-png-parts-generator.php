@@ -4,8 +4,6 @@
  *
  * Copyright 2018-2019 Peter Putzer.
  * Copyright 2007-2014 Scott Sherrill-Mix.
- * Copyright 2007-2008 Shamus Young.
- * Copyright 2007 Andreas Gohr.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -31,36 +29,21 @@ namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
 use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Tools\Images;
+use Avatar_Privacy\Tools\Number_Generator;
 
 /**
  * A base class for parts-based PNG icon generators.
  *
+ * The class includes some functions created for Scott Sherrill-Mix' WordPress
+ * plugin of MonsterID.
+ *
  * @since 2.3.0
  */
-abstract class PNG_Parts_Generator extends PNG_Generator {
+abstract class PNG_Parts_Generator extends Parts_Generator {
 
-	/**
-	 * The path to the monster parts image files.
-	 *
-	 * @var string
-	 */
-	protected $parts_dir;
-
-	/**
-	 * An array of part types.
-	 *
-	 * @var string[]
-	 */
-	protected $part_types;
-
-	/**
-	 * Lists of files, indexed by part types.
-	 *
-	 * @var array {
-	 *     @type string[] $type An array of files.
-	 * }
-	 */
-	protected $parts;
+	// Units used in HSL colors.
+	const PERCENT = 100;
+	const DEGREE  = 360;
 
 	/**
 	 * The base size of the generated avatar.
@@ -70,75 +53,153 @@ abstract class PNG_Parts_Generator extends PNG_Generator {
 	protected $size;
 
 	/**
-	 * The site transients handler.
+	 * The image editor support class.
 	 *
-	 * @var Site_Transients
+	 * @var Images\Editor
 	 */
-	private $site_transients;
+	private $editor;
+
+	/**
+	 * The PNG image helper.
+	 *
+	 * @var Images\PNG
+	 */
+	protected $png;
 
 	/**
 	 * Creates a new generator.
 	 *
-	 * @param string          $parts_dir       The directory containing our image parts.
-	 * @param string[]        $part_types      The valid part types for this generator.
-	 * @param int             $size            The width and height of the generated image (in pixels).
-	 * @param Images\Editor   $images          The image editing handler.
-	 * @param Site_Transients $site_transients The site transients handler.
+	 * @param string           $parts_dir        The directory containing our image parts.
+	 * @param string[]         $part_types       The valid part types for this generator.
+	 * @param int              $size             The width and height of the generated image (in pixels).
+	 * @param Images\Editor    $editor           The image editing handler.
+	 * @param Images\PNG       $png              The PNG image helper.
+	 * @param Number_Generator $number_generator A pseudo-random number generator.
+	 * @param Site_Transients  $site_transients  The site transients handler.
 	 */
-	public function __construct( $parts_dir, array $part_types, $size, Images\Editor $images, Site_Transients $site_transients ) {
-		$this->parts_dir       = $parts_dir;
-		$this->part_types      = $part_types;
-		$this->size            = $size;
-		$this->site_transients = $site_transients;
+	public function __construct(
+		$parts_dir,
+		array $part_types,
+		$size,
+		Images\Editor $editor,
+		Images\PNG $png,
+		Number_Generator $number_generator,
+		Site_Transients $site_transients
+	) {
+		$this->size   = $size;
+		$this->editor = $editor;
+		$this->png    = $png;
 
-		parent::__construct( $images );
+		parent::__construct( $parts_dir, $part_types, $number_generator, $site_transients );
 	}
 
 	/**
-	 * Retrieves the "randomized" parts for the avatar being built.
+	 * Renders the avatar from its parts in the given size, using any of the
+	 * optional additional arguments.
 	 *
-	 * @param  callable $randomize A randomization function taking a minimum and
-	 *                             maximum value and the parts type as its argument;
-	 *                             returning an integer.
+	 * @param  int   $size  The target image size in pixels.
+	 * @param  array $parts The (randomized) avatar parts.
+	 * @param  array $args  Any additional arguments defined by the subclass.
 	 *
-	 * @return array               A simple array of files, indexe by part.
-	 *
-	 * @throws \RuntimeException The part files could not be found.
+	 * @return string       The image data (bytes).
 	 */
-	protected function get_randomized_parts( callable $randomize ) {
-		return $this->randomize_parts( $this->get_parts(), $randomize );
+	protected function get_avatar( $size, array $parts, array $args ) {
+		// Build the avatar image in its native size.
+		$avatar = $this->render_avatar( $parts, $args );
+
+		// Resize if necessary.
+		return $this->get_resized_image_data( $avatar, $size );
 	}
 
 	/**
-	 * Creates an image resource of the chosen type.
+	 * Renders the avatar from its parts, using any of the given additional arguments.
+	 *
+	 * @param  array $parts The (randomized) avatar parts.
+	 * @param  array $args  Any additional arguments defined by the subclass.
+	 *
+	 * @return resource
+	 */
+	abstract protected function render_avatar( array $parts, array $args );
+
+	/**
+	 * Resizes the image and returns the raw data.
+	 *
+	 * @param  resource $image The image resource.
+	 * @param  int      $size  The size in pixels.
+	 *
+	 * @return string          The image data (or the empty string on error).
+	 */
+	protected function get_resized_image_data( $image, $size ) {
+		return $this->editor->get_resized_image_data(
+			$this->editor->create_from_image_resource( $image ), $size, $size, 'image/png'
+		);
+	}
+
+	/**
+	 * Retrieves an array of SVG part type definitions.
+	 *
+	 * @param  array $parts An array of empty arrays indexed by part type.
+	 *
+	 * @return array        The same array, but now containing the part type definitions.
+	 */
+	protected function read_parts_from_filesystem( array $parts ) {
+		// Iterate over the files in the parts directory.
+		$dir = new \FilesystemIterator(
+			$this->parts_dir,
+			\FilesystemIterator::KEY_AS_FILENAME |
+			\FilesystemIterator::CURRENT_AS_PATHNAME |
+			\FilesystemIterator::SKIP_DOTS
+		);
+
+		foreach ( $dir as $file => $path ) {
+			list( $partname, ) = \explode( '_', $file );
+			if ( isset( $parts[ $partname ] ) ) {
+				$parts[ $partname ][] = $file;
+			}
+		}
+
+		return $parts;
+	}
+
+	/**
+	 * Sorts the parts array to be independent of filesystem sort order.
+	 *
+	 * @param array $parts {
+	 *     An array of part type definitions.
+	 *
+	 *     @type string $type The part definition list, indexed by type.
+	 * }
+	 *
+	 * @return array
+	 */
+	protected function sort_parts( array $parts ) {
+		foreach ( $parts as $key => $value ) {
+			\sort( $parts[ $key ], \SORT_NATURAL );
+		}
+
+		return $parts;
+	}
+
+	/**
+	 * Creates an image resource of the chosen type with the set avatar size for
+	 * width and height.
 	 *
 	 * @since 2.3.0
 	 *
-	 * @param  string $type   The type of background to create. Valid: 'white', 'black', 'transparent'.
-	 * @param  int    $width  Optional. Image width in pixels. Default is the base size.
-	 * @param  int    $height Optional. Image height in pixels. Default is the base size.
+	 * @param  string $type The type of background to create. Valid: 'white', 'black', 'transparent'.
 	 *
 	 * @return resource
 	 *
 	 * @throws \RuntimeException The image could not be copied.
 	 */
-	protected function create_image( $type, $width = null, $height = null ) {
-
-		// Apply image width and height defaults.
-		if ( empty( $width ) ) {
-			$width = $this->size;
-		}
-		if ( empty( $height ) ) {
-			$height = $this->size;
-		}
-
-		return parent::create_image( $type, $width, $height );
+	protected function create_image( $type ) {
+		return $this->png->create( $type, $this->size, $this->size );
 	}
 
 	/**
-	 * Copies an image onto an existing base image. This implementation adds the
-	 * ability to dynamically load image parts from the parts directory, and the
-	 * the width and height arguments are optional.
+	 * Copies an image onto an existing base image. Image parts are loaded from
+	 * the parts directory if a filename is given, assuming the avatar size for
+	 * width and height.
 	 *
 	 * The image resource is freed after copying.
 	 *
@@ -147,132 +208,16 @@ abstract class PNG_Parts_Generator extends PNG_Generator {
 	 *                                 be either the name of the image file
 	 *                                 relative to the parts directory, or an
 	 *                                 existing image resource.
-	 * @param  int             $width  Optional. Image width in pixels. Default is the base size.
-	 * @param  int             $height Optional. Image height in pixels. Default is the base size.
 	 *
 	 * @throws \RuntimeException The image could not be copied.
 	 */
-	protected function apply_image( $base, $image, $width = null, $height = null ) {
-
-		// Apply image width and height defaults.
-		if ( empty( $width ) ) {
-			$width = $this->size;
-		}
-		if ( empty( $height ) ) {
-			$height = $this->size;
-		}
-
+	protected function combine_images( $base, $image ) {
 		// Load image if we are given a filename.
 		if ( \is_string( $image ) ) {
-			$image = @\imageCreateFromPNG( "{$this->parts_dir}/{$image}" );
+			$image = $this->png->create_from_file( "{$this->parts_dir}/{$image}" );
 		}
 
-		parent::apply_image( $base, /* @scrutinizer ignore-type */ $image, $width, $height );
-	}
-
-	/**
-	 * Retrieves the avatar parts image files.
-	 *
-	 * @return array {
-	 *     An array of file lists indexed by the part name.
-	 *
-	 *     @type string[] $part An array of filenames (without the path).
-	 * }
-	 *
-	 * @throws \RuntimeException The part files could not be found.
-	 */
-	protected function get_parts() {
-		if ( empty( $this->parts ) ) {
-			// Calculate transient key.
-			$basename = \basename( $this->parts_dir );
-			$key      = "avatar_privacy_{$basename}_png_parts";
-
-			// Check existence of transient.
-			$this->parts = $this->site_transients->get( $key );
-			if ( empty( $this->parts ) ) {
-				// Look at the actual filesystem.
-				$this->parts = $this->locate_parts();
-
-				// Only store transient if we got a result.
-				if ( ! empty( $this->parts ) ) {
-					$this->site_transients->set( $key, $this->parts );
-				}
-			}
-		}
-
-		// Raise an exception if there were no files found.
-		if ( empty( $this->parts ) ) {
-			throw new \RuntimeException( "Could not find parts images in {$this->parts_dir}" );
-		}
-
-		return $this->parts;
-	}
-
-	/**
-	 * Finds all avatar parts images on the filesystem. Normally you should use
-	 * the cached function `get_parts()` instead.
-	 *
-	 * @since 2.3.0 Moved to PNG_Parts_Generator class. Parameter $parts removed.
-	 *              Made internal.
-	 *
-	 * @return array {
-	 *     An array of file lists indexed by the part name, or the empty array.
-	 *
-	 *     @type string[] $part An array of filenames (without the path).
-	 * }
-	 */
-	protected function locate_parts() {
-		// Make sure the keys are in the correct order.
-		$parts = \array_fill_keys( $this->part_types, [] );
-
-		// Keep copy of original array check if we found anything.
-		$empty = $parts;
-
-		// Iterate over the files in the parts directory.
-		$dir = new \FilesystemIterator(
-			$this->parts_dir,
-			\FilesystemIterator::KEY_AS_FILENAME |
-			\FilesystemIterator::CURRENT_AS_PATHNAME |
-			\FilesystemIterator::SKIP_DOTS
-		);
-		foreach ( $dir as $file => $path ) {
-			list( $partname, ) = \explode( '_', $file );
-			if ( isset( $parts[ $partname ] ) ) {
-				$parts[ $partname ][] = $file;
-			}
-		}
-
-		// Sort for consistency across servers.
-		foreach ( $parts as $key => $value ) {
-			\sort( $parts[ $key ], \SORT_NATURAL );
-		}
-
-		// Return an empty array if there were no files found.
-		if ( $parts === $empty ) {
-			$parts = [];
-		}
-
-		return $parts;
-	}
-
-	/**
-	 * Throws the dice for parts.
-	 *
-	 * @param  array    $parts     An array of arrays containing all parts files.
-	 * @param  callable $randomize A randomization function taking a minimum and
-	 *                             maximum value and the parts type as its argument;
-	 *                             returning an integer.
-	 *
-	 * @return array               A simple array of files, indexe by part.
-	 */
-	protected function randomize_parts( array $parts, callable $randomize ) {
-
-		// Throw the dice for every part type.
-		foreach ( $parts as $type => $files ) {
-			$parts[ $type ] = $files[ $randomize( 0, \count( $files ) - 1, $type ) ];
-		}
-
-		return $parts;
+		$this->png->combine( $base, $image, $this->size, $this->size );
 	}
 
 	/**
@@ -283,6 +228,9 @@ abstract class PNG_Parts_Generator extends PNG_Generator {
 	 * @since 2.3.0 Moved to PNG_Parts_Generator class and paramter $text removed.
 	 *              Use new method `get_parts_dimensions_as_text` to retrieve the
 	 *              human-readable array definition.
+	 *
+	 * @author Peter Putzer
+	 * @author Scott Sherrill-Mix
 	 *
 	 * @return array {
 	 *     An array of boundary coordinates indexed by filename.

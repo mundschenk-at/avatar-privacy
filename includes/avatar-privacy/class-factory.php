@@ -61,10 +61,8 @@ use Avatar_Privacy\Integrations\Ultimate_Member_Integration;
 use Avatar_Privacy\Integrations\WPDiscuz_Integration;
 use Avatar_Privacy\Integrations\WP_User_Manager_Integration;
 
-use Avatar_Privacy\Tools\Images;
-use Avatar_Privacy\Tools\Multisite as Multisite_Tools;
+use Avatar_Privacy\Tools;
 use Avatar_Privacy\Tools\HTML\User_Form;
-use Avatar_Privacy\Tools\Network\Gravatar_Service;
 
 /**
  * A factory for creating Avatar_Privacy instances via dependency injection.
@@ -306,10 +304,12 @@ class Factory extends Dice {
 				],
 			],
 
-			// Tools.
-			Images\Editor::class                            => self::SHARED,
-			Multisite_Tools::class                          => self::SHARED,
-			Gravatar_Service::class                         => self::SHARED,
+			// Shared tools.
+			Tools\Number_Generator::class                   => self::SHARED,
+			Tools\Multisite::class                          => self::SHARED,
+			Tools\Images\Editor::class                      => self::SHARED,
+			Tools\Images\PNG::class                         => self::SHARED,
+			Tools\Network\Gravatar_Service::class           => self::SHARED,
 		];
 	}
 
@@ -385,6 +385,7 @@ class Factory extends Dice {
 			[ 'instance' => Generated_Icons\Rings_Icon_Provider::class ],
 			[ 'instance' => Generated_Icons\Bird_Avatar_Icon_Provider::class ],
 			[ 'instance' => Generated_Icons\Cat_Avatar_Icon_Provider::class ],
+			[ 'instance' => Generated_Icons\Robohash_Icon_Provider::class ],
 			[ 'instance' => Static_Icons\Speech_Bubble_Icon_Provider::class ],
 			[ 'instance' => Static_Icons\Bowling_Pin_Icon_Provider::class ],
 			[ 'instance' => Static_Icons\Silhouette_Icon_Provider::class ],

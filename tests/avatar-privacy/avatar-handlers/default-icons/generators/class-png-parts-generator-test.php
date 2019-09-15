@@ -38,7 +38,9 @@ use org\bovigo\vfs\vfsStreamDirectory;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Parts_Generator;
 
 use Avatar_Privacy\Data_Storage\Site_Transients;
+use Avatar_Privacy\Tools\Number_Generator;
 use Avatar_Privacy\Tools\Images\Editor;
+use Avatar_Privacy\Tools\Images\PNG;
 
 /**
  * Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Parts_Generator unit test.
@@ -47,7 +49,7 @@ use Avatar_Privacy\Tools\Images\Editor;
  * @usesDefaultClass \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Parts_Generator
  *
  * @uses ::__construct
- * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator::__construct
+ * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Parts_Generator::__construct
  */
 class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 
@@ -64,6 +66,20 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var Editor
 	 */
 	private $editor;
+
+	/**
+	 * The Images\PNG mock.
+	 *
+	 * @var PNG
+	 */
+	private $png;
+
+	/**
+	 * The Number_Generator mock.
+	 *
+	 * @var Number_Generator
+	 */
+	private $number_generator;
 
 	/**
 	 * The site transients handler mock.
@@ -131,8 +147,10 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->size = 300;
 
 		// Helper mocks.
-		$this->editor          = m::mock( Editor::class );
-		$this->site_transients = m::mock( Site_Transients::class );
+		$this->editor           = m::mock( Editor::class );
+		$this->png              = m::mock( PNG::class );
+		$this->number_generator = m::mock( Number_Generator::class );
+		$this->site_transients  = m::mock( Site_Transients::class );
 
 		// Partially mock system under test.
 		$this->sut = m::mock( PNG_Parts_Generator::class, [
@@ -140,6 +158,8 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 			[ 'foo', 'bar' ],
 			$this->size,
 			$this->editor,
+			$this->png,
+			$this->number_generator,
 			$this->site_transients,
 		] )
 			->makePartial()
@@ -156,313 +176,55 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$part_types = [ 'foo', 'bar', 'baz' ];
 		$size       = 300;
 		$editor     = m::mock( Editor::class );
+		$png        = m::mock( PNG::class );
+		$numbers    = m::mock( Number_Generator::class );
 		$transients = m::mock( Site_Transients::class );
 		$mock       = m::mock( PNG_Parts_Generator::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $mock, '__construct', [ $fake_path, $part_types, $size, $editor, $transients ] );
-
-		// An attribute of the PNG_Parts_Generator superclass.
-		$this->assertAttributeSame( $fake_path, 'parts_dir', $mock );
-		$this->assertAttributeSame( $part_types, 'part_types', $mock );
-		$this->assertAttributeSame( $size, 'size', $mock );
-		$this->assertAttributeSame( $transients, 'site_transients', $mock );
-	}
-
-
-	/**
-	 * Tests ::get_randomized_parts.
-	 *
-	 * @covers ::get_randomized_parts
-	 */
-	public function test_get_randomized_parts() {
-		// Input data.
-		$randomize  = 'mt_rand';
-		$part_types = [
-			'body',
-			'arms',
-			'legs',
-			'mouth',
-		];
-
-		$found_parts = [
-			'body'  => [ 'foo', 'bar' ],
-			'arms'  => [],
-			'legs'  => [],
-			'mouth' => [ 'baz', 'foobar', 'barfoo' ],
-		];
-
-		// Expected result.
-		$randomized_parts = [
-			'body'  => [ 'foo' ],
-			'arms'  => [],
-			'legs'  => [],
-			'mouth' => [ 'baz' ],
-		];
-
-		// Override the parts directory.
-		$this->setValue( $this->sut, 'part_types', $part_types );
-
-		$this->sut->shouldReceive( 'get_parts' )->once()->andReturn( $found_parts );
-		$this->sut->shouldReceive( 'randomize_parts' )->once()->with( $found_parts, $randomize )->andReturn( $randomized_parts );
-
-		// Run test.
-		$this->assertSame( $randomized_parts, $this->sut->get_randomized_parts( $randomize ) );
-	}
-
-	/**
-	 * Tests ::create_image.
-	 *
-	 * @covers ::create_image
-	 *
-	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator::create_image
-	 */
-	public function test_create_image_default_size() {
-		$image = $this->sut->create_image( 'white' );
-
-		$this->assertInternalType( 'resource', $image );
-		$this->assertSame( $this->size, \imageSX( $image ) );
-		$this->assertSame( $this->size, \imageSY( $image ) );
-		$this->assertSame(
-			[
-				'red'   => 255,
-				'green' => 255,
-				'blue'  => 255,
-				'alpha' => 0,
-			],
-			\imageColorsForIndex( $image, \imageColorAt( $image, 1, 1 ) )
+		$this->invokeMethod(
+			$mock,
+			'__construct',
+			[ $fake_path, $part_types, $size, $editor, $png, $numbers, $transients ]
 		);
 
-		// Clean up.
-		\imageDestroy( $image );
+		$this->assertAttributeSame( $size, 'size', $mock );
+		$this->assertAttributeSame( $editor, 'editor', $mock );
+		$this->assertAttributeSame( $png, 'png', $mock );
 	}
 
 	/**
-	 * Tests ::apply_image.
+	 * Tests ::get_avatar.
 	 *
-	 * @covers ::apply_image
-	 *
-	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator::apply_image
+	 * @covers ::get_avatar
 	 */
-	public function test_apply_image() {
-		// The base image.
-		$width  = 200;
-		$height = 100;
-		$base   = \imageCreateTrueColor( $width, $height );
-
-		// Make the base image white.
-		\imageFill( $base, 0, 0, \imageColorAllocate( $base, 255, 255, 255 ) );
-
-		// The second image.
-		$image = 'somefile.png';
-
-		// Store base image data for comparison.
-		\ob_start();
-		\imagePNG( $base );
-		$orig_base_data = \ob_get_clean();
-
-		// Run the test.
-		$this->assertNull( $this->sut->apply_image( $base, $image, $width, $height ) );
-
-		// Get the new base image data.
-		\ob_start();
-		\imagePNG( $base );
-		$new_base_data = \ob_get_clean();
-
-		// Check that they are different because of the applied image.
-		$this->assertNotSame( $orig_base_data, $new_base_data );
-
-		// Clean up.
-		\imageDestroy( $base );
-	}
-
-	/**
-	 * Tests ::apply_image.
-	 *
-	 * @covers ::apply_image
-	 *
-	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator::apply_image
-	 */
-	public function test_apply_image_no_size() {
-		// The base image.
-		$base = \imageCreateTrueColor( $this->size, $this->size );
-
-		// Make the base image white.
-		\imageFill( $base, 0, 0, \imageColorAllocate( $base, 255, 255, 255 ) );
-
-		// The second image.
-		$image = \imageCreateFromPNG( vfsStream::url( 'root/plugin/my_parts_dir/somefile.png' ) );
-
-		// Store base image data for comparison.
-		\ob_start();
-		\imagePNG( $base );
-		$orig_base_data = ob_get_clean();
-
-		// Run the test.
-		$this->assertNull( $this->sut->apply_image( $base, $image ) );
-
-		// Get the new base image data.
-		\ob_start();
-		\imagePNG( $base );
-		$new_base_data = ob_get_clean();
-
-		// Check that they are different because of the applied image.
-		$this->assertNotSame( $orig_base_data, $new_base_data );
-
-		// Clean up.
-		\imageDestroy( $base );
-	}
-
-	/**
-	 * Tests ::apply_image.
-	 *
-	 * @covers ::apply_image
-	 *
-	 * @uses Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Generator::apply_image
-	 */
-	public function test_apply_image_error() {
-		// The base image.
-		$width  = 200;
-		$height = 100;
-		$base   = \imageCreateTrueColor( $width, $height );
-
-		// Make the base image white.
-		\imageFill( $base, 0, 0, \imageColorAllocate( $base, 255, 255, 255 ) );
-
-		// The second image does not exist.
-		$image = 'fakename.png';
-
-		// Store base image data for comparison.
-		\ob_start();
-		\imagePNG( $base );
-		$orig_base_data = ob_get_clean();
-
-		// Expect failure.
-		$this->expectException( \RuntimeException::class );
-
-		// Run the test.
-		$this->sut->apply_image( $base, $image, $width, $height );
-
-		// Get the new base image data.
-		\ob_start();
-		\imagePNG( $base );
-		$new_base_data = ob_get_clean();
-
-		// Check that they are different because of the applied image.
-		$this->assertSame( $orig_base_data, $new_base_data );
-
-		// Clean up.
-		\imageDestroy( $base );
-	}
-
-	/**
-	 * Tests ::get_parts.
-	 *
-	 * @covers ::get_parts
-	 */
-	public function test_get_parts() {
-		// Input data.
-		$basename = 'monster-id';
-		$path     = "/some/fake/path/$basename";
-		$parts    = [
-			'body'  => [
-				'body_1.png',
-				'body_2.png',
-			],
-			'arms'  => [
-				'arms_S8.png',
-			],
-			'legs'  => [
-				'legs_1.png',
-			],
-			'mouth' => [
-				'mouth_6.png',
-			],
-		];
-
-		// Override necessary properties.
-		$this->setValue( $this->sut, 'parts_dir', $path );
-
-		$this->site_transients->shouldReceive( 'get' )->once()->with( "avatar_privacy_{$basename}_png_parts" )->andReturn( false );
-		$this->sut->shouldReceive( 'locate_parts' )->once()->andReturn( $parts );
-		$this->site_transients->shouldReceive( 'set' )->once()->with( "avatar_privacy_{$basename}_png_parts", $parts );
-
-		// Run test.
-		$this->assertSame( $parts, $this->sut->get_parts() );
-	}
-
-	/**
-	 * Tests ::get_parts.
-	 *
-	 * @covers ::get_parts
-	 */
-	public function test_get_parts_cached() {
-		// Input data.
-		$basename = 'monster-id';
-		$path     = "/some/fake/path/$basename";
-		$parts    = [
-			'body'  => [
-				'body_1.png',
-				'body_2.png',
-			],
-			'arms'  => [
-				'arms_S8.png',
-			],
-			'legs'  => [
-				'legs_1.png',
-			],
-			'mouth' => [
-				'mouth_6.png',
-			],
-		];
-
-		// Override necessary properties.
-		$this->setValue( $this->sut, 'parts_dir', $path );
-
-		$this->site_transients->shouldReceive( 'get' )->once()->with( "avatar_privacy_{$basename}_png_parts" )->andReturn( $parts );
-		$this->sut->shouldReceive( 'locate_parts' )->never();
-		$this->site_transients->shouldReceive( 'set' )->never();
-
-		// Run test.
-		$this->assertSame( $parts, $this->sut->get_parts() );
-	}
-
-	/**
-	 * Tests ::get_parts.
-	 *
-	 * @covers ::get_parts
-	 */
-	public function test_get_parts_nothing_found() {
-		// Input data.
-		$basename = 'monster-id';
-		$path     = "/some/fake/path/$basename";
-		$parts    = [];
-
-		// Override necessary properties.
-		$this->setValue( $this->sut, 'parts_dir', $path );
-
-		$this->site_transients->shouldReceive( 'get' )->once()->with( "avatar_privacy_{$basename}_png_parts" )->andReturn( false );
-		$this->sut->shouldReceive( 'locate_parts' )->once()->andReturn( $parts );
-		$this->site_transients->shouldReceive( 'set' )->never();
-
-		$this->expectException( \RuntimeException::class );
-
-		// Run test.
-		$this->assertSame( $parts, $this->sut->get_parts() );
-	}
-
-	/**
-	 * Tests ::locate_parts.
-	 *
-	 * @covers ::locate_parts
-	 */
-	public function test_locate_parts() {
-		// Input data.
+	public function test_get_avatar() {
 		$parts = [
-			'body',
-			'arms',
-			'legs',
-			'mouth',
+			'some'  => 'fake',
+			'parts' => 'foobar',
 		];
+		$args  = [
+			'foo' => 'bar',
+		];
+		$size  = 42;
+
+		// Generated image.
+		$avatar = 'fake resource';
+		$image  = 'fake image data';
+
+		$this->sut->shouldReceive( 'render_avatar' )->once()->with( $parts, $args )->andReturn( $avatar );
+		$this->sut->shouldReceive( 'get_resized_image_data' )->once()->with( $avatar, $size )->andReturn( $image );
+
+		$this->assertSame( $image, $this->sut->get_avatar( $size, $parts, $args ) );
+	}
+
+	/**
+	 * Tests ::read_parts_from_filesystem.
+	 *
+	 * @covers ::read_parts_from_filesystem
+	 */
+	public function test_read_parts_from_filesystem() {
+		// Input data.
+		$parts = \array_fill_keys( [ 'body', 'arms', 'legs', 'mouth' ], [] );
 
 		// Expected result.
 		$result = [
@@ -483,75 +245,154 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Override necessary properties.
 		$this->setValue( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/monster-id' ) );
-		$this->setValue( $this->sut, 'part_types', $parts );
 
 		// Run test.
-		$this->assertSame( $result, $this->sut->locate_parts() );
+		$this->assertSame( $result, $this->sut->read_parts_from_filesystem( $parts ) );
 	}
 
 	/**
-	 * Tests ::locate_parts.
+	 * Tests ::read_parts_from_filesystem.
 	 *
-	 * @covers ::locate_parts
+	 * @covers ::read_parts_from_filesystem
 	 */
-	public function test_locate_parts_incorrect_parts_dir() {
+	public function test_read_parts_from_filesystem_incorrect_parts_dir() {
 		// Input data.
-		$parts = [
-			'body',
-			'arms',
-			'legs',
-			'mouth',
-		];
-
-		// Expected result.
-		$result = [];
+		$parts = \array_fill_keys( [ 'body', 'arms', 'legs', 'mouth' ], [] );
 
 		// Override necessary properties.
 		$this->setValue( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/monster-id-empty' ) );
-		$this->setValue( $this->sut, 'part_types', $parts );
 
 		// Run test.
-		$this->assertSame( $result, $this->sut->locate_parts() );
+		$this->assertSame( $parts, $this->sut->read_parts_from_filesystem( $parts ) );
 	}
 
 	/**
-	 * Tests ::randomize_parts.
+	 * Tests ::sort_parts.
 	 *
-	 * @covers ::randomize_parts
+	 * @covers ::sort_parts
 	 */
-	public function test_randomize_parts() {
+	public function test_sort_parts() {
 		// Input data.
-		$parts     = [
+		$parts = [
 			'body'  => [
 				'body_1.png',
+				'body_3.png',
 				'body_2.png',
 			],
 			'arms'  => [
-				'arms_1.png',
-				'arms_2.png',
-				'arms_3.png',
-				'arms_4.png',
-				'arms_5.png',
+				'arms_S1.png',
+				'arms_S10.png',
+				'arms_S2.png',
+			],
+			'legs'  => [
+				'legs_1.png',
 			],
 			'mouth' => [
-				'mouth_1.png',
-				'mouth_2.png',
-				'mouth_3.png',
+				'mouth_6.png',
 			],
 		];
-		$randomize = 'my_randomize';
 
 		// Expected result.
 		$result = [
-			'body'  => 'body_2.png',
-			'arms'  => 'arms_4.png',
-			'mouth' => 'mouth_3.png',
+			'body'  => [
+				'body_1.png',
+				'body_2.png',
+				'body_3.png',
+			],
+			'arms'  => [
+				'arms_S1.png',
+				'arms_S2.png',
+				'arms_S10.png',
+			],
+			'legs'  => [
+				'legs_1.png',
+			],
+			'mouth' => [
+				'mouth_6.png',
+			],
 		];
 
-		Functions\expect( $randomize )->times( \count( $parts ) )->with( 0, m::type( 'int' ), m::type( 'string' ) )->andReturn( 1, 3, 2 );
-
 		// Run test.
-		$this->assertSame( $result, $this->sut->randomize_parts( $parts, $randomize ) );
+		$this->assertSame( $result, $this->sut->sort_parts( $parts ) );
+	}
+
+	/**
+	 * Tests ::create_image.
+	 *
+	 * @covers ::create_image
+	 */
+	public function test_create_image() {
+		$type  = 'white';
+		$image = 'fake resource';
+
+		$this->png->shouldReceive( 'create' )->once()->with( $type, $this->size, $this->size )->andReturn( $image );
+
+		$this->assertSame( $image, $this->sut->create_image( $type ) );
+	}
+
+	/**
+	 * Tests ::combine_images.
+	 *
+	 * @covers ::combine_images
+	 */
+	public function test_combine_images() {
+		// The base image.
+		$width  = 200;
+		$height = 100;
+		$base   = \imageCreateTrueColor( $width, $height );
+
+		// The second image.
+		$image = \imageCreateFromPNG( vfsStream::url( 'root/plugin/my_parts_dir/somefile.png' ) );
+
+		$this->png->shouldReceive( 'combine' )->once()->with( $base, $image, $this->size, $this->size );
+
+		$this->assertNull( $this->sut->combine_images( $base, $image ) );
+
+		// Clean up.
+		\imageDestroy( $base );
+		\imageDestroy( $image );
+	}
+
+	/**
+	 * Tests ::combine_images.
+	 *
+	 * @covers ::combine_images
+	 */
+	public function test_combine_images_with_filename() {
+		// The base image.
+		$width  = 200;
+		$height = 100;
+		$base   = \imageCreateTrueColor( $width, $height );
+
+		// The second image.
+		$file  = 'filename.png';
+		$image = \imageCreateFromPNG( vfsStream::url( 'root/plugin/my_parts_dir/somefile.png' ) );
+
+		$this->png->shouldReceive( 'create_from_file' )->once()->with( m::type( 'string' ) )->andReturn( $image );
+		$this->png->shouldReceive( 'combine' )->once()->with( $base, $image, $this->size, $this->size );
+
+		$this->assertNull( $this->sut->combine_images( $base, $file ) );
+
+		// Clean up.
+		\imageDestroy( $base );
+		\imageDestroy( $image );
+	}
+
+
+	/**
+	 * Tests ::get_resized_image_data.
+	 *
+	 * @covers ::get_resized_image_data
+	 */
+	public function test_get_resized_image_data() {
+		$fake_resource = 'should be a resource';
+		$size          = 42;
+		$result        = 'the image data';
+
+		$this->editor->shouldReceive( 'create_from_image_resource' )->once()->with( $fake_resource )->andReturn( m::mock( \WP_Image_Editor::class ) );
+		$this->editor->shouldReceive( 'get_resized_image_data' )->once()->with( m::type( \WP_Image_Editor::class ), $size, $size, 'image/png' )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->get_resized_image_data( $fake_resource, $size ) );
 	}
 
 	/**
