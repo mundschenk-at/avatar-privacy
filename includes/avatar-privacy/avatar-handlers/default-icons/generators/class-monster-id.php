@@ -366,10 +366,11 @@ class Monster_ID extends PNG_Parts_Generator {
 				$alpha     = ( $rgb & 0x7F000000 ) >> 24;
 				$lightness = ( $r + $g + $b ) / 3 / 255 * self::PERCENT;
 				if ( $lightness > 10 && $lightness < 99 && $alpha < 115 ) {
-					$newrgb = HSLtoRGB( $hue, $saturation, $lightness );
-					// The green and blue were switched in the original hsl_2_rgb function, so we keep
-					// the same behavior for backwards compatibility reasons.
-					$color = \imageColorAllocateAlpha( $image, $newrgb[0], $newrgb[2], $newrgb[1], $alpha );
+					// Convert HSL color to RGB.
+					list( $r, $g, $b ) = HSLtoRGB( $hue, $saturation, $lightness );
+
+					// Change color of pixel.
+					$color = \imageColorAllocateAlpha( $image, $r, $g, $b, $alpha );
 					\imageSetPixel( $image, $i, $j, $color );
 				}
 			}
