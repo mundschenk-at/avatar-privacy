@@ -29,6 +29,7 @@ namespace Avatar_Privacy\Tools\Network;
 
 use Avatar_Privacy\Data_Storage\Transients;
 use Avatar_Privacy\Data_Storage\Site_Transients;
+use Avatar_Privacy\Tools\Images\Editor;
 
 /**
  * A class for accessing the Gravatar service.
@@ -60,14 +61,27 @@ class Gravatar_Service {
 	private $site_transients;
 
 	/**
+	 * The image editor.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @var Editor
+	 */
+	private $editor;
+
+	/**
 	 * Creates a new instance.
+	 *
+	 * @since 2.3.0 Parameter $editor added.
 	 *
 	 * @param Transients      $transients       The transients handler.
 	 * @param Site_Transients $site_transients  The site transients handler.
+	 * @param Editor          $editor           The image editor.
 	 */
-	public function __construct( Transients $transients, Site_Transients $site_transients ) {
+	public function __construct( Transients $transients, Site_Transients $site_transients, Editor $editor ) {
 		$this->transients      = $transients;
 		$this->site_transients = $site_transients;
+		$this->editor          = $editor;
 	}
 
 	/**
@@ -80,10 +94,17 @@ class Gravatar_Service {
 	 * @return string         The image data.
 	 */
 	public function get_image( $email, $size, $rating ) {
-		return \wp_remote_retrieve_body(
+		$image = \wp_remote_retrieve_body(
 			/* @scrutinizer ignore-type */
 			\wp_remote_get( $this->get_url( $email, $size, $rating ) )
 		);
+
+		if ( false === $this->editor->get_mime_type( $image ) ) {
+			// Propably a Varnish error, so we ignore the data.
+			$image = '';
+		}
+
+		return $image;
 	}
 
 	/**
