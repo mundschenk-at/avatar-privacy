@@ -78,6 +78,13 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$filesystem = [
 			'folder' => [],
+			'other'  => [
+				'mime' => [
+					'type' => [
+						'check',
+					],
+				],
+			],
 		];
 
 		// Set up virtual filesystem.
@@ -356,6 +363,28 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assertSame( \WP_Image_Editor_GD::class, $result[0] );
 		$this->assertNotSame( \WP_Image_Editor_GD::class, $result[1] );
 		$this->assertNotSame( \WP_Image_Editor_GD::class, $result[2] );
+	}
+
+	/**
+	 * Tests ::get_mime_type.
+	 *
+	 * @covers ::get_mime_type
+	 */
+	public function test_get_mime_type() {
+		// Input.
+		$stream = vfsStream::url( 'root/other' );
+
+		// Result.
+		$mime_type = 'image/foobar';
+
+		// Set up instance state.
+		$stream_matcher = m::pattern( '#^' . \preg_quote( $stream, '/[\w/]+$#' ) . '#' );
+		$this->setValue( $this->sut, 'stream_url', $stream, Editor::class );
+
+		Functions\expect( 'wp_get_image_mime' )->once()->with( $stream_matcher )->andReturn( $mime_type );
+		$this->sut->shouldReceive( 'delete_stream' )->once()->with( $stream_matcher );
+
+		$this->assertSame( $mime_type, $this->sut->get_mime_type( $stream ) );
 	}
 
 	/**

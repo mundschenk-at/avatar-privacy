@@ -240,6 +240,32 @@ class Editor {
 	}
 
 	/**
+	 * Retrieves the real MIME type of an image.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @param  string $data Image data.
+	 *
+	 * @return string|false The actual MIME type or false if the type cannot be determined.
+	 */
+	public function get_mime_type( $data ) {
+		// Use custom handle.
+		$stream = $this->stream_url . '/mime/type/check';
+
+		// Copy data to stream implementation.
+		\file_put_contents( $stream, $data ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+
+		// Retrieve MIME type.
+		$mime = \wp_get_image_mime( $stream );
+
+		// Clean up.
+		$this->delete_stream( $stream );
+
+		// Return the MIME type.
+		return $mime;
+	}
+
+	/**
 	 * Deletes the handle/data for the given stream URL.
 	 *
 	 * @since 2.3.0
