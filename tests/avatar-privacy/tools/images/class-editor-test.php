@@ -87,7 +87,7 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->stream->shouldReceive( 'register' )->once()->with( m::type( 'string' ) );
 
 		// Use vfsStream since we are not really registering our wrapper.
-		$this->stream_url = vfsStream::url( 'root/folder/fake_image.png' );
+		$this->stream_url = vfsStream::url( 'root/folder/fake_image' );
 		$this->sut        = m::mock( Editor::class, [ $this->stream_url, \get_class( $this->stream ) ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
@@ -122,8 +122,7 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'get_image_editor' )->once()->with( $stream )->andReturn( m::mock( \WP_Image_Editor::class ) );
 
-		$this->stream->shouldReceive( 'get_handle_from_url' )->once()->with( $stream )->andReturn( 'my_handle' );
-		$this->stream->shouldReceive( 'delete_handle' )->once()->with( 'my_handle' );
+		$this->sut->shouldReceive( 'delete_stream' )->once()->with( $stream );
 
 		$this->assertInstanceOf( \WP_Image_Editor::class,  $this->sut->create_from_stream( $stream ) );
 	}
@@ -357,5 +356,19 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assertSame( \WP_Image_Editor_GD::class, $result[0] );
 		$this->assertNotSame( \WP_Image_Editor_GD::class, $result[1] );
 		$this->assertNotSame( \WP_Image_Editor_GD::class, $result[2] );
+	}
+
+	/**
+	 * Tests ::delete_stream.
+	 *
+	 * @covers ::delete_stream
+	 */
+	public function test_delete_stream() {
+		$stream = 'avprimg://foo/bar';
+
+		$this->stream->shouldReceive( 'get_handle_from_url' )->once()->with( $stream )->andReturn( 'my_handle' );
+		$this->stream->shouldReceive( 'delete_handle' )->once()->with( 'my_handle' );
+
+		$this->assertNull( $this->sut->delete_stream( $stream ) );
 	}
 }

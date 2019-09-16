@@ -96,8 +96,7 @@ class Editor {
 		$result = $this->get_image_editor( $stream );
 
 		// Clean up stream data.
-		$stream_class = $this->stream_class; // PHP 5.6 workaround.
-		$stream_class::delete_handle( $stream_class::get_handle_from_url( $stream ) );
+		$this->delete_stream( $stream );
 
 		// Return image editor.
 		return $result;
@@ -238,5 +237,17 @@ class Editor {
 		}
 
 		return \array_merge( $preferred_editors, $imagick_editors );
+	}
+
+	/**
+	 * Deletes the handle/data for the given stream URL.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @param  string $stream The image stream wrapper URL.
+	 */
+	protected function delete_stream( $stream ) {
+		$stream_class = $this->stream_class; // PHP 5.6 workaround.
+		$stream_class::delete_handle( $stream_class::get_handle_from_url( $stream ) );
 	}
 }
