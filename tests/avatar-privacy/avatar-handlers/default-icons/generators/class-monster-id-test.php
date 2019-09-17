@@ -176,7 +176,6 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assertInternalType( 'array', $result );
 		$this->assertArrayHasKey( 'hue', $result );
 		$this->assertArrayHasKey( 'saturation', $result );
-		$this->assertArrayHasKey( 'max_rand', $result );
 	}
 
 	/**
@@ -193,9 +192,8 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 			'mouth' => 'mouth_6.png', // SPECIFIC_COLOR_PARTS.
 		];
 		$args         = [
-			'hue'        => 350.55,
-			'saturation' => 77.3,
-			'max_rand'   => \mt_getrandmax(),
+			'hue'        => 350,
+			'saturation' => 77,
 		];
 		$parts_number = \count( $parts );
 		$background   = \imageCreateTrueColor( 50, 50 );

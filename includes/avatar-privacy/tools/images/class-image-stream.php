@@ -450,6 +450,8 @@ class Image_Stream {
 	 * @param  string $protocol Optional. The wrapper-specific URL protocol. Default 'avprimg'.
 	 */
 	public static function register( $protocol = self::PROTOCOL ) {
-		\stream_wrapper_register( $protocol, static::class );
+		if ( ! \in_array( $protocol, \stream_get_wrappers(), true ) ) {
+			\stream_wrapper_register( $protocol, static::class );
+		}
 	}
 }

@@ -96,8 +96,7 @@ class Editor {
 		$result = $this->get_image_editor( $stream );
 
 		// Clean up stream data.
-		$stream_class = $this->stream_class; // PHP 5.6 workaround.
-		$stream_class::delete_handle( $stream_class::get_handle_from_url( $stream ) );
+		$this->delete_stream( $stream );
 
 		// Return image editor.
 		return $result;
@@ -238,5 +237,43 @@ class Editor {
 		}
 
 		return \array_merge( $preferred_editors, $imagick_editors );
+	}
+
+	/**
+	 * Retrieves the real MIME type of an image.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @param  string $data Image data.
+	 *
+	 * @return string|false The actual MIME type or false if the type cannot be determined.
+	 */
+	public function get_mime_type( $data ) {
+		// Use custom handle.
+		$stream = $this->stream_url . '/mime/type/check';
+
+		// Copy data to stream implementation.
+		\file_put_contents( $stream, $data ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+
+		// Retrieve MIME type.
+		$mime = \wp_get_image_mime( $stream );
+
+		// Clean up.
+		$this->delete_stream( $stream );
+
+		// Return the MIME type.
+		return $mime;
+	}
+
+	/**
+	 * Deletes the handle/data for the given stream URL.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @param  string $stream The image stream wrapper URL.
+	 */
+	protected function delete_stream( $stream ) {
+		$stream_class = $this->stream_class; // PHP 5.6 workaround.
+		$stream_class::delete_handle( $stream_class::get_handle_from_url( $stream ) );
 	}
 }

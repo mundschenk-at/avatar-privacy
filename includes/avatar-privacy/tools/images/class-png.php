@@ -56,8 +56,8 @@ class PNG {
 			throw new \RuntimeException( "The image of type {$type} ($width x $height) could not be created." );  // @codeCoverageIgnore
 		}
 
-		// Fix transparent background.
-		\imageAlphaBlending( $image, true );
+		// Don't do alpha blending for the initial fill operation.
+		\imageAlphaBlending( $image, false );
 		\imageSaveAlpha( $image, true );
 
 		try {
@@ -79,7 +79,7 @@ class PNG {
 					throw new \InvalidArgumentException( "Invalid image type $type." );
 			}
 
-			if ( false === $color || ! \imageFill( $image, 0, 0, $color ) ) {
+			if ( false === $color || ! \imageFilledRectangle( $image, 0, 0, $width, $height, $color ) ) {
 				throw new \RuntimeException( "Error filling image of type $type." ); // @codeCoverageIgnore
 			}
 		} catch ( \RuntimeException $e ) {
@@ -87,6 +87,9 @@ class PNG {
 			\imageDestroy( $image ); // @codeCoverageIgnoreStart
 			throw $e;                // @codeCoverageIgnoreEnd
 		}
+
+		// Fix transparent background.
+		\imageAlphaBlending( $image, true );
 
 		return $image;
 	}

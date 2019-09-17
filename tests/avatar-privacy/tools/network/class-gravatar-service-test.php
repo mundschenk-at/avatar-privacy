@@ -36,6 +36,7 @@ use Avatar_Privacy\Tools\Network\Gravatar_Service;
 
 use Avatar_Privacy\Data_Storage\Transients;
 use Avatar_Privacy\Data_Storage\Site_Transients;
+use Avatar_Privacy\Tools\Images\Editor;
 
 
 /**
@@ -70,6 +71,13 @@ class Gravatar_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $site_transients;
 
 	/**
+	 * Required helper object.
+	 *
+	 * @var Editor
+	 */
+	private $editor;
+
+	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
@@ -79,8 +87,9 @@ class Gravatar_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Mock required helpers.
 		$this->transients      = m::mock( Transients::class );
 		$this->site_transients = m::mock( Site_Transients::class );
+		$this->editor          = m::mock( Editor::class );
 
-		$this->sut = m::mock( Gravatar_Service::class, [ $this->transients, $this->site_transients ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Gravatar_Service::class, [ $this->transients, $this->site_transients, $this->editor ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -91,10 +100,11 @@ class Gravatar_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Gravatar_Service::class )->makePartial();
 
-		$mock->__construct( $this->transients, $this->site_transients );
+		$mock->__construct( $this->transients, $this->site_transients, $this->editor );
 
 		$this->assertAttributeSame( $this->transients, 'transients', $mock );
 		$this->assertAttributeSame( $this->site_transients, 'site_transients', $mock );
+		$this->assertAttributeSame( $this->editor, 'editor', $mock );
 	}
 
 	/**
@@ -113,7 +123,30 @@ class Gravatar_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'wp_remote_get' )->once()->with( 'URL' )->andReturn( $response );
 		Functions\expect( 'wp_remote_retrieve_body' )->once()->with( $response )->andReturn( 'IMAGEDATA' );
 
+		$this->editor->shouldReceive( 'get_mime_type' )->once()->andReturn( 'image/png' );
+
 		$this->assertSame( 'IMAGEDATA', $this->sut->get_image( $email, $size, $rating ) );
+	}
+
+	/**
+	 * Tests ::get_image.
+	 *
+	 * @covers ::get_image
+	 */
+	public function test_get_image_wrong_mime_type() {
+		$email    = 'foo@bar.org';
+		$size     = 99;
+		$rating   = 'r';
+		$response = (object) [ 'the_response' ];
+
+		$this->sut->shouldReceive( 'get_url' )->once()->with( $email, $size, $rating )->andReturn( 'URL' );
+
+		Functions\expect( 'wp_remote_get' )->once()->with( 'URL' )->andReturn( $response );
+		Functions\expect( 'wp_remote_retrieve_body' )->once()->with( $response )->andReturn( 'IMAGEDATA' );
+
+		$this->editor->shouldReceive( 'get_mime_type' )->once()->andReturn( false );
+
+		$this->assertSame( '', $this->sut->get_image( $email, $size, $rating ) );
 	}
 
 	/**

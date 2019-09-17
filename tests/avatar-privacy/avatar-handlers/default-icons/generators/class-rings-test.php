@@ -33,59 +33,14 @@ use Brain\Monkey\Functions;
 use Mockery as m;
 
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Rings;
-use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Ring_Icon;
 
 /**
  * Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Rings unit test.
  *
  * @coversDefaultClass \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Rings
  * @usesDefaultClass \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Rings
- *
- * @uses ::__construct
  */
 class Rings_Test extends \Avatar_Privacy\Tests\TestCase {
-
-	/**
-	 * The system-under-test.
-	 *
-	 * @var Rings
-	 */
-	private $sut;
-
-	/**
-	 * The identicon mock.
-	 *
-	 * @var Ring_Icon
-	 */
-	private $ring_icon;
-
-	/**
-	 * Sets up the fixture, for example, opens a network connection.
-	 * This method is called before a test is executed.
-	 */
-	protected function setUp() {
-		parent::setUp();
-
-		// Helper mocks.
-		$this->ring_icon = m::mock( Ring_Icon::class );
-
-		// Partially mock system under test.
-		$this->sut = m::mock( Rings::class, [ $this->ring_icon ] )->makePartial()->shouldAllowMockingProtectedMethods();
-	}
-
-	/**
-	 * Tests ::__construct.
-	 *
-	 * @covers ::__construct
-	 */
-	public function test_constructor() {
-		$ring_icon = m::mock( Ring_Icon::class );
-		$mock      = m::mock( Rings::class )->makePartial()->shouldAllowMockingProtectedMethods();
-
-		$this->invokeMethod( $mock, '__construct', [ $ring_icon ] );
-
-		$this->assertAttributeSame( $ring_icon, 'ring_icon', $mock );
-	}
 
 	/**
 	 * Tests ::build.
@@ -97,8 +52,10 @@ class Rings_Test extends \Avatar_Privacy\Tests\TestCase {
 		$size = 42;
 		$data = 'fake SVG image';
 
-		$this->ring_icon->shouldReceive( 'get_svg_image_data' )->once()->with( $seed )->andReturn( $data );
+		$sut = m::mock( Rings::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->assertSame( $data, $this->sut->build( $seed, $size ) );
+		$sut->shouldReceive( 'generateSVGImage' )->once()->with( $seed, true )->andReturn( $data );
+
+		$this->assertSame( $data, $sut->build( $seed, $size ) );
 	}
 }
