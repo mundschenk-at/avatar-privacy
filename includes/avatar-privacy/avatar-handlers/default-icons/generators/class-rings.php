@@ -28,33 +28,16 @@ namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generator;
 
+use splitbrain\RingIcon\RingIconSVG;
+
 /**
  * An icon generator.
  *
  * @since 1.0.0
  * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators
+ * @since 2.3.0 Made subclass of RingIconSVG as splitbrain\RingIcon is stable.
  */
-class Rings implements Generator {
-
-	/**
-	 * The "real" icon generator.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @var Ring_Icon
-	 */
-	private $ring_icon;
-
-	/**
-	 * Creates a new instance.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param Ring_Icon $ring_icon The configured Ring_Icon instance.
-	 */
-	public function __construct( Ring_Icon $ring_icon ) {
-		$this->ring_icon = $ring_icon;
-	}
+class Rings extends RingIconSVG implements Generator {
 
 	/**
 	 * Builds an icon based on the given seed returns the image data.
@@ -65,6 +48,6 @@ class Rings implements Generator {
 	 * @return string|false
 	 */
 	public function build( $seed, /* @scrutinizer-ignore */ $size ) {
-		return $this->ring_icon->get_svg_image_data( $seed );
+		return $this->generateSVGImage( $seed, true );
 	}
 }

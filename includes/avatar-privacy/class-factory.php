@@ -175,6 +175,15 @@ class Factory extends Dice {
 					\Identicon\Identicon::class => [ 'instance' => '$RetroIdenticon' ],
 				],
 			],
+			Default_Icons\Generators\Rings::class           => [
+				'constructParams' => [
+					512, // The bounding box dimensions.
+					3,   // The number of rings.
+				],
+				'call'            => [
+					[ 'setMono', [ true ] ], // The rings should be monochrome.
+				],
+			],
 
 			// Icon components.
 			'$JdenticonIdenticon'                           => [
@@ -189,16 +198,6 @@ class Factory extends Dice {
 				'constructParams' => [
 					// The constructor argument is not type-hinted.
 					[ 'instance' => \Identicon\Generator\SvgGenerator::class ],
-				],
-			],
-			Default_Icons\Generators\Ring_Icon::class       => [
-				'shared'          => true, // Not really necessary, but ...
-				'constructParams' => [
-					512, // The bounding box dimensions.
-					3,   // The number of rings.
-				],
-				'call'            => [
-					[ 'setMono', [ true ] ], // The rings should be monochrome.
 				],
 			],
 
