@@ -42,8 +42,6 @@ use Avatar_Privacy\Avatar_Handlers\Default_Icons_Handler;
 use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache_Handler;
 use Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler;
 
-use Avatar_Privacy\Components\Integrations;
-
 use Avatar_Privacy\Data_Storage\Cache;
 use Avatar_Privacy\Data_Storage\Database;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
@@ -56,10 +54,7 @@ use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons;
 
-use Avatar_Privacy\Integrations\BBPress_Integration;
-use Avatar_Privacy\Integrations\Ultimate_Member_Integration;
-use Avatar_Privacy\Integrations\WPDiscuz_Integration;
-use Avatar_Privacy\Integrations\WP_User_Manager_Integration;
+use Avatar_Privacy\Integrations;
 
 use Avatar_Privacy\Tools;
 use Avatar_Privacy\Tools\HTML\User_Form;
@@ -296,8 +291,8 @@ class Factory extends Dice {
 			],
 
 			// Plugin integrations.
-			BBPress_Integration::class                      => [
-				'shared'        => true,
+			Integrations\Plugin_Integration::class          => self::SHARED,
+			Integrations\BBPress_Integration::class         => [
 				'substitutions' => [
 					User_Form::class => [ 'instance' => '$bbPressProfileForm' ],
 				],
@@ -407,10 +402,10 @@ class Factory extends Dice {
 	 */
 	protected function get_plugin_integrations() {
 		return [
-			[ 'instance' => BBPress_Integration::class ],
-			[ 'instance' => Ultimate_Member_Integration::class ],
-			[ 'instance' => WPDiscuz_Integration::class ],
-			[ 'instance' => WP_User_Manager_Integration::class ],
+			[ 'instance' => Integrations\BBPress_Integration::class ],
+			[ 'instance' => Integrations\Ultimate_Member_Integration::class ],
+			[ 'instance' => Integrations\WPDiscuz_Integration::class ],
+			[ 'instance' => Integrations\WP_User_Manager_Integration::class ],
 		];
 	}
 
