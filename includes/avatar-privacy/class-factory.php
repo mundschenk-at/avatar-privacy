@@ -273,6 +273,30 @@ class Factory extends Dice {
 					],
 				],
 			],
+			'$ThemeMyLoginProfilesUserForm'                 => [
+				'instanceOf'      => User_Form::class,
+				'constructParams' => [
+					[
+						'nonce'   => 'avatar_privacy_tml_profiles_use_gravatar_nonce_',
+						'action'  => 'avatar_privacy_tml_profiles_edit_use_gravatar',
+						'field'   => 'avatar-privacy-tml_profiles-use-gravatar',
+						'partial' => '/public/partials/tml-profiles/use-gravatar.php',
+					],
+					[
+						'nonce'   => 'avatar_privacy_tml_profiles_allow_anonymous_nonce_',
+						'action'  => 'avatar_privacy_tml_profiles_edit_allow_anonymous',
+						'field'   => 'avatar_privacy-tml-profiles-allow_anonymous',
+						'partial' => '/public/partials/tml-profiles/allow-anonymous.php',
+					],
+					[
+						'nonce'   => 'avatar_privacy_tml_profiles_upload_avatar_nonce_',
+						'action'  => 'avatar_privacy_tml_profiles_upload_avatar',
+						'field'   => 'avatar-privacy-tml-profiles-user-avatar-upload',
+						'erase'   => 'avatar-privacy-tml-profiles-user-avatar-erase',
+						'partial' => '/public/partials/tml-profiles/user-avatar-upload.php',
+					],
+				],
+			],
 
 			Components\Block_Editor::class                  => [
 				'substitutions' => [
@@ -295,6 +319,11 @@ class Factory extends Dice {
 			Integrations\BBPress_Integration::class         => [
 				'substitutions' => [
 					User_Form::class => [ 'instance' => '$bbPressProfileForm' ],
+				],
+			],
+			Integrations\TML_Profiles_Integration::class   => [
+				'substitutions' => [
+					User_Form::class => [ 'instance' => '$ThemeMyLoginProfilesUserForm' ],
 				],
 			],
 
@@ -403,6 +432,7 @@ class Factory extends Dice {
 	protected function get_plugin_integrations() {
 		return [
 			[ 'instance' => Integrations\BBPress_Integration::class ],
+			[ 'instance' => Integrations\TML_Profiles_Integration::class ],
 			[ 'instance' => Integrations\Ultimate_Member_Integration::class ],
 			[ 'instance' => Integrations\WPDiscuz_Integration::class ],
 			[ 'instance' => Integrations\WP_User_Manager_Integration::class ],
