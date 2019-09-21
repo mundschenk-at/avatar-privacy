@@ -115,62 +115,62 @@ class Factory extends Dice {
 	protected function get_rules() {
 		return [
 			// Shared helpers.
-			Cache::class                                    => self::SHARED,
-			Database::class                                 => self::SHARED,
-			Transients::class                               => self::SHARED,
-			Site_Transients::class                          => self::SHARED,
-			Options::class                                  => self::SHARED,
-			Network_Options::class                          => self::SHARED,
-			Filesystem_Cache::class                         => self::SHARED,
-			Settings::class                                 => self::SHARED,
+			Cache::class                                            => self::SHARED,
+			Database::class                                         => self::SHARED,
+			Transients::class                                       => self::SHARED,
+			Site_Transients::class                                  => self::SHARED,
+			Options::class                                          => self::SHARED,
+			Network_Options::class                                  => self::SHARED,
+			Filesystem_Cache::class                                 => self::SHARED,
+			Settings::class                                         => self::SHARED,
 
 			// Core API.
-			Core::class                                     => [
+			Core::class                                             => [
 				'shared'          => true,
 				'constructParams' => [ $this->get_plugin_version( \AVATAR_PRIVACY_PLUGIN_FILE ) ],
 			],
 
 			// The plugin controller.
-			Controller::class                               => [
+			Controller::class                                       => [
 				'constructParams' => [ $this->get_components() ],
 			],
 
 			// Components.
-			Component::class                                => self::SHARED,
-			Components\Command_Line_Interface::class        => [
+			Component::class                                        => self::SHARED,
+			Components\Command_Line_Interface::class                => [
 				'constructParams' => [ $this->get_cli_commands() ],
 			],
-			Components\Integrations::class                  => [
+			Components\Integrations::class                          => [
 				'constructParams' => [ $this->get_plugin_integrations() ],
 			],
 
 			// Default icon providers.
-			Static_Icons\Mystery_Icon_Provider::class       => self::SHARED,
-			Static_Icons\Speech_Bubble_Icon_Provider::class => self::SHARED,
-			Static_Icons\Bowling_Pin_Icon_Provider::class   => self::SHARED,
-			Static_Icons\Silhouette_Icon_Provider::class    => self::SHARED,
+			Static_Icons\Mystery_Icon_Provider::class               => self::SHARED,
+			Static_Icons\Speech_Bubble_Icon_Provider::class         => self::SHARED,
+			Static_Icons\Bowling_Pin_Icon_Provider::class           => self::SHARED,
+			Static_Icons\Silhouette_Icon_Provider::class            => self::SHARED,
 
 			// Avatar handlers.
-			Default_Icons_Handler::class                    => [
+			Default_Icons_Handler::class                            => [
 				'shared'          => true,
 				'constructParams' => [ $this->get_default_icons() ],
 			],
-			Gravatar_Cache_Handler::class                   => self::SHARED,
-			User_Avatar_Handler::class                      => self::SHARED,
+			Gravatar_Cache_Handler::class                           => self::SHARED,
+			User_Avatar_Handler::class                              => self::SHARED,
 
 			// Default icon generators.
-			Default_Icons\Generator::class                  => self::SHARED,
-			Default_Icons\Generators\Jdenticon::class       => [
+			Default_Icons\Generator::class                          => self::SHARED,
+			Default_Icons\Generators\Jdenticon::class               => [
 				'substitutions' => [
 					\Jdenticon\Identicon::class => [ 'instance' => '$JdenticonIdenticon' ],
 				],
 			],
-			Default_Icons\Generators\Retro::class           => [
+			Default_Icons\Generators\Retro::class                   => [
 				'substitutions' => [
 					\Identicon\Identicon::class => [ 'instance' => '$RetroIdenticon' ],
 				],
 			],
-			Default_Icons\Generators\Rings::class           => [
+			Default_Icons\Generators\Rings::class                   => [
 				'constructParams' => [
 					512, // The bounding box dimensions.
 					3,   // The number of rings.
@@ -181,14 +181,14 @@ class Factory extends Dice {
 			],
 
 			// Icon components.
-			'$JdenticonIdenticon'                           => [
+			'$JdenticonIdenticon'                                   => [
 				'instanceOf'      => \Jdenticon\Identicon::class,
 				'constructParams' => [
 					// Some extra styling for the Jdenticon instance.
 					[ 'style' => [ 'padding' => 0 ] ],
 				],
 			],
-			'$RetroIdenticon'                               => [
+			'$RetroIdenticon'                                       => [
 				'instanceOf'      => \Identicon\Identicon::class,
 				'constructParams' => [
 					// The constructor argument is not type-hinted.
@@ -197,11 +197,11 @@ class Factory extends Dice {
 			],
 
 			// Upload handlers.
-			Upload_Handler::class                           => self::SHARED,
+			Upload_Handler::class                                   => self::SHARED,
 
 			// Form helpers.
-			User_Form::class                                => self::SHARED,
-			'$UserProfileForm'                              => [
+			User_Form::class                                        => self::SHARED,
+			'$UserProfileForm'                                      => [
 				'instanceOf'      => User_Form::class,
 				'constructParams' => [
 					[
@@ -225,7 +225,7 @@ class Factory extends Dice {
 					],
 				],
 			],
-			'$bbPressProfileForm'                           => [
+			'$bbPressProfileForm'                                   => [
 				'instanceOf'      => User_Form::class,
 				'constructParams' => [
 					[
@@ -249,7 +249,7 @@ class Factory extends Dice {
 					],
 				],
 			],
-			'$FrontendUserForm'                             => [
+			'$FrontendUserForm'                                     => [
 				'instanceOf'      => User_Form::class,
 				'constructParams' => [
 					[
@@ -273,7 +273,7 @@ class Factory extends Dice {
 					],
 				],
 			],
-			'$ThemeMyLoginProfilesUserForm'                 => [
+			'$ThemeMyLoginProfilesUserForm'                         => [
 				'instanceOf'      => User_Form::class,
 				'constructParams' => [
 					[
@@ -298,41 +298,41 @@ class Factory extends Dice {
 				],
 			],
 
-			Components\Block_Editor::class                  => [
+			Components\Block_Editor::class                          => [
 				'substitutions' => [
 					User_Form::class => [ 'instance' => '$FrontendUserForm' ],
 				],
 			],
-			Components\Shortcodes::class                    => [
+			Components\Shortcodes::class                            => [
 				'substitutions' => [
 					User_Form::class => [ 'instance' => '$FrontendUserForm' ],
 				],
 			],
-			Components\User_Profile::class                  => [
+			Components\User_Profile::class                          => [
 				'substitutions' => [
 					User_Form::class => [ 'instance' => '$UserProfileForm' ],
 				],
 			],
 
 			// Plugin integrations.
-			Integrations\Plugin_Integration::class          => self::SHARED,
-			Integrations\BBPress_Integration::class         => [
+			Integrations\Plugin_Integration::class                  => self::SHARED,
+			Integrations\BBPress_Integration::class                 => [
 				'substitutions' => [
 					User_Form::class => [ 'instance' => '$bbPressProfileForm' ],
 				],
 			],
-			Integrations\TML_Profiles_Integration::class   => [
+			Integrations\Theme_My_Login_Profiles_Integration::class => [
 				'substitutions' => [
 					User_Form::class => [ 'instance' => '$ThemeMyLoginProfilesUserForm' ],
 				],
 			],
 
 			// Shared tools.
-			Tools\Number_Generator::class                   => self::SHARED,
-			Tools\Multisite::class                          => self::SHARED,
-			Tools\Images\Editor::class                      => self::SHARED,
-			Tools\Images\PNG::class                         => self::SHARED,
-			Tools\Network\Gravatar_Service::class           => self::SHARED,
+			Tools\Number_Generator::class                           => self::SHARED,
+			Tools\Multisite::class                                  => self::SHARED,
+			Tools\Images\Editor::class                              => self::SHARED,
+			Tools\Images\PNG::class                                 => self::SHARED,
+			Tools\Network\Gravatar_Service::class                   => self::SHARED,
 		];
 	}
 
@@ -432,7 +432,7 @@ class Factory extends Dice {
 	protected function get_plugin_integrations() {
 		return [
 			[ 'instance' => Integrations\BBPress_Integration::class ],
-			[ 'instance' => Integrations\TML_Profiles_Integration::class ],
+			[ 'instance' => Integrations\Theme_My_Login_Profiles_Integration::class ],
 			[ 'instance' => Integrations\Ultimate_Member_Integration::class ],
 			[ 'instance' => Integrations\WPDiscuz_Integration::class ],
 			[ 'instance' => Integrations\WP_User_Manager_Integration::class ],
