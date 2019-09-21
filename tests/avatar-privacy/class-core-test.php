@@ -1094,4 +1094,18 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertSame( $avatar, $this->sut->get_user_avatar( $user_id ) );
 	}
+
+	/**
+	 * Tests ::get_user_avatar.
+	 *
+	 * @covers ::get_user_avatar
+	 */
+	public function test_get_user_avatar_empty_user_meta() {
+		$user_id = 42;
+
+		Filters\expectApplied( 'avatar_privacy_pre_get_user_avatar' )->once()->with( null, $user_id )->andReturn( null );
+		Functions\expect( 'get_user_meta' )->once()->with( $user_id, \Avatar_Privacy\Core::USER_AVATAR_META_KEY, true )->andReturn( false );
+
+		$this->assertSame( [], $this->sut->get_user_avatar( $user_id ) );
+	}
 }
