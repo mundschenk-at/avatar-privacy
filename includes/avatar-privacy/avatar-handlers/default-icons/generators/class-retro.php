@@ -88,8 +88,10 @@ class Retro implements Generator {
 		$result = $this->identicon->getImageData(
 			$seed,
 			$size,
-			/* @scrutinizer ignore-type */ RandomColor::one( [ 'luminosity' => 'bright' ] ),
-			/* @scrutinizer ignore-type */ RandomColor::one( [ 'luminosity' => 'light' ] )
+			/* @scrutinizer ignore-type */
+			RandomColor::one( [ 'luminosity' => 'bright' ] ),
+			/* @scrutinizer ignore-type */
+			RandomColor::one( [ 'luminosity' => 'light' ] )
 		);
 
 		// Restore randomness.
