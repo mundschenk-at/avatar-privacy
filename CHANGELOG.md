@@ -1,9 +1,16 @@
 # Changelog
 
 ## 2.3.0 (unreleased)
-*   _Feature_: New template function `\Avatar_Privacy\gravatar_checkbox()` for legacy themes added.
+*   _Feature_: New template function `\Avatar_Privacy\gravatar_checkbox()` for
+    legacy themes added.
 *   _Change_: `avapr_get_avatar_checkbox()` has been deprecated in favor of
     `\Avatar_Privacy\get_gravatar_checkbox()`.
+*   _Change_: The ID and name of the `use_gravatar` comment form checkbox has been
+    changed to `avatar-privacy-use-gravatar`. Please update custom CSS rules accordingly.
+*   _Change_: Additional inline styling is added to the `avatar-privacy-use-gravatar`
+    comment form checkbox to work around common theme limitations. Styling can be
+    disabled using the `avatar_privacy_comment_checkbox_disable_inline_style`
+    filter hook.
 
 ## 2.2.1 (2019-06-08)
 *   _Bugfix_: Compatibility with Windows servers.

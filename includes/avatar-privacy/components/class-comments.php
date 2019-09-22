@@ -40,7 +40,7 @@ class Comments implements \Avatar_Privacy\Component {
 	/**
 	 * The name of the checkbox field in the comment form.
 	 */
-	const CHECKBOX_FIELD_NAME = 'use_gravatar';
+	const CHECKBOX_FIELD_NAME = 'avatar-privacy-use-gravatar';
 
 	/**
 	 * The prefix of the comment cookie (COOKIEHASH is added at the end).
