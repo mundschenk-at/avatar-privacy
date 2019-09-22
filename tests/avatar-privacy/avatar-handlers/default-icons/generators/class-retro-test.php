@@ -34,6 +34,8 @@ use Mockery as m;
 
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Retro;
 
+use Avatar_Privacy\Tools\Number_Generator;
+
 /**
  * Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Retro unit test.
  *
@@ -66,6 +68,13 @@ class Retro_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $random_color;
 
 	/**
+	 * The random number generator.
+	 *
+	 * @var Number_Generator
+	 */
+	protected $number_generator;
+
+	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
@@ -73,14 +82,18 @@ class Retro_Test extends \Avatar_Privacy\Tests\TestCase {
 		parent::setUp();
 
 		// Helper mocks.
-		$this->identicon    = m::mock( \Identicon\Identicon::class );
-		$this->random_color = m::mock( 'alias:' . \Colors\RandomColor::class );
+		$this->identicon        = m::mock( \Identicon\Identicon::class );
+		$this->random_color     = m::mock( 'alias:' . \Colors\RandomColor::class );
+		$this->number_generator = m::mock( Number_Generator::class );
 
 		// Partially mock system under test.
 		$this->sut = m::mock( Retro::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
 		// Manually invoke the constructor as it is protected.
-		$this->invokeMethod( $this->sut, '__construct', [ $this->identicon ] );
+		$this->invokeMethod( $this->sut, '__construct', [
+			$this->identicon,
+			$this->number_generator,
+		] );
 	}
 
 	/**
@@ -89,12 +102,14 @@ class Retro_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::__construct
 	 */
 	public function test_constructor() {
-		$identicon = m::mock( \Identicon\Identicon::class );
-		$mock      = m::mock( Retro::class )->makePartial()->shouldAllowMockingProtectedMethods();
+		$identicon        = m::mock( \Identicon\Identicon::class );
+		$number_generator = m::mock( Number_Generator::class );
+		$mock             = m::mock( Retro::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $mock, '__construct', [ $identicon ] );
+		$this->invokeMethod( $mock, '__construct', [ $identicon, $number_generator ] );
 
 		$this->assertAttributeSame( $identicon, 'identicon', $mock );
+		$this->assertAttributeSame( $number_generator, 'number_generator', $mock );
 	}
 
 	/**
@@ -110,6 +125,9 @@ class Retro_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Intermediate.
 		$bright_color = 'A bright color definition';
 		$light_color  = 'A light color definition';
+
+		$this->number_generator->shouldReceive( 'seed' )->once()->with( $seed );
+		$this->number_generator->shouldReceive( 'reset' )->once();
 
 		$this->random_color->shouldReceive( 'one' )->once()->with( [ 'luminosity' => 'bright' ] )->andReturn( $bright_color );
 		$this->random_color->shouldReceive( 'one' )->once()->with( [ 'luminosity' => 'light' ] )->andReturn( $light_color );
