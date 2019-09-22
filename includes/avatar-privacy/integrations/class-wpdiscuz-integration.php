@@ -119,11 +119,11 @@ class WPDiscuz_Integration implements Plugin_Integration {
 	public function enqeue_styles_and_scripts() {
 		// Set up resource file information.
 		$url    = \plugin_dir_url( \AVATAR_PRIVACY_PLUGIN_FILE );
-		$suffix = SCRIPT_DEBUG ? '' : '.min';
+		$suffix = \SCRIPT_DEBUG ? '' : '.min';
 
 		// Set up the localized script data.
 		$data = [
-			'cookie'   => Comments::COOKIE_PREFIX . COOKIEHASH,
+			'cookie'   => Comments::COOKIE_PREFIX . \COOKIEHASH,
 			'checkbox' => Comments::CHECKBOX_FIELD_NAME,
 		];
 
@@ -138,7 +138,7 @@ class WPDiscuz_Integration implements Plugin_Integration {
 	 */
 	public function set_comment_cookies( \WP_Comment $comment ) {
 		$user           = \wp_get_current_user();
-		$cookie_consent = $this->filter_input( INPUT_POST, $this->cookie_consent_name, FILTER_VALIDATE_BOOLEAN );
+		$cookie_consent = $this->filter_input( \INPUT_POST, $this->cookie_consent_name, \FILTER_VALIDATE_BOOLEAN );
 
 		$this->comments->set_comment_cookies( $comment, $user, $cookie_consent );
 	}

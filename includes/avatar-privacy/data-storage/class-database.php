@@ -270,7 +270,7 @@ class Database {
 	protected function db_delta( $queries, $execute = true ) {
 		if ( ! function_exists( 'dbDelta' ) ) {
 			// Load upgrade.php for the dbDelta function.
-			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+			require_once \ABSPATH . 'wp-admin/includes/upgrade.php';
 		}
 
 		return \dbDelta( $queries, $execute );
@@ -320,7 +320,7 @@ class Database {
 		$rows_to_update  = [];
 		$rows_to_migrate = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare( "SELECT * FROM `{$global_table_name}` WHERE log_message LIKE %s", $like_clause ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			OBJECT_K
+			\OBJECT_K
 		);
 
 		// Check for existing rows for the same email addresses.

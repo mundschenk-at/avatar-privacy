@@ -348,7 +348,7 @@ class Factory extends Dice {
 	protected function get_plugin_version( $plugin_file ) {
 		// Load version from plugin data.
 		if ( ! \function_exists( 'get_plugin_data' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+			require_once \ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
 		return \get_plugin_data( $plugin_file, false, false )['Version'];

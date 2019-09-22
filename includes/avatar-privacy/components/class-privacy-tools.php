@@ -189,7 +189,7 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 		if ( ! empty( $local_avatar['file'] ) ) {
 			$user_data[] = [
 				'name'  => __( 'User Profile Picture', 'avatar-privacy' ),
-				'value' => str_replace( ABSPATH, \trailingslashit( \site_url() ), $local_avatar['file'] ),
+				'value' => str_replace( \ABSPATH, \trailingslashit( \site_url() ), $local_avatar['file'] ),
 			];
 		}
 

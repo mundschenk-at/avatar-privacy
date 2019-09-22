@@ -137,7 +137,7 @@ class Image_Proxy implements \Avatar_Privacy\Component {
 		global $wp;
 		$wp->add_query_var( 'avatar-privacy-file' );
 
-		$basedir = \str_replace( ABSPATH, '', $this->file_cache->get_base_dir() );
+		$basedir = \str_replace( \ABSPATH, '', $this->file_cache->get_base_dir() );
 		\add_rewrite_rule( "^{$basedir}(.*)", [ 'avatar-privacy-file' => '$matches[1]' ], 'top' );
 	}
 
@@ -172,7 +172,7 @@ class Image_Proxy implements \Avatar_Privacy\Component {
 			}
 		}
 
-		$this->send_image( $file, DAY_IN_SECONDS, Images\Type::CONTENT_TYPE[ $extension ] );
+		$this->send_image( $file, \DAY_IN_SECONDS, Images\Type::CONTENT_TYPE[ $extension ] );
 
 		// We're done.
 		$this->exit_request();
@@ -235,14 +235,14 @@ class Image_Proxy implements \Avatar_Privacy\Component {
 			 *
 			 * @param int $max_age The maximum age of the cached files (in seconds). Default 2 days.
 			 */
-			$max_age = \apply_filters( 'avatar_privacy_gravatars_max_age', 2 * DAY_IN_SECONDS );
+			$max_age = \apply_filters( 'avatar_privacy_gravatars_max_age', 2 * \DAY_IN_SECONDS );
 
 			/**
 			 * Filters how often the clean-up cron job for old gravatar images should run.
 			 *
 			 * @param int $interval Time until the cron job should run again (in seconds). Default 1 day.
 			 */
-			$interval = \apply_filters( 'avatar_privacy_gravatars_cleanup_interval', DAY_IN_SECONDS );
+			$interval = \apply_filters( 'avatar_privacy_gravatars_cleanup_interval', \DAY_IN_SECONDS );
 
 			$this->invalidate_cached_images( self::CRON_JOB_LOCK_GRAVATARS, 'gravatar', $interval, $max_age );
 		}
@@ -265,14 +265,14 @@ class Image_Proxy implements \Avatar_Privacy\Component {
 			 *
 			 * @param int $max_age The maximum age of the cached files (in seconds). Default 1 week.
 			 */
-			$max_age = \apply_filters( 'avatar_privacy_all_images_max_age', 7 * DAY_IN_SECONDS );
+			$max_age = \apply_filters( 'avatar_privacy_all_images_max_age', 7 * \DAY_IN_SECONDS );
 
 			/**
 			 * Filters how often the clean-up cron job for old images should run.
 			 *
 			 * @param int $interval Time until the cron job should run again (in seconds). Default 1 week.
 			 */
-			$interval = \apply_filters( 'avatar_privacy_all_images_cleanup_interval', 7 * DAY_IN_SECONDS );
+			$interval = \apply_filters( 'avatar_privacy_all_images_cleanup_interval', 7 * \DAY_IN_SECONDS );
 
 			$this->invalidate_cached_images( self::CRON_JOB_LOCK_ALL_IMAGES, '', $interval, $max_age );
 		}
