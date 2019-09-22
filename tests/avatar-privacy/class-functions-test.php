@@ -63,7 +63,7 @@ class Functions_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Set up virtual filesystem.
 		$root = vfsStream::setup( 'root', null, $filesystem );
-		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
+		\set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 	}
 
 	/**

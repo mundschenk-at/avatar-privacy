@@ -94,16 +94,16 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 	 * @since 2.1.0 Visibility changed to protected.
 	 */
 	protected function add_privacy_notice_content() {
-		$suggested_text = '<strong class="privacy-policy-tutorial">' . __( 'Suggested text:' ) . ' </strong>'; // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- Missing text domain is intentional to use Core translation.
+		$suggested_text = '<strong class="privacy-policy-tutorial">' . \__( 'Suggested text:' ) . ' </strong>'; // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- Missing text domain is intentional to use Core translation.
 
-		$content  = '<h3>' . __( 'Comments', 'avatar-privacy' ) . '</h3>';
-		$content .= '<p class="privacy-policy-tutorial">' . __( 'The information in this subsection supersedes the paragraph on Gravatar in the default "Comments" subsection provided by WordPress.', 'avatar-privacy' ) . '</p>';
-		$content .= "<p>{$suggested_text}" . __( 'At your option, an anonymized string created from your email address (also called a hash) may be provided to the Gravatar service to see if you are using it. The Gravatar service privacy policy is available here: https://automattic.com/privacy/. After approval of your comment, your profile picture is visible to the public in the context of your comment. Neither the hash nor your actual email address will be exposed to the public.', 'avatar-privacy' ) . '</p>';
-		$content .= '<h3>' . __( 'Cookies', 'avatar-privacy' ) . '</h3>';
-		$content .= '<p class="privacy-policy-tutorial">' . __( 'The information in this subsection should be included in addition to the information about any other cookies set by either WordPress or another plugin.', 'avatar-privacy' ) . '</p>';
-		$content .= "<p>{$suggested_text}" . __( 'If you leave a comment on our site and opt-in to display your Gravatar image, your choice will be stored in a cookie. This is for your convenience so that you do not have to fill the checkbox again when you leave another comment. This cookie will last for one year.', 'avatar-privacy' ) . '</p>';
+		$content  = '<h3>' . \__( 'Comments', 'avatar-privacy' ) . '</h3>';
+		$content .= '<p class="privacy-policy-tutorial">' . \__( 'The information in this subsection supersedes the paragraph on Gravatar in the default "Comments" subsection provided by WordPress.', 'avatar-privacy' ) . '</p>';
+		$content .= "<p>{$suggested_text}" . \__( 'At your option, an anonymized string created from your email address (also called a hash) may be provided to the Gravatar service to see if you are using it. The Gravatar service privacy policy is available here: https://automattic.com/privacy/. After approval of your comment, your profile picture is visible to the public in the context of your comment. Neither the hash nor your actual email address will be exposed to the public.', 'avatar-privacy' ) . '</p>';
+		$content .= '<h3>' . \__( 'Cookies', 'avatar-privacy' ) . '</h3>';
+		$content .= '<p class="privacy-policy-tutorial">' . \__( 'The information in this subsection should be included in addition to the information about any other cookies set by either WordPress or another plugin.', 'avatar-privacy' ) . '</p>';
+		$content .= "<p>{$suggested_text}" . \__( 'If you leave a comment on our site and opt-in to display your Gravatar image, your choice will be stored in a cookie. This is for your convenience so that you do not have to fill the checkbox again when you leave another comment. This cookie will last for one year.', 'avatar-privacy' ) . '</p>';
 
-		\wp_add_privacy_policy_content( __( 'Avatar Privacy', 'avatar-privacy' ), $content );
+		\wp_add_privacy_policy_content( \__( 'Avatar Privacy', 'avatar-privacy' ), $content );
 	}
 
 	/**
@@ -115,11 +115,11 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 	 */
 	public function register_personal_data_exporter( array $exporters ) {
 		$exporters['avatar-privacy-user']           = [
-			'exporter_friendly_name' => __( 'Avatar Privacy Plugin User Data', 'avatar-privacy' ),
+			'exporter_friendly_name' => \__( 'Avatar Privacy Plugin User Data', 'avatar-privacy' ),
 			'callback'               => [ $this, 'export_user_data' ],
 		];
 		$exporters['avatar-privacy-comment-author'] = [
-			'exporter_friendly_name' => __( 'Avatar Privacy Plugin Comment Author Data', 'avatar-privacy' ),
+			'exporter_friendly_name' => \__( 'Avatar Privacy Plugin Comment Author Data', 'avatar-privacy' ),
 			'callback'               => [ $this, 'export_comment_author_data' ],
 		];
 
@@ -135,7 +135,7 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 	 */
 	public function register_personal_data_eraser( array $erasers ) {
 		$erasers['avatar-privacy'] = [
-			'eraser_friendly_name' => __( 'Avatar Privacy Plugin', 'avatar-privacy' ),
+			'eraser_friendly_name' => \__( 'Avatar Privacy Plugin', 'avatar-privacy' ),
 			'callback'             => [ $this, 'erase_data' ],
 		];
 
@@ -167,19 +167,19 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 
 		// Export the hashed email.
 		$user_data[] = [
-			'name'  => __( 'User Email Hash', 'avatar-privacy' ),
+			'name'  => \__( 'User Email Hash', 'avatar-privacy' ),
 			'value' => $this->core->get_user_hash( $user->ID ),
 		];
 
 		// Export the `use_gravatar` setting.
 		$user_data[] = [
-			'name'  => __( 'Use Gravatar.com', 'avatar-privacy' ),
+			'name'  => \__( 'Use Gravatar.com', 'avatar-privacy' ),
 			'value' => \get_user_meta( $user->ID, Core::GRAVATAR_USE_META_KEY, true ) === 'true',
 		];
 
 		// Export the `allow_anonymous` setting.
 		$user_data[] = [
-			'name'  => __( 'Logged-out Commenting', 'avatar-privacy' ),
+			'name'  => \__( 'Logged-out Commenting', 'avatar-privacy' ),
 			'value' => \get_user_meta( $user->ID, Core::ALLOW_ANONYMOUS_META_KEY, true ) === 'true',
 		];
 
@@ -188,8 +188,8 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 		$local_avatar = \get_user_meta( $user->ID, Core::USER_AVATAR_META_KEY, true );
 		if ( ! empty( $local_avatar['file'] ) ) {
 			$user_data[] = [
-				'name'  => __( 'User Profile Picture', 'avatar-privacy' ),
-				'value' => str_replace( \ABSPATH, \trailingslashit( \site_url() ), $local_avatar['file'] ),
+				'name'  => \__( 'User Profile Picture', 'avatar-privacy' ),
+				'value' => \str_replace( \ABSPATH, \trailingslashit( \site_url() ), $local_avatar['file'] ),
 			];
 		}
 
@@ -197,7 +197,7 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 			'data' => [
 				[
 					'group_id'    => 'user',             // Existing Core group.
-					'group_label' => __( 'User' ),       // // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- Missing text domain is intentional to use Core translation.
+					'group_label' => \__( 'User' ),       // // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- Missing text domain is intentional to use Core translation.
 					'item_id'     => "user-{$user->ID}", // Existing Core item ID.
 					'data'        => $user_data,         // The personal data that should be exported.
 				],
@@ -231,37 +231,37 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 		$data   = [];
 		$id     = $raw_data->id;
 		$data[] = [
-			'name'  => __( 'Avatar Privacy Comment Author ID', 'avatar-privacy' ),
+			'name'  => \__( 'Avatar Privacy Comment Author ID', 'avatar-privacy' ),
 			'value' => $id,
 		];
 
 		// Export the email.
 		$data[] = [
-			'name'  => __( 'Comment Author Email', 'avatar-privacy' ),
+			'name'  => \__( 'Comment Author Email', 'avatar-privacy' ),
 			'value' => $raw_data->email,
 		];
 
 		// Export the hashed email.
 		$data[] = [
-			'name'  => __( 'Comment Author Email Hash', 'avatar-privacy' ),
+			'name'  => \__( 'Comment Author Email Hash', 'avatar-privacy' ),
 			'value' => $raw_data->hash,
 		];
 
 		// Export the `use_gravatar` setting.
 		$data[] = [
-			'name'  => __( 'Use Gravatar.com', 'avatar-privacy' ),
+			'name'  => \__( 'Use Gravatar.com', 'avatar-privacy' ),
 			'value' => $raw_data->use_gravatar,
 		];
 
 		// Export the last modified date.
 		$data[] = [
-			'name'  => __( 'Last Updated', 'avatar-privacy' ),
+			'name'  => \__( 'Last Updated', 'avatar-privacy' ),
 			'value' => $raw_data->last_updated,
 		];
 
 		// Export the log message.
 		$data[] = [
-			'name'  => __( 'Log Message', 'avatar-privacy' ),
+			'name'  => \__( 'Log Message', 'avatar-privacy' ),
 			'value' => $raw_data->log_message,
 		];
 
@@ -269,7 +269,7 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 			'data' => [
 				[
 					'group_id'    => 'avatar-privacy',                         // An ID to identify this particular group of information.
-					'group_label' => __( 'Avatar Privacy', 'avatar-privacy' ), // A translatable string to label this group of information.
+					'group_label' => \__( 'Avatar Privacy', 'avatar-privacy' ), // A translatable string to label this group of information.
 					'item_id'     => "avatar-privacy-{$id}",                   // The item ID of what we're exporting.
 					'data'        => $data,                                    // The personal data that should be exported.
 				],
