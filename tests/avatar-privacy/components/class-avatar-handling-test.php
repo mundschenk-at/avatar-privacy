@@ -338,6 +338,8 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @covers ::parse_id_or_email
 	 *
+	 * @uses ::parse_id_or_email_unfiltered
+	 *
 	 * @dataProvider provide_parse_id_or_email_data
 	 *
 	 * @param  int|string|object $id_or_email Input object.
@@ -382,6 +384,55 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		Filters\expectApplied( 'avatar_privacy_parse_id_or_email' )->once()->with( m::type( 'array' ), $id_or_email )->andReturnFirstArg();
 
 		$this->assertSame( [ $user_id, $email, $age ], $this->sut->parse_id_or_email( $id_or_email ) );
+	}
+
+	/**
+	 * Provide data for testing parse_id_or_email_unfiltered.
+	 *
+	 * @return array
+	 */
+	public function provide_parse_id_or_email_unfiltered_data() {
+		// Mocked user.
+		$user             = m::mock( 'WP_User' );
+		$user->ID         = 99;
+		$user->user_email = 'newbie@example.org';
+
+		// Mocked post.
+		$post                = m::mock( 'WP_Post' );
+		$post->post_author   = 100;
+		$post->post_date_gmt = '2018-01-01 01:01:01';
+
+		// Mocked comment.
+		$comment = m::mock( 'WP_Comment' );
+
+		return [
+			[ 55, 55, '', 0 ], // Valid user ID.
+			[ 'anon@foobar.org', false, 'anon@foobar.org', 0 ], // Anonymous comment.
+			[ $user, $user->ID, $user->user_email, 0 ],
+			[ $post, $post->post_author, '', 666 ],
+			[ $comment, 101, 'newbie@example.org', 666 ], // ::parse_comment has a separate test.
+		];
+	}
+
+	/**
+	 * Tests ::parse_id_or_email_unfiltered.
+	 *
+	 * @covers ::parse_id_or_email_unfiltered
+	 *
+	 * @dataProvider provide_parse_id_or_email_unfiltered_data
+	 *
+	 * @param  int|string|object $id_or_email Input object.
+	 * @param  int|false         $user_id     Expected user ID.
+	 * @param  string            $email       Expected email.
+	 * @param  int               $age         Expected age.
+	 */
+	public function test_parse_id_or_email_unfiltered( $id_or_email, $user_id, $email, $age ) {
+
+		// Special provisions for posts and comments.
+		$this->sut->shouldReceive( 'get_age' )->atMost()->once()->with( m::type( 'string' ) )->andReturn( $age );
+		$this->sut->shouldReceive( 'parse_comment' )->atMost()->once()->with( $id_or_email )->andReturn( [ $user_id, $email, $age ] );
+
+		$this->assertSame( [ $user_id, $email, $age ], $this->sut->parse_id_or_email_unfiltered( $id_or_email ) );
 	}
 
 	/**

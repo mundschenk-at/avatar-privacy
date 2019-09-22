@@ -240,29 +240,17 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 *
 	 * @param  int|string|object $id_or_email The Gravatar to retrieve. Accepts a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
 	 *
-	 * @return array                          The tuple [ $user_id, $email, $age ],
+	 * @return array {
+	 *     The tuple `[ $user_id, $email, $age ]`.
+	 *
+	 *     @type int|false $user_id The WordPress user ID, or `false`.
+	 *     @type string    $email   The email address (or the empty string).
+	 *     @type int       $age     The seconds since the post or comment was first created,
+	 *                              or 0 if `$id_or_email was` not one of these object types.
+	 * }
 	 */
 	protected function parse_id_or_email( $id_or_email ) {
-		$user_id = false;
-		$email   = '';
-		$age     = 0;
-
-		if ( \is_numeric( $id_or_email ) ) {
-			$user_id = \absint( $id_or_email );
-		} elseif ( \is_string( $id_or_email ) ) {
-			// E-mail address.
-			$email = $id_or_email;
-		} elseif ( $id_or_email instanceof \WP_User ) {
-			// User object.
-			$user_id = $id_or_email->ID;
-			$email   = $id_or_email->user_email;
-		} elseif ( $id_or_email instanceof \WP_Post ) {
-			// Post object.
-			$user_id = (int) $id_or_email->post_author;
-			$age     = $this->get_age( $id_or_email->post_date_gmt );
-		} elseif ( $id_or_email instanceof \WP_Comment ) {
-			list( $user_id, $email, $age ) = $this->parse_comment( $id_or_email );
-		}
+		list( $user_id, $email, $age ) = $this->parse_id_or_email_unfiltered( $id_or_email );
 
 		if ( ! empty( $user_id ) && empty( $email ) ) {
 			$user = \get_user_by( 'ID', $user_id );
@@ -287,13 +275,60 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		 * @param array $parsed_data {
 		 *     The information parsed from $id_or_email.
 		 *
-		 *     @type int|false $user_id The WordPress user ID, or false.
-		 *     @type string    $email   The email address.
-		 *     @type int       $age     The seconds since the post or comment was first created, or 0 if $id_or_email was not one of these object types.
+		 *     @type int|false $user_id The WordPress user ID, or `false`.
+		 *     @type string    $email   The email address (or the empty string).
+		 *     @type int       $age     The seconds since the post or comment was first created,
+		 *                              or 0 if `$id_or_email was` not one of these object types.
 		 * }
 		 * @param int|string|object $id_or_email The Gravatar to retrieve. Accepts a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
 		 */
 		return \apply_filters( 'avatar_privacy_parse_id_or_email', [ $user_id, $email, $age ], $id_or_email );
+	}
+
+	/**
+	 * Parses e-mail address and/or user ID from $id_or_email without filtering
+	 * the result in any way.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @internal
+	 *
+	 * @param  int|string|object $id_or_email The identity to retrieven an avatar for.
+	 *                                        Accepts a user_id, user email, WP_User object,
+	 *                                        WP_Post object, or WP_Comment object.
+	 *
+	 * @return array {
+	 *     The tuple `[ $user_id, $email, $age ]`.
+	 *
+	 *     @type int|false $user_id The WordPress user ID, or `false`.
+	 *     @type string    $email   The email address (or the empty string).
+	 *     @type int       $age     The seconds since the post or comment was first created,
+	 *                              or 0 if $id_or_email was not one of these object types.
+	 * }
+	 */
+	protected function parse_id_or_email_unfiltered( $id_or_email ) {
+		$user_id = false;
+		$email   = '';
+		$age     = 0;
+
+		if ( \is_numeric( $id_or_email ) ) {
+			$user_id = \absint( $id_or_email );
+		} elseif ( \is_string( $id_or_email ) ) {
+			// E-mail address.
+			$email = $id_or_email;
+		} elseif ( $id_or_email instanceof \WP_User ) {
+			// User object.
+			$user_id = $id_or_email->ID;
+			$email   = $id_or_email->user_email;
+		} elseif ( $id_or_email instanceof \WP_Post ) {
+			// Post object.
+			$user_id = (int) $id_or_email->post_author;
+			$age     = $this->get_age( $id_or_email->post_date_gmt );
+		} elseif ( $id_or_email instanceof \WP_Comment ) {
+			return $this->parse_comment( $id_or_email );
+		}
+
+		return [ $user_id, $email, $age ];
 	}
 
 	/**
