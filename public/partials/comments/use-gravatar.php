@@ -48,7 +48,11 @@ if ( isset( $_POST[ Comments::CHECKBOX_FIELD_NAME ] ) ) { // phpcs:ignore WordPr
 }
 ?>
 <p class="comment-form-use-gravatar">
-	<input id="<?php echo \esc_attr( Comments::CHECKBOX_FIELD_NAME ); ?>" name="<?php echo \esc_attr( Comments::CHECKBOX_FIELD_NAME ); ?>" type="checkbox" value="true" <?php \checked( $is_checked, true ); ?> /><label
+	<input id="<?php echo \esc_attr( Comments::CHECKBOX_FIELD_NAME ); ?>" name="<?php echo \esc_attr( Comments::CHECKBOX_FIELD_NAME ); ?>" type="checkbox" value="true" <?php \checked( $is_checked, true ); ?>
+	<?php if ( ! $disable_style ) : ?>
+		style="margin-right:1ex;"
+	<?php endif; ?>
+	/><label
 	<?php if ( ! $disable_style ) : ?>
 		style="display:inline;"
 	<?php endif; ?>
