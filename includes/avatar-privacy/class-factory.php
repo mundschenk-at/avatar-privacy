@@ -261,7 +261,7 @@ class Factory extends Dice {
 					[
 						'nonce'   => 'avatar_privacy_frontend_allow_anonymous_nonce_',
 						'action'  => 'avatar_privacy_frontend_edit_allow_anonymous',
-						'field'   => 'avatar_privacy_frontend-allow_anonymous',
+						'field'   => 'avatar_privacy-frontend-allow_anonymous',
 						'partial' => '/public/partials/profile/allow-anonymous.php',
 					],
 					[
@@ -279,7 +279,7 @@ class Factory extends Dice {
 					[
 						'nonce'   => 'avatar_privacy_tml_profiles_use_gravatar_nonce_',
 						'action'  => 'avatar_privacy_tml_profiles_edit_use_gravatar',
-						'field'   => 'avatar-privacy-tml_profiles-use-gravatar',
+						'field'   => 'avatar-privacy-tml-profiles-use-gravatar',
 						'partial' => '/public/partials/tml-profiles/use-gravatar.php',
 					],
 					[
@@ -348,7 +348,7 @@ class Factory extends Dice {
 	protected function get_plugin_version( $plugin_file ) {
 		// Load version from plugin data.
 		if ( ! \function_exists( 'get_plugin_data' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+			require_once \ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
 		return \get_plugin_data( $plugin_file, false, false )['Version'];

@@ -153,10 +153,10 @@ class Image_Stream {
 				break;
 
 			default:
-				if ( $this->options & STREAM_REPORT_ERRORS ) {
+				if ( $this->options & \STREAM_REPORT_ERRORS ) {
 					\trigger_error( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 						'Invalid mode specified (mode specified makes no sense for this stream implementation)',
-						E_USER_ERROR
+						\E_USER_ERROR
 					);
 				} else {
 					return false;
@@ -233,17 +233,17 @@ class Image_Stream {
 	 */
 	public function stream_seek( $offset, $whence ) {
 		switch ( $whence ) {
-			case SEEK_SET:
+			case \SEEK_SET:
 				$this->position = $offset;
 				$this->truncate_after_seek();
 				return true;
 
-			case SEEK_CUR:
+			case \SEEK_CUR:
 				$this->position += $offset;
 				$this->truncate_after_seek();
 				return true;
 
-			case SEEK_END:
+			case \SEEK_END:
 				$this->position = \strlen( $this->data ) + $offset;
 				$this->truncate_after_seek();
 				return true;
@@ -273,7 +273,7 @@ class Image_Stream {
 		if ( $current_length > $length ) {
 			$this->data = \substr( $this->data, 0, $length );
 		} elseif ( $current_length < $length ) {
-			$this->data = \str_pad( $this->data, $length, "\0", STR_PAD_RIGHT );
+			$this->data = \str_pad( $this->data, $length, "\0", \STR_PAD_RIGHT );
 		}
 
 		return true;

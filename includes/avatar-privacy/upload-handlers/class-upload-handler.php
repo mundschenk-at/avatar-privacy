@@ -116,7 +116,7 @@ abstract class Upload_Handler {
 	protected function upload( array $file, $global = false ) {
 		// Enable front end support.
 		if ( ! function_exists( 'wp_handle_upload' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php'; // @codeCoverageIgnore
+			require_once \ABSPATH . 'wp-admin/includes/file.php'; // @codeCoverageIgnore
 		}
 
 		// Should we use a global directory for uploads?

@@ -28,6 +28,8 @@ namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generator;
 
+use Avatar_Privacy\Tools\Number_Generator;
+
 use Colors\RandomColor;
 
 /**
@@ -48,14 +50,26 @@ class Retro implements Generator {
 	private $identicon;
 
 	/**
+	 * The random number generator.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @var Number_Generator
+	 */
+	protected $number_generator;
+
+	/**
 	 * Creates a new instance.
 	 *
-	 * @since 2.1.0 Parameter $identicon added.
+	 * @since 2.1.0 Parameter `$identicon` added.
+	 * @since 2.3.0 Parameter `$number_generator` added.
 	 *
-	 * @param \Identicon\Identicon $identicon The identicon implementation.
+	 * @param \Identicon\Identicon $identicon        The identicon implementation.
+	 * @param Number_Generator     $number_generator A pseudo-random number generator.
 	 */
-	public function __construct( \Identicon\Identicon $identicon ) {
-		$this->identicon = $identicon;
+	public function __construct( \Identicon\Identicon $identicon, Number_Generator $number_generator ) {
+		$this->identicon        = $identicon;
+		$this->number_generator = $number_generator;
 	}
 
 	/**
@@ -68,18 +82,20 @@ class Retro implements Generator {
 	 */
 	public function build( $seed, $size = 128 ) {
 		// Initialize random number with seed.
-		\mt_srand( (int) hexdec( substr( $seed, 0, 8 ) ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand -- we need deterministic "random" numbers.
+		$this->number_generator->seed( $seed );
 
 		// Generate icon.
 		$result = $this->identicon->getImageData(
 			$seed,
 			$size,
-			/* @scrutinizer ignore-type */ RandomColor::one( [ 'luminosity' => 'bright' ] ),
-			/* @scrutinizer ignore-type */ RandomColor::one( [ 'luminosity' => 'light' ] )
+			/* @scrutinizer ignore-type */
+			RandomColor::one( [ 'luminosity' => 'bright' ] ),
+			/* @scrutinizer ignore-type */
+			RandomColor::one( [ 'luminosity' => 'light' ] )
 		);
 
 		// Restore randomness.
-		\mt_srand(); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand
+		$this->number_generator->reset();
 
 		return $result;
 	}

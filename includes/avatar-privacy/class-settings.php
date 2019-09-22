@@ -108,9 +108,9 @@ class Settings {
 					'ui'             => \Avatar_Privacy\Upload_Handlers\UI\File_Upload_Input::class,
 					'tab_id'         => '', // Will be added to the 'discussions' page.
 					'section'        => 'avatars',
-					'help_no_file'   => __( 'No custom default avatar is set. Use the upload field to add a custom default avatar image.', 'avatar-privacy' ),
-					'help_no_upload' => __( 'You do not have media management permissions. To change your custom default avatar, contact the site administrator.', 'avatar-privacy' ),
-					'help_text'      => __( 'Replace the custom default avatar by uploading a new image, or erase it by checking the delete option.', 'avatar-privacy' ),
+					'help_no_file'   => \__( 'No custom default avatar is set. Use the upload field to add a custom default avatar image.', 'avatar-privacy' ),
+					'help_no_upload' => \__( 'You do not have media management permissions. To change your custom default avatar, contact the site administrator.', 'avatar-privacy' ),
+					'help_text'      => \__( 'Replace the custom default avatar by uploading a new image, or erase it by checking the delete option.', 'avatar-privacy' ),
 					'erase_checkbox' => Custom_Default_Icon_Upload_Handler::CHECKBOX_ERASE,
 					'action'         => Custom_Default_Icon_Upload_Handler::ACTION_UPLOAD,
 					'nonce'          => Custom_Default_Icon_Upload_Handler::NONCE_UPLOAD,
