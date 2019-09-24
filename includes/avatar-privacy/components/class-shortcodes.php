@@ -33,6 +33,8 @@ use Avatar_Privacy\Tools\HTML\User_Form;
  * The component providing the `[avatar-privacy-avatar-upload]` shortcode.
  *
  * @since 2.3.0
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
 class Shortcodes implements Component {
 

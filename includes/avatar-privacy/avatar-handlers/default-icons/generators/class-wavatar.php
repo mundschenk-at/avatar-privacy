@@ -38,6 +38,9 @@ use Avatar_Privacy\Tools\Number_Generator;
  * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators
  * @since 2.3.0 Refactored to use standard parts mechanisms, various obsolete
  *              constants removed.
+ *
+ * @author Peter Putzer <github@mundschenk.at>
+ * @author Shamus Young <shamus@shamusyoung.com>
  */
 class Wavatar extends PNG_Parts_Generator {
 

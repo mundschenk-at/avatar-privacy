@@ -38,6 +38,8 @@ use function WP_CLI\Utils\get_flag_value;
  * CLI commands for reoving data added by Avatar Privacy.
  *
  * @since 2.3.0
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
 class Uninstall_Command extends Abstract_Command {
 

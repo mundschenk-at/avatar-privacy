@@ -40,6 +40,8 @@ use Avatar_Privacy\Tools\Number_Generator;
  * @link https://github.com/nimiq/robohash
  *
  * @since 2.3.0
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
 class Robohash extends Parts_Generator {
 

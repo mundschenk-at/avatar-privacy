@@ -31,6 +31,8 @@ namespace Avatar_Privacy\Avatar_Handlers\Default_Icons;
  *
  * @since 1.0.0
  * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
 interface Generator {
 

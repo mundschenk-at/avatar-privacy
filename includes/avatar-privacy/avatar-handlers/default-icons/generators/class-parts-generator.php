@@ -38,6 +38,8 @@ use Avatar_Privacy\Tools\Number_Generator;
  * MonsterId library.
  *
  * @since 2.3.0
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
 abstract class Parts_Generator implements Generator {
 

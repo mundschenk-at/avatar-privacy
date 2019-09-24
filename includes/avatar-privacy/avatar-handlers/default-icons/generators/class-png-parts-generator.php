@@ -38,6 +38,9 @@ use Avatar_Privacy\Tools\Number_Generator;
  * plugin of MonsterID.
  *
  * @since 2.3.0
+ *
+ * @author Peter Putzer <github@mundschenk.at>
+ * @author Scott Sherrill-Mix
  */
 abstract class PNG_Parts_Generator extends Parts_Generator {
 

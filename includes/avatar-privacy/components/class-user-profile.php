@@ -38,6 +38,8 @@ use Avatar_Privacy\Tools\HTML\User_Form;
  * @since 2.3.0 Public methods save_use_gravatar_checkbox,
  *              save_allow_anonymous_checkbox and save_user_profile_fields have
  *              been removed. The obsolete class constants have also been removed.
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
 class User_Profile implements \Avatar_Privacy\Component {
 

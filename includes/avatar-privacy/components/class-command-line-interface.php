@@ -33,6 +33,8 @@ use Avatar_Privacy\CLI\Command;
  * The component providing CLI commands.
  *
  * @since 2.3.0
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
 class Command_Line_Interface implements Component {
 

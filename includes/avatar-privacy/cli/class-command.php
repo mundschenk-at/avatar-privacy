@@ -32,6 +32,8 @@ use Avatar_Privacy\Core;
  * An interface for CLI command implementations.
  *
  * @since 2.3.0
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
 interface Command {
 

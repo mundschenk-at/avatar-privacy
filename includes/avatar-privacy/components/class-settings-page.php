@@ -41,6 +41,8 @@ use Mundschenk\UI\Controls;
  * Handles privacy-specific additions to the "Discussion" settings page.
  *
  * @since 1.0.0
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
 class Settings_Page implements \Avatar_Privacy\Component {
 

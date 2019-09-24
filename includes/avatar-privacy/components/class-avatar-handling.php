@@ -39,6 +39,8 @@ use Avatar_Privacy\Tools\Network\Gravatar_Service;
  * Handles the display of avatars in WordPress.
  *
  * @since 1.0.0
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
 class Avatar_Handling implements \Avatar_Privacy\Component {
 
