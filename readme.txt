@@ -3,7 +3,7 @@ Contributors: Ammaletu, pputzer
 Plugin Name: Avatar Privacy
 Plugin URI: https://code.mundschenk.at/avatar-privacy/
 Author URI: https://code.mundschenk.at/
-Tags: gravatar, avatar, privacy, caching, bbpress
+Tags: gravatar, avatar, privacy, caching, bbpress, buddypress
 Requires at least: 5.2
 Requires PHP: 5.6
 Tested up to: 5.2
@@ -104,11 +104,15 @@ No, for registered users the user profile is checked, not the table for the comm
 
 = Which plugins are known to work with Avatar Privacy? =
 
-I used Avatar Privacy together with these plugins:
+These plugins have been tested in conjunction with Avatar Privacy:
 
 * [AntiSpam Bee](https://wordpress.org/plugins/antispam-bee/)
+* [bbPress](https://wordpress.org/plugins/bbpress/)
+* [BuddyPress](https://wordpress.org/plugins/buddypress/)
 * [Comments – wpDiscuz](https://wordpress.org/plugins/wpdiscuz/)
 * [EWWW Image Optimizer](https://wordpress.org/plugins/ewww-image-optimizer/)
+* [Theme My Login](https://wordpress.org/plugins/theme-my-login/)
+* [Ultimate Member](https://wordpress.org/plugins/ultimate-member/)
 * [WP User Manager – User Profile Builder & Membership](https://wordpress.org/plugins/wp-user-manager/)
 
 If you find any problems with particular plugins, please tell me!
