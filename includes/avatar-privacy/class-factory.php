@@ -432,6 +432,7 @@ class Factory extends Dice {
 	protected function get_plugin_integrations() {
 		return [
 			[ 'instance' => Integrations\BBPress_Integration::class ],
+			[ 'instance' => Integrations\BuddyPress_Integration::class ],
 			[ 'instance' => Integrations\Theme_My_Login_Profiles_Integration::class ],
 			[ 'instance' => Integrations\Ultimate_Member_Integration::class ],
 			[ 'instance' => Integrations\WPDiscuz_Integration::class ],
