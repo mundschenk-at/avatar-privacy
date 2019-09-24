@@ -141,8 +141,30 @@ The default avatar image is set to the mystery man if you selected one of the ne
 == Changelog ==
 
 = 2.3.0 (unreleased) =
+* _Feature_: New shortcode `[avatar-privacy-form]` (optional parameter: `avatar-size`) to allow changing Avatar Privacy's user settings on the frontend of the site.
+* _Feature_: Two blocks have been added to the Block Editor to allow displaying a user's avatar and to change the settings related Avatar Privacy on the frontend.
+* _Feature_: Three new generated default avatars:
+  - Bird Avatars,
+  - Cat Avatars (both designed by David Revoy), and
+  - RoboHash (designed by Zikri Kader).
+* _Feature_: Integration for the following plugins had been added:
+  - [BuddyPress](https://wordpress.org/plugins/buddypress/)
+  - [Theme My Login](https://wordpress.org/plugins/theme-my-login/)
+  - [Ultimate Member](https://wordpress.org/plugins/ultimate-member/)
 * _Feature_: New template function `\Avatar_Privacy\gravatar_checkbox()` for legacy themes added.
+* _Feature_: There is a CLI interface to some parts of Avatar Privacy:
+  - `wp avatar-privacy db show`: Show information about the custom database table(s).
+  - `wp avatar-privacy db list`: List entries in the custom database table(s).
+  - `wp avatar-privacy db create`: Create the custom database table.
+  - `wp avatar-privacy db upgrade`: Upgrade the structure of the custom database table.
+  - `wp avatar-privacy uninstall`: Remove data added by Avatar Privacy.
+  - `wp avatar-privacy cron list`: List active cron jobs created by the plugin.
+  - `wp avatar-privacy cron delete`: Delete cron jobs created by the plugin.
 * _Change_: `avapr_get_avatar_checkbox()` has been deprecated in favor of `\Avatar_Privacy\get_gravatar_checkbox()`.
+* _Change_: The ID and name of the `use_gravatar` comment form checkbox has been changed to `avatar-privacy-use-gravatar`. Please update custom CSS rules accordingly.
+* _Change_: Additional inline styling is added to the `avatar-privacy-use-gravatar` comment form checkbox to work around common theme limitations. Styling can be disabled using the `avatar_privacy_comment_checkbox_disable_inline_style` filter hook.
+* _Change_: All external PHP dependencies have been moved to the namespace `Avatar_Privacy\Vendor` to reduce the chance of conflicts with other plugins.
+* _Bugfix_: Gravatars are only cached if they are actually images to prevent issues with temporary Varnish errors on Gravatar.com.
 
 = 2.2.1 (2019-06-08) =
 * _Bugfix_: Compatibility with Windows servers.
