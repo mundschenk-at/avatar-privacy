@@ -1,6 +1,10 @@
 # Changelog
 
 ## 2.3.0 (unreleased)
+*   _Feature_: Integration for the following plugins had been added:
+    -   [BuddyPress](https://wordpress.org/plugins/buddypress/)
+    -   [Theme My Login](https://wordpress.org/plugins/theme-my-login/)
+    -   [Ultimate Member](https://wordpress.org/plugins/ultimate-member/)
 *   _Feature_: New template function `\Avatar_Privacy\gravatar_checkbox()` for
     legacy themes added.
 *   _Change_: `avapr_get_avatar_checkbox()` has been deprecated in favor of
