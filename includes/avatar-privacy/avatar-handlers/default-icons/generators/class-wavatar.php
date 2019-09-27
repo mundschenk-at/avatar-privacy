@@ -32,12 +32,17 @@ use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Tools\Number_Generator;
 
 /**
- * A wavatar generator.
+ * A Wavatar generator, based on the original WordPress plugin by Shamus Young.
+ *
+ * @link https://www.shamusyoung.com/twentysidedtale/?p=1462
  *
  * @since 1.0.0
  * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators
  * @since 2.3.0 Refactored to use standard parts mechanisms, various obsolete
  *              constants removed.
+ *
+ * @author Peter Putzer <github@mundschenk.at>
+ * @author Shamus Young <shamus@shamusyoung.com>
  */
 class Wavatar extends PNG_Parts_Generator {
 

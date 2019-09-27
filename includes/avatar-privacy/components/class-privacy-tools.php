@@ -35,6 +35,8 @@ use Avatar_Privacy\Data_Storage\Options;
  * Integrates with the new privacy tools added in WordPress 4.9.6.
  *
  * @since 1.1.0
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
 class Privacy_Tools implements \Avatar_Privacy\Component {
 

@@ -32,6 +32,7 @@ use Avatar_Privacy\Core;
  * Combines the WordPress REST API with Avatar Privacy.
  *
  * @since      1.2.0
+ *
  * @author     Peter Putzer <github@mundschenk.at>
  */
 class REST_API implements \Avatar_Privacy\Component {

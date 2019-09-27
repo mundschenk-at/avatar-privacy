@@ -36,6 +36,8 @@ use Avatar_Privacy\Tools\Number_Generator;
  * See https://www.davidrevoy.com/article591/cat-avatar-generator
  *
  * @since 2.3.0
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
 class Cat_Avatar extends PNG_Parts_Generator {
 

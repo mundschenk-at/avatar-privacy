@@ -34,6 +34,8 @@ use Avatar_Privacy\Tools\HTML\User_Form;
  * The component providing our Gutenberg blocks.
  *
  * @since 2.3.0
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
 class Block_Editor implements Component {
 

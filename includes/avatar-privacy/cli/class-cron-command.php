@@ -34,6 +34,8 @@ use WP_CLI;
  * CLI commands for working with Avatar Privacy cron jobs.
  *
  * @since 2.3.0
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
 class Cron_Command extends Abstract_Command {
 

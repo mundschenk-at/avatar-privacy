@@ -42,6 +42,8 @@ use Mundschenk\UI\Controls;
  * Handles the network settings page on multisite installations.
  *
  * @since 2.1.0
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
 class Network_Settings_Page implements \Avatar_Privacy\Component {
 

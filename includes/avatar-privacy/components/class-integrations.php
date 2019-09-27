@@ -32,6 +32,7 @@ use Avatar_Privacy\Core;
  * A registry for plugin integrations.
  *
  * @since      1.1.0
+ *
  * @author     Peter Putzer <github@mundschenk.at>
  */
 class Integrations implements \Avatar_Privacy\Component {

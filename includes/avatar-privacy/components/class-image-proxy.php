@@ -46,6 +46,8 @@ use Avatar_Privacy\Tools\Images;
  *
  * @since 1.0.0
  * @since 2.0.0 Renamed to Image_Proxy.
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
 class Image_Proxy implements \Avatar_Privacy\Component {
 

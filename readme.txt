@@ -16,7 +16,7 @@ Enhances the privacy of your users and visitors with gravatar opt-in and local a
 
 Avatars from Gravatar.com are great, but they come with certain privacy implications. You as site admin may already know this, but your visitors and users probably don't. Avatar Privacy can help to improve the privacy situation by making some subtle changes to the way avatars are displayed on your site.
 
-The plugin works without changing your theme files if you use a modern theme, and it does support multisite installations. For the plugin to do anything for you, you need to visit the discussion settings page in the WordPress admin area and save the new settings. Please note that the plugin does not provide an options page of its own, it rather adds to the existing discussion settings page.
+The plugin works without changing your theme files (for reasonably modern themes), and it does support multisite installations. Please note that the plugin does not provide an options page of its own, it rather adds to the existing discussion settings page.
 
 = Features =
 
@@ -29,6 +29,18 @@ The plugin's features summed up:
 
 A more detailed examination of the [reasons for using Avatar Privacy](https://code.mundschenk.at/avatar-privacy/reasons/) can be found on the plugin homepage.
 
+= WP-CLI Commands =
+
+Avatar Privacy includes the following [WP-CLI](https://wp-cli.org) commands:
+* `wp avatar-privacy db show`: Show information about the custom database table(s).
+* `wp avatar-privacy db list`: List entries in the custom database table(s).
+* `wp avatar-privacy db create`: Create the custom database table.
+* `wp avatar-privacy db upgrade`: Upgrade the structure of the custom database table.
+* `wp avatar-privacy uninstall`: Remove data added by Avatar Privacy.
+* `wp avatar-privacy cron list`: List active cron jobs created by the plugin.
+* `wp avatar-privacy cron delete`: Delete cron jobs created by the plugin.
+
+
 = Feedback =
 
 Please report any problems with the plugin, I'll do my best to sort things out. You can use the contact form on [my code site](https://code.mundschenk.at/avatar-privacy/) or [create a topic in the support forum](https://wordpress.org/support/plugin/avatar-privacy). You can contact me in German or English.
@@ -40,9 +52,10 @@ Avatar Privacy is based on the original plugin by [Johannes Freudendahl](http://
 * Daniel Mester Pirttijärvi ([Jdenticon](https://jdenticon.com)),
 * Shamus Young ([Wavatars](https://shamusyoung.com/twentysidedtale/?p=1462")),
 * Andreas Gohr (the original [MonsterID](https://www.splitbrain.org/blog/2007-01/20_monsterid_as_gravatar_fallback) and [RingIcon](https://github.com/splitbrain/php-ringicon)),
-* Scott Sherrill-Mix & Katherine Garner (the [hand-drawn monster update](http://scott.sherrillmix.com/blog/blogger/wp_monsterid-update-hand-drawn-monsters/)), and
-* Benjamin Laugueux ([Identicon](https://github.com/yzalis/Identicon)).
-* David Revoy ([Bird](https://www.davidrevoy.com/article720/bird-avatar-generator) and [Cat Avatars](https://www.davidrevoy.com/article591/cat-avatar-generator)).
+* Scott Sherrill-Mix & Katherine Garner (the [hand-drawn monster update](http://scott.sherrillmix.com/blog/blogger/wp_monsterid-update-hand-drawn-monsters/))
+* Benjamin Laugueux ([Identicon](https://github.com/yzalis/Identicon)),
+* David Revoy ([Bird](https://www.davidrevoy.com/article720/bird-avatar-generator) and [Cat Avatars](https://www.davidrevoy.com/article591/cat-avatar-generator)), and
+* Zikri Kader, Colin Davis & Nimiq ([RoboHash](https://robohash.org)).
 
 == Installation ==
 
@@ -141,8 +154,30 @@ The default avatar image is set to the mystery man if you selected one of the ne
 == Changelog ==
 
 = 2.3.0 (unreleased) =
+* _Feature_: New shortcode `[avatar-privacy-form]` (optional parameter: `avatar-size`) to allow changing Avatar Privacy's user settings on the frontend of the site.
+* _Feature_: Two blocks have been added to the Block Editor to allow displaying a user's avatar and to change the settings related Avatar Privacy on the frontend.
+* _Feature_: Three new generated default avatars:
+  - Bird Avatars,
+  - Cat Avatars (both designed by David Revoy), and
+  - RoboHash (designed by Zikri Kader).
+* _Feature_: Integration for the following plugins had been added:
+  - [BuddyPress](https://wordpress.org/plugins/buddypress/)
+  - [Theme My Login](https://wordpress.org/plugins/theme-my-login/)
+  - [Ultimate Member](https://wordpress.org/plugins/ultimate-member/)
 * _Feature_: New template function `\Avatar_Privacy\gravatar_checkbox()` for legacy themes added.
+* _Feature_: There is a CLI interface to some parts of Avatar Privacy:
+  - `wp avatar-privacy db show`: Show information about the custom database table(s).
+  - `wp avatar-privacy db list`: List entries in the custom database table(s).
+  - `wp avatar-privacy db create`: Create the custom database table.
+  - `wp avatar-privacy db upgrade`: Upgrade the structure of the custom database table.
+  - `wp avatar-privacy uninstall`: Remove data added by Avatar Privacy.
+  - `wp avatar-privacy cron list`: List active cron jobs created by the plugin.
+  - `wp avatar-privacy cron delete`: Delete cron jobs created by the plugin.
 * _Change_: `avapr_get_avatar_checkbox()` has been deprecated in favor of `\Avatar_Privacy\get_gravatar_checkbox()`.
+* _Change_: The ID and name of the `use_gravatar` comment form checkbox has been changed to `avatar-privacy-use-gravatar`. Please update custom CSS rules accordingly.
+* _Change_: Additional inline styling is added to the `avatar-privacy-use-gravatar` comment form checkbox to work around common theme limitations. Styling can be disabled using the `avatar_privacy_comment_checkbox_disable_inline_style` filter hook.
+* _Change_: All external PHP dependencies have been moved to the namespace `Avatar_Privacy\Vendor` to reduce the chance of conflicts with other plugins.
+* _Bugfix_: Gravatars are only cached if they are actually images to prevent issues with temporary Varnish errors on Gravatar.com.
 
 = 2.2.1 (2019-06-08) =
 * _Bugfix_: Compatibility with Windows servers.

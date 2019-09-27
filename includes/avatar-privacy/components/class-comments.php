@@ -34,6 +34,8 @@ use Avatar_Privacy\Data_Storage\Options;
  * Handles comment posting in WordPress.
  *
  * @since 1.0.0
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
 class Comments implements \Avatar_Privacy\Component {
 

@@ -36,6 +36,8 @@ use Avatar_Privacy\Tools\Number_Generator;
  * See https://www.peppercarrot.com/extras/html/2019_bird-generator/
  *
  * @since 2.3.0
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
 class Bird_Avatar extends PNG_Parts_Generator {
 

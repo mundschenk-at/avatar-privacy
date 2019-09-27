@@ -40,6 +40,8 @@ use function WP_CLI\Utils\get_flag_value;
  * CLI commands for accessing the Avatar Privacy database tables.
  *
  * @since 2.3.0
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
 class Database_Command extends Abstract_Command {
 

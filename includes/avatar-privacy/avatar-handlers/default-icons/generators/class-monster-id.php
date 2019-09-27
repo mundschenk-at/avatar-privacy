@@ -4,7 +4,6 @@
  *
  * Copyright 2018-2019 Peter Putzer.
  * Copyright 2007-2014 Scott Sherrill-Mix.
- * Copyright 2007 Andreas Gohr.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -35,12 +34,22 @@ use Avatar_Privacy\Tools\Number_Generator;
 use function Scriptura\Color\Helpers\HSLtoRGB;
 
 /**
- * A monster generator.
+ * A monster generator based on the WordPress implementation by Scott Sherrill-Mix
+ * and the original algorithm designed by Andreas Gohr, based on an idea by Don Park.
+ *
+ * Artwork by Katherine Garner (Lemm).
+ *
+ * @link http://scott.sherrillmix.com/blog/blogger/wp_monsterid-update-hand-drawn-monsters/
+ * @link https://www.splitbrain.org/projects/monsterid
+ * @link http://kathgarner.com
  *
  * @since 1.0.0
  * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators
  * @since 2.3.0 Refactored to use standard parts mechanisms, various obsolete
  *              constants removed.
+ *
+ * @author Peter Putzer <github@mundschenk.at>
+ * @author Scott Sherrill-Mix
  */
 class Monster_ID extends PNG_Parts_Generator {
 

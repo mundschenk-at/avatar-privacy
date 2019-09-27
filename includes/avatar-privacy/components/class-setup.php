@@ -44,6 +44,8 @@ use Avatar_Privacy\Tools\Multisite;
  * Handles plugin activation and deactivation.
  *
  * @since 1.0.0
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
 class Setup implements \Avatar_Privacy\Component {
 

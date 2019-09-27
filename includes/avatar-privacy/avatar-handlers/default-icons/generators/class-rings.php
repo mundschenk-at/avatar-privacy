@@ -36,6 +36,8 @@ use splitbrain\RingIcon\RingIconSVG;
  * @since 1.0.0
  * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators
  * @since 2.3.0 Made subclass of RingIconSVG as splitbrain\RingIcon is stable.
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
 class Rings extends RingIconSVG implements Generator {
 

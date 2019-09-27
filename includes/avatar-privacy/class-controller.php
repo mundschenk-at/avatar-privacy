@@ -33,6 +33,8 @@ use Avatar_Privacy\Component;
  *
  * @since 1.0.0
  * @since 2.1.0 Renamed to Avatar_Privacy\Controller.
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
 class Controller {
 
