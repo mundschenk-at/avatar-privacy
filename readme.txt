@@ -52,9 +52,10 @@ Avatar Privacy is based on the original plugin by [Johannes Freudendahl](http://
 * Daniel Mester Pirttijärvi ([Jdenticon](https://jdenticon.com)),
 * Shamus Young ([Wavatars](https://shamusyoung.com/twentysidedtale/?p=1462")),
 * Andreas Gohr (the original [MonsterID](https://www.splitbrain.org/blog/2007-01/20_monsterid_as_gravatar_fallback) and [RingIcon](https://github.com/splitbrain/php-ringicon)),
-* Scott Sherrill-Mix & Katherine Garner (the [hand-drawn monster update](http://scott.sherrillmix.com/blog/blogger/wp_monsterid-update-hand-drawn-monsters/)), and
-* Benjamin Laugueux ([Identicon](https://github.com/yzalis/Identicon)).
-* David Revoy ([Bird](https://www.davidrevoy.com/article720/bird-avatar-generator) and [Cat Avatars](https://www.davidrevoy.com/article591/cat-avatar-generator)).
+* Scott Sherrill-Mix & Katherine Garner (the [hand-drawn monster update](http://scott.sherrillmix.com/blog/blogger/wp_monsterid-update-hand-drawn-monsters/))
+* Benjamin Laugueux ([Identicon](https://github.com/yzalis/Identicon)),
+* David Revoy ([Bird](https://www.davidrevoy.com/article720/bird-avatar-generator) and [Cat Avatars](https://www.davidrevoy.com/article591/cat-avatar-generator)), and
+* Zikri Kader, Colin Davis & Nimiq ([RoboHash](https://robohash.org)).
 
 == Installation ==
 
