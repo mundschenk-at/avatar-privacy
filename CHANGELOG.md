@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.3.0 (unreleased)
+## 2.3.0 (2019-09-28)
 *   _Feature_: New shortcode `[avatar-privacy-form]` (optional parameter: `avatar-size`)
     to allow changing Avatar Privacy's user settings on the frontend of the site.
 *   _Feature_: Two blocks have been added to the Block Editor to allow displaying a
