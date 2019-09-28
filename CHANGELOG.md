@@ -36,6 +36,11 @@
 *   _Bugfix_: Gravatars are only cached if they are actually images to prevent issues
     with temporary Varnish errors on Gravatar.com.
 
+## 2.2.2 (2019-06-23)
+*   _Bugfix_: Re-allow installation on 4.9.x for increased compatibility with
+    possible future WordPress Core changes. The 2.2.x branch of Avatar Privacy is
+    the last that will support WordPress < 5.2.
+
 ## 2.2.1 (2019-06-08)
 *   _Bugfix_: Compatibility with Windows servers.
 
