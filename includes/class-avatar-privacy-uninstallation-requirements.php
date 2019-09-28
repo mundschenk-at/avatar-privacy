@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,28 +24,27 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-use function Avatar_Privacy\get_gravatar_checkbox;
-
-if ( ! \function_exists( 'avapr_get_avatar_checkbox' ) ) {
-
-	/**
-	 * Returns the 'use gravatar' checkbox for the comment form.
-	 *
-	 * This is intended as a template function for older or highly-customized
-	 * themes. Output the result with echo or print.
-	 *
-	 * @deprecated 2.3.0 Use \Avatar_Privacy\get_gravatar_checkbox instead.
-	 *
-	 * @return string The HTML code for the checkbox or an empty string.
-	 */
-	function avapr_get_avatar_checkbox() {
-		return get_gravatar_checkbox();
-	}
-}
+// We can't rely on autoloading for the requirements check.
+require_once dirname( dirname( __FILE__ ) ) . '/vendor/mundschenk-at/check-wp-requirements/class-mundschenk-wp-requirements.php'; // @codeCoverageIgnore
 
 /**
- * PHP 5.2 compatibility layer.
+ * A custom requirements class to check for the minimum PHP version (and nothing
+ * else) during the uninstallation process .
  *
- * Will be removed once the minimum requireemnt is WordPress 5.2.
+ * @since 2.1.0
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  */
-class_alias( \Avatar_Privacy\Factory::class, \Avatar_Privacy_Factory::class );
+class Avatar_Privacy_Uninstallation_Requirements extends Mundschenk_WP_Requirements {
+
+	/**
+	 * Creates a new requirements instance.
+	 */
+	public function __construct() {
+		$requirements = array(
+			'php' => '5.6.0',
+		);
+
+		parent::__construct( 'Avatar Privacy', AVATAR_PRIVACY_PLUGIN_FILE, 'avatar-privacy', $requirements );
+	}
+}

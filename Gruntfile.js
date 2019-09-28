@@ -15,8 +15,14 @@ module.exports = function(grunt) {
 			autoloader: [
 				"build/tests",
 				"build/composer.*",
+				"build/vendor/scoper-autoload.php",
 				"build/vendor/composer/*.json",
 				"build/vendor/dangoodman"
+			],
+			vendor: [
+				"build/vendor/{jdenticon,mistic100,scripturadesign,splitbrain}/*/*",
+				"!build/vendor/**/src",
+				"!build/vendor/**/partials"
 			],
 		},
 
@@ -82,7 +88,8 @@ module.exports = function(grunt) {
 						'public/**',
 						'includes/**',
 						'!**/scss/**',
-						'!**/tests/**'
+						'!**/tests/**',
+						'vendor/**/partials/**',
 					],
 					dest: 'build/'
 				}],
@@ -310,12 +317,13 @@ module.exports = function(grunt) {
 		'newer:postcss:dist',
 		'newer:minify',
 		'copy:main',
-		'copy:meta',
 		'npmRun:build', // Build blocks.js
 		'composer:build:build-wordpress',
 		'string-replace:namespaces',
+		'clean:vendor',
 		'clean:autoloader',
 		'string-replace:autoloader',
+		'copy:meta',
 	]);
 
 	grunt.registerTask('build-beta', [
