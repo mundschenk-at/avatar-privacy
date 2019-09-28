@@ -96,6 +96,11 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 	 * @since 2.1.0 Visibility changed to protected.
 	 */
 	protected function add_privacy_notice_content() {
+		// Don't crash on older versions of WordPress.
+		if ( ! function_exists( 'wp_add_privacy_policy_content' ) ) {
+			return;
+		}
+
 		$suggested_text = '<strong class="privacy-policy-tutorial">' . \__( 'Suggested text:' ) . ' </strong>'; // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- Missing text domain is intentional to use Core translation.
 
 		$content  = '<h3>' . \__( 'Comments', 'avatar-privacy' ) . '</h3>';
