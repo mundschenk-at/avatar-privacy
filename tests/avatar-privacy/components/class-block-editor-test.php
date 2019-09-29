@@ -118,11 +118,29 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Tests ::run without the block editor being present. Has to be first.
+	 *
+	 * @covers ::run
+	 */
+	public function test_run_no_block_editor() {
+		Functions\expect( 'is_admin' )->never();
+
+		Actions\expectAdded( 'init' )->never();
+
+		$this->form->shouldReceive( 'register_form_submission' )->never();
+
+		$this->assertNull( $this->sut->run() );
+	}
+
+	/**
 	 * Tests ::run.
 	 *
 	 * @covers ::run
 	 */
 	public function test_run() {
+		// Fake block editor.
+		Functions\when( 'register_block_type' );
+
 		Functions\expect( 'is_admin' )->once()->andReturn( false );
 
 		Actions\expectAdded( 'init' )->once()->with( [ $this->sut, 'register_blocks' ] );
@@ -138,6 +156,9 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::run
 	 */
 	public function test_run_admin() {
+		// Fake block editor.
+		Functions\when( 'register_block_type' );
+
 		Functions\expect( 'is_admin' )->once()->andReturn( true );
 
 		Actions\expectAdded( 'init' )->once()->with( [ $this->sut, 'register_blocks' ] );
