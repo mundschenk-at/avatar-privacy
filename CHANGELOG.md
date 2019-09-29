@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.1 (2019-09-29)
+*   _Bugfix_: Will not crash on WordPress 4.9 anymore when the Gutenberg plugin is not activated.
+*   _Bugfix_: The label for the block settings panel of the Avatar block was incorrect.
+
 ## 2.3.0 (2019-09-28)
 *   _Feature_: New shortcode `[avatar-privacy-form]` (optional parameter: `avatar-size`)
     to allow changing Avatar Privacy's user settings on the frontend of the site.
