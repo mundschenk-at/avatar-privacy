@@ -77,7 +77,7 @@ const edit = withSelect(
 	return (
 		<Fragment>
 			<InspectorControls>
-				<PanelBody title={ __( 'Form', 'avatar-privacy' ) } >
+				<PanelBody title={ __( 'Avatar', 'avatar-privacy' ) } >
 					<PanelRow>
 						<SelectControl
 							label={ __( 'User', 'avatar-privacy' ) }

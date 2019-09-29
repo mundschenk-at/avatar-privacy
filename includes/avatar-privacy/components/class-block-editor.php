@@ -70,6 +70,11 @@ class Block_Editor implements Component {
 	 * @return void
 	 */
 	public function run() {
+		if ( ! \function_exists( 'register_block_type' ) ) {
+			// Block editor not installed.
+			return;
+		}
+
 		// Initialize shortcodes after WordPress has loaded.
 		\add_action( 'init', [ $this, 'register_blocks' ] );
 

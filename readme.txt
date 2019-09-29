@@ -7,7 +7,7 @@ Tags: gravatar, avatar, privacy, caching, bbpress, buddypress
 Requires at least: 4.9
 Requires PHP: 5.6
 Tested up to: 5.3
-Stable tag: 2.3.0
+Stable tag: 2.3.1
 License: GPLv2 or later
 
 Enhances the privacy of your users and visitors with gravatar opt-in and local avatars.
@@ -152,6 +152,10 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 
 == Changelog ==
+
+= 2.3.1 (2019-09-29) =
+* _Bugfix_: Will not crash on WordPress 4.9 anymore when the Gutenberg plugin is not activated.
+* _Bugfix_: The label for the block settings panel of the Avatar block was incorrect.
 
 = 2.3.0 (2019-09-28) =
 * _Feature_: New shortcode `[avatar-privacy-form]` (optional parameter: `avatar-size`) to allow changing Avatar Privacy's user settings on the frontend of the site.
