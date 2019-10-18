@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Avatar Privacy Avatar Block
+ * Avatar Privacy Avatar Block edit method
  *
  * The block is rendered server-side to be current (avatars can change frequently).
  */
@@ -9,39 +9,11 @@
 /**
  * WordPress dependencies
  */
-import { registerBlockType } from '@wordpress/blocks';
 import { PanelBody, PanelRow, RangeControl, SelectControl } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
 import { InspectorControls } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * The attributes of the block.
- *
- * @type {Object}
- */
-const blockAttributes = {
-	avatar_size: {
-		type: 'integer',
-		default: 96,
-	},
-	user_id: {
-		type: 'integer',
-		default: 0,
-	},
-	align: {
-		type: 'string',
-		default: '',
-	},
-	// Just temporary information during editing.
-	user: {
-		type: 'object',
-		source: 'attribute',
-		selector: '*',
-		default: undefined,
-	},
-};
 
 /**
  * Edits the block attributes.
@@ -55,7 +27,7 @@ const blockAttributes = {
  *
  * @return {Object} ECMAScript JSX Markup for the editor
  */
-const edit = withSelect(
+export default withSelect(
 	// Retrieve WordPress authors.
 	( select ) => ( { users: select( 'core' ).getAuthors() } )
 )( ( { attributes, setAttributes, users } ) => {
@@ -105,33 +77,4 @@ const edit = withSelect(
 			/>
 		</Fragment>
 	);
-} );
-
-/**
- * Registers and creates block
- *
- * @param {string} Name Name of the block with a required name space
- * @param {object} ObjectArgs Block configuration {
- *      title - Title, displayed in the editor
- *      icon - Icon, from WP icons
- *      category - Block category, where the block will be added in the editor
- *      attributes - Object with all binding elements between the view HTML and the functions
- *      edit function - Returns the markup for the editor interface.
- *      save function - Returns the markup that will be rendered on the site page
- * }
- */
-registerBlockType( 'avatar-privacy/avatar', {
-	// Metadata.
-	title: __( 'Avatar', 'avatar-privacy' ),
-	icon: 'admin-users',
-	category: 'common',
-
-	// The meat.
-	attributes: blockAttributes,
-	supports: {
-		align: [ 'left', 'center', 'right' ],
-		html: false,
-	},
-	edit,
-	save: () => {},
 } );
