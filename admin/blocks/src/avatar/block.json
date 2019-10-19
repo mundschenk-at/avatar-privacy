@@ -1,0 +1,24 @@
+{
+	"name": "avatar-privacy/avatar",
+	"category": "common",
+	"attributes": {
+		"avatar_size": {
+			"type": "integer",
+			"default": 96
+		},
+		"user_id": {
+			"type": "integer",
+			"default": 0
+		},
+		"align": {
+			"type": "string",
+			"default": ""
+		},
+		"user": {
+			"type": "object",
+			"source": "attribute",
+			"selector": "*",
+			"default": null
+		}
+	}
+}

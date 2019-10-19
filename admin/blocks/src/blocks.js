@@ -9,7 +9,27 @@
  */
 
 /**
+ * WordPress dependencies
+ */
+import { registerBlockType } from '@wordpress/blocks';
+
+/**
  * Internal dependencies
  */
-import './frontend-form.js';
-import './avatar.js';
+import * as frontendForm from './frontend-form';
+import * as avatar from './avatar';
+
+// Register all our blocks.
+[
+	frontendForm,
+	avatar,
+].forEach( ( block ) => {
+	if ( ! block ) {
+		return;
+	}
+	const { metadata, settings, name } = block;
+	registerBlockType( name, {
+		...metadata,
+		...settings,
+	} );
+} );

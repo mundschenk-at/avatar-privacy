@@ -1,0 +1,14 @@
+{
+	"name": "avatar-privacy/form",
+	"category": "common",
+	"attributes": {
+		"avatar_size": {
+			"type": "integer",
+			"default": 96
+		},
+		"show_descriptions": {
+			"type": "boolean",
+			"default": true
+		}
+	}
+}
