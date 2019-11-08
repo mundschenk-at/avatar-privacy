@@ -36,17 +36,32 @@
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
 /******/ 		}
 /******/ 	};
 /******/
 /******/ 	// define __esModule on exports
 /******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
 /******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
 /******/ 	};
 /******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
@@ -78,7 +93,7 @@
 /*! exports provided: name, category, attributes, default */
 /***/ (function(module) {
 
-module.exports = {"name":"avatar-privacy/avatar","category":"common","attributes":{"avatar_size":{"type":"integer","default":96},"user_id":{"type":"integer","default":0},"align":{"type":"string","default":""},"user":{"type":"object","source":"attribute","selector":"*","default":null}}};
+module.exports = JSON.parse("{\"name\":\"avatar-privacy/avatar\",\"category\":\"common\",\"attributes\":{\"avatar_size\":{\"type\":\"integer\",\"default\":96},\"user_id\":{\"type\":\"integer\",\"default\":0},\"align\":{\"type\":\"string\",\"default\":\"\"},\"user\":{\"type\":\"object\",\"source\":\"attribute\",\"selector\":\"*\",\"default\":null}}}");
 
 /***/ }),
 
@@ -210,7 +225,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _edit__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./edit */ "./admin/blocks/src/avatar/edit.js");
 /* harmony import */ var _block_json__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./block.json */ "./admin/blocks/src/avatar/block.json");
-var _block_json__WEBPACK_IMPORTED_MODULE_2___namespace = /*#__PURE__*/Object.assign({}, _block_json__WEBPACK_IMPORTED_MODULE_2__, {"default": _block_json__WEBPACK_IMPORTED_MODULE_2__});
+var _block_json__WEBPACK_IMPORTED_MODULE_2___namespace = /*#__PURE__*/__webpack_require__.t(/*! ./block.json */ "./admin/blocks/src/avatar/block.json", 1);
 /* harmony reexport (default from named exports) */ __webpack_require__.d(__webpack_exports__, "metadata", function() { return _block_json__WEBPACK_IMPORTED_MODULE_2__; });
 
 /**
@@ -307,7 +322,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 /*! exports provided: name, category, attributes, default */
 /***/ (function(module) {
 
-module.exports = {"name":"avatar-privacy/form","category":"common","attributes":{"avatar_size":{"type":"integer","default":96},"show_descriptions":{"type":"boolean","default":true}}};
+module.exports = JSON.parse("{\"name\":\"avatar-privacy/form\",\"category\":\"common\",\"attributes\":{\"avatar_size\":{\"type\":\"integer\",\"default\":96},\"show_descriptions\":{\"type\":\"boolean\",\"default\":true}}}");
 
 /***/ }),
 
@@ -397,7 +412,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _edit__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./edit */ "./admin/blocks/src/frontend-form/edit.js");
 /* harmony import */ var _block_json__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./block.json */ "./admin/blocks/src/frontend-form/block.json");
-var _block_json__WEBPACK_IMPORTED_MODULE_2___namespace = /*#__PURE__*/Object.assign({}, _block_json__WEBPACK_IMPORTED_MODULE_2__, {"default": _block_json__WEBPACK_IMPORTED_MODULE_2__});
+var _block_json__WEBPACK_IMPORTED_MODULE_2___namespace = /*#__PURE__*/__webpack_require__.t(/*! ./block.json */ "./admin/blocks/src/frontend-form/block.json", 1);
 /* harmony reexport (default from named exports) */ __webpack_require__.d(__webpack_exports__, "metadata", function() { return _block_json__WEBPACK_IMPORTED_MODULE_2__; });
 
 /**
