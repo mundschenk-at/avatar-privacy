@@ -55,7 +55,8 @@
         "classmap-authoritative": false,
         "classloader-suffix": "AvatarPrivacy",
         "autoloader-suffix": "AvatarPrivacy",
-        "process-timeout": 0
+        "process-timeout": 0,
+        "vendor-dir": "vendor"
     },
 
     "minimum-stability": "dev",
