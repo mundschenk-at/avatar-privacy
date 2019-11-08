@@ -1,5 +1,5 @@
 === Avatar Privacy ===
-Contributors: Ammaletu, pputzer
+Contributors: pputzer, Ammaletu
 Plugin Name: Avatar Privacy
 Plugin URI: https://code.mundschenk.at/avatar-privacy/
 Author URI: https://code.mundschenk.at/
