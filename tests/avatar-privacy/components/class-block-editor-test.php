@@ -174,33 +174,48 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::register_blocks
 	 */
 	public function test_register_blocks() {
-		$base_url = 'fake://url/';
+		$base_url = 'fake://url';
 		$path     = '/plugin/';
-		$file     = 'admin/blocks/js/blocks.js';
 		$suffix   = '.min';
 		$version  = 'fake version';
-		$deps     = [ 'foo', 'bar' ];
 
-		Functions\expect( 'plugin_dir_url' )->once()->with( \AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $base_url );
-		Functions\expect( 'plugin_dir_path' )->once()->with( \AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $path );
+		// Simulate blocks dependencies.
+		$blocks_version = 'fake blocks version';
+		$deps           = [ 'foo', 'bar' ];
+		$asset          = '<?php return [ "dependencies" => ' . \var_export( $deps, true ) . ', "version" => ' . \var_export( $blocks_version, true ) . ' ]; ?>'; // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+		vfsStream::create( [
+			'plugin' => [
+				'admin' => [
+					'blocks' => [
+						'js' => [
+							'blocks.asset.php' => $asset,
+						],
+					],
+				],
+			],
+		] );
 
-		$this->core->shouldReceive( 'get_version' )->once()->andReturn( $version );
+		Functions\expect( 'plugins_url' )->once()->with( '', \AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $base_url );
 
-		$this->sut->shouldReceive( 'get_dependencies' )->once()->with( "{$path}{$file}" )->andReturn( $deps );
+		// Deprecated and unused method.
+		$this->sut->shouldReceive( 'get_dependencies' )->never();
 
 		Functions\expect( 'wp_register_script' )->once()->with(
 			'avatar-privacy-gutenberg',
-			"{$base_url}{$file}",
+			"{$base_url}/admin/blocks/js/blocks.js",
 			$deps,
-			$version,
+			$blocks_version,
 			false
 		);
+
+		$this->core->shouldReceive( 'get_version' )->once()->andReturn( $version );
 		Functions\expect( 'wp_register_style' )->once()->with(
 			'avatar-privacy-gutenberg-style',
-			"{$base_url}admin/css/blocks{$suffix}.css",
+			"{$base_url}/admin/css/blocks{$suffix}.css",
 			[],
 			$version
 		);
+
 		Functions\expect( 'register_block_type' )->once()->with(
 			'avatar-privacy/form',
 			[
