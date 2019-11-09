@@ -32,13 +32,14 @@ A more detailed examination of the [reasons for using Avatar Privacy](https://co
 = WP-CLI Commands =
 
 Avatar Privacy includes the following [WP-CLI](https://wp-cli.org) commands:
-* Show information about the custom database table(s): `wp avatar-privacy db show`
-* List entries in the custom database table(s): `wp avatar-privacy db list`
-* Create the custom database table: `wp avatar-privacy db create`
-* Upgrade the structure of the custom database table: `wp avatar-privacy db upgrade`
-* Remove data added by Avatar Privacy: `wp avatar-privacy uninstall`
-* List active cron jobs created by the plugin: `wp avatar-privacy cron list`
-* Delete cron jobs created by the plugin: `wp avatar-privacy cron delete`
+
+* `wp avatar-privacy db show`: Show information about the custom database table(s).
+* `wp avatar-privacy db list`: List entries in the custom database table(s).
+* `wp avatar-privacy db create`: Create the custom database table.
+* `wp avatar-privacy db upgrade`: Upgrade the structure of the custom database table.
+* `wp avatar-privacy uninstall`: Remove data added by Avatar Privacy.
+* `wp avatar-privacy cron list`: List active cron jobs created by the plugin.
+* `wp avatar-privacy cron delete`: Delete cron jobs created by the plugin.
 
 
 = Feedback =
