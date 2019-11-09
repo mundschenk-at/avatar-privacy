@@ -153,6 +153,9 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 == Changelog ==
 
+= 2.3.2 (2019-11-09) =
+* _Bugfix_: Some error messages were not getting translated because of a [WP.org infrastructure change](https://make.wordpress.org/core/2018/11/09/new-javascript-i18n-support-in-wordpress/).
+
 = 2.3.1 (2019-09-29) =
 * _Bugfix_: Will not crash on WordPress 4.9 anymore when the Gutenberg plugin is not activated.
 * _Bugfix_: The label for the block settings panel of the Avatar block was incorrect.
