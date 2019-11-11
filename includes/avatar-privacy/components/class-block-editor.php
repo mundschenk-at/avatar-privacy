@@ -88,16 +88,16 @@ class Block_Editor implements Component {
 	 * Registers the Gutenberg blocks.
 	 */
 	public function register_blocks() {
-		$version    = $this->core->get_version();
 		$suffix     = \SCRIPT_DEBUG ? '' : '.min';
-		$plugin_dir = \plugin_dir_url( \AVATAR_PRIVACY_PLUGIN_FILE );
+		$plugin_url = \plugins_url( '', \AVATAR_PRIVACY_PLUGIN_FILE );
 
 		// Register the script containing all our block types.
-		$block_js = 'admin/blocks/js/blocks.js';
-		\wp_register_script( 'avatar-privacy-gutenberg', "{$plugin_dir}{$block_js}", $this->get_dependencies( \plugin_dir_path( \AVATAR_PRIVACY_PLUGIN_FILE ) . $block_js ), $version, false );
+		$blocks = 'admin/blocks/js/blocks';
+		$asset  = include \AVATAR_PRIVACY_PLUGIN_PATH . "/{$blocks}.asset.php";
+		\wp_register_script( 'avatar-privacy-gutenberg', "{$plugin_url}/{$blocks}.js", $asset['dependencies'], $asset['version'], false );
 
 		// Register the stylesheet for the blocks.
-		\wp_register_style( 'avatar-privacy-gutenberg-style', "{$plugin_dir}admin/css/blocks{$suffix}.css", [], $version );
+		\wp_register_style( 'avatar-privacy-gutenberg-style', "{$plugin_url}/admin/css/blocks{$suffix}.css", [], $this->core->get_version() );
 
 		// Register each individual block type:
 		// The frontend form block.
@@ -162,6 +162,8 @@ class Block_Editor implements Component {
 
 	/**
 	 * Retrieves the dependencies for the given JavaScript file.
+	 *
+	 * @deprecated 2.3.2 Obsoleted by new tooling introduced by @wordpress/scripts 5.0.0.
 	 *
 	 * @param  string $file The full path.
 	 *

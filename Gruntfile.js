@@ -15,14 +15,14 @@ module.exports = function(grunt) {
 			autoloader: [
 				"build/tests",
 				"build/composer.*",
-				"build/vendor/scoper-autoload.php",
-				"build/vendor/composer/*.json",
-				"build/vendor/dangoodman"
+				"build/vendor-scoped/scoper-autoload.php",
+				"build/vendor-scoped/composer/*.json",
+				"build/vendor-scoped/dangoodman"
 			],
 			vendor: [
-				"build/vendor/{jdenticon,mistic100,scripturadesign,splitbrain}/*/*",
-				"!build/vendor/**/src",
-				"!build/vendor/**/partials"
+				"build/vendor-scoped/{jdenticon,mistic100,scripturadesign,splitbrain}/*/*",
+				"!build/vendor-scoped/**/src",
+				"!build/vendor-scoped/**/partials"
 			],
 		},
 
@@ -73,6 +73,34 @@ module.exports = function(grunt) {
 					dest: '',
 				}]
 			},
+			"composer-vendor-dir": {
+				options: {
+					replacements: [{
+						pattern: /"vendor-dir":\s*"vendor"/g,
+						replacement: '"vendor-dir": "vendor-scoped"'
+					}],
+				},
+				files: [{
+					expand: true,
+					flatten: false,
+					src: ['build/composer.json'],
+					dest: '',
+				}]
+			},
+			"vendor-dir": {
+				options: {
+					replacements: [{
+						pattern: /vendor\//g,
+						replacement: 'vendor-scoped/'
+					}],
+				},
+				files: [{
+					expand: true,
+					flatten: false,
+					src: ['build/**/*.php'],
+					dest: '',
+				}]
+			}
 		},
 
 		copy: {
@@ -91,7 +119,10 @@ module.exports = function(grunt) {
 						'!**/tests/**',
 						'vendor/**/partials/**',
 					],
-					dest: 'build/'
+					dest: 'build/',
+					rename: function(dest, src) {
+						return dest + src.replace( /\bvendor\b/, 'vendor-scoped');
+					}
 				}],
 			},
 			meta: {
@@ -105,8 +136,20 @@ module.exports = function(grunt) {
 						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain,scripturadesign,yzalis}/**/COPYING*',
 						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain,scripturadesign,yzalis}/**/CHANGE*',
 					],
-					dest: 'build/'
+					dest: 'build/',
+					rename: function(dest, src) {
+						return dest + src.replace( /\bvendor\b/, 'vendor-scoped');
+					}
 				}],
+			}
+		},
+
+		rename: {
+			vendor: {
+				files: [{
+					src: "build/vendor",
+					dest: "build/vendor-scoped"
+				}]
 			}
 		},
 
@@ -311,18 +354,29 @@ module.exports = function(grunt) {
 	]);
 
 	grunt.registerTask('build', [
+		// Clean house
 		'clean:build',
+		// Scope dependencies
 		'composer:dev:scope-dependencies',
+		// Rename vendor directory
+		'string-replace:composer-vendor-dir',
+		'rename:vendor',
+		// Generate stylesheets
 		'newer:sass:dist',
 		'newer:postcss:dist',
 		'newer:minify',
+		// Copy other files
 		'copy:main',
 		'npmRun:build', // Build blocks.js
 		'composer:build:build-wordpress',
+		// Use scoped dependencies
 		'string-replace:namespaces',
+		// Clean up unused packages
 		'clean:vendor',
 		'clean:autoloader',
+		'string-replace:vendor-dir',
 		'string-replace:autoloader',
+		// Copy documentation and license files
 		'copy:meta',
 	]);
 

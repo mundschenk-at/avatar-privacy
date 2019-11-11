@@ -64,4 +64,7 @@
 
 	<!-- Include sniffs for PHP cross-version compatibility. -->
 	<rule ref="PHPCompatibilityWP" />
+
+	<!-- Exclude generated block assets file -->
+	<exclude-pattern>*/admin/blocks/*/*\.asset\.php$</exclude-pattern>
 </ruleset>

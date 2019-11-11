@@ -1,5 +1,5 @@
 === Avatar Privacy ===
-Contributors: Ammaletu, pputzer
+Contributors: pputzer, Ammaletu
 Plugin Name: Avatar Privacy
 Plugin URI: https://code.mundschenk.at/avatar-privacy/
 Author URI: https://code.mundschenk.at/
@@ -7,7 +7,7 @@ Tags: gravatar, avatar, privacy, caching, bbpress, buddypress
 Requires at least: 4.9
 Requires PHP: 5.6
 Tested up to: 5.3
-Stable tag: 2.3.1
+Stable tag: 2.3.2
 License: GPLv2 or later
 
 Enhances the privacy of your users and visitors with gravatar opt-in and local avatars.
@@ -32,6 +32,7 @@ A more detailed examination of the [reasons for using Avatar Privacy](https://co
 = WP-CLI Commands =
 
 Avatar Privacy includes the following [WP-CLI](https://wp-cli.org) commands:
+
 * `wp avatar-privacy db show`: Show information about the custom database table(s).
 * `wp avatar-privacy db list`: List entries in the custom database table(s).
 * `wp avatar-privacy db create`: Create the custom database table.
@@ -152,6 +153,9 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 
 == Changelog ==
+
+= 2.3.2 (2019-11-09) =
+* _Bugfix_: Some error messages were not getting translated because of a [WP.org infrastructure change](https://make.wordpress.org/core/2018/11/09/new-javascript-i18n-support-in-wordpress/).
 
 = 2.3.1 (2019-09-29) =
 * _Bugfix_: Will not crash on WordPress 4.9 anymore when the Gutenberg plugin is not activated.
