@@ -105,9 +105,11 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() { // @codingStandardsIgnoreLine
-		parent::setUp();
+	protected function set_up() { // @codingStandardsIgnoreLine
+		parent::set_up();
 
 		// Mock required helpers.
 		$this->transients      = m::mock( Transients::class );
@@ -134,12 +136,14 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 
 	/**
 	 * Necesssary clean-up work.
+	 *
+	 * @since 2.3.3 Renamed to `tear_down`.
 	 */
-	protected function tearDown() { // @codingStandardsIgnoreLine
+	protected function tear_down() { // @codingStandardsIgnoreLine
 		// Reset singleton.
 		$this->setStaticValue( \Avatar_Privacy\Core::class, 'instance', null );
 
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**

@@ -65,9 +65,11 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$filesystem = [
 			'plugin'    => [
@@ -456,6 +458,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::set_comment_cookies
 	 *
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 * @requires extension xdebug
 	 */
 	public function test_set_comment_cookies() {
@@ -491,6 +494,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::set_comment_cookies
 	 *
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 * @requires extension xdebug
 	 */
 	public function test_set_comment_cookies_no_consent() {
@@ -523,6 +527,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::set_comment_cookies
 	 *
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 * @requires extension xdebug
 	 */
 	public function test_set_comment_cookies_user_exists() {

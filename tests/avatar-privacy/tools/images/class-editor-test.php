@@ -72,9 +72,11 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$filesystem = [
 			'folder' => [],
@@ -166,6 +168,7 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::create_from_image_resource
 	 *
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_create_from_image_resource_not_a_resource() {
 		$not_a_resource = '';

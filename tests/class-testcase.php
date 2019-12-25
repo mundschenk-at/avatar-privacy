@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2017-2018 Peter Putzer.
+ * Copyright 2017-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,24 +27,57 @@
 namespace Avatar_Privacy\Tests;
 
 use Brain\Monkey;
+use Symfony\Bridge\PhpUnit\SetUpTearDownTrait;
 
 /**
  * Abstract base class for \PHP_Typography\* unit tests.
  */
 abstract class TestCase extends \PHPUnit\Framework\TestCase {
+	/**
+	 * The SetUpTearDownTrait from symfony/phpunit-bridge is used to allow
+	 * test cases to be compatible with PHPUnit 8 and earlier versions at the
+	 * same time (needed for PHP 7.4 support).
+	 */
+	use SetUpTearDownTrait;
 
 	/**
-	 * Set up Brain Monkey.
+	 * Redirects ::setUp to polymorphic ::set_up.
+	 *
+	 * @since 2.3.3
+	 *
+	 * @return void
 	 */
-	protected function setUp() {
+	private function doSetUp() {
+		$this->set_up();
+	}
+
+	/**
+	 * Redirects ::tearDown to polymorphic ::tear_down.
+	 *
+	 * @since 2.3.3
+	 *
+	 * @return void
+	 */
+	private function doTearDown() {
+		$this->tear_down();
+	}
+
+	/**
+	 * Sets up Brain Monkey.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
+	 */
+	protected function set_up() {
 		parent::setUp();
 		Monkey\setUp();
 	}
 
 	/**
-	 * Tear down Brain Monkey.
+	 * Tears down Brain Monkey.
+	 *
+	 * @since 2.3.3 Renamed to `tear_down`.
 	 */
-	protected function tearDown() {
+	protected function tear_down() {
 		Monkey\tearDown();
 		parent::tearDown();
 	}

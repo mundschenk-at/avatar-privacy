@@ -117,9 +117,11 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$filesystem = [
 			'uploads'   => [
@@ -381,6 +383,7 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::send_image
 	 *
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 * @requires extension xdebug
 	 */
 	public function test_send_image() {
@@ -408,6 +411,7 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::send_image
 	 *
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 * @requires extension xdebug
 	 */
 	public function test_send_image_invalid_file() {

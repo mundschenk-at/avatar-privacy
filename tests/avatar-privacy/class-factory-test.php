@@ -54,9 +54,11 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() { // @codingStandardsIgnoreLine
-		parent::setUp();
+	protected function set_up() { // @codingStandardsIgnoreLine
+		parent::set_up();
 
 		$filesystem = [
 			'wordpress' => [
