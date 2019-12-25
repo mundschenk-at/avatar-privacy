@@ -58,8 +58,8 @@ class Speech_Bubble_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->invokeMethod( $sut, '__construct', [] );
 
-		$this->assertAttributeSame( $types, 'valid_types', $sut );
-		$this->assertAttributeSame( 'comment-bubble', 'icon_basename', $sut );
+		$this->assert_attribute_same( $types, 'valid_types', $sut );
+		$this->assert_attribute_same( 'comment-bubble', 'icon_basename', $sut );
 	}
 
 	/**

@@ -63,8 +63,8 @@ class Generating_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->invokeMethod( $mock, '__construct', [ $generator, $file_cache, $types ] );
 
-		$this->assertAttributeSame( $generator, 'generator', $mock );
-		$this->assertAttributeSame( $file_cache, 'file_cache', $mock );
+		$this->assert_attribute_same( $generator, 'generator', $mock );
+		$this->assert_attribute_same( $file_cache, 'file_cache', $mock );
 	}
 
 	/**

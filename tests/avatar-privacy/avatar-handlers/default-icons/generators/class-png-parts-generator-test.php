@@ -189,9 +189,9 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 			[ $fake_path, $part_types, $size, $editor, $png, $numbers, $transients ]
 		);
 
-		$this->assertAttributeSame( $size, 'size', $mock );
-		$this->assertAttributeSame( $editor, 'editor', $mock );
-		$this->assertAttributeSame( $png, 'png', $mock );
+		$this->assert_attribute_same( $size, 'size', $mock );
+		$this->assert_attribute_same( $editor, 'editor', $mock );
+		$this->assert_attribute_same( $png, 'png', $mock );
 	}
 
 	/**

@@ -91,8 +91,8 @@ class Abstract_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->invokeMethod( $mock, '__construct', [ $valid_types ] );
 
-		$this->assertAttributeSame( \array_flip( $valid_types ), 'valid_types', $mock );
-		$this->assertAttributeSame( 'foobar', 'primary_type', $mock );
+		$this->assert_attribute_same( \array_flip( $valid_types ), 'valid_types', $mock );
+		$this->assert_attribute_same( 'foobar', 'primary_type', $mock );
 	}
 
 	/**

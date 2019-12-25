@@ -131,10 +131,10 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->invokeMethod( $mock, '__construct', [ $file_cache, $upload, $core, $images ] );
 
-		$this->assertAttributeSame( $file_cache, 'file_cache', $mock );
-		$this->assertAttributeSame( $upload, 'upload', $mock );
-		$this->assertAttributeSame( $core, 'core', $mock );
-		$this->assertAttributeSame( $images, 'images', $mock );
+		$this->assert_attribute_same( $file_cache, 'file_cache', $mock );
+		$this->assert_attribute_same( $upload, 'upload', $mock );
+		$this->assert_attribute_same( $core, 'core', $mock );
+		$this->assert_attribute_same( $images, 'images', $mock );
 	}
 
 	/**

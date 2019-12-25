@@ -115,9 +115,9 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $url, $mocked_stream_class );
 
-		$this->assertAttributeSame( $url, 'stream_url', $mock );
-		$this->assertAttributeSame( $mocked_stream_class, 'stream_class', $mock );
-		$this->assertAttributeSame( 'stream/with/path', 'handle', $mock );
+		$this->assert_attribute_same( $url, 'stream_url', $mock );
+		$this->assert_attribute_same( $mocked_stream_class, 'stream_class', $mock );
+		$this->assert_attribute_same( 'stream/with/path', 'handle', $mock );
 	}
 
 

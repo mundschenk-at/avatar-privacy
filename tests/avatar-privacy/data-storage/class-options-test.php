@@ -71,7 +71,7 @@ class Options_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$result = new Options();
 
-		$this->assertAttributeSame( Options::PREFIX, 'prefix', $result );
+		$this->assert_attribute_same( Options::PREFIX, 'prefix', $result );
 	}
 
 	/**

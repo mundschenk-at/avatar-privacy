@@ -163,13 +163,13 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 			$this->multisite
 		);
 
-		$this->assertAttributeSame( $this->core, 'core', $mock );
-		$this->assertAttributeSame( $this->transients, 'transients', $mock );
-		$this->assertAttributeSame( $this->site_transients, 'site_transients', $mock );
-		$this->assertAttributeSame( $this->options, 'options', $mock );
-		$this->assertAttributeSame( $this->network_options, 'network_options', $mock );
-		$this->assertAttributeSame( $this->database, 'database', $mock );
-		$this->assertAttributeSame( $this->multisite, 'multisite', $mock );
+		$this->assert_attribute_same( $this->core, 'core', $mock );
+		$this->assert_attribute_same( $this->transients, 'transients', $mock );
+		$this->assert_attribute_same( $this->site_transients, 'site_transients', $mock );
+		$this->assert_attribute_same( $this->options, 'options', $mock );
+		$this->assert_attribute_same( $this->network_options, 'network_options', $mock );
+		$this->assert_attribute_same( $this->database, 'database', $mock );
+		$this->assert_attribute_same( $this->multisite, 'multisite', $mock );
 	}
 
 	/**

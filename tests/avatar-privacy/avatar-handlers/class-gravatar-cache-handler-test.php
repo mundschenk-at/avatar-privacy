@@ -141,10 +141,10 @@ class Gravatar_Cache_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $core, $options, $file_cache, $gravatar );
 
-		$this->assertAttributeSame( $core, 'core', $mock );
-		$this->assertAttributeSame( $options, 'options', $mock );
-		$this->assertAttributeSame( $file_cache, 'file_cache', $mock );
-		$this->assertAttributeSame( $gravatar, 'gravatar', $mock );
+		$this->assert_attribute_same( $core, 'core', $mock );
+		$this->assert_attribute_same( $options, 'options', $mock );
+		$this->assert_attribute_same( $file_cache, 'file_cache', $mock );
+		$this->assert_attribute_same( $gravatar, 'gravatar', $mock );
 	}
 
 	/**

@@ -141,7 +141,7 @@ class Robohash_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->invokeMethod( $mock, '__construct', [ $number_generator, $transients ] );
 
 		// An attribute of the Parts_Generator superclass.
-		$this->assertAttributeSame( $transients, 'site_transients', $mock );
+		$this->assert_attribute_same( $transients, 'site_transients', $mock );
 	}
 
 	/**

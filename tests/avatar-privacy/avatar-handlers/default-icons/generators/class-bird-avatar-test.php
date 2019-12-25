@@ -85,7 +85,7 @@ class Bird_Avatar_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->invokeMethod( $mock, '__construct', [ $editor, $png, $number_generator, $transients ] );
 
 		// An attribute of the PNG_Parts_Generator superclass.
-		$this->assertAttributeSame( $editor, 'editor', $mock );
+		$this->assert_attribute_same( $editor, 'editor', $mock );
 	}
 
 	/**

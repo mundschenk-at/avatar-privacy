@@ -114,7 +114,7 @@ class Command_Line_Interface_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $commands );
 
-		$this->assertAttributeSame( $commands, 'commands', $mock );
+		$this->assert_attribute_same( $commands, 'commands', $mock );
 	}
 
 

@@ -130,9 +130,9 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $core, $file_cache, $images );
 
-		$this->assertAttributeSame( $core, 'core', $mock );
-		$this->assertAttributeSame( $file_cache, 'file_cache', $mock );
-		$this->assertAttributeSame( $images, 'images', $mock );
+		$this->assert_attribute_same( $core, 'core', $mock );
+		$this->assert_attribute_same( $file_cache, 'file_cache', $mock );
+		$this->assert_attribute_same( $images, 'images', $mock );
 	}
 
 	/**

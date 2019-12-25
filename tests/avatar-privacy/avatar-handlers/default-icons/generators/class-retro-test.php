@@ -110,8 +110,8 @@ class Retro_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->invokeMethod( $mock, '__construct', [ $identicon, $number_generator ] );
 
-		$this->assertAttributeSame( $identicon, 'identicon', $mock );
-		$this->assertAttributeSame( $number_generator, 'number_generator', $mock );
+		$this->assert_attribute_same( $identicon, 'identicon', $mock );
+		$this->assert_attribute_same( $number_generator, 'number_generator', $mock );
 	}
 
 	/**

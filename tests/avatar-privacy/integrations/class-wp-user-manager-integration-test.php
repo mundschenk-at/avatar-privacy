@@ -90,7 +90,7 @@ class WP_User_Manager_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $this->upload );
 
-		$this->assertAttributeSame( $this->upload, 'upload', $mock );
+		$this->assert_attribute_same( $this->upload, 'upload', $mock );
 	}
 
 	/**
@@ -158,7 +158,7 @@ class WP_User_Manager_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertSame( $save, $this->sut->maybe_mark_user_avater_for_cache_flushing( $save, $value, $field ) );
 
-		$this->assertAttributeSame( true, 'flush_cache', $this->sut );
+		$this->assert_attribute_same( true, 'flush_cache', $this->sut );
 	}
 
 	/**
@@ -175,7 +175,7 @@ class WP_User_Manager_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertSame( $save, $this->sut->maybe_mark_user_avater_for_cache_flushing( $save, $value, $field ) );
 
-		$this->assertAttributeSame( false, 'flush_cache', $this->sut );
+		$this->assert_attribute_same( false, 'flush_cache', $this->sut );
 	}
 
 	/**

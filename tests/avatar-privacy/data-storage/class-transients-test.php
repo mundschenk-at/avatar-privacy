@@ -66,6 +66,6 @@ class Transients_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = new Transients();
 
-		$this->assertAttributeSame( Transients::PREFIX, 'prefix', $result );
+		$this->assert_attribute_same( Transients::PREFIX, 'prefix', $result );
 	}
 }

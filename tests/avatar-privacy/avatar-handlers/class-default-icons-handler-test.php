@@ -150,8 +150,8 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $file_cache, $icon_providers );
 
-		$this->assertAttributeSame( $file_cache, 'file_cache', $mock );
-		$this->assertAttributeSame( $icon_providers, 'icon_providers', $mock );
+		$this->assert_attribute_same( $file_cache, 'file_cache', $mock );
+		$this->assert_attribute_same( $icon_providers, 'icon_providers', $mock );
 	}
 
 	/**

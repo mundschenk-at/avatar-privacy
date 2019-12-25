@@ -194,7 +194,7 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Check.
 		$this->assertSame( 'and', $this->sut->stream_read( $bytes_to_read ) );
-		$this->assertAttributeSame( $position + $bytes_to_read, 'position', $this->sut );
+		$this->assert_attribute_same( $position + $bytes_to_read, 'position', $this->sut );
 	}
 
 	/**
@@ -220,7 +220,7 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Check.
 		$this->assertFalse( $this->sut->stream_read( $bytes_to_read ) );
-		$this->assertAttributeSame( $position, 'position', $this->sut );
+		$this->assert_attribute_same( $position, 'position', $this->sut );
 	}
 
 	/**
@@ -249,8 +249,8 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Check.
 		$this->assertSame( $length, $this->sut->stream_write( $new_data ) );
-		$this->assertAttributeSame( $position + $length, 'position', $this->sut );
-		$this->assertAttributeSame( 'a long xxx tedious string that is our stream', 'data', $this->sut );
+		$this->assert_attribute_same( $position + $length, 'position', $this->sut );
+		$this->assert_attribute_same( 'a long xxx tedious string that is our stream', 'data', $this->sut );
 	}
 
 	/**
@@ -279,8 +279,8 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Check.
 		$this->assertSame( 0, $this->sut->stream_write( $new_data ) );
-		$this->assertAttributeSame( $position, 'position', $this->sut );
-		$this->assertAttributeSame( $data, 'data', $this->sut );
+		$this->assert_attribute_same( $position, 'position', $this->sut );
+		$this->assert_attribute_same( $data, 'data', $this->sut );
 	}
 
 	/**
@@ -399,7 +399,7 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		}
 
 		$this->assertSame( $result, $this->sut->stream_seek( $offset, $whence ) );
-		$this->assertAttributeSame( $new_position, 'position', $this->sut );
+		$this->assert_attribute_same( $new_position, 'position', $this->sut );
 	}
 
 	/**
@@ -466,7 +466,7 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->set_value( $this->sut, 'data', $data );
 
 		$this->assertTrue( $this->sut->stream_truncate( $length ) );
-		$this->assertAttributeSame( $result, 'data', $this->sut );
+		$this->assert_attribute_same( $result, 'data', $this->sut );
 	}
 
 	/**

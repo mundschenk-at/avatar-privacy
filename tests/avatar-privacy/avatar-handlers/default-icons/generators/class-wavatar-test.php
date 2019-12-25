@@ -139,7 +139,7 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->invokeMethod( $mock, '__construct', [ $editor, $png, $number_generator, $transients ] );
 
 		// An attribute of the PNG_Parts_Generator superclass.
-		$this->assertAttributeSame( $editor, 'editor', $mock );
+		$this->assert_attribute_same( $editor, 'editor', $mock );
 	}
 
 	/**
@@ -269,7 +269,7 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertSame( $data, $this->sut->build( $seed, $size ) );
 
-		$this->assertAttributeSame( $seed, 'current_seed', $this->sut );
+		$this->assert_attribute_same( $seed, 'current_seed', $this->sut );
 
 		return $this->sut;
 	}

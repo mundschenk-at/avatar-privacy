@@ -134,7 +134,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 
 		$mock->__construct( $this->core, $this->file_cache, $this->options );
 
-		$this->assertAttributeSame( $this->options, 'options', $mock );
+		$this->assert_attribute_same( $this->options, 'options', $mock );
 	}
 
 	/**

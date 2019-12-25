@@ -87,7 +87,7 @@ class BuddyPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $this->upload );
 
-		$this->assertAttributeSame( $this->upload, 'upload', $mock );
+		$this->assert_attribute_same( $this->upload, 'upload', $mock );
 	}
 
 	/**

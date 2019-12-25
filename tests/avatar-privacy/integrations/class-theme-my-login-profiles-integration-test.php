@@ -88,7 +88,7 @@ class Theme_My_Login_Profiles_Integration_Test extends \Avatar_Privacy\Tests\Tes
 
 		$mock->__construct( $this->form );
 
-		$this->assertAttributeSame( $this->form, 'form', $mock );
+		$this->assert_attribute_same( $this->form, 'form', $mock );
 	}
 
 	/**

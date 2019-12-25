@@ -97,7 +97,7 @@ class Integrations_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $this->integrations );
 
-		$this->assertAttributeSame( $this->integrations, 'integrations', $mock );
+		$this->assert_attribute_same( $this->integrations, 'integrations', $mock );
 	}
 
 	/**

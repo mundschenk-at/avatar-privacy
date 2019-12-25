@@ -103,7 +103,7 @@ class Shortcodes_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $this->form );
 
-		$this->assertAttributeSame( $this->form, 'form', $mock );
+		$this->assert_attribute_same( $this->form, 'form', $mock );
 	}
 
 	/**

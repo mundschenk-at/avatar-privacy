@@ -107,8 +107,8 @@ class Database_Command_Test extends TestCase {
 
 		$mock->__construct( $this->core, $this->database );
 
-		$this->assertAttributeSame( $this->core, 'core', $mock );
-		$this->assertAttributeSame( $this->database, 'db', $mock );
+		$this->assert_attribute_same( $this->core, 'core', $mock );
+		$this->assert_attribute_same( $this->database, 'db', $mock );
 	}
 
 	/**

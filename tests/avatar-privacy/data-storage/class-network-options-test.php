@@ -73,7 +73,7 @@ class Network_Options_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = new Network_Options();
 
-		$this->assertAttributeSame( Network_Options::PREFIX, 'prefix', $result );
+		$this->assert_attribute_same( Network_Options::PREFIX, 'prefix', $result );
 	}
 
 	/**

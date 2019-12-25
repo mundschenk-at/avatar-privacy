@@ -111,7 +111,7 @@ class BBPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $form );
 
-		$this->assertAttributeSame( $form, 'form', $mock );
+		$this->assert_attribute_same( $form, 'form', $mock );
 	}
 
 	/**

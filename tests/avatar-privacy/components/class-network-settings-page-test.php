@@ -147,10 +147,10 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 			$this->multisite
 		);
 
-		$this->assertAttributeSame( $this->core, 'core', $mock );
-		$this->assertAttributeSame( $this->network_options, 'network_options', $mock );
-		$this->assertAttributeSame( $this->settings, 'settings', $mock );
-		$this->assertAttributeSame( $this->multisite, 'multisite', $mock );
+		$this->assert_attribute_same( $this->core, 'core', $mock );
+		$this->assert_attribute_same( $this->network_options, 'network_options', $mock );
+		$this->assert_attribute_same( $this->settings, 'settings', $mock );
+		$this->assert_attribute_same( $this->multisite, 'multisite', $mock );
 	}
 
 

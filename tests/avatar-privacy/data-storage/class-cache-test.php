@@ -66,7 +66,7 @@ class Cache_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = new Cache();
 
-		$this->assertAttributeSame( Cache::PREFIX, 'prefix', $result );
-		$this->assertAttributeSame( Cache::GROUP, 'group', $result );
+		$this->assert_attribute_same( Cache::PREFIX, 'prefix', $result );
+		$this->assert_attribute_same( Cache::GROUP, 'group', $result );
 	}
 }

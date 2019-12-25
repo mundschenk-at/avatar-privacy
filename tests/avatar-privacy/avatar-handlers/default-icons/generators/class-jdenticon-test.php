@@ -88,7 +88,7 @@ class Jdenticon_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->invokeMethod( $mock, '__construct', [ $identicon ] );
 
-		$this->assertAttributeSame( $identicon, 'identicon', $mock );
+		$this->assert_attribute_same( $identicon, 'identicon', $mock );
 	}
 
 	/**

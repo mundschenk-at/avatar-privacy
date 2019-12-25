@@ -104,9 +104,9 @@ class Gravatar_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $this->transients, $this->site_transients, $this->editor );
 
-		$this->assertAttributeSame( $this->transients, 'transients', $mock );
-		$this->assertAttributeSame( $this->site_transients, 'site_transients', $mock );
-		$this->assertAttributeSame( $this->editor, 'editor', $mock );
+		$this->assert_attribute_same( $this->transients, 'transients', $mock );
+		$this->assert_attribute_same( $this->site_transients, 'site_transients', $mock );
+		$this->assert_attribute_same( $this->editor, 'editor', $mock );
 	}
 
 	/**

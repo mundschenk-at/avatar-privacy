@@ -116,10 +116,10 @@ class Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->invokeMethod( $mock, '__construct', [ $fake_path, $part_types, $rng, $transients ] );
 
-		$this->assertAttributeSame( $fake_path, 'parts_dir', $mock );
-		$this->assertAttributeSame( $part_types, 'part_types', $mock );
-		$this->assertAttributeSame( $rng, 'number_generator', $mock );
-		$this->assertAttributeSame( $transients, 'site_transients', $mock );
+		$this->assert_attribute_same( $fake_path, 'parts_dir', $mock );
+		$this->assert_attribute_same( $part_types, 'part_types', $mock );
+		$this->assert_attribute_same( $rng, 'number_generator', $mock );
+		$this->assert_attribute_same( $transients, 'site_transients', $mock );
 	}
 
 	/**

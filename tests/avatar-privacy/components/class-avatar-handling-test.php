@@ -126,9 +126,9 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $this->core, $this->options, $this->gravatar );
 
-		$this->assertAttributeSame( $this->core, 'core', $mock );
-		$this->assertAttributeSame( $this->options, 'options', $mock );
-		$this->assertAttributeSame( $this->gravatar, 'gravatar', $mock );
+		$this->assert_attribute_same( $this->core, 'core', $mock );
+		$this->assert_attribute_same( $this->options, 'options', $mock );
+		$this->assert_attribute_same( $this->gravatar, 'gravatar', $mock );
 	}
 
 	/**

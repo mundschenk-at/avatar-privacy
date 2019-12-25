@@ -118,8 +118,8 @@ class WPDiscuz_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $core, $comments );
 
-		$this->assertAttributeSame( $core, 'core', $mock );
-		$this->assertAttributeSame( $comments, 'comments', $mock );
+		$this->assert_attribute_same( $core, 'core', $mock );
+		$this->assert_attribute_same( $comments, 'comments', $mock );
 	}
 
 	/**

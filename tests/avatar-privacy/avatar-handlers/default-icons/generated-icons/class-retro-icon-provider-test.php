@@ -62,9 +62,9 @@ class Retro_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->invokeMethod( $sut, '__construct', [ $generator, $file_cache ] );
 
-		$this->assertAttributeSame( $generator, 'generator', $sut );
-		$this->assertAttributeSame( $file_cache, 'file_cache', $sut );
-		$this->assertAttributeSame( [ 'retro' => 0 ], 'valid_types', $sut );
+		$this->assert_attribute_same( $generator, 'generator', $sut );
+		$this->assert_attribute_same( $file_cache, 'file_cache', $sut );
+		$this->assert_attribute_same( [ 'retro' => 0 ], 'valid_types', $sut );
 	}
 
 	/**

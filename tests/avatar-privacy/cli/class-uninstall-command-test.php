@@ -110,9 +110,9 @@ class Uninstall_Command_Test extends TestCase {
 
 		$mock->__construct( $this->setup, $this->uninstall, $this->database );
 
-		$this->assertAttributeSame( $this->setup, 'setup', $mock );
-		$this->assertAttributeSame( $this->uninstall, 'uninstall', $mock );
-		$this->assertAttributeSame( $this->database, 'db', $mock );
+		$this->assert_attribute_same( $this->setup, 'setup', $mock );
+		$this->assert_attribute_same( $this->uninstall, 'uninstall', $mock );
+		$this->assert_attribute_same( $this->database, 'db', $mock );
 	}
 
 	/**

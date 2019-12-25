@@ -131,10 +131,10 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $this->core, $this->options, $this->upload, $this->settings );
 
-		$this->assertAttributeSame( $this->core, 'core', $mock );
-		$this->assertAttributeSame( $this->options, 'options', $mock );
-		$this->assertAttributeSame( $this->upload, 'upload', $mock );
-		$this->assertAttributeSame( $this->settings, 'settings', $mock );
+		$this->assert_attribute_same( $this->core, 'core', $mock );
+		$this->assert_attribute_same( $this->options, 'options', $mock );
+		$this->assert_attribute_same( $this->upload, 'upload', $mock );
+		$this->assert_attribute_same( $this->settings, 'settings', $mock );
 	}
 
 
@@ -177,7 +177,7 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_settings_head() {
 		$this->assertNull( $this->sut->settings_head() );
-		$this->assertAttributeSame( true, 'buffering', $this->sut );
+		$this->assert_attribute_same( true, 'buffering', $this->sut );
 
 		// Clean up.
 		\ob_end_flush();
@@ -198,7 +198,7 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->expectOutputString( 'AVATARS_DISABLED_SCRIPT' );
 
 		$this->assertNull( $this->sut->settings_footer() );
-		$this->assertAttributeSame( false, 'buffering', $this->sut );
+		$this->assert_attribute_same( false, 'buffering', $this->sut );
 	}
 
 	/**

@@ -155,11 +155,11 @@ class File_Upload_Input_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Let's go!
 		$mock->__construct( $options, 'my_options_key', 'my_control_id', $args );
 
-		$this->assertAttributeSame( $options, 'options', $mock );
-		$this->assertAttributeSame( 'my_help_text', 'help_text', $mock );
-		$this->assertAttributeSame( 'my_erase_checkbox_id', 'erase_checkbox_id', $mock );
-		$this->assertAttributeSame( 'my_upload_action', 'action', $mock );
-		$this->assertAttributeSame( 'my_upload_nonce', 'nonce', $mock );
+		$this->assert_attribute_same( $options, 'options', $mock );
+		$this->assert_attribute_same( 'my_help_text', 'help_text', $mock );
+		$this->assert_attribute_same( 'my_erase_checkbox_id', 'erase_checkbox_id', $mock );
+		$this->assert_attribute_same( 'my_upload_action', 'action', $mock );
+		$this->assert_attribute_same( 'my_upload_nonce', 'nonce', $mock );
 	}
 
 	/**
@@ -202,11 +202,11 @@ class File_Upload_Input_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Let's go!
 		$mock->__construct( $options, 'my_options_key', 'my_control_id', $args );
 
-		$this->assertAttributeSame( $options, 'options', $mock );
-		$this->assertAttributeSame( 'help-text-no-file', 'help_text', $mock );
-		$this->assertAttributeSame( 'my_erase_checkbox_id', 'erase_checkbox_id', $mock );
-		$this->assertAttributeSame( 'my_upload_action', 'action', $mock );
-		$this->assertAttributeSame( 'my_upload_nonce', 'nonce', $mock );
+		$this->assert_attribute_same( $options, 'options', $mock );
+		$this->assert_attribute_same( 'help-text-no-file', 'help_text', $mock );
+		$this->assert_attribute_same( 'my_erase_checkbox_id', 'erase_checkbox_id', $mock );
+		$this->assert_attribute_same( 'my_upload_action', 'action', $mock );
+		$this->assert_attribute_same( 'my_upload_nonce', 'nonce', $mock );
 	}
 
 	/**
@@ -248,11 +248,11 @@ class File_Upload_Input_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Let's go!
 		$mock->__construct( $options, 'my_options_key', 'my_control_id', $args );
 
-		$this->assertAttributeSame( $options, 'options', $mock );
-		$this->assertAttributeSame( 'help-text-not-enough-capabilities', 'help_text', $mock );
-		$this->assertAttributeSame( 'my_erase_checkbox_id', 'erase_checkbox_id', $mock );
-		$this->assertAttributeSame( 'my_upload_action', 'action', $mock );
-		$this->assertAttributeSame( 'my_upload_nonce', 'nonce', $mock );
+		$this->assert_attribute_same( $options, 'options', $mock );
+		$this->assert_attribute_same( 'help-text-not-enough-capabilities', 'help_text', $mock );
+		$this->assert_attribute_same( 'my_erase_checkbox_id', 'erase_checkbox_id', $mock );
+		$this->assert_attribute_same( 'my_upload_action', 'action', $mock );
+		$this->assert_attribute_same( 'my_upload_nonce', 'nonce', $mock );
 	}
 
 	/**

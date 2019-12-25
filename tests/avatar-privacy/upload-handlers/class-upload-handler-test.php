@@ -119,8 +119,8 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( 'uploads', $this->core, $this->file_cache );
 
-		$this->assertAttributeSame( $this->core, 'core', $mock );
-		$this->assertAttributeSame( $this->file_cache, 'file_cache', $mock );
+		$this->assert_attribute_same( $this->core, 'core', $mock );
+		$this->assert_attribute_same( $this->file_cache, 'file_cache', $mock );
 	}
 
 	/**

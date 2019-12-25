@@ -173,10 +173,10 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 			$this->default_icons
 		);
 
-		$this->assertAttributeSame( $this->site_transients, 'site_transients', $mock );
-		$this->assertAttributeSame( $this->options, 'options', $mock );
-		$this->assertAttributeSame( $this->file_cache, 'file_cache', $mock );
-		$this->assertAttributeSame(
+		$this->assert_attribute_same( $this->site_transients, 'site_transients', $mock );
+		$this->assert_attribute_same( $this->options, 'options', $mock );
+		$this->assert_attribute_same( $this->file_cache, 'file_cache', $mock );
+		$this->assert_attribute_same(
 			[
 				Avatar_Handler::GRAVATAR       => $this->gravatar,
 				Avatar_Handler::USER_AVATAR    => $this->user_avatar,

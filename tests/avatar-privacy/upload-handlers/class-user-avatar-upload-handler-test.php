@@ -126,7 +126,7 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $this->core, $this->file_cache );
 
-		$this->assertAttributeSame( User_Avatar_Upload_Handler::UPLOAD_DIR, 'upload_dir', $mock );
+		$this->assert_attribute_same( User_Avatar_Upload_Handler::UPLOAD_DIR, 'upload_dir', $mock );
 	}
 
 	/**

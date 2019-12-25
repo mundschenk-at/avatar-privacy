@@ -111,8 +111,8 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 		$mock = m::mock( Database::class )->makePartial();
 		$mock->__construct( $this->core, $this->network_options );
 
-		$this->assertAttributeSame( $this->core, 'core', $mock );
-		$this->assertAttributeSame( $this->network_options, 'network_options', $mock );
+		$this->assert_attribute_same( $this->core, 'core', $mock );
+		$this->assert_attribute_same( $this->network_options, 'network_options', $mock );
 		$this->assertAttributeInternalType( 'array', 'placeholder', $mock );
 	}
 
@@ -340,7 +340,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertAttributeContains( Database::TABLE_BASENAME, 'tables', $db );
 		$this->assertAttributeNotContains( Database::TABLE_BASENAME, 'ms_global_tables', $db );
-		$this->assertAttributeSame( $table_name, Database::TABLE_BASENAME, $db );
+		$this->assert_attribute_same( $table_name, Database::TABLE_BASENAME, $db );
 	}
 
 	/**
@@ -363,7 +363,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertAttributeContains( Database::TABLE_BASENAME, 'tables', $db );
 		$this->assertAttributeNotContains( Database::TABLE_BASENAME, 'ms_global_tables', $db );
-		$this->assertAttributeSame( $table_name, Database::TABLE_BASENAME, $db );
+		$this->assert_attribute_same( $table_name, Database::TABLE_BASENAME, $db );
 	}
 
 	/**
@@ -386,7 +386,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertAttributeNotContains( Database::TABLE_BASENAME, 'tables', $db );
 		$this->assertAttributeContains( Database::TABLE_BASENAME, 'ms_global_tables', $db );
-		$this->assertAttributeSame( $table_name, Database::TABLE_BASENAME, $db );
+		$this->assert_attribute_same( $table_name, Database::TABLE_BASENAME, $db );
 	}
 
 	/**

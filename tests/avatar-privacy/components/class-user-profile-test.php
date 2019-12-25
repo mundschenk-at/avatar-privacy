@@ -85,7 +85,7 @@ class User_Profile_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $this->form );
 
-		$this->assertAttributeSame( $this->form, 'form', $mock );
+		$this->assert_attribute_same( $this->form, 'form', $mock );
 	}
 
 
@@ -144,7 +144,7 @@ class User_Profile_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_admin_head() {
 		$this->assertNull( $this->sut->admin_head() );
-		$this->assertAttributeSame( true, 'buffering', $this->sut );
+		$this->assert_attribute_same( true, 'buffering', $this->sut );
 
 		// Clean up.
 		\ob_end_flush();
@@ -161,7 +161,7 @@ class User_Profile_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->set_value( $this->sut, 'buffering', true );
 
 		$this->assertNull( $this->sut->admin_footer() );
-		$this->assertAttributeSame( false, 'buffering', $this->sut );
+		$this->assert_attribute_same( false, 'buffering', $this->sut );
 	}
 
 	/**
