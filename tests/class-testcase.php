@@ -213,32 +213,28 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase {
 	/**
 	 * Reports an error identified by $message if $attribute in $object does not have the $key.
 	 *
-	 * @param string $key       The array key.
-	 * @param string $attribute The attribute name.
-	 * @param object $object    The object.
-	 * @param string $message   Optional. Default ''.
-	 */
-	protected function assertAttributeArrayHasKey( $key, $attribute, $object, $message = '' ) {
-		$ref  = new \ReflectionClass( get_class( $object ) );
-		$prop = $ref->getProperty( $attribute );
-		$prop->setAccessible( true );
-
-		return $this->assertArrayHasKey( $key, $prop->getValue( $object ), $message );
-	}
-
-	/**
-	 * Reports an error identified by $message if $attribute in $object does have the $key.
+	 * @since 2.3.3 Renamed to `assert_attribute_array_has_key`.
 	 *
 	 * @param string $key       The array key.
 	 * @param string $attribute The attribute name.
 	 * @param object $object    The object.
 	 * @param string $message   Optional. Default ''.
 	 */
-	protected function assertAttributeArrayNotHasKey( $key, $attribute, $object, $message = '' ) {
-		$ref  = new \ReflectionClass( get_class( $object ) );
-		$prop = $ref->getProperty( $attribute );
-		$prop->setAccessible( true );
+	protected function assert_attribute_array_has_key( $key, $attribute, $object, $message = '' ) {
+		return $this->assertArrayHasKey( $key, $this->get_value( $object, $attribute ), $message );
+	}
 
-		return $this->assertArrayNotHasKey( $key, $prop->getValue( $object ), $message );
+	/**
+	 * Reports an error identified by $message if $attribute in $object does have the $key.
+	 *
+	 * @since 2.3.3 Renamed to `assert_attribute_array_not_has_key`.
+	 *
+	 * @param string $key       The array key.
+	 * @param string $attribute The attribute name.
+	 * @param object $object    The object.
+	 * @param string $message   Optional. Default ''.
+	 */
+	protected function assert_attribute_array_not_has_key( $key, $attribute, $object, $message = '' ) {
+		return $this->assertArrayNotHasKey( $key, $this->get_value( $object, $attribute ), $message );
 	}
 }
