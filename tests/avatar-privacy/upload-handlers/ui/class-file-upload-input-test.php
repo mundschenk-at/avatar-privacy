@@ -110,10 +110,10 @@ class File_Upload_Input_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->options = m::mock( Options::class );
 
 		// Set necessary values manually.
-		$this->setValue( $this->sut, 'options', $this->options );
-		$this->setValue( $this->sut, 'erase_checkbox_id', 'erase-checkbox-id', File_Upload_Input::class );
-		$this->setValue( $this->sut, 'action', 'action-name', File_Upload_Input::class );
-		$this->setValue( $this->sut, 'nonce', 'nonce-name', File_Upload_Input::class );
+		$this->set_value( $this->sut, 'options', $this->options );
+		$this->set_value( $this->sut, 'erase_checkbox_id', 'erase-checkbox-id' );
+		$this->set_value( $this->sut, 'action', 'action-name' );
+		$this->set_value( $this->sut, 'nonce', 'nonce-name' );
 	}
 
 	/**

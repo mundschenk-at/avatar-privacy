@@ -418,7 +418,7 @@ class Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::build_parts_array
 	 */
 	public function test_build_parts_array() {
-		$empty_parts  = \array_fill_keys( $this->getValue( $this->sut, 'part_types' ), [] );
+		$empty_parts  = \array_fill_keys( $this->get_value( $this->sut, 'part_types' ), [] );
 		$parts        = [ 'unsorted' => 'parts' ];
 		$sorted_parts = [ 'sorted' => 'parts' ];
 
@@ -435,7 +435,7 @@ class Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::build_parts_array
 	 */
 	public function test_build_parts_array_error() {
-		$empty_parts  = \array_fill_keys( $this->getValue( $this->sut, 'part_types' ), [] );
+		$empty_parts  = \array_fill_keys( $this->get_value( $this->sut, 'part_types' ), [] );
 		$parts        = [ 'unsorted' => 'parts' ];
 		$sorted_parts = [ 'sorted' => 'parts' ];
 

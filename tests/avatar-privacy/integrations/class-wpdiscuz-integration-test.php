@@ -236,7 +236,7 @@ class WPDiscuz_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 		$consent  = true;
 		$checkbox = 'cookie_consent_checkbox';
 
-		$this->setValue( $this->sut, 'cookie_consent_name', $checkbox, WPDiscuz_Integration::class );
+		$this->set_value( $this->sut, 'cookie_consent_name', $checkbox );
 
 		Functions\expect( 'wp_get_current_user' )->once()->andReturn( $user );
 
@@ -270,6 +270,6 @@ class WPDiscuz_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 		$form->shouldReceive( 'getFormCustomFields' )->once()->andReturn( $fields );
 
 		$this->assertNull( $this->sut->store_cookie_consent_checkbox( $form ) );
-		$this->assertSame( $checkbox, $this->getValue( $this->sut, 'cookie_consent_name', WPDiscuz_Integration::class ) );
+		$this->assertSame( $checkbox, $this->get_value( $this->sut, 'cookie_consent_name' ) );
 	}
 }

@@ -158,7 +158,7 @@ class User_Profile_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_admin_footer() {
 		// Fake settings_head.
 		\ob_start();
-		$this->setValue( $this->sut, 'buffering', true, User_Profile::class );
+		$this->set_value( $this->sut, 'buffering', true );
 
 		$this->assertNull( $this->sut->admin_footer() );
 		$this->assertAttributeSame( false, 'buffering', $this->sut );
@@ -187,7 +187,7 @@ class User_Profile_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assertSame( $content, $this->sut->replace_profile_picture_section( $content ) );
 
 		// Set `markup`.
-		$this->setValue( $this->sut, 'markup', 'FOOBAR', User_Profile::class );
+		$this->set_value( $this->sut, 'markup', 'FOOBAR' );
 
 		// Content should be unchanged because the pattern does not match.
 		$content = 'some content with <tr class="foobar">foobar</tr>';
@@ -212,6 +212,6 @@ class User_Profile_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->form->shouldReceive( 'get_allow_anonymous_checkbox' )->once()->with( $user->ID )->andReturn( 'BAZ' );
 
 		$this->assertNull( $this->sut->add_user_profile_fields( $user ) );
-		$this->assertSame( 'FOOBARBAZ', $this->getValue( $this->sut, 'markup', User_Profile::class ) );
+		$this->assertSame( 'FOOBARBAZ', $this->get_value( $this->sut, 'markup' ) );
 	}
 }

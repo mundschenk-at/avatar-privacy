@@ -382,7 +382,7 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Set up instance state.
 		$stream_matcher = m::pattern( '#^' . \preg_quote( $stream, '/[\w/]+$#' ) . '#' );
-		$this->setValue( $this->sut, 'stream_url', $stream, Editor::class );
+		$this->set_value( $this->sut, 'stream_url', $stream );
 
 		Functions\expect( 'wp_get_image_mime' )->once()->with( $stream_matcher )->andReturn( $mime_type );
 		$this->sut->shouldReceive( 'delete_stream' )->once()->with( $stream_matcher );

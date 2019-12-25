@@ -132,7 +132,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut = m::mock( Monster_ID::class, [ $editor, $this->png, $this->number_generator, $transients ] )->makePartial()->shouldAllowMockingProtectedMethods();
 
 		// Override necessary properties.
-		$this->setValue( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/monster-id' ) );
+		$this->set_value( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/monster-id' ) );
 	}
 
 	/**

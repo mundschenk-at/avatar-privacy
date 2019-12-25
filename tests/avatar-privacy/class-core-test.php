@@ -270,7 +270,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Prepare state - settings have alreaddy been loaded.
-		$this->setValue( $this->sut, 'settings', $original, \Avatar_Privacy\Core::class );
+		$this->set_value( $this->sut, 'settings', $original );
 
 		$this->options->shouldReceive( 'get' )
 			->never();
@@ -299,7 +299,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Prepare state - settings have alreaddy been loaded.
-		$this->setValue( $this->sut, 'settings', $original, \Avatar_Privacy\Core::class );
+		$this->set_value( $this->sut, 'settings', $original );
 
 		$this->options->shouldReceive( 'get' )
 			->once()
@@ -331,7 +331,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Prepare state - settings have alreaddy been loaded.
-		$this->setValue( $this->sut, 'settings', $original, \Avatar_Privacy\Core::class );
+		$this->set_value( $this->sut, 'settings', $original );
 
 		$this->options->shouldReceive( 'get' )
 			->once()
@@ -364,7 +364,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Prepare state - settings have alreaddy been loaded.
-		$this->setValue( $this->sut, 'settings', $original, \Avatar_Privacy\Core::class );
+		$this->set_value( $this->sut, 'settings', $original );
 
 		$this->options->shouldReceive( 'get' )
 			->once()

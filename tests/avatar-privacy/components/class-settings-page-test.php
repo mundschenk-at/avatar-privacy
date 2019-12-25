@@ -193,7 +193,7 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Fake settings_head.
 		\ob_start();
-		$this->setValue( $this->sut, 'buffering', true, Settings_Page::class );
+		$this->set_value( $this->sut, 'buffering', true );
 
 		$this->expectOutputString( 'AVATARS_DISABLED_SCRIPT' );
 

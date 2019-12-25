@@ -469,7 +469,7 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_unique_filename( $filename, $extension, $result, $user ) {
 		// Set up dummy user ID.
 		$user_id = 666;
-		$this->setValue( $this->sut, 'user_id_being_edited', $user_id, User_Avatar_Upload_Handler::class );
+		$this->set_value( $this->sut, 'user_id_being_edited', $user_id );
 
 		Functions\expect( 'get_user_by' )->once()->with( 'id', $user_id )->andReturn( $user );
 		Functions\expect( 'sanitize_file_name' )->once()->with( m::type( 'string' ) )->andReturnUsing(

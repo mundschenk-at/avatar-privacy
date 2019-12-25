@@ -77,8 +77,8 @@ class Avatar_Privacy_Requirements_Test extends TestCase {
 		$req = m::mock( \Avatar_Privacy_Requirements::class )->makePartial();
 		$req->__construct( 'some_file' );
 
-		$this->assertSame( 'Avatar Privacy', $this->getValue( $req, 'plugin_name', \Mundschenk_WP_Requirements::class ) );
-		$this->assertSame( 'avatar-privacy', $this->getValue( $req, 'textdomain', \Mundschenk_WP_Requirements::class ) );
+		$this->assertSame( 'Avatar Privacy', $this->get_value( $req, 'plugin_name' ) );
+		$this->assertSame( 'avatar-privacy', $this->get_value( $req, 'textdomain' ) );
 		$this->assertSame(
 			[
 				'php'              => '5.6.0',
@@ -87,7 +87,7 @@ class Avatar_Privacy_Requirements_Test extends TestCase {
 				'gd'               => true,
 				'uploads_writable' => true,
 			],
-			$this->getValue( $req, 'install_requirements', \Mundschenk_WP_Requirements::class )
+			$this->get_value( $req, 'install_requirements' )
 		);
 	}
 

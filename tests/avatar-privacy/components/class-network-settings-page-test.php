@@ -217,7 +217,7 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 			$migrate   => m::mock( \Mundschenk\UI\Controls\Submit_Input::class ),
 		];
 		$control_count = \count( $controls );
-		$this->setValue( $this->sut, 'controls', $controls, Network_Settings_Page::class );
+		$this->set_value( $this->sut, 'controls', $controls );
 
 		// Function results.
 		$use_global_table_name = 'prefix_use_global_table';
@@ -278,7 +278,7 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 			'option3' => m::mock( \Mundschenk\UI\Controls\Number_Input::class ),
 		];
 		$control_count = \count( $controls );
-		$this->setValue( $this->sut, 'controls', $controls, Network_Settings_Page::class );
+		$this->set_value( $this->sut, 'controls', $controls );
 
 		// URLs.
 		$network_admin_url              = 'https://network.admin/url/settings.php';
@@ -410,7 +410,7 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Notice already triggered.
 		$triggered = [ $setting_name => true ];
-		$this->setValue( $this->sut, 'triggered_notice', $triggered, Network_Settings_Page::class );
+		$this->set_value( $this->sut, 'triggered_notice', $triggered );
 
 		Functions\expect( 'add_settings_error' )->never();
 

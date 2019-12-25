@@ -157,20 +157,30 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase {
 	/**
 	 * Sets the value of a private/protected property of a class.
 	 *
+	 * @since 2.3.3 Renamed to `set_value`. Parameter `classname` has been removed.
+	 *
 	 * @param object     $object        Instantiated object that we will run method on.
 	 * @param string     $property_name Property to set.
 	 * @param mixed|null $value         The new value.
-	 * @param string     $classname     Optional. The class to use for accessing private properties.
+	 *
+	 * @throws \RuntimeException    The attribute could not be found in the object.
 	 */
-	protected function setValue( $object, $property_name, $value, $classname = '' ) {
-		if ( empty( $classname ) ) {
-			$classname = get_class( $object );
+	protected function set_value( $object, $property_name, $value ) {
+
+		$reflection = new \ReflectionObject( $object );
+		while ( ! empty( $reflection ) ) {
+			try {
+				$property = $reflection->getProperty( $property_name );
+				$property->setAccessible( true );
+				$property->setValue( $object, $value );
+				return;
+			} catch ( \ReflectionException $e ) {
+				// Try again with superclass.
+				$reflection = $reflection->getParentClass();
+			}
 		}
 
-		$reflection = new \ReflectionClass( $classname );
-		$property   = $reflection->getProperty( $property_name );
-		$property->setAccessible( true );
-		$property->setValue( $object, $value );
+		throw new \RuntimeException( "Attribute $property_name not found in object." );
 	}
 
 	/**
@@ -192,22 +202,35 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase {
 	/**
 	 * Retrieves the value of a private/protected property of a class.
 	 *
+	 * @since 2.3.3 Renamed to `get_value`. Parameter `classname` has been removed.
+	 *
 	 * @param object $object        Instantiated object that we will run method on.
 	 * @param string $property_name Property to set.
-	 * @param string $classname     Optional. The class to use for accessing private properties.
 	 *
 	 * @return mixed
+	 *
+	 * @throws \RuntimeException    The attribute could not be found in the object.
 	 */
-	protected function getValue( $object, $property_name, $classname = '' ) {
-		if ( empty( $classname ) ) {
-			$classname = get_class( $object );
+	protected function get_value( $object, $property_name ) {
+
+		$reflection = new \ReflectionObject( $object );
+		while ( ! empty( $reflection ) ) {
+			try {
+				$property = $reflection->getProperty( $property_name );
+				$property->setAccessible( true );
+				$value = $property->getValue( $object );
+				break;
+			} catch ( \ReflectionException $e ) {
+				// Try again with superclass.
+				$reflection = $reflection->getParentClass();
+			}
 		}
 
-		$reflection = new \ReflectionClass( $classname );
-		$property   = $reflection->getProperty( $property_name );
-		$property->setAccessible( true );
+		if ( isset( $value ) ) {
+			return $value;
+		}
 
-		return $property->getValue( $object );
+		throw new \RuntimeException( "Attribute $property_name not found in object." );
 	}
 
 	/**

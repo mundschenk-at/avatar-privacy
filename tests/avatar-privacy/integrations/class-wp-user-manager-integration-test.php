@@ -186,7 +186,7 @@ class WP_User_Manager_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_maybe_flush_cache_after_saving_user_avatar() {
 		$user_id = 42;
 
-		$this->setValue( $this->sut, 'flush_cache', true, WP_User_Manager_Integration::class );
+		$this->set_value( $this->sut, 'flush_cache', true );
 
 		$this->upload->shouldReceive( 'invalidate_user_avatar_cache' )->once()->with( $user_id );
 
@@ -201,7 +201,7 @@ class WP_User_Manager_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_maybe_flush_cache_after_saving_user_avatar_do_not_flush() {
 		$user_id = 42;
 
-		$this->setValue( $this->sut, 'flush_cache', false, WP_User_Manager_Integration::class );
+		$this->set_value( $this->sut, 'flush_cache', false );
 
 		$this->upload->shouldReceive( 'invalidate_user_avatar_cache' )->never();
 

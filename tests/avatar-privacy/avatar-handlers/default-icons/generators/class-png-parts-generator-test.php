@@ -246,7 +246,7 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Override necessary properties.
-		$this->setValue( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/monster-id' ) );
+		$this->set_value( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/monster-id' ) );
 
 		// Run test.
 		$this->assertSame( $result, $this->sut->read_parts_from_filesystem( $parts ) );
@@ -262,7 +262,7 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$parts = \array_fill_keys( [ 'body', 'arms', 'legs', 'mouth' ], [] );
 
 		// Override necessary properties.
-		$this->setValue( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/monster-id-empty' ) );
+		$this->set_value( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/monster-id-empty' ) );
 
 		// Run test.
 		$this->assertSame( $parts, $this->sut->read_parts_from_filesystem( $parts ) );
@@ -438,8 +438,8 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Override the parts directory and types.
-		$this->setValue( $this->sut, 'parts_dir', $this->real_image_path );
-		$this->setValue( $this->sut, 'part_types', $part_types );
+		$this->set_value( $this->sut, 'parts_dir', $this->real_image_path );
+		$this->set_value( $this->sut, 'part_types', $part_types );
 
 		$this->sut->shouldReceive( 'get_parts' )->once()->andReturn( $parts );
 
@@ -477,8 +477,8 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$expected = "'body_1.png' => [ [ 22, 99 ], [ 17, 90 ] ],\n'body_2.png' => [ [ 14, 104 ], [ 16, 89 ] ],\n'arms_S8.png' => [ [ 2, 119 ], [ 18, 98 ] ],\n";
 
 		// Override the parts directory and types.
-		$this->setValue( $this->sut, 'parts_dir', $this->real_image_path );
-		$this->setValue( $this->sut, 'part_types', $part_types );
+		$this->set_value( $this->sut, 'parts_dir', $this->real_image_path );
+		$this->set_value( $this->sut, 'part_types', $part_types );
 
 		$this->sut->shouldReceive( 'get_parts' )->once()->andReturn( $parts );
 

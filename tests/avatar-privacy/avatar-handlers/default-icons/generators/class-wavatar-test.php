@@ -117,8 +117,8 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut = m::mock( Wavatar::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
 		// Override necessary properties as the constructor is never invoked.
-		$this->setValue( $this->sut, 'png', $this->png );
-		$this->setValue( $this->sut, 'number_generator', $this->number_generator );
+		$this->set_value( $this->sut, 'png', $this->png );
+		$this->set_value( $this->sut, 'number_generator', $this->number_generator );
 	}
 
 	/**
