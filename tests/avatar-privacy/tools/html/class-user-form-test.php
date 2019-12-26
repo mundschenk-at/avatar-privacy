@@ -59,9 +59,11 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$filesystem = [
 			'plugin'    => [
@@ -94,10 +96,10 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 		$mock = m::mock( User_Form::class )->makePartial()->shouldAllowMockingProtectedMethods();
 		$mock->__construct( $upload, $use_gravatar, $allow_anonymous, $user_avatar );
 
-		$this->assertAttributeSame( $upload, 'upload', $mock );
-		$this->assertAttributeSame( $use_gravatar, 'use_gravatar', $mock );
-		$this->assertAttributeSame( $allow_anonymous, 'allow_anonymous', $mock );
-		$this->assertAttributeSame( $user_avatar, 'user_avatar', $mock );
+		$this->assert_attribute_same( $upload, 'upload', $mock );
+		$this->assert_attribute_same( $use_gravatar, 'use_gravatar', $mock );
+		$this->assert_attribute_same( $allow_anonymous, 'allow_anonymous', $mock );
+		$this->assert_attribute_same( $user_avatar, 'user_avatar', $mock );
 	}
 
 	/**

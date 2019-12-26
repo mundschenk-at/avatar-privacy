@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -68,9 +68,11 @@ class File_Upload_Input_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		Functions\when( 'wp_parse_args' )->alias(
 			function( $args, $defaults ) {
@@ -108,10 +110,10 @@ class File_Upload_Input_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->options = m::mock( Options::class );
 
 		// Set necessary values manually.
-		$this->setValue( $this->sut, 'options', $this->options );
-		$this->setValue( $this->sut, 'erase_checkbox_id', 'erase-checkbox-id', File_Upload_Input::class );
-		$this->setValue( $this->sut, 'action', 'action-name', File_Upload_Input::class );
-		$this->setValue( $this->sut, 'nonce', 'nonce-name', File_Upload_Input::class );
+		$this->set_value( $this->sut, 'options', $this->options );
+		$this->set_value( $this->sut, 'erase_checkbox_id', 'erase-checkbox-id' );
+		$this->set_value( $this->sut, 'action', 'action-name' );
+		$this->set_value( $this->sut, 'nonce', 'nonce-name' );
 	}
 
 	/**
@@ -153,11 +155,11 @@ class File_Upload_Input_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Let's go!
 		$mock->__construct( $options, 'my_options_key', 'my_control_id', $args );
 
-		$this->assertAttributeSame( $options, 'options', $mock );
-		$this->assertAttributeSame( 'my_help_text', 'help_text', $mock );
-		$this->assertAttributeSame( 'my_erase_checkbox_id', 'erase_checkbox_id', $mock );
-		$this->assertAttributeSame( 'my_upload_action', 'action', $mock );
-		$this->assertAttributeSame( 'my_upload_nonce', 'nonce', $mock );
+		$this->assert_attribute_same( $options, 'options', $mock );
+		$this->assert_attribute_same( 'my_help_text', 'help_text', $mock );
+		$this->assert_attribute_same( 'my_erase_checkbox_id', 'erase_checkbox_id', $mock );
+		$this->assert_attribute_same( 'my_upload_action', 'action', $mock );
+		$this->assert_attribute_same( 'my_upload_nonce', 'nonce', $mock );
 	}
 
 	/**
@@ -200,11 +202,11 @@ class File_Upload_Input_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Let's go!
 		$mock->__construct( $options, 'my_options_key', 'my_control_id', $args );
 
-		$this->assertAttributeSame( $options, 'options', $mock );
-		$this->assertAttributeSame( 'help-text-no-file', 'help_text', $mock );
-		$this->assertAttributeSame( 'my_erase_checkbox_id', 'erase_checkbox_id', $mock );
-		$this->assertAttributeSame( 'my_upload_action', 'action', $mock );
-		$this->assertAttributeSame( 'my_upload_nonce', 'nonce', $mock );
+		$this->assert_attribute_same( $options, 'options', $mock );
+		$this->assert_attribute_same( 'help-text-no-file', 'help_text', $mock );
+		$this->assert_attribute_same( 'my_erase_checkbox_id', 'erase_checkbox_id', $mock );
+		$this->assert_attribute_same( 'my_upload_action', 'action', $mock );
+		$this->assert_attribute_same( 'my_upload_nonce', 'nonce', $mock );
 	}
 
 	/**
@@ -246,11 +248,11 @@ class File_Upload_Input_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Let's go!
 		$mock->__construct( $options, 'my_options_key', 'my_control_id', $args );
 
-		$this->assertAttributeSame( $options, 'options', $mock );
-		$this->assertAttributeSame( 'help-text-not-enough-capabilities', 'help_text', $mock );
-		$this->assertAttributeSame( 'my_erase_checkbox_id', 'erase_checkbox_id', $mock );
-		$this->assertAttributeSame( 'my_upload_action', 'action', $mock );
-		$this->assertAttributeSame( 'my_upload_nonce', 'nonce', $mock );
+		$this->assert_attribute_same( $options, 'options', $mock );
+		$this->assert_attribute_same( 'help-text-not-enough-capabilities', 'help_text', $mock );
+		$this->assert_attribute_same( 'my_erase_checkbox_id', 'erase_checkbox_id', $mock );
+		$this->assert_attribute_same( 'my_upload_action', 'action', $mock );
+		$this->assert_attribute_same( 'my_upload_nonce', 'nonce', $mock );
 	}
 
 	/**

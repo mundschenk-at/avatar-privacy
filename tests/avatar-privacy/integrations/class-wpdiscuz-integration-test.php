@@ -71,9 +71,11 @@ class WPDiscuz_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$filesystem = [
 			'uploads' => [
@@ -116,8 +118,8 @@ class WPDiscuz_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $core, $comments );
 
-		$this->assertAttributeSame( $core, 'core', $mock );
-		$this->assertAttributeSame( $comments, 'comments', $mock );
+		$this->assert_attribute_same( $core, 'core', $mock );
+		$this->assert_attribute_same( $comments, 'comments', $mock );
 	}
 
 	/**
@@ -234,7 +236,7 @@ class WPDiscuz_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 		$consent  = true;
 		$checkbox = 'cookie_consent_checkbox';
 
-		$this->setValue( $this->sut, 'cookie_consent_name', $checkbox, WPDiscuz_Integration::class );
+		$this->set_value( $this->sut, 'cookie_consent_name', $checkbox );
 
 		Functions\expect( 'wp_get_current_user' )->once()->andReturn( $user );
 
@@ -268,6 +270,6 @@ class WPDiscuz_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 		$form->shouldReceive( 'getFormCustomFields' )->once()->andReturn( $fields );
 
 		$this->assertNull( $this->sut->store_cookie_consent_checkbox( $form ) );
-		$this->assertSame( $checkbox, $this->getValue( $this->sut, 'cookie_consent_name', WPDiscuz_Integration::class ) );
+		$this->assertSame( $checkbox, $this->get_value( $this->sut, 'cookie_consent_name' ) );
 	}
 }

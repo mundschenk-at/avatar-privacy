@@ -61,9 +61,11 @@ class Abstract_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		// Helper mocks.
 		$this->valid_types = [
@@ -75,7 +77,7 @@ class Abstract_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut = m::mock( Abstract_Icon_Provider::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
 		// Manually invoke the constructor as it is protected.
-		$this->invokeMethod( $this->sut, '__construct', [ $this->valid_types ] );
+		$this->invoke_method( $this->sut, '__construct', [ $this->valid_types ] );
 	}
 
 	/**
@@ -87,10 +89,10 @@ class Abstract_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		$mock        = m::mock( Abstract_Icon_Provider::class )->makePartial()->shouldAllowMockingProtectedMethods();
 		$valid_types = [ 'foobar', 'barfoo', 'rhabarber' ];
 
-		$this->invokeMethod( $mock, '__construct', [ $valid_types ] );
+		$this->invoke_method( $mock, '__construct', [ $valid_types ] );
 
-		$this->assertAttributeSame( \array_flip( $valid_types ), 'valid_types', $mock );
-		$this->assertAttributeSame( 'foobar', 'primary_type', $mock );
+		$this->assert_attribute_same( \array_flip( $valid_types ), 'valid_types', $mock );
+		$this->assert_attribute_same( 'foobar', 'primary_type', $mock );
 	}
 
 	/**

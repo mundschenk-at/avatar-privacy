@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -89,9 +89,11 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$filesystem = [
 			'plugin'    => [
@@ -129,10 +131,10 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $this->core, $this->options, $this->upload, $this->settings );
 
-		$this->assertAttributeSame( $this->core, 'core', $mock );
-		$this->assertAttributeSame( $this->options, 'options', $mock );
-		$this->assertAttributeSame( $this->upload, 'upload', $mock );
-		$this->assertAttributeSame( $this->settings, 'settings', $mock );
+		$this->assert_attribute_same( $this->core, 'core', $mock );
+		$this->assert_attribute_same( $this->options, 'options', $mock );
+		$this->assert_attribute_same( $this->upload, 'upload', $mock );
+		$this->assert_attribute_same( $this->settings, 'settings', $mock );
 	}
 
 
@@ -175,7 +177,7 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_settings_head() {
 		$this->assertNull( $this->sut->settings_head() );
-		$this->assertAttributeSame( true, 'buffering', $this->sut );
+		$this->assert_attribute_same( true, 'buffering', $this->sut );
 
 		// Clean up.
 		\ob_end_flush();
@@ -191,12 +193,12 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Fake settings_head.
 		\ob_start();
-		$this->setValue( $this->sut, 'buffering', true, Settings_Page::class );
+		$this->set_value( $this->sut, 'buffering', true );
 
 		$this->expectOutputString( 'AVATARS_DISABLED_SCRIPT' );
 
 		$this->assertNull( $this->sut->settings_footer() );
-		$this->assertAttributeSame( false, 'buffering', $this->sut );
+		$this->assert_attribute_same( false, 'buffering', $this->sut );
 	}
 
 	/**
@@ -205,6 +207,7 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::register_settings
 	 *
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_register_settings() {
 		// External input.
@@ -294,7 +297,7 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->sanitize_settings( $input );
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertSame( $old_avatar, $result[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] );
 		$this->assertFalse( $result['setting1'] );
 		$this->assertSame( 'foo', $result['setting2'] );
@@ -336,7 +339,7 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->sanitize_settings( $input );
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertSame( $old_avatar, $result[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] );
 		$this->assertTrue( $result['setting1'] );
 		$this->assertSame( 'foo', $result['setting2'] );
@@ -373,7 +376,7 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->sanitize_settings( $input );
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertSame( $new_avatar, $result[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] );
 		$this->assertFalse( $result['setting1'] );
 		$this->assertFalse( isset( $result['setting2'] ) );

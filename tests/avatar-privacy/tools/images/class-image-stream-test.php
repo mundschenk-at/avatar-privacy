@@ -55,9 +55,11 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$filesystem = [
 			'folder' => [
@@ -185,14 +187,14 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$bytes_to_read = 3;
 
 		// Set up stream object.
-		$this->setValue( $this->sut, 'read', $readable, Image_Stream::class );
-		$this->setValue( $this->sut, 'write', $writable, Image_Stream::class );
-		$this->setValue( $this->sut, 'data', $data, Image_Stream::class );
-		$this->setValue( $this->sut, 'position', $position, Image_Stream::class );
+		$this->set_value( $this->sut, 'read', $readable );
+		$this->set_value( $this->sut, 'write', $writable );
+		$this->set_value( $this->sut, 'data', $data );
+		$this->set_value( $this->sut, 'position', $position );
 
 		// Check.
 		$this->assertSame( 'and', $this->sut->stream_read( $bytes_to_read ) );
-		$this->assertAttributeSame( $position + $bytes_to_read, 'position', $this->sut );
+		$this->assert_attribute_same( $position + $bytes_to_read, 'position', $this->sut );
 	}
 
 	/**
@@ -211,14 +213,14 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$bytes_to_read = 3;
 
 		// Set up stream object.
-		$this->setValue( $this->sut, 'read', $readable, Image_Stream::class );
-		$this->setValue( $this->sut, 'write', $writable, Image_Stream::class );
-		$this->setValue( $this->sut, 'data', $data, Image_Stream::class );
-		$this->setValue( $this->sut, 'position', $position, Image_Stream::class );
+		$this->set_value( $this->sut, 'read', $readable );
+		$this->set_value( $this->sut, 'write', $writable );
+		$this->set_value( $this->sut, 'data', $data );
+		$this->set_value( $this->sut, 'position', $position );
 
 		// Check.
 		$this->assertFalse( $this->sut->stream_read( $bytes_to_read ) );
-		$this->assertAttributeSame( $position, 'position', $this->sut );
+		$this->assert_attribute_same( $position, 'position', $this->sut );
 	}
 
 	/**
@@ -237,18 +239,18 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$new_data = 'xxx';
 
 		// Set up stream object.
-		$this->setValue( $this->sut, 'read', $readable, Image_Stream::class );
-		$this->setValue( $this->sut, 'write', $writable, Image_Stream::class );
-		$this->setValue( $this->sut, 'data', $data, Image_Stream::class );
-		$this->setValue( $this->sut, 'position', $position, Image_Stream::class );
+		$this->set_value( $this->sut, 'read', $readable );
+		$this->set_value( $this->sut, 'write', $writable );
+		$this->set_value( $this->sut, 'data', $data );
+		$this->set_value( $this->sut, 'position', $position );
 
 		// Results.
 		$length = \strlen( $new_data );
 
 		// Check.
 		$this->assertSame( $length, $this->sut->stream_write( $new_data ) );
-		$this->assertAttributeSame( $position + $length, 'position', $this->sut );
-		$this->assertAttributeSame( 'a long xxx tedious string that is our stream', 'data', $this->sut );
+		$this->assert_attribute_same( $position + $length, 'position', $this->sut );
+		$this->assert_attribute_same( 'a long xxx tedious string that is our stream', 'data', $this->sut );
 	}
 
 	/**
@@ -267,18 +269,18 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$new_data = 'xxx';
 
 		// Set up stream object.
-		$this->setValue( $this->sut, 'read', $readable, Image_Stream::class );
-		$this->setValue( $this->sut, 'write', $writable, Image_Stream::class );
-		$this->setValue( $this->sut, 'data', $data, Image_Stream::class );
-		$this->setValue( $this->sut, 'position', $position, Image_Stream::class );
+		$this->set_value( $this->sut, 'read', $readable );
+		$this->set_value( $this->sut, 'write', $writable );
+		$this->set_value( $this->sut, 'data', $data );
+		$this->set_value( $this->sut, 'position', $position );
 
 		// Results.
 		$length = \strlen( $new_data );
 
 		// Check.
 		$this->assertSame( 0, $this->sut->stream_write( $new_data ) );
-		$this->assertAttributeSame( $position, 'position', $this->sut );
-		$this->assertAttributeSame( $data, 'data', $this->sut );
+		$this->assert_attribute_same( $position, 'position', $this->sut );
+		$this->assert_attribute_same( $data, 'data', $this->sut );
 	}
 
 	/**
@@ -294,10 +296,10 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$position = 7;
 
 		// Set up stream object.
-		$this->setValue( $this->sut, 'read', $readable, Image_Stream::class );
-		$this->setValue( $this->sut, 'write', $writable, Image_Stream::class );
-		$this->setValue( $this->sut, 'data', $data, Image_Stream::class );
-		$this->setValue( $this->sut, 'position', $position, Image_Stream::class );
+		$this->set_value( $this->sut, 'read', $readable );
+		$this->set_value( $this->sut, 'write', $writable );
+		$this->set_value( $this->sut, 'data', $data );
+		$this->set_value( $this->sut, 'position', $position );
 
 		// Check.
 		$this->assertSame( $position, $this->sut->stream_tell() );
@@ -316,10 +318,10 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$position = \strlen( $data );
 
 		// Set up stream object.
-		$this->setValue( $this->sut, 'read', $readable, Image_Stream::class );
-		$this->setValue( $this->sut, 'write', $writable, Image_Stream::class );
-		$this->setValue( $this->sut, 'data', $data, Image_Stream::class );
-		$this->setValue( $this->sut, 'position', $position, Image_Stream::class );
+		$this->set_value( $this->sut, 'read', $readable );
+		$this->set_value( $this->sut, 'write', $writable );
+		$this->set_value( $this->sut, 'data', $data );
+		$this->set_value( $this->sut, 'position', $position );
 
 		// Check.
 		$this->assertTrue( $this->sut->stream_eof() );
@@ -338,10 +340,10 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$position = \strlen( $data ) - 1;
 
 		// Set up stream object.
-		$this->setValue( $this->sut, 'read', $readable, Image_Stream::class );
-		$this->setValue( $this->sut, 'write', $writable, Image_Stream::class );
-		$this->setValue( $this->sut, 'data', $data, Image_Stream::class );
-		$this->setValue( $this->sut, 'position', $position, Image_Stream::class );
+		$this->set_value( $this->sut, 'read', $readable );
+		$this->set_value( $this->sut, 'write', $writable );
+		$this->set_value( $this->sut, 'data', $data );
+		$this->set_value( $this->sut, 'position', $position );
 
 		// Check.
 		$this->assertFalse( $this->sut->stream_eof() );
@@ -389,15 +391,15 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		}
 
 		// Set up stream object.
-		$this->setValue( $this->sut, 'data', $data, Image_Stream::class );
-		$this->setValue( $this->sut, 'position', $position, Image_Stream::class );
+		$this->set_value( $this->sut, 'data', $data );
+		$this->set_value( $this->sut, 'position', $position );
 
 		if ( $truncate ) {
 			$this->sut->shouldReceive( 'truncate_after_seek' )->once();
 		}
 
 		$this->assertSame( $result, $this->sut->stream_seek( $offset, $whence ) );
-		$this->assertAttributeSame( $new_position, 'position', $this->sut );
+		$this->assert_attribute_same( $new_position, 'position', $this->sut );
 	}
 
 	/**
@@ -425,8 +427,8 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_truncate_after_seek( $position, $data, $truncate ) {
 		// Set up stream object.
-		$this->setValue( $this->sut, 'data', $data, Image_Stream::class );
-		$this->setValue( $this->sut, 'position', $position, Image_Stream::class );
+		$this->set_value( $this->sut, 'data', $data );
+		$this->set_value( $this->sut, 'position', $position );
 
 		if ( $truncate ) {
 			$this->sut->shouldReceive( 'stream_truncate' )->once()->with( $position );
@@ -461,10 +463,10 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_stream_truncate( $data, $length, $result ) {
 		// Set up stream object.
-		$this->setValue( $this->sut, 'data', $data, Image_Stream::class );
+		$this->set_value( $this->sut, 'data', $data );
 
 		$this->assertTrue( $this->sut->stream_truncate( $length ) );
-		$this->assertAttributeSame( $result, 'data', $this->sut );
+		$this->assert_attribute_same( $result, 'data', $this->sut );
 	}
 
 	/**
@@ -477,7 +479,7 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$data = 'a long and tedious string that is our stream';
 
 		// Set up stream object.
-		$this->setValue( $this->sut, 'data', $data, Image_Stream::class );
+		$this->set_value( $this->sut, 'data', $data );
 
 		// Expected result.
 		$result = [
@@ -514,7 +516,7 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->url_stat( $path, $flags );
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertArrayHasKey( 'size', $result );
 		$this->assertSame( 4, $result['size'] );
 	}
@@ -607,7 +609,7 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'handle_exists' )->once()->with( 'foo' );
 
-		$data = $this->invokeStaticMethod( $classname, 'get_data_reference', [ 'foo' ] );
+		$data = $this->invoke_static_method( $classname, 'get_data_reference', [ 'foo' ] );
 		$this->assertSame( '', $data );
 	}
 
@@ -621,11 +623,11 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_handle_exists() {
 		$classname = \get_class( $this->sut );
 
-		$this->assertFalse( $this->invokeStaticMethod( $classname, 'handle_exists', [ 'foobar' ] ) );
+		$this->assertFalse( $this->invoke_static_method( $classname, 'handle_exists', [ 'foobar' ] ) );
 
-		$this->invokeStaticMethod( $classname, 'get_data_reference', [ 'foobar' ] );
+		$this->invoke_static_method( $classname, 'get_data_reference', [ 'foobar' ] );
 
-		$this->assertTrue( $this->invokeStaticMethod( $classname, 'handle_exists', [ 'foobar' ] ) );
+		$this->assertTrue( $this->invoke_static_method( $classname, 'handle_exists', [ 'foobar' ] ) );
 	}
 
 	/**
@@ -694,12 +696,12 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$handle = 'a new handle';
 
-		$this->invokeStaticMethod( $classname, 'get_data_reference', [ $handle ] );
-		$this->assertTrue( $this->invokeStaticMethod( $classname, 'handle_exists', [ $handle ] ) );
+		$this->invoke_static_method( $classname, 'get_data_reference', [ $handle ] );
+		$this->assertTrue( $this->invoke_static_method( $classname, 'handle_exists', [ $handle ] ) );
 
 		$this->assertNull( $classname::delete_handle( $handle ) );
 
-		$this->assertFalse( $this->invokeStaticMethod( $classname, 'handle_exists', [ $handle ] ) );
+		$this->assertFalse( $this->invoke_static_method( $classname, 'handle_exists', [ $handle ] ) );
 	}
 
 	/**

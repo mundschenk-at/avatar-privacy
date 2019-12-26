@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -69,9 +69,11 @@ class WP_User_Manager_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$this->upload = m::mock( User_Avatar_Upload_Handler::class );
 
@@ -88,7 +90,7 @@ class WP_User_Manager_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $this->upload );
 
-		$this->assertAttributeSame( $this->upload, 'upload', $mock );
+		$this->assert_attribute_same( $this->upload, 'upload', $mock );
 	}
 
 	/**
@@ -156,7 +158,7 @@ class WP_User_Manager_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertSame( $save, $this->sut->maybe_mark_user_avater_for_cache_flushing( $save, $value, $field ) );
 
-		$this->assertAttributeSame( true, 'flush_cache', $this->sut );
+		$this->assert_attribute_same( true, 'flush_cache', $this->sut );
 	}
 
 	/**
@@ -173,7 +175,7 @@ class WP_User_Manager_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertSame( $save, $this->sut->maybe_mark_user_avater_for_cache_flushing( $save, $value, $field ) );
 
-		$this->assertAttributeSame( false, 'flush_cache', $this->sut );
+		$this->assert_attribute_same( false, 'flush_cache', $this->sut );
 	}
 
 	/**
@@ -184,7 +186,7 @@ class WP_User_Manager_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_maybe_flush_cache_after_saving_user_avatar() {
 		$user_id = 42;
 
-		$this->setValue( $this->sut, 'flush_cache', true, WP_User_Manager_Integration::class );
+		$this->set_value( $this->sut, 'flush_cache', true );
 
 		$this->upload->shouldReceive( 'invalidate_user_avatar_cache' )->once()->with( $user_id );
 
@@ -199,7 +201,7 @@ class WP_User_Manager_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_maybe_flush_cache_after_saving_user_avatar_do_not_flush() {
 		$user_id = 42;
 
-		$this->setValue( $this->sut, 'flush_cache', false, WP_User_Manager_Integration::class );
+		$this->set_value( $this->sut, 'flush_cache', false );
 
 		$this->upload->shouldReceive( 'invalidate_user_avatar_cache' )->never();
 

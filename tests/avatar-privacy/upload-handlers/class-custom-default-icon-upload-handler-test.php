@@ -83,9 +83,11 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$filesystem = [
 			'plugin'    => [
@@ -132,7 +134,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 
 		$mock->__construct( $this->core, $this->file_cache, $this->options );
 
-		$this->assertAttributeSame( $this->options, 'options', $mock );
+		$this->assert_attribute_same( $this->options, 'options', $mock );
 	}
 
 	/**

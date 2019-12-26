@@ -85,9 +85,11 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$png_data = \base64_decode( // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions
 			'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl' .
@@ -130,7 +132,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut = m::mock( Monster_ID::class, [ $editor, $this->png, $this->number_generator, $transients ] )->makePartial()->shouldAllowMockingProtectedMethods();
 
 		// Override necessary properties.
-		$this->setValue( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/monster-id' ) );
+		$this->set_value( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/monster-id' ) );
 	}
 
 	/**
@@ -148,10 +150,10 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 		$transients       = m::mock( Site_Transients::class );
 		$mock             = m::mock( Monster_ID::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $mock, '__construct', [ $editor, $png, $number_generator, $transients ] );
+		$this->invoke_method( $mock, '__construct', [ $editor, $png, $number_generator, $transients ] );
 
 		// An attribute of the PNG_Parts_Generator superclass.
-		$this->assertAttributeSame( $editor, 'editor', $mock );
+		$this->assert_attribute_same( $editor, 'editor', $mock );
 	}
 
 	/**
@@ -173,7 +175,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->get_additional_arguments( $seed, $size, $parts );
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertArrayHasKey( 'hue', $result );
 		$this->assertArrayHasKey( 'saturation', $result );
 	}
@@ -228,7 +230,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->colorize_image( $resource, $hue, $saturation, $part );
 
-		$this->assertInternalType( 'resource', $result );
+		$this->assert_is_resource( $result );
 
 		// Clean up.
 		\imageDestroy( $resource );
@@ -253,7 +255,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->colorize_image( $resource, $hue, $saturation, $part );
 
-		$this->assertInternalType( 'resource', $result );
+		$this->assert_is_resource( $result );
 
 		// Clean up.
 		\imageDestroy( $resource );

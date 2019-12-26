@@ -72,9 +72,11 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		// Ubiquitous functions.
 		Functions\when( '__' )->returnArg();
@@ -96,8 +98,8 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $this->core, $this->cache );
 
-		$this->assertAttributeSame( $this->core, 'core', $mock );
-		$this->assertAttributeSame( $this->cache, 'cache', $mock );
+		$this->assert_attribute_same( $this->core, 'core', $mock );
+		$this->assert_attribute_same( $this->cache, 'cache', $mock );
 	}
 
 	/**

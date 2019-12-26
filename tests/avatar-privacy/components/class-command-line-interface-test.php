@@ -77,9 +77,11 @@ class Command_Line_Interface_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		// API class mock.
 		$this->wp_cli = m::mock( 'alias:' . \WP_CLI::class );
@@ -112,7 +114,7 @@ class Command_Line_Interface_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $commands );
 
-		$this->assertAttributeSame( $commands, 'commands', $mock );
+		$this->assert_attribute_same( $commands, 'commands', $mock );
 	}
 
 
