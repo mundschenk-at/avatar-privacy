@@ -141,7 +141,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	protected function tear_down() { // @codingStandardsIgnoreLine
 		// Reset singleton.
-		$this->setStaticValue( \Avatar_Privacy\Core::class, 'instance', null );
+		$this->set_static_value( \Avatar_Privacy\Core::class, 'instance', null );
 
 		parent::tear_down();
 	}

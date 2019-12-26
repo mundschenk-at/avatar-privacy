@@ -609,7 +609,7 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'handle_exists' )->once()->with( 'foo' );
 
-		$data = $this->invokeStaticMethod( $classname, 'get_data_reference', [ 'foo' ] );
+		$data = $this->invoke_static_method( $classname, 'get_data_reference', [ 'foo' ] );
 		$this->assertSame( '', $data );
 	}
 
@@ -623,11 +623,11 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_handle_exists() {
 		$classname = \get_class( $this->sut );
 
-		$this->assertFalse( $this->invokeStaticMethod( $classname, 'handle_exists', [ 'foobar' ] ) );
+		$this->assertFalse( $this->invoke_static_method( $classname, 'handle_exists', [ 'foobar' ] ) );
 
-		$this->invokeStaticMethod( $classname, 'get_data_reference', [ 'foobar' ] );
+		$this->invoke_static_method( $classname, 'get_data_reference', [ 'foobar' ] );
 
-		$this->assertTrue( $this->invokeStaticMethod( $classname, 'handle_exists', [ 'foobar' ] ) );
+		$this->assertTrue( $this->invoke_static_method( $classname, 'handle_exists', [ 'foobar' ] ) );
 	}
 
 	/**
@@ -696,12 +696,12 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$handle = 'a new handle';
 
-		$this->invokeStaticMethod( $classname, 'get_data_reference', [ $handle ] );
-		$this->assertTrue( $this->invokeStaticMethod( $classname, 'handle_exists', [ $handle ] ) );
+		$this->invoke_static_method( $classname, 'get_data_reference', [ $handle ] );
+		$this->assertTrue( $this->invoke_static_method( $classname, 'handle_exists', [ $handle ] ) );
 
 		$this->assertNull( $classname::delete_handle( $handle ) );
 
-		$this->assertFalse( $this->invokeStaticMethod( $classname, 'handle_exists', [ $handle ] ) );
+		$this->assertFalse( $this->invoke_static_method( $classname, 'handle_exists', [ $handle ] ) );
 	}
 
 	/**
