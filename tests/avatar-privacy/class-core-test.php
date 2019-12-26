@@ -105,9 +105,11 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() { // @codingStandardsIgnoreLine
-		parent::setUp();
+	protected function set_up() { // @codingStandardsIgnoreLine
+		parent::set_up();
 
 		// Mock required helpers.
 		$this->transients      = m::mock( Transients::class );
@@ -134,12 +136,14 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 
 	/**
 	 * Necesssary clean-up work.
+	 *
+	 * @since 2.3.3 Renamed to `tear_down`.
 	 */
-	protected function tearDown() { // @codingStandardsIgnoreLine
+	protected function tear_down() { // @codingStandardsIgnoreLine
 		// Reset singleton.
-		$this->setStaticValue( \Avatar_Privacy\Core::class, 'instance', null );
+		$this->set_static_value( \Avatar_Privacy\Core::class, 'instance', null );
 
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**
@@ -187,26 +191,28 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::get_instance without a previous call to ::_get_instance (i.e. _doing_it_wrong).
 	 *
 	 * @covers ::get_instance
-	 *
-	 * @expectedException \BadMethodCallException
-	 * @expectedExceptionMessage Avatar_Privacy\Core::get_instance called without prior plugin intialization.
 	 */
 	public function test_get_instance_failing() {
+		$this->expectException( \BadMethodCallException::class );
+		$this->expectExceptionMessage( 'Avatar_Privacy\Core::get_instance called without prior plugin intialization.' );
+
 		$core = \Avatar_Privacy\Core::get_instance();
-		$this->assertInstanceOf( \Avatar_Privacy\Core::class, $core );
 	}
 
 	/**
 	 * Tests ::get_instance without a previous call to ::_get_instance (i.e. _doing_it_wrong).
 	 *
 	 * @covers ::set_instance
-	 *
-	 * @expectedException \BadMethodCallException
-	 * @expectedExceptionMessage Avatar_Privacy\Core::set_instance called more than once.
 	 */
 	public function test_set_instance_failing() {
 		$core = m::mock( \Avatar_Privacy\Core::class );
+
+		// The first call is OK.
 		\Avatar_Privacy\Core::set_instance( $core );
+
+		// The second call fails with an exception.
+		$this->expectException( \BadMethodCallException::class );
+		$this->expectExceptionMessage( 'Avatar_Privacy\Core::set_instance called more than once.' );
 		\Avatar_Privacy\Core::set_instance( $core );
 	}
 
@@ -266,7 +272,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Prepare state - settings have alreaddy been loaded.
-		$this->setValue( $this->sut, 'settings', $original, \Avatar_Privacy\Core::class );
+		$this->set_value( $this->sut, 'settings', $original );
 
 		$this->options->shouldReceive( 'get' )
 			->never();
@@ -295,7 +301,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Prepare state - settings have alreaddy been loaded.
-		$this->setValue( $this->sut, 'settings', $original, \Avatar_Privacy\Core::class );
+		$this->set_value( $this->sut, 'settings', $original );
 
 		$this->options->shouldReceive( 'get' )
 			->once()
@@ -327,7 +333,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Prepare state - settings have alreaddy been loaded.
-		$this->setValue( $this->sut, 'settings', $original, \Avatar_Privacy\Core::class );
+		$this->set_value( $this->sut, 'settings', $original );
 
 		$this->options->shouldReceive( 'get' )
 			->once()
@@ -360,7 +366,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Prepare state - settings have alreaddy been loaded.
-		$this->setValue( $this->sut, 'settings', $original, \Avatar_Privacy\Core::class );
+		$this->set_value( $this->sut, 'settings', $original );
 
 		$this->options->shouldReceive( 'get' )
 			->once()

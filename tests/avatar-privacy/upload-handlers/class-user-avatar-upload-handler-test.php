@@ -76,9 +76,11 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$filesystem = [
 			'plugin'    => [
@@ -124,7 +126,7 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $this->core, $this->file_cache );
 
-		$this->assertAttributeSame( User_Avatar_Upload_Handler::UPLOAD_DIR, 'upload_dir', $mock );
+		$this->assert_attribute_same( User_Avatar_Upload_Handler::UPLOAD_DIR, 'upload_dir', $mock );
 	}
 
 	/**
@@ -467,7 +469,7 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_unique_filename( $filename, $extension, $result, $user ) {
 		// Set up dummy user ID.
 		$user_id = 666;
-		$this->setValue( $this->sut, 'user_id_being_edited', $user_id, User_Avatar_Upload_Handler::class );
+		$this->set_value( $this->sut, 'user_id_being_edited', $user_id );
 
 		Functions\expect( 'get_user_by' )->once()->with( 'id', $user_id )->andReturn( $user );
 		Functions\expect( 'sanitize_file_name' )->once()->with( m::type( 'string' ) )->andReturnUsing(

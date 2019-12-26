@@ -72,9 +72,11 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$filesystem = [
 			'folder' => [],
@@ -113,9 +115,9 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $url, $mocked_stream_class );
 
-		$this->assertAttributeSame( $url, 'stream_url', $mock );
-		$this->assertAttributeSame( $mocked_stream_class, 'stream_class', $mock );
-		$this->assertAttributeSame( 'stream/with/path', 'handle', $mock );
+		$this->assert_attribute_same( $url, 'stream_url', $mock );
+		$this->assert_attribute_same( $mocked_stream_class, 'stream_class', $mock );
+		$this->assert_attribute_same( 'stream/with/path', 'handle', $mock );
 	}
 
 
@@ -166,6 +168,7 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::create_from_image_resource
 	 *
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_create_from_image_resource_not_a_resource() {
 		$not_a_resource = '';
@@ -379,7 +382,7 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Set up instance state.
 		$stream_matcher = m::pattern( '#^' . \preg_quote( $stream, '/[\w/]+$#' ) . '#' );
-		$this->setValue( $this->sut, 'stream_url', $stream, Editor::class );
+		$this->set_value( $this->sut, 'stream_url', $stream );
 
 		Functions\expect( 'wp_get_image_mime' )->once()->with( $stream_matcher )->andReturn( $mime_type );
 		$this->sut->shouldReceive( 'delete_stream' )->once()->with( $stream_matcher );

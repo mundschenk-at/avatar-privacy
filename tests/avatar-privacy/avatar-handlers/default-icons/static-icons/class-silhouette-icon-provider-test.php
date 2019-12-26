@@ -56,10 +56,10 @@ class Silhouette_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		$sut   = m::mock( Silhouette_Icon_Provider::class )->makePartial()->shouldAllowMockingProtectedMethods();
 		$types = \array_flip( [ 'silhouette', 'view-media-artist' ] );
 
-		$this->invokeMethod( $sut, '__construct', [] );
+		$this->invoke_method( $sut, '__construct', [] );
 
-		$this->assertAttributeSame( $types, 'valid_types', $sut );
-		$this->assertAttributeSame( 'silhouette', 'icon_basename', $sut );
+		$this->assert_attribute_same( $types, 'valid_types', $sut );
+		$this->assert_attribute_same( 'silhouette', 'icon_basename', $sut );
 	}
 
 	/**

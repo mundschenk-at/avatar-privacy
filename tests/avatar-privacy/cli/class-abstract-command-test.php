@@ -64,11 +64,11 @@ class Abstract_Command_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertNull( $sut->stop_the_insanity() );
 
-		$this->assertAttributeEmpty( 'queries', $wpdb );
-		$this->assertAttributeEmpty( 'group_ops', $wp_object_cache );
-		$this->assertAttributeEmpty( 'stats', $wp_object_cache );
-		$this->assertAttributeEmpty( 'memcache_debug', $wp_object_cache );
-		$this->assertAttributeEmpty( 'cache', $wp_object_cache );
+		$this->assertEmpty( $this->get_value( $wpdb, 'queries' ) );
+		$this->assertEmpty( $this->get_value( $wp_object_cache, 'group_ops' ) );
+		$this->assertEmpty( $this->get_value( $wp_object_cache, 'stats' ) );
+		$this->assertEmpty( $this->get_value( $wp_object_cache, 'memcache_debug' ) );
+		$this->assertEmpty( $this->get_value( $wp_object_cache, 'cache' ) );
 	}
 
 	/**

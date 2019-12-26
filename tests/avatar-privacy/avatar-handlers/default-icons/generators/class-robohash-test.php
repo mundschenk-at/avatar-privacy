@@ -73,9 +73,11 @@ class Robohash_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$filesystem = [
 			'plugin' => [
@@ -120,7 +122,7 @@ class Robohash_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut = m::mock( Robohash::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
 		// Override the parts directory as the constructor is never invoked.
-		$this->setValue( $this->sut, 'number_generator', $this->number_generator );
+		$this->set_value( $this->sut, 'number_generator', $this->number_generator );
 	}
 
 	/**
@@ -136,10 +138,10 @@ class Robohash_Test extends \Avatar_Privacy\Tests\TestCase {
 		$number_generator = m::mock( Number_Generator::class );
 		$mock             = m::mock( Robohash::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $mock, '__construct', [ $number_generator, $transients ] );
+		$this->invoke_method( $mock, '__construct', [ $number_generator, $transients ] );
 
 		// An attribute of the Parts_Generator superclass.
-		$this->assertAttributeSame( $transients, 'site_transients', $mock );
+		$this->assert_attribute_same( $transients, 'site_transients', $mock );
 	}
 
 	/**
@@ -159,7 +161,7 @@ class Robohash_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->get_additional_arguments( $seed, $size, $parts );
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertArrayHasKey( 'color', $result );
 		$this->assertArrayHasKey( 'bg_color', $result );
 	}
@@ -235,7 +237,7 @@ class Robohash_Test extends \Avatar_Privacy\Tests\TestCase {
 		$number_of_files = \count( $files, \COUNT_RECURSIVE ) - \count( $files );
 
 		// Override necessary properties.
-		$this->setValue( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/robohash' ) );
+		$this->set_value( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/robohash' ) );
 
 		$this->sut->shouldReceive( 'prepare_svg_part' )->times( $number_of_files )->with( m::type( 'string' ) )->andReturn( 'PREPARED_SVG_PART' );
 
@@ -253,7 +255,7 @@ class Robohash_Test extends \Avatar_Privacy\Tests\TestCase {
 		$parts = \array_fill_keys( [ 'body', 'arms', 'mouth', 'eyes', 'accessory' ], [] );
 
 		// Override necessary properties.
-		$this->setValue( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/robohash-empty' ) );
+		$this->set_value( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/robohash-empty' ) );
 
 		// Run test.
 		$this->assertSame( $parts, $this->sut->read_parts_from_filesystem( $parts ) );

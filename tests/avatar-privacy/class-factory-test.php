@@ -54,9 +54,11 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() { // @codingStandardsIgnoreLine
-		parent::setUp();
+	protected function set_up() { // @codingStandardsIgnoreLine
+		parent::set_up();
 
 		$filesystem = [
 			'wordpress' => [
@@ -99,8 +101,9 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Manually call constructor.
 		$this->sut->__construct();
 
-		$this->assertAttributeCount( \count( $rules ), 'rules', $this->sut );
-		$this->assertAttributeInternalType( 'array', 'rules', $this->sut );
+		$resulting_rules = $this->get_value( $this->sut, 'rules' );
+		$this->assert_is_array( $resulting_rules );
+		$this->assertCount( \count( $rules ), $resulting_rules );
 	}
 
 	/**
@@ -134,7 +137,7 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->get_rules();
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertArrayHasKey( \Avatar_Privacy\Core::class, $result );
 		$this->assertArrayHasKey( \Avatar_Privacy\Avatar_Handlers\Gravatar_Cache_Handler::class, $result );
 	}
@@ -184,7 +187,7 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_components() {
 		$result = $this->sut->get_components();
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 
 		// Check some exemplary components.
 		$this->assertContains( [ 'instance' => \Avatar_Privacy\Components\Avatar_Handling::class ], $result, 'Component missing.', false, true, true );
@@ -202,7 +205,7 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_default_icons() {
 		$result = $this->sut->get_default_icons();
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertContains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons\Mystery_Icon_Provider::class ], $result, 'Default icon missing.', false, true, true );
 		$this->assertContains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons\Identicon_Icon_Provider::class ], $result, 'Default icon missing.', false, true, true );
 		$this->assertContains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons\Speech_Bubble_Icon_Provider::class ], $result, 'Default icon missing.', false, true, true );
@@ -218,7 +221,7 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_plugin_integrations() {
 		$result = $this->sut->get_plugin_integrations();
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertContains( [ 'instance' => \Avatar_Privacy\Integrations\BBPress_Integration::class ], $result, 'Default icon missing.', false, true, true );
 	}
 
@@ -230,7 +233,7 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_cli_commands() {
 		$result = $this->sut->get_cli_commands();
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertContains( [ 'instance' => \Avatar_Privacy\CLI\Database_Command::class ], $result, 'Command missing.', false, true, true );
 	}
 }

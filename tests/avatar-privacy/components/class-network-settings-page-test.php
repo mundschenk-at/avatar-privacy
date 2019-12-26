@@ -97,9 +97,11 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		Functions\when( '__' )->returnArg();
 
@@ -145,10 +147,10 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 			$this->multisite
 		);
 
-		$this->assertAttributeSame( $this->core, 'core', $mock );
-		$this->assertAttributeSame( $this->network_options, 'network_options', $mock );
-		$this->assertAttributeSame( $this->settings, 'settings', $mock );
-		$this->assertAttributeSame( $this->multisite, 'multisite', $mock );
+		$this->assert_attribute_same( $this->core, 'core', $mock );
+		$this->assert_attribute_same( $this->network_options, 'network_options', $mock );
+		$this->assert_attribute_same( $this->settings, 'settings', $mock );
+		$this->assert_attribute_same( $this->multisite, 'multisite', $mock );
 	}
 
 
@@ -172,6 +174,7 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::run
 	 *
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_run_network_admin() {
 		// External input.
@@ -214,7 +217,7 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 			$migrate   => m::mock( \Mundschenk\UI\Controls\Submit_Input::class ),
 		];
 		$control_count = \count( $controls );
-		$this->setValue( $this->sut, 'controls', $controls, Network_Settings_Page::class );
+		$this->set_value( $this->sut, 'controls', $controls );
 
 		// Function results.
 		$use_global_table_name = 'prefix_use_global_table';
@@ -275,7 +278,7 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 			'option3' => m::mock( \Mundschenk\UI\Controls\Number_Input::class ),
 		];
 		$control_count = \count( $controls );
-		$this->setValue( $this->sut, 'controls', $controls, Network_Settings_Page::class );
+		$this->set_value( $this->sut, 'controls', $controls );
 
 		// URLs.
 		$network_admin_url              = 'https://network.admin/url/settings.php';
@@ -407,7 +410,7 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Notice already triggered.
 		$triggered = [ $setting_name => true ];
-		$this->setValue( $this->sut, 'triggered_notice', $triggered, Network_Settings_Page::class );
+		$this->set_value( $this->sut, 'triggered_notice', $triggered );
 
 		Functions\expect( 'add_settings_error' )->never();
 

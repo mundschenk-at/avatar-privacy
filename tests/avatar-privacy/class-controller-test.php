@@ -100,7 +100,7 @@ class Controller_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param \Avatar_Privacy\Controller $controller Required.
 	 */
 	public function test_run( $controller ) {
-		foreach ( $this->getValue( $controller, 'components', \Avatar_Privacy\Controller::class ) as $component ) {
+		foreach ( $this->get_value( $controller, 'components' ) as $component ) {
 			$component->shouldReceive( 'run' )->once();
 		}
 

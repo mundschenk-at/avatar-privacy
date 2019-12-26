@@ -72,7 +72,7 @@ class Cron_Command extends Abstract_Command {
 		if ( false === $next ) {
 			WP_CLI::success( WP_CLI::colorize( "Cron job %B{$job}%n not scheduled on this site." ) );
 		} else {
-			$timestamp = \date( 'Y-m-d H:i:s', $next );
+			$timestamp = \gmdate( 'Y-m-d H:i:s', $next );
 			WP_CLI::success( WP_CLI::colorize( "Cron job %B{$job}%n will run next at %B{$timestamp}%n on this site." ) );
 		}
 	}

@@ -116,9 +116,11 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		// Helper mocks.
 		$this->core            = m::mock( Core::class );
@@ -161,13 +163,13 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 			$this->multisite
 		);
 
-		$this->assertAttributeSame( $this->core, 'core', $mock );
-		$this->assertAttributeSame( $this->transients, 'transients', $mock );
-		$this->assertAttributeSame( $this->site_transients, 'site_transients', $mock );
-		$this->assertAttributeSame( $this->options, 'options', $mock );
-		$this->assertAttributeSame( $this->network_options, 'network_options', $mock );
-		$this->assertAttributeSame( $this->database, 'database', $mock );
-		$this->assertAttributeSame( $this->multisite, 'multisite', $mock );
+		$this->assert_attribute_same( $this->core, 'core', $mock );
+		$this->assert_attribute_same( $this->transients, 'transients', $mock );
+		$this->assert_attribute_same( $this->site_transients, 'site_transients', $mock );
+		$this->assert_attribute_same( $this->options, 'options', $mock );
+		$this->assert_attribute_same( $this->network_options, 'network_options', $mock );
+		$this->assert_attribute_same( $this->database, 'database', $mock );
+		$this->assert_attribute_same( $this->multisite, 'multisite', $mock );
 	}
 
 	/**
@@ -266,7 +268,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'flush_rewrite_rules_soon' )->once();
 
 		// Preserve pass-by-reference.
-		$this->assertNull( $this->invokeMethod( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
+		$this->assertNull( $this->invoke_method( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
 
 		$this->assertFalse( isset( $settings['mode_optin'] ) );
 		$this->assertFalse( isset( $settings['use_gravatar'] ) );
@@ -296,7 +298,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'flush_rewrite_rules_soon' )->once();
 
 		// Preserve pass-by-reference.
-		$this->assertNull( $this->invokeMethod( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
+		$this->assertNull( $this->invoke_method( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
 
 		$this->assertFalse( isset( $settings['mode_optin'] ) );
 		$this->assertFalse( isset( $settings['use_gravatar'] ) );
@@ -326,7 +328,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'flush_rewrite_rules_soon' )->once();
 
 		// Preserve pass-by-reference.
-		$this->assertNull( $this->invokeMethod( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
+		$this->assertNull( $this->invoke_method( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
 
 		$this->assertFalse( isset( $settings['mode_optin'] ) );
 		$this->assertFalse( isset( $settings['use_gravatar'] ) );
@@ -356,7 +358,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'flush_rewrite_rules_soon' )->once();
 
 		// Preserve pass-by-reference.
-		$this->assertNull( $this->invokeMethod( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
+		$this->assertNull( $this->invoke_method( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
 
 		$this->assertFalse( isset( $settings['mode_optin'] ) );
 		$this->assertFalse( isset( $settings['use_gravatar'] ) );

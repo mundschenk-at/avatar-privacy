@@ -75,9 +75,11 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$png_data = \base64_decode( // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions
 			'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl' .
@@ -115,8 +117,8 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut = m::mock( Wavatar::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
 		// Override necessary properties as the constructor is never invoked.
-		$this->setValue( $this->sut, 'png', $this->png );
-		$this->setValue( $this->sut, 'number_generator', $this->number_generator );
+		$this->set_value( $this->sut, 'png', $this->png );
+		$this->set_value( $this->sut, 'number_generator', $this->number_generator );
 	}
 
 	/**
@@ -134,10 +136,10 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 		$transients       = m::mock( Site_Transients::class );
 		$mock             = m::mock( Wavatar::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $mock, '__construct', [ $editor, $png, $number_generator, $transients ] );
+		$this->invoke_method( $mock, '__construct', [ $editor, $png, $number_generator, $transients ] );
 
 		// An attribute of the PNG_Parts_Generator superclass.
-		$this->assertAttributeSame( $editor, 'editor', $mock );
+		$this->assert_attribute_same( $editor, 'editor', $mock );
 	}
 
 	/**
@@ -157,7 +159,7 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->get_additional_arguments( $seed, $size, $parts );
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertArrayHasKey( 'background_hue', $result );
 		$this->assertArrayHasKey( 'wavatar_hue', $result );
 	}
@@ -267,7 +269,7 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertSame( $data, $this->sut->build( $seed, $size ) );
 
-		$this->assertAttributeSame( $seed, 'current_seed', $this->sut );
+		$this->assert_attribute_same( $seed, 'current_seed', $this->sut );
 
 		return $this->sut;
 	}

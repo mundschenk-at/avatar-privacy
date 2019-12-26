@@ -66,9 +66,11 @@ class Ultimate_Member_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$this->upload = m::mock( User_Avatar_Upload_Handler::class );
 
@@ -85,7 +87,7 @@ class Ultimate_Member_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $this->upload );
 
-		$this->assertAttributeSame( $this->upload, 'upload', $mock );
+		$this->assert_attribute_same( $this->upload, 'upload', $mock );
 	}
 
 	/**
@@ -156,9 +158,9 @@ class Ultimate_Member_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->remove_ultimate_member_gravatar_settings( $structure );
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertNotEmpty( $result['']['sections']['users']['fields'] );
-		$this->assertInternalType( 'array', $result['']['sections']['users']['fields'] );
+		$this->assert_is_array( $result['']['sections']['users']['fields'] );
 		$this->assertContains( $conditional, $result['']['sections']['users']['fields'][1] );
 	}
 

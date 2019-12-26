@@ -52,9 +52,11 @@ class Number_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$this->sut = m::mock( Number_Generator::class )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
@@ -162,8 +164,8 @@ class Number_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$result1 = $this->sut->get( $min, $max );
 		$result2 = $this->sut->get( $min, $max );
 
-		$this->assertInternalType( 'int', $result1 );
-		$this->assertInternalType( 'int', $result2 );
+		$this->assert_is_int( $result1 );
+		$this->assert_is_int( $result2 );
 		$this->assertLessThanOrEqual( $max, $result1 );
 		$this->assertLessThanOrEqual( $max, $result2 );
 		$this->assertGreaterThanOrEqual( $min, $result1 );

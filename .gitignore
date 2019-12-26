@@ -12,5 +12,8 @@ build/
 # Test coverage
 tests/coverage/
 
+# PHPUnit
+.phpunit.result.cache
+
 # macOS
 .DS_Store

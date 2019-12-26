@@ -77,9 +77,11 @@ class Retro_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		// Helper mocks.
 		$this->identicon        = m::mock( \Identicon\Identicon::class );
@@ -90,7 +92,7 @@ class Retro_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut = m::mock( Retro::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
 		// Manually invoke the constructor as it is protected.
-		$this->invokeMethod( $this->sut, '__construct', [
+		$this->invoke_method( $this->sut, '__construct', [
 			$this->identicon,
 			$this->number_generator,
 		] );
@@ -106,10 +108,10 @@ class Retro_Test extends \Avatar_Privacy\Tests\TestCase {
 		$number_generator = m::mock( Number_Generator::class );
 		$mock             = m::mock( Retro::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $mock, '__construct', [ $identicon, $number_generator ] );
+		$this->invoke_method( $mock, '__construct', [ $identicon, $number_generator ] );
 
-		$this->assertAttributeSame( $identicon, 'identicon', $mock );
-		$this->assertAttributeSame( $number_generator, 'number_generator', $mock );
+		$this->assert_attribute_same( $identicon, 'identicon', $mock );
+		$this->assert_attribute_same( $number_generator, 'number_generator', $mock );
 	}
 
 	/**

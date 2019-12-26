@@ -56,9 +56,9 @@ class Mystery_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		$sut   = m::mock( Mystery_Icon_Provider::class )->makePartial()->shouldAllowMockingProtectedMethods();
 		$types = \array_flip( [ 'mystery', 'mystery-man', 'mm' ] );
 
-		$this->invokeMethod( $sut, '__construct', [] );
+		$this->invoke_method( $sut, '__construct', [] );
 
-		$this->assertAttributeSame( $types, 'valid_types', $sut );
-		$this->assertAttributeSame( 'mystery', 'icon_basename', $sut );
+		$this->assert_attribute_same( $types, 'valid_types', $sut );
+		$this->assert_attribute_same( 'mystery', 'icon_basename', $sut );
 	}
 }

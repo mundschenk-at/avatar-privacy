@@ -55,9 +55,11 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$png_data = \base64_decode( // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions
 			'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl' .
@@ -105,7 +107,7 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$image = $this->sut->create( 'white', $width, $height );
 
-		$this->assertInternalType( 'resource', $image );
+		$this->assert_is_resource( $image );
 		$this->assertSame( $width, \imageSX( $image ) );
 		$this->assertSame( $height, \imageSY( $image ) );
 		$this->assertSame(
@@ -134,7 +136,7 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$image = $this->sut->create( 'black', $width, $height );
 
-		$this->assertInternalType( 'resource', $image );
+		$this->assert_is_resource( $image );
 		$this->assertSame( $width, \imageSX( $image ) );
 		$this->assertSame( $height, \imageSY( $image ) );
 		$this->assertSame(
@@ -163,7 +165,7 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$image = $this->sut->create( 'transparent', $width, $height );
 
-		$this->assertInternalType( 'resource', $image );
+		$this->assert_is_resource( $image );
 		$this->assertSame( $width, \imageSX( $image ) );
 		$this->assertSame( $height, \imageSY( $image ) );
 		$this->assertSame(
@@ -211,7 +213,7 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$image = $this->sut->create_from_file( vfsStream::url( 'root/plugin/my_parts_dir/somefile.png' ) );
 
-		$this->assertInternalType( 'resource', $image );
+		$this->assert_is_resource( $image );
 		$this->assertSame( $width, \imageSX( $image ) );
 		$this->assertSame( $height, \imageSY( $image ) );
 

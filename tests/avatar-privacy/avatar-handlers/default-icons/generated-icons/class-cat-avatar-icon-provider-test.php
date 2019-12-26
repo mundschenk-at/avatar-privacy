@@ -60,11 +60,11 @@ class Cat_Avatar_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		$file_cache = m::mock( Filesystem_Cache::class );
 		$sut        = m::mock( Cat_Avatar_Icon_Provider::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $sut, '__construct', [ $generator, $file_cache ] );
+		$this->invoke_method( $sut, '__construct', [ $generator, $file_cache ] );
 
-		$this->assertAttributeSame( $generator, 'generator', $sut );
-		$this->assertAttributeSame( $file_cache, 'file_cache', $sut );
-		$this->assertAttributeSame( [ 'cat' => 0 ], 'valid_types', $sut );
+		$this->assert_attribute_same( $generator, 'generator', $sut );
+		$this->assert_attribute_same( $file_cache, 'file_cache', $sut );
+		$this->assert_attribute_same( [ 'cat' => 0 ], 'valid_types', $sut );
 	}
 
 	/**

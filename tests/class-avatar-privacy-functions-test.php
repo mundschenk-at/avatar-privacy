@@ -37,6 +37,8 @@ use org\bovigo\vfs\vfsStreamDirectory;
 
 use Mockery as m;
 
+use Symfony\Bridge\PhpUnit\SetUpTearDownTrait;
+
 /**
  * Unit tests for Avatar Privacy functions.
  */
@@ -45,9 +47,11 @@ class Avatar_Privacy_Functions_Test extends TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$filesystem = [
 			'plugin' => [

@@ -78,9 +78,11 @@ class Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		// Properties.
 		$this->parts_dir = '/some/fake/parts/dir';
@@ -112,12 +114,12 @@ class Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$transients = m::mock( Site_Transients::class );
 		$mock       = m::mock( Parts_Generator::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $mock, '__construct', [ $fake_path, $part_types, $rng, $transients ] );
+		$this->invoke_method( $mock, '__construct', [ $fake_path, $part_types, $rng, $transients ] );
 
-		$this->assertAttributeSame( $fake_path, 'parts_dir', $mock );
-		$this->assertAttributeSame( $part_types, 'part_types', $mock );
-		$this->assertAttributeSame( $rng, 'number_generator', $mock );
-		$this->assertAttributeSame( $transients, 'site_transients', $mock );
+		$this->assert_attribute_same( $fake_path, 'parts_dir', $mock );
+		$this->assert_attribute_same( $part_types, 'part_types', $mock );
+		$this->assert_attribute_same( $rng, 'number_generator', $mock );
+		$this->assert_attribute_same( $transients, 'site_transients', $mock );
 	}
 
 	/**
@@ -275,7 +277,7 @@ class Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 			'mouth' => 'mouth_6.png',
 		];
 
-		$this->assertInternalType( 'array', $this->sut->get_additional_arguments( $seed, $size, $parts ) );
+		$this->assert_is_array( $this->sut->get_additional_arguments( $seed, $size, $parts ) );
 	}
 
 	/**
@@ -308,7 +310,7 @@ class Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Run test.
 		$result = $this->sut->randomize_parts( $parts );
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertSame( \array_keys( $parts ), \array_keys( $result ) );
 	}
 
@@ -416,7 +418,7 @@ class Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::build_parts_array
 	 */
 	public function test_build_parts_array() {
-		$empty_parts  = \array_fill_keys( $this->getValue( $this->sut, 'part_types' ), [] );
+		$empty_parts  = \array_fill_keys( $this->get_value( $this->sut, 'part_types' ), [] );
 		$parts        = [ 'unsorted' => 'parts' ];
 		$sorted_parts = [ 'sorted' => 'parts' ];
 
@@ -433,7 +435,7 @@ class Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::build_parts_array
 	 */
 	public function test_build_parts_array_error() {
-		$empty_parts  = \array_fill_keys( $this->getValue( $this->sut, 'part_types' ), [] );
+		$empty_parts  = \array_fill_keys( $this->get_value( $this->sut, 'part_types' ), [] );
 		$parts        = [ 'unsorted' => 'parts' ];
 		$sorted_parts = [ 'sorted' => 'parts' ];
 

@@ -73,9 +73,11 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$filesystem = [
 			'wordpress' => [
@@ -109,9 +111,9 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 		$mock = m::mock( Database::class )->makePartial();
 		$mock->__construct( $this->core, $this->network_options );
 
-		$this->assertAttributeSame( $this->core, 'core', $mock );
-		$this->assertAttributeSame( $this->network_options, 'network_options', $mock );
-		$this->assertAttributeInternalType( 'array', 'placeholder', $mock );
+		$this->assert_attribute_same( $this->core, 'core', $mock );
+		$this->assert_attribute_same( $this->network_options, 'network_options', $mock );
+		$this->assert_is_array( $this->get_value( $mock, 'placeholder' ) );
 	}
 
 	/**
@@ -336,9 +338,9 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertNull( $this->sut->register_table( $db, $table_name ) );
 
-		$this->assertAttributeContains( Database::TABLE_BASENAME, 'tables', $db );
-		$this->assertAttributeNotContains( Database::TABLE_BASENAME, 'ms_global_tables', $db );
-		$this->assertAttributeSame( $table_name, Database::TABLE_BASENAME, $db );
+		$this->assert_attribute_contains( Database::TABLE_BASENAME, 'tables', $db );
+		$this->assert_attribute_not_contains( Database::TABLE_BASENAME, 'ms_global_tables', $db );
+		$this->assert_attribute_same( $table_name, Database::TABLE_BASENAME, $db );
 	}
 
 	/**
@@ -359,9 +361,9 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertNull( $this->sut->register_table( $db, $table_name ) );
 
-		$this->assertAttributeContains( Database::TABLE_BASENAME, 'tables', $db );
-		$this->assertAttributeNotContains( Database::TABLE_BASENAME, 'ms_global_tables', $db );
-		$this->assertAttributeSame( $table_name, Database::TABLE_BASENAME, $db );
+		$this->assert_attribute_contains( Database::TABLE_BASENAME, 'tables', $db );
+		$this->assert_attribute_not_contains( Database::TABLE_BASENAME, 'ms_global_tables', $db );
+		$this->assert_attribute_same( $table_name, Database::TABLE_BASENAME, $db );
 	}
 
 	/**
@@ -382,9 +384,9 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertNull( $this->sut->register_table( $db, $table_name ) );
 
-		$this->assertAttributeNotContains( Database::TABLE_BASENAME, 'tables', $db );
-		$this->assertAttributeContains( Database::TABLE_BASENAME, 'ms_global_tables', $db );
-		$this->assertAttributeSame( $table_name, Database::TABLE_BASENAME, $db );
+		$this->assert_attribute_not_contains( Database::TABLE_BASENAME, 'tables', $db );
+		$this->assert_attribute_contains( Database::TABLE_BASENAME, 'ms_global_tables', $db );
+		$this->assert_attribute_same( $table_name, Database::TABLE_BASENAME, $db );
 	}
 
 	/**

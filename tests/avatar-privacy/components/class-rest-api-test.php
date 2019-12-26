@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2019 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -54,9 +54,11 @@ class REST_API_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		$this->sut = m::mock( REST_API::class )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
@@ -98,8 +100,12 @@ class REST_API_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'rest_get_avatar_sizes' )->once()->andReturn( $sizes );
 		Functions\expect( 'get_avatar_url' )->times( \count( $sizes ) )->with( $user, m::type( 'array' ) )->andReturn( 'another/url1', 'another/url2' );
 
+		// Run method.
 		$this->assertSame( $response, $this->sut->fix_rest_user_avatars( $response, $user ) );
-		$this->assertArraySubset( [ 'avatar_urls' => [] ], $response->data );
+
+		// Check if response data is different from its initial state.
+		$this->assertArrayHasKey( 'avatar_urls', $response->data );
+		$this->assertSame( $expected, $response->data['avatar_urls'] );
 	}
 
 	/**
@@ -127,7 +133,11 @@ class REST_API_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'rest_get_avatar_sizes' )->once()->andReturn( $sizes );
 		Functions\expect( 'get_avatar_url' )->times( \count( $sizes ) )->with( $comment, m::type( 'array' ) )->andReturn( 'another/url1', 'another/url2' );
 
+		// Run method.
 		$this->assertSame( $response, $this->sut->fix_rest_comment_author_avatars( $response, $comment ) );
-		$this->assertArraySubset( [ 'author_avatar_urls' => $expected ], $response->data );
+
+		// Check if response data is different from its initial state.
+		$this->assertArrayHasKey( 'author_avatar_urls', $response->data );
+		$this->assertSame( $expected, $response->data['author_avatar_urls'] );
 	}
 }

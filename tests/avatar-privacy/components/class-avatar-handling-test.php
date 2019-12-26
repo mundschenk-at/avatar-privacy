@@ -94,9 +94,11 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
+	 *
+	 * @since 2.3.3 Renamed to `set_up`.
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		// Ubiquitous functions.
 		Functions\when( '__' )->returnArg();
@@ -124,9 +126,9 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $this->core, $this->options, $this->gravatar );
 
-		$this->assertAttributeSame( $this->core, 'core', $mock );
-		$this->assertAttributeSame( $this->options, 'options', $mock );
-		$this->assertAttributeSame( $this->gravatar, 'gravatar', $mock );
+		$this->assert_attribute_same( $this->core, 'core', $mock );
+		$this->assert_attribute_same( $this->options, 'options', $mock );
+		$this->assert_attribute_same( $this->gravatar, 'gravatar', $mock );
 	}
 
 	/**
@@ -247,7 +249,10 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 			}
 		}
 
-		$this->assertArraySubset( [ 'url' => $result ], $this->sut->get_avatar_data( $args, $id_or_email ) );
+		$avatar_response = $this->sut->get_avatar_data( $args, $id_or_email );
+
+		$this->assertArrayHasKey( 'url', $avatar_response );
+		$this->assertSame( $result, $avatar_response['url'] );
 	}
 
 	/**
@@ -297,7 +302,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 			Filters\expectApplied( 'avatar_privacy_enable_gravatar_check' )->never();
 		}
 
-		$this->assertSame( $expected, $this->invokeMethod( $this->sut, 'should_show_gravatar', [ $user_id, $email, $id_or_email, $age, &$mime ] ) );
+		$this->assertSame( $expected, $this->invoke_method( $this->sut, 'should_show_gravatar', [ $user_id, $email, $id_or_email, $age, &$mime ] ) );
 		if ( $show_gravatar && $check_enabled ) {
 			$this->assertSame( $mimetype, $mime );
 		}
@@ -513,7 +518,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 			$this->sut->shouldReceive( 'get_age' )->once()->with( $comment_date_gmt )->andReturn( $now - \strtotime( $comment_date_gmt ) );
 		}
 
-		$this->assertSame( $result, $this->invokeMethod( $this->sut, 'parse_comment', [ $comment ] ) );
+		$this->assertSame( $result, $this->invoke_method( $this->sut, 'parse_comment', [ $comment ] ) );
 	}
 
 	/**
@@ -528,7 +533,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'mysql2date' )->once()->with( 'U', $date )->andReturn( $now - $age );
 
-		$result = $this->invokeMethod( $this->sut, 'get_age', [ $date ] );
+		$result = $this->invoke_method( $this->sut, 'get_age', [ $date ] );
 		$this->assertGreaterThanOrEqual( 550, $result );
 		$this->assertLessThanOrEqual( 560, $result );
 	}

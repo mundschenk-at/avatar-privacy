@@ -57,8 +57,8 @@ class Static_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $valid_types, $basename );
 
-		$this->assertAttributeSame( \array_flip( $valid_types ), 'valid_types', $mock, Abstract_Icon_Provider::class );
-		$this->assertAttributeSame( $basename, 'icon_basename', $mock );
+		$this->assert_attribute_same( \array_flip( $valid_types ), 'valid_types', $mock, Abstract_Icon_Provider::class );
+		$this->assert_attribute_same( $basename, 'icon_basename', $mock );
 	}
 
 	/**
@@ -75,8 +75,8 @@ class Static_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct( $valid_types, $basename );
 
-		$this->assertAttributeSame( [ 'foobar' => 0 ], 'valid_types', $mock, Abstract_Icon_Provider::class );
-		$this->assertAttributeSame( $basename, 'icon_basename', $mock );
+		$this->assert_attribute_same( [ 'foobar' => 0 ], 'valid_types', $mock, Abstract_Icon_Provider::class );
+		$this->assert_attribute_same( $basename, 'icon_basename', $mock );
 	}
 
 	/**
