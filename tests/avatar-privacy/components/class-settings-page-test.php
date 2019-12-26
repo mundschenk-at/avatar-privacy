@@ -297,7 +297,7 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->sanitize_settings( $input );
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertSame( $old_avatar, $result[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] );
 		$this->assertFalse( $result['setting1'] );
 		$this->assertSame( 'foo', $result['setting2'] );
@@ -339,7 +339,7 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->sanitize_settings( $input );
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertSame( $old_avatar, $result[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] );
 		$this->assertTrue( $result['setting1'] );
 		$this->assertSame( 'foo', $result['setting2'] );
@@ -376,7 +376,7 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->sanitize_settings( $input );
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertSame( $new_avatar, $result[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] );
 		$this->assertFalse( $result['setting1'] );
 		$this->assertFalse( isset( $result['setting2'] ) );

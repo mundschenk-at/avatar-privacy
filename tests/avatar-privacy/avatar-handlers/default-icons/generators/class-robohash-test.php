@@ -161,7 +161,7 @@ class Robohash_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->get_additional_arguments( $seed, $size, $parts );
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertArrayHasKey( 'color', $result );
 		$this->assertArrayHasKey( 'bg_color', $result );
 	}

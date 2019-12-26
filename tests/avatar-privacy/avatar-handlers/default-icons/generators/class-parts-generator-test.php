@@ -277,7 +277,7 @@ class Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 			'mouth' => 'mouth_6.png',
 		];
 
-		$this->assertInternalType( 'array', $this->sut->get_additional_arguments( $seed, $size, $parts ) );
+		$this->assert_is_array( $this->sut->get_additional_arguments( $seed, $size, $parts ) );
 	}
 
 	/**
@@ -310,7 +310,7 @@ class Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Run test.
 		$result = $this->sut->randomize_parts( $parts );
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertSame( \array_keys( $parts ), \array_keys( $result ) );
 	}
 

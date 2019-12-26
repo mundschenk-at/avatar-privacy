@@ -164,8 +164,8 @@ class Number_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$result1 = $this->sut->get( $min, $max );
 		$result2 = $this->sut->get( $min, $max );
 
-		$this->assertInternalType( 'int', $result1 );
-		$this->assertInternalType( 'int', $result2 );
+		$this->assert_is_int( $result1 );
+		$this->assert_is_int( $result2 );
 		$this->assertLessThanOrEqual( $max, $result1 );
 		$this->assertLessThanOrEqual( $max, $result2 );
 		$this->assertGreaterThanOrEqual( $min, $result1 );

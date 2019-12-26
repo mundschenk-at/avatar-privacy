@@ -75,7 +75,7 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->get_fields( $information_header );
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertContainsOnly( 'string', \array_keys( $result ) );
 		$this->assertContainsOnly( 'array', $result );
 		$this->assertSame( $result[ Settings::INFORMATION_HEADER ]['elements'], [ $information_header ] );
@@ -91,7 +91,7 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_defaults() {
 		$result = $this->sut->get_defaults();
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertNotContainsOnly( 'array', $result );
 		$this->assertSame( '', $result[ Options::INSTALLED_VERSION ] );
 	}
@@ -104,7 +104,7 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_network_fields() {
 		$result = $this->sut->get_network_fields();
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertContainsOnly( 'string', \array_keys( $result ) );
 		$this->assertContainsOnly( 'array', $result );
 	}

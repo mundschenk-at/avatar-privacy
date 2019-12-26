@@ -107,7 +107,7 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$image = $this->sut->create( 'white', $width, $height );
 
-		$this->assertInternalType( 'resource', $image );
+		$this->assert_is_resource( $image );
 		$this->assertSame( $width, \imageSX( $image ) );
 		$this->assertSame( $height, \imageSY( $image ) );
 		$this->assertSame(
@@ -136,7 +136,7 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$image = $this->sut->create( 'black', $width, $height );
 
-		$this->assertInternalType( 'resource', $image );
+		$this->assert_is_resource( $image );
 		$this->assertSame( $width, \imageSX( $image ) );
 		$this->assertSame( $height, \imageSY( $image ) );
 		$this->assertSame(
@@ -165,7 +165,7 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$image = $this->sut->create( 'transparent', $width, $height );
 
-		$this->assertInternalType( 'resource', $image );
+		$this->assert_is_resource( $image );
 		$this->assertSame( $width, \imageSX( $image ) );
 		$this->assertSame( $height, \imageSY( $image ) );
 		$this->assertSame(
@@ -213,7 +213,7 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$image = $this->sut->create_from_file( vfsStream::url( 'root/plugin/my_parts_dir/somefile.png' ) );
 
-		$this->assertInternalType( 'resource', $image );
+		$this->assert_is_resource( $image );
 		$this->assertSame( $width, \imageSX( $image ) );
 		$this->assertSame( $height, \imageSY( $image ) );
 

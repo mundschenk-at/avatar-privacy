@@ -159,7 +159,7 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->get_additional_arguments( $seed, $size, $parts );
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertArrayHasKey( 'background_hue', $result );
 		$this->assertArrayHasKey( 'wavatar_hue', $result );
 	}

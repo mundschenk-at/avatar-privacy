@@ -158,9 +158,9 @@ class Ultimate_Member_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->remove_ultimate_member_gravatar_settings( $structure );
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertNotEmpty( $result['']['sections']['users']['fields'] );
-		$this->assertInternalType( 'array', $result['']['sections']['users']['fields'] );
+		$this->assert_is_array( $result['']['sections']['users']['fields'] );
 		$this->assertContains( $conditional, $result['']['sections']['users']['fields'][1] );
 	}
 

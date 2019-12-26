@@ -175,7 +175,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->get_additional_arguments( $seed, $size, $parts );
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertArrayHasKey( 'hue', $result );
 		$this->assertArrayHasKey( 'saturation', $result );
 	}
@@ -230,7 +230,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->colorize_image( $resource, $hue, $saturation, $part );
 
-		$this->assertInternalType( 'resource', $result );
+		$this->assert_is_resource( $result );
 
 		// Clean up.
 		\imageDestroy( $resource );
@@ -255,7 +255,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->colorize_image( $resource, $hue, $saturation, $part );
 
-		$this->assertInternalType( 'resource', $result );
+		$this->assert_is_resource( $result );
 
 		// Clean up.
 		\imageDestroy( $resource );

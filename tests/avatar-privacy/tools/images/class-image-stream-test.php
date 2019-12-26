@@ -516,7 +516,7 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->url_stat( $path, $flags );
 
-		$this->assertInternalType( 'array', $result );
+		$this->assert_is_array( $result );
 		$this->assertArrayHasKey( 'size', $result );
 		$this->assertSame( 4, $result['size'] );
 	}
