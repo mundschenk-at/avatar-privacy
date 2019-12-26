@@ -338,8 +338,8 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertNull( $this->sut->register_table( $db, $table_name ) );
 
-		$this->assertAttributeContains( Database::TABLE_BASENAME, 'tables', $db );
-		$this->assertAttributeNotContains( Database::TABLE_BASENAME, 'ms_global_tables', $db );
+		$this->assert_attribute_contains( Database::TABLE_BASENAME, 'tables', $db );
+		$this->assert_attribute_not_contains( Database::TABLE_BASENAME, 'ms_global_tables', $db );
 		$this->assert_attribute_same( $table_name, Database::TABLE_BASENAME, $db );
 	}
 
@@ -361,8 +361,8 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertNull( $this->sut->register_table( $db, $table_name ) );
 
-		$this->assertAttributeContains( Database::TABLE_BASENAME, 'tables', $db );
-		$this->assertAttributeNotContains( Database::TABLE_BASENAME, 'ms_global_tables', $db );
+		$this->assert_attribute_contains( Database::TABLE_BASENAME, 'tables', $db );
+		$this->assert_attribute_not_contains( Database::TABLE_BASENAME, 'ms_global_tables', $db );
 		$this->assert_attribute_same( $table_name, Database::TABLE_BASENAME, $db );
 	}
 
@@ -384,8 +384,8 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertNull( $this->sut->register_table( $db, $table_name ) );
 
-		$this->assertAttributeNotContains( Database::TABLE_BASENAME, 'tables', $db );
-		$this->assertAttributeContains( Database::TABLE_BASENAME, 'ms_global_tables', $db );
+		$this->assert_attribute_not_contains( Database::TABLE_BASENAME, 'tables', $db );
+		$this->assert_attribute_contains( Database::TABLE_BASENAME, 'ms_global_tables', $db );
 		$this->assert_attribute_same( $table_name, Database::TABLE_BASENAME, $db );
 	}
 

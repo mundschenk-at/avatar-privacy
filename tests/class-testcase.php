@@ -262,6 +262,34 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
+	 * Reports an error identified by $message if $attribute in $object does not contain $value.
+	 *
+	 * @since 2.3.3
+	 *
+	 * @param mixed  $value     The comparison value.
+	 * @param string $attribute The attribute name.
+	 * @param object $object    The object.
+	 * @param string $message   Optional. Default ''.
+	 */
+	protected function assert_attribute_contains( $value, $attribute, $object, $message = '' ) {
+		return $this->assertContains( $value, $this->get_value( $object, $attribute ), $message );
+	}
+
+	/**
+	 * Reports an error identified by $message if $attribute in $object contains $value.
+	 *
+	 * @since 2.3.3
+	 *
+	 * @param mixed  $value     The comparison value.
+	 * @param string $attribute The attribute name.
+	 * @param object $object    The object.
+	 * @param string $message   Optional. Default ''.
+	 */
+	protected function assert_attribute_not_contains( $value, $attribute, $object, $message = '' ) {
+		return $this->assertNotContains( $value, $this->get_value( $object, $attribute ), $message );
+	}
+
+	/**
 	 * Reports an error identified by $message if $attribute in $object does not have the $key.
 	 *
 	 * @since 2.3.3 Renamed to `assert_attribute_array_has_key`.
