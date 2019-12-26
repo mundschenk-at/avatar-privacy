@@ -191,26 +191,28 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::get_instance without a previous call to ::_get_instance (i.e. _doing_it_wrong).
 	 *
 	 * @covers ::get_instance
-	 *
-	 * @expectedException \BadMethodCallException
-	 * @expectedExceptionMessage Avatar_Privacy\Core::get_instance called without prior plugin intialization.
 	 */
 	public function test_get_instance_failing() {
+		$this->expectException( \BadMethodCallException::class );
+		$this->expectExceptionMessage( 'Avatar_Privacy\Core::get_instance called without prior plugin intialization.' );
+
 		$core = \Avatar_Privacy\Core::get_instance();
-		$this->assertInstanceOf( \Avatar_Privacy\Core::class, $core );
 	}
 
 	/**
 	 * Tests ::get_instance without a previous call to ::_get_instance (i.e. _doing_it_wrong).
 	 *
 	 * @covers ::set_instance
-	 *
-	 * @expectedException \BadMethodCallException
-	 * @expectedExceptionMessage Avatar_Privacy\Core::set_instance called more than once.
 	 */
 	public function test_set_instance_failing() {
 		$core = m::mock( \Avatar_Privacy\Core::class );
+
+		// The first call is OK.
 		\Avatar_Privacy\Core::set_instance( $core );
+
+		// The second call fails with an exception.
+		$this->expectException( \BadMethodCallException::class );
+		$this->expectExceptionMessage( 'Avatar_Privacy\Core::set_instance called more than once.' );
 		\Avatar_Privacy\Core::set_instance( $core );
 	}
 
