@@ -288,4 +288,213 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase {
 	protected function assert_attribute_array_not_has_key( $key, $attribute, $object, $message = '' ) {
 		return $this->assertArrayNotHasKey( $key, $this->get_value( $object, $attribute ), $message );
 	}
+
+	/**
+	 * Reports an error identified by $message if $actual is not an array.
+	 *
+	 * A custom method is used to future-proof the testcases as assertInternalType()
+	 * has been deprecated in PHPUnit 8.
+	 *
+	 * @since 2.3.3
+	 *
+	 * @param  mixed  $actual  The value to test.
+	 * @param  string $message Optional. Default ''.
+	 */
+	protected function assert_is_array( $actual, $message = '' ) {
+		if ( \method_exists( $this, 'assertIsArray' ) ) {
+			return $this->assertIsArray( $actual, $message );
+		} else {
+			return $this->assertInternalType( 'array', $actual, $message );
+		}
+	}
+
+	/**
+	 * Reports an error identified by $message if $actual is not a boolean value.
+	 *
+	 * A custom method is used to future-proof the testcases as assertInternalType()
+	 * has been deprecated in PHPUnit 8.
+	 *
+	 * @since 2.3.3
+	 *
+	 * @param  mixed  $actual  The value to test.
+	 * @param  string $message Optional. Default ''.
+	 */
+	protected function assert_is_bool( $actual, $message = '' ) {
+		if ( \method_exists( $this, 'assertIsBool' ) ) {
+			return $this->assertIsBool( $actual, $message );
+		} else {
+			return $this->assertInternalType( 'bool', $actual, $message );
+		}
+	}
+
+	/**
+	 * Reports an error identified by $message if $actual is not a float value.
+	 *
+	 * A custom method is used to future-proof the testcases as assertInternalType()
+	 * has been deprecated in PHPUnit 8.
+	 *
+	 * @since 2.3.3
+	 *
+	 * @param  mixed  $actual  The value to test.
+	 * @param  string $message Optional. Default ''.
+	 */
+	protected function assert_is_float( $actual, $message = '' ) {
+		if ( \method_exists( $this, 'assertIsFloat' ) ) {
+			return $this->assertIsFloat( $actual, $message );
+		} else {
+			return $this->assertInternalType( 'float', $actual, $message );
+		}
+	}
+
+	/**
+	 * Reports an error identified by $message if $actual is not an integer value.
+	 *
+	 * A custom method is used to future-proof the testcases as assertInternalType()
+	 * has been deprecated in PHPUnit 8.
+	 *
+	 * @since 2.3.3
+	 *
+	 * @param  mixed  $actual  The value to test.
+	 * @param  string $message Optional. Default ''.
+	 */
+	protected function assert_is_int( $actual, $message = '' ) {
+		if ( \method_exists( $this, 'assertIsInt' ) ) {
+			return $this->assertIsInt( $actual, $message );
+		} else {
+			return $this->assertInternalType( 'int', $actual, $message );
+		}
+	}
+
+	/**
+	 * Reports an error identified by $message if $actual is not a numeric value.
+	 *
+	 * A custom method is used to future-proof the testcases as assertInternalType()
+	 * has been deprecated in PHPUnit 8.
+	 *
+	 * @since 2.3.3
+	 *
+	 * @param  mixed  $actual  The value to test.
+	 * @param  string $message Optional. Default ''.
+	 */
+	protected function assert_is_numeric( $actual, $message = '' ) {
+		if ( \method_exists( $this, 'assertIsNumeric' ) ) {
+			return $this->assertIsNumeric( $actual, $message );
+		} else {
+			return $this->assertInternalType( 'numeric', $actual, $message );
+		}
+	}
+
+	/**
+	 * Reports an error identified by $message if $actual is not an object.
+	 *
+	 * A custom method is used to future-proof the testcases as assertInternalType()
+	 * has been deprecated in PHPUnit 8.
+	 *
+	 * @since 2.3.3
+	 *
+	 * @param  mixed  $actual  The value to test.
+	 * @param  string $message Optional. Default ''.
+	 */
+	protected function assert_is_object( $actual, $message = '' ) {
+		if ( \method_exists( $this, 'assertIsObject' ) ) {
+			return $this->assertIsObject( $actual, $message );
+		} else {
+			return $this->assertInternalType( 'object', $actual, $message );
+		}
+	}
+
+	/**
+	 * Reports an error identified by $message if $actual is not a resource.
+	 *
+	 * A custom method is used to future-proof the testcases as assertInternalType()
+	 * has been deprecated in PHPUnit 8.
+	 *
+	 * @since 2.3.3
+	 *
+	 * @param  mixed  $actual  The value to test.
+	 * @param  string $message Optional. Default ''.
+	 */
+	protected function assert_is_resource( $actual, $message = '' ) {
+		if ( \method_exists( $this, 'assertIsResource' ) ) {
+			return $this->assertIsResource( $actual, $message );
+		} else {
+			return $this->assertInternalType( 'resource', $actual, $message );
+		}
+	}
+
+	/**
+	 * Reports an error identified by $message if $actual is not a string.
+	 *
+	 * A custom method is used to future-proof the testcases as assertInternalType()
+	 * has been deprecated in PHPUnit 8.
+	 *
+	 * @since 2.3.3
+	 *
+	 * @param  mixed  $actual  The value to test.
+	 * @param  string $message Optional. Default ''.
+	 */
+	protected function assert_is_string( $actual, $message = '' ) {
+		if ( \method_exists( $this, 'assertIsString' ) ) {
+			return $this->assertIsString( $actual, $message );
+		} else {
+			return $this->assertInternalType( 'string', $actual, $message );
+		}
+	}
+
+	/**
+	 * Reports an error identified by $message if $actual is not a scalar value.
+	 *
+	 * A custom method is used to future-proof the testcases as assertInternalType()
+	 * has been deprecated in PHPUnit 8.
+	 *
+	 * @since 2.3.3
+	 *
+	 * @param  mixed  $actual  The value to test.
+	 * @param  string $message Optional. Default ''.
+	 */
+	protected function assert_is_scalar( $actual, $message = '' ) {
+		if ( \method_exists( $this, 'assertIsScalar' ) ) {
+			return $this->assertIsScalar( $actual, $message );
+		} else {
+			return $this->assertInternalType( 'scalar', $actual, $message );
+		}
+	}
+
+	/**
+	 * Reports an error identified by $message if $actual is not a callable.
+	 *
+	 * A custom method is used to future-proof the testcases as assertInternalType()
+	 * has been deprecated in PHPUnit 8.
+	 *
+	 * @since 2.3.3
+	 *
+	 * @param  mixed  $actual  The value to test.
+	 * @param  string $message Optional. Default ''.
+	 */
+	protected function assert_is_callable( $actual, $message = '' ) {
+		if ( \method_exists( $this, 'assertIsCallable' ) ) {
+			return $this->assertIsCallable( $actual, $message );
+		} else {
+			return $this->assertInternalType( 'callable', $actual, $message );
+		}
+	}
+
+	/**
+	 * Reports an error identified by $message if $actual is not an iterable value.
+	 *
+	 * A custom method is used to future-proof the testcases as assertInternalType()
+	 * has been deprecated in PHPUnit 8.
+	 *
+	 * @since 2.3.3
+	 *
+	 * @param  mixed  $actual  The value to test.
+	 * @param  string $message Optional. Default ''.
+	 */
+	protected function assert_is_iterable( $actual, $message = '' ) {
+		if ( \method_exists( $this, 'assertIsIterable' ) ) {
+			return $this->assertIsIterable( $actual, $message );
+		} else {
+			return $this->assertInternalType( 'iterable', $actual, $message );
+		}
+	}
 }
