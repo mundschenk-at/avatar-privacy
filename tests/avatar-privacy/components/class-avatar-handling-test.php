@@ -249,7 +249,10 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 			}
 		}
 
-		$this->assertArraySubset( [ 'url' => $result ], $this->sut->get_avatar_data( $args, $id_or_email ) );
+		$avatar_response = $this->sut->get_avatar_data( $args, $id_or_email );
+
+		$this->assertArrayHasKey( 'url', $avatar_response );
+		$this->assertSame( $result, $avatar_response['url'] );
 	}
 
 	/**
