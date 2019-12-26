@@ -113,7 +113,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assert_attribute_same( $this->core, 'core', $mock );
 		$this->assert_attribute_same( $this->network_options, 'network_options', $mock );
-		$this->assertAttributeInternalType( 'array', 'placeholder', $mock );
+		$this->assert_is_array( $this->get_value( $mock, 'placeholder' ) );
 	}
 
 	/**

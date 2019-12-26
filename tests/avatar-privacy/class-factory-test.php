@@ -101,8 +101,9 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Manually call constructor.
 		$this->sut->__construct();
 
-		$this->assertAttributeCount( \count( $rules ), 'rules', $this->sut );
-		$this->assertAttributeInternalType( 'array', 'rules', $this->sut );
+		$resulting_rules = $this->get_value( $this->sut, 'rules' );
+		$this->assert_is_array( $resulting_rules );
+		$this->assertCount( \count( $rules ), $resulting_rules );
 	}
 
 	/**
