@@ -56,7 +56,7 @@ class Bowling_Pin_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		$sut   = m::mock( Bowling_Pin_Icon_Provider::class )->makePartial()->shouldAllowMockingProtectedMethods();
 		$types = \array_flip( [ 'bowling-pin', 'im-user-offline' ] );
 
-		$this->invokeMethod( $sut, '__construct', [] );
+		$this->invoke_method( $sut, '__construct', [] );
 
 		$this->assert_attribute_same( $types, 'valid_types', $sut );
 		$this->assert_attribute_same( 'shaded-cone', 'icon_basename', $sut );

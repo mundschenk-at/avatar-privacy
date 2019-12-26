@@ -61,7 +61,7 @@ class Generating_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock = m::mock( Generating_Icon_Provider::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $mock, '__construct', [ $generator, $file_cache, $types ] );
+		$this->invoke_method( $mock, '__construct', [ $generator, $file_cache, $types ] );
 
 		$this->assert_attribute_same( $generator, 'generator', $mock );
 		$this->assert_attribute_same( $file_cache, 'file_cache', $mock );
@@ -83,7 +83,7 @@ class Generating_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// System-under-test.
 		$sut = m::mock( Generating_Icon_Provider::class )->makePartial()->shouldAllowMockingProtectedMethods();
-		$this->invokeMethod( $sut, '__construct', [ $generator, $file_cache, $types ] );
+		$this->invoke_method( $sut, '__construct', [ $generator, $file_cache, $types ] );
 
 		// Input parameters.
 		$identity = 'f0e4c2f76c58916ec258f246851bea091d14d4247a2fc3e18694461b1816e13b';

@@ -104,23 +104,31 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase {
 	/**
 	 * Call protected/private method of a class.
 	 *
+	 * @since 2.3.3 Renamed to `invoke_method`. Parameter `classname` has been removed.
+	 *
 	 * @param object $object      Instantiated object that we will run method on.
 	 * @param string $method_name Method name to call.
 	 * @param array  $parameters  Array of parameters to pass into method.
-	 * @param string $classname   Optional. The class to use for accessing private properties.
 	 *
 	 * @return mixed Method return.
+	 *
+	 * @throws \RuntimeException    The method could not be found in the object.
 	 */
-	protected function invokeMethod( $object, $method_name, array $parameters = [], $classname = '' ) {
-		if ( empty( $classname ) ) {
-			$classname = get_class( $object );
+	protected function invoke_method( $object, $method_name, array $parameters = [] ) {
+
+		$reflection = new \ReflectionObject( $object );
+		while ( ! empty( $reflection ) ) {
+			try {
+				$method = $reflection->getMethod( $method_name );
+				$method->setAccessible( true );
+				return $method->invokeArgs( $object, $parameters );
+			} catch ( \ReflectionException $e ) {
+				// Try again with superclass.
+				$reflection = $reflection->getParentClass();
+			}
 		}
 
-		$reflection = new \ReflectionClass( $classname );
-		$method     = $reflection->getMethod( $method_name );
-		$method->setAccessible( true );
-
-		return $method->invokeArgs( $object, $parameters );
+		throw new \RuntimeException( "Method $method_name not found in object." );
 	}
 
 	/**

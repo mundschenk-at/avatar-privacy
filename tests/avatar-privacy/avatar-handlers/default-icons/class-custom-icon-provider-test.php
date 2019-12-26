@@ -129,7 +129,7 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock = m::mock( Custom_Icon_Provider::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $mock, '__construct', [ $file_cache, $upload, $core, $images ] );
+		$this->invoke_method( $mock, '__construct', [ $file_cache, $upload, $core, $images ] );
 
 		$this->assert_attribute_same( $file_cache, 'file_cache', $mock );
 		$this->assert_attribute_same( $upload, 'upload', $mock );

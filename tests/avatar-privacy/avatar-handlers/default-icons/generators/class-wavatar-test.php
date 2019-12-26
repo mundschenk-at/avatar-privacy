@@ -136,7 +136,7 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 		$transients       = m::mock( Site_Transients::class );
 		$mock             = m::mock( Wavatar::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $mock, '__construct', [ $editor, $png, $number_generator, $transients ] );
+		$this->invoke_method( $mock, '__construct', [ $editor, $png, $number_generator, $transients ] );
 
 		// An attribute of the PNG_Parts_Generator superclass.
 		$this->assert_attribute_same( $editor, 'editor', $mock );

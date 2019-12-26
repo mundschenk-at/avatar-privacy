@@ -114,7 +114,7 @@ class Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$transients = m::mock( Site_Transients::class );
 		$mock       = m::mock( Parts_Generator::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $mock, '__construct', [ $fake_path, $part_types, $rng, $transients ] );
+		$this->invoke_method( $mock, '__construct', [ $fake_path, $part_types, $rng, $transients ] );
 
 		$this->assert_attribute_same( $fake_path, 'parts_dir', $mock );
 		$this->assert_attribute_same( $part_types, 'part_types', $mock );

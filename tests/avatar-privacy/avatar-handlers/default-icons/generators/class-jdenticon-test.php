@@ -74,7 +74,7 @@ class Jdenticon_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut = m::mock( Jdenticon::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
 		// Manually invoke the constructor as it is protected.
-		$this->invokeMethod( $this->sut, '__construct', [ $this->identicon ] );
+		$this->invoke_method( $this->sut, '__construct', [ $this->identicon ] );
 	}
 
 	/**
@@ -86,7 +86,7 @@ class Jdenticon_Test extends \Avatar_Privacy\Tests\TestCase {
 		$identicon = m::mock( \Jdenticon\Identicon::class );
 		$mock      = m::mock( Jdenticon::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $mock, '__construct', [ $identicon ] );
+		$this->invoke_method( $mock, '__construct', [ $identicon ] );
 
 		$this->assert_attribute_same( $identicon, 'identicon', $mock );
 	}

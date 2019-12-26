@@ -268,7 +268,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'flush_rewrite_rules_soon' )->once();
 
 		// Preserve pass-by-reference.
-		$this->assertNull( $this->invokeMethod( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
+		$this->assertNull( $this->invoke_method( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
 
 		$this->assertFalse( isset( $settings['mode_optin'] ) );
 		$this->assertFalse( isset( $settings['use_gravatar'] ) );
@@ -298,7 +298,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'flush_rewrite_rules_soon' )->once();
 
 		// Preserve pass-by-reference.
-		$this->assertNull( $this->invokeMethod( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
+		$this->assertNull( $this->invoke_method( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
 
 		$this->assertFalse( isset( $settings['mode_optin'] ) );
 		$this->assertFalse( isset( $settings['use_gravatar'] ) );
@@ -328,7 +328,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'flush_rewrite_rules_soon' )->once();
 
 		// Preserve pass-by-reference.
-		$this->assertNull( $this->invokeMethod( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
+		$this->assertNull( $this->invoke_method( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
 
 		$this->assertFalse( isset( $settings['mode_optin'] ) );
 		$this->assertFalse( isset( $settings['use_gravatar'] ) );
@@ -358,7 +358,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'flush_rewrite_rules_soon' )->once();
 
 		// Preserve pass-by-reference.
-		$this->assertNull( $this->invokeMethod( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
+		$this->assertNull( $this->invoke_method( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
 
 		$this->assertFalse( isset( $settings['mode_optin'] ) );
 		$this->assertFalse( isset( $settings['use_gravatar'] ) );

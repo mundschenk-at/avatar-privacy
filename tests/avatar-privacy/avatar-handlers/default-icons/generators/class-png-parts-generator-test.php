@@ -183,7 +183,7 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$transients = m::mock( Site_Transients::class );
 		$mock       = m::mock( PNG_Parts_Generator::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod(
+		$this->invoke_method(
 			$mock,
 			'__construct',
 			[ $fake_path, $part_types, $size, $editor, $png, $numbers, $transients ]

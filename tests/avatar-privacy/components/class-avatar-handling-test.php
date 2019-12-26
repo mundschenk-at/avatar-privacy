@@ -299,7 +299,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 			Filters\expectApplied( 'avatar_privacy_enable_gravatar_check' )->never();
 		}
 
-		$this->assertSame( $expected, $this->invokeMethod( $this->sut, 'should_show_gravatar', [ $user_id, $email, $id_or_email, $age, &$mime ] ) );
+		$this->assertSame( $expected, $this->invoke_method( $this->sut, 'should_show_gravatar', [ $user_id, $email, $id_or_email, $age, &$mime ] ) );
 		if ( $show_gravatar && $check_enabled ) {
 			$this->assertSame( $mimetype, $mime );
 		}
@@ -515,7 +515,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 			$this->sut->shouldReceive( 'get_age' )->once()->with( $comment_date_gmt )->andReturn( $now - \strtotime( $comment_date_gmt ) );
 		}
 
-		$this->assertSame( $result, $this->invokeMethod( $this->sut, 'parse_comment', [ $comment ] ) );
+		$this->assertSame( $result, $this->invoke_method( $this->sut, 'parse_comment', [ $comment ] ) );
 	}
 
 	/**
@@ -530,7 +530,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'mysql2date' )->once()->with( 'U', $date )->andReturn( $now - $age );
 
-		$result = $this->invokeMethod( $this->sut, 'get_age', [ $date ] );
+		$result = $this->invoke_method( $this->sut, 'get_age', [ $date ] );
 		$this->assertGreaterThanOrEqual( 550, $result );
 		$this->assertLessThanOrEqual( 560, $result );
 	}

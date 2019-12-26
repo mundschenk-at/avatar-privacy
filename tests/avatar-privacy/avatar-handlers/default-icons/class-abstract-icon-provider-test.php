@@ -77,7 +77,7 @@ class Abstract_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut = m::mock( Abstract_Icon_Provider::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
 		// Manually invoke the constructor as it is protected.
-		$this->invokeMethod( $this->sut, '__construct', [ $this->valid_types ] );
+		$this->invoke_method( $this->sut, '__construct', [ $this->valid_types ] );
 	}
 
 	/**
@@ -89,7 +89,7 @@ class Abstract_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		$mock        = m::mock( Abstract_Icon_Provider::class )->makePartial()->shouldAllowMockingProtectedMethods();
 		$valid_types = [ 'foobar', 'barfoo', 'rhabarber' ];
 
-		$this->invokeMethod( $mock, '__construct', [ $valid_types ] );
+		$this->invoke_method( $mock, '__construct', [ $valid_types ] );
 
 		$this->assert_attribute_same( \array_flip( $valid_types ), 'valid_types', $mock );
 		$this->assert_attribute_same( 'foobar', 'primary_type', $mock );

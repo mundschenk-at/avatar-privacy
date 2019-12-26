@@ -60,7 +60,7 @@ class Wavatar_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		$file_cache = m::mock( Filesystem_Cache::class );
 		$sut        = m::mock( Wavatar_Icon_Provider::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $sut, '__construct', [ $generator, $file_cache ] );
+		$this->invoke_method( $sut, '__construct', [ $generator, $file_cache ] );
 
 		$this->assert_attribute_same( $generator, 'generator', $sut );
 		$this->assert_attribute_same( $file_cache, 'file_cache', $sut );

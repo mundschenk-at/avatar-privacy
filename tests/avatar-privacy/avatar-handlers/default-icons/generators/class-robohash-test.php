@@ -138,7 +138,7 @@ class Robohash_Test extends \Avatar_Privacy\Tests\TestCase {
 		$number_generator = m::mock( Number_Generator::class );
 		$mock             = m::mock( Robohash::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invokeMethod( $mock, '__construct', [ $number_generator, $transients ] );
+		$this->invoke_method( $mock, '__construct', [ $number_generator, $transients ] );
 
 		// An attribute of the Parts_Generator superclass.
 		$this->assert_attribute_same( $transients, 'site_transients', $mock );
