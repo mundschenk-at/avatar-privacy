@@ -23,7 +23,6 @@ export { metadata, name };
 
 export const settings = {
 	title: __( 'Avatar Privacy Form', 'avatar-privacy' ),
-	icon: 'id-alt',
 
 	supports: {
 		html: false,
