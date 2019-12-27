@@ -1,6 +1,7 @@
 {
 	"name": "avatar-privacy/form",
 	"category": "common",
+	"icon": "id-alt",
 	"attributes": {
 		"avatar_size": {
 			"type": "integer",

@@ -1,6 +1,7 @@
 {
 	"name": "avatar-privacy/avatar",
 	"category": "common",
+	"icon": "admin-users",
 	"attributes": {
 		"avatar_size": {
 			"type": "integer",

@@ -23,7 +23,6 @@ export { metadata, name };
 
 export const settings = {
 	title: __( 'Avatar', 'avatar-privacy' ),
-	icon: 'admin-users',
 
 	supports: {
 		align: [ 'left', 'center', 'right' ],
