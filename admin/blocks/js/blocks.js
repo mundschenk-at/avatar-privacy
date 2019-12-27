@@ -90,10 +90,10 @@
 /*!********************************************!*\
   !*** ./admin/blocks/src/avatar/block.json ***!
   \********************************************/
-/*! exports provided: name, category, attributes, default */
+/*! exports provided: name, title, category, icon, attributes, default */
 /***/ (function(module) {
 
-module.exports = JSON.parse("{\"name\":\"avatar-privacy/avatar\",\"category\":\"common\",\"attributes\":{\"avatar_size\":{\"type\":\"integer\",\"default\":96},\"user_id\":{\"type\":\"integer\",\"default\":0},\"align\":{\"type\":\"string\",\"default\":\"\"},\"user\":{\"type\":\"object\",\"source\":\"attribute\",\"selector\":\"*\",\"default\":null}}}");
+module.exports = JSON.parse("{\"name\":\"avatar-privacy/avatar\",\"title\":\"Avatar\",\"category\":\"common\",\"icon\":\"admin-users\",\"attributes\":{\"avatar_size\":{\"type\":\"integer\",\"default\":96},\"user_id\":{\"type\":\"integer\",\"default\":0},\"align\":{\"type\":\"string\",\"default\":\"\"},\"user\":{\"type\":\"object\",\"source\":\"attribute\",\"selector\":\"*\",\"default\":null}}}");
 
 /***/ }),
 
@@ -249,7 +249,6 @@ var name = _block_json__WEBPACK_IMPORTED_MODULE_2__.name;
 
 var settings = {
   title: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__["__"])('Avatar', 'avatar-privacy'),
-  icon: 'admin-users',
   supports: {
     align: ['left', 'center', 'right'],
     html: false
@@ -319,10 +318,10 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 /*!***************************************************!*\
   !*** ./admin/blocks/src/frontend-form/block.json ***!
   \***************************************************/
-/*! exports provided: name, category, attributes, default */
+/*! exports provided: name, title, category, icon, attributes, default */
 /***/ (function(module) {
 
-module.exports = JSON.parse("{\"name\":\"avatar-privacy/form\",\"category\":\"common\",\"attributes\":{\"avatar_size\":{\"type\":\"integer\",\"default\":96},\"show_descriptions\":{\"type\":\"boolean\",\"default\":true}}}");
+module.exports = JSON.parse("{\"name\":\"avatar-privacy/form\",\"title\":\"Avatar Privacy Form\",\"category\":\"common\",\"icon\":\"id-alt\",\"attributes\":{\"avatar_size\":{\"type\":\"integer\",\"default\":96},\"show_descriptions\":{\"type\":\"boolean\",\"default\":true}}}");
 
 /***/ }),
 
@@ -436,7 +435,6 @@ var name = _block_json__WEBPACK_IMPORTED_MODULE_2__.name;
 
 var settings = {
   title: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__["__"])('Avatar Privacy Form', 'avatar-privacy'),
-  icon: 'id-alt',
   supports: {
     html: false,
     multiple: false,
