@@ -158,6 +158,9 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 == Changelog ==
 
+= 2.3.3 (2019-12-27) =
+* _Bugfix_: Timestamps in WP-CLI commands now always use GMT.
+
 = 2.3.2 (2019-11-09) =
 * _Bugfix_: Some error messages were not getting translated because of a [WP.org infrastructure change](https://make.wordpress.org/core/2018/11/09/new-javascript-i18n-support-in-wordpress/).
 
