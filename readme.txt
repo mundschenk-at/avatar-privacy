@@ -18,6 +18,7 @@ Avatars from Gravatar.com are great, but they come with certain privacy implicat
 
 The plugin works without changing your theme files (for reasonably modern themes), and it does support multisite installations. Please note that the plugin does not provide an options page of its own, it rather adds to the existing discussion settings page.
 
+
 = Features =
 
 The plugin's features summed up:
@@ -28,6 +29,7 @@ The plugin's features summed up:
 * Don't publish weakly encrypted e-mail addresses of comment authors.
 
 A more detailed examination of the [reasons for using Avatar Privacy](https://code.mundschenk.at/avatar-privacy/reasons/) can be found on the plugin homepage.
+
 
 = WP-CLI Commands =
 
@@ -46,6 +48,7 @@ Avatar Privacy includes the following [WP-CLI](https://wp-cli.org) commands:
 
 Please report any problems with the plugin, I'll do my best to sort things out. You can use the contact form on [my code site](https://code.mundschenk.at/avatar-privacy/) or [create a topic in the support forum](https://wordpress.org/support/plugin/avatar-privacy). You can contact me in German or English.
 
+
 = Credits =
 
 Avatar Privacy is based on the original plugin by [Johannes Freudendahl](http://code.freudendahl.net/projekte/avatar-privacy/). The new release also includes work by several other people:
@@ -57,6 +60,7 @@ Avatar Privacy is based on the original plugin by [Johannes Freudendahl](http://
 * Benjamin Laugueux ([Identicon](https://github.com/yzalis/Identicon)),
 * David Revoy ([Bird](https://www.davidrevoy.com/article720/bird-avatar-generator) and [Cat Avatars](https://www.davidrevoy.com/article591/cat-avatar-generator)), and
 * Zikri Kader, Colin Davis & Nimiq ([RoboHash](https://robohash.org)).
+
 
 == Installation ==
 
