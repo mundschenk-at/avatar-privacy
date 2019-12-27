@@ -1,5 +1,6 @@
 {
 	"name": "avatar-privacy/avatar",
+	"title": "Avatar",
 	"category": "common",
 	"icon": "admin-users",
 	"attributes": {
