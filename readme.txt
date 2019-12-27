@@ -7,7 +7,7 @@ Tags: gravatar, avatar, privacy, caching, bbpress, buddypress
 Requires at least: 4.9
 Requires PHP: 5.6
 Tested up to: 5.3
-Stable tag: 2.3.2
+Stable tag: 2.3.3
 License: GPLv2 or later
 
 Enhances the privacy of your users and visitors with gravatar opt-in and local avatars.
@@ -17,6 +17,7 @@ Enhances the privacy of your users and visitors with gravatar opt-in and local a
 Avatars from Gravatar.com are great, but they come with certain privacy implications. You as site admin may already know this, but your visitors and users probably don't. Avatar Privacy can help to improve the privacy situation by making some subtle changes to the way avatars are displayed on your site.
 
 The plugin works without changing your theme files (for reasonably modern themes), and it does support multisite installations. Please note that the plugin does not provide an options page of its own, it rather adds to the existing discussion settings page.
+
 
 = Features =
 
@@ -28,6 +29,7 @@ The plugin's features summed up:
 * Don't publish weakly encrypted e-mail addresses of comment authors.
 
 A more detailed examination of the [reasons for using Avatar Privacy](https://code.mundschenk.at/avatar-privacy/reasons/) can be found on the plugin homepage.
+
 
 = WP-CLI Commands =
 
@@ -46,6 +48,7 @@ Avatar Privacy includes the following [WP-CLI](https://wp-cli.org) commands:
 
 Please report any problems with the plugin, I'll do my best to sort things out. You can use the contact form on [my code site](https://code.mundschenk.at/avatar-privacy/) or [create a topic in the support forum](https://wordpress.org/support/plugin/avatar-privacy). You can contact me in German or English.
 
+
 = Credits =
 
 Avatar Privacy is based on the original plugin by [Johannes Freudendahl](http://code.freudendahl.net/projekte/avatar-privacy/). The new release also includes work by several other people:
@@ -57,6 +60,7 @@ Avatar Privacy is based on the original plugin by [Johannes Freudendahl](http://
 * Benjamin Laugueux ([Identicon](https://github.com/yzalis/Identicon)),
 * David Revoy ([Bird](https://www.davidrevoy.com/article720/bird-avatar-generator) and [Cat Avatars](https://www.davidrevoy.com/article591/cat-avatar-generator)), and
 * Zikri Kader, Colin Davis & Nimiq ([RoboHash](https://robohash.org)).
+
 
 == Installation ==
 
@@ -153,6 +157,9 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 
 == Changelog ==
+
+= 2.3.3 (2019-12-27) =
+* _Bugfix_: Timestamps in WP-CLI commands now always use GMT.
 
 = 2.3.2 (2019-11-09) =
 * _Bugfix_: Some error messages were not getting translated because of a [WP.org infrastructure change](https://make.wordpress.org/core/2018/11/09/new-javascript-i18n-support-in-wordpress/).
