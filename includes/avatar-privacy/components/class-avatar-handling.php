@@ -95,7 +95,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 */
 	public function init() {
 		// New default image display: filter the gravatar image upon display.
-		\add_filter( 'pre_get_avatar_data', [ $this, 'get_avatar_data' ], 10, 2 );
+		\add_filter( 'pre_get_avatar_data', [ $this, 'get_avatar_data' ], 99, 2 );
 
 		// Generate presets from saved settings.
 		$this->enable_presets();
@@ -126,6 +126,10 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 * @return array
 	 */
 	public function get_avatar_data( $args, $id_or_email ) {
+		// If another filter has already passed in a URL then exit.
+		if ( isset( $args['url'] ) ) {
+			return $args; // \apply_filters( 'get_avatar_data', $args, $id_or_email );
+		}
 		$force_default = ! empty( $args['force_default'] );
 		$mimetype      = '';
 
