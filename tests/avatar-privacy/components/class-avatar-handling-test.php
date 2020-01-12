@@ -148,7 +148,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::init
 	 */
 	public function test_init() {
-		Filters\expectAdded( 'pre_get_avatar_data' )->once()->with( [ $this->sut, 'get_avatar_data' ], 10, 2 );
+		Filters\expectAdded( 'pre_get_avatar_data' )->once()->with( [ $this->sut, 'get_avatar_data' ], 99, 2 );
 
 		$this->sut->shouldReceive( 'enable_presets' )->once();
 
