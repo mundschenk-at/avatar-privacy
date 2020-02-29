@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -103,12 +103,14 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 
 		$suggested_text = '<strong class="privacy-policy-tutorial">' . \__( 'Suggested text:' ) . ' </strong>'; // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- Missing text domain is intentional to use Core translation.
 
-		$content  = '<h3>' . \__( 'Comments', 'avatar-privacy' ) . '</h3>';
+		$content  = '<div class="wp-suggested-text">';
+		$content .= '<h3>' . \__( 'Comments', 'avatar-privacy' ) . '</h3>';
 		$content .= '<p class="privacy-policy-tutorial">' . \__( 'The information in this subsection supersedes the paragraph on Gravatar in the default "Comments" subsection provided by WordPress.', 'avatar-privacy' ) . '</p>';
 		$content .= "<p>{$suggested_text}" . \__( 'At your option, an anonymized string created from your email address (also called a hash) may be provided to the Gravatar service to see if you are using it. The Gravatar service privacy policy is available here: https://automattic.com/privacy/. After approval of your comment, your profile picture is visible to the public in the context of your comment. Neither the hash nor your actual email address will be exposed to the public.', 'avatar-privacy' ) . '</p>';
 		$content .= '<h3>' . \__( 'Cookies', 'avatar-privacy' ) . '</h3>';
 		$content .= '<p class="privacy-policy-tutorial">' . \__( 'The information in this subsection should be included in addition to the information about any other cookies set by either WordPress or another plugin.', 'avatar-privacy' ) . '</p>';
 		$content .= "<p>{$suggested_text}" . \__( 'If you leave a comment on our site and opt-in to display your Gravatar image, your choice will be stored in a cookie. This is for your convenience so that you do not have to fill the checkbox again when you leave another comment. This cookie will last for one year.', 'avatar-privacy' ) . '</p>';
+		$content .= '</div>';
 
 		\wp_add_privacy_policy_content( \__( 'Avatar Privacy', 'avatar-privacy' ), $content );
 	}
