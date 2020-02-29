@@ -17,3 +17,6 @@ tests/coverage/
 
 # macOS
 .DS_Store
+
+# Atom/Serenata
+.serenata

@@ -122,7 +122,7 @@ No, for registered users the user profile is checked, not the table for the comm
 
 = Which plugins are known to work with Avatar Privacy? =
 
-These plugins have been tested in conjunction with Avatar Privacy:
+These plugins have been tested successfully in conjunction with Avatar Privacy:
 
 * [AntiSpam Bee](https://wordpress.org/plugins/antispam-bee/)
 * [bbPress](https://wordpress.org/plugins/bbpress/)
@@ -132,6 +132,9 @@ These plugins have been tested in conjunction with Avatar Privacy:
 * [Theme My Login](https://wordpress.org/plugins/theme-my-login/)
 * [Ultimate Member](https://wordpress.org/plugins/ultimate-member/)
 * [WP User Manager – User Profile Builder & Membership](https://wordpress.org/plugins/wp-user-manager/)
+
+Please note that several [Jetpack by WordPress.com modules](https://wordpress.org/plugins/jetpack/) do not work well with
+Avatar Privacy because they generate their HTML markup on the WordPress.com servers.
 
 If you find any problems with particular plugins, please tell me!
 
