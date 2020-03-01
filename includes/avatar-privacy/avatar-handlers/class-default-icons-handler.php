@@ -96,16 +96,15 @@ class Default_Icons_Handler implements Avatar_Handler {
 	/**
 	 * Retrieves the URL for the given default icon type.
 	 *
+	 * @since 2.3.4 Documentation for optional arguments adapted to follow implementation.
+	 *
 	 * @param  string $url  The fallback image URL.
 	 * @param  string $hash The hashed mail address.
 	 * @param  int    $size The size of the avatar image in pixels.
 	 * @param  array  $args {
 	 *     An array of arguments.
 	 *
-	 *     @type string $type     The avatar/icon type.
-	 *     @type string $avatar   The full-size avatar image path.
-	 *     @type string $mimetype The expected MIME type of the avatar image.
-	 *     @type bool   $force    Optional. Whether to force the regeneration of the image file. Default false.
+	 *     @type string $default The default icon type.
 	 * }
 	 *
 	 * @return string
