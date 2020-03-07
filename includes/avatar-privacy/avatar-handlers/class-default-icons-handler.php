@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -96,16 +96,15 @@ class Default_Icons_Handler implements Avatar_Handler {
 	/**
 	 * Retrieves the URL for the given default icon type.
 	 *
+	 * @since 2.3.4 Documentation for optional arguments adapted to follow implementation.
+	 *
 	 * @param  string $url  The fallback image URL.
 	 * @param  string $hash The hashed mail address.
 	 * @param  int    $size The size of the avatar image in pixels.
 	 * @param  array  $args {
 	 *     An array of arguments.
 	 *
-	 *     @type string $type     The avatar/icon type.
-	 *     @type string $avatar   The full-size avatar image path.
-	 *     @type string $mimetype The expected MIME type of the avatar image.
-	 *     @type bool   $force    Optional. Whether to force the regeneration of the image file. Default false.
+	 *     @type string $default The default icon type.
 	 * }
 	 *
 	 * @return string
@@ -113,9 +112,16 @@ class Default_Icons_Handler implements Avatar_Handler {
 	public function get_url( $url, $hash, $size, array $args ) {
 		$args = \wp_parse_args( $args, [ 'default' => '' ] );
 
+		// Check for named icon providers first.
 		$providers = $this->get_provider_mapping();
 		if ( ! empty( $providers[ $args['default'] ] ) ) {
 			return $providers[ $args['default'] ]->get_icon_url( $hash, $size );
+		}
+
+		// Check if the given default icon type is a valid image URL (a common
+		// pattern due to how the default WordPress implementation uses Gravatar.com).
+		if ( $this->validate_image_url( $args['default'] ) ) {
+			return $args['default'];
 		}
 
 		// Return the fallback default icon URL.
@@ -157,5 +163,44 @@ class Default_Icons_Handler implements Avatar_Handler {
 		}
 
 		return $avatar_defaults;
+	}
+
+	/**
+	 * Checks that the given string is a valid image URL.
+	 *
+	 * @since 2.3.4
+	 *
+	 * @param  string $maybe_url Possibly an image URL.
+	 *
+	 * @return bool
+	 */
+	public function validate_image_url( $maybe_url ) {
+		/**
+		 * Filters whether remote default icon URLs (i.e. having a different domain) are allowed.
+		 *
+		 * @since 2.3.4
+		 *
+		 * @param bool $allow Default false.
+		 */
+		$allow_remote = \apply_filters( 'avatar_privacy_allow_remote_default_icon_url', false );
+
+		// Get current site domain part (without schema).
+		$domain = \wp_parse_url( \get_site_url(), \PHP_URL_HOST );
+
+		// Make sure URL is valid and local (unless $allow_remote is set to true).
+		$result =
+			\filter_var( $maybe_url, \FILTER_VALIDATE_URL, \FILTER_FLAG_PATH_REQUIRED ) &&
+			( $allow_remote || \wp_parse_url( $maybe_url, \PHP_URL_HOST ) === $domain );
+
+		/**
+		 * Filters the result of checking whether the candidate URL is a valid image URL.
+		 *
+		 * @since 2.3.4
+		 *
+		 * @param bool   $result       The validation result.
+		 * @param string $maybe_url    The candidate URL.
+		 * @param bool   $allow_remote Whether URLs from other doamins should be allowed.
+		 */
+		return \apply_filters( 'avatar_privacy_validate_default_icon_url', $result, $maybe_url, $allow_remote );
 	}
 }

@@ -161,6 +161,9 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 == Changelog ==
 
+= 2.3.4 (2020-03-07) =
+* _Bugfix_: Allow plain URLs as default avatars. Use the filter hook `avatar_privacy_allow_remote_default_icon_url` to allow third-party domains and `avatar_privacy_validate_default_icon_url` if you want to implement your own image URL validation.
+
 = 2.3.3 (2019-12-27) =
 * _Bugfix_: Timestamps in WP-CLI commands now always use GMT.
 

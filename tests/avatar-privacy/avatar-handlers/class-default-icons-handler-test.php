@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019 Peter Putzer.
+ * Copyright 2019-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -222,6 +222,7 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertSame( $url, $this->sut->get_url( $default_url, $hash, $size, $args ) );
 	}
+
 	/**
 	 * Tests ::get_url.
 	 *
@@ -259,7 +260,51 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$provider1->shouldReceive( 'get_icon_url' )->never();
 		$provider2->shouldReceive( 'get_icon_url' )->never();
 
+		$this->sut->shouldReceive( 'validate_image_url' )->once()->with( $default_icon_type )->andReturn( false );
+
 		$this->assertSame( $default_url, $this->sut->get_url( $default_url, $hash, $size, $args ) );
+	}
+
+	/**
+	 * Tests ::get_url.
+	 *
+	 * @covers ::get_url
+	 */
+	public function test_get_url_no_provider_but_image_url() {
+		// Input data.
+		$default_icon_type = 'https://some/image';
+		$force             = false;
+		$hash              = 'f0e4c2f76c58916ec258f246851bea091d14d4247a2fc3e18694461b1816e13b';
+		$default_url       = 'https://some/default';
+		$size              = 42;
+		$args              = [
+			'default'  => $default_icon_type,
+			'mimetype' => 'image/jpeg',
+			'force'    => $force,
+		];
+
+		// Interim data.
+		$provider1      = m::mock( Avatar_Privacy\Avatar_Handlers\Default_Icons\Icon_Provider::class );
+		$provider2      = m::mock( Avatar_Privacy\Avatar_Handlers\Default_Icons\Icon_Provider::class );
+		$icon_providers = [
+			'foo'    => $provider1,
+			'bar'    => $provider1,
+			'fugazi' => $provider2,
+		];
+
+		// Expected result.
+		$url = 'https://some_url_for/the/avatar';
+
+		Functions\expect( 'wp_parse_args' )->once()->with( $args, m::type( 'array' ) )->andReturn( $args );
+
+		$this->sut->shouldReceive( 'get_provider_mapping' )->once()->andReturn( $icon_providers );
+
+		$provider1->shouldReceive( 'get_icon_url' )->never();
+		$provider2->shouldReceive( 'get_icon_url' )->never();
+
+		$this->sut->shouldReceive( 'validate_image_url' )->once()->with( $default_icon_type )->andReturn( true );
+
+		$this->assertSame( $default_icon_type, $this->sut->get_url( $default_url, $hash, $size, $args ) );
 	}
 
 	/**
@@ -352,5 +397,121 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assertArrayHasKey( 'new_default_icon', $result );
 		$this->assertArrayHasKey( 'another_new_default_icon', $result );
 		$this->assertArrayHasKey( 'and_another_one', $result );
+	}
+
+	/**
+	 * Tests ::validate_image_url.
+	 *
+	 * @covers ::validate_image_url
+	 **/
+	public function test_validate_image_url() {
+		// Parameters.
+		$maybe_url = 'https://my.domain/path/image.gif';
+
+		// Expected result.
+		$result = true;
+
+		// Intermediate values.
+		$site_url     = 'site://url';
+		$domain       = 'my.domain';
+		$allow_remote = false;
+
+		Filters\expectApplied( 'avatar_privacy_allow_remote_default_icon_url' )->once()->with( false )->andReturn( $allow_remote );
+
+		Functions\expect( 'get_site_url' )->once()->andReturn( $site_url );
+		Functions\expect( 'wp_parse_url' )->once()->with( $site_url, \PHP_URL_HOST )->andReturn( $domain );
+
+		Functions\expect( 'wp_parse_url' )->once()->with( $maybe_url, \PHP_URL_HOST )->andReturn( $domain );
+
+		Filters\expectApplied( 'avatar_privacy_validate_default_icon_url' )->once()->with( $result, $maybe_url, $allow_remote )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->validate_image_url( $maybe_url ) );
+	}
+
+	/**
+	 * Tests ::validate_image_url.
+	 *
+	 * @covers ::validate_image_url
+	 **/
+	public function test_validate_image_url_invalid() {
+		// Parameters.
+		$maybe_url = 'my.domain/path/image.gif';
+
+		// Expected result.
+		$result = false;
+
+		// Intermediate values.
+		$site_url     = 'site://url';
+		$domain       = 'my.domain';
+		$allow_remote = false;
+
+		Filters\expectApplied( 'avatar_privacy_allow_remote_default_icon_url' )->once()->with( false )->andReturn( $allow_remote );
+
+		Functions\expect( 'get_site_url' )->once()->andReturn( $site_url );
+		Functions\expect( 'wp_parse_url' )->once()->with( $site_url, \PHP_URL_HOST )->andReturn( $domain );
+
+		Functions\expect( 'wp_parse_url' )->never();
+
+		Filters\expectApplied( 'avatar_privacy_validate_default_icon_url' )->once()->with( $result, $maybe_url, $allow_remote )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->validate_image_url( $maybe_url ) );
+	}
+
+	/**
+	 * Tests ::validate_image_url.
+	 *
+	 * @covers ::validate_image_url
+	 **/
+	public function test_validate_image_url_remote_url_not_allowed() {
+		// Parameters.
+		$maybe_url = 'https://other.domain/path/image.gif';
+
+		// Expected result.
+		$result = false;
+
+		// Intermediate values.
+		$site_url     = 'site://url';
+		$domain       = 'my.domain';
+		$allow_remote = false;
+
+		Filters\expectApplied( 'avatar_privacy_allow_remote_default_icon_url' )->once()->with( false )->andReturn( $allow_remote );
+
+		Functions\expect( 'get_site_url' )->once()->andReturn( $site_url );
+		Functions\expect( 'wp_parse_url' )->once()->with( $site_url, \PHP_URL_HOST )->andReturn( $domain );
+
+		Functions\expect( 'wp_parse_url' )->once()->with( $maybe_url, \PHP_URL_HOST )->andReturn( 'other.domain' );
+
+		Filters\expectApplied( 'avatar_privacy_validate_default_icon_url' )->once()->with( $result, $maybe_url, $allow_remote )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->validate_image_url( $maybe_url ) );
+	}
+
+	/**
+	 * Tests ::validate_image_url.
+	 *
+	 * @covers ::validate_image_url
+	 **/
+	public function test_validate_image_url_remote_url_allowed() {
+		// Parameters.
+		$maybe_url = 'https://other.domain/path/image.gif';
+
+		// Expected result.
+		$result = true;
+
+		// Intermediate values.
+		$site_url     = 'site://url';
+		$domain       = 'my.domain';
+		$allow_remote = true;
+
+		Filters\expectApplied( 'avatar_privacy_allow_remote_default_icon_url' )->once()->with( false )->andReturn( $allow_remote );
+
+		Functions\expect( 'get_site_url' )->once()->andReturn( $site_url );
+		Functions\expect( 'wp_parse_url' )->once()->with( $site_url, \PHP_URL_HOST )->andReturn( $domain );
+
+		Functions\expect( 'wp_parse_url' )->never();
+
+		Filters\expectApplied( 'avatar_privacy_validate_default_icon_url' )->once()->with( $result, $maybe_url, $allow_remote )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->validate_image_url( $maybe_url ) );
 	}
 }
