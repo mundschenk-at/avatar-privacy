@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -37,6 +37,7 @@ use Avatar_Privacy\Components\Avatar_Handling;
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Settings;
 use Avatar_Privacy\Data_Storage\Options;
+use Avatar_Privacy\Exceptions\Avatar_Comment_Type_Exception;
 use Avatar_Privacy\Tools\Network\Gravatar_Service;
 
 /**
@@ -188,6 +189,10 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 			[ 5, 'foo@bar.org', true, false, 'some/local/avatar.jpg', '', self::DEFAULT_ICON ],
 			[ 5, 'foo@bar.org', false, true, '', 'url/gravatar.png', 'url/gravatar.png' ],
 			[ 5, 'foo@bar.org', true, true, '', 'url/gravatar.png', self::DEFAULT_ICON ],
+			[ false, 'foo@bar.org', false, false, '', 'url/gravatar.png', self::DEFAULT_ICON ],
+			[ false, 'foo@bar.org', true, false, '', '', self::DEFAULT_ICON ],
+			[ false, 'foo@bar.org', false, true, '', 'url/gravatar.png', 'url/gravatar.png' ],
+			[ false, 'foo@bar.org', true, true, '', 'url/gravatar.png', self::DEFAULT_ICON ],
 		];
 	}
 
@@ -216,6 +221,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 			'size'          => $size,
 			'force_default' => $force_default,
 			'rating'        => 'g',
+			'found_avatar'  => false,
 		];
 		$age         = 999;
 
@@ -224,35 +230,47 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'parse_id_or_email' )->once()->with( $id_or_email )->andReturn( [ $user_id, $email, $age ] );
 
-		if ( ! empty( $user_id ) ) {
+		if ( ! empty( $user_id ) ) { // Registered user.
 			$this->core->shouldReceive( 'get_user_hash' )->once()->with( $user_id )->andReturn( $hash );
 			$this->core->shouldReceive( 'get_hash' )->never();
 
 			if ( ! $force_default ) {
 				$this->sut->shouldReceive( 'get_local_avatar_url' )->once()->with( $user_id, $hash, $size )->andReturn( $local_url );
 			}
-		} else {
-			$this->core->shouldReceive( 'get_user_hash' )->once()->with( $user_id )->andReturn( false );
+		} elseif ( ! empty( $email ) ) { // Anonymous comments.
+			$this->core->shouldReceive( 'get_user_hash' )->never();
 			$this->core->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
+		} else { // No valid data.
+			$this->core->shouldReceive( 'get_user_hash' )->never();
+			$this->core->shouldReceive( 'get_hash' )->never();
 		}
 
-		// Only if not short-circuiting.
-		if ( $force_default || empty( $local_url ) ) {
-			Functions\expect( 'includes_url' )->once()->with( 'images/blank.gif' )->andReturn( self::BLANK_ICON );
-			Filters\expectApplied( 'avatar_privacy_default_icon_url' )->once()->with( self::BLANK_ICON, $hash, $size, [ 'default' => $default ] )->andReturn( self::DEFAULT_ICON );
-		}
-		if ( ! $force_default && empty( $local_url ) ) {
-			$this->sut->shouldReceive( 'should_show_gravatar' )->once()->with( $user_id, $email, $id_or_email, $age, m::type( 'string' ) )->andReturn( $should_show_gravatar );
+		if ( empty( $user_id ) && empty( $email ) ) {
+			$this->sut->shouldReceive( 'should_show_gravatar' )->never();
+		} else {
+			// Only if not short-circuiting.
+			if ( $force_default || empty( $local_url ) ) {
+				Functions\expect( 'includes_url' )->once()->with( 'images/blank.gif' )->andReturn( self::BLANK_ICON );
+				Filters\expectApplied( 'avatar_privacy_default_icon_url' )->once()->with( self::BLANK_ICON, $hash, $size, [ 'default' => $default ] )->andReturn( self::DEFAULT_ICON );
+			}
+			if ( ! $force_default && empty( $local_url ) ) {
+				$this->sut->shouldReceive( 'should_show_gravatar' )->once()->with( $user_id, $email, $id_or_email, $age, m::type( 'string' ) )->andReturn( $should_show_gravatar );
 
-			if ( $should_show_gravatar ) {
-				Filters\expectApplied( 'avatar_privacy_gravatar_icon_url' )->once()->with( self::DEFAULT_ICON, $hash, $size, m::type( 'array' ) )->andReturn( $gravatar_url );
+				if ( $should_show_gravatar ) {
+					Filters\expectApplied( 'avatar_privacy_gravatar_icon_url' )->once()->with( self::DEFAULT_ICON, $hash, $size, m::type( 'array' ) )->andReturn( $gravatar_url );
+				}
 			}
 		}
 
 		$avatar_response = $this->sut->get_avatar_data( $args, $id_or_email );
 
-		$this->assertArrayHasKey( 'url', $avatar_response );
-		$this->assertSame( $result, $avatar_response['url'] );
+		if ( isset( $result ) ) {
+			$this->assertArrayHasKey( 'url', $avatar_response );
+			$this->assertTrue( $avatar_response['found_avatar'] );
+			$this->assertSame( $result, $avatar_response['url'] );
+		} else {
+			$this->assertArrayNotHasKey( 'url', $avatar_response );
+		}
 	}
 
 	/**
@@ -267,6 +285,59 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 			[ true, true, false, false ], // Failed validation.
 			[ true, true, 'image/png', true ], // Succesful validaton.
 		];
+	}
+
+
+	/**
+	 * Tests ::get_avatar_data when $id_or_email is a comment with an non-avatar
+	 * comment type..
+	 *
+	 * @since 2.3.4
+	 *
+	 * @covers ::get_avatar_data
+	 *
+	 * @dataProvider provide_get_avatar_data_data
+	 *
+	 * @param  int|false $user_id              The user ID or false.
+	 * @param  string    $email                The email address.
+	 * @param  bool      $force_default        Whether to force a default icon.
+	 * @param  bool      $should_show_gravatar If gravatars should be shown.
+	 * @param  string    $local_url            The local URL (or '').
+	 * @param  string    $gravatar_url         The gravatar URL (if $should_show_gravatar is true).
+	 * @param  string    $result               The result URL.
+	 */
+	public function test_get_avatar_data_invalid_comment_type( $user_id, $email, $force_default, $should_show_gravatar, $local_url, $gravatar_url, $result ) {
+		// Input parameters.
+		$id_or_email = m::mock( \WP_Comment::class );
+		$size        = 90;
+		$default     = 'mm';
+		$args        = [
+			'default'       => $default,
+			'size'          => $size,
+			'force_default' => $force_default,
+			'rating'        => 'g',
+			'found_avatar'  => false,
+		];
+		$age         = 999;
+
+		// Calculated values.
+		$hash = 'a hash';
+
+		$this->sut->shouldReceive( 'parse_id_or_email' )->once()->with( $id_or_email )->andThrow( m::mock( Avatar_Comment_Type_Exception::class ) );
+
+		$this->core->shouldReceive( 'get_user_hash' )->never();
+		$this->core->shouldReceive( 'get_hash' )->never();
+
+		$this->sut->shouldReceive( 'should_show_gravatar' )->never();
+
+		Filters\expectApplied( 'avatar_privacy_default_icon_url' )->never();
+		Filters\expectApplied( 'avatar_privacy_gravatar_icon_url' )->never();
+
+		$avatar_response = $this->sut->get_avatar_data( $args, $id_or_email );
+
+		$this->assertArrayHasKey( 'url', $avatar_response );
+		$this->assertFalse( $avatar_response['url'] );
+		$this->assertFalse( $avatar_response['found_avatar'] );
 	}
 
 	/**
@@ -456,6 +527,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 				'comment',
 				666,
 				'foo@bar.org',
+				[ 'comment' ],
 			],
 			[
 				[ false, 'foo@bar.org', 999 ],
@@ -464,14 +536,25 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 				'comment',
 				null,
 				'foo@bar.org',
+				[ 'comment' ],
 			],
 			[
-				[ false, '', 0 ],
+				null,
+				$now,
+				\gmdate( 'Y-m-d H:i:s', $now - 999 ),
+				'foobar',
+				null,
+				'foo@bar.org',
+				[ 'comment' ],
+			],
+			[
+				[ false, 'foo@bar.org', 999 ],
 				$now,
 				\date( 'Y-m-d H:i:s', $now - 999 ),
 				'foobar',
 				null,
 				'foo@bar.org',
+				[ 'comment', 'foobar' ],
 			],
 			[
 				[ false, '', 666 ],
@@ -480,6 +563,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 				'comment',
 				null,
 				null,
+				[ 'comment' ],
 			],
 		];
 	}
@@ -491,20 +575,19 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @dataProvider provide_parse_comment_data
 	 *
-	 * @param  array       $result                Required.
-	 * @param  int         $now                   The current timestamp.
-	 * @param  string      $comment_date_gmt      A date/timestamp string.
-	 * @param  string|null $comment_type          Optional. The comment_type property of the comment object.
-	 * @param  string|null $comment_user_id       Optional. The user_id property of the comment object.
-	 * @param  string|null $comment_author_email  Optional. The comment_author_email property of the comment object.
+	 * @param  array    $result               Required.
+	 * @param  int      $now                  The current timestamp.
+	 * @param  string   $comment_date_gmt     A date/timestamp string.
+	 * @param  string   $comment_type         The comment_type property of the comment object. Default 'comment'.
+	 * @param  string   $comment_user_id      The user_id property of the comment object.
+	 * @param  string   $comment_author_email The comment_author_email property of the comment object.
+	 * @param  string[] $avatar_comment_types Comment types we should display avatars for.
 	 */
-	public function test_parse_comment( $result, $now, $comment_date_gmt, $comment_type = null, $comment_user_id = null, $comment_author_email = null ) {
-		// Set up comment object.
+	public function test_parse_comment( $result, $now, $comment_date_gmt, $comment_type, $comment_user_id, $comment_author_email, array $avatar_comment_types ) {
+			// Set up comment object.
 		$comment                   = m::mock( 'WP_Comment' );
 		$comment->comment_date_gmt = $comment_date_gmt;
-		if ( isset( $comment_type ) ) {
-			$comment->comment_type = $comment_type;
-		}
+		$comment->comment_type     = $comment_type;
 		if ( isset( $comment_user_id ) ) {
 			$comment->user_id = $comment_user_id;
 		}
@@ -512,10 +595,14 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 			$comment->comment_author_email = $comment_author_email;
 		}
 
-		Filters\expectApplied( 'get_avatar_comment_types' )->once()->with( [ 'comment' ] )->andReturn( [ 'comment' ] );
+		Functions\expect( 'get_comment_type' )->once()->with( $comment )->andReturn( $comment_type );
 
-		if ( 'comment' === $comment_type ) {
+		Filters\expectApplied( 'get_avatar_comment_types' )->once()->with( [ 'comment' ] )->andReturn( $avatar_comment_types );
+
+		if ( ! empty( $result ) ) {
 			$this->sut->shouldReceive( 'get_age' )->once()->with( $comment_date_gmt )->andReturn( $now - \strtotime( $comment_date_gmt ) );
+		} else {
+			$this->expectException( Avatar_Comment_Type_Exception::class );
 		}
 
 		$this->assertSame( $result, $this->invoke_method( $this->sut, 'parse_comment', [ $comment ] ) );

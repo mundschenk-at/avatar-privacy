@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -31,6 +31,8 @@ use Avatar_Privacy\Core;
 use Avatar_Privacy\Settings;
 
 use Avatar_Privacy\Data_Storage\Options;
+
+use Avatar_Privacy\Exceptions\Avatar_Comment_Type_Exception;
 
 use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Tools\Network\Gravatar_Service;
@@ -130,16 +132,31 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		$mimetype      = '';
 
 		// Process the user identifier.
-		list( $user_id, $email, $age ) = $this->parse_id_or_email( $id_or_email );
+		try {
+			list( $user_id, $email, $age ) = $this->parse_id_or_email( $id_or_email );
+		} catch ( Avatar_Comment_Type_Exception $e ) {
+			// The $id_or_email is a comment of a type that should not display an avatar.
+			$args['url'] = false;
+			return $args;
+		}
 
 		// Generate the hash.
-		$hash = $this->core->get_user_hash( (int) $user_id ) ?: $this->core->get_hash( $email );
+		if ( ! empty( $user_id ) ) {
+			// Since we are having a non-empty $user_id, we'll always get a hash.
+			$hash = (string) $this->core->get_user_hash( (int) $user_id );
+		} else {
+			// This might generate hashes for empty email addresses.
+			// That's OK in case some plugins want to display avatars for
+			// e.g. trackbacks and linkbacks.
+			$hash = $this->core->get_hash( $email );
+		}
 
 		if ( ! $force_default && ! empty( $user_id ) ) {
 			// Fetch local avatar from meta and make sure it's properly stzed.
 			$args['url'] = $this->get_local_avatar_url( $user_id, $hash, $args['size'] );
 			if ( ! empty( $args['url'] ) ) {
 				// Great, we have got a local avatar.
+				$args['found_avatar'] = true;
 				return $args;
 			}
 		}
@@ -195,7 +212,8 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			$url = \apply_filters( 'avatar_privacy_gravatar_icon_url', $url, $hash, $args['size'], $filter_args );
 		}
 
-		$args['url'] = $url;
+		$args['url']          = $url;
+		$args['found_avatar'] = true;
 
 		return $args;
 	}
@@ -239,6 +257,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 * Parses e-mail address and/or user ID from $id_or_email.
 	 *
 	 * @since 2.1.0 Visibility changed to protected.
+	 * @since 2.3.4 Throws an Avatar_Comment_Type_Exception for invalid comment types.
 	 *
 	 * @param  int|string|object $id_or_email The Gravatar to retrieve. Accepts a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
 	 *
@@ -250,6 +269,11 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 *     @type int       $age     The seconds since the post or comment was first created,
 	 *                              or 0 if `$id_or_email was` not one of these object types.
 	 * }
+	 *
+	 * @throws Avatar_Comment_Type_Exception The function throws an
+	 *     `Avatar_Comment_Type_Exception` if `$id_or_email` is an instance of
+	 *     `WP_Comment` but its comment type is not one of the allowed avatar
+	 *     comment types.
 	 */
 	protected function parse_id_or_email( $id_or_email ) {
 		list( $user_id, $email, $age ) = $this->parse_id_or_email_unfiltered( $id_or_email );
@@ -292,6 +316,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 * the result in any way.
 	 *
 	 * @since 2.3.0
+	 * @since 2.3.4 Throws an Avatar_Comment_Type_Exception for invalid comment types.
 	 *
 	 * @internal
 	 *
@@ -307,6 +332,11 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 *     @type int       $age     The seconds since the post or comment was first created,
 	 *                              or 0 if $id_or_email was not one of these object types.
 	 * }
+	 *
+	 * @throws Avatar_Comment_Type_Exception The function throws an
+	 *     `Avatar_Comment_Type_Exception` if `$id_or_email` is an instance of
+	 *     `WP_Comment` but its comment type is not one of the allowed avatar
+	 *     comment types.
 	 */
 	protected function parse_id_or_email_unfiltered( $id_or_email ) {
 		$user_id = false;
@@ -337,6 +367,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 * Parse a WP_Comment object.
 	 *
 	 * @since 2.1.0 Visibility changed to protected.
+	 * @since 2.3.4 Throws an Avatar_Comment_Type_Exception for invalid comment types.
 	 *
 	 * @param  \WP_Comment $comment A comment.
 	 *
@@ -347,13 +378,18 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 *     @type string    $email   The email address.
 	 *     @type int       $age     The seconds since the post or comment was first created, or 0 if $id_or_email was not one of these object types.
 	 * }
+	 *
+	 * @throws Avatar_Comment_Type_Exception The function throws an
+	 *     `Avatar_Comment_Type_Exception` if the comment type of `$comment` is
+	 *     not one of the allowed avatar comment types.
 	 */
 	protected function parse_comment( \WP_Comment $comment ) {
 		/** This filter is documented in wp-includes/pluggable.php */
 		$allowed_comment_types = \apply_filters( 'get_avatar_comment_types', [ 'comment' ] ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- can be replaced with is_avatar_comment_type() once WordPress 5.1 is released.
 
-		if ( ! empty( $comment->comment_type ) && ! \in_array( $comment->comment_type, (array) $allowed_comment_types, true ) ) {
-			return [ false, '', 0 ]; // Abort.
+		if ( ! \in_array( \get_comment_type( $comment ), (array) $allowed_comment_types, true ) ) {
+			// Abort.
+			throw new Avatar_Comment_Type_Exception();
 		}
 
 		$user_id = false;
