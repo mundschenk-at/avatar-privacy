@@ -523,7 +523,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 			[
 				[ 666, '', 100 ],
 				$now,
-				\date( 'Y-m-d H:i:s', $now - 100 ),
+				\gmdate( 'Y-m-d H:i:s', $now - 100 ),
 				'comment',
 				666,
 				'foo@bar.org',
@@ -532,7 +532,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 			[
 				[ false, 'foo@bar.org', 999 ],
 				$now,
-				\date( 'Y-m-d H:i:s', $now - 999 ),
+				\gmdate( 'Y-m-d H:i:s', $now - 999 ),
 				'comment',
 				null,
 				'foo@bar.org',
@@ -550,7 +550,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 			[
 				[ false, 'foo@bar.org', 999 ],
 				$now,
-				\date( 'Y-m-d H:i:s', $now - 999 ),
+				\gmdate( 'Y-m-d H:i:s', $now - 999 ),
 				'foobar',
 				null,
 				'foo@bar.org',
@@ -559,7 +559,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 			[
 				[ false, '', 666 ],
 				$now,
-				\date( 'Y-m-d H:i:s', $now - 666 ),
+				\gmdate( 'Y-m-d H:i:s', $now - 666 ),
 				'comment',
 				null,
 				null,
@@ -616,7 +616,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_age() {
 		$age  = 555;
 		$now  = \time();
-		$date = \date( 'Y-m-d H:i:s', $now - $age );
+		$date = \gmdate( 'Y-m-d H:i:s', $now - $age );
 
 		Functions\expect( 'mysql2date' )->once()->with( 'U', $date )->andReturn( $now - $age );
 
