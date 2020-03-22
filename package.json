@@ -51,8 +51,8 @@
     "jshint-stylish": "^2.2.1",
     "load-grunt-tasks": "^5.1.0",
     "pixrem": "^5.0.0",
-    "react": "^16.13.0",
-    "react-dom": "^16.13.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
     "sass": "^1.26.3"
   },
   "scripts": {
