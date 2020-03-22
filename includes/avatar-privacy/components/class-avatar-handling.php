@@ -36,6 +36,7 @@ use Avatar_Privacy\Exceptions\Avatar_Comment_Type_Exception;
 
 use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Tools\Network\Gravatar_Service;
+use Avatar_Privacy\Tools\Network\Remote_Image_Service;
 
 /**
  * Handles the display of avatars in WordPress.
@@ -68,19 +69,29 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	private $gravatar;
 
 	/**
+	 * The remote image network service.
+	 *
+	 * @var Remote_Image_Service
+	 */
+	private $remote_images;
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @since 2.0.0 Parameter $gravatar added.
 	 * @since 2.1.0 Parameter $plugin_file removed.
+	 * @since 2.3.4 Parameter $remote_images added.
 	 *
-	 * @param Core             $core        The core API.
-	 * @param Options          $options     The options handler.
-	 * @param Gravatar_Service $gravatar    The Gravatar network service.
+	 * @param Core                 $core          The core API.
+	 * @param Options              $options       The options handler.
+	 * @param Gravatar_Service     $gravatar      The Gravatar network service.
+	 * @param Remote_Image_Service $remote_images The remote images network service.
 	 */
-	public function __construct( Core $core, Options $options, Gravatar_Service $gravatar ) {
-		$this->core     = $core;
-		$this->options  = $options;
-		$this->gravatar = $gravatar;
+	public function __construct( Core $core, Options $options, Gravatar_Service $gravatar, Remote_Image_Service $remote_images ) {
+		$this->core          = $core;
+		$this->options       = $options;
+		$this->gravatar      = $gravatar;
+		$this->remote_images = $remote_images;
 	}
 
 	/**
@@ -96,8 +107,21 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 	 * Initialize additional plugin hooks.
 	 */
 	public function init() {
+		/**
+		 * Filters the priority used for filtering the `pre_get_avatar_data` hook.
+		 *
+		 * @since 2.3.4
+		 *
+		 * @param $priority Default 9999.
+		 */
+		$priority = \apply_filters( 'avatar_privacy_pre_get_avatar_data_filter_priority', 9999 );
+
 		// New default image display: filter the gravatar image upon display.
-		\add_filter( 'pre_get_avatar_data', [ $this, 'get_avatar_data' ], 10, 2 );
+		\add_filter( 'pre_get_avatar_data', [ $this, 'get_avatar_data' ], $priority, 2 );
+
+		// Allow remote URLs by default for legacy avatar images. Use priority 9
+		// to allow filters with the default priority to override this consistently.
+		\add_filter( 'avatar_privacy_allow_remote_avatar_url', '__return_true', 9, 0 );
 
 		// Generate presets from saved settings.
 		$this->enable_presets();
@@ -210,6 +234,14 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 			 * }
 			 */
 			$url = \apply_filters( 'avatar_privacy_gravatar_icon_url', $url, $hash, $args['size'], $filter_args );
+		} elseif ( ! $force_default
+			&& ! empty( $args['url'] )
+			&& ! \strpos( $args['url'], 'gravatar.com' )
+			&& $this->remote_images->validate_image_url( $args['url'], 'avatar' )
+		) {
+			// Fall back to avatars set by other plugins.
+			// This should be replaced by proper caching in a future release.
+			$url = $args['url'];
 		}
 
 		$args['url']          = $url;

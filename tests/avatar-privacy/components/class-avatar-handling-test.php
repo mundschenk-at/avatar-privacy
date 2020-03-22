@@ -39,6 +39,7 @@ use Avatar_Privacy\Settings;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Exceptions\Avatar_Comment_Type_Exception;
 use Avatar_Privacy\Tools\Network\Gravatar_Service;
+use Avatar_Privacy\Tools\Network\Remote_Image_Service;
 
 /**
  * Avatar_Privacy\Components\Avatar_Handling unit test.
@@ -88,6 +89,13 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Required helper object.
 	 *
+	 * @var Remote_Image_Service
+	 */
+	private $remote_images;
+
+	/**
+	 * Required helper object.
+	 *
 	 * @var Options
 	 */
 	private $options;
@@ -110,11 +118,12 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		);
 
 		// Mock required helpers.
-		$this->core     = m::mock( Core::class );
-		$this->options  = m::mock( Options::class );
-		$this->gravatar = m::mock( Gravatar_Service::class );
+		$this->core          = m::mock( Core::class );
+		$this->options       = m::mock( Options::class );
+		$this->gravatar      = m::mock( Gravatar_Service::class );
+		$this->remote_images = m::mock( Remote_Image_Service::class );
 
-		$this->sut = m::mock( Avatar_Handling::class, [ $this->core, $this->options, $this->gravatar ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Avatar_Handling::class, [ $this->core, $this->options, $this->gravatar, $this->remote_images ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -125,11 +134,12 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Avatar_Handling::class )->makePartial();
 
-		$mock->__construct( $this->core, $this->options, $this->gravatar );
+		$mock->__construct( $this->core, $this->options, $this->gravatar, $this->remote_images );
 
 		$this->assert_attribute_same( $this->core, 'core', $mock );
 		$this->assert_attribute_same( $this->options, 'options', $mock );
 		$this->assert_attribute_same( $this->gravatar, 'gravatar', $mock );
+		$this->assert_attribute_same( $this->remote_images, 'remote_images', $mock );
 	}
 
 	/**
@@ -149,7 +159,12 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::init
 	 */
 	public function test_init() {
-		Filters\expectAdded( 'pre_get_avatar_data' )->once()->with( [ $this->sut, 'get_avatar_data' ], 10, 2 );
+		$priority = 666;
+
+		Filters\expectApplied( 'avatar_privacy_pre_get_avatar_data_filter_priority' )->once()->with( 9999 )->andReturn( $priority );
+
+		Filters\expectAdded( 'pre_get_avatar_data' )->once()->with( [ $this->sut, 'get_avatar_data' ], $priority, 2 );
+		Filters\expectAdded( 'avatar_privacy_allow_remote_avatar_url' )->once()->with( '__return_true', 9, 0 );
 
 		$this->sut->shouldReceive( 'enable_presets' )->once();
 
