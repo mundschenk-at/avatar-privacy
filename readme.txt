@@ -6,8 +6,8 @@ Author URI: https://code.mundschenk.at/
 Tags: gravatar, avatar, privacy, caching, bbpress, buddypress
 Requires at least: 4.9
 Requires PHP: 5.6
-Tested up to: 5.3
-Stable tag: 2.3.3
+Tested up to: 5.4
+Stable tag: 2.3.4
 License: GPLv2 or later
 
 Enhances the privacy of your users and visitors with gravatar opt-in and local avatars.
@@ -131,6 +131,7 @@ These plugins have been tested successfully in conjunction with Avatar Privacy:
 * [EWWW Image Optimizer](https://wordpress.org/plugins/ewww-image-optimizer/)
 * [Theme My Login](https://wordpress.org/plugins/theme-my-login/)
 * [Ultimate Member](https://wordpress.org/plugins/ultimate-member/)
+* [Webmention](https://wordpress.org/plugins/webmention/)
 * [WP User Manager – User Profile Builder & Membership](https://wordpress.org/plugins/wp-user-manager/)
 
 Please note that several [Jetpack by WordPress.com modules](https://wordpress.org/plugins/jetpack/) do not work well with
@@ -161,10 +162,10 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 == Changelog ==
 
-= 2.3.4 (2020-03-xx) =
-*   _Bugfix_: Allow plain URLs as default avatars. Use the filter hook `avatar_privacy_allow_remote_default_icon_url` to allow third-party domains and `avatar_privacy_validate_default_icon_url` if you want to implement your own image URL validation.
-*   _Bugfix_: Properly handle trackback/linkback avatars. This includes a workaround for avatars provided by the [Webmention](https://wordpress.org/plugins/webmention/) plugin. You can use `avatar_privacy_allow_remote_avatar_url` to prohibit third-party domains (the default is to allow them for webmentions) and `avatar_privacy_validate_avatar_url` if you want to implement your own image URL validation.
-*   _Change_: Due to the trackback/linkback bug fix, the priority for `pre_get_avatar_data` filter can now be adjusted using the `avatar_privacy_pre_get_avatar_data_filter_priority` hook instead of being hardcoded.
+= 2.3.4 (2020-03-22) =
+* _Bugfix_: Allow plain URLs as default avatars. Use the filter hook `avatar_privacy_allow_remote_default_icon_url` to allow third-party domains and `avatar_privacy_validate_default_icon_url` if you want to implement your own image URL validation.
+* _Bugfix_: Properly handle trackback/linkback avatars. This includes a workaround for avatars provided by the [Webmention](https://wordpress.org/plugins/webmention/) plugin. You can use `avatar_privacy_allow_remote_avatar_url` to prohibit third-party domains (the default is to allow them for webmentions) and `avatar_privacy_validate_avatar_url` if you want to implement your own image URL validation.
+* _Change_: Due to the trackback/linkback bug fix, the priority for `pre_get_avatar_data` filter can now be adjusted using the `avatar_privacy_pre_get_avatar_data_filter_priority` hook instead of being hardcoded.
 
 = 2.3.3 (2019-12-27) =
 * _Bugfix_: Timestamps in WP-CLI commands now always use GMT.
