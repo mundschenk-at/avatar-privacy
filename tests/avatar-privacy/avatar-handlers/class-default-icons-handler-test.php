@@ -42,7 +42,7 @@ use Avatar_Privacy\Core;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Tools\Images;
-use Avatar_Privacy\Tools\Network\Gravatar_Service;
+use Avatar_Privacy\Tools\Network\Remote_Image_Service;
 
 /**
  * Avatar_Privacy\Avatar_Handlers\Default_Icons_Handler unit test.
@@ -85,9 +85,9 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The image editor support class.
 	 *
-	 * @var Gravatar_Service
+	 * @var Remote_Image_Service
 	 */
-	private $gravatar;
+	private $remote_images;
 
 	/**
 	 * An array of icon provider mocks.
@@ -124,6 +124,7 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 			m::mock( Icon_Provider::class ),
 			m::mock( Icon_Provider::class ),
 		];
+		$this->remote_images  = m::mock( Remote_Image_Service::class );
 
 		// Partially mock system under test.
 		$this->sut = m::mock(
@@ -131,6 +132,7 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 			[
 				$this->file_cache,
 				$this->icon_providers,
+				$this->remote_images,
 			]
 		)->makePartial()->shouldAllowMockingProtectedMethods();
 	}
@@ -147,11 +149,13 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 			m::mock( Icon_Provider::class ),
 			m::mock( Icon_Provider::class ),
 		];
+		$remote_images  = m::mock( Remote_Image_Service::class );
 
-		$mock->__construct( $file_cache, $icon_providers );
+		$mock->__construct( $file_cache, $icon_providers, $remote_images );
 
 		$this->assert_attribute_same( $file_cache, 'file_cache', $mock );
 		$this->assert_attribute_same( $icon_providers, 'icon_providers', $mock );
+		$this->assert_attribute_same( $remote_images, 'remote_images', $mock );
 	}
 
 	/**
@@ -260,7 +264,7 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$provider1->shouldReceive( 'get_icon_url' )->never();
 		$provider2->shouldReceive( 'get_icon_url' )->never();
 
-		$this->sut->shouldReceive( 'validate_image_url' )->once()->with( $default_icon_type )->andReturn( false );
+		$this->remote_images->shouldReceive( 'validate_image_url' )->once()->with( $default_icon_type, 'default_icon' )->andReturn( false );
 
 		$this->assertSame( $default_url, $this->sut->get_url( $default_url, $hash, $size, $args ) );
 	}
@@ -302,7 +306,7 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$provider1->shouldReceive( 'get_icon_url' )->never();
 		$provider2->shouldReceive( 'get_icon_url' )->never();
 
-		$this->sut->shouldReceive( 'validate_image_url' )->once()->with( $default_icon_type )->andReturn( true );
+		$this->remote_images->shouldReceive( 'validate_image_url' )->once()->with( $default_icon_type, 'default_icon' )->andReturn( true );
 
 		$this->assertSame( $default_icon_type, $this->sut->get_url( $default_url, $hash, $size, $args ) );
 	}
@@ -397,121 +401,5 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assertArrayHasKey( 'new_default_icon', $result );
 		$this->assertArrayHasKey( 'another_new_default_icon', $result );
 		$this->assertArrayHasKey( 'and_another_one', $result );
-	}
-
-	/**
-	 * Tests ::validate_image_url.
-	 *
-	 * @covers ::validate_image_url
-	 **/
-	public function test_validate_image_url() {
-		// Parameters.
-		$maybe_url = 'https://my.domain/path/image.gif';
-
-		// Expected result.
-		$result = true;
-
-		// Intermediate values.
-		$site_url     = 'site://url';
-		$domain       = 'my.domain';
-		$allow_remote = false;
-
-		Filters\expectApplied( 'avatar_privacy_allow_remote_default_icon_url' )->once()->with( false )->andReturn( $allow_remote );
-
-		Functions\expect( 'get_site_url' )->once()->andReturn( $site_url );
-		Functions\expect( 'wp_parse_url' )->once()->with( $site_url, \PHP_URL_HOST )->andReturn( $domain );
-
-		Functions\expect( 'wp_parse_url' )->once()->with( $maybe_url, \PHP_URL_HOST )->andReturn( $domain );
-
-		Filters\expectApplied( 'avatar_privacy_validate_default_icon_url' )->once()->with( $result, $maybe_url, $allow_remote )->andReturn( $result );
-
-		$this->assertSame( $result, $this->sut->validate_image_url( $maybe_url ) );
-	}
-
-	/**
-	 * Tests ::validate_image_url.
-	 *
-	 * @covers ::validate_image_url
-	 **/
-	public function test_validate_image_url_invalid() {
-		// Parameters.
-		$maybe_url = 'my.domain/path/image.gif';
-
-		// Expected result.
-		$result = false;
-
-		// Intermediate values.
-		$site_url     = 'site://url';
-		$domain       = 'my.domain';
-		$allow_remote = false;
-
-		Filters\expectApplied( 'avatar_privacy_allow_remote_default_icon_url' )->once()->with( false )->andReturn( $allow_remote );
-
-		Functions\expect( 'get_site_url' )->once()->andReturn( $site_url );
-		Functions\expect( 'wp_parse_url' )->once()->with( $site_url, \PHP_URL_HOST )->andReturn( $domain );
-
-		Functions\expect( 'wp_parse_url' )->never();
-
-		Filters\expectApplied( 'avatar_privacy_validate_default_icon_url' )->once()->with( $result, $maybe_url, $allow_remote )->andReturn( $result );
-
-		$this->assertSame( $result, $this->sut->validate_image_url( $maybe_url ) );
-	}
-
-	/**
-	 * Tests ::validate_image_url.
-	 *
-	 * @covers ::validate_image_url
-	 **/
-	public function test_validate_image_url_remote_url_not_allowed() {
-		// Parameters.
-		$maybe_url = 'https://other.domain/path/image.gif';
-
-		// Expected result.
-		$result = false;
-
-		// Intermediate values.
-		$site_url     = 'site://url';
-		$domain       = 'my.domain';
-		$allow_remote = false;
-
-		Filters\expectApplied( 'avatar_privacy_allow_remote_default_icon_url' )->once()->with( false )->andReturn( $allow_remote );
-
-		Functions\expect( 'get_site_url' )->once()->andReturn( $site_url );
-		Functions\expect( 'wp_parse_url' )->once()->with( $site_url, \PHP_URL_HOST )->andReturn( $domain );
-
-		Functions\expect( 'wp_parse_url' )->once()->with( $maybe_url, \PHP_URL_HOST )->andReturn( 'other.domain' );
-
-		Filters\expectApplied( 'avatar_privacy_validate_default_icon_url' )->once()->with( $result, $maybe_url, $allow_remote )->andReturn( $result );
-
-		$this->assertSame( $result, $this->sut->validate_image_url( $maybe_url ) );
-	}
-
-	/**
-	 * Tests ::validate_image_url.
-	 *
-	 * @covers ::validate_image_url
-	 **/
-	public function test_validate_image_url_remote_url_allowed() {
-		// Parameters.
-		$maybe_url = 'https://other.domain/path/image.gif';
-
-		// Expected result.
-		$result = true;
-
-		// Intermediate values.
-		$site_url     = 'site://url';
-		$domain       = 'my.domain';
-		$allow_remote = true;
-
-		Filters\expectApplied( 'avatar_privacy_allow_remote_default_icon_url' )->once()->with( false )->andReturn( $allow_remote );
-
-		Functions\expect( 'get_site_url' )->once()->andReturn( $site_url );
-		Functions\expect( 'wp_parse_url' )->once()->with( $site_url, \PHP_URL_HOST )->andReturn( $domain );
-
-		Functions\expect( 'wp_parse_url' )->never();
-
-		Filters\expectApplied( 'avatar_privacy_validate_default_icon_url' )->once()->with( $result, $maybe_url, $allow_remote )->andReturn( $result );
-
-		$this->assertSame( $result, $this->sut->validate_image_url( $maybe_url ) );
 	}
 }

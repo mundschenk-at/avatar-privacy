@@ -27,7 +27,7 @@
 namespace Avatar_Privacy\Avatar_Handlers;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
-
+use Avatar_Privacy\Tools\Network\Remote_Image_Service;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Icon_Provider;
 
 
@@ -62,16 +62,26 @@ class Default_Icons_Handler implements Avatar_Handler {
 	private $icon_provider_mapping = [];
 
 	/**
+	 * The remote images handler.
+	 *
+	 * @var Remote_Image_Service
+	 */
+	private $remote_images;
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
+	 * @since 2.3.4 Parameter $remote_images added.
 	 *
-	 * @param Filesystem_Cache $file_cache     The file cache handler.
-	 * @param Icon_Provider[]  $icon_providers An array of icon providers.
+	 * @param Filesystem_Cache     $file_cache     The file cache handler.
+	 * @param Icon_Provider[]      $icon_providers An array of icon providers.
+	 * @param Remote_Image_Service $remote_images  The remote images handler.
 	 */
-	public function __construct( Filesystem_Cache $file_cache, array $icon_providers ) {
+	public function __construct( Filesystem_Cache $file_cache, array $icon_providers, Remote_Image_Service $remote_images ) {
 		$this->file_cache     = $file_cache;
 		$this->icon_providers = $icon_providers;
+		$this->remote_images  = $remote_images;
 	}
 
 	/**
@@ -120,7 +130,7 @@ class Default_Icons_Handler implements Avatar_Handler {
 
 		// Check if the given default icon type is a valid image URL (a common
 		// pattern due to how the default WordPress implementation uses Gravatar.com).
-		if ( $this->validate_image_url( $args['default'] ) ) {
+		if ( $this->remote_images->validate_image_url( $args['default'], 'default_icon' ) ) {
 			return $args['default'];
 		}
 
@@ -163,44 +173,5 @@ class Default_Icons_Handler implements Avatar_Handler {
 		}
 
 		return $avatar_defaults;
-	}
-
-	/**
-	 * Checks that the given string is a valid image URL.
-	 *
-	 * @since 2.3.4
-	 *
-	 * @param  string $maybe_url Possibly an image URL.
-	 *
-	 * @return bool
-	 */
-	public function validate_image_url( $maybe_url ) {
-		/**
-		 * Filters whether remote default icon URLs (i.e. having a different domain) are allowed.
-		 *
-		 * @since 2.3.4
-		 *
-		 * @param bool $allow Default false.
-		 */
-		$allow_remote = \apply_filters( 'avatar_privacy_allow_remote_default_icon_url', false );
-
-		// Get current site domain part (without schema).
-		$domain = \wp_parse_url( \get_site_url(), \PHP_URL_HOST );
-
-		// Make sure URL is valid and local (unless $allow_remote is set to true).
-		$result =
-			\filter_var( $maybe_url, \FILTER_VALIDATE_URL, \FILTER_FLAG_PATH_REQUIRED ) &&
-			( $allow_remote || \wp_parse_url( $maybe_url, \PHP_URL_HOST ) === $domain );
-
-		/**
-		 * Filters the result of checking whether the candidate URL is a valid image URL.
-		 *
-		 * @since 2.3.4
-		 *
-		 * @param bool   $result       The validation result.
-		 * @param string $maybe_url    The candidate URL.
-		 * @param bool   $allow_remote Whether URLs from other doamins should be allowed.
-		 */
-		return \apply_filters( 'avatar_privacy_validate_default_icon_url', $result, $maybe_url, $allow_remote );
 	}
 }
