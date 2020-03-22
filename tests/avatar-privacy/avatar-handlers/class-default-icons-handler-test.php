@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019 Peter Putzer.
+ * Copyright 2019-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -42,7 +42,7 @@ use Avatar_Privacy\Core;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Tools\Images;
-use Avatar_Privacy\Tools\Network\Gravatar_Service;
+use Avatar_Privacy\Tools\Network\Remote_Image_Service;
 
 /**
  * Avatar_Privacy\Avatar_Handlers\Default_Icons_Handler unit test.
@@ -85,9 +85,9 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The image editor support class.
 	 *
-	 * @var Gravatar_Service
+	 * @var Remote_Image_Service
 	 */
-	private $gravatar;
+	private $remote_images;
 
 	/**
 	 * An array of icon provider mocks.
@@ -124,6 +124,7 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 			m::mock( Icon_Provider::class ),
 			m::mock( Icon_Provider::class ),
 		];
+		$this->remote_images  = m::mock( Remote_Image_Service::class );
 
 		// Partially mock system under test.
 		$this->sut = m::mock(
@@ -131,6 +132,7 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 			[
 				$this->file_cache,
 				$this->icon_providers,
+				$this->remote_images,
 			]
 		)->makePartial()->shouldAllowMockingProtectedMethods();
 	}
@@ -147,11 +149,13 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 			m::mock( Icon_Provider::class ),
 			m::mock( Icon_Provider::class ),
 		];
+		$remote_images  = m::mock( Remote_Image_Service::class );
 
-		$mock->__construct( $file_cache, $icon_providers );
+		$mock->__construct( $file_cache, $icon_providers, $remote_images );
 
 		$this->assert_attribute_same( $file_cache, 'file_cache', $mock );
 		$this->assert_attribute_same( $icon_providers, 'icon_providers', $mock );
+		$this->assert_attribute_same( $remote_images, 'remote_images', $mock );
 	}
 
 	/**
@@ -222,6 +226,7 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertSame( $url, $this->sut->get_url( $default_url, $hash, $size, $args ) );
 	}
+
 	/**
 	 * Tests ::get_url.
 	 *
@@ -259,7 +264,51 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$provider1->shouldReceive( 'get_icon_url' )->never();
 		$provider2->shouldReceive( 'get_icon_url' )->never();
 
+		$this->remote_images->shouldReceive( 'validate_image_url' )->once()->with( $default_icon_type, 'default_icon' )->andReturn( false );
+
 		$this->assertSame( $default_url, $this->sut->get_url( $default_url, $hash, $size, $args ) );
+	}
+
+	/**
+	 * Tests ::get_url.
+	 *
+	 * @covers ::get_url
+	 */
+	public function test_get_url_no_provider_but_image_url() {
+		// Input data.
+		$default_icon_type = 'https://some/image';
+		$force             = false;
+		$hash              = 'f0e4c2f76c58916ec258f246851bea091d14d4247a2fc3e18694461b1816e13b';
+		$default_url       = 'https://some/default';
+		$size              = 42;
+		$args              = [
+			'default'  => $default_icon_type,
+			'mimetype' => 'image/jpeg',
+			'force'    => $force,
+		];
+
+		// Interim data.
+		$provider1      = m::mock( Avatar_Privacy\Avatar_Handlers\Default_Icons\Icon_Provider::class );
+		$provider2      = m::mock( Avatar_Privacy\Avatar_Handlers\Default_Icons\Icon_Provider::class );
+		$icon_providers = [
+			'foo'    => $provider1,
+			'bar'    => $provider1,
+			'fugazi' => $provider2,
+		];
+
+		// Expected result.
+		$url = 'https://some_url_for/the/avatar';
+
+		Functions\expect( 'wp_parse_args' )->once()->with( $args, m::type( 'array' ) )->andReturn( $args );
+
+		$this->sut->shouldReceive( 'get_provider_mapping' )->once()->andReturn( $icon_providers );
+
+		$provider1->shouldReceive( 'get_icon_url' )->never();
+		$provider2->shouldReceive( 'get_icon_url' )->never();
+
+		$this->remote_images->shouldReceive( 'validate_image_url' )->once()->with( $default_icon_type, 'default_icon' )->andReturn( true );
+
+		$this->assertSame( $default_icon_type, $this->sut->get_url( $default_url, $hash, $size, $args ) );
 	}
 
 	/**

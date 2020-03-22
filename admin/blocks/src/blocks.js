@@ -20,10 +20,7 @@ import * as frontendForm from './frontend-form';
 import * as avatar from './avatar';
 
 // Register all our blocks.
-[
-	frontendForm,
-	avatar,
-].forEach( ( block ) => {
+[ frontendForm, avatar ].forEach( ( block ) => {
 	if ( ! block ) {
 		return;
 	}

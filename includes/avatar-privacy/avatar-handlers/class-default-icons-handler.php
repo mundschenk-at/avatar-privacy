@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,7 +27,7 @@
 namespace Avatar_Privacy\Avatar_Handlers;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
-
+use Avatar_Privacy\Tools\Network\Remote_Image_Service;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Icon_Provider;
 
 
@@ -62,16 +62,26 @@ class Default_Icons_Handler implements Avatar_Handler {
 	private $icon_provider_mapping = [];
 
 	/**
+	 * The remote images handler.
+	 *
+	 * @var Remote_Image_Service
+	 */
+	private $remote_images;
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
+	 * @since 2.3.4 Parameter $remote_images added.
 	 *
-	 * @param Filesystem_Cache $file_cache     The file cache handler.
-	 * @param Icon_Provider[]  $icon_providers An array of icon providers.
+	 * @param Filesystem_Cache     $file_cache     The file cache handler.
+	 * @param Icon_Provider[]      $icon_providers An array of icon providers.
+	 * @param Remote_Image_Service $remote_images  The remote images handler.
 	 */
-	public function __construct( Filesystem_Cache $file_cache, array $icon_providers ) {
+	public function __construct( Filesystem_Cache $file_cache, array $icon_providers, Remote_Image_Service $remote_images ) {
 		$this->file_cache     = $file_cache;
 		$this->icon_providers = $icon_providers;
+		$this->remote_images  = $remote_images;
 	}
 
 	/**
@@ -96,16 +106,15 @@ class Default_Icons_Handler implements Avatar_Handler {
 	/**
 	 * Retrieves the URL for the given default icon type.
 	 *
+	 * @since 2.3.4 Documentation for optional arguments adapted to follow implementation.
+	 *
 	 * @param  string $url  The fallback image URL.
 	 * @param  string $hash The hashed mail address.
 	 * @param  int    $size The size of the avatar image in pixels.
 	 * @param  array  $args {
 	 *     An array of arguments.
 	 *
-	 *     @type string $type     The avatar/icon type.
-	 *     @type string $avatar   The full-size avatar image path.
-	 *     @type string $mimetype The expected MIME type of the avatar image.
-	 *     @type bool   $force    Optional. Whether to force the regeneration of the image file. Default false.
+	 *     @type string $default The default icon type.
 	 * }
 	 *
 	 * @return string
@@ -113,9 +122,16 @@ class Default_Icons_Handler implements Avatar_Handler {
 	public function get_url( $url, $hash, $size, array $args ) {
 		$args = \wp_parse_args( $args, [ 'default' => '' ] );
 
+		// Check for named icon providers first.
 		$providers = $this->get_provider_mapping();
 		if ( ! empty( $providers[ $args['default'] ] ) ) {
 			return $providers[ $args['default'] ]->get_icon_url( $hash, $size );
+		}
+
+		// Check if the given default icon type is a valid image URL (a common
+		// pattern due to how the default WordPress implementation uses Gravatar.com).
+		if ( $this->remote_images->validate_image_url( $args['default'], 'default_icon' ) ) {
+			return $args['default'];
 		}
 
 		// Return the fallback default icon URL.

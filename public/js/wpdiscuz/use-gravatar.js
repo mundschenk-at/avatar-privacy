@@ -12,7 +12,11 @@ jQuery( function( $ ) {
 	var $useGravatarCheckbox = $( '#' + avatarPrivacy.checkbox );
 
 	var resetUseGravatar = function() {
-		var useGravatar = ( Cookies.get( avatarPrivacy.cookie ) !== undefined && '' !== Cookies.get( avatarPrivacy.cookie ) ) ? 'checked' : '';
+		var useGravatar =
+			Cookies.get( avatarPrivacy.cookie ) !== undefined &&
+			'' !== Cookies.get( avatarPrivacy.cookie )
+				? 'checked'
+				: '';
 
 		$useGravatarCheckbox.prop( 'checked', useGravatar );
 	};
