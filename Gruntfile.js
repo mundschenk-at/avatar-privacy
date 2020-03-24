@@ -22,7 +22,14 @@ module.exports = function(grunt) {
 			vendor: [
 				"build/vendor-scoped/{jdenticon,mistic100,scripturadesign,splitbrain}/*/*",
 				"!build/vendor-scoped/**/src",
-				"!build/vendor-scoped/**/partials"
+				"!build/vendor-scoped/**/partials",
+				// Prune Scriptura Color classes - we only need the helper functions.
+				"build/vendor-scoped/scripturadesign/color/src/**/*",
+				"!build/vendor-scoped/scripturadesign/color/src/functions.php",
+				// Prune PNG-based RingIcon.
+				"build/vendor-scoped/splitbrain/php-ringicon/src/RingIcon.php",
+				// Prune PNG-based Identicon generators.
+				"build/vendor-scoped/yzalis/identicon/src/Identicon/Generator/{GdGenerator,ImageMagickGenerator}.php"
 			],
 		},
 
