@@ -163,9 +163,9 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// PHP < 7.0 raises an error instead of throwing an "exception".
 		if ( version_compare( phpversion(), '7.0.0', '<' ) ) {
-			$this->expectException( \PHPUnit_Framework_Error::class );
+			$this->expect_error( \PHPUnit_Framework_Error::class );
 		} else {
-			$this->expectException( \PHPUnit\Framework\Error\Error::class );
+			$this->expect_error( \PHPUnit\Framework\Error\Error::class );
 		}
 
 		$this->assertSame( false, $this->sut->stream_open( $path, $mode, $options, $opened_path ) );

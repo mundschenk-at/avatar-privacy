@@ -525,4 +525,34 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase {
 			return $this->assertInternalType( 'iterable', $actual, $message );
 		}
 	}
+
+	/**
+	 * Expectes an exception to be thrown.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  string $class The class name of the expected exception.
+	 *
+	 * @return void
+	 */
+	protected function expect_exception( $class ) {
+		$this->expectException( $class );
+	}
+
+	/**
+	 * Expectes an error to be thrown.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  string $class The class name of the expected error.
+	 *
+	 * @return void
+	 */
+	protected function expect_error( $class ) {
+		if ( \method_exists( $this, 'expectError' ) ) {
+			$this->expectError( $class );
+		} else {
+			$this->expectException( $class );
+		}
+	}
 }
