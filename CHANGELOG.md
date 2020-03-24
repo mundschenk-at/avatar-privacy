@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.4.0 (unreleased)
+*   _Change_: The `yzalis/identicon` package has been updated to version 2.0.
+*   _Change_: Some unused files have been removed from the `vendor-scoped` directory.
+
 ## 2.3.4 (2020-03-22)
 *   _Bugfix_: Allow plain URLs as default avatars. Use the filter hook
     `avatar_privacy_allow_remote_default_icon_url` to allow third-party domains
