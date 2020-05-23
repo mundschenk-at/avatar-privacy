@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -304,9 +304,9 @@ class File_Upload_Input_Test extends \Avatar_Privacy\Tests\TestCase {
 		$result = $this->sut->get_element_markup();
 
 		if ( $checkbox ) {
-			$this->assertRegExp( '/<input id="erase-checkbox-id" name="erase-checkbox-id" value="true" type="checkbox">/', $result );
+			$this->assert_matches_regular_expression( '/<input id="erase-checkbox-id" name="erase-checkbox-id" value="true" type="checkbox">/', $result );
 		} else {
-			$this->assertNotRegExp( '/<input id="erase-checkbox-id" name="erase-checkbox-id" value="true" type="checkbox">/', $result );
+			$this->assert_does_not_match_regular_expression( '/<input id="erase-checkbox-id" name="erase-checkbox-id" value="true" type="checkbox">/', $result );
 		}
 	}
 }

@@ -38,10 +38,9 @@
         "dealerdirect/phpcodesniffer-composer-installer": "^0.6",
         "phpunit/phpunit": "5.*||6.*||7.*||8.*||9.*",
         "mikey179/vfsstream": "~1",
-        "brain/monkey": "^2.2",
         "roave/security-advisories": "dev-master",
         "humbug/php-scoper": "^0.13",
-        "symfony/phpunit-bridge": "^5.0"
+        "mundschenk-at/phpunit-cross-version": "dev-master"
     },
 
     "autoload": {

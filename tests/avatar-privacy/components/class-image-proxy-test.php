@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -399,10 +399,10 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assertNull( $this->sut->send_image( $file, $cache_time, $content_type ) );
 
 		$headers = \xdebug_get_headers();
-		$this->assertRegexp( "|Content-Type: {$content_type}|", $headers[0] );
-		$this->assertRegexp( "|Content-Length: {$length}|", $headers[1] );
-		$this->assertRegexp( '|Last-Modified: |', $headers[2] );
-		$this->assertRegexp( '|Expires: |', $headers[3] );
+		$this->assert_matches_regular_expression( "|Content-Type: {$content_type}|", $headers[0] );
+		$this->assert_matches_regular_expression( "|Content-Length: {$length}|", $headers[1] );
+		$this->assert_matches_regular_expression( '|Last-Modified: |', $headers[2] );
+		$this->assert_matches_regular_expression( '|Expires: |', $headers[3] );
 	}
 
 	/**
