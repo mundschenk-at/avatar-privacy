@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -485,7 +485,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 		$headers = \xdebug_get_headers();
 		$regex   = '/Set\-Cookie: comment_use_gravatar_somehash\=' . (int) $use_gravatar . '; expires\=[^;]+; Max\-Age\=' . $filter_lifetime . '; path\=' . \preg_quote( COOKIEPATH, '/' ) . '; domain=' . \preg_quote( COOKIE_DOMAIN, '/' ) . '/';
 
-		$this->assertRegexp( $regex, $headers[0] );
+		$this->assert_matches_regular_expression( $regex, $headers[0] );
 	}
 
 	/**
@@ -518,7 +518,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 		}
 
 		// Cookie is "unset".
-		$this->assertRegexp( $regex, $headers[0] );
+		$this->assert_matches_regular_expression( $regex, $headers[0] );
 	}
 
 	/**
