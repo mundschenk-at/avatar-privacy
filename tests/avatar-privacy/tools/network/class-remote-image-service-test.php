@@ -40,8 +40,6 @@ use Avatar_Privacy\Tools\Network\Remote_Image_Service;
  *
  * @coversDefaultClass \Avatar_Privacy\Tools\Network\Remote_Image_Service
  * @usesDefaultClass \Avatar_Privacy\Tools\Network\Remote_Image_Service
- *
- * @uses ::__construct
  */
 class Remote_Image_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 
