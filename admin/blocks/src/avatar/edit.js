@@ -38,7 +38,7 @@ export default withSelect(
 )( ( { attributes, setAttributes, users } ) => {
 	// The authors list has not finished loading yet.
 	if ( ! users || users.length < 1 ) {
-		return __( 'Loading...', 'avatar-privacy' );
+		return __( 'Loading…', 'avatar-privacy' );
 	}
 
 	//  Set default for user_id.
@@ -90,6 +90,7 @@ export default withSelect(
 				width={ attributes.avatar_size }
 				src={ attributes.user.avatar_urls[ 96 ] }
 				alt={ sprintf(
+					/* translators: user display name */
 					__( 'Avatar of %s', 'avatar-privacy' ),
 					attributes.user.name
 				) }

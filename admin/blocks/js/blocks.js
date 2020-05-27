@@ -158,7 +158,7 @@ function (select) {
 
   // The authors list has not finished loading yet.
   if (!users || users.length < 1) {
-    return Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__["__"])('Loading...', 'avatar-privacy');
+    return Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__["__"])('Loading…', 'avatar-privacy');
   } //  Set default for user_id.
 
 
@@ -204,7 +204,9 @@ function (select) {
   })))), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])("img", {
     width: attributes.avatar_size,
     src: attributes.user.avatar_urls[96],
-    alt: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__["sprintf"])(Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__["__"])('Avatar of %s', 'avatar-privacy'), attributes.user.name)
+    alt: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__["sprintf"])(
+    /* translators: user display name */
+    Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__["__"])('Avatar of %s', 'avatar-privacy'), attributes.user.name)
   }));
 }));
 
@@ -309,7 +311,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
   var metadata = block.metadata,
       settings = block.settings,
       name = block.name;
-  Object(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_1__["registerBlockType"])(name, _objectSpread({}, metadata, {}, settings));
+  Object(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_1__["registerBlockType"])(name, _objectSpread(_objectSpread({}, metadata), settings));
 });
 
 /***/ }),
