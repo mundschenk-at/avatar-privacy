@@ -35,6 +35,7 @@ use Mockery as m;
 use Avatar_Privacy\Components\Privacy_Tools;
 
 use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\Comment_Author_Fields;
 use Avatar_Privacy\Data_Storage\Cache;
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
@@ -302,7 +303,7 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 		$user->ID = $user_id;
 
 		// Comment author mock.
-		$comment_author_id = 9;
+		$comment_author_fields_id = 9;
 
 		Functions\expect( 'get_user_by' )->once()->with( 'email', $email )->andReturn( $user );
 		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, Core::EMAIL_HASH_META_KEY )->andReturnTrue();
@@ -339,7 +340,7 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$wpdb->shouldReceive( 'delete' )->once()->with( $wpdb->avatar_privacy, [ 'id' => $id ], [ '%d' ] )->andReturn( 1 );
 		$this->core->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
-		$this->cache->shouldReceive( 'delete' )->once()->with( Core::EMAIL_CACHE_PREFIX . $hash );
+		$this->cache->shouldReceive( 'delete' )->once()->with( Comment_Author_Data::EMAIL_CACHE_PREFIX . $hash );
 
 		$this->assertSame( 1, $this->sut->delete_comment_author_data( $id, $email ) );
 	}

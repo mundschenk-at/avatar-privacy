@@ -27,6 +27,7 @@
 namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\Comment_Author_Fields;
 
 use Avatar_Privacy\Data_Storage\Cache;
 use Avatar_Privacy\Data_Storage\Options;
@@ -343,7 +344,7 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 		$rows = (int) $wpdb->delete( $wpdb->avatar_privacy, [ 'id' => $id ], [ '%d' ] ); // WPCS: db call ok, cache ok.
 
 		// Delete cached data.
-		$this->cache->delete( Core::EMAIL_CACHE_PREFIX . $this->core->get_hash( $email ) );
+		$this->cache->delete( Comment_Author_Data::EMAIL_CACHE_PREFIX . $this->core->get_hash( $email ) );
 
 		return $rows;
 	}
