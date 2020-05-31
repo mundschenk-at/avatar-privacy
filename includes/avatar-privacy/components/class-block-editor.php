@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019 Peter Putzer.
+ * Copyright 2019-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -158,22 +158,6 @@ class Block_Editor implements Component {
 
 		// Enable i18n.
 		\wp_set_script_translations( 'avatar-privacy-gutenberg', 'avatar-privacy' );
-	}
-
-	/**
-	 * Retrieves the dependencies for the given JavaScript file.
-	 *
-	 * @deprecated 2.3.2 Obsoleted by new tooling introduced by @wordpress/scripts 5.0.0.
-	 *
-	 * @param  string $file The full path.
-	 *
-	 * @return string[]
-	 */
-	public function get_dependencies( $file ) {
-		// Replace `.js` extension with `.deps.json` to find the generated dependencies file.
-		$dependencies_file = \substr( $file, 0, -3 ) . '.deps.json';
-
-		return \is_readable( $dependencies_file ) ? \json_decode( \file_get_contents( $dependencies_file ) ) : []; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 	}
 
 	/**

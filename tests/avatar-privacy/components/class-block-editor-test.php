@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019 Peter Putzer.
+ * Copyright 2019-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -199,9 +199,6 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'plugins_url' )->once()->with( '', \AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $base_url );
 
-		// Deprecated and unused method.
-		$this->sut->shouldReceive( 'get_dependencies' )->never();
-
 		Functions\expect( 'wp_register_script' )->once()->with(
 			'avatar-privacy-gutenberg',
 			"{$base_url}/admin/blocks/js/blocks.js",
@@ -274,25 +271,6 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'wp_set_script_translations' )->once()->with( 'avatar-privacy-gutenberg', 'avatar-privacy' );
 
 		$this->assertNull( $this->sut->register_blocks() );
-	}
-
-	/**
-	 * Tests ::get_dependencies.
-	 *
-	 * @covers ::get_dependencies
-	 */
-	public function test_get_dependencies() {
-		$file   = vfsStream::url( 'root/plugin/js/dummy.js' );
-		$result = [
-			'wp-blocks',
-			'wp-components',
-			'wp-editor',
-			'wp-element',
-			'wp-i18n',
-			'wp-polyfill',
-		];
-
-		$this->assertSame( $result, $this->sut->get_dependencies( $file ) );
 	}
 
 	/**
