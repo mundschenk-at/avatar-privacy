@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -29,9 +29,10 @@ namespace Avatar_Privacy;
 
 use Avatar_Privacy\Settings;
 
+use Avatar_Privacy\Core\Hasher;
+
 use Avatar_Privacy\Data_Storage\Cache;
 use Avatar_Privacy\Data_Storage\Options;
-use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Transients;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 
@@ -119,25 +120,11 @@ class Core {
 	private $options;
 
 	/**
-	 * The network options handler.
-	 *
-	 * @var Network_Options
-	 */
-	private $network_options;
-
-	/**
 	 * The transients handler.
 	 *
 	 * @var Transients
 	 */
 	private $transients;
-
-	/**
-	 * The salt used for the get_hash() method.
-	 *
-	 * @var string
-	 */
-	private $salt;
 
 	/**
 	 * A copy of COLUMN_FORMAT_STRINGS for PHP 5.6 compatibility.
@@ -163,6 +150,13 @@ class Core {
 	private $settings_template;
 
 	/**
+	 * The hashing helper.
+	 *
+	 * @var Hasher
+	 */
+	private $hasher;
+
+	/**
 	 * The singleton instance.
 	 *
 	 * @var Core
@@ -180,17 +174,17 @@ class Core {
 	 * @param Site_Transients $site_transients   Required.
 	 * @param Cache           $cache             Required.
 	 * @param Options         $options           Required.
-	 * @param Network_Options $network_options   Required.
 	 * @param Settings        $settings_template Required.
+	 * @param Hasher          $hasher            Required.
 	 */
-	public function __construct( $version, Transients $transients, Site_Transients $site_transients, Cache $cache, Options $options, Network_Options $network_options, Settings $settings_template ) {
+	public function __construct( $version, Transients $transients, Site_Transients $site_transients, Cache $cache, Options $options, Settings $settings_template, Hasher $hasher ) {
 		$this->version           = $version;
 		$this->transients        = $transients;
 		$this->site_transients   = $site_transients;
 		$this->cache             = $cache;
 		$this->options           = $options;
-		$this->network_options   = $network_options;
 		$this->settings_template = $settings_template;
+		$this->hasher            = $hasher;
 
 		// PHP 5.6 compatibility.
 		$this->column_format_strings = self::COLUMN_FORMAT_STRINGS;
@@ -347,7 +341,7 @@ class Core {
 			return null;
 		}
 
-		$key  = self::EMAIL_CACHE_PREFIX . $this->get_hash( $email );
+		$key  = self::EMAIL_CACHE_PREFIX . $this->hasher->get_hash( $email );
 		$data = $this->cache->get( $key );
 
 		if ( false === $data ) {
@@ -408,7 +402,7 @@ class Core {
 			$user = \get_user_by( 'ID', $user_id );
 
 			if ( ! empty( $user->user_email ) ) {
-				$hash = $this->get_hash( $user->user_email );
+				$hash = $this->hasher->get_hash( $user->user_email );
 				\update_user_meta( $user_id, self::EMAIL_HASH_META_KEY, $hash );
 			}
 		}
@@ -447,7 +441,7 @@ class Core {
 
 		if ( false !== $result && $result > 0 ) {
 			// Clear any previously cached value.
-			$this->cache->delete( self::EMAIL_CACHE_PREFIX . $this->get_hash( $email ) );
+			$this->cache->delete( self::EMAIL_CACHE_PREFIX . $this->hasher->get_hash( $email ) );
 		}
 
 		return $result;
@@ -466,7 +460,7 @@ class Core {
 	protected function insert_comment_author_data( $email, $use_gravatar, $last_updated, $log_message ) {
 		global $wpdb;
 
-		$hash    = $this->get_hash( $email );
+		$hash    = $this->hasher->get_hash( $email );
 		$columns = [
 			'email'        => $email,
 			'hash'         => $hash,
@@ -503,7 +497,7 @@ class Core {
 					'use_gravatar' => $use_gravatar,
 					'last_updated' => \current_time( 'mysql' ),
 					'log_message'  => 'set with comment ' . $comment_id . ( \is_multisite() ? ' (site: ' . $wpdb->siteid . ', blog: ' . $wpdb->blogid . ')' : '' ),
-					'hash'         => $this->get_hash( $email ),
+					'hash'         => $this->hasher->get_hash( $email ),
 				];
 				$this->update_comment_author_data( $data->id, $data->email, $new_values );
 			} elseif ( empty( $data->hash ) ) {
@@ -520,57 +514,33 @@ class Core {
 	 * @param  string $email The email.
 	 */
 	public function update_comment_author_hash( $id, $email ) {
-		$this->update_comment_author_data( $id, $email, [ 'hash' => $this->get_hash( $email ) ] );
+		$this->update_comment_author_data( $id, $email, [ 'hash' => $this->hasher->get_hash( $email ) ] );
 	}
 
 	/**
 	 * Retrieves the salt for current the site/network.
 	 *
+	 * @deprecated 2.4.0
+	 *
 	 * @return string
 	 */
 	public function get_salt() {
-		if ( empty( $this->salt ) ) {
-			/**
-			 * Filters the salt used for generating this sites email hashes.
-			 *
-			 * If a non-empty string is returned, this value is used instead of
-			 * the one stored in the network options. On first activation, a random
-			 * value is generated and stored in the option.
-			 *
-			 * @param string $salt Default ''.
-			 */
-			$salt = \apply_filters( 'avatar_privacy_salt', '' );
+		\_deprecated_function( __METHOD__, '2.4.0' );
 
-			if ( empty( $salt ) ) {
-				// Let's try the network option next.
-				$salt = $this->network_options->get( Network_Options::SALT );
-
-				if ( empty( $salt ) ) {
-					// Still nothing? Generate a random value.
-					$salt = \wp_rand();
-
-					// Save the generated salt.
-					$this->network_options->set( Network_Options::SALT, $salt );
-				}
-			}
-
-			$this->salt = $salt;
-		}
-
-		return $this->salt;
+		return $this->hasher->get_salt();
 	}
 
 	/**
 	 * Generates a salted SHA-256 hash for the given e-mail address.
+	 *
+	 * @since 2.4.0 Implementation extracted to \Avatar_Privacy\Core\Hasher
 	 *
 	 * @param  string $email The mail address.
 	 *
 	 * @return string
 	 */
 	public function get_hash( $email ) {
-		$email = \strtolower( \trim( $email ) );
-
-		return \hash( 'sha256', "{$this->get_salt()}{$email}" );
+		return $this->hasher->get_hash( $email );
 	}
 
 	/**

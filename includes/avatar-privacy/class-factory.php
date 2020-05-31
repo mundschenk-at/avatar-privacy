@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -29,6 +29,8 @@ namespace Avatar_Privacy;
 use Dice\Dice;
 
 use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\API;
+
 use Avatar_Privacy\Component;
 use Avatar_Privacy\Components;
 use Avatar_Privacy\Controller;
@@ -125,6 +127,7 @@ class Factory extends Dice {
 			Settings::class                                         => self::SHARED,
 
 			// Core API.
+			API::class                                              => self::SHARED,
 			Core::class                                             => [
 				'shared'          => true,
 				'constructParams' => [ $this->get_plugin_version( \AVATAR_PRIVACY_PLUGIN_FILE ) ],

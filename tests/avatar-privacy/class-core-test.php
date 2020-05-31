@@ -34,8 +34,9 @@ use Mockery as m;
 
 use Avatar_Privacy\Settings;
 
+use Avatar_Privacy\Core\Hasher;
+
 use Avatar_Privacy\Data_Storage\Cache;
-use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Data_Storage\Transients;
@@ -88,16 +89,16 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Required helper object.
 	 *
-	 * @var Network_Options
+	 * @var Settings
 	 */
-	private $network_options;
+	private $settings;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Settings
+	 * @var Hasher
 	 */
-	private $settings;
+	private $hasher;
 
 	// Mock version.
 	const VERSION = '1.0.0';
@@ -116,8 +117,8 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->site_transients = m::mock( Site_Transients::class );
 		$this->cache           = m::mock( Cache::class );
 		$this->options         = m::mock( Options::class );
-		$this->network_options = m::mock( Network_Options::class );
 		$this->settings        = m::mock( Settings::class );
+		$this->hasher          = m::mock( Hasher::class );
 
 		// Partially mock system under test.
 		$this->sut = m::mock(
@@ -128,8 +129,8 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 				$this->site_transients,
 				$this->cache,
 				$this->options,
-				$this->network_options,
 				$this->settings,
+				$this->hasher,
 			]
 		)->makePartial()->shouldAllowMockingProtectedMethods();
 	}
@@ -159,11 +160,11 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$site_transients = m::mock( Site_Transients::class )->makePartial();
 		$cache           = m::mock( Cache::class )->makePartial();
 		$options         = m::mock( Options::class )->makePartial();
-		$network_options = m::mock( Network_Options::class )->makePartial();
 		$settings        = m::mock( Settings::class );
+		$hasher          = m::mock( Hasher::class );
 
 		$core = m::mock( \Avatar_Privacy\Core::class )->makePartial();
-		$core->__construct( '6.6.6', $transients, $site_transients, $cache, $options, $network_options, $settings );
+		$core->__construct( '6.6.6', $transients, $site_transients, $cache, $options, $settings, $hasher );
 
 		$this->assertSame( '6.6.6', $core->get_version() );
 	}
@@ -530,7 +531,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->avatar_privacy = 'avatar_privacy_table';
 
-		$this->sut->shouldReceive( 'get_hash' )->with( $email )->andReturn( $hash );
+		$this->hasher->shouldReceive( 'get_hash' )->with( $email )->andReturn( $hash );
 		$this->cache->shouldReceive( 'get' )->with( $key )->andReturn( false );
 		$wpdb->shouldReceive( 'prepare' )->with( m::type( 'string' ), $email )->andReturn( 'sql_string' );
 		$wpdb->shouldReceive( 'get_row' )->with( 'sql_string', OBJECT )->andReturn( $result );
@@ -554,7 +555,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->avatar_privacy = 'avatar_privacy_table';
 
-		$this->sut->shouldReceive( 'get_hash' )->with( $email )->andReturn( $hash );
+		$this->hasher->shouldReceive( 'get_hash' )->with( $email )->andReturn( $hash );
 		$this->cache->shouldReceive( 'get' )->with( $key )->andReturn( $result );
 		$wpdb->shouldReceive( 'prepare' )->never();
 		$wpdb->shouldReceive( 'get_row' )->never();
@@ -575,7 +576,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->avatar_privacy = 'avatar_privacy_table';
 
-		$this->sut->shouldReceive( 'get_hash' )->never();
+		$this->hasher->shouldReceive( 'get_hash' )->never();
 		$this->cache->shouldReceive( 'get' )->never();
 		$wpdb->shouldReceive( 'prepare' )->never();
 		$wpdb->shouldReceive( 'get_row' )->never();
@@ -661,7 +662,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'get_user_meta' )->with( $user_id, \Avatar_Privacy\Core::EMAIL_HASH_META_KEY, true )->once()->andReturn( $hash );
 		Functions\expect( 'get_user_by' )->never();
-		$this->sut->shouldReceive( 'get_hash' )->never();
+		$this->hasher->shouldReceive( 'get_hash' )->never();
 		Functions\expect( 'update_user_meta' )->never();
 
 		$this->assertSame( $hash, $this->sut->get_user_hash( $user_id ) );
@@ -680,7 +681,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'get_user_meta' )->with( $user_id, \Avatar_Privacy\Core::EMAIL_HASH_META_KEY, true )->once()->andReturn( false );
 		Functions\expect( 'get_user_by' )->with( 'ID', $user_id )->once()->andReturn( $user );
-		$this->sut->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
+		$this->hasher->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
 		Functions\expect( 'update_user_meta' )->with( $user_id, \Avatar_Privacy\Core::EMAIL_HASH_META_KEY, $hash )->once();
 
 		$this->assertSame( $hash, $this->sut->get_user_hash( $user_id ) );
@@ -720,7 +721,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'get_format_strings' )->once()->with( $columns )->andReturn( $format_strings );
 		$wpdb->shouldReceive( 'update' )->once()->with( $wpdb->avatar_privacy, $columns, [ 'id' => $id ], $format_strings, [ '%d' ] )->andReturn( $rows_updated );
 
-		$this->sut->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
+		$this->hasher->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
 		$this->cache->shouldReceive( 'delete' )->once()->with( \Avatar_Privacy\Core::EMAIL_CACHE_PREFIX . $hash );
 
 		$this->assertSame( $rows_updated, $this->sut->update_comment_author_data( $id, $email, $columns ) );
@@ -745,7 +746,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'get_format_strings' )->once()->with( $columns )->andReturn( $format_strings );
 		$wpdb->shouldReceive( 'update' )->once()->with( $wpdb->avatar_privacy, $columns, [ 'id' => $id ], $format_strings, [ '%d' ] )->andReturn( false );
 
-		$this->sut->shouldReceive( 'get_hash' )->never();
+		$this->hasher->shouldReceive( 'get_hash' )->never();
 		$this->cache->shouldReceive( 'delete' )->never();
 
 		$this->assertFalse( $this->sut->update_comment_author_data( $id, $email, $columns ) );
@@ -771,7 +772,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'get_format_strings' )->once()->with( $columns )->andReturn( $format_strings );
 		$wpdb->shouldReceive( 'update' )->once()->with( $wpdb->avatar_privacy, $columns, [ 'id' => $id ], $format_strings, [ '%d' ] )->andReturn( $rows_updated );
 
-		$this->sut->shouldReceive( 'get_hash' )->never();
+		$this->hasher->shouldReceive( 'get_hash' )->never();
 		$this->cache->shouldReceive( 'delete' )->never();
 
 		$this->assertSame( 0, $this->sut->update_comment_author_data( $id, $email, $columns ) );
@@ -803,7 +804,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->avatar_privacy = 'avatar_privacy_table';
 
-		$this->sut->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
+		$this->hasher->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
 
 		$this->cache->shouldReceive( 'delete' )->once()->with( \Avatar_Privacy\Core::EMAIL_CACHE_PREFIX . $hash );
 
@@ -875,7 +876,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 			if ( $data->use_gravatar !== $use_gravatar ) {
 				Functions\expect( 'is_multisite' )->once()->andReturn( false );
 				Functions\expect( 'current_time' )->once()->with( 'mysql' )->andReturn( 'a timestamp' );
-				$this->sut->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
+				$this->hasher->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
 				$this->sut->shouldReceive( 'update_comment_author_data' )->once()->with( $data->id, $data->email, m::type( 'array' ) );
 			} elseif ( empty( $data->hash ) ) {
 				$this->sut->shouldReceive( 'update_comment_author_hash' )->once()->with( $data->id, $data->email );
@@ -895,7 +896,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$email = 'foo@bar.com';
 		$hash  = 'hashedemail123';
 
-		$this->sut->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
+		$this->hasher->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
 		$this->sut->shouldReceive( 'update_comment_author_data' )->once()->with( $id, $email, [ 'hash' => $hash ] );
 
 		$this->assertNull( $this->sut->update_comment_author_hash( $id, $email ) );
@@ -909,48 +910,9 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_salt() {
 		$expected_salt = 'random salt';
 
-		Filters\expectApplied( 'avatar_privacy_salt' )->once()->with( '' );
+		Functions\expect( '_deprecated_function' )->once()->with( Core::class . '::get_salt', '2.4.0' );
 
-		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::SALT )->andReturn( '' );
-
-		Functions\expect( 'wp_rand' )->once()->andReturn( $expected_salt );
-
-		$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::SALT, $expected_salt );
-
-		$this->assertSame( $expected_salt, $this->sut->get_salt() );
-	}
-
-	/**
-	 * Tests ::get_salt.
-	 *
-	 * @covers ::get_salt
-	 */
-	public function test_get_salt_filtered() {
-		$expected_salt = 'random salt';
-
-		Filters\expectApplied( 'avatar_privacy_salt' )->once()->with( '' )->andReturn( $expected_salt );
-
-		$this->network_options->shouldReceive( 'get' )->never();
-		Functions\expect( 'wp_rand' )->never();
-		$this->network_options->shouldReceive( 'set' )->never();
-
-		$this->assertSame( $expected_salt, $this->sut->get_salt() );
-	}
-
-	/**
-	 * Tests ::get_salt.
-	 *
-	 * @covers ::get_salt
-	 */
-	public function test_get_salt_from_options() {
-		$expected_salt = 'random salt';
-
-		Filters\expectApplied( 'avatar_privacy_salt' )->once()->with( '' );
-
-		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::SALT )->andReturn( $expected_salt );
-
-		Functions\expect( 'wp_rand' )->never();
-		$this->network_options->shouldReceive( 'set' )->never();
+		$this->hasher->shouldReceive( 'get_salt' )->once()->andReturn( $expected_salt );
 
 		$this->assertSame( $expected_salt, $this->sut->get_salt() );
 	}
@@ -961,26 +923,12 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::get_hash
 	 */
 	public function test_get_hash() {
-		$salt  = 'foobar57';
 		$email = 'example@example.org';
+		$hash  = 'fake hash';
 
-		$this->sut->shouldReceive( 'get_salt' )->once()->andReturn( $salt );
+		$this->hasher->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
 
-		$this->assertSame( '874ccc6634195fdf4a1e5391a623fddb8a347d26cad4d9bbda683923afca3132', $this->sut->get_hash( $email ) );
-	}
-
-	/**
-	 * Tests ::get_hash.
-	 *
-	 * @covers ::get_hash
-	 */
-	public function test_get_hash_with_whitespace() {
-		$salt  = 'foobar57';
-		$email = '   example@example.org ';
-
-		$this->sut->shouldReceive( 'get_salt' )->once()->andReturn( $salt );
-
-		$this->assertSame( '874ccc6634195fdf4a1e5391a623fddb8a347d26cad4d9bbda683923afca3132', $this->sut->get_hash( $email ) );
+		$this->assertSame( $hash, $this->sut->get_hash( $email ) );
 	}
 
 	/**
