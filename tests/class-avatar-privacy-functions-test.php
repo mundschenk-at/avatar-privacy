@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -79,6 +79,7 @@ class Avatar_Privacy_Functions_Test extends TestCase {
 	 * @uses \Avatar_Privacy\Components\Comments::get_gravatar_checkbox
 	 */
 	public function test_avapr_get_avatar_checkbox() {
+		Functions\expect( '_deprecated_function' )->once()->with( 'avapr_get_avatar_checkbox', '2.3.0', 'Avatar_Privacy\get_gravatar_checkbox' );
 		Functions\expect( 'is_user_logged_in' )->once()->andReturn( false );
 
 		$this->assertSame( 'USE_GRAVATAR', \avapr_get_avatar_checkbox() );
@@ -92,6 +93,7 @@ class Avatar_Privacy_Functions_Test extends TestCase {
 	 * @uses \Avatar_Privacy\get_gravatar_checkbox
 	 */
 	public function test_avapr_get_avatar_checkbox_user_is_logged_in() {
+		Functions\expect( '_deprecated_function' )->once()->with( 'avapr_get_avatar_checkbox', '2.3.0', 'Avatar_Privacy\get_gravatar_checkbox' );
 		Functions\expect( 'is_user_logged_in' )->once()->andReturn( true );
 
 		$this->assertSame( '', \avapr_get_avatar_checkbox() );

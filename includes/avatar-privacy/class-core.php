@@ -203,6 +203,8 @@ class Core {
 	 * @return string
 	 */
 	public function get_plugin_file() {
+		\_deprecated_function( __METHOD__, '2.3.0' );
+
 		return \AVATAR_PRIVACY_PLUGIN_FILE;
 	}
 

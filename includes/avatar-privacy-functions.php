@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -39,6 +39,9 @@ if ( ! \function_exists( 'avapr_get_avatar_checkbox' ) ) {
 	 * @return string The HTML code for the checkbox or an empty string.
 	 */
 	function avapr_get_avatar_checkbox() {
+
+		\_deprecated_function( __FUNCTION__, '2.3.0', 'Avatar_Privacy\get_gravatar_checkbox' );
+
 		return get_gravatar_checkbox();
 	}
 }
