@@ -340,4 +340,13 @@ class Comment_Author_Fields implements API {
 
 		return $format_strings;
 	}
+
+	/**
+	 * Clears the cache for the given email address.
+	 *
+	 * @param  string $email An email address.
+	 */
+	public function clear_cache_by_email( $email ) {
+		$this->cache->delete( self::EMAIL_CACHE_PREFIX . $this->hasher->get_hash( $email ) );
+	}
 }

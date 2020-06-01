@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -51,21 +51,23 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 	private $core;
 
 	/**
-	 * The cache handler.
+	 * The comment author API.
 	 *
-	 * @var Cache
+	 * @since 2.4.0
+	 *
+	 * @var Comment_Author_Fields
 	 */
-	private $cache;
+	private $comment_author_fields;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param Core  $core  The core API.
-	 * @param Cache $cache Required.
+	 * @param Core                  $core                  The core API.
+	 * @param Comment_Author_Fields $comment_author_fields The comment author API.
 	 */
-	public function __construct( Core $core, Cache $cache ) {
-		$this->core  = $core;
-		$this->cache = $cache;
+	public function __construct( Core $core, Comment_Author_Fields $comment_author_fields ) {
+		$this->core                  = $core;
+		$this->comment_author_fields = $comment_author_fields;
 	}
 
 	/**
@@ -205,7 +207,7 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 			'data' => [
 				[
 					'group_id'    => 'user',             // Existing Core group.
-					'group_label' => \__( 'User' ),       // // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- Missing text domain is intentional to use Core translation.
+					'group_label' => \__( 'User' ),      // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- Missing text domain is intentional to use Core translation.
 					'item_id'     => "user-{$user->ID}", // Existing Core item ID.
 					'data'        => $user_data,         // The personal data that should be exported.
 				],
@@ -227,7 +229,7 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 	 */
 	public function export_comment_author_data( $email, /* @scrutinizer ignore-unused */ $page = 1 ) {
 		// Load raw data.
-		$raw_data = $this->core->load_data( $email );
+		$raw_data = $this->comment_author_fields->load( $email );
 		if ( empty( $raw_data ) ) {
 			return [
 				'data' => [],
@@ -314,7 +316,7 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 		}
 
 		// Remove comment author data.
-		$id = $this->core->get_comment_author_key( $email );
+		$id = $this->comment_author_fields->get_key( $email );
 		if ( ! empty( $id ) ) {
 			$items_removed += $this->delete_comment_author_data( $id, $email );
 		}
@@ -344,7 +346,7 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 		$rows = (int) $wpdb->delete( $wpdb->avatar_privacy, [ 'id' => $id ], [ '%d' ] ); // WPCS: db call ok, cache ok.
 
 		// Delete cached data.
-		$this->cache->delete( Comment_Author_Data::EMAIL_CACHE_PREFIX . $this->core->get_hash( $email ) );
+		$this->comment_author_fields->clear_cache_by_email( $email );
 
 		return $rows;
 	}

@@ -614,4 +614,18 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertSame( $expected, $this->sut->get_format_strings( $columns ) );
 	}
+	/**
+	 * Tests ::clear_cache_by_email.
+	 *
+	 * @covers ::clear_cache_by_email
+	 */
+	public function test_clear_cache_by_email() {
+		$email = 'foo@bar.com';
+		$hash  = 'hashedemail123';
+
+		$this->hasher->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
+		$this->cache->shouldReceive( 'delete' )->once()->with( Comment_Author_Fields::EMAIL_CACHE_PREFIX . $hash );
+
+		$this->assertNull( $this->sut->clear_cache_by_email( $email ) );
+	}
 }
