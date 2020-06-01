@@ -26,7 +26,7 @@
 
 namespace Avatar_Privacy\Data_Storage;
 
-use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\Hasher;
 
 /**
  * A plugin-specific database handler.
@@ -76,13 +76,13 @@ class Database {
 	];
 
 	/**
-	 * The core API.
+	 * The hashing helper.
 	 *
-	 * @since 2.3.0
+	 * @since 2.4.0
 	 *
-	 * @var Core
+	 * @var Hasher
 	 */
-	private $core;
+	private $hasher;
 
 	/**
 	 * The options handler.
@@ -104,12 +104,13 @@ class Database {
 	 * Creates a new instance.
 	 *
 	 * @since 2.3.0 Parameter $core added.
+	 * @since 2.3.0 Parameter $core replaced with $hasher.
 	 *
-	 * @param Core            $core            The core API.
+	 * @param Hasher          $hasher            The hashing helper.
 	 * @param Network_Options $network_options The network options handler.
 	 */
-	public function __construct( Core $core, Network_Options $network_options ) {
-		$this->core            = $core;
+	public function __construct( Hasher $hasher, Network_Options $network_options ) {
+		$this->hasher          = $hasher;
 		$this->network_options = $network_options;
 
 		// Workaround for PHP 5.6.
@@ -566,7 +567,7 @@ class Database {
 		if ( $row_count > 0 ) {
 			// Add hashes for all retrieved rows.
 			foreach ( $rows as $r ) {
-				$r->hash = $this->core->get_hash( $r->email );
+				$r->hash = $this->hasher->get_hash( $r->email );
 			}
 
 			// Do UPDATEs in one query.
