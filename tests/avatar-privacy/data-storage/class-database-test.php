@@ -35,7 +35,7 @@ use Mockery as m;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 
-use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\Hasher;
 use Avatar_Privacy\Data_Storage\Database;
 use Avatar_Privacy\Data_Storage\Network_Options;
 
@@ -59,9 +59,9 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Helper object.
 	 *
-	 * @var Core
+	 * @var Hasher
 	 */
-	private $core;
+	private $hasher;
 
 	/**
 	 * Helper object.
@@ -95,11 +95,11 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 		$root = vfsStream::setup( 'root', null, $filesystem );
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
-		$this->core            = m::mock( Core::class );
+		$this->hasher          = m::mock( Hasher::class );
 		$this->network_options = m::mock( Network_Options::class );
 
 		// Partially mock system under test.
-		$this->sut = m::mock( Database::class, [ $this->core, $this->network_options ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Database::class, [ $this->hasher, $this->network_options ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -109,9 +109,9 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_constructor() {
 		$mock = m::mock( Database::class )->makePartial();
-		$mock->__construct( $this->core, $this->network_options );
+		$mock->__construct( $this->hasher, $this->network_options );
 
-		$this->assert_attribute_same( $this->core, 'core', $mock );
+		$this->assert_attribute_same( $this->hasher, 'hasher', $mock );
 		$this->assert_attribute_same( $this->network_options, 'network_options', $mock );
 		$this->assert_is_array( $this->get_value( $mock, 'placeholder' ) );
 	}
@@ -1040,7 +1040,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'get_table_name' )->once()->andReturn( $table_name );
 
 		$wpdb->shouldReceive( 'get_results' )->once()->with( "SELECT id, email FROM {$table_name} WHERE hash is null", \OBJECT_K )->andReturn( $rows );
-		$this->core->shouldReceive( 'get_hash' )->times( \count( $rows ) )->with( m::type( 'string' ) )->andReturn( 'hashed email' );
+		$this->hasher->shouldReceive( 'get_hash' )->times( \count( $rows ) )->with( m::type( 'string' ) )->andReturn( 'hashed email' );
 
 		$this->sut->shouldReceive( 'prepare_insert_update_query' )->once()->with( $rows, [], $table_name, [ 'hash' ] )->andReturn( 'UPDATE_QUERY' );
 		$wpdb->shouldReceive( 'query' )->once()->with( 'UPDATE_QUERY' );
@@ -1080,7 +1080,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'get_table_name' )->once()->andReturn( $table_name );
 
 		$wpdb->shouldReceive( 'get_results' )->once()->with( "SELECT id, email FROM {$table_name} WHERE hash is null", \OBJECT_K )->andReturn( $rows );
-		$this->core->shouldReceive( 'get_hash' )->times( \count( $rows ) )->with( m::type( 'string' ) )->andReturn( 'hashed email' );
+		$this->hasher->shouldReceive( 'get_hash' )->times( \count( $rows ) )->with( m::type( 'string' ) )->andReturn( 'hashed email' );
 
 		$this->sut->shouldReceive( 'prepare_insert_update_query' )->once()->with( $rows, [], $table_name, [ 'hash' ] )->andReturn( false );
 		$wpdb->shouldReceive( 'query' )->never();
