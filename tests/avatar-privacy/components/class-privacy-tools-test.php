@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -66,9 +66,9 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Required helper object.
 	 *
-	 * @var Cache
+	 * @var Comment_Author_Fields
 	 */
-	private $cache;
+	private $comment_author_fields;
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -83,10 +83,10 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\when( '__' )->returnArg();
 
 		// Mock required helpers.
-		$this->core  = m::mock( Core::class );
-		$this->cache = m::mock( Cache::class );
+		$this->core                  = m::mock( Core::class );
+		$this->comment_author_fields = m::mock( Comment_Author_Fields::class );
 
-		$this->sut = m::mock( Privacy_Tools::class, [ $this->core, $this->cache ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Privacy_Tools::class, [ $this->core, $this->comment_author_fields ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -97,10 +97,10 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Privacy_Tools::class )->makePartial();
 
-		$mock->__construct( $this->core, $this->cache );
+		$mock->__construct( $this->core, $this->comment_author_fields );
 
 		$this->assert_attribute_same( $this->core, 'core', $mock );
-		$this->assert_attribute_same( $this->cache, 'cache', $mock );
+		$this->assert_attribute_same( $this->comment_author_fields, 'comment_author_fields', $mock );
 	}
 
 	/**
@@ -259,7 +259,7 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 			'log_message'  => 'we done something',
 		];
 
-		$this->core->shouldReceive( 'load_data' )->once()->with( $email )->andReturn( $raw_data );
+		$this->comment_author_fields->shouldReceive( 'load' )->once()->with( $email )->andReturn( $raw_data );
 
 		$result = $this->sut->export_comment_author_data( $email, $page );
 
@@ -279,7 +279,7 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 		$email = 'foo@bar.org';
 		$page  = 1;
 
-		$this->core->shouldReceive( 'load_data' )->once()->with( $email )->andReturnFalse();
+		$this->comment_author_fields->shouldReceive( 'load' )->once()->with( $email )->andReturnFalse();
 
 		$result = $this->sut->export_comment_author_data( $email, $page );
 
@@ -303,7 +303,7 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 		$user->ID = $user_id;
 
 		// Comment author mock.
-		$comment_author_fields_id = 9;
+		$comment_author_id = 9;
 
 		Functions\expect( 'get_user_by' )->once()->with( 'email', $email )->andReturn( $user );
 		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, Core::EMAIL_HASH_META_KEY )->andReturnTrue();
@@ -311,7 +311,7 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, Core::ALLOW_ANONYMOUS_META_KEY )->andReturnTrue();
 		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, Core::USER_AVATAR_META_KEY )->andReturnTrue();
 
-		$this->core->shouldReceive( 'get_comment_author_key' )->once()->with( $email )->andReturn( $comment_author_id );
+		$this->comment_author_fields->shouldReceive( 'get_key' )->once()->with( $email )->andReturn( $comment_author_id );
 		$this->sut->shouldReceive( 'delete_comment_author_data' )->once()->with( $comment_author_id, $email )->andReturn( 1 );
 
 		$result = $this->sut->erase_data( $email, $page );
@@ -339,8 +339,7 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 		$wpdb->avatar_privacy = 'avatar_privacy_table';
 
 		$wpdb->shouldReceive( 'delete' )->once()->with( $wpdb->avatar_privacy, [ 'id' => $id ], [ '%d' ] )->andReturn( 1 );
-		$this->core->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
-		$this->cache->shouldReceive( 'delete' )->once()->with( Comment_Author_Data::EMAIL_CACHE_PREFIX . $hash );
+		$this->comment_author_fields->shouldReceive( 'clear_cache_by_email' )->once()->with( $email );
 
 		$this->assertSame( 1, $this->sut->delete_comment_author_data( $id, $email ) );
 	}
