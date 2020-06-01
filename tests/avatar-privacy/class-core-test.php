@@ -32,6 +32,7 @@ use Brain\Monkey\Functions;
 
 use Mockery as m;
 
+use Avatar_Privacy\Core;
 use Avatar_Privacy\Settings;
 
 use Avatar_Privacy\Core\Comment_Author_Fields;
@@ -104,7 +105,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Partially mock system under test.
 		$this->sut = m::mock(
-			\Avatar_Privacy\Core::class,
+			Core::class,
 			[
 				self::VERSION,
 				$this->options,
@@ -122,7 +123,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	protected function tear_down() { // @codingStandardsIgnoreLine
 		// Reset singleton.
-		$this->set_static_value( \Avatar_Privacy\Core::class, 'instance', null );
+		$this->set_static_value( Core::class, 'instance', null );
 
 		parent::tear_down();
 	}
@@ -141,7 +142,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$hasher                = m::mock( Hasher::class );
 		$comment_author_fields = m::mock( Comment_Author_Fields::class );
 
-		$core = m::mock( \Avatar_Privacy\Core::class )->makePartial();
+		$core = m::mock( Core::class )->makePartial();
 		$core->__construct( '6.6.6', $options, $settings, $hasher, $comment_author_fields );
 
 		$this->assertSame( '6.6.6', $core->get_version() );
@@ -155,7 +156,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_singleton() {
 
-		$core = m::mock( \Avatar_Privacy\Core::class );
+		$core = m::mock( Core::class );
 		\Avatar_Privacy\Core::set_instance( $core );
 
 		$core2 = \Avatar_Privacy\Core::get_instance();
@@ -184,7 +185,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::set_instance
 	 */
 	public function test_set_instance_failing() {
-		$core = m::mock( \Avatar_Privacy\Core::class );
+		$core = m::mock( Core::class );
 
 		// The first call is OK.
 		\Avatar_Privacy\Core::set_instance( $core );
@@ -210,6 +211,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::get_plugin_file
 	 */
 	public function test_get_plugin_file() {
+		Functions\expect( '_deprecated_function' )->once()->with( Core::class . '::get_plugin_file', '2.3.0' );
 		$this->assertSame( \AVATAR_PRIVACY_PLUGIN_FILE, $this->sut->get_plugin_file() );
 	}
 
