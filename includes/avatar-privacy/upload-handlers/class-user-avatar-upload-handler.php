@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,6 +27,7 @@
 namespace Avatar_Privacy\Upload_Handlers;
 
 use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\User_Fields;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
@@ -133,7 +134,7 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 		$this->delete_uploaded_avatar( $user_id );
 
 		// Save user information (overwriting previous).
-		\update_user_meta( $user_id, Core::USER_AVATAR_META_KEY, $avatar );
+		\update_user_meta( $user_id, User_Fields::USER_AVATAR_META_KEY, $avatar );
 	}
 
 	/**
@@ -184,9 +185,9 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 		$this->invalidate_user_avatar_cache( $user_id );
 
 		// Delete original upload.
-		$avatar = \get_user_meta( $user_id, Core::USER_AVATAR_META_KEY, true );
+		$avatar = \get_user_meta( $user_id, User_Fields::USER_AVATAR_META_KEY, true );
 		if ( ! empty( $avatar['file'] ) && \file_exists( $avatar['file'] ) && \unlink( $avatar['file'] ) ) {
-			\delete_user_meta( $user_id, Core::USER_AVATAR_META_KEY );
+			\delete_user_meta( $user_id, User_Fields::USER_AVATAR_META_KEY );
 		}
 	}
 

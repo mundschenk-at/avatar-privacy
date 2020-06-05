@@ -28,6 +28,7 @@ namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Core\Comment_Author_Fields;
+use Avatar_Privacy\Core\User_Fields;
 
 use Avatar_Privacy\Data_Storage\Cache;
 use Avatar_Privacy\Data_Storage\Options;
@@ -184,18 +185,18 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 		// Export the `use_gravatar` setting.
 		$user_data[] = [
 			'name'  => \__( 'Use Gravatar.com', 'avatar-privacy' ),
-			'value' => \get_user_meta( $user->ID, Core::GRAVATAR_USE_META_KEY, true ) === 'true',
+			'value' => \get_user_meta( $user->ID, User_Fields::GRAVATAR_USE_META_KEY, true ) === 'true',
 		];
 
 		// Export the `allow_anonymous` setting.
 		$user_data[] = [
 			'name'  => \__( 'Logged-out Commenting', 'avatar-privacy' ),
-			'value' => \get_user_meta( $user->ID, Core::ALLOW_ANONYMOUS_META_KEY, true ) === 'true',
+			'value' => \get_user_meta( $user->ID, User_Fields::ALLOW_ANONYMOUS_META_KEY, true ) === 'true',
 		];
 
 		// Export the uploaded avatar.
 		// We don't want to use the filtered value here.
-		$local_avatar = \get_user_meta( $user->ID, Core::USER_AVATAR_META_KEY, true );
+		$local_avatar = \get_user_meta( $user->ID, User_Fields::USER_AVATAR_META_KEY, true );
 		if ( ! empty( $local_avatar['file'] ) ) {
 			$user_data[] = [
 				'name'  => \__( 'User Profile Picture', 'avatar-privacy' ),
@@ -309,10 +310,10 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 		// Remove user data.
 		$user = \get_user_by( 'email', $email );
 		if ( ! empty( $user ) ) {
-			$items_removed += (int) \delete_user_meta( $user->ID, Core::EMAIL_HASH_META_KEY );
-			$items_removed += (int) \delete_user_meta( $user->ID, Core::GRAVATAR_USE_META_KEY );
-			$items_removed += (int) \delete_user_meta( $user->ID, Core::ALLOW_ANONYMOUS_META_KEY );
-			$items_removed += (int) \delete_user_meta( $user->ID, Core::USER_AVATAR_META_KEY );
+			$items_removed += (int) \delete_user_meta( $user->ID, User_Fields::EMAIL_HASH_META_KEY );
+			$items_removed += (int) \delete_user_meta( $user->ID, User_Fields::GRAVATAR_USE_META_KEY );
+			$items_removed += (int) \delete_user_meta( $user->ID, User_Fields::ALLOW_ANONYMOUS_META_KEY );
+			$items_removed += (int) \delete_user_meta( $user->ID, User_Fields::USER_AVATAR_META_KEY );
 		}
 
 		// Remove comment author data.

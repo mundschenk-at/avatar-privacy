@@ -31,6 +31,7 @@ use Avatar_Privacy\Settings;
 
 use Avatar_Privacy\Core\Comment_Author_Fields;
 use Avatar_Privacy\Core\Hasher;
+use Avatar_Privacy\Core\User_Fields;
 
 use Avatar_Privacy\Data_Storage\Options;
 
@@ -46,34 +47,6 @@ class Core {
 	 * The name of the combined settings in the database.
 	 */
 	const SETTINGS_NAME = 'settings';
-
-	/**
-	 * The user meta key for the hashed email.
-	 *
-	 * @var string
-	 */
-	const EMAIL_HASH_META_KEY = 'avatar_privacy_hash';
-
-	/**
-	 * The user meta key for the gravatar use flag.
-	 *
-	 * @var string
-	 */
-	const GRAVATAR_USE_META_KEY = 'avatar_privacy_use_gravatar';
-
-	/**
-	 * The user meta key for the gravatar use flag.
-	 *
-	 * @var string
-	 */
-	const ALLOW_ANONYMOUS_META_KEY = 'avatar_privacy_allow_anonymous';
-
-	/**
-	 * The user meta key for the local avatar.
-	 *
-	 * @var string
-	 */
-	const USER_AVATAR_META_KEY = 'avatar_privacy_user_avatar';
 
 	/**
 	 * The user's settings.
@@ -113,6 +86,15 @@ class Core {
 	private $hasher;
 
 	/**
+	 * The user data helper.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var User_Fields
+	 */
+	private $user_fields;
+
+	/**
 	 * The comment author data helper.
 	 *
 	 * @since 2.4.0
@@ -133,20 +115,22 @@ class Core {
 	 * and filters for the plugin.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
-	 * @since 2.4.0 Parameters $hasher and $comment_author_fields added, $transients,
+	 * @since 2.4.0 Parameters $hasher, $user_fields and $comment_author_fields added, $transients,
 	 *              $site_transients and $cache removed.
 	 *
 	 * @param string                $version               The plugin version string (e.g. "3.0.0-beta.2").
 	 * @param Options               $options               Required.
 	 * @param Settings              $settings_template     Required.
 	 * @param Hasher                $hasher                Required.
+	 * @param User_Fields           $user_fields           Required.
 	 * @param Comment_Author_Fields $comment_author_fields Required.
 	 */
-	public function __construct( $version, Options $options, Settings $settings_template, Hasher $hasher, Comment_Author_Fields $comment_author_fields ) {
+	public function __construct( $version, Options $options, Settings $settings_template, Hasher $hasher, User_Fields $user_fields, Comment_Author_Fields $comment_author_fields ) {
 		$this->version               = $version;
 		$this->options               = $options;
 		$this->settings_template     = $settings_template;
 		$this->hasher                = $hasher;
+		$this->user_fields           = $user_fields;
 		$this->comment_author_fields = $comment_author_fields;
 	}
 
@@ -271,18 +255,7 @@ class Core {
 	 * @return string|false The hashed email, or `false` on failure.
 	 */
 	public function get_user_hash( $user_id ) {
-		$hash = \get_user_meta( $user_id, self::EMAIL_HASH_META_KEY, true );
-
-		if ( empty( $hash ) ) {
-			$user = \get_user_by( 'ID', $user_id );
-
-			if ( ! empty( $user->user_email ) ) {
-				$hash = $this->hasher->get_hash( $user->user_email );
-				\update_user_meta( $user_id, self::EMAIL_HASH_META_KEY, $hash );
-			}
-		}
-
-		return $hash;
+		return $this->user_fields->get_hash( $user_id );
 	}
 
 	/**
@@ -353,20 +326,7 @@ class Core {
 	 * @return \WP_User|null
 	 */
 	public function get_user_by_hash( $hash ) {
-		// No extra caching necessary, WP Core already does that for us.
-		$args  = [
-			'number'       => 1,
-			'meta_key'     => self::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-			'meta_value'   => $hash, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-			'meta_compare' => '=',
-		];
-		$users = \get_users( $args );
-
-		if ( empty( $users ) ) {
-			return null;
-		}
-
-		return $users[0];
+		return $this->user_fields->get_user_by_hash( $hash );
 	}
 
 	/**
@@ -384,30 +344,6 @@ class Core {
 	 * }
 	 */
 	public function get_user_avatar( $user_id ) {
-		/**
-		 * Filters whether to retrieve the user avatar early. If the filtered result
-		 * contains both a filename and a MIME type, those will be returned immediately.
-		 *
-		 * @since 2.2.0
-		 *
-		 * @param array|null {
-		 *     Optional. The user avatar information. Default null.
-		 *
-		 *     @type string $file The local filename.
-		 *     @type string $type The MIME type.
-		 * }
-		 * @param int $user_id The user ID.
-		 */
-		$avatar = \apply_filters( 'avatar_privacy_pre_get_user_avatar', null, $user_id );
-		if ( ! empty( $avatar ) && ! empty( $avatar['file'] ) && ! empty( $avatar['type'] ) ) {
-			return $avatar;
-		}
-
-		$avatar = \get_user_meta( $user_id, self::USER_AVATAR_META_KEY, true );
-		if ( empty( $avatar ) ) {
-			$avatar = [];
-		}
-
-		return $avatar;
+		return $this->user_fields->get_local_avatar( $user_id );
 	}
 }

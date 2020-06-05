@@ -35,6 +35,7 @@ use Mockery as m;
 use Avatar_Privacy\Components\Avatar_Handling;
 
 use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\User_Fields;
 use Avatar_Privacy\Settings;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Exceptions\Avatar_Comment_Type_Exception;
@@ -462,7 +463,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 
 				if ( ! empty( $user_id ) ) {
 					$user->ID = $user_id;
-					$user->shouldReceive( 'get' )->once()->with( Core::ALLOW_ANONYMOUS_META_KEY )->andReturn( 'true' );
+					$user->shouldReceive( 'get' )->once()->with( User_Fields::ALLOW_ANONYMOUS_META_KEY )->andReturn( 'true' );
 				} else {
 					$user = false;
 				}
@@ -707,7 +708,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Query results.
 		$meta_value = 'true';
 
-		Functions\expect( 'get_user_meta' )->once()->with( $user_id, Core::GRAVATAR_USE_META_KEY, true )->andReturn( $meta_value );
+		Functions\expect( 'get_user_meta' )->once()->with( $user_id, User_Fields::GRAVATAR_USE_META_KEY, true )->andReturn( $meta_value );
 		Filters\expectApplied( 'avatar_privacy_gravatar_use_default' )->never();
 
 		$this->assertTrue( $this->sut->determine_gravatar_policy( $user_id, $email, $id_or_email ) );
@@ -727,7 +728,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Query results.
 		$meta_value = 'false';
 
-		Functions\expect( 'get_user_meta' )->once()->with( $user_id, Core::GRAVATAR_USE_META_KEY, true )->andReturn( $meta_value );
+		Functions\expect( 'get_user_meta' )->once()->with( $user_id, User_Fields::GRAVATAR_USE_META_KEY, true )->andReturn( $meta_value );
 		Filters\expectApplied( 'avatar_privacy_gravatar_use_default' )->never();
 
 		$this->assertFalse( $this->sut->determine_gravatar_policy( $user_id, $email, $id_or_email ) );
@@ -747,7 +748,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Query results.
 		$meta_value = '';
 
-		Functions\expect( 'get_user_meta' )->once()->with( $user_id, Core::GRAVATAR_USE_META_KEY, true )->andReturn( $meta_value );
+		Functions\expect( 'get_user_meta' )->once()->with( $user_id, User_Fields::GRAVATAR_USE_META_KEY, true )->andReturn( $meta_value );
 		Filters\expectApplied( 'avatar_privacy_gravatar_use_default' )->once()->with( false, $id_or_email )->andReturn( true );
 
 		$this->assertTrue( $this->sut->determine_gravatar_policy( $user_id, $email, $id_or_email ) );

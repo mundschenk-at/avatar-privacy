@@ -37,6 +37,7 @@ use org\bovigo\vfs\vfsStream;
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
 use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\User_Fields;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
 
@@ -204,7 +205,7 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'delete_uploaded_avatar' )->once()->with( $user_id )->andReturn( true );
 		$this->sut->shouldReceive( 'handle_errors' )->never();
 
-		Functions\expect( 'update_user_meta' )->once()->with( $user_id, Core::USER_AVATAR_META_KEY, $avatar );
+		Functions\expect( 'update_user_meta' )->once()->with( $user_id, User_Fields::USER_AVATAR_META_KEY, $avatar );
 
 		// Check results.
 		$this->assertNull( $this->sut->save_uploaded_user_avatar( $user_id, $nonce, $action, $field, $erase ) );
@@ -510,8 +511,8 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'invalidate_user_avatar_cache' )->once()->with( $user_id );
 
-		Functions\expect( 'get_user_meta' )->once()->with( $user_id, Core::USER_AVATAR_META_KEY, true )->andReturn( $avatar );
-		Functions\expect( 'delete_user_meta' )->times( (int) $result )->with( $user_id, Core::USER_AVATAR_META_KEY );
+		Functions\expect( 'get_user_meta' )->once()->with( $user_id, User_Fields::USER_AVATAR_META_KEY, true )->andReturn( $avatar );
+		Functions\expect( 'delete_user_meta' )->times( (int) $result )->with( $user_id, User_Fields::USER_AVATAR_META_KEY );
 
 		$this->assertNull( $this->sut->delete_uploaded_avatar( $user_id ) );
 	}

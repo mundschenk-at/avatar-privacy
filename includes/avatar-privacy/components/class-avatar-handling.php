@@ -30,6 +30,8 @@ namespace Avatar_Privacy\Components;
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Settings;
 
+use Avatar_Privacy\Core\User_Fields;
+
 use Avatar_Privacy\Data_Storage\Options;
 
 use Avatar_Privacy\Exceptions\Avatar_Comment_Type_Exception;
@@ -322,7 +324,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 		} elseif ( empty( $user_id ) && ! empty( $email ) ) {
 			// Check if anonymous comments "as user" are allowed.
 			$user = \get_user_by( 'email', $email );
-			if ( ! empty( $user ) && 'true' === $user->get( Core::ALLOW_ANONYMOUS_META_KEY ) ) {
+			if ( ! empty( $user ) && 'true' === $user->get( User_Fields::ALLOW_ANONYMOUS_META_KEY ) ) {
 				$user_id = $user->ID;
 			}
 		}
@@ -514,7 +516,7 @@ class Avatar_Handling implements \Avatar_Privacy\Component {
 
 		if ( ! empty( $user_id ) ) {
 			// For users get the value from the usermeta table.
-			$meta_value    = \get_user_meta( $user_id, Core::GRAVATAR_USE_META_KEY, true );
+			$meta_value    = \get_user_meta( $user_id, User_Fields::GRAVATAR_USE_META_KEY, true );
 			$show_gravatar = 'true' === $meta_value;
 			$use_default   = '' === $meta_value;
 		} else {
