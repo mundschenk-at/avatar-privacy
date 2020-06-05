@@ -36,6 +36,7 @@ use Avatar_Privacy\Components\Privacy_Tools;
 
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Core\Comment_Author_Fields;
+use Avatar_Privacy\Core\User_Fields;
 use Avatar_Privacy\Data_Storage\Cache;
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
@@ -205,9 +206,9 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'get_user_by' )->once()->with( 'email', $email )->andReturn( $user );
 		$this->core->shouldReceive( 'get_user_hash' )->once()->with( $user->ID )->andReturn( $hash );
-		Functions\expect( 'get_user_meta' )->once()->with( $user->ID, Core::GRAVATAR_USE_META_KEY, true )->andReturn( $gravatar );
-		Functions\expect( 'get_user_meta' )->once()->with( $user->ID, Core::ALLOW_ANONYMOUS_META_KEY, true )->andReturn( $anon );
-		Functions\expect( 'get_user_meta' )->once()->with( $user->ID, Core::USER_AVATAR_META_KEY, true )->andReturn( $local );
+		Functions\expect( 'get_user_meta' )->once()->with( $user->ID, User_Fields::GRAVATAR_USE_META_KEY, true )->andReturn( $gravatar );
+		Functions\expect( 'get_user_meta' )->once()->with( $user->ID, User_Fields::ALLOW_ANONYMOUS_META_KEY, true )->andReturn( $anon );
+		Functions\expect( 'get_user_meta' )->once()->with( $user->ID, User_Fields::USER_AVATAR_META_KEY, true )->andReturn( $local );
 		Functions\expect( 'site_url' )->once()->andReturn( $site_url );
 
 		$result = $this->sut->export_user_data( $email, $page );
@@ -306,10 +307,10 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 		$comment_author_id = 9;
 
 		Functions\expect( 'get_user_by' )->once()->with( 'email', $email )->andReturn( $user );
-		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, Core::EMAIL_HASH_META_KEY )->andReturnTrue();
-		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, Core::GRAVATAR_USE_META_KEY )->andReturnTrue();
-		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, Core::ALLOW_ANONYMOUS_META_KEY )->andReturnTrue();
-		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, Core::USER_AVATAR_META_KEY )->andReturnTrue();
+		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, User_Fields::EMAIL_HASH_META_KEY )->andReturnTrue();
+		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, User_Fields::GRAVATAR_USE_META_KEY )->andReturnTrue();
+		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, User_Fields::ALLOW_ANONYMOUS_META_KEY )->andReturnTrue();
+		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, User_Fields::USER_AVATAR_META_KEY )->andReturnTrue();
 
 		$this->comment_author_fields->shouldReceive( 'get_key' )->once()->with( $email )->andReturn( $comment_author_id );
 		$this->sut->shouldReceive( 'delete_comment_author_data' )->once()->with( $comment_author_id, $email )->andReturn( 1 );

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -38,7 +38,7 @@ use org\bovigo\vfs\vfsStreamDirectory;
 use Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler;
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
-use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\User_Fields;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Tools\Images;
 
@@ -62,9 +62,9 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The core API mock.
 	 *
-	 * @var Core
+	 * @var User_Fields
 	 */
-	private $core;
+	private $user_fields;
 
 	/**
 	 * The filesystem cache handler mock.
@@ -102,15 +102,15 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
 		// Helper mocks.
-		$this->core       = m::mock( Core::class );
-		$this->file_cache = m::mock( Filesystem_Cache::class );
-		$this->images     = m::mock( Images\Editor::class );
+		$this->user_fields = m::mock( User_Fields::class );
+		$this->file_cache  = m::mock( Filesystem_Cache::class );
+		$this->images      = m::mock( Images\Editor::class );
 
 		// Partially mock system under test.
 		$this->sut = m::mock(
 			User_Avatar_Handler::class,
 			[
-				$this->core,
+				$this->user_fields,
 				$this->file_cache,
 				$this->images,
 			]
@@ -123,14 +123,14 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::__construct
 	 */
 	public function test_constructor() {
-		$mock       = m::mock( User_Avatar_Handler::class )->makePartial()->shouldAllowMockingProtectedMethods();
-		$core       = m::mock( Core::class );
-		$file_cache = m::mock( Filesystem_Cache::class );
-		$images     = m::mock( Images\Editor::class );
+		$mock        = m::mock( User_Avatar_Handler::class )->makePartial()->shouldAllowMockingProtectedMethods();
+		$user_fields = m::mock( User_Fields::class );
+		$file_cache  = m::mock( Filesystem_Cache::class );
+		$images      = m::mock( Images\Editor::class );
 
-		$mock->__construct( $core, $file_cache, $images );
+		$mock->__construct( $user_fields, $file_cache, $images );
 
-		$this->assert_attribute_same( $core, 'core', $mock );
+		$this->assert_attribute_same( $user_fields, 'user_fields', $mock );
 		$this->assert_attribute_same( $file_cache, 'file_cache', $mock );
 		$this->assert_attribute_same( $images, 'images', $mock );
 	}
@@ -270,8 +270,8 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 			'extension' => $extension,
 		];
 
-		$this->core->shouldReceive( 'get_user_by_hash' )->once()->with( $hash )->andReturn( $user );
-		$this->core->shouldReceive( 'get_user_avatar' )->once()->with( $user->ID )->andReturn( $local_avatar );
+		$this->user_fields->shouldReceive( 'get_user_by_hash' )->once()->with( $hash )->andReturn( $user );
+		$this->user_fields->shouldReceive( 'get_local_avatar' )->once()->with( $user->ID )->andReturn( $local_avatar );
 
 		$this->sut->shouldReceive( 'get_url' )->once()->with( '', $hash, $size, $args )->andReturn( 'https://foobar.org/cached_avatar_url' );
 
@@ -294,8 +294,8 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Fake user.
 		$user = null;
 
-		$this->core->shouldReceive( 'get_user_by_hash' )->once()->with( $hash )->andReturn( $user );
-		$this->core->shouldReceive( 'get_user_avatar' )->never();
+		$this->user_fields->shouldReceive( 'get_user_by_hash' )->once()->with( $hash )->andReturn( $user );
+		$this->user_fields->shouldReceive( 'get_local_avatar' )->never();
 
 		$this->sut->shouldReceive( 'get_url' )->never();
 
@@ -319,8 +319,8 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$user     = m::mock( \WP_User::class );
 		$user->ID = '666';
 
-		$this->core->shouldReceive( 'get_user_by_hash' )->once()->with( $hash )->andReturn( $user );
-		$this->core->shouldReceive( 'get_user_avatar' )->once()->with( $user->ID )->andReturn( false );
+		$this->user_fields->shouldReceive( 'get_user_by_hash' )->once()->with( $hash )->andReturn( $user );
+		$this->user_fields->shouldReceive( 'get_local_avatar' )->once()->with( $user->ID )->andReturn( false );
 
 		$this->sut->shouldReceive( 'get_url' )->never();
 

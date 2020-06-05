@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@
 namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\User_Fields;
 
 use Avatar_Privacy\Components\Image_Proxy;
 
@@ -303,7 +304,7 @@ class Setup implements \Avatar_Privacy\Component {
 
 		if ( \count( $affected_users ) > 0 ) {
 			// Update the database table.
-			$rows = $wpdb->update( $wpdb->usermeta, [ 'meta_key' => Core::GRAVATAR_USE_META_KEY ], [ 'meta_key' => 'use_gravatar' ] ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			$rows = $wpdb->update( $wpdb->usermeta, [ 'meta_key' => User_Fields::GRAVATAR_USE_META_KEY ], [ 'meta_key' => 'use_gravatar' ] ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
 			// If there were any keys to update, we also have to clear the user_meta cache group.
 			if ( false !== $rows && $rows > 0 ) {
@@ -368,12 +369,12 @@ class Setup implements \Avatar_Privacy\Component {
 	 */
 	protected function maybe_update_user_hashes() {
 		$args = [
-			'meta_key'     => Core::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+			'meta_key'     => User_Fields::EMAIL_HASH_META_KEY, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			'meta_compare' => 'NOT EXISTS',
 		];
 
 		foreach ( \get_users( $args ) as $user ) {
-			\update_user_meta( $user->ID, Core::EMAIL_HASH_META_KEY, $this->core->get_hash( $user->user_email ) );
+			\update_user_meta( $user->ID, User_Fields::EMAIL_HASH_META_KEY, $this->core->get_hash( $user->user_email ) );
 		}
 	}
 

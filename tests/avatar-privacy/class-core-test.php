@@ -36,6 +36,7 @@ use Avatar_Privacy\Core;
 use Avatar_Privacy\Settings;
 
 use Avatar_Privacy\Core\Comment_Author_Fields;
+use Avatar_Privacy\Core\User_Fields;
 use Avatar_Privacy\Core\Hasher;
 
 use Avatar_Privacy\Data_Storage\Options;
@@ -85,6 +86,13 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	private $comment_author_fields;
 
+	/**
+	 * Required helper object.
+	 *
+	 * @var User_Fields
+	 */
+	private $user_fields;
+
 	// Mock version.
 	const VERSION = '1.0.0';
 
@@ -101,6 +109,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->options               = m::mock( Options::class );
 		$this->settings              = m::mock( Settings::class );
 		$this->hasher                = m::mock( Hasher::class );
+		$this->user_fields           = m::mock( User_Fields::class );
 		$this->comment_author_fields = m::mock( Comment_Author_Fields::class );
 
 		// Partially mock system under test.
@@ -111,6 +120,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 				$this->options,
 				$this->settings,
 				$this->hasher,
+				$this->user_fields,
 				$this->comment_author_fields,
 			]
 		)->makePartial()->shouldAllowMockingProtectedMethods();
@@ -140,10 +150,11 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$options               = m::mock( Options::class )->makePartial();
 		$settings              = m::mock( Settings::class );
 		$hasher                = m::mock( Hasher::class );
+		$user_fields           = m::mock( User_Fields::class );
 		$comment_author_fields = m::mock( Comment_Author_Fields::class );
 
 		$core = m::mock( Core::class )->makePartial();
-		$core->__construct( '6.6.6', $options, $settings, $hasher, $comment_author_fields );
+		$core->__construct( '6.6.6', $options, $settings, $hasher, $user_fields, $comment_author_fields );
 
 		$this->assertSame( '6.6.6', $core->get_version() );
 	}
@@ -424,49 +435,11 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_get_user_hash() {
 		$user_id = '666';
-		$email   = 'foobar@email.org';
-		$user    = (object) [ 'user_email' => $email ];
 		$hash    = 'hashed_email';
 
-		Functions\expect( 'get_user_meta' )->with( $user_id, \Avatar_Privacy\Core::EMAIL_HASH_META_KEY, true )->once()->andReturn( $hash );
-		Functions\expect( 'get_user_by' )->never();
-		$this->hasher->shouldReceive( 'get_hash' )->never();
-		Functions\expect( 'update_user_meta' )->never();
+		$this->user_fields->shouldReceive( 'get_hash' )->once()->with( $user_id )->andReturn( $hash );
 
 		$this->assertSame( $hash, $this->sut->get_user_hash( $user_id ) );
-	}
-
-	/**
-	 * Tests ::get_user_hash.
-	 *
-	 * @covers ::get_user_hash
-	 */
-	public function test_get_user_hash_new() {
-		$user_id = '666';
-		$email   = 'foobar@email.org';
-		$user    = (object) [ 'user_email' => $email ];
-		$hash    = 'hashed_email';
-
-		Functions\expect( 'get_user_meta' )->with( $user_id, \Avatar_Privacy\Core::EMAIL_HASH_META_KEY, true )->once()->andReturn( false );
-		Functions\expect( 'get_user_by' )->with( 'ID', $user_id )->once()->andReturn( $user );
-		$this->hasher->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
-		Functions\expect( 'update_user_meta' )->with( $user_id, \Avatar_Privacy\Core::EMAIL_HASH_META_KEY, $hash )->once();
-
-		$this->assertSame( $hash, $this->sut->get_user_hash( $user_id ) );
-	}
-
-	/**
-	 * Tests ::get_user_hash.
-	 *
-	 * @covers ::get_user_hash
-	 */
-	public function test_get_user_hash_invalid_user_id() {
-		$user_id = 55;
-
-		Functions\expect( 'get_user_meta' )->with( $user_id, \Avatar_Privacy\Core::EMAIL_HASH_META_KEY, true )->once()->andReturn( false );
-		Functions\expect( 'get_user_by' )->with( 'ID', $user_id )->once()->andReturn( false );
-
-		$this->assertFalse( $this->sut->get_user_hash( $user_id ) );
 	}
 
 	/**
@@ -535,25 +508,10 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_user_by_hash() {
 		$hash     = 'some hashed email';
 		$expected = m::mock( 'WP_User' );
-		$users    = [ $expected ];
 
-		Functions\expect( 'get_users' )->once()->with( m::type( 'array' ) )->andReturn( $users );
+		$this->user_fields->shouldReceive( 'get_user_by_hash' )->once()->with( $hash )->andReturn( $expected );
 
 		$this->assertSame( $expected, $this->sut->get_user_by_hash( $hash ) );
-	}
-
-	/**
-	 * Tests ::get_user_by_hash.
-	 *
-	 * @covers ::get_user_by_hash
-	 */
-	public function test_get_user_by_hash_not_found() {
-		$hash  = 'some hashed email';
-		$users = [];
-
-		Functions\expect( 'get_users' )->once()->with( m::type( 'array' ) )->andReturn( $users );
-
-		$this->assertNull( $this->sut->get_user_by_hash( $hash ) );
 	}
 
 	/**
@@ -568,59 +526,8 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 			'file' => '/some/fake/file.png',
 		];
 
-		Filters\expectApplied( 'avatar_privacy_pre_get_user_avatar' )->once()->with( null, $user_id )->andReturn( null );
-		Functions\expect( 'get_user_meta' )->once()->with( $user_id, \Avatar_Privacy\Core::USER_AVATAR_META_KEY, true )->andReturn( $avatar );
+		$this->user_fields->shouldReceive( 'get_local_avatar' )->once()->with( $user_id )->andReturn( $avatar );
 
 		$this->assertSame( $avatar, $this->sut->get_user_avatar( $user_id ) );
-	}
-
-	/**
-	 * Tests ::get_user_avatar.
-	 *
-	 * @covers ::get_user_avatar
-	 */
-	public function test_get_user_avatar_invalid_filter_result() {
-		$user_id = 42;
-		$avatar  = [
-			'type' => 'image/png',
-			'file' => '/some/fake/file.png',
-		];
-
-		Filters\expectApplied( 'avatar_privacy_pre_get_user_avatar' )->once()->with( null, $user_id )->andReturn( [ 'file' => '/some/other/file' ] );
-		Functions\expect( 'get_user_meta' )->once()->with( $user_id, \Avatar_Privacy\Core::USER_AVATAR_META_KEY, true )->andReturn( $avatar );
-
-		$this->assertSame( $avatar, $this->sut->get_user_avatar( $user_id ) );
-	}
-
-	/**
-	 * Tests ::get_user_avatar.
-	 *
-	 * @covers ::get_user_avatar
-	 */
-	public function test_get_user_avatar_invalid_filtered() {
-		$user_id = 42;
-		$avatar  = [
-			'type' => 'image/png',
-			'file' => '/some/fake/file.png',
-		];
-
-		Filters\expectApplied( 'avatar_privacy_pre_get_user_avatar' )->once()->with( null, $user_id )->andReturn( $avatar );
-		Functions\expect( 'get_user_meta' )->never();
-
-		$this->assertSame( $avatar, $this->sut->get_user_avatar( $user_id ) );
-	}
-
-	/**
-	 * Tests ::get_user_avatar.
-	 *
-	 * @covers ::get_user_avatar
-	 */
-	public function test_get_user_avatar_empty_user_meta() {
-		$user_id = 42;
-
-		Filters\expectApplied( 'avatar_privacy_pre_get_user_avatar' )->once()->with( null, $user_id )->andReturn( null );
-		Functions\expect( 'get_user_meta' )->once()->with( $user_id, \Avatar_Privacy\Core::USER_AVATAR_META_KEY, true )->andReturn( false );
-
-		$this->assertSame( [], $this->sut->get_user_avatar( $user_id ) );
 	}
 }

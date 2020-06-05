@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -35,6 +35,7 @@ use Mockery as m;
 use Avatar_Privacy\Components\Setup;
 
 use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\User_Fields;
 
 use Avatar_Privacy\Components\Image_Proxy;
 
@@ -441,7 +442,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Update meta keys.
 		$wpdb->shouldReceive( 'prepare' )->once()->with( "SELECT DISTINCT user_id FROM {$wpdb->usermeta} WHERE meta_key = %s", 'use_gravatar' )->andReturn( 'select_query' );
 		$wpdb->shouldReceive( 'get_col' )->once()->with( 'select_query' )->andReturn( $user_ids );
-		$wpdb->shouldReceive( 'update' )->once()->with( $wpdb->usermeta, [ 'meta_key' => Core::GRAVATAR_USE_META_KEY ], [ 'meta_key' => 'use_gravatar' ] )->andReturn( $rows ); // phpcs:ignore WordPress.DB.SlowDBQuery
+		$wpdb->shouldReceive( 'update' )->once()->with( $wpdb->usermeta, [ 'meta_key' => User_Fields::GRAVATAR_USE_META_KEY ], [ 'meta_key' => 'use_gravatar' ] )->andReturn( $rows ); // phpcs:ignore WordPress.DB.SlowDBQuery
 
 		// Clear cache.
 		Functions\expect( 'wp_cache_delete' )->times( $rows )->with( m::type( 'int' ), 'user_meta' );
@@ -548,7 +549,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 			$hash = \md5( $u->user_email );
 
 			$this->core->shouldReceive( 'get_hash' )->once()->with( $u->user_email )->andReturn( $hash );
-			Functions\expect( 'update_user_meta' )->once()->with( $u->ID, Core::EMAIL_HASH_META_KEY, $hash );
+			Functions\expect( 'update_user_meta' )->once()->with( $u->ID, User_Fields::EMAIL_HASH_META_KEY, $hash );
 		}
 
 		$this->assertNull( $this->sut->maybe_update_user_hashes() );

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@
 
 namespace Avatar_Privacy\Avatar_Handlers;
 
-use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\User_Fields;
 
 use Avatar_Privacy\Tools\Images;
 
@@ -44,9 +44,9 @@ class User_Avatar_Handler implements Avatar_Handler {
 	/**
 	 * The core API.
 	 *
-	 * @var Core
+	 * @var User_Fields
 	 */
-	private $core;
+	private $user_fields;
 
 	/**
 	 * The filesystem cache handler.
@@ -72,14 +72,16 @@ class User_Avatar_Handler implements Avatar_Handler {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param Core             $core       The core API.
-	 * @param Filesystem_Cache $file_cache The file cache handler.
-	 * @param Images\Editor    $images     The image editing handler.
+	 * @since 2.4.0 Parameter $core replaced by $user_fields.
+	 *
+	 * @param User_Fields      $user_fields The user data API.
+	 * @param Filesystem_Cache $file_cache  The file cache handler.
+	 * @param Images\Editor    $images      The image editing handler.
 	 */
-	public function __construct( Core $core, Filesystem_Cache $file_cache, Images\Editor $images ) {
-		$this->core       = $core;
-		$this->file_cache = $file_cache;
-		$this->images     = $images;
+	public function __construct( User_Fields $user_fields, Filesystem_Cache $file_cache, Images\Editor $images ) {
+		$this->user_fields = $user_fields;
+		$this->file_cache  = $file_cache;
+		$this->images      = $images;
 	}
 
 	/**
@@ -158,9 +160,9 @@ class User_Avatar_Handler implements Avatar_Handler {
 	 * @return bool              Returns `true` if successful, `false` otherwise.
 	 */
 	public function cache_image( $type, $hash, $size, $subdir, $extension ) {
-		$user = $this->core->get_user_by_hash( $hash );
+		$user = $this->user_fields->get_user_by_hash( $hash );
 		if ( ! empty( $user ) ) {
-			$local_avatar = $this->core->get_user_avatar( $user->ID );
+			$local_avatar = $this->user_fields->get_local_avatar( $user->ID );
 		}
 
 		// Could not find user or uploaded avatar.

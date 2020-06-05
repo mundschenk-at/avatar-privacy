@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019 Peter Putzer.
+ * Copyright 2019-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@
 
 namespace Avatar_Privacy\Tools\HTML;
 
-use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\User_Fields;
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler as Upload;
 
 /**
@@ -143,7 +143,7 @@ class User_Form {
 	 * }
 	 */
 	public function use_gravatar_checkbox( $user_id, array $args = [] ) {
-		$this->checkbox( $user_id, $this->use_gravatar['nonce'], $this->use_gravatar['action'], $this->use_gravatar['field'], Core::GRAVATAR_USE_META_KEY, $this->use_gravatar['partial'], $args );
+		$this->checkbox( $user_id, $this->use_gravatar['nonce'], $this->use_gravatar['action'], $this->use_gravatar['field'], User_Fields::GRAVATAR_USE_META_KEY, $this->use_gravatar['partial'], $args );
 	}
 
 	/**
@@ -175,7 +175,7 @@ class User_Form {
 	 * }
 	 */
 	public function allow_anonymous_checkbox( $user_id, array $args = [] ) {
-		$this->checkbox( $user_id, $this->allow_anonymous['nonce'], $this->allow_anonymous['action'], $this->allow_anonymous['field'], Core::ALLOW_ANONYMOUS_META_KEY, $this->allow_anonymous['partial'], $args );
+		$this->checkbox( $user_id, $this->allow_anonymous['nonce'], $this->allow_anonymous['action'], $this->allow_anonymous['field'], User_Fields::ALLOW_ANONYMOUS_META_KEY, $this->allow_anonymous['partial'], $args );
 	}
 
 	/**
@@ -213,7 +213,7 @@ class User_Form {
 		$action         = $this->user_avatar['action'];
 		$upload_field   = $this->user_avatar['field'];
 		$erase_field    = $this->user_avatar['erase'];
-		$current_avatar = \get_user_meta( $user_id, Core::USER_AVATAR_META_KEY, true );
+		$current_avatar = \get_user_meta( $user_id, User_Fields::USER_AVATAR_META_KEY, true );
 
 		/**
 		 * Filters whether native profile picture uploading is disabled for some
@@ -301,7 +301,7 @@ class User_Form {
 	 * @param int $user_id The ID of the user that has just been saved.
 	 */
 	public function save_use_gravatar_checkbox( $user_id ) {
-		$this->save_checkbox( $user_id, $this->use_gravatar['nonce'], $this->use_gravatar['action'], $this->use_gravatar['field'], Core::GRAVATAR_USE_META_KEY );
+		$this->save_checkbox( $user_id, $this->use_gravatar['nonce'], $this->use_gravatar['action'], $this->use_gravatar['field'], User_Fields::GRAVATAR_USE_META_KEY );
 	}
 
 	/**
@@ -313,7 +313,7 @@ class User_Form {
 	 * @param int $user_id The ID of the user that has just been saved.
 	 */
 	public function save_allow_anonymous_checkbox( $user_id ) {
-		$this->save_checkbox( $user_id, $this->allow_anonymous['nonce'], $this->allow_anonymous['action'], $this->allow_anonymous['field'], Core::ALLOW_ANONYMOUS_META_KEY );
+		$this->save_checkbox( $user_id, $this->allow_anonymous['nonce'], $this->allow_anonymous['action'], $this->allow_anonymous['field'], User_Fields::ALLOW_ANONYMOUS_META_KEY );
 	}
 
 	/**

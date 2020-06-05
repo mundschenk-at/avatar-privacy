@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019 Peter Putzer.
+ * Copyright 2019-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -36,7 +36,7 @@ use org\bovigo\vfs\vfsStream;
 
 use Avatar_Privacy\Tools\HTML\User_Form;
 
-use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\User_Fields;
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler as Upload;
 
 /**
@@ -156,7 +156,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 			$nonce,
 			$action,
 			$field_name,
-			Core::GRAVATAR_USE_META_KEY,
+			User_Fields::GRAVATAR_USE_META_KEY,
 			$partial,
 			m::type( 'array' )
 		)->andReturnUsing(
@@ -228,7 +228,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 		// FIXME: We should check for template variables.
 		Filters\expectApplied( 'avatar_privacy_profile_picture_upload_disabled' )->once()->with( false )->andReturn( false );
 
-		Functions\expect( 'get_user_meta' )->once()->with( $user_id,  Core::USER_AVATAR_META_KEY, true )->andReturn( [ 'fake avatar' ] );
+		Functions\expect( 'get_user_meta' )->once()->with( $user_id,  User_Fields::USER_AVATAR_META_KEY, true )->andReturn( [ 'fake avatar' ] );
 		Functions\expect( 'current_user_can' )->once()->with( 'upload_files' )->andReturn( true );
 		Functions\expect( 'wp_parse_args' )->once()->with(
 			$args,
@@ -300,7 +300,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 			$nonce,
 			$action,
 			$field_name,
-			Core::ALLOW_ANONYMOUS_META_KEY,
+			User_Fields::ALLOW_ANONYMOUS_META_KEY,
 			$partial,
 			$args
 		)->andReturnUsing(
@@ -370,7 +370,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 			$nonce,
 			$action,
 			$field_name,
-			Core::GRAVATAR_USE_META_KEY
+			User_Fields::GRAVATAR_USE_META_KEY
 		);
 
 		$this->assertNull( $this->sut->save_use_gravatar_checkbox( $user_id ) );
@@ -405,7 +405,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 			$nonce,
 			$action,
 			$field_name,
-			Core::ALLOW_ANONYMOUS_META_KEY
+			User_Fields::ALLOW_ANONYMOUS_META_KEY
 		);
 
 		$this->assertNull( $this->sut->save_allow_anonymous_checkbox( $user_id ) );

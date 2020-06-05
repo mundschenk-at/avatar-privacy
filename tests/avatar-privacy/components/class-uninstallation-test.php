@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -37,6 +37,7 @@ use org\bovigo\vfs\vfsStream;
 use Avatar_Privacy\Components\Uninstallation;
 
 use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\User_Fields;
 
 use Avatar_Privacy\Components\Image_Proxy;
 
@@ -207,7 +208,7 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::delete_uploaded_avatars
 	 */
 	public function test_delete_uploaded_avatars() {
-		$user_avatar        = Core::USER_AVATAR_META_KEY;
+		$user_avatar        = User_Fields::USER_AVATAR_META_KEY;
 		$query              = [
 			'meta_key'     => $user_avatar,  // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			'meta_compare' => 'EXISTS',
@@ -267,10 +268,10 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::delete_user_meta
 	 */
 	public function test_delete_user_meta() {
-		Functions\expect( 'delete_metadata' )->once()->with( 'user', 0, Core::GRAVATAR_USE_META_KEY, null, true );
-		Functions\expect( 'delete_metadata' )->once()->with( 'user', 0, Core::ALLOW_ANONYMOUS_META_KEY, null, true );
-		Functions\expect( 'delete_metadata' )->once()->with( 'user', 0, Core::USER_AVATAR_META_KEY, null, true );
-		Functions\expect( 'delete_metadata' )->once()->with( 'user', 0, Core::EMAIL_HASH_META_KEY, null, true );
+		Functions\expect( 'delete_metadata' )->once()->with( 'user', 0, User_Fields::GRAVATAR_USE_META_KEY, null, true );
+		Functions\expect( 'delete_metadata' )->once()->with( 'user', 0, User_Fields::ALLOW_ANONYMOUS_META_KEY, null, true );
+		Functions\expect( 'delete_metadata' )->once()->with( 'user', 0, User_Fields::USER_AVATAR_META_KEY, null, true );
+		Functions\expect( 'delete_metadata' )->once()->with( 'user', 0, User_Fields::EMAIL_HASH_META_KEY, null, true );
 
 		$this->assertNull( $this->sut->delete_user_meta() );
 	}

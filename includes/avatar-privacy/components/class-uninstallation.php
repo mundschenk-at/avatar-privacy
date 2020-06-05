@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,6 +27,7 @@
 namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\User_Fields;
 
 use Avatar_Privacy\Data_Storage\Database;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
@@ -190,7 +191,7 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	 * @since 2.1.0 Visibility changed to public, made non-static.
 	 */
 	public function delete_uploaded_avatars() {
-		$user_avatar = Core::USER_AVATAR_META_KEY;
+		$user_avatar = User_Fields::USER_AVATAR_META_KEY;
 		$query       = [
 			'meta_key'     => $user_avatar, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			'meta_compare' => 'EXISTS',
@@ -211,10 +212,10 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	 * @since 2.1.0 Visibility changed to public, made non-static.
 	 */
 	public function delete_user_meta() {
-		\delete_metadata( 'user', 0, Core::GRAVATAR_USE_META_KEY, null, true );
-		\delete_metadata( 'user', 0, Core::ALLOW_ANONYMOUS_META_KEY, null, true );
-		\delete_metadata( 'user', 0, Core::USER_AVATAR_META_KEY, null, true );
-		\delete_metadata( 'user', 0, Core::EMAIL_HASH_META_KEY, null, true );
+		\delete_metadata( 'user', 0, User_Fields::GRAVATAR_USE_META_KEY, null, true );
+		\delete_metadata( 'user', 0, User_Fields::ALLOW_ANONYMOUS_META_KEY, null, true );
+		\delete_metadata( 'user', 0, User_Fields::USER_AVATAR_META_KEY, null, true );
+		\delete_metadata( 'user', 0, User_Fields::EMAIL_HASH_META_KEY, null, true );
 	}
 
 	/**
