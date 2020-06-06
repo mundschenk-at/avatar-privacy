@@ -340,7 +340,7 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 		$wpdb->avatar_privacy = 'avatar_privacy_table';
 
 		$wpdb->shouldReceive( 'delete' )->once()->with( $wpdb->avatar_privacy, [ 'id' => $id ], [ '%d' ] )->andReturn( 1 );
-		$this->comment_author_fields->shouldReceive( 'clear_cache_by_email' )->once()->with( $email );
+		$this->comment_author_fields->shouldReceive( 'clear_cache' )->once()->with( $email );
 
 		$this->assertSame( 1, $this->sut->delete_comment_author_data( $id, $email ) );
 	}

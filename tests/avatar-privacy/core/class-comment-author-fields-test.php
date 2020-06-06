@@ -413,8 +413,7 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'get_format_strings' )->once()->with( $columns )->andReturn( $format_strings );
 		$wpdb->shouldReceive( 'update' )->once()->with( $wpdb->avatar_privacy, $columns, [ 'id' => $id ], $format_strings, [ '%d' ] )->andReturn( $rows_updated );
 
-		$this->hasher->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
-		$this->cache->shouldReceive( 'delete' )->once()->with( Comment_Author_Fields::EMAIL_CACHE_PREFIX . $hash );
+		$this->sut->shouldReceive( 'clear_cache' )->once()->with( $email );
 
 		$this->assertSame( $rows_updated, $this->sut->update( $id, $email, $columns ) );
 	}
@@ -438,8 +437,7 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'get_format_strings' )->once()->with( $columns )->andReturn( $format_strings );
 		$wpdb->shouldReceive( 'update' )->once()->with( $wpdb->avatar_privacy, $columns, [ 'id' => $id ], $format_strings, [ '%d' ] )->andReturn( false );
 
-		$this->hasher->shouldReceive( 'get_hash' )->never();
-		$this->cache->shouldReceive( 'delete' )->never();
+		$this->sut->shouldReceive( 'clear_cache' )->never();
 
 		$this->assertFalse( $this->sut->update( $id, $email, $columns ) );
 	}
@@ -464,8 +462,7 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'get_format_strings' )->once()->with( $columns )->andReturn( $format_strings );
 		$wpdb->shouldReceive( 'update' )->once()->with( $wpdb->avatar_privacy, $columns, [ 'id' => $id ], $format_strings, [ '%d' ] )->andReturn( $rows_updated );
 
-		$this->hasher->shouldReceive( 'get_hash' )->never();
-		$this->cache->shouldReceive( 'delete' )->never();
+		$this->sut->shouldReceive( 'clear_cache' )->never();
 
 		$this->assertSame( 0, $this->sut->update( $id, $email, $columns ) );
 	}
@@ -497,8 +494,7 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 		$wpdb->avatar_privacy = 'avatar_privacy_table';
 
 		$this->hasher->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
-
-		$this->cache->shouldReceive( 'delete' )->once()->with( Comment_Author_Fields::EMAIL_CACHE_PREFIX . $hash );
+		$this->sut->shouldReceive( 'clear_cache' )->once()->with( $email );
 
 		$this->sut->shouldReceive( 'get_format_strings' )->once()->with( $expected_columns )->andReturn( $format_strings );
 		$wpdb->shouldReceive( 'insert' )->once()->with( $wpdb->avatar_privacy, $expected_columns, $format_strings )->andReturn( $rows_updated );
@@ -664,18 +660,18 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::clear_cache_by_email.
+	 * Tests ::clear_cache.
 	 *
-	 * @covers ::clear_cache_by_email
+	 * @covers ::clear_cache
 	 */
-	public function test_clear_cache_by_email() {
+	public function test_clear_cache() {
 		$email = 'foo@bar.com';
-		$hash  = 'hashedemail123';
+		$key   = 'fake cache key';
 
-		$this->sut->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
-		$this->cache->shouldReceive( 'delete' )->once()->with( Comment_Author_Fields::EMAIL_CACHE_PREFIX . $hash );
+		$this->sut->shouldReceive( 'get_cache_key' )->once()->with( $email )->andReturn( $key );
+		$this->cache->shouldReceive( 'delete' )->once()->with( $key );
 
-		$this->assertNull( $this->sut->clear_cache_by_email( $email ) );
+		$this->assertNull( $this->sut->clear_cache( $email ) );
 	}
 
 	/**
