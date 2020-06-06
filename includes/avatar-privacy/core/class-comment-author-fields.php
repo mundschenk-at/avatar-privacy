@@ -287,15 +287,14 @@ class Comment_Author_Fields implements API {
 		$data = $this->load( $email );
 		if ( empty( $data ) ) {
 			// Nothing found in the database, insert the dataset.
-			$log_message = 'set with comment ' . $comment_id . ( \is_multisite() ? ' (site: ' . $wpdb->siteid . ', blog: ' . $wpdb->blogid . ')' : '' );
-			$this->insert( $email, $use_gravatar, \current_time( 'mysql' ), $log_message );
+			$this->insert( $email, $use_gravatar, \current_time( 'mysql' ), $this->get_log_message( $comment_id ) );
 		} else {
 			if ( $data->use_gravatar !== $use_gravatar ) {
 				// Dataset found but with different value, update it.
 				$new_values = [
 					'use_gravatar' => $use_gravatar,
 					'last_updated' => \current_time( 'mysql' ),
-					'log_message'  => 'set with comment ' . $comment_id . ( \is_multisite() ? ' (site: ' . $wpdb->siteid . ', blog: ' . $wpdb->blogid . ')' : '' ),
+					'log_message'  => $this->get_log_message( $comment_id ),
 					'hash'         => $this->hasher->get_hash( $email ),
 				];
 				$this->update( $data->id, $data->email, $new_values );
@@ -339,6 +338,28 @@ class Comment_Author_Fields implements API {
 		}
 
 		return $format_strings;
+	}
+
+	/**
+	 * Returns a formatted log message for comment author data.
+	 *
+	 * @param  int $comment_id A valid comment ID.
+	 *
+	 * @return string
+	 */
+	protected function get_log_message( $comment_id ) {
+		$log_message = 'set with comment %d';
+		$parameters  = [ $comment_id ];
+
+		if ( \is_multisite() ) {
+			global $wpdb;
+
+			$log_message .= ' (site: %d, blog: %d)';
+			$parameters[] = $wpdb->siteid;
+			$parameters[] = $wpdb->blogid;
+		}
+
+		return \vsprintf( $log_message, $parameters );
 	}
 
 	/**
