@@ -90,6 +90,17 @@ class Comment_Author_Fields implements API {
 	}
 
 	/**
+	 * Retrieves the hash for the given comment author e-mail address.
+	 *
+	 * @param  string $email An e-mail address.
+	 *
+	 * @return string
+	 */
+	public function get_hash( $email ) {
+		return $this->hasher->get_hash( $email );
+	}
+
+	/**
 	 * Checks whether an anonymous comment author has opted-in to Gravatar usage.
 	 *
 	 * @param  string $email_or_hash The comment author's e-mail address or the unique hash.
@@ -165,7 +176,7 @@ class Comment_Author_Fields implements API {
 			return null;
 		}
 
-		$key  = self::EMAIL_CACHE_PREFIX . $this->hasher->get_hash( $email );
+		$key  = $this->get_cache_key( $email );
 		$data = $this->cache->get( $key );
 
 		if ( false === $data ) {
@@ -194,6 +205,7 @@ class Comment_Author_Fields implements API {
 			return null;
 		}
 
+		// We need to calculate the cache key manually because we already have the hash available.
 		$key  = self::EMAIL_CACHE_PREFIX . $hash;
 		$data = $this->cache->get( $key );
 
@@ -259,7 +271,7 @@ class Comment_Author_Fields implements API {
 	protected function insert( $email, $use_gravatar, $last_updated, $log_message ) {
 		global $wpdb;
 
-		$hash    = $this->hasher->get_hash( $email );
+		$hash    = $this->get_hash( $email );
 		$columns = [
 			'email'        => $email,
 			'hash'         => $hash,
@@ -295,7 +307,7 @@ class Comment_Author_Fields implements API {
 					'use_gravatar' => $use_gravatar,
 					'last_updated' => \current_time( 'mysql' ),
 					'log_message'  => $this->get_log_message( $comment_id ),
-					'hash'         => $this->hasher->get_hash( $email ),
+					'hash'         => $this->get_hash( $email ),
 				];
 				$this->update( $data->id, $data->email, $new_values );
 			} elseif ( empty( $data->hash ) ) {
@@ -312,7 +324,7 @@ class Comment_Author_Fields implements API {
 	 * @param  string $email The email.
 	 */
 	public function update_hash( $id, $email ) {
-		$this->update( $id, $email, [ 'hash' => $this->hasher->get_hash( $email ) ] );
+		$this->update( $id, $email, [ 'hash' => $this->get_hash( $email ) ] );
 	}
 
 	/**
@@ -369,5 +381,16 @@ class Comment_Author_Fields implements API {
 	 */
 	public function clear_cache_by_email( $email ) {
 		$this->cache->delete( self::EMAIL_CACHE_PREFIX . $this->hasher->get_hash( $email ) );
+	}
+
+	/**
+	 * Calculates the cache key for the given e-mail address.
+	 *
+	 * @param  string $email An e-mail address.
+	 *
+	 * @return string
+	 */
+	protected function get_cache_key( $email ) {
+		return self::EMAIL_CACHE_PREFIX . $this->get_hash( $email );
 	}
 }
