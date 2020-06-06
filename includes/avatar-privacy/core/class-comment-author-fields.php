@@ -252,7 +252,7 @@ class Comment_Author_Fields implements API {
 
 		if ( false !== $result && $result > 0 ) {
 			// Clear any previously cached value.
-			$this->cache->delete( self::EMAIL_CACHE_PREFIX . $this->hasher->get_hash( $email ) );
+			$this->clear_cache( $email );
 		}
 
 		return $result;
@@ -281,7 +281,7 @@ class Comment_Author_Fields implements API {
 		];
 
 		// Clear any previously cached value, just in case.
-		$this->cache->delete( self::EMAIL_CACHE_PREFIX . $hash );
+		$this->clear_cache( $email );
 
 		return $wpdb->insert( $wpdb->avatar_privacy, $columns, $this->get_format_strings( $columns ) ); // WPCS: db call ok, db cache ok.
 	}
@@ -375,12 +375,12 @@ class Comment_Author_Fields implements API {
 	}
 
 	/**
-	 * Clears the cache for the given email address.
+	 * Clears the cache for the given comment author e-mail address.
 	 *
-	 * @param  string $email An email address.
+	 * @param  string $email An e-mail address.
 	 */
-	public function clear_cache_by_email( $email ) {
-		$this->cache->delete( self::EMAIL_CACHE_PREFIX . $this->hasher->get_hash( $email ) );
+	public function clear_cache( $email ) {
+		$this->cache->delete( $this->get_cache_key( $email ) );
 	}
 
 	/**

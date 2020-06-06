@@ -347,7 +347,7 @@ class Privacy_Tools implements \Avatar_Privacy\Component {
 		$rows = (int) $wpdb->delete( $wpdb->avatar_privacy, [ 'id' => $id ], [ '%d' ] ); // WPCS: db call ok, cache ok.
 
 		// Delete cached data.
-		$this->comment_author_fields->clear_cache_by_email( $email );
+		$this->comment_author_fields->clear_cache( $email );
 
 		return $rows;
 	}
