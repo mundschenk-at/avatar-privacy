@@ -547,13 +547,13 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'load' )->once()->with( $email )->andReturn( $data );
 
 		if ( empty( $data ) ) {
-			Functions\expect( 'is_multisite' )->once()->andReturn( false );
 			Functions\expect( 'current_time' )->once()->with( 'mysql' )->andReturn( 'a timestamp' );
+			$this->sut->shouldReceive( 'get_log_message' )->once()->with( $comment_id )->andReturn( 'my log message' );
 			$this->sut->shouldReceive( 'insert' )->once()->with( $email, $use_gravatar, m::type( 'string' ), m::type( 'string' ) );
 		} else {
 			if ( $data->use_gravatar !== $use_gravatar ) {
-				Functions\expect( 'is_multisite' )->once()->andReturn( false );
 				Functions\expect( 'current_time' )->once()->with( 'mysql' )->andReturn( 'a timestamp' );
+				$this->sut->shouldReceive( 'get_log_message' )->once()->with( $comment_id )->andReturn( 'my log message' );
 				$this->hasher->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
 				$this->sut->shouldReceive( 'update' )->once()->with( $data->id, $data->email, m::type( 'array' ) );
 			} elseif ( empty( $data->hash ) ) {
@@ -614,6 +614,41 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertSame( $expected, $this->sut->get_format_strings( $columns ) );
 	}
+
+	/**
+	 * Tests ::get_log_message.
+	 *
+	 * @covers ::get_log_message
+	 */
+	public function test_get_log_message() {
+		$comment_id = 42;
+		$expected   = "set with comment {$comment_id}";
+
+		Functions\expect( 'is_multisite' )->once()->andReturn( false );
+
+		$this->assertSame( $expected, $this->sut->get_log_message( $comment_id ) );
+	}
+
+	/**
+	 * Tests ::get_log_message in a multisite environment.
+	 *
+	 * @covers ::get_log_message
+	 */
+	public function test_get_log_message_multisite() {
+		$comment_id = 42;
+
+		global $wpdb;
+		$wpdb         = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wpdb->siteid = 3;
+		$wpdb->blogid = 12;
+
+		$expected = "set with comment {$comment_id} (site: {$wpdb->siteid}, blog: {$wpdb->blogid})";
+
+		Functions\expect( 'is_multisite' )->once()->andReturn( true );
+
+		$this->assertSame( $expected, $this->sut->get_log_message( $comment_id ) );
+	}
+
 	/**
 	 * Tests ::clear_cache_by_email.
 	 *
