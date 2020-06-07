@@ -92,7 +92,7 @@ class Comment_Author_Fields implements API {
 	/**
 	 * Retrieves the hash for the given comment author e-mail address.
 	 *
-	 * @param  string $email An e-mail address.
+	 * @param  string $email The comment author's e-mail address.
 	 *
 	 * @return string
 	 */
@@ -154,65 +154,25 @@ class Comment_Author_Fields implements API {
 	 * @return object|null           The dataset as an object or null.
 	 */
 	public function load( $email_or_hash ) {
-		if ( false === \strpos( $email_or_hash, '@' ) ) {
-			return $this->load_by_hash( $email_or_hash );
-		} else {
-			return $this->load_by_email( $email_or_hash );
-		}
-	}
-
-	/**
-	 * Returns the dataset from the 'use gravatar' table for the given database key.
-	 *
-	 * @param  string $email The mail address.
-	 *
-	 * @return object|null   The dataset as an object or null.
-	 */
-	protected function load_by_email( $email ) {
 		global $wpdb;
 
-		$email = \strtolower( \trim( $email ) );
-		if ( empty( $email ) ) {
+		// Won't change valid hashes.
+		$email_or_hash = \strtolower( \trim( $email_or_hash ) );
+		if ( empty( $email_or_hash ) ) {
 			return null;
 		}
 
-		$key  = $this->get_cache_key( $email );
+		// Check cache.
+		$type = ( false === \strpos( $email_or_hash, '@' ) ) ? 'hash' : 'email';
+		$key  = $this->get_cache_key( $email_or_hash, $type );
 		$data = $this->cache->get( $key );
 
 		if ( false === $data ) {
+			// We need to query the database.
 			$data = $wpdb->get_row(
-				$wpdb->prepare( "SELECT * FROM {$wpdb->avatar_privacy} WHERE email = %s", $email ),
-				OBJECT
-			); // WPCS: db call ok, cache ok.
-
-			$this->cache->set( $key, $data, 5 * MINUTE_IN_SECONDS );
-		}
-
-		return $data;
-	}
-
-	/**
-	 * Returns the dataset from the 'use gravatar' table for the given database key.
-	 *
-	 * @param  string $hash The hashed mail address.
-	 *
-	 * @return object|null  The dataset as an object or null.
-	 */
-	protected function load_by_hash( $hash ) {
-		global $wpdb;
-
-		if ( empty( $hash ) ) {
-			return null;
-		}
-
-		// We need to calculate the cache key manually because we already have the hash available.
-		$key  = self::EMAIL_CACHE_PREFIX . $hash;
-		$data = $this->cache->get( $key );
-
-		if ( false === $data ) {
-			$data = $wpdb->get_row(
-				$wpdb->prepare( "SELECT * FROM {$wpdb->avatar_privacy} WHERE hash = %s", $hash ),
-				OBJECT
+				// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder -- DB and column name.
+				$wpdb->prepare( 'SELECT * FROM `%1$s` WHERE `%2$s` = "%3$s"', $wpdb->avatar_privacy, $type, $email_or_hash ),
+				\OBJECT
 			); // WPCS: db call ok, cache ok.
 
 			$this->cache->set( $key, $data, 5 * MINUTE_IN_SECONDS );
@@ -229,7 +189,7 @@ class Comment_Author_Fields implements API {
 	 * @return string
 	 */
 	public function get_email( $hash ) {
-		$data = $this->load_by_hash( $hash );
+		$data = $this->load( $hash );
 
 		return ! empty( $data->email ) ? $data->email : '';
 	}
@@ -261,12 +221,12 @@ class Comment_Author_Fields implements API {
 	/**
 	 * Updates the Avatar Privacy table.
 	 *
-	 * @param  string $email        The mail address.
-	 * @param  int    $use_gravatar A flag indicating if gravatar use is allowed.
-	 * @param  string $last_updated A date/time in MySQL format.
-	 * @param  string $log_message  The log message.
+	 * @param  string   $email        The mail address.
+	 * @param  int|null $use_gravatar A flag indicating if gravatar use is allowed. `null` indicates the default policy (i.e. not set).
+	 * @param  string   $last_updated A date/time in MySQL format.
+	 * @param  string   $log_message  The log message.
 	 *
-	 * @return int|false      The number of rows updated, or false on error.
+	 * @return int|false              The number of rows updated, or false on error.
 	 */
 	protected function insert( $email, $use_gravatar, $last_updated, $log_message ) {
 		global $wpdb;
@@ -281,7 +241,7 @@ class Comment_Author_Fields implements API {
 		];
 
 		// Clear any previously cached value, just in case.
-		$this->clear_cache( $email );
+		$this->clear_cache( $hash, 'hash' );
 
 		return $wpdb->insert( $wpdb->avatar_privacy, $columns, $this->get_format_strings( $columns ) ); // WPCS: db call ok, db cache ok.
 	}
@@ -375,22 +335,29 @@ class Comment_Author_Fields implements API {
 	}
 
 	/**
-	 * Clears the cache for the given comment author e-mail address.
+	 * Clears the cache for the given comment author e-mail address or hash.
 	 *
-	 * @param  string $email An e-mail address.
+	 * @param  string $email_or_hash The comment author's e-mail address or the unique hash.
+	 * @param  string $type          Optional. The identifier type ('email' or 'hash'). Default 'email'.
 	 */
-	public function clear_cache( $email ) {
-		$this->cache->delete( $this->get_cache_key( $email ) );
+	public function clear_cache( $email_or_hash, $type = 'email' ) {
+		$this->cache->delete( $this->get_cache_key( $email_or_hash, $type ) );
 	}
 
 	/**
-	 * Calculates the cache key for the given e-mail address.
+	 * Calculates the cache key for the given identifier.
 	 *
-	 * @param  string $email An e-mail address.
+	 * @param  string $email_or_hash The comment author's e-mail address or the unique hash.
+	 * @param  string $type          Optional. The identifier type ('email' or 'hash'). Default 'email'.
 	 *
 	 * @return string
 	 */
-	protected function get_cache_key( $email ) {
-		return self::EMAIL_CACHE_PREFIX . $this->get_hash( $email );
+	protected function get_cache_key( $email_or_hash, $type = 'email' ) {
+		if ( 'email' === $type ) {
+			// We only need the hash here.
+			$email_or_hash = $this->get_hash( $email_or_hash );
+		}
+
+		return self::EMAIL_CACHE_PREFIX . $email_or_hash;
 	}
 }

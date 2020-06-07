@@ -117,12 +117,12 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::get_hash
 	 */
 	public function test_get_hash() {
-		$email = 'some@mail';
-		$hash  = 'fake hash';
+		$email_or_hash = 'some@mail';
+		$hash          = 'fake hash';
 
-		$this->hasher->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
+		$this->hasher->shouldReceive( 'get_hash' )->once()->with( $email_or_hash )->andReturn( $hash );
 
-		$this->assertSame( $hash, $this->sut->get_hash( $email ) );
+		$this->assertSame( $hash, $this->sut->get_hash( $email_or_hash ) );
 	}
 
 	/**
@@ -227,7 +227,7 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param int    $email  The retrieved email.
 	 */
 	public function test_get_email( $hash, $object, $email ) {
-		$this->sut->shouldReceive( 'load_by_hash' )->once()->with( $hash )->andReturn( $object );
+		$this->sut->shouldReceive( 'load' )->once()->with( $hash )->andReturn( $object );
 
 		$this->assertSame( $email, $this->sut->get_email( $hash ) );
 	}
@@ -238,9 +238,16 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @return array
 	 */
 	public function provide_load_data() {
+		$object = (object) [ 'foo' => 'bar' ];
+
 		return [
-			[ 'something other than an email address', 'load_by_hash' ],
-			[ 'foo@bar.com', 'load_by_email' ],
+			[ 'something other than an email address', false, 'hash', $object ],
+			[ 'something other than an email address', $object, 'hash', $object ],
+			[ 'foo@bar.com', false, 'email', $object ],
+			[ 'foo@BAR.com', false, 'email', $object, 'foo@bar.com' ],
+			[ ' foo@bar.com   ', $object, 'email', $object, 'foo@bar.com' ],
+			[ '', null ],
+			[ '    ', null ],
 		];
 	}
 
@@ -251,146 +258,44 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @dataProvider provide_load_data
 	 *
-	 * @param  string $email_or_hash   Required.
-	 * @param  string $expected_method Required.
+	 * @param  string            $email_or_hash The input value.
+	 * @param  object|false|null $cached        The cached result (or false, or null if bailing early).
+	 * @param  string            $column        The relevant column (`email` or `hash`).
+	 * @param  object|null       $result        The expected result.
+	 * @param  string|null       $clean         Optional. The "clean" input value. Default is `$email_or_hash`.
 	 */
-	public function test_load( $email_or_hash, $expected_method ) {
-		$this->sut->shouldReceive( $expected_method )->once()->andReturn( 'foo' );
-
-		$this->assertSame( 'foo', $this->sut->load( $email_or_hash ) );
-	}
-
-	/**
-	 * Tests ::load_by_email.
-	 *
-	 * @covers ::load_by_email
-	 */
-	public function test_load_by_email() {
-		$email  = 'foo@bar.org';
-		$hash   = 'foo_hashed';
-		$result = (object) [ 'foo' => 'bar' ];
-		$key    = 'fake cache key';
-
+	public function test_load( $email_or_hash, $cached = null, $column = null, $result = null, $clean = null ) {
 		global $wpdb;
 		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->avatar_privacy = 'avatar_privacy_table';
 
-		$this->sut->shouldReceive( 'get_cache_key' )->with( $email )->andReturn( $key );
-		$this->cache->shouldReceive( 'get' )->with( $key )->andReturn( false );
-		$wpdb->shouldReceive( 'prepare' )->with( m::type( 'string' ), $email )->andReturn( 'sql_string' );
-		$wpdb->shouldReceive( 'get_row' )->with( 'sql_string', OBJECT )->andReturn( $result );
-		$this->cache->shouldReceive( 'set' )->with( $key, $result, m::type( 'int' ) )->andReturn( false );
+		// Set default value for clean email or hash.
+		$clean = null === $clean ? $email_or_hash : $clean;
 
-		$this->assertSame( $result, $this->sut->load_by_email( $email ) );
-	}
+		if ( null === $cached ) {
+			$this->sut->shouldReceive( 'get_cache_key' )->never();
+			$this->cache->shouldReceive( 'get' )->never();
+			$wpdb->shouldReceive( 'prepare' )->never();
+			$wpdb->shouldReceive( 'get_row' )->never();
+			$this->cache->shouldReceive( 'set' )->never();
+		} else {
+			$key = 'fake cache key';
 
-	/**
-	 * Tests ::load_by_email.
-	 *
-	 * @covers ::load_by_email
-	 */
-	public function test_load_by_email_cached() {
-		$email  = 'foo@bar.org';
-		$hash   = 'foo_hashed';
-		$result = (object) [ 'foo' => 'bar' ];
-		$key    = 'fake cache key';
+			$this->sut->shouldReceive( 'get_cache_key' )->with( $clean, $column )->andReturn( $key );
+			$this->cache->shouldReceive( 'get' )->with( $key )->andReturn( $cached );
 
-		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wpdb->avatar_privacy = 'avatar_privacy_table';
+			if ( empty( $cached ) ) {
+				$wpdb->shouldReceive( 'prepare' )->with( m::type( 'string' ), $wpdb->avatar_privacy, $column, $clean )->andReturn( 'sql_string' );
+				$wpdb->shouldReceive( 'get_row' )->with( 'sql_string', \OBJECT )->andReturn( $result );
+				$this->cache->shouldReceive( 'set' )->with( $key, $result, m::type( 'int' ) )->andReturn( false );
+			} else {
+				$wpdb->shouldReceive( 'prepare' )->never();
+				$wpdb->shouldReceive( 'get_row' )->never();
+				$this->cache->shouldReceive( 'set' )->never();
+			}
+		}
 
-		$this->sut->shouldReceive( 'get_cache_key' )->with( $email )->andReturn( $key );
-		$this->cache->shouldReceive( 'get' )->with( $key )->andReturn( $result );
-		$wpdb->shouldReceive( 'prepare' )->never();
-		$wpdb->shouldReceive( 'get_row' )->never();
-		$this->cache->shouldReceive( 'set' )->never();
-
-		$this->assertSame( $result, $this->sut->load_by_email( $email ) );
-	}
-
-	/**
-	 * Tests ::load_by_email.
-	 *
-	 * @covers ::load_by_email
-	 */
-	public function test_load_by_email_invalid() {
-		$email = '  ';
-
-		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wpdb->avatar_privacy = 'avatar_privacy_table';
-
-		$this->sut->shouldReceive( 'get_cache_key' )->never();
-		$this->cache->shouldReceive( 'get' )->never();
-		$wpdb->shouldReceive( 'prepare' )->never();
-		$wpdb->shouldReceive( 'get_row' )->never();
-		$this->cache->shouldReceive( 'set' )->never();
-
-		$this->assertNull( $this->sut->load_by_email( $email ) );
-	}
-
-	/**
-	 * Tests ::load_by_hash.
-	 *
-	 * @covers ::load_by_hash
-	 */
-	public function test_load_by_hash() {
-		$hash   = 'foo_hashed';
-		$result = (object) [ 'foo' => 'bar' ];
-		$key    = Comment_Author_Fields::EMAIL_CACHE_PREFIX . $hash;
-
-		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wpdb->avatar_privacy = 'avatar_privacy_table';
-
-		$this->cache->shouldReceive( 'get' )->with( $key )->andReturn( false );
-		$wpdb->shouldReceive( 'prepare' )->with( m::type( 'string' ), $hash )->andReturn( 'sql_string' );
-		$wpdb->shouldReceive( 'get_row' )->with( 'sql_string', OBJECT )->andReturn( $result );
-		$this->cache->shouldReceive( 'set' )->with( $key, $result, m::type( 'int' ) )->andReturn( false );
-
-		$this->assertSame( $result, $this->sut->load_by_hash( $hash ) );
-	}
-
-	/**
-	 * Tests ::load_by_hash.
-	 *
-	 * @covers ::load_by_hash
-	 */
-	public function test_load_by_hash_cached() {
-		$hash   = 'foo_hashed';
-		$result = (object) [ 'foo' => 'bar' ];
-		$key    = Comment_Author_Fields::EMAIL_CACHE_PREFIX . $hash;
-
-		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wpdb->avatar_privacy = 'avatar_privacy_table';
-
-		$this->cache->shouldReceive( 'get' )->with( $key )->andReturn( $result );
-		$wpdb->shouldReceive( 'prepare' )->never();
-		$wpdb->shouldReceive( 'get_row' )->never();
-		$this->cache->shouldReceive( 'set' )->never();
-
-		$this->assertSame( $result, $this->sut->load_by_hash( $hash ) );
-	}
-
-	/**
-	 * Tests ::load_by_hash.
-	 *
-	 * @covers ::load_by_hash
-	 */
-	public function test_load_by_hash_invalid() {
-		$hash = '';
-
-		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wpdb->avatar_privacy = 'avatar_privacy_table';
-
-		$this->cache->shouldReceive( 'get' )->never();
-		$wpdb->shouldReceive( 'prepare' )->never();
-		$wpdb->shouldReceive( 'get_row' )->never();
-		$this->cache->shouldReceive( 'set' )->never();
-
-		$this->assertNull( $this->sut->load_by_hash( $hash ) );
+		$this->assertSame( $result, $this->sut->load( $email_or_hash ) );
 	}
 
 	/**
@@ -493,8 +398,8 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->avatar_privacy = 'avatar_privacy_table';
 
-		$this->hasher->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
-		$this->sut->shouldReceive( 'clear_cache' )->once()->with( $email );
+		$this->sut->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
+		$this->sut->shouldReceive( 'clear_cache' )->once()->with( $hash, 'hash' );
 
 		$this->sut->shouldReceive( 'get_format_strings' )->once()->with( $expected_columns )->andReturn( $format_strings );
 		$wpdb->shouldReceive( 'insert' )->once()->with( $wpdb->avatar_privacy, $expected_columns, $format_strings )->andReturn( $rows_updated );
@@ -665,13 +570,14 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::clear_cache
 	 */
 	public function test_clear_cache() {
-		$email = 'foo@bar.com';
-		$key   = 'fake cache key';
+		$email_or_hash = 'foo@bar.com';
+		$type          = 'email';
+		$key           = 'fake cache key';
 
-		$this->sut->shouldReceive( 'get_cache_key' )->once()->with( $email )->andReturn( $key );
+		$this->sut->shouldReceive( 'get_cache_key' )->once()->with( $email_or_hash, $type )->andReturn( $key );
 		$this->cache->shouldReceive( 'delete' )->once()->with( $key );
 
-		$this->assertNull( $this->sut->clear_cache( $email ) );
+		$this->assertNull( $this->sut->clear_cache( $email_or_hash, $type ) );
 	}
 
 	/**
@@ -682,10 +588,26 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_cache_key() {
 		$email = 'foo@bar.com';
 		$hash  = 'hashedemail123';
+		$type  = 'email';
 		$key   = Comment_Author_Fields::EMAIL_CACHE_PREFIX . $hash;
 
 		$this->sut->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
 
-		$this->assertSame( $key, $this->sut->get_cache_key( $email ) );
+		$this->assertSame( $key, $this->sut->get_cache_key( $email, $type ) );
+	}
+
+	/**
+	 * Tests ::get_cache_key.
+	 *
+	 * @covers ::get_cache_key
+	 */
+	public function test_get_cache_key_with_hash() {
+		$hash = 'hashedemail123';
+		$type = 'hash';
+		$key  = Comment_Author_Fields::EMAIL_CACHE_PREFIX . $hash;
+
+		$this->sut->shouldReceive( 'get_hash' )->never();
+
+		$this->assertSame( $key, $this->sut->get_cache_key( $hash, $type ) );
 	}
 }
