@@ -190,11 +190,11 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assert_is_array( $result );
 
 		// Check some exemplary components.
-		$this->assertContains( [ 'instance' => \Avatar_Privacy\Components\Avatar_Handling::class ], $result, 'Component missing.', false, true, true );
-		$this->assertContains( [ 'instance' => \Avatar_Privacy\Components\Setup::class ], $result, 'Component missing.', false, true, true );
+		$this->assert_contains( [ 'instance' => \Avatar_Privacy\Components\Avatar_Handling::class ], $result, 'Component missing.' );
+		$this->assert_contains( [ 'instance' => \Avatar_Privacy\Components\Setup::class ], $result, 'Component missing.' );
 
 		// Uninstallation must not (!) be included.
-		$this->assertNotContains( [ 'instance' => \Avatar_Privacy\Components\Uninstallation::class ], $result, 'Uninstallation component should not be included.', false, true, true );
+		$this->assert_not_contains( [ 'instance' => \Avatar_Privacy\Components\Uninstallation::class ], $result, 'Uninstallation component should not be included.' );
 	}
 
 	/**
@@ -206,11 +206,11 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 		$result = $this->sut->get_default_icons();
 
 		$this->assert_is_array( $result );
-		$this->assertContains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons\Mystery_Icon_Provider::class ], $result, 'Default icon missing.', false, true, true );
-		$this->assertContains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons\Identicon_Icon_Provider::class ], $result, 'Default icon missing.', false, true, true );
-		$this->assertContains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons\Speech_Bubble_Icon_Provider::class ], $result, 'Default icon missing.', false, true, true );
-		$this->assertContains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons\Bowling_Pin_Icon_Provider::class ], $result, 'Default icon missing.', false, true, true );
-		$this->assertContains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Custom_Icon_Provider::class ], $result, 'Default icon missing.', false, true, true );
+		$this->assert_contains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons\Mystery_Icon_Provider::class ], $result, 'Default icon missing.' );
+		$this->assert_contains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons\Identicon_Icon_Provider::class ], $result, 'Default icon missing.' );
+		$this->assert_contains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons\Speech_Bubble_Icon_Provider::class ], $result, 'Default icon missing.' );
+		$this->assert_contains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons\Bowling_Pin_Icon_Provider::class ], $result, 'Default icon missing.' );
+		$this->assert_contains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Custom_Icon_Provider::class ], $result, 'Default icon missing.' );
 	}
 
 	/**
@@ -222,7 +222,7 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 		$result = $this->sut->get_plugin_integrations();
 
 		$this->assert_is_array( $result );
-		$this->assertContains( [ 'instance' => \Avatar_Privacy\Integrations\BBPress_Integration::class ], $result, 'Default icon missing.', false, true, true );
+		$this->assert_contains( [ 'instance' => \Avatar_Privacy\Integrations\BBPress_Integration::class ], $result, 'Default icon missing.' );
 	}
 
 	/**
@@ -234,6 +234,6 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 		$result = $this->sut->get_cli_commands();
 
 		$this->assert_is_array( $result );
-		$this->assertContains( [ 'instance' => \Avatar_Privacy\CLI\Database_Command::class ], $result, 'Command missing.', false, true, true );
+		$this->assert_contains( [ 'instance' => \Avatar_Privacy\CLI\Database_Command::class ], $result, 'Command missing.' );
 	}
 }
