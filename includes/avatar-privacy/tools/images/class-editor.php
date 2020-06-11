@@ -230,7 +230,7 @@ class Editor {
 	public function prefer_gd_image_editor( array $editors ) {
 		$preferred_editors = [];
 		$imagick_editors   = [];
-		foreach ( $editors as $key => $editor ) {
+		foreach ( $editors as $editor ) {
 			if ( \preg_match( '/imagick/i', $editor ) ) {
 				$imagick_editors[] = $editor;
 			} else {

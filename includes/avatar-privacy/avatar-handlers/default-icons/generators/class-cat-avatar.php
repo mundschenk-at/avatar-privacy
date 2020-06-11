@@ -80,7 +80,7 @@ class Cat_Avatar extends PNG_Parts_Generator {
 		$cat = $this->create_image( 'transparent' );
 
 		// Add parts.
-		foreach ( $parts as $part_type => $file ) {
+		foreach ( $parts as $file ) {
 			$this->combine_images( $cat, $file );
 		}
 
