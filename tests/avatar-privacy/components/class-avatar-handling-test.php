@@ -36,8 +36,8 @@ use Avatar_Privacy\Components\Avatar_Handling;
 
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Core\User_Fields;
-use Avatar_Privacy\Settings;
 use Avatar_Privacy\Data_Storage\Options;
+use Avatar_Privacy\Core\Settings;
 use Avatar_Privacy\Exceptions\Avatar_Comment_Type_Exception;
 use Avatar_Privacy\Tools\Network\Gravatar_Service;
 use Avatar_Privacy\Tools\Network\Remote_Image_Service;

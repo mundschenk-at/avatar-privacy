@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -37,6 +37,7 @@ use org\bovigo\vfs\vfsStream;
 use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler;
 
 use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\Settings;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
 
@@ -181,7 +182,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 		// Intermediate data.
 		$nonce            = '12345';
 		$normalized_files = [
-			\Avatar_Privacy\Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR => [
+			Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR => [
 				'name' => 'filename',
 				'foo'  => 'bar',
 			],
@@ -196,11 +197,11 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 		Functions\expect( 'sanitize_key' )->once()->with( $nonce )->andReturn( 'sanitized_nonce' );
 		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', Custom_Default_Icon_Upload_Handler::ACTION_UPLOAD )->andReturn( true );
 
-		$this->options->shouldReceive( 'get_name' )->once()->with( \Avatar_Privacy\Core::SETTINGS_NAME )->andReturn( 'upload_index' );
+		$this->options->shouldReceive( 'get_name' )->once()->with( Settings::OPTION_NAME )->andReturn( 'upload_index' );
 
 		Functions\expect( 'wp_unslash' )->never();
 		$this->sut->shouldReceive( 'normalize_files_array' )->once()->with( $uploaded_file )->andReturn( $normalized_files );
-		$this->sut->shouldReceive( 'upload' )->once()->with( $normalized_files[ \Avatar_Privacy\Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ], false )->andReturn( $icon );
+		$this->sut->shouldReceive( 'upload' )->once()->with( $normalized_files[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ], false )->andReturn( $icon );
 		$this->sut->shouldReceive( 'delete_uploaded_icon' )->once()->with( $site_id )->andReturn( true );
 		$this->sut->shouldReceive( 'handle_errors' )->never();
 
@@ -227,7 +228,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 		// Intermediate data.
 		$nonce            = '12345';
 		$normalized_files = [
-			\Avatar_Privacy\Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR => [
+			Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR => [
 				'name' => 'filename',
 				'foo'  => 'bar',
 			],
@@ -242,11 +243,11 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 		Functions\expect( 'sanitize_key' )->once()->with( $nonce )->andReturn( 'sanitized_nonce' );
 		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', Custom_Default_Icon_Upload_Handler::ACTION_UPLOAD )->andReturn( true );
 
-		$this->options->shouldReceive( 'get_name' )->once()->with( \Avatar_Privacy\Core::SETTINGS_NAME )->andReturn( 'upload_index' );
+		$this->options->shouldReceive( 'get_name' )->once()->with( Settings::OPTION_NAME )->andReturn( 'upload_index' );
 
 		Functions\expect( 'wp_unslash' )->never();
 		$this->sut->shouldReceive( 'normalize_files_array' )->once()->with( $uploaded_file )->andReturn( $normalized_files );
-		$this->sut->shouldReceive( 'upload' )->once()->with( $normalized_files[ \Avatar_Privacy\Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ], false )->andReturn( $icon );
+		$this->sut->shouldReceive( 'upload' )->once()->with( $normalized_files[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ], false )->andReturn( $icon );
 		$this->sut->shouldReceive( 'delete_uploaded_icon' )->never();
 		$this->sut->shouldReceive( 'handle_errors' )->once()->with( $icon );
 
@@ -273,7 +274,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 		// Intermediate data.
 		$nonce            = '12345';
 		$normalized_files = [
-			\Avatar_Privacy\Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR => [
+			Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR => [
 				'name' => 'filename',
 				'foo'  => 'bar',
 			],
@@ -318,7 +319,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 		// Intermediate data.
 		$nonce            = '12345';
 		$normalized_files = [
-			\Avatar_Privacy\Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR => [
+			Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR => [
 				'name' => 'filename',
 				'foo'  => 'bar',
 			],
@@ -375,7 +376,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 		Functions\expect( 'sanitize_key' )->once()->with( $nonce )->andReturn( 'sanitized_nonce' );
 		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', Custom_Default_Icon_Upload_Handler::ACTION_UPLOAD )->andReturn( true );
 
-		$this->options->shouldReceive( 'get_name' )->once()->with( \Avatar_Privacy\Core::SETTINGS_NAME )->andReturn( 'upload_index' );
+		$this->options->shouldReceive( 'get_name' )->once()->with( Settings::OPTION_NAME )->andReturn( 'upload_index' );
 
 		$this->sut->shouldReceive( 'normalize_files_array' )->never();
 		$this->sut->shouldReceive( 'upload' )->never();
@@ -418,7 +419,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 		Functions\expect( 'sanitize_key' )->once()->with( $nonce )->andReturn( 'sanitized_nonce' );
 		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', Custom_Default_Icon_Upload_Handler::ACTION_UPLOAD )->andReturn( true );
 
-		$this->options->shouldReceive( 'get_name' )->once()->with( \Avatar_Privacy\Core::SETTINGS_NAME )->andReturn( 'upload_index' );
+		$this->options->shouldReceive( 'get_name' )->once()->with( Settings::OPTION_NAME )->andReturn( 'upload_index' );
 
 		$this->sut->shouldReceive( 'normalize_files_array' )->never();
 		$this->sut->shouldReceive( 'upload' )->never();
@@ -457,7 +458,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	public function test_handle_errors( $error_string, $error_type ) {
 		$result = [ 'error' => $error_string ];
 
-		$this->options->shouldReceive( 'get_name' )->once()->with( \Avatar_Privacy\Core::SETTINGS_NAME )->andReturn( 'settings_name' );
+		$this->options->shouldReceive( 'get_name' )->once()->with( Settings::OPTION_NAME )->andReturn( 'settings_name' );
 
 		Functions\expect( 'esc_attr' )->atMost()->once()->andReturn( 'escaped_string' );
 		Functions\expect( 'add_settings_error' )->once()->with( m::pattern( '/^settings_name\[.*\]$/' ), $error_type, m::type( 'string' ), 'error' );
@@ -533,7 +534,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	public function test_delete_uploaded_icon( $site_id, $file, $result ) {
 		$hash     = 'some_hash';
 		$settings = [
-			\Avatar_Privacy\Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR => [
+			Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR => [
 				'file' => vfsStream::url( $file ),
 			],
 		];

@@ -27,7 +27,7 @@
 
 namespace Avatar_Privacy\Components;
 
-use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\Settings;
 use Avatar_Privacy\Core\User_Fields;
 
 use Avatar_Privacy\Components\Image_Proxy;
@@ -117,18 +117,32 @@ class Setup implements \Avatar_Privacy\Component {
 	private $multisite;
 
 	/**
-	 * The core API.
+	 * The settings API.
 	 *
-	 * @var Core
+	 * @since 2.4.0
+	 *
+	 * @var Settings
 	 */
-	private $core;
+	private $settings;
+
+	/**
+	 * The user fields API.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var User_Fields
+	 */
+	private $registered_user;
+
 
 	/**
 	 * Creates a new Setup instance.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
+	 * @since 2.4.0 Parameters $settings, $registered_user added, parameter $core removed.
 	 *
-	 * @param Core            $core            The core API.
+	 * @param Settings        $settings        The settings API.
+	 * @param User_Fields     $registered_user The user fields API.
 	 * @param Transients      $transients      The transients handler.
 	 * @param Site_Transients $site_transients The site transients handler.
 	 * @param Options         $options         The options handler.
@@ -136,8 +150,9 @@ class Setup implements \Avatar_Privacy\Component {
 	 * @param Database        $database        The database handler.
 	 * @param Multisite       $multisite       The the multisite handler.
 	 */
-	public function __construct( Core $core, Transients $transients, Site_Transients $site_transients, Options $options, Network_Options $network_options, Database $database, Multisite $multisite ) {
-		$this->core            = $core;
+	public function __construct( Settings $settings, User_Fields $registered_user, Transients $transients, Site_Transients $site_transients, Options $options, Network_Options $network_options, Database $database, Multisite $multisite ) {
+		$this->settings        = $settings;
+		$this->registered_user = $registered_user;
 		$this->transients      = $transients;
 		$this->site_transients = $site_transients;
 		$this->options         = $options;
@@ -164,7 +179,7 @@ class Setup implements \Avatar_Privacy\Component {
 	 */
 	public function update_check() {
 		// Force reading the settings from the DB, but do not cache the result.
-		$settings = $this->core->get_settings( true );
+		$settings = $this->settings->get_all_settings( true );
 
 		// We can ignore errors here, just carry on as if for a new installation.
 		if ( ! empty( $settings[ Options::INSTALLED_VERSION ] ) ) {
@@ -178,7 +193,7 @@ class Setup implements \Avatar_Privacy\Component {
 		}
 
 		// The current version is (probably) newer than the previously installed one.
-		$version = $this->core->get_version();
+		$version = $this->settings->get_version();
 		if ( $version !== $installed_version ) {
 			// Update plugin settings if necessary.
 			$this->plugin_updated( $installed_version, $settings );
@@ -203,7 +218,7 @@ class Setup implements \Avatar_Privacy\Component {
 
 		// Update installed version.
 		$settings[ Options::INSTALLED_VERSION ] = $version;
-		$this->options->set( Core::SETTINGS_NAME, $settings );
+		$this->options->set( Settings::OPTION_NAME, $settings );
 	}
 
 	/**
@@ -374,7 +389,7 @@ class Setup implements \Avatar_Privacy\Component {
 		];
 
 		foreach ( \get_users( $args ) as $user ) {
-			\update_user_meta( $user->ID, User_Fields::EMAIL_HASH_META_KEY, $this->core->get_hash( $user->user_email ) );
+			\update_user_meta( $user->ID, User_Fields::EMAIL_HASH_META_KEY, $this->registered_user->get_hash( $user->user_email ) );
 		}
 	}
 

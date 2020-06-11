@@ -34,7 +34,7 @@ use Mockery as m;
 
 use Avatar_Privacy\Components\Setup;
 
-use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\Settings;
 use Avatar_Privacy\Core\User_Fields;
 
 use Avatar_Privacy\Components\Image_Proxy;
@@ -101,12 +101,18 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $multisite;
 
 	/**
-	 * The core API.
+	 * The settings API.
 	 *
-	 * @var Core
+	 * @var Settings
 	 */
-	private $core;
+	private $settings;
 
+	/**
+	 * The user fields API.
+	 *
+	 * @var User_Fields
+	 */
+	private $registered_user;
 	/**
 	 * The system-under-test.
 	 *
@@ -124,7 +130,8 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		parent::set_up();
 
 		// Helper mocks.
-		$this->core            = m::mock( Core::class );
+		$this->settings        = m::mock( Settings::class );
+		$this->registered_user = m::mock( User_Fields::class );
 		$this->transients      = m::mock( Transients::class );
 		$this->site_transients = m::mock( Site_Transients::class );
 		$this->options         = m::mock( Options::class );
@@ -135,7 +142,8 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut = m::mock(
 			Setup::class,
 			[
-				$this->core,
+				$this->settings,
+				$this->registered_user,
 				$this->transients,
 				$this->site_transients,
 				$this->options,
@@ -155,7 +163,8 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$mock = m::mock( Setup::class )->makePartial();
 
 		$mock->__construct(
-			$this->core,
+			$this->settings,
+			$this->registered_user,
 			$this->transients,
 			$this->site_transients,
 			$this->options,
@@ -164,7 +173,8 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 			$this->multisite
 		);
 
-		$this->assert_attribute_same( $this->core, 'core', $mock );
+		$this->assert_attribute_same( $this->settings, 'settings', $mock );
+		$this->assert_attribute_same( $this->registered_user, 'registered_user', $mock );
 		$this->assert_attribute_same( $this->transients, 'transients', $mock );
 		$this->assert_attribute_same( $this->site_transients, 'site_transients', $mock );
 		$this->assert_attribute_same( $this->options, 'options', $mock );
@@ -219,8 +229,8 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Installed version matching.
 		$match_installed = m::anyOf( $installed, '0.4-or-earlier', '' );
 
-		$this->core->shouldReceive( 'get_settings' )->once()->with( true )->andReturn( $settings );
-		$this->core->shouldReceive( 'get_version' )->once()->andReturn( $version );
+		$this->settings->shouldReceive( 'get_all_settings' )->once()->with( true )->andReturn( $settings );
+		$this->settings->shouldReceive( 'get_version' )->once()->andReturn( $version );
 		$this->database->shouldReceive( 'maybe_create_table' )->once()->with( $match_installed )->andReturn( true );
 		$this->sut->shouldReceive( 'maybe_update_table_data' )->once()->with( $match_installed );
 		$this->sut->shouldReceive( 'maybe_prepare_migration_queue' )->once();
@@ -233,7 +243,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		}
 
 		$this->options->shouldReceive( 'set' )->once()->with(
-			Core::SETTINGS_NAME,
+			Settings::OPTION_NAME,
 			m::on(
 				function( &$s ) use ( $version ) {
 					$this->assertSame( $version, $s[ Options::INSTALLED_VERSION ] );
@@ -548,7 +558,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		foreach ( $users as $u ) {
 			$hash = \md5( $u->user_email );
 
-			$this->core->shouldReceive( 'get_hash' )->once()->with( $u->user_email )->andReturn( $hash );
+			$this->registered_user->shouldReceive( 'get_hash' )->once()->with( $u->user_email )->andReturn( $hash );
 			Functions\expect( 'update_user_meta' )->once()->with( $u->ID, User_Fields::EMAIL_HASH_META_KEY, $hash );
 		}
 

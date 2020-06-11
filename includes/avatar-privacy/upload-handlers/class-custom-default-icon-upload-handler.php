@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,7 +27,7 @@
 namespace Avatar_Privacy\Upload_Handlers;
 
 use Avatar_Privacy\Core;
-use Avatar_Privacy\Settings;
+use Avatar_Privacy\Core\Settings;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
@@ -92,7 +92,7 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 			return;
 		}
 
-		$upload_index     = $this->options->get_name( Core::SETTINGS_NAME );
+		$upload_index     = $this->options->get_name( Settings::OPTION_NAME );
 		$normalized_files = ! empty( $_FILES[ $upload_index ]['name'] ) ? $this->normalize_files_array( $_FILES[ $upload_index ] ) : []; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- ::upload uses \wp_handle_upload, $_FILES does not need wp_unslash.
 		if ( ! empty( $normalized_files[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ]['name'] ) ) {
 			// Upload to our custom directory.
@@ -137,7 +137,7 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	 * @param  array $result The result of \wp_handle_upload().
 	 */
 	protected function handle_errors( array $result ) {
-		$id = $this->options->get_name( Core::SETTINGS_NAME ) . '[' . Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR . ']';
+		$id = $this->options->get_name( Settings::OPTION_NAME ) . '[' . Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR . ']';
 		switch ( $result['error'] ) {
 			case 'Sorry, this file type is not permitted for security reasons.':
 				\add_settings_error( $id, 'default_avatar_invalid_image_type', \__( 'Please upload a valid PNG, GIF or JPEG image for the avatar.', 'avatar-privacy' ), 'error' );

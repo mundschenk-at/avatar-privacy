@@ -28,6 +28,7 @@ namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Core\User_Fields;
+use Avatar_Privacy\Core\Settings;
 
 use Avatar_Privacy\Data_Storage\Database;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
@@ -225,7 +226,7 @@ class Uninstallation implements \Avatar_Privacy\Component {
 	 */
 	public function delete_options() {
 		// Delete our settings.
-		$this->options->delete( Core::SETTINGS_NAME );
+		$this->options->delete( Settings::OPTION_NAME );
 
 		// Reset avatar_default to working value if necessary.
 		$this->options->reset_avatar_default();

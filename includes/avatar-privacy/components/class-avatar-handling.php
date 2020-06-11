@@ -28,11 +28,11 @@
 namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Core;
-use Avatar_Privacy\Settings;
 
 use Avatar_Privacy\Core\User_Fields;
 
 use Avatar_Privacy\Data_Storage\Options;
+use Avatar_Privacy\Core\Settings;
 
 use Avatar_Privacy\Exceptions\Avatar_Comment_Type_Exception;
 

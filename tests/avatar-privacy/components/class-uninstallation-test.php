@@ -38,6 +38,7 @@ use Avatar_Privacy\Components\Uninstallation;
 
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Core\User_Fields;
+use Avatar_Privacy\Core\Settings;
 
 use Avatar_Privacy\Components\Image_Proxy;
 
@@ -282,7 +283,7 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::delete_options
 	 */
 	public function test_delete_options() {
-		$this->options->shouldReceive( 'delete' )->once()->with( Core::SETTINGS_NAME );
+		$this->options->shouldReceive( 'delete' )->once()->with( Settings::OPTION_NAME );
 		$this->options->shouldReceive( 'reset_avatar_default' )->once();
 
 		$this->assertNull( $this->sut->delete_options() );

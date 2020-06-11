@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy;
+namespace Avatar_Privacy\Core;
 
 use Avatar_Privacy\Components\Network_Settings_Page;
 use Avatar_Privacy\Data_Storage\Options;
@@ -40,10 +40,20 @@ use Mundschenk\UI\Controls;
  *
  * @since 2.0.0
  * @since 2.1.0 Class made concrete and marked internal.
+ * @since 2.4.0 Moved to Avatar_Privacy\Core.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Settings {
+class Settings implements API {
+
+	/**
+	 * The name of the combined settings in the database.
+	 *
+	 * @since 2.4.0 Moved from Avatar_Privacy\Core and renamed from SETTINGS_NAME.
+	 *
+	 * @var string
+	 */
+	const OPTION_NAME = 'settings';
 
 	/**
 	 * The options array index of the custom default avatar image.
@@ -95,6 +105,77 @@ class Settings {
 	private $information_header;
 
 	/**
+	 * The plugin version.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var string
+	 */
+	private $version;
+
+	/**
+	 * The user's settings.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var array
+	 */
+	private $settings = [];
+
+	/**
+	 * The options handler.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var Options
+	 */
+	private $options;
+
+	/**
+	 * Creates a new instance.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param string  $version The plugin version string (e.g. "3.0.0-beta.2").
+	 * @param Options $options The options handler.
+	 */
+	public function __construct( $version, Options $options ) {
+		$this->version = $version;
+		$this->options = $options;
+	}
+
+	/**
+	 * Retrieves the plugin version.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var string
+	 */
+	public function get_version() {
+		return $this->version;
+	}
+
+	/**
+	 * Retrieves the complete plugin settings array.
+	 *
+	 * @since 2.0.0 Parameter $force added.
+	 * @since 2.4.0 Moved to Avatar_Privacy\Core\Settings::get_all_settings.
+	 *
+	 * @param bool $force Optional. Forces retrieval of settings from database. Default false.
+	 *
+	 * @return array
+	 */
+	public function get_all_settings( $force = false ) {
+		// Force a re-read if the cached settings do not appear to be from the current version.
+		if ( empty( $this->settings ) || empty( $this->settings[ Options::INSTALLED_VERSION ] )
+			|| $this->version !== $this->settings[ Options::INSTALLED_VERSION ] || $force ) {
+			$this->settings = (array) $this->options->get( self::OPTION_NAME, $this->get_defaults() );
+		}
+
+		return $this->settings;
+	}
+
+	/**
 	 * Retrieves the settings field definitions.
 	 *
 	 * @param string $information_header Optional. The HTML markup for the informational header in the settings. Default ''.
@@ -103,7 +184,7 @@ class Settings {
 	 */
 	public function get_fields( $information_header = '' ) {
 		if ( empty( $this->fields ) ) {
-			$this->fields = [ // @codeCoverageIgnore
+			$this->fields = [ // @codeCoverageIgnoreStart
 				self::UPLOAD_CUSTOM_DEFAULT_AVATAR => [
 					'ui'             => \Avatar_Privacy\Upload_Handlers\UI\File_Upload_Input::class,
 					'tab_id'         => '', // Will be added to the 'discussions' page.
@@ -135,7 +216,7 @@ class Settings {
 					'default'          => 0,
 					'grouped_with'     => self::INFORMATION_HEADER,
 					'outer_attributes' => [ 'class' => 'avatar-settings-enabled' ],
-				],
+				], // @codeCoverageIgnoreEnd
 			];
 		}
 
@@ -180,7 +261,7 @@ class Settings {
 	 */
 	public function get_network_fields() {
 		if ( empty( $this->network_fields ) ) {
-			$this->network_fields = [ // @codeCoverageIgnore
+			$this->network_fields = [ // @codeCoverageIgnoreStart
 				Network_Options::USE_GLOBAL_TABLE          => [
 					'ui'               => Controls\Checkbox_Input::class,
 					'tab_id'           => '',
@@ -190,7 +271,7 @@ class Settings {
 					'short'            => \__( 'Global Table', 'avatar-privacy' ),
 					'help_text'        => \__( 'Checking will make Avatar Privacy use a single table for each network (instead of for each site) for storing anonymous comment author consent. (Do not enable this setting unless you are sure about the privacy implications.)', 'avatar-privacy' ),
 					'default'          => 0,
-				],
+				], // @codeCoverageIgnoreEnd
 			];
 		}
 

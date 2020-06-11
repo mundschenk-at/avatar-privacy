@@ -27,13 +27,10 @@
 
 namespace Avatar_Privacy;
 
-use Avatar_Privacy\Settings;
-
 use Avatar_Privacy\Core\Comment_Author_Fields;
 use Avatar_Privacy\Core\Hasher;
 use Avatar_Privacy\Core\User_Fields;
-
-use Avatar_Privacy\Data_Storage\Options;
+use Avatar_Privacy\Core\Settings;
 
 /**
  * The core database API of the Avatar Privacy plugin.
@@ -44,37 +41,11 @@ use Avatar_Privacy\Data_Storage\Options;
 class Core {
 
 	/**
-	 * The name of the combined settings in the database.
-	 */
-	const SETTINGS_NAME = 'settings';
-
-	/**
-	 * The user's settings.
-	 *
-	 * @var array
-	 */
-	private $settings = [];
-
-	/**
-	 * The plugin version.
-	 *
-	 * @var string
-	 */
-	private $version;
-
-	/**
-	 * The options handler.
-	 *
-	 * @var Options
-	 */
-	private $options;
-
-	/**
 	 * The default settings.
 	 *
 	 * @var Settings
 	 */
-	private $settings_template;
+	private $settings;
 
 	/**
 	 * The hashing helper.
@@ -116,19 +87,15 @@ class Core {
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
 	 * @since 2.4.0 Parameters $hasher, $user_fields and $comment_author_fields added, $transients,
-	 *              $site_transients and $cache removed.
+	 *              $version, $options, $site_transients and $cache removed.
 	 *
-	 * @param string                $version               The plugin version string (e.g. "3.0.0-beta.2").
-	 * @param Options               $options               Required.
-	 * @param Settings              $settings_template     Required.
+	 * @param Settings              $settings              Required.
 	 * @param Hasher                $hasher                Required.
 	 * @param User_Fields           $user_fields           Required.
 	 * @param Comment_Author_Fields $comment_author_fields Required.
 	 */
-	public function __construct( $version, Options $options, Settings $settings_template, Hasher $hasher, User_Fields $user_fields, Comment_Author_Fields $comment_author_fields ) {
-		$this->version               = $version;
-		$this->options               = $options;
-		$this->settings_template     = $settings_template;
+	public function __construct( Settings $settings, Hasher $hasher, User_Fields $user_fields, Comment_Author_Fields $comment_author_fields ) {
+		$this->settings              = $settings;
 		$this->hasher                = $hasher;
 		$this->user_fields           = $user_fields;
 		$this->comment_author_fields = $comment_author_fields;
@@ -176,7 +143,7 @@ class Core {
 	 * @var string
 	 */
 	public function get_version() {
-		return $this->version;
+		return $this->settings->get_version();
 	}
 
 	/**
@@ -202,13 +169,7 @@ class Core {
 	 * @return array
 	 */
 	public function get_settings( $force = false ) {
-		// Force a re-read if the cached settings do not appear to be from the current version.
-		if ( empty( $this->settings ) || empty( $this->settings[ Options::INSTALLED_VERSION ] )
-			|| $this->version !== $this->settings[ Options::INSTALLED_VERSION ] || $force ) {
-			$this->settings = (array) $this->options->get( self::SETTINGS_NAME, $this->settings_template->get_defaults() );
-		}
-
-		return $this->settings;
+		return $this->settings->get_all_settings( $force );
 	}
 
 	/**

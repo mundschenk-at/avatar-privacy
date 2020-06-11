@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -27,8 +27,7 @@
 
 namespace Avatar_Privacy\Components;
 
-use Avatar_Privacy\Core;
-use Avatar_Privacy\Settings;
+use Avatar_Privacy\Core\Settings;
 
 use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler as Upload;
 
@@ -61,18 +60,11 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	private $upload;
 
 	/**
-	 * The default settings.
+	 * The settings API.
 	 *
 	 * @var Settings
 	 */
 	private $settings;
-
-	/**
-	 * The core API.
-	 *
-	 * @var Core
-	 */
-	private $core;
 
 	/**
 	 * Indiciates whether the settings page is buffering its output.
@@ -85,14 +77,13 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	 * Creates a new instance.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
+	 * @since 2.4.0 Paraemter $core removed.
 	 *
-	 * @param Core     $core        The core API.
 	 * @param Options  $options     The options handler.
 	 * @param Upload   $upload      The file upload handler.
-	 * @param Settings $settings    The default settings.
+	 * @param Settings $settings    The settings API.
 	 */
-	public function __construct( Core $core, Options $options, Upload $upload, Settings $settings ) {
-		$this->core      = $core;
+	public function __construct( Options $options, Upload $upload, Settings $settings ) {
 		$this->options   = $options;
 		$this->upload    = $upload;
 		$this->settings  = $settings;
@@ -147,10 +138,10 @@ class Settings_Page implements \Avatar_Privacy\Component {
 	 * an explanation of the wrong gravatar settings.
 	 */
 	public function register_settings() {
-		\register_setting( 'discussion', $this->options->get_name( Core::SETTINGS_NAME ), [ $this, 'sanitize_settings' ] );
+		\register_setting( 'discussion', $this->options->get_name( Settings::OPTION_NAME ), [ $this, 'sanitize_settings' ] );
 
 		// Register control render callbacks.
-		$controls = Control_Factory::initialize( $this->settings->get_fields( $this->get_settings_header() ), $this->options, Core::SETTINGS_NAME );
+		$controls = Control_Factory::initialize( $this->settings->get_fields( $this->get_settings_header() ), $this->options, Settings::OPTION_NAME );
 		foreach ( $controls as $control ) {
 			$control->register( 'discussion' );
 		}
@@ -196,7 +187,7 @@ class Settings_Page implements \Avatar_Privacy\Component {
 		}
 
 		if ( ! isset( $input[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] ) ) {
-			$previous                                        = $this->core->get_settings();
+			$previous                                        = $this->settings->get_all_settings();
 			$input[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] = $previous[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ];
 		}
 

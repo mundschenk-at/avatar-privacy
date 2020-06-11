@@ -33,11 +33,11 @@ use Brain\Monkey\Functions;
 use Mockery as m;
 
 use Avatar_Privacy\Core;
-use Avatar_Privacy\Settings;
 
 use Avatar_Privacy\Core\Comment_Author_Fields;
-use Avatar_Privacy\Core\User_Fields;
 use Avatar_Privacy\Core\Hasher;
+use Avatar_Privacy\Core\User_Fields;
+use Avatar_Privacy\Core\Settings;
 
 use Avatar_Privacy\Data_Storage\Options;
 
@@ -57,13 +57,6 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var \Avatar_Privacy\Core
 	 */
 	private $sut;
-
-	/**
-	 * Required helper object.
-	 *
-	 * @var Options
-	 */
-	private $options;
 
 	/**
 	 * Required helper object.
@@ -93,9 +86,6 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	private $user_fields;
 
-	// Mock version.
-	const VERSION = '1.0.0';
-
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
@@ -116,8 +106,6 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut = m::mock(
 			Core::class,
 			[
-				self::VERSION,
-				$this->options,
 				$this->settings,
 				$this->hasher,
 				$this->user_fields,
@@ -147,16 +135,18 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_constructor() {
 		// Mock required helpers.
-		$options               = m::mock( Options::class )->makePartial();
 		$settings              = m::mock( Settings::class );
 		$hasher                = m::mock( Hasher::class );
 		$user_fields           = m::mock( User_Fields::class );
 		$comment_author_fields = m::mock( Comment_Author_Fields::class );
 
 		$core = m::mock( Core::class )->makePartial();
-		$core->__construct( '6.6.6', $options, $settings, $hasher, $user_fields, $comment_author_fields );
+		$core->__construct( $settings, $hasher, $user_fields, $comment_author_fields );
 
-		$this->assertSame( '6.6.6', $core->get_version() );
+		$this->assert_attribute_same( $settings, 'settings', $core );
+		$this->assert_attribute_same( $hasher, 'hasher', $core );
+		$this->assert_attribute_same( $user_fields, 'user_fields', $core );
+		$this->assert_attribute_same( $comment_author_fields, 'comment_author_fields', $core );
 	}
 
 	/**
@@ -213,7 +203,11 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::get_version
 	 */
 	public function test_get_version() {
-		$this->assertSame( self::VERSION, $this->sut->get_version() );
+		$version = '47.11';
+
+		$this->settings->shouldReceive( 'get_version' )->once()->andReturn( $version );
+
+		$this->assertSame( $version, $this->sut->get_version() );
 	}
 
 	/**
@@ -233,143 +227,14 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_get_settings() {
 		$settings = [
-			'foo'                      => 'bar',
-			Options::INSTALLED_VERSION => self::VERSION,
-		];
-		$defaults = [
 			'foo' => 'bar',
 		];
+		$force    = true;
 
-		$this->options->shouldReceive( 'get' )
-			->once()
-			->with( \Avatar_Privacy\Core::SETTINGS_NAME, m::type( 'array' ) )
-			->andReturn( $settings );
+		$this->settings->shouldReceive( 'get_all_settings' )
+			->once()->with( $force )->andReturn( $settings );
 
-		$this->settings->shouldReceive( 'get_defaults' )
-			->once()
-			->andReturn( $defaults );
-
-		$this->assertSame( $settings, $this->sut->get_settings() );
-	}
-
-	/**
-	 * Tests ::get_settings.
-	 *
-	 * @covers ::get_settings
-	 */
-	public function test_get_settings_repeated() {
-		$original = [
-			'foo'                      => 'bar',
-			Options::INSTALLED_VERSION => self::VERSION,
-		];
-
-		// Prepare state - settings have alreaddy been loaded.
-		$this->set_value( $this->sut, 'settings', $original );
-
-		$this->options->shouldReceive( 'get' )
-			->never();
-		$this->settings->shouldReceive( 'get_defaults' )
-			->never();
-
-		$this->assertSame( $original, $this->sut->get_settings() );
-	}
-
-	/**
-	 * Tests ::get_settings.
-	 *
-	 * @covers ::get_settings
-	 */
-	public function test_get_settings_forced() {
-		$original = [
-			'foo'                      => 'bar',
-			Options::INSTALLED_VERSION => self::VERSION,
-		];
-		$settings = [
-			'foo'                      => 'barfoo',
-			Options::INSTALLED_VERSION => self::VERSION,
-		];
-		$defaults = [
-			'foo' => 'bar',
-		];
-
-		// Prepare state - settings have alreaddy been loaded.
-		$this->set_value( $this->sut, 'settings', $original );
-
-		$this->options->shouldReceive( 'get' )
-			->once()
-			->with( \Avatar_Privacy\Core::SETTINGS_NAME, m::type( 'array' ) )
-			->andReturn( $settings );
-
-		$this->settings->shouldReceive( 'get_defaults' )
-			->once()
-			->andReturn( $defaults );
-
-		$this->assertSame( $settings, $this->sut->get_settings( true ) );
-	}
-
-	/**
-	 * Tests ::get_settings.
-	 *
-	 * @covers ::get_settings
-	 */
-	public function test_get_settings_no_version() {
-		$original = [
-			'foo' => 'bar',
-		];
-		$settings = [
-			'foo'                      => 'barfoo',
-			Options::INSTALLED_VERSION => self::VERSION,
-		];
-		$defaults = [
-			'foo' => 'bar',
-		];
-
-		// Prepare state - settings have alreaddy been loaded.
-		$this->set_value( $this->sut, 'settings', $original );
-
-		$this->options->shouldReceive( 'get' )
-			->once()
-			->with( \Avatar_Privacy\Core::SETTINGS_NAME, m::type( 'array' ) )
-			->andReturn( $settings );
-
-		$this->settings->shouldReceive( 'get_defaults' )
-			->once()
-			->andReturn( $defaults );
-
-		$this->assertSame( $settings, $this->sut->get_settings() );
-	}
-
-	/**
-	 * Tests ::get_settings.
-	 *
-	 * @covers ::get_settings
-	 */
-	public function test_get_settings_version_mismatch() {
-		$original = [
-			'foo'                      => 'bar',
-			Options::INSTALLED_VERSION => '1.2.3',
-		];
-		$settings = [
-			'foo'                      => 'barfoo',
-			Options::INSTALLED_VERSION => self::VERSION,
-		];
-		$defaults = [
-			'foo' => 'bar',
-		];
-
-		// Prepare state - settings have alreaddy been loaded.
-		$this->set_value( $this->sut, 'settings', $original );
-
-		$this->options->shouldReceive( 'get' )
-			->once()
-			->with( \Avatar_Privacy\Core::SETTINGS_NAME, m::type( 'array' ) )
-			->andReturn( $settings );
-
-		$this->settings->shouldReceive( 'get_defaults' )
-			->once()
-			->andReturn( $defaults );
-
-		$this->assertSame( $settings, $this->sut->get_settings() );
+		$this->assertSame( $settings, $this->sut->get_settings( $force ) );
 	}
 
 	/**
