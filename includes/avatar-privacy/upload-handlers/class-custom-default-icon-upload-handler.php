@@ -27,6 +27,7 @@
 namespace Avatar_Privacy\Upload_Handlers;
 
 use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\Hasher;
 use Avatar_Privacy\Core\Settings;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
@@ -59,6 +60,15 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	const UPLOAD_DIR = '/avatar-privacy/custom-default';
 
 	/**
+	 * The hashing helper.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var Hasher
+	 */
+	private $hasher;
+
+	/**
 	 * The options handler.
 	 *
 	 * @var Options
@@ -72,11 +82,13 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	 *
 	 * @param Core             $core        The core API.
 	 * @param Filesystem_Cache $file_cache  The file cache handler.
+	 * @param Hasher           $hasher      The hashing helper.
 	 * @param Options          $options     The options handler.
 	 */
-	public function __construct( Core $core, Filesystem_Cache $file_cache, Options $options ) {
+	public function __construct( Core $core, Filesystem_Cache $file_cache, Hasher $hasher, Options $options ) {
 		parent::__construct( self::UPLOAD_DIR, $core, $file_cache );
 
+		$this->hasher  = $hasher;
 		$this->options = $options;
 	}
 
@@ -173,8 +185,7 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	 * @return bool
 	 */
 	public function delete_uploaded_icon( $site_id ) {
-		$hash = $this->core->get_hash( "custom-default-{$site_id}" );
-		$this->file_cache->invalidate( 'custom', "#/{$hash}-[1-9][0-9]*\.[a-z]{3}\$#" );
+		$this->file_cache->invalidate( 'custom', "#/{$this->get_hash( $site_id )}-[1-9][0-9]*\.[a-z]{3}\$#" );
 
 		$icon = $this->core->get_settings()[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ];
 		if ( ! empty( $icon['file'] ) && \file_exists( $icon['file'] ) && \unlink( $icon['file'] ) ) {
@@ -182,5 +193,18 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Retrieves the hash for the custom default icon for the given site.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  int $site_id The site ID.
+	 *
+	 * @return string
+	 */
+	public function get_hash( $site_id ) {
+		return $this->hasher->get_hash( "custom-default-{$site_id}" );
 	}
 }
