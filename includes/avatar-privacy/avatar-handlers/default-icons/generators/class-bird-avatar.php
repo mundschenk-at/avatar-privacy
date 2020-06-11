@@ -80,7 +80,7 @@ class Bird_Avatar extends PNG_Parts_Generator {
 		$bird = $this->create_image( 'transparent' );
 
 		// Add parts.
-		foreach ( $parts as $part_type => $file ) {
+		foreach ( $parts as $file ) {
 			$this->combine_images( $bird, $file );
 		}
 

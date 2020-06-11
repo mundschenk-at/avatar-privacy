@@ -248,10 +248,9 @@ abstract class PNG_Parts_Generator extends Parts_Generator {
 	 * }
 	 */
 	protected function get_parts_dimensions() {
-		$parts  = $this->get_parts();
 		$bounds = [];
 
-		foreach ( $parts as $part_type => $file_list ) {
+		foreach ( $this->get_parts() as $file_list ) {
 			foreach ( $file_list as $file ) {
 				$im = @\imageCreateFromPNG( "{$this->parts_dir}/{$file}" );
 

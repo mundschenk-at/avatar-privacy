@@ -258,8 +258,6 @@ class Comment_Author_Fields implements API {
 	 * @param  int    $use_gravatar 1 if Gravatar.com is enabled, 0 otherwise.
 	 */
 	public function update_gravatar_use( $email, $comment_id, $use_gravatar ) {
-		global $wpdb;
-
 		$data = $this->load( $email );
 		if ( empty( $data ) ) {
 			// Nothing found in the database, insert the dataset.
