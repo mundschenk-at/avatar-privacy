@@ -26,11 +26,12 @@
 
 namespace Avatar_Privacy\Avatar_Handlers;
 
-use Avatar_Privacy\Core\User_Fields;
+use Avatar_Privacy\Avatar_Handlers\Avatar_Handler;
 
+use Avatar_Privacy\Core\User_Fields;
+use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Tools\Images;
 
-use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
 /**
  * Handles image caching for uploaded user avatars.

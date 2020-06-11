@@ -52,7 +52,6 @@ use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Transients;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 
-use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons;
 

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,6 +27,8 @@
 namespace Avatar_Privacy\Avatar_Handlers;
 
 use Avatar_Privacy\Core;
+
+use Avatar_Privacy\Avatar_Handlers\Avatar_Handler;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;

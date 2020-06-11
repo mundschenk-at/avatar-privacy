@@ -26,7 +26,8 @@
 
 namespace Avatar_Privacy\Components;
 
-use Avatar_Privacy\Core;
+use Avatar_Privacy\Component;
+
 use Avatar_Privacy\Core\User_Fields;
 use Avatar_Privacy\Core\Settings;
 
@@ -45,7 +46,7 @@ use Avatar_Privacy\Data_Storage\Transients;
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Uninstallation implements \Avatar_Privacy\Component {
+class Uninstallation implements Component {
 
 	/**
 	 * The options handler.

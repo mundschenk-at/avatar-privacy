@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,7 +26,8 @@
 
 namespace Avatar_Privacy;
 
-use Avatar_Privacy\Component;
+use Avatar_Privacy\Component; // phpcs:ignore ImportDetection.Imports.RequireImports.Import -- used in annotation.
+use Avatar_Privacy\Core;
 
 /**
  * Initialize Avatar Privacy plugin.

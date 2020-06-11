@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -26,17 +26,17 @@
  */
 
 use Avatar_Privacy\Components\Comments;
-use Avatar_Privacy\Tools\Template;
+use Avatar_Privacy\Tools\Template as T;
 
 // Determine if the checkbox should be checked.
-$cookie_name = Comments::COOKIE_PREFIX . COOKIEHASH;
+$cookie_name = Comments::COOKIE_PREFIX . \COOKIEHASH;
 $is_checked  = false;
 if ( isset( $_POST[ Comments::CHECKBOX_FIELD_NAME ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- frontend form.
 	// Re-displaying the comment form with validation errors.
 	$is_checked = ! empty( $_POST[ Comments::CHECKBOX_FIELD_NAME ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- frontend form.
 } elseif ( isset( $_COOKIE[ $cookie_name ] ) ) {
 	// Read the value from the cookie, saved with previous comment.
-	$is_checked = \filter_input( INPUT_COOKIE, $cookie_name, FILTER_VALIDATE_BOOLEAN );
+	$is_checked = \filter_input( \INPUT_COOKIE, $cookie_name, \FILTER_VALIDATE_BOOLEAN );
 }
 ?>
 <!-- div class="comment-form-use-gravatar wpdiscuz-item wpd-field-group wpd-field-checkbox wpd-field-single wpd-has-desc" -->
@@ -47,7 +47,7 @@ if ( isset( $_POST[ Comments::CHECKBOX_FIELD_NAME ] ) ) { // phpcs:ignore WordPr
 			<label
 				class="wpd-field-label wpd-cursor-pointer"
 				for="<?php echo \esc_attr( Comments::CHECKBOX_FIELD_NAME ); ?>"
-			><?php echo \wp_kses( \sprintf( /* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */ \__( 'Display a <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a> image next to my comments.', 'avatar-privacy' ), \__( 'https://en.gravatar.com/', 'avatar-privacy' ), Template::get_gravatar_link_rel(), Template::get_gravatar_link_target() ), Template::ALLOWED_HTML_LABEL ); ?></label>
+			><?php echo \wp_kses( \sprintf( /* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */ \__( 'Display a <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a> image next to my comments.', 'avatar-privacy' ), \__( 'https://en.gravatar.com/', 'avatar-privacy' ), T::get_gravatar_link_rel(), T::get_gravatar_link_target() ), T::ALLOWED_HTML_LABEL ); ?></label>
 		</div>
 	</div>
 	<div class="wpd-field-desc">

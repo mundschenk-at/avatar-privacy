@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -375,7 +375,7 @@ class Image_Stream {
 	 *
 	 * @return string         A reference to the stream data.
 	 */
-	protected static function &get_data_reference( $handle ) {
+	protected static function &get_data_reference( $handle ) { // phpcs:ignore ImportDetection.Imports.RequireImports.Symbol -- false positive.
 		if ( ! static::handle_exists( $handle ) ) {
 			self::$handles[ $handle ] = '';
 		}

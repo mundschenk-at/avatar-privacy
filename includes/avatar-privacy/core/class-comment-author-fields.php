@@ -27,7 +27,11 @@
 
 namespace Avatar_Privacy\Core;
 
+use Avatar_Privacy\Core\API;
+use Avatar_Privacy\Core\Hasher;
 use Avatar_Privacy\Data_Storage\Cache;
+
+use const MINUTE_IN_SECONDS;
 
 /**
  * The API for handling (anonymous) comment author data as part of the

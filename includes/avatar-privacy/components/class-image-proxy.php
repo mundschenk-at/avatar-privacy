@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@
 
 namespace Avatar_Privacy\Components;
 
-use Avatar_Privacy\Core;
+use Avatar_Privacy\Component;
 
 use Avatar_Privacy\Avatar_Handlers\Avatar_Handler;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons_Handler;
@@ -36,7 +36,6 @@ use Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Site_Transients;
-use Avatar_Privacy\Data_Storage\Transients;
 
 use Avatar_Privacy\Tools\Images;
 
@@ -49,7 +48,7 @@ use Avatar_Privacy\Tools\Images;
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Image_Proxy implements \Avatar_Privacy\Component {
+class Image_Proxy implements Component {
 
 	const CRON_JOB_LOCK_GRAVATARS  = 'cron_job_lock_gravatars';
 	const CRON_JOB_LOCK_ALL_IMAGES = 'cron_job_lock_all_images';

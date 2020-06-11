@@ -26,6 +26,7 @@
 
 namespace Avatar_Privacy\Core;
 
+use Avatar_Privacy\Core\API;
 use Avatar_Privacy\Components\Network_Settings_Page;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Network_Options;

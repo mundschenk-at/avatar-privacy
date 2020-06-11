@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,6 +25,8 @@
  */
 
 namespace Avatar_Privacy\Tools\Images;
+
+use Avatar_Privacy\Tools\Images\Image_Stream;
 
 /**
  * A utility class providing in-memory \WP_Image_Editor support.

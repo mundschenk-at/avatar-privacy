@@ -27,12 +27,13 @@
 
 namespace Avatar_Privacy\Components;
 
+use Avatar_Privacy\Component;
+
 use Avatar_Privacy\Core\Settings;
 use Avatar_Privacy\Core\User_Fields;
 
 use Avatar_Privacy\Components\Image_Proxy;
 
-use Avatar_Privacy\Data_Storage\Cache;
 use Avatar_Privacy\Data_Storage\Database;
 use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Options;
@@ -48,7 +49,7 @@ use Avatar_Privacy\Tools\Multisite;
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Setup implements \Avatar_Privacy\Component {
+class Setup implements Component {
 
 	/**
 	 * Obsolete settings keys.

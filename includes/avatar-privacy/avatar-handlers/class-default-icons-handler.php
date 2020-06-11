@@ -26,10 +26,9 @@
 
 namespace Avatar_Privacy\Avatar_Handlers;
 
+use Avatar_Privacy\Avatar_Handlers\Avatar_Handler;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Tools\Network\Remote_Image_Service;
-use Avatar_Privacy\Avatar_Handlers\Default_Icons\Icon_Provider;
-
 
 /**
  * Handles image caching for default icons.

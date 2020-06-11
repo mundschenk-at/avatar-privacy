@@ -24,7 +24,7 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-use Avatar_Privacy\Tools\Template;
+use Avatar_Privacy\Tools\Template as T;
 
 /**
  * Frontend profile form `use_gravatar` checkbox.
@@ -47,7 +47,7 @@ use Avatar_Privacy\Tools\Template;
 		value="true"
 		<?php \checked( $value ); ?>
 	/>
-	<label for="<?php echo \esc_attr( $field_name ); ?>"><?php echo \wp_kses( sprintf( /* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */ \__( 'Display a <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a> image for my e-mail address.', 'avatar-privacy' ), \__( 'https://en.gravatar.com/', 'avatar-privacy' ), Template::get_gravatar_link_rel(), Template::get_gravatar_link_target() ), Template::ALLOWED_HTML_LABEL ); ?></label><br />
+	<label for="<?php echo \esc_attr( $field_name ); ?>"><?php echo \wp_kses( sprintf( /* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */ \__( 'Display a <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a> image for my e-mail address.', 'avatar-privacy' ), \__( 'https://en.gravatar.com/', 'avatar-privacy' ), T::get_gravatar_link_rel(), T::get_gravatar_link_target() ), T::ALLOWED_HTML_LABEL ); ?></label><br />
 	<?php if ( ! empty( $show_description ) ) : ?>
 		<p class="description">
 			<?php \esc_html_e( "Uncheck this box if you don't want to display the gravatar for your e-mail address (or don't have an account on Gravatar.com).", 'avatar-privacy' ); ?>

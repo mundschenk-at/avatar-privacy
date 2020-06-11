@@ -27,8 +27,7 @@
 
 namespace Avatar_Privacy\Components;
 
-use Avatar_Privacy\Core;
-
+use Avatar_Privacy\Component;
 use Avatar_Privacy\Tools\HTML\User_Form;
 
 /**
@@ -41,7 +40,7 @@ use Avatar_Privacy\Tools\HTML\User_Form;
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class User_Profile implements \Avatar_Privacy\Component {
+class User_Profile implements Component {
 
 	/**
 	 * The markup to inject.
