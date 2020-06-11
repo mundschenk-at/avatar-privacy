@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -36,8 +36,7 @@ use org\bovigo\vfs\vfsStream;
 
 use Avatar_Privacy\Components\Network_Settings_Page;
 
-use Avatar_Privacy\Core;
-use Avatar_Privacy\Settings;
+use Avatar_Privacy\Core\Settings;
 use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Transients;
 use Avatar_Privacy\Tools\Multisite;
@@ -58,13 +57,6 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var Network_Settings_Page
 	 */
 	private $sut;
-
-	/**
-	 * Mocked helper object.
-	 *
-	 * @var Core
-	 */
-	private $core;
 
 	/**
 	 * Mocked helper object.
@@ -122,13 +114,12 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		$root = vfsStream::setup( 'root', null, $filesystem );
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
-		$this->core            = m::mock( Core::class );
 		$this->settings        = m::mock( Settings::class );
 		$this->network_options = m::mock( Network_Options::class );
 		$this->transients      = m::mock( Transients::class );
 		$this->multisite       = m::mock( Multisite::class );
 
-		$this->sut = m::mock( Network_Settings_Page::class, [ $this->core, $this->network_options, $this->transients, $this->settings, $this->multisite ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Network_Settings_Page::class, [ $this->network_options, $this->transients, $this->settings, $this->multisite ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -140,14 +131,12 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		$mock = m::mock( Network_Settings_Page::class )->makePartial();
 
 		$mock->__construct(
-			$this->core,
 			$this->network_options,
 			$this->transients,
 			$this->settings,
 			$this->multisite
 		);
 
-		$this->assert_attribute_same( $this->core, 'core', $mock );
 		$this->assert_attribute_same( $this->network_options, 'network_options', $mock );
 		$this->assert_attribute_same( $this->settings, 'settings', $mock );
 		$this->assert_attribute_same( $this->multisite, 'multisite', $mock );
@@ -374,7 +363,7 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		$plugin_url = 'my-plugin-url';
 		$version    = '9.9.9';
 
-		$this->core->shouldReceive( 'get_version' )->once()->andReturn( $version );
+		$this->settings->shouldReceive( 'get_version' )->once()->andReturn( $version );
 		Functions\expect( 'plugins_url' )->once()->with( 'admin/css/settings.css', \AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $plugin_url );
 		Functions\expect( 'wp_enqueue_style' )->once()->with( 'avatar-privacy-settings', $plugin_url, [], $version, 'all' );
 

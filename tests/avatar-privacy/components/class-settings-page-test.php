@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -36,8 +36,7 @@ use org\bovigo\vfs\vfsStream;
 
 use Avatar_Privacy\Components\Settings_Page;
 
-use Avatar_Privacy\Core;
-use Avatar_Privacy\Settings;
+use Avatar_Privacy\Core\Settings;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler;
 
@@ -113,12 +112,11 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		$root = vfsStream::setup( 'root', null, $filesystem );
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
-		$this->core     = m::mock( Core::class );
 		$this->settings = m::mock( Settings::class );
 		$this->options  = m::mock( Options::class );
 		$this->upload   = m::mock( Custom_Default_Icon_Upload_Handler::class );
 
-		$this->sut = m::mock( Settings_Page::class, [ $this->core, $this->options, $this->upload, $this->settings ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Settings_Page::class, [ $this->options, $this->upload, $this->settings ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -129,9 +127,8 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Settings_Page::class )->makePartial();
 
-		$mock->__construct( $this->core, $this->options, $this->upload, $this->settings );
+		$mock->__construct( $this->options, $this->upload, $this->settings );
 
-		$this->assert_attribute_same( $this->core, 'core', $mock );
 		$this->assert_attribute_same( $this->options, 'options', $mock );
 		$this->assert_attribute_same( $this->upload, 'upload', $mock );
 		$this->assert_attribute_same( $this->settings, 'settings', $mock );
@@ -222,7 +219,7 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 			'setting3' => m::mock( 'Mundschenk\UI\Controls\Button_Input' ),
 		];
 
-		$this->options->shouldReceive( 'get_name' )->once()->with( Core::SETTINGS_NAME )->andReturn( 'my_settings' );
+		$this->options->shouldReceive( 'get_name' )->once()->with( Settings::OPTION_NAME )->andReturn( 'my_settings' );
 		Functions\expect( 'register_setting' )->once()->with( 'discussion', 'my_settings', [ $this->sut, 'sanitize_settings' ] );
 
 		$this->sut->shouldReceive( 'get_settings_header' )->once()->andReturn( 'my_settings_header' );
@@ -230,7 +227,7 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->settings->shouldReceive( 'get_fields' )->once()->with( 'my_settings_header' )->andReturn( $templates );
 
 		$factory = m::mock( 'alias:Mundschenk\UI\Control_Factory' );
-		$factory->shouldReceive( 'initialize' )->once()->with( $templates, $this->options, Core::SETTINGS_NAME )->andReturn( $controls );
+		$factory->shouldReceive( 'initialize' )->once()->with( $templates, $this->options, Settings::OPTION_NAME )->andReturn( $controls );
 
 		$controls['setting1']->shouldReceive( 'register' )->once()->with( 'discussion' );
 		$controls['setting2']->shouldReceive( 'register' )->once()->with( 'discussion' );
@@ -289,7 +286,7 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		$blog_id      = 8;
 
 		$this->settings->shouldReceive( 'get_fields' )->once()->andReturn( $fields );
-		$this->core->shouldReceive( 'get_settings' )->once()->andReturn( $old_settings );
+		$this->settings->shouldReceive( 'get_all_settings' )->once()->andReturn( $old_settings );
 
 		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $blog_id );
 
@@ -331,7 +328,7 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		$blog_id      = 8;
 
 		$this->settings->shouldReceive( 'get_fields' )->once()->andReturn( $fields );
-		$this->core->shouldReceive( 'get_settings' )->once()->andReturn( $old_settings );
+		$this->settings->shouldReceive( 'get_all_settings' )->once()->andReturn( $old_settings );
 
 		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $blog_id );
 
@@ -368,7 +365,7 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		$blog_id    = 8;
 
 		$this->settings->shouldReceive( 'get_fields' )->once()->andReturn( $fields );
-		$this->core->shouldReceive( 'get_settings' )->never();
+		$this->settings->shouldReceive( 'get_all_settings' )->never();
 
 		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $blog_id );
 

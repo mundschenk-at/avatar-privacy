@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,7 +27,7 @@
 namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Core;
-use Avatar_Privacy\Settings;
+use Avatar_Privacy\Core\Settings;
 
 use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Transients;
@@ -80,13 +80,6 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	private $multisite;
 
 	/**
-	 * The core API.
-	 *
-	 * @var Core
-	 */
-	private $core;
-
-	/**
 	 * The UI controls for the settings.
 	 *
 	 * @var Control[]
@@ -104,21 +97,14 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	 * Creates a new instance.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
+	 * @since 2.4.0 Parameter $core removed.
 	 *
-	 * @param Core            $core            The core API.
 	 * @param Network_Options $network_options The network options handler.
 	 * @param Transients      $transients      The transients handler.
 	 * @param Settings        $settings        The default settings.
 	 * @param Multisite       $multisite       The the multisite handler.
 	 */
-	public function __construct(
-		Core $core,
-		Network_Options $network_options,
-		Transients $transients,
-		Settings $settings,
-		Multisite $multisite
-	) {
-		$this->core            = $core;
+	public function __construct( Network_Options $network_options, Transients $transients, Settings $settings, Multisite $multisite ) {
 		$this->network_options = $network_options;
 		$this->transients      = $transients;
 		$this->settings        = $settings;
@@ -201,10 +187,9 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 
 		// This is the list of registered options.
 		global $new_whitelist_options;
-		$options = $new_whitelist_options[ self::OPTION_GROUP ];
 
 		// Go through the posted data and save only our options.
-		foreach ( $options as $option ) {
+		foreach ( $new_whitelist_options[ self::OPTION_GROUP ] as $option ) {
 			if ( isset( $_POST[ $option ] ) ) {
 				// The registered callback function to sanitize the option's value will be called here.
 				$this->network_options->set( $option, \wp_unslash( $_POST[ $option ] ), false, true );  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -270,7 +255,7 @@ class Network_Settings_Page implements \Avatar_Privacy\Component {
 	 * Enqueue stylesheet for options page.
 	 */
 	public function print_styles() {
-		\wp_enqueue_style( 'avatar-privacy-settings', \plugins_url( 'admin/css/settings.css', \AVATAR_PRIVACY_PLUGIN_FILE ), [], $this->core->get_version(), 'all' );
+		\wp_enqueue_style( 'avatar-privacy-settings', \plugins_url( 'admin/css/settings.css', \AVATAR_PRIVACY_PLUGIN_FILE ), [], $this->settings->get_version(), 'all' );
 	}
 
 	/**

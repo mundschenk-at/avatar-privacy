@@ -30,12 +30,12 @@ use Dice\Dice;
 
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Core\API;
+use Avatar_Privacy\Core\Settings;
 
 use Avatar_Privacy\Component;
 use Avatar_Privacy\Components;
 use Avatar_Privacy\Controller;
 use Avatar_Privacy\CLI;
-use Avatar_Privacy\Settings;
 
 use Avatar_Privacy\Upload_Handlers\Upload_Handler;
 
@@ -128,7 +128,8 @@ class Factory extends Dice {
 
 			// Core API.
 			API::class                                              => self::SHARED,
-			Core::class                                             => [
+			Core::class                                             => self::SHARED,
+			Settings::class                                         => [
 				'shared'          => true,
 				'constructParams' => [ $this->get_plugin_version( \AVATAR_PRIVACY_PLUGIN_FILE ) ],
 			],
