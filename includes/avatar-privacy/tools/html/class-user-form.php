@@ -209,6 +209,7 @@ class User_Form {
 	 */
 	public function avatar_uploader( $user_id, array $args = [] ) {
 		// Set up variables used by the included partial.
+		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$nonce          = "{$this->user_avatar['nonce']}{$user_id}";
 		$action         = $this->user_avatar['action'];
 		$upload_field   = $this->user_avatar['field'];
@@ -235,6 +236,7 @@ class User_Form {
 		// Make additional arguments available to the template as well.
 		$size             = $args['avatar_size'];
 		$show_description = $args['show_descriptions'];
+		// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		// Include partial.
 		require \AVATAR_PRIVACY_PLUGIN_PATH . $this->user_avatar['partial'];
@@ -277,6 +279,7 @@ class User_Form {
 	 */
 	protected function checkbox( $user_id, $nonce, $action, $field_name, $meta_key, $partial, array $args = [] ) {
 		// Set up variables used by the included partial.
+		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$value  = 'true' === \get_user_meta( $user_id, $meta_key, true );
 		$nonce .= $user_id; // Ensure nonce is specific to the ID of the user.
 
@@ -287,6 +290,7 @@ class User_Form {
 
 		// Make additional arguments available to the template as well.
 		$show_description = $args['show_descriptions'];
+		// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		// Include partial.
 		require \AVATAR_PRIVACY_PLUGIN_PATH . $partial;

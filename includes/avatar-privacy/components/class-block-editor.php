@@ -181,7 +181,9 @@ class Block_Editor implements Component {
 		}
 
 		// Make form helper available to partial.
+		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$form = $this->form;
+		// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		// Include partials.
 		\ob_start();
@@ -222,10 +224,12 @@ class Block_Editor implements Component {
 			return '';
 		}
 
-		// Make size to partial.
+		// Set up variables used by the included partial.
+		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$size       = $attributes['avatar_size'];
 		$class_name = $attributes['className'];
 		$align      = ! empty( $attributes['align'] ) ? "align{$attributes['align']}" : '';
+		// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		// Include partial.
 		\ob_start();

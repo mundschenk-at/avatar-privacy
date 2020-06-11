@@ -233,8 +233,11 @@ class Network_Settings_Page implements Component {
 	 * @param array $section The section information.
 	 */
 	public function print_settings_section( $section ) {
+		// Set up variables used by the included partial.
+		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$section_id  = ! empty( $section['id'] ) ? $section['id'] : '';
 		$description = \__( 'General settings applying to all sites in the network.', 'avatar-privacy' );
+		// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		// Load the settings page HTML.
 		require \AVATAR_PRIVACY_PLUGIN_PATH . '/admin/partials/network/section.php';
