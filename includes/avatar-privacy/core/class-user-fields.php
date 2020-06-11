@@ -26,6 +26,10 @@
 
 namespace Avatar_Privacy\Core;
 
+use Avatar_Privacy\Core\API;
+use Avatar_Privacy\Core\Hasher;
+
+
 /**
  * The API for handling data attached to registered users as part of the
  * Avatar_Privacy Core API.

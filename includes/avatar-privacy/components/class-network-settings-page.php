@@ -26,7 +26,8 @@
 
 namespace Avatar_Privacy\Components;
 
-use Avatar_Privacy\Core;
+use Avatar_Privacy\Component;
+
 use Avatar_Privacy\Core\Settings;
 
 use Avatar_Privacy\Data_Storage\Network_Options;
@@ -35,7 +36,6 @@ use Avatar_Privacy\Data_Storage\Transients;
 use Avatar_Privacy\Tools\Multisite;
 
 use Mundschenk\UI\Control_Factory;
-use Mundschenk\UI\Control;
 use Mundschenk\UI\Controls;
 
 /**
@@ -45,7 +45,7 @@ use Mundschenk\UI\Controls;
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Network_Settings_Page implements \Avatar_Privacy\Component {
+class Network_Settings_Page implements Component {
 
 	const OPTION_GROUP = 'avatar-privacy-network-settings';
 	const SECTION      = 'general';

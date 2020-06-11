@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,7 +26,6 @@
 
 namespace Avatar_Privacy\Upload_Handlers\UI;
 
-use Mundschenk\UI\Control;
 use Mundschenk\UI\Controls;
 
 use Mundschenk\Data_Storage\Options;

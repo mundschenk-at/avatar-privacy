@@ -27,11 +27,13 @@
 
 namespace Avatar_Privacy\Components;
 
+use Avatar_Privacy\Component;
+
 use Avatar_Privacy\Core\Settings;
 
-use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler as Upload;
-
 use Avatar_Privacy\Data_Storage\Options;
+
+use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler as Upload;
 
 use Mundschenk\UI\Control_Factory;
 use Mundschenk\UI\Controls;
@@ -43,7 +45,7 @@ use Mundschenk\UI\Controls;
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Settings_Page implements \Avatar_Privacy\Component {
+class Settings_Page implements Component {
 
 	/**
 	 * The options handler.

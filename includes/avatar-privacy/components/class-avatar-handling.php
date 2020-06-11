@@ -27,8 +27,9 @@
 
 namespace Avatar_Privacy\Components;
 
-use Avatar_Privacy\Core;
+use Avatar_Privacy\Component;
 
+use Avatar_Privacy\Core;
 use Avatar_Privacy\Core\User_Fields;
 
 use Avatar_Privacy\Data_Storage\Options;
@@ -47,7 +48,7 @@ use Avatar_Privacy\Tools\Network\Remote_Image_Service;
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Avatar_Handling implements \Avatar_Privacy\Component {
+class Avatar_Handling implements Component {
 
 	/**
 	 * The options handler.

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -27,8 +27,8 @@
 
 namespace Avatar_Privacy\Components;
 
+use Avatar_Privacy\Component;
 use Avatar_Privacy\Core;
-use Avatar_Privacy\Data_Storage\Options;
 
 /**
  * Handles comment posting in WordPress.
@@ -37,7 +37,7 @@ use Avatar_Privacy\Data_Storage\Options;
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Comments implements \Avatar_Privacy\Component {
+class Comments implements Component {
 
 	/**
 	 * The name of the checkbox field in the comment form.

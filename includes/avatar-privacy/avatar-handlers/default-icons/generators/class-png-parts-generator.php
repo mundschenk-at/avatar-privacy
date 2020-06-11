@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  * Copyright 2007-2014 Scott Sherrill-Mix.
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@
 
 namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
+use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Parts_Generator;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Tools\Number_Generator;

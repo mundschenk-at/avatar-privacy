@@ -26,12 +26,11 @@
 
 namespace Avatar_Privacy\Components;
 
+use Avatar_Privacy\Component;
+
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Core\Comment_Author_Fields;
 use Avatar_Privacy\Core\User_Fields;
-
-use Avatar_Privacy\Data_Storage\Cache;
-use Avatar_Privacy\Data_Storage\Options;
 
 /**
  * Integrates with the new privacy tools added in WordPress 4.9.6.
@@ -40,7 +39,7 @@ use Avatar_Privacy\Data_Storage\Options;
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Privacy_Tools implements \Avatar_Privacy\Component {
+class Privacy_Tools implements Component {
 
 	const PAGING = 500;
 

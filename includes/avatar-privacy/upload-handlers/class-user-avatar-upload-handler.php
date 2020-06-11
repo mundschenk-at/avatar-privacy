@@ -31,7 +31,7 @@ use Avatar_Privacy\Core\User_Fields;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
-use Avatar_Privacy\Tools\Images as Image_Tools;
+use Avatar_Privacy\Upload_Handlers\Upload_Handler;
 
 /**
  * Handles uploaded user avatars.

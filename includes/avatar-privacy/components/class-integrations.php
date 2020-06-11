@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@
 
 namespace Avatar_Privacy\Components;
 
-use Avatar_Privacy\Core;
+use Avatar_Privacy\Component;
 
 /**
  * A registry for plugin integrations.
@@ -35,7 +35,7 @@ use Avatar_Privacy\Core;
  *
  * @author     Peter Putzer <github@mundschenk.at>
  */
-class Integrations implements \Avatar_Privacy\Component {
+class Integrations implements Component {
 
 	/**
 	 * An array of plugin integration instances.

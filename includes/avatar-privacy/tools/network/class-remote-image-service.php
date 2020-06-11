@@ -26,10 +26,6 @@
 
 namespace Avatar_Privacy\Tools\Network;
 
-use Avatar_Privacy\Data_Storage\Transients;
-use Avatar_Privacy\Data_Storage\Site_Transients;
-use Avatar_Privacy\Tools\Images\Editor;
-
 /**
  * A class for accessing the generic remote images.
  *

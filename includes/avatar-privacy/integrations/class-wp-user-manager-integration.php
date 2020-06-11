@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019 Peter Putzer.
+ * Copyright 2019-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,8 +26,7 @@
 
 namespace Avatar_Privacy\Integrations;
 
-use Avatar_Privacy\Core;
-use Avatar_Privacy\Components\User_Profile;
+use Avatar_Privacy\Integrations\Plugin_Integration;
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
 use Carbon_Fields\Field\Field;

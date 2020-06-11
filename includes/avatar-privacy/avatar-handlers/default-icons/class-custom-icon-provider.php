@@ -26,6 +26,8 @@
 
 namespace Avatar_Privacy\Avatar_Handlers\Default_Icons;
 
+use Avatar_Privacy\Avatar_Handlers\Default_Icons\Abstract_Icon_Provider;
+
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Core\Settings;
 

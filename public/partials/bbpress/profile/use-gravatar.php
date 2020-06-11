@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,7 +25,7 @@
  */
 
 use Avatar_Privacy\Components\User_Profile;
-use Avatar_Privacy\Tools\Template;
+use Avatar_Privacy\Tools\Template as T;
 
 /**
  * Template for bbPress use_gravatar checkbox.
@@ -49,7 +49,7 @@ use Avatar_Privacy\Tools\Template;
 			value="true"
 			<?php \checked( $value ); ?>
 		/>
-		<?php echo \wp_kses( \sprintf( /* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */ \__( 'Display a <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a> image for my e-mail address.', 'avatar-privacy' ), \__( 'https://en.gravatar.com/', 'avatar-privacy' ), Template::get_gravatar_link_rel(), Template::get_gravatar_link_target() ), Template::ALLOWED_HTML_LABEL ); ?>
+		<?php echo \wp_kses( \sprintf( /* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */ \__( 'Display a <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a> image for my e-mail address.', 'avatar-privacy' ), \__( 'https://en.gravatar.com/', 'avatar-privacy' ), T::get_gravatar_link_rel(), T::get_gravatar_link_target() ), T::ALLOWED_HTML_LABEL ); ?>
 	</label>
 	<span class="description indicator-hint" style="width:100%;margin-left:0;">
 		<?php \esc_html_e( 'An uploaded profile picture takes precedence over your gravatar.', 'avatar-privacy' ); ?>

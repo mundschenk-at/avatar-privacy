@@ -26,6 +26,8 @@
 
 namespace Avatar_Privacy\Avatar_Handlers\Default_Icons;
 
+use Avatar_Privacy\Avatar_Handlers\Default_Icons\Abstract_Icon_Provider;
+
 /**
  * A default icon provider implementation using static images.
  *
