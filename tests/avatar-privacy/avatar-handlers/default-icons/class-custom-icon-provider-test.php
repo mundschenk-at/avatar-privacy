@@ -171,7 +171,7 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
 
-		$this->core->shouldReceive( 'get_hash' )->once()->with( "custom-default-{$site_id}" )->andReturn( $hash );
+		$this->upload->shouldReceive( 'get_hash' )->once()->andReturn( $hash );
 
 		$this->file_cache->shouldReceive( 'get_base_dir' )->once()->with()->andReturn( $basedir );
 
@@ -211,7 +211,7 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'get_current_blog_id' )->never();
 
-		$this->core->shouldReceive( 'get_hash' )->never();
+		$this->upload->shouldReceive( 'get_hash' )->never();
 
 		$this->file_cache->shouldReceive( 'get_base_dir' )->never();
 
@@ -257,7 +257,7 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
 
-		$this->core->shouldReceive( 'get_hash' )->once()->with( "custom-default-{$site_id}" )->andReturn( $hash );
+		$this->upload->shouldReceive( 'get_hash' )->once()->andReturn( $hash );
 
 		$this->file_cache->shouldReceive( 'get_base_dir' )->once()->with()->andReturn( $basedir );
 

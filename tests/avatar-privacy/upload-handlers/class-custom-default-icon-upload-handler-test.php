@@ -37,6 +37,7 @@ use org\bovigo\vfs\vfsStream;
 use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler;
 
 use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\Hasher;
 use Avatar_Privacy\Core\Settings;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
@@ -66,6 +67,13 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	 * @var Core
 	 */
 	private $core;
+
+	/**
+	 * Required helper object.
+	 *
+	 * @var Hasher
+	 */
+	private $hasher;
 
 	/**
 	 * Required helper object.
@@ -118,9 +126,10 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 		// Mock required helpers.
 		$this->core       = m::mock( Core::class );
 		$this->file_cache = m::mock( Filesystem_Cache::class );
+		$this->hasher     = m::mock( Hasher::class );
 		$this->options    = m::mock( Options::class );
 
-		$this->sut = m::mock( Custom_Default_Icon_Upload_Handler::class, [ $this->core, $this->file_cache, $this->options ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Custom_Default_Icon_Upload_Handler::class, [ $this->core, $this->file_cache, $this->hasher, $this->options ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -133,7 +142,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	public function test_constructor() {
 		$mock = m::mock( Custom_Default_Icon_Upload_Handler::class )->makePartial();
 
-		$mock->__construct( $this->core, $this->file_cache, $this->options );
+		$mock->__construct( $this->core, $this->file_cache, $this->hasher, $this->options );
 
 		$this->assert_attribute_same( $this->options, 'options', $mock );
 	}
@@ -539,10 +548,24 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 			],
 		];
 
-		$this->core->shouldReceive( 'get_hash' )->once()->with( "custom-default-{$site_id}" )->andReturn( $hash );
+		$this->sut->shouldReceive( 'get_hash' )->once()->with( $site_id )->andReturn( $hash );
 		$this->file_cache->shouldReceive( 'invalidate' )->once()->with( 'custom', "#/{$hash}-[1-9][0-9]*\.[a-z]{3}\$#" );
 		$this->core->shouldReceive( 'get_settings' )->once()->andReturn( $settings );
 
 		$this->assertSame( $result, $this->sut->delete_uploaded_icon( $site_id ) );
+	}
+
+	/**
+	 * Tests ::get_hash.
+	 *
+	 * @covers ::get_hash
+	 */
+	public function test_get_hash() {
+		$site_id = 123;
+		$hash    = 'fake hash';
+
+		$this->hasher->shouldReceive( 'get_hash' )->once()->with( "custom-default-{$site_id}" )->andReturn( $hash );
+
+		$this->assertSame( $hash, $this->sut->get_hash( $site_id ) );
 	}
 }

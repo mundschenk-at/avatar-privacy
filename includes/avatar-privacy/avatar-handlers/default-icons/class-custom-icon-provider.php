@@ -112,7 +112,7 @@ class Custom_Icon_Provider extends Abstract_Icon_Provider {
 		// We need the current site ID.
 		$site_id   = \get_current_blog_id();
 		$extension = Images\Type::FILE_EXTENSION[ $icon['type'] ];
-		$identity  = $this->core->get_hash( "custom-default-{$site_id}" );
+		$identity  = $this->upload->get_hash( $site_id );
 		$filename  = "custom/{$site_id}/{$identity}-{$size}.{$extension}";
 
 		// Only generate a new icon if necessary.
