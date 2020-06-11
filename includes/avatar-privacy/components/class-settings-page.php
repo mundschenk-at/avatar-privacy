@@ -166,7 +166,10 @@ class Settings_Page implements Component {
 	 * @return string
 	 */
 	public function get_settings_header() {
+		// Set up variables used by the included partial.
+		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$show_avatars = $this->options->get( 'show_avatars', false, true );
+		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		\ob_start();
 		require \AVATAR_PRIVACY_PLUGIN_PATH . '/admin/partials/sections/avatars-disabled.php';

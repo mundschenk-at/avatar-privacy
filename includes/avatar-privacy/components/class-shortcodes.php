@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019 Peter Putzer.
+ * Copyright 2019-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -112,7 +112,9 @@ class Shortcodes implements Component {
 		$atts = $this->sanitize_frontend_form_attributes( empty( $atts ) ? [] : $atts );
 
 		// Make form helper available to partial.
+		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$form = $this->form;
+		// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		// Include partials.
 		\ob_start();

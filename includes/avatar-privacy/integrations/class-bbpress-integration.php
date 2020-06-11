@@ -131,7 +131,9 @@ class BBPress_Integration implements Plugin_Integration {
 		}
 
 		// Make form helper available to partial.
+		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$form = $this->form;
+		// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		// Include partials.
 		require \AVATAR_PRIVACY_PLUGIN_PATH . '/public/partials/bbpress/user-profile-picture.php';
