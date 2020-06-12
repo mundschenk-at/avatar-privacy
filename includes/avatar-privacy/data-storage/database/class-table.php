@@ -24,7 +24,7 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Data_Storage;
+namespace Avatar_Privacy\Data_Storage\Database;
 
 use Avatar_Privacy\Core\Hasher;
 use Avatar_Privacy\Data_Storage\Network_Options;
@@ -33,10 +33,11 @@ use Avatar_Privacy\Data_Storage\Network_Options;
  * A plugin-specific database handler.
  *
  * @since 2.1.0
+ * @since 2.4.0 Renamed to Avatar_Privacy\Data_Storage\Database\Table.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Database {
+class Table {
 
 	/**
 	 * The table basename without the prefix.
