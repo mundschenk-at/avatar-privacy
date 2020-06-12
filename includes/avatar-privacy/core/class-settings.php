@@ -168,12 +168,36 @@ class Settings implements API {
 	 */
 	public function get_all_settings( $force = false ) {
 		// Force a re-read if the cached settings do not appear to be from the current version.
-		if ( empty( $this->settings ) || empty( $this->settings[ Options::INSTALLED_VERSION ] )
-			|| $this->version !== $this->settings[ Options::INSTALLED_VERSION ] || $force ) {
+		if ( empty( $this->settings ) ||
+			empty( $this->settings[ Options::INSTALLED_VERSION ] ) ||
+			$this->version !== $this->settings[ Options::INSTALLED_VERSION ] ||
+			$force
+		) {
 			$this->settings = (array) $this->options->get( self::OPTION_NAME, $this->get_defaults() );
 		}
 
 		return $this->settings;
+	}
+
+	/**
+	 * Retrieves a single setting.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  string $setting The setting name (index).
+	 *
+	 * @return mixed           The requested setting value.
+	 *
+	 * @throws \UnexpectedValueException Thrown when the setting name is invalid.
+	 */
+	public function get( $setting ) {
+		$all_settings = $this->get_all_settings();
+
+		if ( ! isset( $all_settings[ $setting ] ) ) {
+			throw new \UnexpectedValueException( "Invalid setting name '{$setting}'." );
+		}
+
+		return $all_settings[ $setting ];
 	}
 
 	/**

@@ -60,6 +60,15 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	const UPLOAD_DIR = '/avatar-privacy/custom-default';
 
 	/**
+	 * The settings API.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var Settings
+	 */
+	private $settings;
+
+	/**
 	 * The hashing helper.
 	 *
 	 * @since 2.4.0
@@ -82,14 +91,16 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	 *
 	 * @param Core             $core        The core API.
 	 * @param Filesystem_Cache $file_cache  The file cache handler.
+	 * @param Settings         $settings    The settings API.
 	 * @param Hasher           $hasher      The hashing helper.
 	 * @param Options          $options     The options handler.
 	 */
-	public function __construct( Core $core, Filesystem_Cache $file_cache, Hasher $hasher, Options $options ) {
+	public function __construct( Core $core, Filesystem_Cache $file_cache, Settings $settings, Hasher $hasher, Options $options ) {
 		parent::__construct( self::UPLOAD_DIR, $core, $file_cache );
 
-		$this->hasher  = $hasher;
-		$this->options = $options;
+		$this->settings = $settings;
+		$this->hasher   = $hasher;
+		$this->options  = $options;
 	}
 
 	/**
@@ -187,7 +198,7 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	public function delete_uploaded_icon( $site_id ) {
 		$this->file_cache->invalidate( 'custom', "#/{$this->get_hash( $site_id )}-[1-9][0-9]*\.[a-z]{3}\$#" );
 
-		$icon = $this->core->get_settings()[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ];
+		$icon = $this->settings->get( Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR );
 		if ( ! empty( $icon['file'] ) && \file_exists( $icon['file'] ) && \unlink( $icon['file'] ) ) {
 			return true;
 		}
