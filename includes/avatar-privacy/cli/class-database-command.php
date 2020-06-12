@@ -28,7 +28,7 @@ namespace Avatar_Privacy\CLI;
 
 use Avatar_Privacy\CLI\Abstract_Command;
 use Avatar_Privacy\Core;
-use Avatar_Privacy\Data_Storage\Database;
+use Avatar_Privacy\Data_Storage\Database\Table as Database;
 
 use WP_CLI;
 use WP_CLI\Formatter;

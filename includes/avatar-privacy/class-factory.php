@@ -45,7 +45,7 @@ use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache_Handler;
 use Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler;
 
 use Avatar_Privacy\Data_Storage\Cache;
-use Avatar_Privacy\Data_Storage\Database;
+use Avatar_Privacy\Data_Storage\Database\Table as Database;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Network_Options;

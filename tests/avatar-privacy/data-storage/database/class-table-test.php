@@ -24,7 +24,7 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Tests\Avatar_Privacy\Data_Storage;
+namespace Avatar_Privacy\Tests\Avatar_Privacy\Data_Storage\Database;
 
 use Brain\Monkey\Actions;
 use Brain\Monkey\Filters;
@@ -33,26 +33,25 @@ use Brain\Monkey\Functions;
 use Mockery as m;
 
 use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamDirectory;
 
 use Avatar_Privacy\Core\Hasher;
-use Avatar_Privacy\Data_Storage\Database;
+use Avatar_Privacy\Data_Storage\Database\Table;
 use Avatar_Privacy\Data_Storage\Network_Options;
 
 /**
- * Avatar_Privacy\Data_Storage\Database unit test.
+ * Avatar_Privacy\Data_Storage\Database\Table unit test.
  *
- * @coversDefaultClass \Avatar_Privacy\Data_Storage\Database
- * @usesDefaultClass \Avatar_Privacy\Data_Storage\Database
+ * @coversDefaultClass \Avatar_Privacy\Data_Storage\Database\Table
+ * @usesDefaultClass \Avatar_Privacy\Data_Storage\Database\Table
  *
  * @uses ::__construct
  */
-class Database_Test extends \Avatar_Privacy\Tests\TestCase {
+class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 
 	/**
 	 * The system-under-test.
 	 *
-	 * @var \Avatar_Privacy\Data_Storage\Database
+	 * @var Table
 	 */
 	private $sut;
 
@@ -99,7 +98,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->network_options = m::mock( Network_Options::class );
 
 		// Partially mock system under test.
-		$this->sut = m::mock( Database::class, [ $this->hasher, $this->network_options ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Table::class, [ $this->hasher, $this->network_options ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -108,7 +107,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::__construct
 	 */
 	public function test_constructor() {
-		$mock = m::mock( Database::class )->makePartial();
+		$mock = m::mock( Table::class )->makePartial();
 		$mock->__construct( $this->hasher, $this->network_options );
 
 		$this->assert_attribute_same( $this->hasher, 'hasher', $mock );
@@ -338,9 +337,9 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertNull( $this->sut->register_table( $db, $table_name ) );
 
-		$this->assert_attribute_contains( Database::TABLE_BASENAME, 'tables', $db );
-		$this->assert_attribute_not_contains( Database::TABLE_BASENAME, 'ms_global_tables', $db );
-		$this->assert_attribute_same( $table_name, Database::TABLE_BASENAME, $db );
+		$this->assert_attribute_contains( Table::TABLE_BASENAME, 'tables', $db );
+		$this->assert_attribute_not_contains( Table::TABLE_BASENAME, 'ms_global_tables', $db );
+		$this->assert_attribute_same( $table_name, Table::TABLE_BASENAME, $db );
 	}
 
 	/**
@@ -361,9 +360,9 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertNull( $this->sut->register_table( $db, $table_name ) );
 
-		$this->assert_attribute_contains( Database::TABLE_BASENAME, 'tables', $db );
-		$this->assert_attribute_not_contains( Database::TABLE_BASENAME, 'ms_global_tables', $db );
-		$this->assert_attribute_same( $table_name, Database::TABLE_BASENAME, $db );
+		$this->assert_attribute_contains( Table::TABLE_BASENAME, 'tables', $db );
+		$this->assert_attribute_not_contains( Table::TABLE_BASENAME, 'ms_global_tables', $db );
+		$this->assert_attribute_same( $table_name, Table::TABLE_BASENAME, $db );
 	}
 
 	/**
@@ -384,9 +383,9 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertNull( $this->sut->register_table( $db, $table_name ) );
 
-		$this->assert_attribute_not_contains( Database::TABLE_BASENAME, 'tables', $db );
-		$this->assert_attribute_contains( Database::TABLE_BASENAME, 'ms_global_tables', $db );
-		$this->assert_attribute_same( $table_name, Database::TABLE_BASENAME, $db );
+		$this->assert_attribute_not_contains( Table::TABLE_BASENAME, 'tables', $db );
+		$this->assert_attribute_contains( Table::TABLE_BASENAME, 'ms_global_tables', $db );
+		$this->assert_attribute_same( $table_name, Table::TABLE_BASENAME, $db );
 	}
 
 	/**
@@ -522,7 +521,7 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$wpdb->shouldReceive( 'esc_like' )->once()->with( $site_id )->andReturn( $site_id );
 		$wpdb->shouldReceive( 'prepare' )->once()->with( "SELECT * FROM `{$global_table_name}` WHERE log_message LIKE %s", "set with comment % (site: %, blog: {$site_id})" )->andReturn( 'SELECT_QUERY' );
-		$wpdb->shouldReceive( 'get_results' )->once()->with( 'SELECT_QUERY', OBJECT_K )->andReturn( $rows_to_migrate );
+		$wpdb->shouldReceive( 'get_results' )->once()->with( 'SELECT_QUERY', \OBJECT_K )->andReturn( $rows_to_migrate );
 
 		Functions\expect( 'wp_list_pluck' )->once()->with( $rows_to_migrate, 'email', 'id' )->andReturn( $emails );
 		$this->sut->shouldReceive( 'prepare_email_query' )->once()->with( $emails, $table_name )->andReturn( 'EMAIL_QUERY' );
@@ -586,9 +585,9 @@ class Database_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @covers ::prepare_insert_update_query
 	 *
-	 * @uses Avatar_Privacy\Data_Storage\Database::get_placeholders
-	 * @uses Avatar_Privacy\Data_Storage\Database::get_prepared_values
-	 * @uses Avatar_Privacy\Data_Storage\Database::get_update_clause
+	 * @uses Avatar_Privacy\Data_Storage\Table::get_placeholders
+	 * @uses Avatar_Privacy\Data_Storage\Table::get_prepared_values
+	 * @uses Avatar_Privacy\Data_Storage\Table::get_update_clause
 	 */
 	public function test_prepare_insert_update_query() {
 		global $wpdb;

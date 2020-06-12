@@ -36,7 +36,7 @@ use Avatar_Privacy\CLI\Uninstall_Command;
 
 use Avatar_Privacy\Components\Setup;
 use Avatar_Privacy\Components\Uninstallation;
-use Avatar_Privacy\Data_Storage\Database;
+use Avatar_Privacy\Data_Storage\Database\Table as Database;
 
 /**
  * Avatar_Privacy\CLI\Uninstall_Command unit test.
