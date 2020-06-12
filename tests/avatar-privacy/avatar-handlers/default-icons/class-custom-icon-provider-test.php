@@ -34,7 +34,6 @@ use Mockery as m;
 
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Custom_Icon_Provider;
 
-use Avatar_Privacy\Core;
 use Avatar_Privacy\Core\Settings;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Tools\Images;
@@ -66,11 +65,11 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $upload;
 
 	/**
-	 * The core API.
+	 * The settings API.
 	 *
-	 * @var Core
+	 * @var Settings
 	 */
-	private $core;
+	private $settings;
 
 	/**
 	 * The image editor support class.
@@ -98,7 +97,7 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Helper mocks.
 		$this->file_cache = m::mock( Filesystem_Cache::class );
 		$this->upload     = m::mock( Upload::class );
-		$this->core       = m::mock( Core::class );
+		$this->settings   = m::mock( Settings::class );
 		$this->images     = m::mock( Images\Editor::class );
 
 		// Partially mock system under test.
@@ -107,7 +106,7 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 			[
 				$this->file_cache,
 				$this->upload,
-				$this->core,
+				$this->settings,
 				$this->images,
 			]
 		)->makePartial()->shouldAllowMockingProtectedMethods();
@@ -124,16 +123,16 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Dependencies.
 		$file_cache = m::mock( Filesystem_Cache::class );
 		$upload     = m::mock( Upload::class );
-		$core       = m::mock( Core::class );
+		$settings   = m::mock( Settings::class );
 		$images     = m::mock( Images\Editor::class );
 
 		$mock = m::mock( Custom_Icon_Provider::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invoke_method( $mock, '__construct', [ $file_cache, $upload, $core, $images ] );
+		$this->invoke_method( $mock, '__construct', [ $file_cache, $upload, $settings, $images ] );
 
 		$this->assert_attribute_same( $file_cache, 'file_cache', $mock );
 		$this->assert_attribute_same( $upload, 'upload', $mock );
-		$this->assert_attribute_same( $core, 'core', $mock );
+		$this->assert_attribute_same( $settings, 'settings', $mock );
 		$this->assert_attribute_same( $images, 'images', $mock );
 	}
 
@@ -157,9 +156,6 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 			'file' => '/the/original/image/file.png',
 			'type' => 'image/png',
 		];
-		$settings = [
-			Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR => $icon,
-		];
 
 		// Expected result.
 		$url         = 'https://some_host/my/beautiful/custom/image.png';
@@ -167,7 +163,7 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'includes_url' )->once()->with( 'images/blank.gif' )->andReturn( $default_url );
 
-		$this->core->shouldReceive( 'get_settings' )->once()->andReturn( $settings );
+		$this->settings->shouldReceive( 'get' )->once()->with( Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR )->andReturn( $icon );
 
 		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
 
@@ -200,14 +196,14 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		$site_id  = 7;
 		$hash     = 'some hash';
 		$filename = "custom/{$site_id}/{$hash}-{$size}.png";
-		$settings = [];
+		$icon     = [];
 
 		// Expected result.
 		$default_url = 'https://some_host/images/blank.gif';
 
 		Functions\expect( 'includes_url' )->once()->with( 'images/blank.gif' )->andReturn( $default_url );
 
-		$this->core->shouldReceive( 'get_settings' )->once()->andReturn( $settings );
+		$this->settings->shouldReceive( 'get' )->once()->with( Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR )->andReturn( $icon );
 
 		Functions\expect( 'get_current_blog_id' )->never();
 
@@ -244,16 +240,13 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 			'file' => '/the/original/image/file.png',
 			'type' => 'image/png',
 		];
-		$settings = [
-			Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR => $icon,
-		];
 
 		// Expected result.
 		$default_url = 'https://some_host/images/blank.gif';
 
 		Functions\expect( 'includes_url' )->once()->with( 'images/blank.gif' )->andReturn( $default_url );
 
-		$this->core->shouldReceive( 'get_settings' )->once()->andReturn( $settings );
+		$this->settings->shouldReceive( 'get' )->once()->with( Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR )->andReturn( $icon );
 
 		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
 

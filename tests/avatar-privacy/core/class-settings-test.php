@@ -252,6 +252,43 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Tests ::get.
+	 *
+	 * @covers ::get
+	 */
+	public function test_get() {
+		$setting_key   = 'foo';
+		$setting_value = 'bar';
+		$settings      = [
+			$setting_key => $setting_value,
+			'something'  => 'else',
+		];
+
+		$this->sut->shouldReceive( 'get_all_settings' )->once()->andReturn( $settings );
+
+		$this->assertSame( $setting_value, $this->sut->get( $setting_key ) );
+	}
+
+	/**
+	 * Tests ::get.
+	 *
+	 * @covers ::get
+	 */
+	public function test_get_invalid_setting() {
+		$setting_key   = 'foo';
+		$setting_value = 'bar';
+		$settings      = [
+			$setting_key => $setting_value,
+			'something'  => 'else',
+		];
+
+		$this->sut->shouldReceive( 'get_all_settings' )->once()->andReturn( $settings );
+		$this->expect_exception( \UnexpectedValueException::class );
+
+		$this->assertNull( $this->sut->get( 'invalid setting' ) );
+	}
+
+	/**
 	 * Tests ::get_fields.
 	 *
 	 * @covers ::get_fields

@@ -266,11 +266,11 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::sanitize_settings
 	 */
 	public function test_sanitize_settings() {
-		$input        = [
+		$input      = [
 			'setting2' => 'foo',
 			'setting3' => 'bar',
 		];
-		$fields       = [
+		$fields     = [
 			'setting1' => [
 				'ui' => 'Mundschenk\UI\Controls\Checkbox_Input',
 			],
@@ -281,12 +281,11 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 				'ui' => 'Mundschenk\UI\Controls\Button_Input',
 			],
 		];
-		$old_avatar   = [ 'foobar' ];
-		$old_settings = [ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR => $old_avatar ];
-		$blog_id      = 8;
+		$old_avatar = [ 'foobar' ];
+		$blog_id    = 8;
 
 		$this->settings->shouldReceive( 'get_fields' )->once()->andReturn( $fields );
-		$this->settings->shouldReceive( 'get_all_settings' )->once()->andReturn( $old_settings );
+		$this->settings->shouldReceive( 'get' )->once()->with( Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR )->andReturn( $old_avatar );
 
 		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $blog_id );
 
@@ -307,12 +306,12 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::sanitize_settings
 	 */
 	public function test_sanitize_settings_checkbox_set() {
-		$input        = [
+		$input      = [
 			'setting1' => 1,
 			'setting2' => 'foo',
 			'setting3' => 'bar',
 		];
-		$fields       = [
+		$fields     = [
 			'setting1' => [
 				'ui' => 'Mundschenk\UI\Controls\Checkbox_Input',
 			],
@@ -323,12 +322,11 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 				'ui' => 'Mundschenk\UI\Controls\Button_Input',
 			],
 		];
-		$old_avatar   = [ 'foobar' ];
-		$old_settings = [ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR => $old_avatar ];
-		$blog_id      = 8;
+		$old_avatar = [ 'foobar' ];
+		$blog_id    = 8;
 
 		$this->settings->shouldReceive( 'get_fields' )->once()->andReturn( $fields );
-		$this->settings->shouldReceive( 'get_all_settings' )->once()->andReturn( $old_settings );
+		$this->settings->shouldReceive( 'get' )->once()->with( Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR )->andReturn( $old_avatar );
 
 		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $blog_id );
 
@@ -365,7 +363,7 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		$blog_id    = 8;
 
 		$this->settings->shouldReceive( 'get_fields' )->once()->andReturn( $fields );
-		$this->settings->shouldReceive( 'get_all_settings' )->never();
+		$this->settings->shouldReceive( 'get' )->never();
 
 		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $blog_id );
 

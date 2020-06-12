@@ -192,8 +192,7 @@ class Settings_Page implements Component {
 		}
 
 		if ( ! isset( $input[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] ) ) {
-			$previous                                        = $this->settings->get_all_settings();
-			$input[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] = $previous[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ];
+			$input[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] = $this->settings->get( Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR );
 		}
 
 		$this->upload->save_uploaded_default_icon( \get_current_blog_id(), $input[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] );

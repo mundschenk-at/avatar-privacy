@@ -28,7 +28,6 @@ namespace Avatar_Privacy\Avatar_Handlers\Default_Icons;
 
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Abstract_Icon_Provider;
 
-use Avatar_Privacy\Core;
 use Avatar_Privacy\Core\Settings;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
@@ -62,11 +61,13 @@ class Custom_Icon_Provider extends Abstract_Icon_Provider {
 	private $upload;
 
 	/**
-	 * The core API.
+	 * The settings API.
 	 *
-	 * @var Core
+	 * @since 2.4.0
+	 *
+	 * @var Settings
 	 */
-	private $core;
+	private $settings;
 
 	/**
 	 * The image editor support class.
@@ -78,17 +79,19 @@ class Custom_Icon_Provider extends Abstract_Icon_Provider {
 	/**
 	 * Creates a new instance.
 	 *
+	 * @since 2.4.0 Parameter $settings added, parameter $core removed.
+	 *
 	 * @param Filesystem_Cache $file_cache The file cache handler.
 	 * @param Upload           $upload     The upload handler.
-	 * @param Core             $core       The plugin instance.
+	 * @param Settings         $settings   The settings API.
 	 * @param Images\Editor    $images     The image editing handler.
 	 */
-	public function __construct( Filesystem_Cache $file_cache, Upload $upload, Core $core, Images\Editor $images ) {
+	public function __construct( Filesystem_Cache $file_cache, Upload $upload, Settings $settings, Images\Editor $images ) {
 		parent::__construct( [ 'custom' ] );
 
 		$this->file_cache = $file_cache;
 		$this->upload     = $upload;
-		$this->core       = $core;
+		$this->settings   = $settings;
 		$this->images     = $images;
 	}
 
@@ -102,9 +105,8 @@ class Custom_Icon_Provider extends Abstract_Icon_Provider {
 	 */
 	public function get_icon_url( $identity, $size ) {
 		// Abort if no custom image has been set.
-		$default  = \includes_url( 'images/blank.gif' );
-		$settings = $this->core->get_settings();
-		$icon     = ! empty( $settings[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] ) ? $settings[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] : [];
+		$default = \includes_url( 'images/blank.gif' );
+		$icon    = $this->settings->get( Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR );
 		if ( empty( $icon['file'] ) ) {
 			return $default;
 		}

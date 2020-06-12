@@ -71,6 +71,13 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	/**
 	 * Required helper object.
 	 *
+	 * @var Settings
+	 */
+	private $settings;
+
+	/**
+	 * Required helper object.
+	 *
 	 * @var Hasher
 	 */
 	private $hasher;
@@ -126,10 +133,11 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 		// Mock required helpers.
 		$this->core       = m::mock( Core::class );
 		$this->file_cache = m::mock( Filesystem_Cache::class );
+		$this->settings   = m::mock( Settings::class );
 		$this->hasher     = m::mock( Hasher::class );
 		$this->options    = m::mock( Options::class );
 
-		$this->sut = m::mock( Custom_Default_Icon_Upload_Handler::class, [ $this->core, $this->file_cache, $this->hasher, $this->options ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Custom_Default_Icon_Upload_Handler::class, [ $this->core, $this->file_cache, $this->settings, $this->hasher, $this->options ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -142,7 +150,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	public function test_constructor() {
 		$mock = m::mock( Custom_Default_Icon_Upload_Handler::class )->makePartial();
 
-		$mock->__construct( $this->core, $this->file_cache, $this->hasher, $this->options );
+		$mock->__construct( $this->core, $this->file_cache, $this->settings, $this->hasher, $this->options );
 
 		$this->assert_attribute_same( $this->options, 'options', $mock );
 	}
@@ -541,16 +549,14 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	 * @param  bool   $result  The expected result.
 	 */
 	public function test_delete_uploaded_icon( $site_id, $file, $result ) {
-		$hash     = 'some_hash';
-		$settings = [
-			Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR => [
-				'file' => vfsStream::url( $file ),
-			],
+		$hash = 'some_hash';
+		$icon = [
+			'file' => vfsStream::url( $file ),
 		];
 
 		$this->sut->shouldReceive( 'get_hash' )->once()->with( $site_id )->andReturn( $hash );
 		$this->file_cache->shouldReceive( 'invalidate' )->once()->with( 'custom', "#/{$hash}-[1-9][0-9]*\.[a-z]{3}\$#" );
-		$this->core->shouldReceive( 'get_settings' )->once()->andReturn( $settings );
+		$this->settings->shouldReceive( 'get' )->once()->with( Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR )->andReturn( $icon );
 
 		$this->assertSame( $result, $this->sut->delete_uploaded_icon( $site_id ) );
 	}
