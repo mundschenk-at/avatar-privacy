@@ -42,7 +42,7 @@ use Avatar_Privacy\Core\Settings;
 
 use Avatar_Privacy\Components\Image_Proxy;
 
-use Avatar_Privacy\Data_Storage\Database\Table as Database;
+use Avatar_Privacy\Data_Storage\Database\Comment_Author_Table as Database;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Options;
