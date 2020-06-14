@@ -45,7 +45,7 @@ use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache_Handler;
 use Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler;
 
 use Avatar_Privacy\Data_Storage\Cache;
-use Avatar_Privacy\Data_Storage\Database\Table as Database;
+use Avatar_Privacy\Data_Storage\Database;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Network_Options;
@@ -117,7 +117,7 @@ class Factory extends Dice {
 		return [
 			// Shared helpers.
 			Cache::class                                            => self::SHARED,
-			Database::class                                         => self::SHARED,
+			Database\Table::class                                   => self::SHARED,
 			Transients::class                                       => self::SHARED,
 			Site_Transients::class                                  => self::SHARED,
 			Options::class                                          => self::SHARED,
