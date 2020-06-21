@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,8 +25,6 @@
  */
 
 namespace Avatar_Privacy\Tests;
-
-use Dice\Dice;
 
 use Brain\Monkey\Actions;
 use Brain\Monkey\Filters;
@@ -128,12 +126,16 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 		$cli_commands  = [
 			[ 'instance' => \Avatar_Privacy\CLI\Database_Command::class ],
 		];
+		$tables        = [
+			[ 'instance' => \Avatar_Privacy\Data_Storage\Database\Table::class ],
+		];
 
 		$this->sut->shouldReceive( 'get_plugin_version' )->once()->with( \AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $version );
 		$this->sut->shouldReceive( 'get_components' )->once()->andReturn( $components );
 		$this->sut->shouldReceive( 'get_plugin_integrations' )->once()->andReturn( $integrations );
 		$this->sut->shouldReceive( 'get_default_icons' )->once()->andReturn( $default_icons );
 		$this->sut->shouldReceive( 'get_cli_commands' )->once()->andReturn( $cli_commands );
+		$this->sut->shouldReceive( 'get_database_tables' )->once()->andReturn( $tables );
 
 		$result = $this->sut->get_rules();
 
@@ -163,6 +165,7 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @uses Avatar_Privacy\Factory::get_default_icons
 	 * @uses Avatar_Privacy\Factory::get_cli_commands
 	 * @uses Avatar_Privacy\Factory::get_components
+	 * @uses Avatar_Privacy\Factory::get_database_tables
 	 * @uses Avatar_Privacy\Factory::get_plugin_integrations
 	 * @uses Avatar_Privacy\Factory::get_plugin_version
 	 * @uses Avatar_Privacy\Factory::get_rules
@@ -235,5 +238,17 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assert_is_array( $result );
 		$this->assert_contains( [ 'instance' => \Avatar_Privacy\CLI\Database_Command::class ], $result, 'Command missing.' );
+	}
+
+	/**
+	 * Test ::get_database_tables.
+	 *
+	 * @covers ::get_database_tables
+	 */
+	public function test_get_database_tables() {
+		$result = $this->sut->get_database_tables();
+
+		$this->assert_is_array( $result );
+		$this->assert_contains( [ 'instance' => \Avatar_Privacy\Data_Storage\Database\Comment_Author_Table::class ], $result, 'Table missing.' );
 	}
 }

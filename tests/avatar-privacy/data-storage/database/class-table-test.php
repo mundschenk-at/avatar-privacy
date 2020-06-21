@@ -117,6 +117,34 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Tests ::setup.
+	 *
+	 * @covers ::setup
+	 */
+	public function test_setup() {
+		$previous_version = '1.1.0';
+
+		$this->sut->shouldReceive( 'maybe_create_table' )->once()->with( $previous_version )->andReturn( true );
+		$this->sut->shouldReceive( 'maybe_upgrade_data' )->once()->with( $previous_version );
+
+		$this->assertNull( $this->sut->setup( $previous_version ) );
+	}
+
+	/**
+	 * Tests ::setup.
+	 *
+	 * @covers ::setup
+	 */
+	public function test_setup_table_exists() {
+		$previous_version = '1.1.0';
+
+		$this->sut->shouldReceive( 'maybe_create_table' )->once()->with( $previous_version )->andReturn( false );
+		$this->sut->shouldReceive( 'maybe_upgrade_data' )->never();
+
+		$this->assertNull( $this->sut->setup( $previous_version ) );
+	}
+
+	/**
 	 * Tests ::get_table_prefix.
 	 *
 	 * @covers ::get_table_prefix

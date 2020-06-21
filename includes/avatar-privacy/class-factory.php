@@ -146,6 +146,9 @@ class Factory extends Dice {
 			Components\Integrations::class                          => [
 				'constructParams' => [ $this->get_plugin_integrations() ],
 			],
+			Components\Setup::class                                 => [
+				'constructParams' => [ $this->get_database_tables() ],
+			],
 
 			// Default icon providers.
 			Static_Icons\Mystery_Icon_Provider::class               => self::SHARED,
@@ -461,6 +464,25 @@ class Factory extends Dice {
 			[ 'instance' => CLI\Cron_Command::class ],
 			[ 'instance' => CLI\Database_Command::class ],
 			[ 'instance' => CLI\Uninstall_Command::class ],
+		];
+	}
+
+	/**
+	 * Retrieves a list of database table handlers.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @return array {
+	 *     An array of `Table` instances in `Dice` syntax.
+	 *
+	 *     @type array {
+	 *         @type string $instance The classname.
+	 *     }
+	 * }
+	 */
+	protected function get_database_tables() {
+		return [
+			[ 'instance' => Database\Comment_Author_Table::class ],
 		];
 	}
 }

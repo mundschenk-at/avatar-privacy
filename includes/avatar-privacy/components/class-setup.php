@@ -34,7 +34,7 @@ use Avatar_Privacy\Core\User_Fields;
 
 use Avatar_Privacy\Components\Image_Proxy;
 
-use Avatar_Privacy\Data_Storage\Database\Comment_Author_Table as Database;
+use Avatar_Privacy\Data_Storage\Database\Table; // phpcs:ignore ImportDetection.Imports.RequireImports.Import -- needed for type annotations.
 use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Site_Transients;
@@ -104,11 +104,11 @@ class Setup implements Component {
 	private $site_transients;
 
 	/**
-	 * The DB handler.
+	 * The database table handlers.
 	 *
-	 * @var Database
+	 * @var Table[]
 	 */
-	private $database;
+	private $tables;
 
 	/**
 	 * The multisite tools.
@@ -140,7 +140,8 @@ class Setup implements Component {
 	 * Creates a new Setup instance.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
-	 * @since 2.4.0 Parameters $settings, $registered_user added, parameter $core removed.
+	 * @since 2.4.0 Parameters $settings, $registered_user, and $tables added,
+	 *              parameters $core and $database removed.
 	 *
 	 * @param Settings        $settings        The settings API.
 	 * @param User_Fields     $registered_user The user fields API.
@@ -148,17 +149,17 @@ class Setup implements Component {
 	 * @param Site_Transients $site_transients The site transients handler.
 	 * @param Options         $options         The options handler.
 	 * @param Network_Options $network_options The network options handler.
-	 * @param Database        $database        The database handler.
+	 * @param Table[]         $tables          The database table handlers.
 	 * @param Multisite       $multisite       The the multisite handler.
 	 */
-	public function __construct( Settings $settings, User_Fields $registered_user, Transients $transients, Site_Transients $site_transients, Options $options, Network_Options $network_options, Database $database, Multisite $multisite ) {
+	public function __construct( Settings $settings, User_Fields $registered_user, Transients $transients, Site_Transients $site_transients, Options $options, Network_Options $network_options, array $tables, Multisite $multisite ) {
 		$this->settings        = $settings;
 		$this->registered_user = $registered_user;
 		$this->transients      = $transients;
 		$this->site_transients = $site_transients;
 		$this->options         = $options;
 		$this->network_options = $network_options;
-		$this->database        = $database;
+		$this->tables          = $tables;
 		$this->multisite       = $multisite;
 	}
 
@@ -204,18 +205,12 @@ class Setup implements Component {
 			$this->site_transients->invalidate();
 		}
 
-		// Check if our database table needs to created or updated.
-		// This also sets up the `$wpdb->avatar_privacy` property, so we have to
-		// check on every page load.
-		if ( $this->database->maybe_create_table( $installed_version ) ) {
-			// We may need to update the contents as well.
-			$this->maybe_update_table_data( $installed_version );
+		// Check if our database tables need to created or updated.
+		// This also sets up the `$wpdb->avatar_privacy*` properties, so we have
+		// to check on every page load.
+		foreach ( $this->tables as $table ) {
+			$table->setup( $installed_version );
 		}
-
-		// The tables are set up correctly, but maybe we need to migrate some data
-		// from the global table on network installations.
-		$this->maybe_prepare_migration_queue();
-		$this->maybe_migrate_from_global_table();
 
 		// Update installed version.
 		$settings[ Options::INSTALLED_VERSION ] = $version;
@@ -364,21 +359,6 @@ class Setup implements Component {
 	}
 
 	/**
-	 * Sometimes, the table data needs to updated when upgrading.
-	 *
-	 * @since 2.1.0 Visibility changed to protected.
-	 * @since 2.3.0 Now uses Database::maybe_upgrade_table_data()
-	 *
-	 * @param string $previous_version The previously installed plugin version.
-	 */
-	protected function maybe_update_table_data( $previous_version ) {
-
-		if ( \version_compare( $previous_version, '0.5', '<' ) ) {
-			$this->database->maybe_upgrade_table_data();
-		}
-	}
-
-	/**
 	 * Updates user hashes where they don't exist yet.
 	 *
 	 * @since 2.1.0 Visibility changed to protected.
@@ -392,68 +372,5 @@ class Setup implements Component {
 		foreach ( \get_users( $args ) as $user ) {
 			\update_user_meta( $user->ID, User_Fields::EMAIL_HASH_META_KEY, $this->registered_user->get_hash( $user->user_email ) );
 		}
-	}
-
-	/**
-	 * Tries set up the migration queue if the trigger is set.
-	 */
-	protected function maybe_prepare_migration_queue() {
-		$queue = $this->network_options->get( Network_Options::START_GLOBAL_TABLE_MIGRATION );
-
-		if ( \is_array( $queue ) && $this->network_options->lock( Network_Options::GLOBAL_TABLE_MIGRATION ) ) {
-
-			if ( ! empty( $queue ) ) {
-				// Store new queue, overwriting any existing queue (since this per network
-				// and we already got all sites currently in the network).
-				$this->network_options->set( Network_Options::GLOBAL_TABLE_MIGRATION, $queue );
-			} else {
-				// The "start queue" is empty, which means we should cease the migration efforts.
-				$this->network_options->delete( Network_Options::GLOBAL_TABLE_MIGRATION );
-			}
-
-			// Unlock queue and delete trigger.
-			$this->network_options->unlock( Network_Options::GLOBAL_TABLE_MIGRATION );
-			$this->network_options->delete( Network_Options::START_GLOBAL_TABLE_MIGRATION );
-		}
-	}
-
-	/**
-	 * Tries to migrate global table data if the current site is queued.
-	 */
-	protected function maybe_migrate_from_global_table() {
-
-		if (
-			// The plugin is not network-activated (or not on a multisite installation).
-			! \is_plugin_active_for_network( \plugin_basename( \AVATAR_PRIVACY_PLUGIN_FILE ) ) ||
-			// The queue is empty.
-			! $this->network_options->get( Network_Options::GLOBAL_TABLE_MIGRATION ) ||
-			// The queue is locked. Try again next time.
-			! $this->network_options->lock( Network_Options::GLOBAL_TABLE_MIGRATION )
-		) {
-			// Nothing to see here.
-			return;
-		}
-
-		// Check if we are scheduled to migrate data from the global table.
-		$site_id = \get_current_blog_id();
-		$queue   = $this->network_options->get( Network_Options::GLOBAL_TABLE_MIGRATION, [] );
-		if ( ! empty( $queue[ $site_id ] ) ) {
-			// Migrate the data.
-			$this->database->migrate_from_global_table( $site_id );
-
-			// Mark this site as done.
-			unset( $queue[ $site_id ] );
-
-			if ( ! empty( $queue ) ) {
-				// Save the new queue.
-				$this->network_options->set( Network_Options::GLOBAL_TABLE_MIGRATION, $queue );
-			} else {
-				// Delete it.
-				$this->network_options->delete( Network_Options::GLOBAL_TABLE_MIGRATION );
-			}
-		}
-
-		// Unlock the queue again.
-		$this->network_options->unlock( Network_Options::GLOBAL_TABLE_MIGRATION );
 	}
 }
