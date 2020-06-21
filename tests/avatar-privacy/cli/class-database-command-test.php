@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019 Peter Putzer.
+ * Copyright 2019-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -35,7 +35,9 @@ use Mockery as m;
 use Avatar_Privacy\CLI\Database_Command;
 
 use Avatar_Privacy\Core;
-use Avatar_Privacy\Data_Storage\Database\Comment_Author_Table as Database;
+use Avatar_Privacy\Data_Storage\Database\Comment_Author_Table;
+
+use Avatar_Privacy\Tests\Avatar_Privacy\CLI\TestCase;
 
 /**
  * Avatar_Privacy\CLI\Database_Command unit test.
@@ -62,11 +64,11 @@ class Database_Command_Test extends TestCase {
 	private $core;
 
 	/**
-	 * The database handler.
+	 * The table handler.
 	 *
-	 * @var Database
+	 * @var Comment_Author_Table
 	 */
-	private $database;
+	private $comment_author_table;
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -78,14 +80,14 @@ class Database_Command_Test extends TestCase {
 		parent::set_up();
 
 		// Helper mocks.
-		$this->core     = m::mock( Core::class );
-		$this->database = m::mock( Database::class );
+		$this->core                 = m::mock( Core::class );
+		$this->comment_author_table = m::mock( Comment_Author_Table::class );
 
 		$this->sut = m::mock(
 			Database_Command::class,
 			[
 				$this->core,
-				$this->database,
+				$this->comment_author_table,
 			]
 		)->makePartial()->shouldAllowMockingProtectedMethods();
 
@@ -105,10 +107,10 @@ class Database_Command_Test extends TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Database_Command::class )->makePartial();
 
-		$mock->__construct( $this->core, $this->database );
+		$mock->__construct( $this->core, $this->comment_author_table );
 
 		$this->assert_attribute_same( $this->core, 'core', $mock );
-		$this->assert_attribute_same( $this->database, 'db', $mock );
+		$this->assert_attribute_same( $this->comment_author_table, 'comment_author_table', $mock );
 	}
 
 	/**
@@ -148,11 +150,11 @@ class Database_Command_Test extends TestCase {
 		$wpdb->shouldReceive( 'get_var' )->once()->with( "SELECT COUNT(*) FROM {$table}" )->andReturn( $count );
 		$wpdb->shouldReceive( 'get_results' )->once()->with( "DESCRIBE {$wpdb->avatar_privacy}", \ARRAY_A )->andReturn( $schema );
 
-		$this->database->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
+		$this->comment_author_table->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
 		$this->core->shouldReceive( 'get_version' )->once()->andReturn( $version );
 
 		Functions\expect( 'is_multisite' )->once()->andReturn( false );
-		$this->database->shouldReceive( 'use_global_table' )->never();
+		$this->comment_author_table->shouldReceive( 'use_global_table' )->never();
 
 		Functions\expect( 'WP_CLI\Utils\format_items' )->once()->with( 'table', $schema, m::type( 'array' ) );
 
@@ -184,12 +186,12 @@ class Database_Command_Test extends TestCase {
 		$wpdb->shouldReceive( 'get_var' )->once()->with( "SELECT COUNT(*) FROM {$table}" )->andReturn( $count );
 		$wpdb->shouldReceive( 'get_results' )->once()->with( "DESCRIBE {$wpdb->avatar_privacy}", \ARRAY_A )->andReturn( $schema );
 
-		$this->database->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
+		$this->comment_author_table->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
 		$this->core->shouldReceive( 'get_version' )->once()->andReturn( $version );
 
 		Functions\expect( 'is_multisite' )->once()->andReturn( true );
 
-		$this->database->shouldReceive( 'use_global_table' )->once()->andReturn( false );
+		$this->comment_author_table->shouldReceive( 'use_global_table' )->once()->andReturn( false );
 		$this->wp_cli->shouldReceive( 'line' )->once()->with( 'Each site in this network uses a separate table.' );
 
 		Functions\expect( 'WP_CLI\Utils\format_items' )->once()->with( 'table', $schema, m::type( 'array' ) );
@@ -222,12 +224,12 @@ class Database_Command_Test extends TestCase {
 		$wpdb->shouldReceive( 'get_var' )->once()->with( "SELECT COUNT(*) FROM {$table}" )->andReturn( $count );
 		$wpdb->shouldReceive( 'get_results' )->once()->with( "DESCRIBE {$wpdb->avatar_privacy}", \ARRAY_A )->andReturn( $schema );
 
-		$this->database->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
+		$this->comment_author_table->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
 		$this->core->shouldReceive( 'get_version' )->once()->andReturn( $version );
 
 		Functions\expect( 'is_multisite' )->once()->andReturn( true );
 
-		$this->database->shouldReceive( 'use_global_table' )->once()->andReturn( true );
+		$this->comment_author_table->shouldReceive( 'use_global_table' )->once()->andReturn( true );
 		$this->wp_cli->shouldReceive( 'line' )->once()->with( 'The global table is used for all sites in this network.' );
 
 		Functions\expect( 'WP_CLI\Utils\format_items' )->once()->with( 'table', $schema, m::type( 'array' ) );
@@ -261,14 +263,11 @@ class Database_Command_Test extends TestCase {
 		$formatter      = m::mock( 'overload:' . \WP_CLI\Formatter::class );
 
 		// Intermediary data.
-		$table   = 'fake_table';
-		$version = '6.6.6';
-		$count   = 23;
-		$schema  = 'SOME DB SCHEMA DEFINITION';
+		$table = 'fake_table';
 
 		Functions\expect( 'wp_parse_args' )->once()->with( $assoc_args, m::type( 'array' ) )->andReturn( $assoc_args );
 
-		$this->database->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
+		$this->comment_author_table->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
 		$table_iterator->shouldReceive( '__construct' )->once()->with(
 			[
 				'table' => $table,
@@ -301,14 +300,11 @@ class Database_Command_Test extends TestCase {
 		$formatter      = m::mock( 'overload:' . \WP_CLI\Formatter::class );
 
 		// Intermediary data.
-		$table   = 'fake_table';
-		$version = '6.6.6';
-		$count   = 23;
-		$schema  = 'SOME DB SCHEMA DEFINITION';
+		$table = 'fake_table';
 
 		Functions\expect( 'wp_parse_args' )->once()->with( $assoc_args, m::type( 'array' ) )->andReturn( $assoc_args );
 
-		$this->database->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
+		$this->comment_author_table->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
 		$table_iterator->shouldReceive( '__construct' )->once()->with(
 			[
 				'table' => $table,
@@ -369,7 +365,7 @@ class Database_Command_Test extends TestCase {
 		Functions\expect( 'is_multisite' )->once()->andReturn( $multisite );
 
 		// May not be triggered.
-		$this->database->shouldReceive( 'use_global_table' )->zeroOrMoreTimes()->andReturn( $global_table );
+		$this->comment_author_table->shouldReceive( 'use_global_table' )->zeroOrMoreTimes()->andReturn( $global_table );
 
 		if ( $global && ( ! $multisite || ! $global_table ) ) {
 			$this->expect_wp_cli_error();
@@ -377,9 +373,9 @@ class Database_Command_Test extends TestCase {
 			// May not be triggered.
 			Functions\expect( 'is_main_site' )->zeroOrMoreTimes()->andReturn( true );
 
-			$this->database->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
-			$this->database->shouldReceive( 'table_exists' )->once()->with( $table )->andReturn( false );
-			$this->database->shouldReceive( 'maybe_create_table' )->once()->with( '' )->andReturn( true );
+			$this->comment_author_table->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
+			$this->comment_author_table->shouldReceive( 'table_exists' )->once()->with( $table )->andReturn( false );
+			$this->comment_author_table->shouldReceive( 'maybe_create_table' )->once()->with( '' )->andReturn( true );
 
 			$this->expect_wp_cli_success();
 		}
@@ -402,10 +398,10 @@ class Database_Command_Test extends TestCase {
 		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'global', false )->andReturn( false );
 		Functions\expect( 'is_multisite' )->once()->andReturn( false );
 
-		$this->database->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
-		$this->database->shouldReceive( 'table_exists' )->once()->with( $table )->andReturn( true );
+		$this->comment_author_table->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
+		$this->comment_author_table->shouldReceive( 'table_exists' )->once()->with( $table )->andReturn( true );
 		$this->expect_wp_cli_error();
-		$this->database->shouldReceive( 'maybe_create_table' )->never();
+		$this->comment_author_table->shouldReceive( 'maybe_create_table' )->never();
 
 		$this->assertNull( $this->sut->create( $args, $assoc_args ) );
 	}
@@ -425,12 +421,12 @@ class Database_Command_Test extends TestCase {
 		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'global', false )->andReturn( false );
 		Functions\expect( 'is_multisite' )->once()->andReturn( false );
 
-		$this->database->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
-		$this->database->shouldReceive( 'table_exists' )->once()->with( $table )->andReturn( false );
-		$this->database->shouldReceive( 'maybe_create_table' )->once()->with( '' )->andReturn( false );
+		$this->comment_author_table->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
+		$this->comment_author_table->shouldReceive( 'table_exists' )->once()->with( $table )->andReturn( false );
+		$this->comment_author_table->shouldReceive( 'maybe_create_table' )->once()->with( '' )->andReturn( false );
 
 		$this->expect_wp_cli_error();
-		$this->database->shouldReceive( 'maybe_create_table' )->never();
+		$this->comment_author_table->shouldReceive( 'maybe_create_table' )->never();
 
 		$this->assertNull( $this->sut->create( $args, $assoc_args ) );
 	}
@@ -446,20 +442,17 @@ class Database_Command_Test extends TestCase {
 			'global' => false,
 		];
 
-		// Intermediary data.
-		$table = 'fake_table';
-
 		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'global', false )->andReturn( false );
 		Functions\expect( 'is_multisite' )->once()->andReturn( true );
 		Functions\expect( 'is_main_site' )->once()->andReturn( false );
 
-		$this->database->shouldReceive( 'use_global_table' )->once()->andReturn( true );
+		$this->comment_author_table->shouldReceive( 'use_global_table' )->once()->andReturn( true );
 
 		$this->expect_wp_cli_error();
 
-		$this->database->shouldReceive( 'get_table_name' )->never();
-		$this->database->shouldReceive( 'table_exists' )->never();
-		$this->database->shouldReceive( 'maybe_create_table' )->never();
+		$this->comment_author_table->shouldReceive( 'get_table_name' )->never();
+		$this->comment_author_table->shouldReceive( 'table_exists' )->never();
+		$this->comment_author_table->shouldReceive( 'maybe_create_table' )->never();
 
 		$this->assertNull( $this->sut->create( $args, $assoc_args ) );
 	}
@@ -489,7 +482,7 @@ class Database_Command_Test extends TestCase {
 		Functions\expect( 'is_multisite' )->once()->andReturn( $multisite );
 
 		// May not be triggered.
-		$this->database->shouldReceive( 'use_global_table' )->zeroOrMoreTimes()->andReturn( $global_table );
+		$this->comment_author_table->shouldReceive( 'use_global_table' )->zeroOrMoreTimes()->andReturn( $global_table );
 
 		if ( $global && ( ! $multisite || ! $global_table ) ) {
 			$this->expect_wp_cli_error();
@@ -497,10 +490,10 @@ class Database_Command_Test extends TestCase {
 			// May not be triggered.
 			Functions\expect( 'is_main_site' )->zeroOrMoreTimes()->andReturn( true );
 
-			$this->database->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
-			$this->database->shouldReceive( 'table_exists' )->once()->with( $table )->andReturn( true );
-			$this->database->shouldReceive( 'maybe_create_table' )->once()->with( '' )->andReturn( true );
-			$this->database->shouldReceive( 'maybe_upgrade_table_data' )->once()->andReturn( $rows );
+			$this->comment_author_table->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
+			$this->comment_author_table->shouldReceive( 'table_exists' )->once()->with( $table )->andReturn( true );
+			$this->comment_author_table->shouldReceive( 'maybe_create_table' )->once()->with( '' )->andReturn( true );
+			$this->comment_author_table->shouldReceive( 'maybe_upgrade_data' )->once()->with( '' )->andReturn( $rows );
 
 			$this->expect_wp_cli_success();
 		}
@@ -519,18 +512,17 @@ class Database_Command_Test extends TestCase {
 
 		// Intermediary data.
 		$table = 'fake_table';
-		$rows  = 0;
 
 		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'global', false )->andReturn( false );
 		Functions\expect( 'is_multisite' )->once()->andReturn( false );
 
-		$this->database->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
-		$this->database->shouldReceive( 'table_exists' )->once()->with( $table )->andReturn( false );
+		$this->comment_author_table->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
+		$this->comment_author_table->shouldReceive( 'table_exists' )->once()->with( $table )->andReturn( false );
 
 		$this->expect_wp_cli_error();
 
-		$this->database->shouldReceive( 'maybe_create_table' )->never();
-		$this->database->shouldReceive( 'maybe_upgrade_table_data' )->never();
+		$this->comment_author_table->shouldReceive( 'maybe_create_table' )->never();
+		$this->comment_author_table->shouldReceive( 'maybe_upgrade_data' )->never();
 
 		$this->assertNull( $this->sut->upgrade( $args, $assoc_args ) );
 	}
@@ -546,18 +538,17 @@ class Database_Command_Test extends TestCase {
 
 		// Intermediary data.
 		$table = 'fake_table';
-		$rows  = 0;
 
 		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'global', false )->andReturn( false );
 		Functions\expect( 'is_multisite' )->once()->andReturn( false );
 
-		$this->database->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
-		$this->database->shouldReceive( 'table_exists' )->once()->with( $table )->andReturn( true );
-		$this->database->shouldReceive( 'maybe_create_table' )->once()->with( '' )->andReturn( false );
+		$this->comment_author_table->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
+		$this->comment_author_table->shouldReceive( 'table_exists' )->once()->with( $table )->andReturn( true );
+		$this->comment_author_table->shouldReceive( 'maybe_create_table' )->once()->with( '' )->andReturn( false );
 
 		$this->expect_wp_cli_error();
 
-		$this->database->shouldReceive( 'maybe_upgrade_table_data' )->never();
+		$this->comment_author_table->shouldReceive( 'maybe_upgrade_data' )->never();
 
 		$this->assertNull( $this->sut->upgrade( $args, $assoc_args ) );
 	}
@@ -578,10 +569,10 @@ class Database_Command_Test extends TestCase {
 		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'global', false )->andReturn( false );
 		Functions\expect( 'is_multisite' )->once()->andReturn( false );
 
-		$this->database->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
-		$this->database->shouldReceive( 'table_exists' )->once()->with( $table )->andReturn( true );
-		$this->database->shouldReceive( 'maybe_create_table' )->once()->with( '' )->andReturn( true );
-		$this->database->shouldReceive( 'maybe_upgrade_table_data' )->once()->andReturn( $rows );
+		$this->comment_author_table->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
+		$this->comment_author_table->shouldReceive( 'table_exists' )->once()->with( $table )->andReturn( true );
+		$this->comment_author_table->shouldReceive( 'maybe_create_table' )->once()->with( '' )->andReturn( true );
+		$this->comment_author_table->shouldReceive( 'maybe_upgrade_data' )->once()->with( '' )->andReturn( $rows );
 
 		$this->expect_wp_cli_success();
 
@@ -599,21 +590,18 @@ class Database_Command_Test extends TestCase {
 			'global' => false,
 		];
 
-		// Intermediary data.
-		$table = 'fake_table';
-
 		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'global', false )->andReturn( false );
 		Functions\expect( 'is_multisite' )->once()->andReturn( true );
 		Functions\expect( 'is_main_site' )->once()->andReturn( false );
 
-		$this->database->shouldReceive( 'use_global_table' )->once()->andReturn( true );
+		$this->comment_author_table->shouldReceive( 'use_global_table' )->once()->andReturn( true );
 
 		$this->expect_wp_cli_error();
 
-		$this->database->shouldReceive( 'get_table_name' )->never();
-		$this->database->shouldReceive( 'table_exists' )->never();
-		$this->database->shouldReceive( 'maybe_create_table' )->never();
-		$this->database->shouldReceive( 'maybe_upgrade_table_data' )->never();
+		$this->comment_author_table->shouldReceive( 'get_table_name' )->never();
+		$this->comment_author_table->shouldReceive( 'table_exists' )->never();
+		$this->comment_author_table->shouldReceive( 'maybe_create_table' )->never();
+		$this->comment_author_table->shouldReceive( 'maybe_upgrade_data' )->never();
 
 		$this->assertNull( $this->sut->upgrade( $args, $assoc_args ) );
 	}

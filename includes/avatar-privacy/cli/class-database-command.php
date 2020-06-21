@@ -28,7 +28,7 @@ namespace Avatar_Privacy\CLI;
 
 use Avatar_Privacy\CLI\Abstract_Command;
 use Avatar_Privacy\Core;
-use Avatar_Privacy\Data_Storage\Database\Comment_Author_Table as Database;
+use Avatar_Privacy\Data_Storage\Database\Comment_Author_Table;
 
 use WP_CLI;
 use WP_CLI\Formatter;
@@ -54,22 +54,24 @@ class Database_Command extends Abstract_Command {
 	private $core;
 
 	/**
-	 * The DB handler.
+	 * The table handler.
 	 *
-	 * @var Database
+	 * @var Comment_Author_Table
 	 */
-	private $db;
+	private $comment_author_table;
 
 
 	/**
 	 * Creates a new command instance.
 	 *
-	 * @param  Core     $core The core API.
-	 * @param  Database $db   The database handler.
+	 * @since 2.4.0 Parameter $db replaced with $comment_author_table.
+	 *
+	 * @param  Core                 $core                 The core API.
+	 * @param  Comment_Author_Table $comment_author_table The table handler.
 	 */
-	public function __construct( Core $core, Database $db ) {
-		$this->core = $core;
-		$this->db   = $db;
+	public function __construct( Core $core, Comment_Author_Table $comment_author_table ) {
+		$this->core                 = $core;
+		$this->comment_author_table = $comment_author_table;
 	}
 
 	/**
@@ -115,12 +117,12 @@ class Database_Command extends Abstract_Command {
 		WP_CLI::line( WP_CLI::colorize( '%GAvatar Privacy Database Information%n' ) );
 		WP_CLI::line( '' );
 		WP_CLI::line( WP_CLI::colorize( "Version: %g{$this->core->get_version()}%n" ) );
-		WP_CLI::line( WP_CLI::colorize( "Table name: %g{$this->db->get_table_name()}%n" ) );
+		WP_CLI::line( WP_CLI::colorize( "Table name: %g{$this->comment_author_table->get_table_name()}%n" ) );
 		WP_CLI::line( '' );
 		format_items( 'table', $schema, [ 'Field', 'Type', 'Null', 'Key', 'Default', 'Extra' ] );
 
 		if ( \is_multisite() ) {
-			if ( $this->db->use_global_table() ) {
+			if ( $this->comment_author_table->use_global_table() ) {
 				WP_CLI::line( 'The global table is used for all sites in this network.' );
 			} else {
 				WP_CLI::line( 'Each site in this network uses a separate table.' );
@@ -202,7 +204,7 @@ class Database_Command extends Abstract_Command {
 
 		// Load table data.
 		$iterator = new Table_Iterator( [
-			'table'  => $this->db->get_table_name(),
+			'table'  => $this->comment_author_table->get_table_name(),
 			'where'  => $where,
 		] );
 
@@ -240,20 +242,20 @@ class Database_Command extends Abstract_Command {
 		if ( $global ) {
 			if ( ! $multisite ) {
 				WP_CLI::error( 'This is not a multisite installation.' );
-			} elseif ( ! $this->db->use_global_table() ) {
+			} elseif ( ! $this->comment_author_table->use_global_table() ) {
 				WP_CLI::error( 'Cannot create global table because global table use is disabled.' );
 			}
-		} elseif ( $multisite && $this->db->use_global_table() && ! \is_main_site() ) {
+		} elseif ( $multisite && $this->comment_author_table->use_global_table() && ! \is_main_site() ) {
 			WP_CLI::error( 'Cannot create site-specific table because the global is used for all sites. Use `--global` switch to create the global table instead.' );
 		}
 
-		$table_name = $this->db->get_table_name();
+		$table_name = $this->comment_author_table->get_table_name();
 
-		if ( $this->db->table_exists( $table_name ) ) {
+		if ( $this->comment_author_table->table_exists( $table_name ) ) {
 			WP_CLI::error( WP_CLI::colorize( "Table %B{$table_name}%n already exists." ) );
 		}
 
-		if ( $this->db->maybe_create_table( '' ) ) {
+		if ( $this->comment_author_table->maybe_create_table( '' ) ) {
 			WP_CLI::success( WP_CLI::colorize( "Table %B{$table_name}%n created/updated successfully." ) );
 		} else {
 			WP_CLI::error( WP_CLI::colorize( "An error occured while creating the table %B{$table_name}%n." ) );
@@ -283,26 +285,26 @@ class Database_Command extends Abstract_Command {
 		if ( $global ) {
 			if ( ! $multisite ) {
 				WP_CLI::error( 'This is not a multisite installation.' );
-			} elseif ( ! $this->db->use_global_table() ) {
+			} elseif ( ! $this->comment_author_table->use_global_table() ) {
 				WP_CLI::error( 'Cannot upgrade global table because global table use is disabled.' );
 			}
-		} elseif ( $multisite && $this->db->use_global_table() && ! \is_main_site() ) {
+		} elseif ( $multisite && $this->comment_author_table->use_global_table() && ! \is_main_site() ) {
 			WP_CLI::error( 'Cannot upgrade site-specific table because the global is used for all sites. Use `--global` switch to create the global table instead.' );
 		}
 
 		// Check for existence of table.
-		$table = $this->db->get_table_name();
-		if ( ! $this->db->table_exists( $table ) ) {
+		$table = $this->comment_author_table->get_table_name();
+		if ( ! $this->comment_author_table->table_exists( $table ) ) {
 			WP_CLI::error( WP_CLI::colorize( "Table %B{$table}%n does not exist. Use `wp avatar-privacy db create` to create it." ) );
 		}
 
 		// Upgrade table structure.
-		if ( ! $this->db->maybe_create_table( '' ) ) {
+		if ( ! $this->comment_author_table->maybe_create_table( '' ) ) {
 			WP_CLI::error( WP_CLI::colorize( "An error occured while creating or updating the table %B{$table}%n." ) );
 		}
 
 		// Upgrade data.
-		$rows = $this->db->maybe_upgrade_table_data();
+		$rows = $this->comment_author_table->maybe_upgrade_data( '' );
 
 		if ( $rows > 0 ) {
 			WP_CLI::success( "Upgraded {$rows} rows in table {$table}." );

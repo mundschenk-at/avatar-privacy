@@ -110,6 +110,23 @@ class Comment_Author_Table extends Table {
 	}
 
 	/**
+	 * Sets up the table, including necessary data upgrades. The method is called
+	 * on every page load.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param string $previous_version The previously installed plugin version.
+	 */
+	public function setup( $previous_version ) {
+		parent::setup( $previous_version );
+
+		// The table is set up correctly, but maybe we need to migrate some data
+		// from the global table on network installations.
+		$this->maybe_prepare_migration_queue();
+		$this->maybe_migrate_from_global_table();
+	}
+
+	/**
 	 * Determines whether this (multisite) installation uses the global table.
 	 * Result is ignored for single-site installations.
 	 *
@@ -144,7 +161,7 @@ class Comment_Author_Table extends Table {
 	 *
 	 * @since 2.4.0
 	 *
-	 * @param string $table_name The table name including any prefixes.
+	 * @param  string $table_name The table name including any prefixes.
 	 *
 	 * @return string
 	 */
@@ -163,19 +180,85 @@ class Comment_Author_Table extends Table {
 	}
 
 	/**
+	 * Tries set up the migration queue if the trigger is set.
+	 *
+	 * @since 2.4.0 Moved to class Comment_Author_Table.
+	 */
+	protected function maybe_prepare_migration_queue() {
+		$queue = $this->network_options->get( Network_Options::START_GLOBAL_TABLE_MIGRATION );
+
+		if ( \is_array( $queue ) && $this->network_options->lock( Network_Options::GLOBAL_TABLE_MIGRATION ) ) {
+
+			if ( ! empty( $queue ) ) {
+				// Store new queue, overwriting any existing queue (since this per network
+				// and we already got all sites currently in the network).
+				$this->network_options->set( Network_Options::GLOBAL_TABLE_MIGRATION, $queue );
+			} else {
+				// The "start queue" is empty, which means we should cease the migration efforts.
+				$this->network_options->delete( Network_Options::GLOBAL_TABLE_MIGRATION );
+			}
+
+			// Unlock queue and delete trigger.
+			$this->network_options->unlock( Network_Options::GLOBAL_TABLE_MIGRATION );
+			$this->network_options->delete( Network_Options::START_GLOBAL_TABLE_MIGRATION );
+		}
+	}
+
+	/**
+	 * Tries to migrate global table data if the current site is queued.
+	 *
+	 * @since 2.4.0 Moved to class Comment_Author_Table.
+	 */
+	protected function maybe_migrate_from_global_table() {
+
+		if (
+			// The plugin is not network-activated (or not on a multisite installation).
+			! \is_plugin_active_for_network( \plugin_basename( \AVATAR_PRIVACY_PLUGIN_FILE ) ) ||
+			// The queue is empty.
+			! $this->network_options->get( Network_Options::GLOBAL_TABLE_MIGRATION ) ||
+			// The queue is locked. Try again next time.
+			! $this->network_options->lock( Network_Options::GLOBAL_TABLE_MIGRATION )
+		) {
+			// Nothing to see here.
+			return;
+		}
+
+		// Check if we are scheduled to migrate data from the global table.
+		$site_id = \get_current_blog_id();
+		$queue   = $this->network_options->get( Network_Options::GLOBAL_TABLE_MIGRATION, [] );
+		if ( ! empty( $queue[ $site_id ] ) ) {
+			// Migrate the data.
+			$this->migrate_from_global_table( $site_id );
+
+			// Mark this site as done.
+			unset( $queue[ $site_id ] );
+
+			if ( ! empty( $queue ) ) {
+				// Save the new queue.
+				$this->network_options->set( Network_Options::GLOBAL_TABLE_MIGRATION, $queue );
+			} else {
+				// Delete it.
+				$this->network_options->delete( Network_Options::GLOBAL_TABLE_MIGRATION );
+			}
+		}
+
+		// Unlock the queue again.
+		$this->network_options->unlock( Network_Options::GLOBAL_TABLE_MIGRATION );
+	}
+
+	/**
 	 * Migrates data from the global database to the given site database.
+	 *
+	 * @since 2.4.0 Parameter $site_id made mandatory.
 	 *
 	 * @global \wpdb    $wpdb    The WordPress Database Access Abstraction.
 	 *
-	 * @param  int|null $site_id Optional. The site ID. Null means the current $blog_id. Ddefault null.
+	 * @param  int|null $site_id The site ID. Null means the current $blog_id.
 	 *
 	 * @return int|false         The number of migrated rows or false on error.
 	 */
-	public function migrate_from_global_table( $site_id = null ) {
+	public function migrate_from_global_table( $site_id ) {
 		global $wpdb;
-
-		// Retrieve site ID.
-		$site_id = $site_id ?: \get_current_blog_id();
 
 		// Get table names.
 		$global_table_name = $this->get_table_name( \get_main_site_id() );
@@ -423,12 +506,32 @@ class Comment_Author_Table extends Table {
 	 * Upgrades the table data if necessary.
 	 *
 	 * @since 2.3.0
+	 * @since 2.4.0 Renamed to maybe_upgrade_data. Parameter $previous_version added.
 	 *
-	 * @global \wpdb $wpdb The WordPress Database Access Abstraction.
+	 * @global \wpdb  $wpdb             The WordPress Database Access Abstraction.
 	 *
-	 * @return int  The number of upgraded rows.
+	 * @param  string $previous_version The previously installed plugin version.
+	 *
+	 * @return int                      The number of upgraded rows.
 	 */
-	public function maybe_upgrade_table_data() {
+	public function maybe_upgrade_data( $previous_version ) {
+		if ( \version_compare( $previous_version, '0.5', '<' ) ) {
+			return $this->fix_email_hashes();
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Adds hashes for stored e-mail addresses if necessary.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @global \wpdb  $wpdb The WordPress Database Access Abstraction.
+	 *
+	 * @return int          The number of upgraded rows.
+	 */
+	protected function fix_email_hashes() {
 		global $wpdb;
 
 		// Prepare data used for all upgrade routines.

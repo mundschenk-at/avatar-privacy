@@ -82,6 +82,21 @@ abstract class Table {
 	}
 
 	/**
+	 * Sets up the table, including necessary data upgrades. The method is called
+	 * on every page load.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param string $previous_version The previously installed plugin version.
+	 */
+	public function setup( $previous_version ) {
+		if ( $this->maybe_create_table( $previous_version ) ) {
+			// We may need to update the contents as well.
+			$this->maybe_upgrade_data( $previous_version );
+		}
+	}
+
+	/**
 	 * Retrieves the table prefix to use (for a given site or the current site).
 	 *
 	 * @global \wpdb    $wpdb    The WordPress Database Access Abstraction.
@@ -276,4 +291,16 @@ abstract class Table {
 
 		return $format_strings;
 	}
+
+
+	/**
+	 * Sometimes, the table data needs to updated when upgrading.
+	 *
+	 * The table itself is already guarantueed to exist.
+	 *
+	 * @param string $previous_version The previously installed plugin version.
+	 *
+	 * @return int                     The number of upgraded rows.
+	 */
+	abstract public function maybe_upgrade_data( $previous_version );
 }

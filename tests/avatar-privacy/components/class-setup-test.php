@@ -39,8 +39,7 @@ use Avatar_Privacy\Core\User_Fields;
 
 use Avatar_Privacy\Components\Image_Proxy;
 
-use Avatar_Privacy\Data_Storage\Database\Comment_Author_Table as Database;
-use Avatar_Privacy\Data_Storage\Filesystem_Cache;
+use Avatar_Privacy\Data_Storage\Database\Table;
 use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Site_Transients;
@@ -87,11 +86,18 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $site_transients;
 
 	/**
-	 * The database handler.
+	 * A database handler.
 	 *
-	 * @var Database
+	 * @var Table
 	 */
-	private $database;
+	private $table_one;
+
+	/**
+	 * A database handler.
+	 *
+	 * @var Table
+	 */
+	private $table_two;
 
 	/**
 	 * The multisite tools.
@@ -136,7 +142,8 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->site_transients = m::mock( Site_Transients::class );
 		$this->options         = m::mock( Options::class );
 		$this->network_options = m::mock( Network_Options::class );
-		$this->database        = m::mock( Database::class );
+		$this->table_one       = m::mock( Table::class );
+		$this->table_two       = m::mock( Table::class );
 		$this->multisite       = m::mock( Multisite::class );
 
 		$this->sut = m::mock(
@@ -148,7 +155,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 				$this->site_transients,
 				$this->options,
 				$this->network_options,
-				$this->database,
+				[ $this->table_one, $this->table_two ],
 				$this->multisite,
 			]
 		)->makePartial()->shouldAllowMockingProtectedMethods();
@@ -160,7 +167,8 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::__construct
 	 */
 	public function test_constructor() {
-		$mock = m::mock( Setup::class )->makePartial();
+		$tables = [ $this->table_one, $this->table_two ];
+		$mock   = m::mock( Setup::class )->makePartial();
 
 		$mock->__construct(
 			$this->settings,
@@ -169,7 +177,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 			$this->site_transients,
 			$this->options,
 			$this->network_options,
-			$this->database,
+			$tables,
 			$this->multisite
 		);
 
@@ -179,7 +187,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assert_attribute_same( $this->site_transients, 'site_transients', $mock );
 		$this->assert_attribute_same( $this->options, 'options', $mock );
 		$this->assert_attribute_same( $this->network_options, 'network_options', $mock );
-		$this->assert_attribute_same( $this->database, 'database', $mock );
+		$this->assert_attribute_same( $tables, 'tables', $mock );
 		$this->assert_attribute_same( $this->multisite, 'multisite', $mock );
 	}
 
@@ -231,10 +239,9 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->settings->shouldReceive( 'get_all_settings' )->once()->with( true )->andReturn( $settings );
 		$this->settings->shouldReceive( 'get_version' )->once()->andReturn( $version );
-		$this->database->shouldReceive( 'maybe_create_table' )->once()->with( $match_installed )->andReturn( true );
-		$this->sut->shouldReceive( 'maybe_update_table_data' )->once()->with( $match_installed );
-		$this->sut->shouldReceive( 'maybe_prepare_migration_queue' )->once();
-		$this->sut->shouldReceive( 'maybe_migrate_from_global_table' )->once();
+
+		$this->table_one->shouldReceive( 'setup' )->once()->with( $match_installed );
+		$this->table_two->shouldReceive( 'setup' )->once()->with( $match_installed );
 
 		if ( $version !== $installed ) {
 			$this->sut->shouldReceive( 'plugin_updated' )->once()->with( $match_installed, m::type( 'array' ) );
@@ -444,7 +451,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_prefix_usermeta_keys() {
 		global $wpdb;
-		$wpdb           = m::mock( wpdb::class ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wpdb           = m::mock( \wpdb::class ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wpdb->usermeta = 'wp_usermeta';
 		$user_ids       = [ 1, 2, 4 ];
 		$rows           = \count( $user_ids );
@@ -510,33 +517,6 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assertNull( $this->sut->upgrade_old_avatar_defaults() );
 	}
 
-
-	/**
-	 * Tests ::maybe_update_table_data.
-	 *
-	 * @covers ::maybe_update_table_data
-	 */
-	public function test_maybe_update_table_data() {
-		$previous = '0.4';
-
-		$this->database->shouldReceive( 'maybe_upgrade_table_data' )->once();
-
-		$this->assertNull( $this->sut->maybe_update_table_data( $previous ) );
-	}
-
-	/**
-	 * Tests ::maybe_update_table_data.
-	 *
-	 * @covers ::maybe_update_table_data
-	 */
-	public function test_maybe_update_table_data_no_need() {
-		$previous = '0.5';
-
-		$this->database->shouldReceive( 'maybe_upgrade_table_data' )->never();
-
-		$this->assertNull( $this->sut->maybe_update_table_data( $previous ) );
-	}
-
 	/**
 	 * Tests ::maybe_update_user_hashes.
 	 *
@@ -563,216 +543,5 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		}
 
 		$this->assertNull( $this->sut->maybe_update_user_hashes() );
-	}
-
-	/**
-	 * Tests ::maybe_prepare_migration_queue.
-	 *
-	 * @covers ::maybe_prepare_migration_queue
-	 */
-	public function test_maybe_prepare_migration_queue() {
-		$queue = [
-			15 => 15,
-			17 => 17,
-		];
-
-		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION )->andReturn( $queue );
-		$this->network_options->shouldReceive( 'lock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
-		$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION, $queue );
-		$this->network_options->shouldReceive( 'unlock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
-		$this->network_options->shouldReceive( 'delete' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION );
-
-		$this->assertNull( $this->sut->maybe_prepare_migration_queue() );
-	}
-
-	/**
-	 * Tests ::maybe_prepare_migration_queue.
-	 *
-	 * @covers ::maybe_prepare_migration_queue
-	 */
-	public function test_maybe_prepare_migration_queue_locked() {
-		$queue = [
-			15 => 15,
-			17 => 17,
-		];
-
-		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION )->andReturn( $queue );
-		$this->network_options->shouldReceive( 'lock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( false );
-		$this->network_options->shouldReceive( 'set' )->never();
-		$this->network_options->shouldReceive( 'unlock' )->never();
-		$this->network_options->shouldReceive( 'delete' )->never();
-
-		$this->assertNull( $this->sut->maybe_prepare_migration_queue() );
-	}
-
-	/**
-	 * Tests ::maybe_prepare_migration_queue.
-	 *
-	 * @covers ::maybe_prepare_migration_queue
-	 */
-	public function test_maybe_prepare_migration_nothing_to_do() {
-		$queue = false;
-
-		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION )->andReturn( $queue );
-		$this->network_options->shouldReceive( 'lock' )->never();
-		$this->network_options->shouldReceive( 'set' )->never();
-		$this->network_options->shouldReceive( 'unlock' )->never();
-		$this->network_options->shouldReceive( 'delete' )->never();
-
-		$this->assertNull( $this->sut->maybe_prepare_migration_queue() );
-	}
-
-	/**
-	 * Tests ::maybe_prepare_migration_queue.
-	 *
-	 * @covers ::maybe_prepare_migration_queue
-	 */
-	public function test_maybe_prepare_migration_queue_empty() {
-		$queue = [];
-
-		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION )->andReturn( $queue );
-		$this->network_options->shouldReceive( 'lock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
-		$this->network_options->shouldReceive( 'set' )->never();
-		$this->network_options->shouldReceive( 'delete' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION );
-		$this->network_options->shouldReceive( 'unlock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
-		$this->network_options->shouldReceive( 'delete' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION );
-
-		$this->assertNull( $this->sut->maybe_prepare_migration_queue() );
-	}
-
-	/**
-	 * Provides data for testing maybe_migrate_from_global_table.
-	 *
-	 * @return array
-	 */
-	public function provide_maybe_migrate_from_global_table_data() {
-		return [
-			[
-				// Active and not locked.
-				6,   // site ID.
-				[    // queue.
-					1 => 1,
-					3 => 3,
-					6 => 6,
-				],
-				true,  // active.
-				false, // not locked.
-			],
-			[
-				// Not active.
-				6,   // site ID.
-				[    // queue.
-					1 => 1,
-					3 => 3,
-					6 => 6,
-				],
-				false, // not active.
-				false, // not locked.
-			],
-			[
-				// Active, but locked.
-				6,   // site ID.
-				[    // queue.
-					1 => 1,
-					3 => 3,
-					6 => 6,
-				],
-				true,  // active.
-				true,  // but locked.
-			],
-			[
-				// Active and not locked, but not queued.
-				6,   // site ID.
-				[    // queue.
-					1 => 1,
-					3 => 3,
-				],
-				true,  // active.
-				false, // not locked.
-			],
-			[
-				// Active and not locked, last site to be migrated.
-				6,   // site ID.
-				[    // queue.
-					6 => 6,
-				],
-				true,  // active.
-				false, // not locked.
-			],
-			[
-				// Active and not locked, but empty queue.
-				6,     // site ID.
-				[],    // queue.
-				true,  // active.
-				false, // not locked.
-			],
-		];
-	}
-
-	/**
-	 * Tests ::maybe_migrate_from_global_table.
-	 *
-	 * @covers ::maybe_migrate_from_global_table
-	 *
-	 * @dataProvider provide_maybe_migrate_from_global_table_data
-	 *
-	 * @param  int   $site_id The site ID.
-	 * @param  int[] $queue   The queue.
-	 * @param  bool  $active  Whether the plugin is network active.
-	 * @param  bool  $locked  Whether the option is currently locked.
-	 */
-	public function test_maybe_migrate_from_global_table( $site_id, $queue, $active, $locked ) {
-
-		Functions\expect( 'plugin_basename' )->once()->with( 'plugin/file' )->andReturn( 'plugin/basename' );
-		Functions\expect( 'is_plugin_active_for_network' )->once()->with( 'plugin/basename' )->andReturn( $active );
-
-		if ( $active ) {
-			$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( $queue );
-
-			if ( ! empty( $queue ) ) {
-				$this->network_options->shouldReceive( 'lock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( ! $locked );
-
-				if ( ! $locked ) {
-					Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
-
-					$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION, [] )->andReturn( $queue );
-
-					if ( ! empty( $queue[ $site_id ] ) ) {
-						$this->database->shouldReceive( 'migrate_from_global_table' )->once()->with( $site_id );
-
-						if ( \count( $queue ) > 1 ) {
-							$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION, m::not( m::hasKey( $site_id ) ) );
-						} else {
-							$this->network_options->shouldReceive( 'delete' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION );
-						}
-					} else {
-						$this->database->shouldReceive( 'migrate_from_global_table' )->never();
-						$this->network_options->shouldReceive( 'set' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION, m::not( m::hasKey( $site_id ) ) );
-					}
-
-					$this->network_options->shouldReceive( 'unlock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
-				} else {
-					$this->network_options->shouldReceive( 'get' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION, [] );
-					$this->database->shouldReceive( 'migrate_from_global_table' )->never();
-					$this->network_options->shouldReceive( 'set' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION, m::not( m::hasKey( $site_id ) ) );
-					$this->network_options->shouldReceive( 'unlock' )->never();
-				}
-			} else {
-				$this->network_options->shouldReceive( 'lock' )->never();
-				$this->network_options->shouldReceive( 'get' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION, [] );
-				$this->database->shouldReceive( 'migrate_from_global_table' )->never();
-				$this->network_options->shouldReceive( 'set' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION, m::not( m::hasKey( $site_id ) ) );
-				$this->network_options->shouldReceive( 'unlock' )->never();
-			}
-		} else {
-			$this->network_options->shouldReceive( 'lock' )->never();
-			$this->network_options->shouldReceive( 'get' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION, [] )->andReturn( $queue );
-			$this->database->shouldReceive( 'migrate_from_global_table' )->never();
-			$this->network_options->shouldReceive( 'set' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION, m::not( m::hasKey( $site_id ) ) );
-			$this->network_options->shouldReceive( 'unlock' )->never();
-			$this->network_options->shouldReceive( 'get' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION );
-		}
-
-		$this->assertNull( $this->sut->maybe_migrate_from_global_table() );
 	}
 }

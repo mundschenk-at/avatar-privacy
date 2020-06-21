@@ -116,6 +116,44 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Tests ::setup.
+	 *
+	 * @covers ::setup
+	 *
+	 * @uses Avatar_Privacy\Data_Storage\Database\Table::setup
+	 */
+	public function test_setup() {
+		$previous_version = '1.1.0';
+
+		$this->sut->shouldReceive( 'maybe_create_table' )->once()->with( $previous_version )->andReturn( true );
+		$this->sut->shouldReceive( 'maybe_upgrade_data' )->once()->with( $previous_version );
+
+		$this->sut->shouldReceive( 'maybe_prepare_migration_queue' )->once();
+		$this->sut->shouldReceive( 'maybe_migrate_from_global_table' )->once();
+
+		$this->assertNull( $this->sut->setup( $previous_version ) );
+	}
+
+	/**
+	 * Tests ::setup.
+	 *
+	 * @covers ::setup
+	 *
+	 * @uses Avatar_Privacy\Data_Storage\Database\Table::setup
+	 */
+	public function test_setup_table_exists() {
+		$previous_version = '1.1.0';
+
+		$this->sut->shouldReceive( 'maybe_create_table' )->once()->with( $previous_version )->andReturn( false );
+		$this->sut->shouldReceive( 'maybe_upgrade_data' )->never();
+
+		$this->sut->shouldReceive( 'maybe_prepare_migration_queue' )->once();
+		$this->sut->shouldReceive( 'maybe_migrate_from_global_table' )->once();
+
+		$this->assertNull( $this->sut->setup( $previous_version ) );
+	}
+
+	/**
 	 * Provides data for testing use_global_table.
 	 *
 	 * @return array
@@ -155,6 +193,216 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assert_matches_regular_expression( "/^CREATE TABLE {$table_name} \(.*\)\$/sum", $this->sut->get_table_definition( $table_name ) );
 	}
 
+	/**
+	 * Tests ::maybe_prepare_migration_queue.
+	 *
+	 * @covers ::maybe_prepare_migration_queue
+	 */
+	public function test_maybe_prepare_migration_queue() {
+		$queue = [
+			15 => 15,
+			17 => 17,
+		];
+
+		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION )->andReturn( $queue );
+		$this->network_options->shouldReceive( 'lock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
+		$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION, $queue );
+		$this->network_options->shouldReceive( 'unlock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
+		$this->network_options->shouldReceive( 'delete' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION );
+
+		$this->assertNull( $this->sut->maybe_prepare_migration_queue() );
+	}
+
+	/**
+	 * Tests ::maybe_prepare_migration_queue.
+	 *
+	 * @covers ::maybe_prepare_migration_queue
+	 */
+	public function test_maybe_prepare_migration_queue_locked() {
+		$queue = [
+			15 => 15,
+			17 => 17,
+		];
+
+		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION )->andReturn( $queue );
+		$this->network_options->shouldReceive( 'lock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( false );
+		$this->network_options->shouldReceive( 'set' )->never();
+		$this->network_options->shouldReceive( 'unlock' )->never();
+		$this->network_options->shouldReceive( 'delete' )->never();
+
+		$this->assertNull( $this->sut->maybe_prepare_migration_queue() );
+	}
+
+	/**
+	 * Tests ::maybe_prepare_migration_queue.
+	 *
+	 * @covers ::maybe_prepare_migration_queue
+	 */
+	public function test_maybe_prepare_migration_nothing_to_do() {
+		$queue = false;
+
+		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION )->andReturn( $queue );
+		$this->network_options->shouldReceive( 'lock' )->never();
+		$this->network_options->shouldReceive( 'set' )->never();
+		$this->network_options->shouldReceive( 'unlock' )->never();
+		$this->network_options->shouldReceive( 'delete' )->never();
+
+		$this->assertNull( $this->sut->maybe_prepare_migration_queue() );
+	}
+
+	/**
+	 * Tests ::maybe_prepare_migration_queue.
+	 *
+	 * @covers ::maybe_prepare_migration_queue
+	 */
+	public function test_maybe_prepare_migration_queue_empty() {
+		$queue = [];
+
+		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION )->andReturn( $queue );
+		$this->network_options->shouldReceive( 'lock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
+		$this->network_options->shouldReceive( 'set' )->never();
+		$this->network_options->shouldReceive( 'delete' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION );
+		$this->network_options->shouldReceive( 'unlock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
+		$this->network_options->shouldReceive( 'delete' )->once()->with( Network_Options::START_GLOBAL_TABLE_MIGRATION );
+
+		$this->assertNull( $this->sut->maybe_prepare_migration_queue() );
+	}
+
+	/**
+	 * Provides data for testing maybe_migrate_from_global_table.
+	 *
+	 * @return array
+	 */
+	public function provide_maybe_migrate_from_global_table_data() {
+		return [
+			[
+				// Active and not locked.
+				6,   // site ID.
+				[    // queue.
+					1 => 1,
+					3 => 3,
+					6 => 6,
+				],
+				true,  // active.
+				false, // not locked.
+			],
+			[
+				// Not active.
+				6,   // site ID.
+				[    // queue.
+					1 => 1,
+					3 => 3,
+					6 => 6,
+				],
+				false, // not active.
+				false, // not locked.
+			],
+			[
+				// Active, but locked.
+				6,   // site ID.
+				[    // queue.
+					1 => 1,
+					3 => 3,
+					6 => 6,
+				],
+				true,  // active.
+				true,  // but locked.
+			],
+			[
+				// Active and not locked, but not queued.
+				6,   // site ID.
+				[    // queue.
+					1 => 1,
+					3 => 3,
+				],
+				true,  // active.
+				false, // not locked.
+			],
+			[
+				// Active and not locked, last site to be migrated.
+				6,   // site ID.
+				[    // queue.
+					6 => 6,
+				],
+				true,  // active.
+				false, // not locked.
+			],
+			[
+				// Active and not locked, but empty queue.
+				6,     // site ID.
+				[],    // queue.
+				true,  // active.
+				false, // not locked.
+			],
+		];
+	}
+
+	/**
+	 * Tests ::maybe_migrate_from_global_table.
+	 *
+	 * @covers ::maybe_migrate_from_global_table
+	 *
+	 * @dataProvider provide_maybe_migrate_from_global_table_data
+	 *
+	 * @param  int   $site_id The site ID.
+	 * @param  int[] $queue   The queue.
+	 * @param  bool  $active  Whether the plugin is network active.
+	 * @param  bool  $locked  Whether the option is currently locked.
+	 */
+	public function test_maybe_migrate_from_global_table( $site_id, $queue, $active, $locked ) {
+
+		Functions\expect( 'plugin_basename' )->once()->with( 'plugin/file' )->andReturn( 'plugin/basename' );
+		Functions\expect( 'is_plugin_active_for_network' )->once()->with( 'plugin/basename' )->andReturn( $active );
+
+		if ( $active ) {
+			$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( $queue );
+
+			if ( ! empty( $queue ) ) {
+				$this->network_options->shouldReceive( 'lock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( ! $locked );
+
+				if ( ! $locked ) {
+					Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
+
+					$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION, [] )->andReturn( $queue );
+
+					if ( ! empty( $queue[ $site_id ] ) ) {
+						$this->sut->shouldReceive( 'migrate_from_global_table' )->once()->with( $site_id );
+
+						if ( \count( $queue ) > 1 ) {
+							$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION, m::not( m::hasKey( $site_id ) ) );
+						} else {
+							$this->network_options->shouldReceive( 'delete' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION );
+						}
+					} else {
+						$this->sut->shouldReceive( 'migrate_from_global_table' )->never();
+						$this->network_options->shouldReceive( 'set' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION, m::not( m::hasKey( $site_id ) ) );
+					}
+
+					$this->network_options->shouldReceive( 'unlock' )->once()->with( Network_Options::GLOBAL_TABLE_MIGRATION )->andReturn( true );
+				} else {
+					$this->network_options->shouldReceive( 'get' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION, [] );
+					$this->sut->shouldReceive( 'migrate_from_global_table' )->never();
+					$this->network_options->shouldReceive( 'set' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION, m::not( m::hasKey( $site_id ) ) );
+					$this->network_options->shouldReceive( 'unlock' )->never();
+				}
+			} else {
+				$this->network_options->shouldReceive( 'lock' )->never();
+				$this->network_options->shouldReceive( 'get' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION, [] );
+				$this->sut->shouldReceive( 'migrate_from_global_table' )->never();
+				$this->network_options->shouldReceive( 'set' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION, m::not( m::hasKey( $site_id ) ) );
+				$this->network_options->shouldReceive( 'unlock' )->never();
+			}
+		} else {
+			$this->network_options->shouldReceive( 'lock' )->never();
+			$this->network_options->shouldReceive( 'get' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION, [] )->andReturn( $queue );
+			$this->sut->shouldReceive( 'migrate_from_global_table' )->never();
+			$this->network_options->shouldReceive( 'set' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION, m::not( m::hasKey( $site_id ) ) );
+			$this->network_options->shouldReceive( 'unlock' )->never();
+			$this->network_options->shouldReceive( 'get' )->never()->with( Network_Options::GLOBAL_TABLE_MIGRATION );
+		}
+
+		$this->assertNull( $this->sut->maybe_migrate_from_global_table() );
+	}
 
 	/**
 	 * Tests ::migrate_from_global_table.
@@ -740,14 +988,39 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::maybe_upgrade_table_data.
+	 * Tests ::maybe_upgrade_data.
 	 *
-	 * @covers ::maybe_upgrade_table_data
+	 * @covers ::maybe_upgrade_data
 	 */
-	public function test_maybe_upgrade_table_data() {
-		$network_id = 5;
-		$site_id    = 3;
-		$rows       = [
+	public function test_maybe_upgrade_data() {
+		$previous = '0.4';
+		$rows     = 5;
+
+		$this->sut->shouldReceive( 'fix_email_hashes' )->once()->andReturn( $rows );
+
+		$this->assertSame( $rows, $this->sut->maybe_upgrade_data( $previous ) );
+	}
+
+	/**
+	 * Tests ::maybe_upgrade_data.
+	 *
+	 * @covers ::maybe_upgrade_data
+	 */
+	public function test_maybe_update_data_no_need() {
+		$previous = '0.5';
+
+		$this->sut->shouldReceive( 'fix_email_hashes' )->never();
+
+		$this->assertSame( 0, $this->sut->maybe_upgrade_data( $previous ) );
+	}
+
+	/**
+	 * Tests ::fix_email_hashes.
+	 *
+	 * @covers ::fix_email_hashes
+	 */
+	public function test_fix_email_hashes() {
+		$rows   = [
 			3  => (object) [
 				'id'           => 3,
 				'email'        => 'foo@bar.org',
@@ -757,12 +1030,7 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 				'email'        => 'xxx@foobar.org',
 			],
 		];
-		$fields     = [
-			'email',
-			'use_gravatar',
-			'last_updated',
-		];
-		$result     = 2; // Affected row count.
+		$result = 2; // Affected row count.
 
 		// Fake global.
 		global $wpdb;
@@ -777,18 +1045,16 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'prepare_insert_update_query' )->once()->with( $rows, [], $table_name, [ 'hash' ] )->andReturn( 'UPDATE_QUERY' );
 		$wpdb->shouldReceive( 'query' )->once()->with( 'UPDATE_QUERY' );
 
-		$this->assertSame( $result, $this->sut->maybe_upgrade_table_data() );
+		$this->assertSame( $result, $this->sut->fix_email_hashes() );
 	}
 
 	/**
-	 * Tests ::maybe_upgrade_table_data.
+	 * Tests ::fix_email_hashes.
 	 *
-	 * @covers ::maybe_upgrade_table_data
+	 * @covers ::fix_email_hashes
 	 */
-	public function test_maybe_upgrade_table_data_error() {
-		$network_id = 5;
-		$site_id    = 3;
-		$rows       = [
+	public function test_fix_email_hashes_error() {
+		$rows = [
 			3  => (object) [
 				'id'           => 3,
 				'email'        => 'foo@bar.org',
@@ -797,11 +1063,6 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 				'id'           => 11,
 				'email'        => 'xxx@foobar.org',
 			],
-		];
-		$fields     = [
-			'email',
-			'use_gravatar',
-			'last_updated',
 		];
 
 		// Fake global.
@@ -817,6 +1078,6 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'prepare_insert_update_query' )->once()->with( $rows, [], $table_name, [ 'hash' ] )->andReturn( false );
 		$wpdb->shouldReceive( 'query' )->never();
 
-		$this->assertSame( 0, $this->sut->maybe_upgrade_table_data() );
+		$this->assertSame( 0, $this->sut->fix_email_hashes() );
 	}
 }
