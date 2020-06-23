@@ -33,9 +33,10 @@ use Brain\Monkey\Functions;
 use Mockery as m;
 
 use Avatar_Privacy\Core\Comment_Author_Fields;
-use Avatar_Privacy\Core\Hasher;
 
 use Avatar_Privacy\Data_Storage\Cache;
+
+use Avatar_Privacy\Tools\Hasher;
 
 /**
  * Avatar_Privacy_Factory unit test.

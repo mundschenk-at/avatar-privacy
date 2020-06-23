@@ -35,11 +35,12 @@ use Mockery as m;
 use Avatar_Privacy\Core;
 
 use Avatar_Privacy\Core\Comment_Author_Fields;
-use Avatar_Privacy\Core\Hasher;
 use Avatar_Privacy\Core\User_Fields;
 use Avatar_Privacy\Core\Settings;
 
 use Avatar_Privacy\Data_Storage\Options;
+
+use Avatar_Privacy\Tools\Hasher;
 
 /**
  * Avatar_Privacy_Factory unit test.

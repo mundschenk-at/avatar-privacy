@@ -28,9 +28,10 @@
 namespace Avatar_Privacy;
 
 use Avatar_Privacy\Core\Comment_Author_Fields;
-use Avatar_Privacy\Core\Hasher;
 use Avatar_Privacy\Core\User_Fields;
 use Avatar_Privacy\Core\Settings;
+
+use Avatar_Privacy\Tools\Hasher;
 
 /**
  * The core database API of the Avatar Privacy plugin.
@@ -267,7 +268,7 @@ class Core {
 	/**
 	 * Generates a salted SHA-256 hash for the given e-mail address.
 	 *
-	 * @since 2.4.0 Implementation extracted to \Avatar_Privacy\Core\Hasher
+	 * @since 2.4.0 Implementation extracted to \Avatar_Privacy\Tools\Hasher
 	 *
 	 * @param  string $email The mail address.
 	 *

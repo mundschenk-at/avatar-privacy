@@ -24,7 +24,7 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Tests\Avatar_Privacy\Core;
+namespace Avatar_Privacy\Tests\Avatar_Privacy\Tools;
 
 use Brain\Monkey\Actions;
 use Brain\Monkey\Filters;
@@ -37,8 +37,8 @@ use Avatar_Privacy\Data_Storage\Network_Options;
 /**
  * Avatar_Privacy_Factory unit test.
  *
- * @coversDefaultClass \Avatar_Privacy\Core\Hasher
- * @usesDefaultClass \Avatar_Privacy\Core\Hasher
+ * @coversDefaultClass \Avatar_Privacy\Tools\Hasher
+ * @usesDefaultClass \Avatar_Privacy\Tools\Hasher
  *
  * @uses ::__construct
  */
@@ -47,7 +47,7 @@ class Hasher_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var \Avatar_Privacy\Core\Hasher
+	 * @var \Avatar_Privacy\Tools\Hasher
 	 */
 	private $sut;
 
@@ -72,7 +72,7 @@ class Hasher_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Partially mock system under test.
 		$this->sut = m::mock(
-			\Avatar_Privacy\Core\Hasher::class,
+			\Avatar_Privacy\Tools\Hasher::class,
 			[
 				$this->network_options,
 			]
@@ -88,7 +88,7 @@ class Hasher_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Mock required helpers.
 		$network_options = m::mock( Network_Options::class )->makePartial();
 
-		$hasher = m::mock( \Avatar_Privacy\Core\Hasher::class )->makePartial();
+		$hasher = m::mock( \Avatar_Privacy\Tools\Hasher::class )->makePartial();
 		$hasher->__construct( $network_options );
 
 		$this->assert_attribute_same( $network_options, 'network_options', $hasher );

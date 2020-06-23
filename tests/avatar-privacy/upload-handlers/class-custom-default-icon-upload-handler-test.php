@@ -37,10 +37,10 @@ use org\bovigo\vfs\vfsStream;
 use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler;
 
 use Avatar_Privacy\Core;
-use Avatar_Privacy\Core\Hasher;
 use Avatar_Privacy\Core\Settings;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
+use Avatar_Privacy\Tools\Hasher;
 
 
 /**
