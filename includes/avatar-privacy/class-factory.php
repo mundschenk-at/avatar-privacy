@@ -334,6 +334,7 @@ class Factory extends Dice {
 			],
 
 			// Shared tools.
+			Tools\Hasher::class                                     => self::SHARED,
 			Tools\Number_Generator::class                           => self::SHARED,
 			Tools\Multisite::class                                  => self::SHARED,
 			Tools\Images\Editor::class                              => self::SHARED,

@@ -28,8 +28,8 @@
 namespace Avatar_Privacy\Core;
 
 use Avatar_Privacy\Core\API;
-use Avatar_Privacy\Core\Hasher;
 use Avatar_Privacy\Data_Storage\Cache;
+use Avatar_Privacy\Tools\Hasher;
 
 use const MINUTE_IN_SECONDS;
 

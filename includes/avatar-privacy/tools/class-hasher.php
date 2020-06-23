@@ -24,9 +24,8 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Core;
+namespace Avatar_Privacy\Tools;
 
-use Avatar_Privacy\Core\API;
 use Avatar_Privacy\Data_Storage\Network_Options;
 
 /**
@@ -38,7 +37,7 @@ use Avatar_Privacy\Data_Storage\Network_Options;
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class Hasher implements API {
+class Hasher {
 
 	/**
 	 * The salt used for the get_hash() method.

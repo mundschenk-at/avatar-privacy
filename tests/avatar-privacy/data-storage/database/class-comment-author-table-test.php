@@ -34,9 +34,9 @@ use Mockery as m;
 
 use org\bovigo\vfs\vfsStream;
 
-use Avatar_Privacy\Core\Hasher;
 use Avatar_Privacy\Data_Storage\Database\Comment_Author_Table;
 use Avatar_Privacy\Data_Storage\Network_Options;
+use Avatar_Privacy\Tools\Hasher;
 
 /**
  * Avatar_Privacy\Data_Storage\Database\Comment_Author_Table unit test.
