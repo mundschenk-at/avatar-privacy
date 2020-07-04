@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -467,5 +467,213 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->expectException( \RuntimeException::class );
 
 		$this->assertSame( $expected, $this->sut->get_format( $columns ) );
+	}
+
+	/**
+	 * Tests ::insert.
+	 *
+	 * @covers ::insert
+	 */
+	public function test_insert() {
+		$data       = [
+			'log_message'  => 'foo',
+			'use_gravatar' => 1,
+			'hash'         => 'bar',
+		];
+		$site_id    = 23;
+		$result     = 1;
+		$table_name = 'my_table';
+		$formats    = [ '%s', '%d', '%s' ];
+
+		global $wpdb;
+		$wpdb = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		$this->sut->shouldReceive( 'get_table_name' )->once()->with( $site_id )->andReturn( $table_name );
+		$this->sut->shouldReceive( 'get_format' )->once()->with( $data )->andReturn( $formats );
+		$wpdb->shouldReceive( 'insert' )->once()->with( $table_name, $data, $formats )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->insert( $data, $site_id ) );
+	}
+
+	/**
+	 * Tests ::insert.
+	 *
+	 * @covers ::insert
+	 */
+	public function test_insert_invalid_column() {
+		$data       = [
+			'foo'          => 'bar',
+			'log_message'  => 'foo',
+			'use_gravatar' => 1,
+			'hash'         => 'bar',
+		];
+		$site_id    = 23;
+		$table_name = 'my_table';
+
+		global $wpdb;
+		$wpdb = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		$this->sut->shouldReceive( 'get_table_name' )->once()->with( $site_id )->andReturn( $table_name );
+		$this->sut->shouldReceive( 'get_format' )->once()->with( $data )->andThrow( \RuntimeException::class );
+		$wpdb->shouldReceive( 'insert' )->never();
+
+		$this->assertFalse( $this->sut->insert( $data, $site_id ) );
+	}
+
+	/**
+	 * Tests ::replace.
+	 *
+	 * @covers ::replace
+	 */
+	public function test_replace() {
+		$data       = [
+			'log_message'  => 'foo',
+			'use_gravatar' => 1,
+			'hash'         => 'bar',
+		];
+		$site_id    = 23;
+		$result     = 1;
+		$table_name = 'my_table';
+		$formats    = [ '%s', '%d', '%s' ];
+
+		global $wpdb;
+		$wpdb = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		$this->sut->shouldReceive( 'get_table_name' )->once()->with( $site_id )->andReturn( $table_name );
+		$this->sut->shouldReceive( 'get_format' )->once()->with( $data )->andReturn( $formats );
+		$wpdb->shouldReceive( 'replace' )->once()->with( $table_name, $data, $formats )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->replace( $data, $site_id ) );
+	}
+
+	/**
+	 * Tests ::replace.
+	 *
+	 * @covers ::replace
+	 */
+	public function test_replace_invalid_column() {
+		$data       = [
+			'foo'          => 'bar',
+			'log_message'  => 'foo',
+			'use_gravatar' => 1,
+			'hash'         => 'bar',
+		];
+		$site_id    = 23;
+		$table_name = 'my_table';
+
+		global $wpdb;
+		$wpdb = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		$this->sut->shouldReceive( 'get_table_name' )->once()->with( $site_id )->andReturn( $table_name );
+		$this->sut->shouldReceive( 'get_format' )->once()->with( $data )->andThrow( \RuntimeException::class );
+		$wpdb->shouldReceive( 'replace' )->never();
+
+		$this->assertFalse( $this->sut->replace( $data, $site_id ) );
+	}
+
+	/**
+	 * Tests ::update.
+	 *
+	 * @covers ::update
+	 */
+	public function test_update() {
+		$data          = [
+			'log_message'  => 'foo',
+			'use_gravatar' => 1,
+			'hash'         => 'bar',
+		];
+		$site_id       = 23;
+		$where         = [
+			'email' => 'foo@bar',
+		];
+		$result        = 1;
+		$table_name    = 'my_table';
+		$formats       = [ '%s', '%d', '%s' ];
+		$where_formats = [ '%s' ];
+
+		global $wpdb;
+		$wpdb = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		$this->sut->shouldReceive( 'get_table_name' )->once()->with( $site_id )->andReturn( $table_name );
+		$this->sut->shouldReceive( 'get_format' )->once()->with( $data )->andReturn( $formats );
+		$this->sut->shouldReceive( 'get_format' )->once()->with( $where )->andReturn( $where_formats );
+		$wpdb->shouldReceive( 'update' )->once()->with( $table_name, $data, $where, $formats, $where_formats )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->update( $data, $where, $site_id ) );
+	}
+
+	/**
+	 * Tests ::update.
+	 *
+	 * @covers ::update
+	 */
+	public function test_update_invalid_column() {
+		$data       = [
+			'log_message'  => 'foo',
+			'use_gravatar' => 1,
+			'hash'         => 'bar',
+		];
+		$where      = [
+			'foo' => 'bar',
+		];
+		$site_id    = 23;
+		$table_name = 'my_table';
+		$formats    = [ '%s', '%d', '%s' ];
+
+		global $wpdb;
+		$wpdb = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		$this->sut->shouldReceive( 'get_table_name' )->once()->with( $site_id )->andReturn( $table_name );
+		$this->sut->shouldReceive( 'get_format' )->once()->with( $data )->andReturn( $formats );
+		$this->sut->shouldReceive( 'get_format' )->once()->with( $where )->andThrow( \RuntimeException::class );
+		$wpdb->shouldReceive( 'update' )->never();
+
+		$this->assertFalse( $this->sut->update( $data, $where, $site_id ) );
+	}
+
+	/**
+	 * Tests ::delete.
+	 *
+	 * @covers ::delete
+	 */
+	public function test_delete() {
+		$where      = [
+			'id' => 66,
+		];
+		$site_id    = 23;
+		$result     = 1;
+		$table_name = 'my_table';
+		$formats    = [ '%d' ];
+
+		global $wpdb;
+		$wpdb = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		$this->sut->shouldReceive( 'get_table_name' )->once()->with( $site_id )->andReturn( $table_name );
+		$this->sut->shouldReceive( 'get_format' )->once()->with( $where )->andReturn( $formats );
+		$wpdb->shouldReceive( 'delete' )->once()->with( $table_name, $where, $formats )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->delete( $where, $site_id ) );
+	}
+
+	/**
+	 * Tests ::delete.
+	 *
+	 * @covers ::delete
+	 */
+	public function test_delete_invalid_column() {
+		$where      = [
+			'foo' => 'bar',
+		];
+		$site_id    = 23;
+		$table_name = 'my_table';
+
+		global $wpdb;
+		$wpdb = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		$this->sut->shouldReceive( 'get_table_name' )->once()->with( $site_id )->andReturn( $table_name );
+		$this->sut->shouldReceive( 'get_format' )->once()->with( $where )->andThrow( \RuntimeException::class );
+		$wpdb->shouldReceive( 'delete' )->never();
+
+		$this->assertFalse( $this->sut->delete( $where, $site_id ) );
 	}
 }

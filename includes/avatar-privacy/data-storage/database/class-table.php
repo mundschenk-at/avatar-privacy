@@ -133,6 +133,8 @@ abstract class Table {
 	 *
 	 * @since 2.3.0 Visibility changed to public.
 	 *
+	 * @global \wpdb  $wpdb       The WordPress Database Access Abstraction.
+	 *
 	 * @param  string $table_name A table name.
 	 *
 	 * @return bool
@@ -217,6 +219,17 @@ abstract class Table {
 	abstract protected function get_table_definition( $table_name );
 
 	/**
+	 * Sometimes, the table data needs to updated when upgrading.
+	 *
+	 * The table itself is already guarantueed to exist.
+	 *
+	 * @param string $previous_version The previously installed plugin version.
+	 *
+	 * @return int                     The number of upgraded rows.
+	 */
+	abstract public function maybe_upgrade_data( $previous_version );
+
+	/**
 	 * Registers the table with the given \wpdb instance.
 	 *
 	 * @param  \wpdb  $db         The database instance.
@@ -292,15 +305,131 @@ abstract class Table {
 		return $format_strings;
 	}
 
+	/**
+	 * Inserts a row into the table.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @global \wpdb $wpdb The WordPress Database Access Abstraction.
+	 *
+	 * @param  array    $data    The data to insert (in column => value pairs).
+	 *                           Both $data columns and $data values should be
+	 *                           "raw" (neither should be SQL escaped). Sending
+	 *                           a null value will cause the column to be set to
+	 *                           NULL - the corresponding format is ignored in
+	 *                           this case.
+	 * @param  int|null $site_id Optional. The site ID. Null means the current
+	 *                           $blog_id. Default null.
+	 *
+	 * @return int|false         The number of rows inserted, or false on error.
+	 */
+	public function insert( array $data, $site_id = null ) {
+		try {
+			global $wpdb;
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			return $wpdb->insert( $this->get_table_name( $site_id ), $data, $this->get_format( $data ) );
+		} catch ( \RuntimeException $e ) {
+			return false;
+		}
+	}
 
 	/**
-	 * Sometimes, the table data needs to updated when upgrading.
+	 * Replaces a row into the table (i.e. it inserts the row if it does not exist
+	 * or deletes and existing row and then inserts the new data).
 	 *
-	 * The table itself is already guarantueed to exist.
+	 * @since 2.4.0
 	 *
-	 * @param string $previous_version The previously installed plugin version.
+	 * @global \wpdb $wpdb The WordPress Database Access Abstraction.
 	 *
-	 * @return int                     The number of upgraded rows.
+	 * @param  array    $data    The data to insert (in column => value pairs).
+	 *                           Both $data columns and $data values should be
+	 *                           "raw" (neither should be SQL escaped). Sending
+	 *                           a null value will cause the column to be set to
+	 *                           NULL - the corresponding format is ignored in
+	 *                           this case.
+	 * @param  int|null $site_id Optional. The site ID. Null means the current
+	 *                           $blog_id. Default null.
+	 *
+	 * @return int|false         The number of rows updated, or false on error.
 	 */
-	abstract public function maybe_upgrade_data( $previous_version );
+	public function replace( array $data, $site_id = null ) {
+		try {
+			global $wpdb;
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			return $wpdb->replace( $this->get_table_name( $site_id ), $data, $this->get_format( $data ) );
+		} catch ( \RuntimeException $e ) {
+			return false;
+		}
+	}
+
+	/**
+	 * Updates a row in the table.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @global \wpdb $wpdb The WordPress Database Access Abstraction.
+	 *
+	 * @param  array    $data    The data to insert (in column => value pairs).
+	 *                           Both $data columns and $data values should be
+	 *                           "raw" (neither should be SQL escaped). Sending
+	 *                           a null value will cause the column to be set to
+	 *                           NULL - the corresponding format is ignored in
+	 *                           this case.
+	 * @param  array    $where   A named array of WHERE clauses (in column => value
+	 *                           pairs). Multiple clauses will be joined with ANDs.
+	 *                           Both $where columns and $where values should be
+	 *                           "raw". Sending a null value will create an IS NULL
+	 *                           comparison - the corresponding format will be
+	 *                           ignored in this case.
+	 * @param  int|null $site_id Optional. The site ID. Null means the current
+	 *                           $blog_id. Default null.
+	 *
+	 * @return int|false         The number of rows updated, or false on error.
+	 */
+	public function update( array $data, array $where, $site_id = null ) {
+		try {
+			global $wpdb;
+
+			return $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$this->get_table_name( $site_id ),
+				$data,
+				$where,
+				$this->get_format( $data ),
+				$this->get_format( $where )
+			);
+		} catch ( \RuntimeException $e ) {
+			return false;
+		}
+	}
+
+	/**
+	 * Deletes a row from the table.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @global \wpdb $wpdb The WordPress Database Access Abstraction.
+	 *
+	 * @param  array    $where   A named array of WHERE clauses (in column => value
+	 *                           pairs). Multiple clauses will be joined with ANDs.
+	 *                           Both $where columns and $where values should be
+	 *                           "raw". Sending a null value will create an IS NULL
+	 *                           comparison - the corresponding format will be
+	 *                           ignored in this case.
+	 * @param  int|null $site_id Optional. The site ID. Null means the current
+	 *                           $blog_id. Default null.
+	 *
+	 * @return int|false         The number of rows deleted, or false on error.
+	 */
+	public function delete( array $where, $site_id = null ) {
+		try {
+			global $wpdb;
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			return $wpdb->delete( $this->get_table_name( $site_id ), $where, $this->get_format( $where ) );
+		} catch ( \RuntimeException $e ) {
+			return false;
+		}
+	}
 }
