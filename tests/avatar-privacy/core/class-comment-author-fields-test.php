@@ -35,6 +35,8 @@ use Mockery as m;
 use Avatar_Privacy\Core\Comment_Author_Fields;
 
 use Avatar_Privacy\Data_Storage\Cache;
+use Avatar_Privacy\Data_Storage\Database\Comment_Author_Table;
+use Avatar_Privacy\Data_Storage\Database\Hashes_Table;
 
 use Avatar_Privacy\Tools\Hasher;
 
@@ -82,8 +84,10 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 		parent::set_up();
 
 		// Mock required helpers.
-		$this->cache  = m::mock( Cache::class );
-		$this->hasher = m::mock( Hasher::class );
+		$this->cache                = m::mock( Cache::class );
+		$this->hasher               = m::mock( Hasher::class );
+		$this->comment_author_table = m::mock( Comment_Author_Table::class );
+		$this->hashes_table         = m::mock( Hashes_Table::class );
 
 		// Partially mock system under test.
 		$this->sut = m::mock(
@@ -91,6 +95,8 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 			[
 				$this->cache,
 				$this->hasher,
+				$this->comment_author_table,
+				$this->hashes_table,
 			]
 		)->makePartial()->shouldAllowMockingProtectedMethods();
 	}
@@ -102,14 +108,18 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_constructor() {
 		// Mock required helpers.
-		$cache  = m::mock( Cache::class )->makePartial();
-		$hasher = m::mock( Hasher::class );
+		$cache                = m::mock( Cache::class );
+		$hasher               = m::mock( Hasher::class );
+		$comment_author_table = m::mock( Comment_Author_Table::class );
+		$hashes_table         = m::mock( Hashes_Table::class );
 
 		$comment_author_fields = m::mock( Comment_Author_Fields::class )->makePartial();
-		$comment_author_fields->__construct( $cache, $hasher );
+		$comment_author_fields->__construct( $cache, $hasher, $comment_author_table, $hashes_table );
 
 		$this->assert_attribute_same( $cache, 'cache', $comment_author_fields );
 		$this->assert_attribute_same( $hasher, 'hasher', $comment_author_fields );
+		$this->assert_attribute_same( $comment_author_table, 'comment_author_table', $comment_author_fields );
+		$this->assert_attribute_same( $hashes_table, 'hashes_table', $comment_author_fields );
 	}
 
 	/**
@@ -261,14 +271,15 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @param  string            $email_or_hash The input value.
 	 * @param  object|false|null $cached        The cached result (or false, or null if bailing early).
-	 * @param  string            $column        The relevant column (`email` or `hash`).
+	 * @param  string            $type          The relevant type (`email` or `hash`).
 	 * @param  object|null       $result        The expected result.
 	 * @param  string|null       $clean         Optional. The "clean" input value. Default is `$email_or_hash`.
 	 */
-	public function test_load( $email_or_hash, $cached = null, $column = null, $result = null, $clean = null ) {
+	public function test_load( $email_or_hash, $cached = null, $type = null, $result = null, $clean = null ) {
 		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wpdb->avatar_privacy = 'avatar_privacy_table';
+		$wpdb                        = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wpdb->avatar_privacy        = 'avatar_privacy_table';
+		$wpdb->avatar_privacy_hashes = 'avatar_privacy_hashes_table';
 
 		// Set default value for clean email or hash.
 		$clean = null === $clean ? $email_or_hash : $clean;
@@ -282,11 +293,11 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 		} else {
 			$key = 'fake cache key';
 
-			$this->sut->shouldReceive( 'get_cache_key' )->with( $clean, $column )->andReturn( $key );
+			$this->sut->shouldReceive( 'get_cache_key' )->with( $clean, $type )->andReturn( $key );
 			$this->cache->shouldReceive( 'get' )->with( $key )->andReturn( $cached );
 
 			if ( empty( $cached ) ) {
-				$wpdb->shouldReceive( 'prepare' )->with( m::type( 'string' ), $wpdb->avatar_privacy, $column, $clean )->andReturn( 'sql_string' );
+				$wpdb->shouldReceive( 'prepare' )->with( m::type( 'string' ), $wpdb->avatar_privacy, $wpdb->avatar_privacy_hashes, $type, $clean )->andReturn( 'sql_string' );
 				$wpdb->shouldReceive( 'get_row' )->with( 'sql_string', \OBJECT )->andReturn( $result );
 				$this->cache->shouldReceive( 'set' )->with( $key, $result, m::type( 'int' ) )->andReturn( false );
 			} else {
@@ -305,19 +316,12 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::update
 	 */
 	public function test_update() {
-		$columns        = [ 'foo' => 'bar' ];
-		$id             = 13;
-		$email          = 'foo@bar.org';
-		$hash           = 'hashed $email';
-		$format_strings = 'format strings for columns array';
-		$rows_updated   = 5;
+		$columns      = [ 'foo' => 'bar' ];
+		$id           = 13;
+		$email        = 'foo@bar.org';
+		$rows_updated = 5;
 
-		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wpdb->avatar_privacy = 'avatar_privacy_table';
-
-		$this->sut->shouldReceive( 'get_format_strings' )->once()->with( $columns )->andReturn( $format_strings );
-		$wpdb->shouldReceive( 'update' )->once()->with( $wpdb->avatar_privacy, $columns, [ 'id' => $id ], $format_strings, [ '%d' ] )->andReturn( $rows_updated );
+		$this->comment_author_table->shouldReceive( 'update' )->once()->with( $columns, [ 'id' => $id ] )->andReturn( $rows_updated );
 
 		$this->sut->shouldReceive( 'clear_cache' )->once()->with( $email );
 
@@ -330,18 +334,11 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::update
 	 */
 	public function test_update_error() {
-		$columns        = [ 'foo' => 'bar' ];
-		$id             = 13;
-		$email          = 'foo@bar.org';
-		$hash           = 'hashed $email';
-		$format_strings = 'format strings for columns array';
+		$columns = [ 'foo' => 'bar' ];
+		$id      = 13;
+		$email   = 'foo@bar.org';
 
-		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wpdb->avatar_privacy = 'avatar_privacy_table';
-
-		$this->sut->shouldReceive( 'get_format_strings' )->once()->with( $columns )->andReturn( $format_strings );
-		$wpdb->shouldReceive( 'update' )->once()->with( $wpdb->avatar_privacy, $columns, [ 'id' => $id ], $format_strings, [ '%d' ] )->andReturn( false );
+		$this->comment_author_table->shouldReceive( 'update' )->once()->with( $columns, [ 'id' => $id ] )->andReturn( false );
 
 		$this->sut->shouldReceive( 'clear_cache' )->never();
 
@@ -354,19 +351,12 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::update
 	 */
 	public function test_update_no_rows_updated() {
-		$columns        = [ 'foo' => 'bar' ];
-		$id             = 13;
-		$email          = 'foo@bar.org';
-		$hash           = 'hashed $email';
-		$format_strings = 'format strings for columns array';
-		$rows_updated   = 0;
+		$columns      = [ 'foo' => 'bar' ];
+		$id           = 13;
+		$email        = 'foo@bar.org';
+		$rows_updated = 0;
 
-		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wpdb->avatar_privacy = 'avatar_privacy_table';
-
-		$this->sut->shouldReceive( 'get_format_strings' )->once()->with( $columns )->andReturn( $format_strings );
-		$wpdb->shouldReceive( 'update' )->once()->with( $wpdb->avatar_privacy, $columns, [ 'id' => $id ], $format_strings, [ '%d' ] )->andReturn( $rows_updated );
+		$this->comment_author_table->shouldReceive( 'update' )->once()->with( $columns, [ 'id' => $id ] )->andReturn( $rows_updated );
 
 		$this->sut->shouldReceive( 'clear_cache' )->never();
 
@@ -379,31 +369,20 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::insert
 	 */
 	public function test_insert() {
-		$email          = 'foo@bar.org';
-		$hash           = 'hashed $email';
-		$use_gravatar   = true;
-		$last_updated   = 'a timestamp';
-		$log_message    = 'a log message';
-		$format_strings = 'format strings for columns array';
-		$rows_updated   = 1;
+		$email        = 'foo@bar.org';
+		$use_gravatar = true;
+		$log_message  = 'a log message';
+		$rows_updated = 1;
 
 		$expected_columns = [
 			'email'        => $email,
-			'hash'         => $hash,
 			'use_gravatar' => $use_gravatar,
 			'last_updated' => $last_updated,
 			'log_message'  => $log_message,
 		];
 
-		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wpdb->avatar_privacy = 'avatar_privacy_table';
-
-		$this->sut->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
-		$this->sut->shouldReceive( 'clear_cache' )->once()->with( $hash, 'hash' );
-
-		$this->sut->shouldReceive( 'get_format_strings' )->once()->with( $expected_columns )->andReturn( $format_strings );
-		$wpdb->shouldReceive( 'insert' )->once()->with( $wpdb->avatar_privacy, $expected_columns, $format_strings )->andReturn( $rows_updated );
+		$this->comment_author_table->shouldReceive( 'insert' )->once()->with( $expected_columns )->andReturn( $rows_updated );
+		$this->sut->shouldReceive( 'update_hash' )->once()->with( $email, true );
 
 		$this->assertSame( $rows_updated, $this->sut->insert( $email, $use_gravatar, $last_updated, $log_message ) );
 	}
@@ -422,6 +401,17 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 				(object) [
 					'id'           => 77,
 					'email'        => 'foo@bar.org',
+					'use_gravatar' => true,
+				],
+			],
+			[
+				'foo@bar.org',
+				5,
+				true,
+				(object) [
+					'id'           => 77,
+					'email'        => 'foo@bar.org',
+					'hash'         => 'some hash',
 					'use_gravatar' => true,
 				],
 			],
@@ -452,14 +442,6 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param  object $data         The retrieved data.
 	 */
 	public function test_update_gravatar_use( $email, $comment_id, $use_gravatar, $data ) {
-		$hash = 'hashed $email';
-
-		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wpdb->avatar_privacy = 'avatar_privacy_table';
-		$wpdb->site_id        = 1;
-		$wpdb->blog_id        = 2;
-
 		$this->sut->shouldReceive( 'load' )->once()->with( $email )->andReturn( $data );
 
 		if ( empty( $data ) ) {
@@ -470,10 +452,11 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 			if ( $data->use_gravatar !== $use_gravatar ) {
 				Functions\expect( 'current_time' )->once()->with( 'mysql' )->andReturn( 'a timestamp' );
 				$this->sut->shouldReceive( 'get_log_message' )->once()->with( $comment_id )->andReturn( 'my log message' );
-				$this->sut->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
 				$this->sut->shouldReceive( 'update' )->once()->with( $data->id, $data->email, m::type( 'array' ) );
-			} elseif ( empty( $data->hash ) ) {
-				$this->sut->shouldReceive( 'update_hash' )->once()->with( $data->id, $data->email );
+			}
+
+			if ( empty( $data->hash ) ) {
+				$this->sut->shouldReceive( 'update_hash' )->once()->with( $data->email );
 			}
 		}
 
@@ -481,54 +464,50 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Provides dat afor testing ::update_hash.
+	 *
+	 * @return array
+	 */
+	public function provide_update_hash_data() {
+		return [
+			[ false, 1, true ],
+			[ false, 0, false ],
+			[ false, false, false ],
+			[ true, 0, true ],
+			[ true, false, true ],
+			[ true, 1, true ],
+		];
+	}
+
+	/**
 	 * Tests ::update_hash.
 	 *
 	 * @covers ::update_hash
+	 *
+	 * @dataProvider provide_update_hash_data
+	 *
+	 * @param bool     $clear_cache   The $clear_cache flag.
+	 * @param int|bool $update_result The result of the 'replace' call.
+	 * @param bool     $cleared       Whether the cache is expected to be cleared.
 	 */
-	public function test_update_hash() {
-		$id    = 666;
+	public function test_update_hash( $clear_cache, $update_result, $cleared ) {
 		$email = 'foo@bar.com';
 		$hash  = 'hashedemail123';
 
 		$this->sut->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
-		$this->sut->shouldReceive( 'update' )->once()->with( $id, $email, [ 'hash' => $hash ] );
+		$this->hashes_table->shouldReceive( 'replace' )->once()->with(
+			[
+				'identifier' => $email,
+				'hash'       => $hash,
+				'type'       => 'comment',
+			]
+		)->andReturn( $update_result );
 
-		$this->assertNull( $this->sut->update_hash( $id, $email ) );
-	}
+		if ( $cleared ) {
+			$this->sut->shouldReceive( 'clear_cache' )->once()->with( $hash, 'hash' );
+		}
 
-	/**
-	 * Tests ::get_format_strings.
-	 *
-	 * @covers ::get_format_strings
-	 */
-	public function test_get_format_strings() {
-		$columns  = [
-			'log_message'  => 'foo',
-			'use_gravatar' => 1,
-			'hash'         => 'bar',
-		];
-		$expected = [ '%s', '%d', '%s' ];
-
-		$this->assertSame( $expected, $this->sut->get_format_strings( $columns ) );
-	}
-
-	/**
-	 * Tests ::get_format_strings.
-	 *
-	 * @covers ::get_format_strings
-	 */
-	public function test_get_format_strings_invalid_column() {
-		$columns  = [
-			'log_message'  => 'foo',
-			'use_gravatar' => 1,
-			'hash'         => 'bar',
-			'foo'          => 'bar',
-		];
-		$expected = [ '%s', '%d', '%s' ];
-
-		$this->expectException( \RuntimeException::class );
-
-		$this->assertSame( $expected, $this->sut->get_format_strings( $columns ) );
+		$this->assertSame( $update_result, $this->sut->update_hash( $email, $clear_cache ) );
 	}
 
 	/**

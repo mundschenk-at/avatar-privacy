@@ -29,6 +29,8 @@ namespace Avatar_Privacy\Core;
 
 use Avatar_Privacy\Core\API;
 use Avatar_Privacy\Data_Storage\Cache;
+use Avatar_Privacy\Data_Storage\Database\Comment_Author_Table;
+use Avatar_Privacy\Data_Storage\Database\Hashes_Table;
 use Avatar_Privacy\Tools\Hasher;
 
 use const MINUTE_IN_SECONDS;
@@ -49,21 +51,6 @@ class Comment_Author_Fields implements API {
 	 */
 	const EMAIL_CACHE_PREFIX = 'email_';
 
-	const COLUMN_FORMAT_STRINGS = [
-		'email'        => '%s',
-		'last_updated' => '%s',
-		'log_message'  => '%s',
-		'hash'         => '%s',
-		'use_gravatar' => '%d',
-	];
-
-	/**
-	 * A copy of COLUMN_FORMAT_STRINGS for PHP 5.6 compatibility.
-	 *
-	 * @var array
-	 */
-	private $column_format_strings;
-
 	/**
 	 * The cache handler.
 	 *
@@ -79,18 +66,33 @@ class Comment_Author_Fields implements API {
 	private $hasher;
 
 	/**
+	 * The comment author table handler.
+	 *
+	 * @var Comment_Author_Table
+	 */
+	private $comment_author_table;
+
+	/**
+	 * The comment author table handler.
+	 *
+	 * @var Hashes_Table
+	 */
+	private $hashes_table;
+
+	/**
 	 * Creates a \Avatar_Privacy\Core instance and registers all necessary hooks
 	 * and filters for the plugin.
 	 *
-	 * @param Cache  $cache   Required.
-	 * @param Hasher $hasher  Required.
+	 * @param Cache                $cache                Required.
+	 * @param Hasher               $hasher               Required.
+	 * @param Comment_Author_Table $comment_author_table The comment author database table.
+	 * @param Hashes_Table         $hashes_table         The hashes database table.
 	 */
-	public function __construct( Cache $cache, Hasher $hasher ) {
-		$this->cache  = $cache;
-		$this->hasher = $hasher;
-
-		// PHP 5.6 compatibility.
-		$this->column_format_strings = self::COLUMN_FORMAT_STRINGS;
+	public function __construct( Cache $cache, Hasher $hasher, Comment_Author_Table $comment_author_table, Hashes_Table $hashes_table ) {
+		$this->cache                = $cache;
+		$this->hasher               = $hasher;
+		$this->comment_author_table = $comment_author_table;
+		$this->hashes_table         = $hashes_table;
 	}
 
 	/**
@@ -174,8 +176,14 @@ class Comment_Author_Fields implements API {
 		if ( false === $data ) {
 			// We need to query the database.
 			$data = $wpdb->get_row(
-				// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder -- DB and column name.
-				$wpdb->prepare( 'SELECT * FROM `%1$s` WHERE `%2$s` = "%3$s"', $wpdb->avatar_privacy, $type, $email_or_hash ),
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder -- DB and column name.
+					'SELECT c.*, h.hash FROM `%1$s` c LEFT OUTER JOIN `%2$s` h ON c.email = h.identifier AND h.type = "comment" WHERE `%3$s` = "%4$s"',
+					$wpdb->avatar_privacy,
+					$wpdb->avatar_privacy_hashes,
+					$type,
+					$email_or_hash
+				),
 				\OBJECT
 			); // WPCS: db call ok, cache ok.
 
@@ -199,20 +207,19 @@ class Comment_Author_Fields implements API {
 	}
 
 	/**
-	 * Updates the Avatar Privacy table.
+	 * Updates the comment author information. Also clears the cache.
 	 *
 	 * @param  int    $id      The row ID.
 	 * @param  string $email   The mail address.
 	 * @param  array  $columns An array of values index by column name.
 	 *
-	 * @return int|false      The number of rows updated, or false on error.
+	 * @return int|false       The number of rows updated, or false on error.
 	 *
-	 * @throws \RuntimeException A \RuntimeException is raised when invalid column names are used.
+	 * @throws \RuntimeException A \RuntimeException is raised when invalid
+	 *                           column names are used.
 	 */
 	protected function update( $id, $email, array $columns ) {
-		global $wpdb;
-
-		$result = $wpdb->update( $wpdb->avatar_privacy, $columns, [ 'id' => $id ], $this->get_format_strings( $columns ), [ '%d' ] ); // WPCS: db call ok, db cache ok.
+		$result = $this->comment_author_table->update( $columns, [ 'id' => $id ] );
 
 		if ( false !== $result && $result > 0 ) {
 			// Clear any previously cached value.
@@ -223,7 +230,9 @@ class Comment_Author_Fields implements API {
 	}
 
 	/**
-	 * Updates the Avatar Privacy table.
+	 * Inserts data into the comment author table (and the supplementary hashes
+	 * table). Also clears the cache if successful.
+	 *
 	 *
 	 * @param  string   $email        The mail address.
 	 * @param  int|null $use_gravatar A flag indicating if gravatar use is allowed. `null` indicates the default policy (i.e. not set).
@@ -234,20 +243,21 @@ class Comment_Author_Fields implements API {
 	 */
 	protected function insert( $email, $use_gravatar, $last_updated, $log_message ) {
 		global $wpdb;
-
-		$hash    = $this->get_hash( $email );
 		$columns = [
 			'email'        => $email,
-			'hash'         => $hash,
 			'use_gravatar' => $use_gravatar,
 			'last_updated' => $last_updated,
 			'log_message'  => $log_message,
 		];
 
-		// Clear any previously cached value, just in case.
-		$this->clear_cache( $hash, 'hash' );
+		// Update database.
+		$result = $this->comment_author_table->insert( $columns );
+		if ( ! empty( $result ) ) {
+			// Clear any previously cached value, just in case.
+			$this->update_hash( $email, true );
+		}
 
-		return $wpdb->insert( $wpdb->avatar_privacy, $columns, $this->get_format_strings( $columns ) ); // WPCS: db call ok, db cache ok.
+		return $result;
 	}
 
 	/**
@@ -269,49 +279,43 @@ class Comment_Author_Fields implements API {
 					'use_gravatar' => $use_gravatar,
 					'last_updated' => \current_time( 'mysql' ),
 					'log_message'  => $this->get_log_message( $comment_id ),
-					'hash'         => $this->get_hash( $email ),
 				];
 				$this->update( $data->id, $data->email, $new_values );
-			} elseif ( empty( $data->hash ) ) {
-				// Just add the hash.
-				$this->update_hash( $data->id, $data->email );
+			}
+
+			// We might also need to update the hash.
+			if ( empty( $data->hash ) ) {
+				$this->update_hash( $data->email );
 			}
 		}
 	}
 
 	/**
-	 * Updates the hash using the ID and email.
+	 * Updates the hash for the comment author email. Also clears the cache if
+	 * necessary.
 	 *
-	 * @param  int    $id    The database key.
-	 * @param  string $email The email.
+	 * @param  string $email       The email.
+	 * @param  bool   $clear_cache Optional. Force the cache to be cleared. Default false.
+	 *
+	 * @return int|false     The number of rows updated, or false on error.
 	 */
-	public function update_hash( $id, $email ) {
-		$this->update( $id, $email, [ 'hash' => $this->get_hash( $email ) ] );
-	}
+	public function update_hash( $email, $clear_cache = false ) {
+		$hash = $this->get_hash( $email );
+		$data = [
+			'identifier' => $email,
+			'hash'       => $hash,
+			'type'       => 'comment',
+		];
 
-	/**
-	 * Retrieves the correct format strings for the given columns.
-	 *
-	 * @param  array $columns An array of values index by column name.
-	 *
-	 * @return string[]
-	 *
-	 * @throws \RuntimeException A \RuntimeException is raised when invalid column names are used.
-	 */
-	protected function get_format_strings( array $columns ) {
-		$format_strings = [];
+		// Update database.
+		$result = $this->hashes_table->replace( $data );
 
-		foreach ( $columns as $key => $value ) {
-			if ( ! empty( $this->column_format_strings[ $key ] ) ) {
-				$format_strings[] = $this->column_format_strings[ $key ];
-			}
+		// Check whether we need to clear the cache.
+		if ( $clear_cache || ! empty( $result ) ) {
+			$this->clear_cache( $hash, 'hash' );
 		}
 
-		if ( \count( $columns ) !== \count( $format_strings ) ) {
-			throw new \RuntimeException( 'Invalid database update string.' );
-		}
-
-		return $format_strings;
+		return $result;
 	}
 
 	/**

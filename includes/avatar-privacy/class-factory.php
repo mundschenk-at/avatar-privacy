@@ -482,8 +482,16 @@ class Factory extends Dice {
 	 * }
 	 */
 	protected function get_database_tables() {
-		return [
-			[ 'instance' => Database\Comment_Author_Table::class ],
+		$classes = [
+			Database\Comment_Author_Table::class,
+			Database\Hashes_Table::class,
 		];
+		$tables  = [];
+
+		foreach ( $classes as $table_class ) {
+			$tables[ $table_class::TABLE_BASENAME ] = [ 'instance' => $table_class ];
+		}
+
+		return $tables;
 	}
 }
