@@ -233,20 +233,18 @@ class Comment_Author_Fields implements API {
 	 * Inserts data into the comment author table (and the supplementary hashes
 	 * table). Also clears the cache if successful.
 	 *
+	 * @since 2.4.0 Parameter $last_updated removed.
 	 *
 	 * @param  string   $email        The mail address.
 	 * @param  int|null $use_gravatar A flag indicating if gravatar use is allowed. `null` indicates the default policy (i.e. not set).
-	 * @param  string   $last_updated A date/time in MySQL format.
 	 * @param  string   $log_message  The log message.
 	 *
 	 * @return int|false              The number of rows updated, or false on error.
 	 */
-	protected function insert( $email, $use_gravatar, $last_updated, $log_message ) {
-		global $wpdb;
+	protected function insert( $email, $use_gravatar, $log_message ) {
 		$columns = [
 			'email'        => $email,
 			'use_gravatar' => $use_gravatar,
-			'last_updated' => $last_updated,
 			'log_message'  => $log_message,
 		];
 
@@ -271,13 +269,12 @@ class Comment_Author_Fields implements API {
 		$data = $this->load( $email );
 		if ( empty( $data ) ) {
 			// Nothing found in the database, insert the dataset.
-			$this->insert( $email, $use_gravatar, \current_time( 'mysql' ), $this->get_log_message( $comment_id ) );
+			$this->insert( $email, $use_gravatar, $this->get_log_message( $comment_id ) );
 		} else {
 			if ( $data->use_gravatar !== $use_gravatar ) {
 				// Dataset found but with different value, update it.
 				$new_values = [
 					'use_gravatar' => $use_gravatar,
-					'last_updated' => \current_time( 'mysql' ),
 					'log_message'  => $this->get_log_message( $comment_id ),
 				];
 				$this->update( $data->id, $data->email, $new_values );

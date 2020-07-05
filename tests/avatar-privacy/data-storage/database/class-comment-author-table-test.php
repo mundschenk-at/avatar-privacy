@@ -879,6 +879,7 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$previous = '2.3.9';
 
 		$this->sut->shouldReceive( 'maybe_drop_hash_column' )->once()->andReturn( true );
+		$this->sut->shouldReceive( 'maybe_fix_last_updated_column_default' )->once()->andReturn( true );
 
 		$this->assertTrue( $this->sut->maybe_upgrade_schema( $previous ) );
 	}
@@ -925,6 +926,58 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$wpdb->shouldReceive( 'query' )->never()->with( 'ALTER_QUERY' );
 
 		$this->assertFalse( $this->sut->maybe_drop_hash_column() );
+	}
+
+	/**
+	 * Tests ::maybe_fix_last_updated_column_default.
+	 *
+	 * @covers ::maybe_fix_last_updated_column_default
+	 */
+	public function test_maybe_fix_last_updated_column_default() {
+		// Fake global.
+		global $wpdb;
+		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$table_name = 'my_table';
+		$column_def = [
+			'Default' => '0000-00-00 00:00:00',
+			'Foo'     => 'bar',
+		];
+
+		$this->sut->shouldReceive( 'get_table_name' )->once()->andReturn( $table_name );
+
+		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SHOW COLUMNS FROM `%1$s` LIKE \'last_updated\'', $table_name )->andReturn( 'COLUMN_DEFINITION_QUERY' );
+		$wpdb->shouldReceive( 'get_row' )->once()->with( 'COLUMN_DEFINITION_QUERY', \ARRAY_A )->andReturn( $column_def );
+
+		$wpdb->shouldReceive( 'prepare' )->once()->with( 'ALTER TABLE `%1$s` MODIFY COLUMN `last_updated` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL', $table_name )->andReturn( 'ALTER_QUERY' );
+		$wpdb->shouldReceive( 'query' )->once()->with( 'ALTER_QUERY' )->andReturn( 1 );
+
+		$this->assertTrue( $this->sut->maybe_fix_last_updated_column_default() );
+	}
+
+	/**
+	 * Tests ::maybe_fix_last_updated_column_default.
+	 *
+	 * @covers ::maybe_fix_last_updated_column_default
+	 */
+	public function test_maybe_fix_last_updated_column_default_no_need() {
+		// Fake global.
+		global $wpdb;
+		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$table_name = 'my_table';
+		$column_def = [
+			'Default' => 'CURRENT_TIMESTAMP',
+			'Foo'     => 'bar',
+		];
+
+		$this->sut->shouldReceive( 'get_table_name' )->once()->andReturn( $table_name );
+
+		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SHOW COLUMNS FROM `%1$s` LIKE \'last_updated\'', $table_name )->andReturn( 'COLUMN_DEFINITION_QUERY' );
+		$wpdb->shouldReceive( 'get_row' )->once()->with( 'COLUMN_DEFINITION_QUERY', \ARRAY_A )->andReturn( $column_def );
+
+		$wpdb->shouldReceive( 'prepare' )->never()->with( 'ALTER TABLE `%1$s` MODIFY COLUMN `last_updated` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL', $table_name );
+		$wpdb->shouldReceive( 'query' )->never()->with( 'ALTER_QUERY' );
+
+		$this->assertFalse( $this->sut->maybe_fix_last_updated_column_default() );
 	}
 
 	/**
