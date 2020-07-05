@@ -377,14 +377,13 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 		$expected_columns = [
 			'email'        => $email,
 			'use_gravatar' => $use_gravatar,
-			'last_updated' => $last_updated,
 			'log_message'  => $log_message,
 		];
 
 		$this->comment_author_table->shouldReceive( 'insert' )->once()->with( $expected_columns )->andReturn( $rows_updated );
 		$this->sut->shouldReceive( 'update_hash' )->once()->with( $email, true );
 
-		$this->assertSame( $rows_updated, $this->sut->insert( $email, $use_gravatar, $last_updated, $log_message ) );
+		$this->assertSame( $rows_updated, $this->sut->insert( $email, $use_gravatar, $log_message ) );
 	}
 
 	/**
@@ -445,12 +444,10 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'load' )->once()->with( $email )->andReturn( $data );
 
 		if ( empty( $data ) ) {
-			Functions\expect( 'current_time' )->once()->with( 'mysql' )->andReturn( 'a timestamp' );
 			$this->sut->shouldReceive( 'get_log_message' )->once()->with( $comment_id )->andReturn( 'my log message' );
-			$this->sut->shouldReceive( 'insert' )->once()->with( $email, $use_gravatar, m::type( 'string' ), m::type( 'string' ) );
+			$this->sut->shouldReceive( 'insert' )->once()->with( $email, $use_gravatar, m::type( 'string' ) );
 		} else {
 			if ( $data->use_gravatar !== $use_gravatar ) {
-				Functions\expect( 'current_time' )->once()->with( 'mysql' )->andReturn( 'a timestamp' );
 				$this->sut->shouldReceive( 'get_log_message' )->once()->with( $comment_id )->andReturn( 'my log message' );
 				$this->sut->shouldReceive( 'update' )->once()->with( $data->id, $data->email, m::type( 'array' ) );
 			}

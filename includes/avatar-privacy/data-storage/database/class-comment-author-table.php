@@ -156,8 +156,8 @@ class Comment_Author_Table extends Table {
 		return "CREATE TABLE {$table_name} (
 				id mediumint(9) NOT NULL AUTO_INCREMENT,
 				email varchar(100) NOT NULL,
-				use_gravatar tinyint(1) NOT NULL,
-				last_updated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+				use_gravatar tinyint(1) DEFAULT NULL,
+				last_updated datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
 				log_message varchar(255),
 				PRIMARY KEY (id),
 				UNIQUE KEY email (email)
@@ -366,6 +366,7 @@ class Comment_Author_Table extends Table {
 
 		if ( \version_compare( $previous_version, '2.4.0', '<' ) ) {
 			$result = $this->maybe_drop_hash_column() || $result;
+			$result = $this->maybe_fix_last_updated_column_default() || $result;
 		}
 
 		return $result;
@@ -386,6 +387,28 @@ class Comment_Author_Table extends Table {
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQLPlaceholders
 		if ( 'hash' === $wpdb->get_var( $wpdb->prepare( 'SHOW COLUMNS FROM `%1$s` LIKE \'hash\'', $table_name ) ) ) {
 			return (bool) $wpdb->query( $wpdb->prepare( 'ALTER TABLE `%1$s` DROP COLUMN hash', $table_name ) );
+		}
+		// phpcs:enable WordPress.DB
+
+		return false;
+	}
+
+	/**
+	 * Drops the obsolete 'hash' column from the table.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @return bool
+	 */
+	protected function maybe_fix_last_updated_column_default() {
+		global $wpdb;
+
+		$table_name = $this->get_table_name();
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQLPlaceholders
+		$column_definition = $wpdb->get_row( $wpdb->prepare( 'SHOW COLUMNS FROM `%1$s` LIKE \'last_updated\'', $table_name ), \ARRAY_A );
+		if ( 'CURRENT_TIMESTAMP' !== $column_definition['Default'] ) {
+			return (bool) $wpdb->query( $wpdb->prepare( 'ALTER TABLE `%1$s` MODIFY COLUMN `last_updated` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL', $table_name ) );
 		}
 		// phpcs:enable WordPress.DB
 
