@@ -676,4 +676,387 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertFalse( $this->sut->delete( $where, $site_id ) );
 	}
+
+	/**
+	 * Tests ::insert_or_update.
+	 *
+	 * @covers ::insert_or_update
+	 *
+	 * @uses ::prepare_rows
+	 * @uses ::get_format
+	 * @uses ::prepare_values
+	 * @uses ::get_update_clause
+	 */
+	public function test_insert_or_update() {
+		global $wpdb;
+		$wpdb          = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$network_id    = 5;
+		$site_id       = 3;
+		$fields        = [ 'email', 'hash', 'use_gravatar', 'last_updated', 'log_message' ];
+		$rows          = [
+			3  => (object) [
+				'id'           => 1,
+				'email'        => 'foo@bar.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-17 22:23:08',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 1,
+			],
+			11 => (object) [
+				'id'           => 7,
+				'email'        => 'xxx@foobar.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-19 10:00:00',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 1,
+			],
+			(object) [
+				'id'           => 32,
+				'email'        => 'foobar@bar.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-18 10:00:00',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 0,
+			],
+			(object) [
+				'id'           => 33,
+				'email'        => 'bar@foo.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-18 10:00:00',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 1,
+			],
+			(object) [
+				'id'           => 66,
+				'email'        => 'x@foobar.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-18 10:00:00',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 0,
+			],
+		];
+		$migrate_count = \count( $rows );
+		$table_name    = 'my_table';
+		$query         = 'INSERT_UPDATE_QUERY';
+
+		$this->sut->shouldReceive( 'get_table_name' )->once()->with( $site_id )->andReturn( $table_name );
+
+		$wpdb->shouldReceive( 'prepare' )->once()->with( m::pattern( "/INSERT INTO `{$table_name}` \( email,hash,use_gravatar,last_updated,log_message \)\s+VALUES (\(%s,%s,%d,%s,%s\),?){{$migrate_count}}\s+ON DUPLICATE KEY UPDATE\s+id = id,\s+email = VALUES\(email\),\s+hash = VALUES\(hash\),\s+use_gravatar = VALUES\(use_gravatar\),\s+last_updated = VALUES\(last_updated\),\s+log_message = VALUES\(log_message\)/mu" ), m::type( 'array' ) )->andReturn( $query );
+		$wpdb->shouldReceive( 'query' )->once()->with( $query )->andReturn( $migrate_count );
+
+		$this->assertSame( $migrate_count, $this->sut->insert_or_update( $fields, $rows, $site_id ) );
+	}
+
+	/**
+	 * Tests ::insert_or_update.
+	 *
+	 * @covers ::insert_or_update
+	 */
+	public function test_insert_or_update_no_rows() {
+		global $wpdb;
+		$wpdb    = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$rows    = [];
+		$fields  = [ 'email', 'hash', 'use_gravatar', 'last_updated', 'log_message' ];
+		$site_id = 23;
+
+		$this->sut->shouldReceive( 'get_table_name' )->never();
+		$wpdb->shouldReceive( 'prepare' )->never();
+		$wpdb->shouldReceive( 'query' )->never();
+
+		$this->assertFalse( $this->sut->insert_or_update( $fields, $rows, $site_id ) );
+	}
+
+	/**
+	 * Tests ::insert_or_update.
+	 *
+	 * @covers ::insert_or_update
+	 */
+	public function test_insert_or_update_no_valid_fields() {
+		global $wpdb;
+		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$network_id = 5;
+		$site_id    = 3;
+		$rows       = [
+			3  => (object) [
+				'id'           => 1,
+				'email'        => 'foo@bar.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-17 22:23:08',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 1,
+			],
+			11 => (object) [
+				'id'           => 7,
+				'email'        => 'xxx@foobar.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-19 10:00:00',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 1,
+			],
+			(object) [
+				'id'           => 32,
+				'email'        => 'foobar@bar.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-18 10:00:00',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 0,
+			],
+			(object) [
+				'id'           => 33,
+				'email'        => 'bar@foo.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-18 10:00:00',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 1,
+			],
+			(object) [
+				'id'           => 66,
+				'email'        => 'x@foobar.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-18 10:00:00',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 0,
+			],
+		];
+		$fields     = [ 'invalid_colummn' ];
+
+		$this->sut->shouldReceive( 'get_table_name' )->never();
+
+		$wpdb->shouldReceive( 'prepare' )->never();
+		$wpdb->shouldReceive( 'query' )->never();
+
+		$this->assertFalse( $this->sut->insert_or_update( $fields, $rows, $site_id ) );
+	}
+
+	/**
+	 * Tests ::insert_or_update.
+	 *
+	 * @covers ::insert_or_update
+	 *
+	 * @uses ::prepare_rows
+	 * @uses ::prepare_values
+	 * @uses ::get_update_clause
+	 */
+	public function test_insert_or_update_get_format_exception() {
+		global $wpdb;
+		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$network_id = 5;
+		$site_id    = 3;
+		$fields     = [ 'email', 'hash', 'use_gravatar', 'last_updated', 'log_message' ];
+		$rows       = [
+			3  => (object) [
+				'id'           => 1,
+				'email'        => 'foo@bar.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-17 22:23:08',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 1,
+			],
+			11 => (object) [
+				'id'           => 7,
+				'email'        => 'xxx@foobar.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-19 10:00:00',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 1,
+			],
+			(object) [
+				'id'           => 32,
+				'email'        => 'foobar@bar.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-18 10:00:00',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 0,
+			],
+			(object) [
+				'id'           => 33,
+				'email'        => 'bar@foo.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-18 10:00:00',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 1,
+			],
+			(object) [
+				'id'           => 66,
+				'email'        => 'x@foobar.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-18 10:00:00',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 0,
+			],
+		];
+
+		$this->sut->shouldReceive( 'get_format' )->once()->andThrow( \RuntimeException::class );
+		$this->sut->shouldReceive( 'get_table_name' )->never();
+
+		$wpdb->shouldReceive( 'prepare' )->never();
+		$wpdb->shouldReceive( 'query' )->never();
+
+		$this->assertFalse( $this->sut->insert_or_update( $fields, $rows, $site_id ) );
+	}
+
+	/**
+	 * Provides data for testing get_update_clause.
+	 *
+	 * @return array
+	 */
+	public function provide_get_update_clause_data() {
+		return [
+			[
+				[ 'email', 'hash', 'use_gravatar' ],
+				"id = id,\nemail = VALUES(email),\nhash = VALUES(hash),\nuse_gravatar = VALUES(use_gravatar),\nlast_updated = last_updated,\nlog_message = log_message",
+			],
+			[
+				[ 'log_message' ],
+				"id = id,\nemail = email,\nhash = hash,\nuse_gravatar = use_gravatar,\nlast_updated = last_updated,\nlog_message = VALUES(log_message)",
+			],
+			[
+				[ 'email', 'hash', 'use_gravatar', 'last_updated', 'log_message' ],
+				"id = id,\nemail = VALUES(email),\nhash = VALUES(hash),\nuse_gravatar = VALUES(use_gravatar),\nlast_updated = VALUES(last_updated),\nlog_message = VALUES(log_message)",
+			],
+
+		];
+	}
+
+	/**
+	 * Tests ::get_update_clause.
+	 *
+	 * @covers ::get_update_clause
+	 *
+	 * @dataProvider provide_get_update_clause_data
+	 *
+	 * @param string[] $fields  A list of columns.
+	 * @param string   $result  The expected result.
+	 */
+	public function test_get_update_clause( array $fields, $result ) {
+		$this->assertSame( $result, $this->sut->get_update_clause( $fields ) );
+	}
+
+	/**
+	 * Tests ::prepare_rows.
+	 *
+	 * @covers ::prepare_rows
+	 */
+	public function test_prepare_rows() {
+		$network_id = 5;
+		$site_id    = 3;
+		$rows       = [
+			3  => (object) [
+				'id'           => 1,
+				'email'        => 'foo@bar.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-17 22:23:08',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 1,
+			],
+			11 => (object) [
+				'id'           => 7,
+				'email'        => 'xxx@foobar.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-19 10:00:00',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 1,
+			],
+			(object) [
+				'id'           => 32,
+				'email'        => 'foobar@bar.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-18 10:00:00',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 0,
+			],
+			(object) [
+				'id'           => 33,
+				'email'        => 'bar@foo.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-18 10:00:00',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 1,
+			],
+			(object) [
+				'id'           => 66,
+				'email'        => 'x@foobar.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-18 10:00:00',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 0,
+			],
+		];
+		$fields     = [ 'email', 'log_message', 'last_updated', 'foo' ];
+		$result     = [
+			[
+				'email'        => 'foo@bar.org',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'last_updated' => '2018-12-17 22:23:08',
+				'foo'          => null,
+			],
+			[
+				'email'        => 'xxx@foobar.org',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'last_updated' => '2018-12-19 10:00:00',
+				'foo'          => null,
+			],
+			[
+				'email'        => 'foobar@bar.org',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'last_updated' => '2018-12-18 10:00:00',
+				'foo'          => null,
+			],
+			[
+				'email'        => 'bar@foo.org',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'last_updated' => '2018-12-18 10:00:00',
+				'foo'          => null,
+			],
+			[
+				'email'        => 'x@foobar.org',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'last_updated' => '2018-12-18 10:00:00',
+				'foo'          => null,
+			],
+		];
+
+		$this->assertSame( $result, $this->sut->prepare_rows( $rows, $fields ) );
+	}
+
+	/**
+	 * Tests ::prepare_values.
+	 *
+	 * @covers ::prepare_values
+	 */
+	public function test_prepare_values() {
+		$network_id = 5;
+		$site_id    = 3;
+		$rows       = [
+			[
+				'id'           => null,
+				'email'        => 'foo@bar.org',
+				'last_updated' => '2018-12-17 22:23:08',
+				'use_gravatar' => 1,
+			],
+			[
+				'id'           => 7,
+				'email'        => 'xxx@foobar.org',
+				'hash'         => 'hash',
+				'last_updated' => '2018-12-19 10:00:00',
+				'log_message'  => "set with comment 8 (site: {$network_id}, blog: {$site_id})",
+				'use_gravatar' => 1,
+			],
+		];
+		$result     = [
+			// no ID.
+			'foo@bar.org',
+			'2018-12-17 22:23:08',
+			// no log_message.
+			1, // use_gravatar.
+			7, // ID.
+			'xxx@foobar.org',
+			'hash',
+			'2018-12-19 10:00:00',
+			"set with comment 8 (site: {$network_id}, blog: {$site_id})",
+			1, // use_gravatar.
+		];
+
+		$this->assertSame( $result, $this->sut->prepare_values( $rows ) );
+	}
 }
