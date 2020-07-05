@@ -32,8 +32,6 @@ use Brain\Monkey\Functions;
 
 use Mockery as m;
 
-use org\bovigo\vfs\vfsStream;
-
 use Avatar_Privacy\Data_Storage\Database\Comment_Author_Table;
 use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Tools\Hasher;
@@ -78,22 +76,6 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	protected function set_up() {
 		parent::set_up();
-
-		$filesystem = [
-			'wordpress' => [
-				'path' => [
-					'wp-admin' => [
-						'includes' => [
-							'upgrade.php'  => 'UPGRADE_PHP',
-						],
-					],
-				],
-			],
-		];
-
-		// Set up virtual filesystem.
-		vfsStream::setup( 'root', null, $filesystem );
-		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
 		$this->hasher          = m::mock( Hasher::class );
 		$this->network_options = m::mock( Network_Options::class );
