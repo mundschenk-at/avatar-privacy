@@ -296,7 +296,7 @@ abstract class Table {
 
 		foreach ( $columns as $key => $value ) {
 			if ( ! empty( $this->column_formats[ $key ] ) ) {
-				$format_strings[] = $this->column_formats[ $key ];
+				$format_strings[] = null === $value ? 'NULL' : $this->column_formats[ $key ];
 			} else {
 				throw new \RuntimeException( "Invalid column name '{$key}'." );
 			}
@@ -431,5 +431,123 @@ abstract class Table {
 		} catch ( \RuntimeException $e ) {
 			return false;
 		}
+	}
+
+	/**
+	 * Inserts or updates multiple rows, as required.
+	 *
+	 * @param  string[] $fields  An array of database columns.
+	 * @param  array    $rows    An array of row objects or arrays (containing
+	 *                           field => value tuples).
+	 * @param  int|null $site_id Optional. The site ID. Null means the current
+	 *                           $blog_id. Default null.
+	 *
+	 * @return int|false         The number of rows updated, or false on error.
+	 */
+	public function insert_or_update( array $fields, array $rows, $site_id = null ) {
+		try {
+			global $wpdb;
+
+			// Allow only valid fields.
+			$fields = \array_intersect( $fields, \array_keys( $this->column_formats ) );
+
+			if ( empty( $rows ) || empty( $fields ) ) {
+				return false;
+			}
+
+			$rows          = $this->prepare_rows( $rows, $fields );
+			$columns       = \join( ',', $fields );
+			$values_clause = \join( ',', \array_map( function( $data ) {
+				return '(' . \join( ',', $this->get_format( $data ) ) . ')';
+			}, $rows ) );
+
+			return $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$wpdb->prepare( // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+					"INSERT INTO `{$this->get_table_name( $site_id )}` ( {$columns} )
+					 VALUES {$values_clause}
+					 ON DUPLICATE KEY UPDATE {$this->get_update_clause( $fields )}",
+					$this->prepare_values( $rows )
+				)
+			); // phpcs:enable WordPress.DB
+		} catch ( \RuntimeException $e ) {
+			return false;
+		}
+	}
+
+	/**
+	 * Retrieves the update clause based on the updated fields.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @param  string[] $fields  An array of database columns.
+	 *
+	 * @return string
+	 */
+	protected function get_update_clause( array $fields ) {
+
+		$updated_fields      = \array_flip( $fields );
+		$update_clause_parts = [];
+
+		foreach ( \array_keys( $this->column_formats ) as $field ) {
+			if ( isset( $updated_fields[ $field ] ) ) {
+				$update_clause_parts[] = "{$field} = VALUES({$field})";
+			} else {
+				$update_clause_parts[] = "{$field} = {$field}";
+			}
+		}
+
+		return \join( ",\n", $update_clause_parts );
+	}
+
+	/**
+	 * Prepares an array of rows for use in queries (i.e. add missing values and
+	 * correctly sort the columns).
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  array    $rows    An array of row objects or arrays (containing
+	 *                           field => value tuples).
+	 * @param  string[] $fields  An array of database columns.
+	 *
+	 * @return array
+	 */
+	protected function prepare_rows( array $rows, array $fields ) {
+		$result = [];
+
+		foreach ( $rows as $data ) {
+			// Force array syntax (in case we were given an array of row objects).
+			$data = (array) $data;
+			$row  = [];
+			foreach ( $fields as $column ) {
+				$row[ $column ] = isset( $data[ $column ] ) ? $data[ $column ] : null;
+			}
+
+			$result[] = $row;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Filters non-null values from a prepared database rows array.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  array $prepared_rows An array of arrays containing $field => $value tuples.
+	 *
+	 * @return array                A flat array containing all non-null values.
+	 */
+	protected function prepare_values( array $prepared_rows ) {
+		$values = [];
+
+		foreach ( $prepared_rows as $row ) {
+			foreach ( $row as $value ) {
+				if ( null !== $value ) {
+					$values[] = $value;
+				}
+			}
+		}
+
+		return $values;
 	}
 }

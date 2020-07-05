@@ -188,7 +188,6 @@ class Comment_Author_Table extends Table {
 		$queue = $this->network_options->get( Network_Options::START_GLOBAL_TABLE_MIGRATION );
 
 		if ( \is_array( $queue ) && $this->network_options->lock( Network_Options::GLOBAL_TABLE_MIGRATION ) ) {
-
 			if ( ! empty( $queue ) ) {
 				// Store new queue, overwriting any existing queue (since this per network
 				// and we already got all sites currently in the network).
@@ -210,7 +209,6 @@ class Comment_Author_Table extends Table {
 	 * @since 2.4.0 Moved to class Comment_Author_Table.
 	 */
 	protected function maybe_migrate_from_global_table() {
-
 		if (
 			// The plugin is not network-activated (or not on a multisite installation).
 			! \is_plugin_active_for_network( \plugin_basename( \AVATAR_PRIVACY_PLUGIN_FILE ) ) ||
@@ -226,6 +224,7 @@ class Comment_Author_Table extends Table {
 		// Check if we are scheduled to migrate data from the global table.
 		$site_id = \get_current_blog_id();
 		$queue   = $this->network_options->get( Network_Options::GLOBAL_TABLE_MIGRATION, [] );
+
 		if ( ! empty( $queue[ $site_id ] ) ) {
 			// Migrate the data.
 			$this->migrate_from_global_table( $site_id );
@@ -272,7 +271,6 @@ class Comment_Author_Table extends Table {
 		// Select the rows to migrate.
 		$like_clause     = "set with comment % (site: %, blog: {$wpdb->esc_like( $site_id )})";
 		$rows_to_delete  = [];
-		$rows_to_update  = [];
 		$rows_to_migrate = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare( "SELECT * FROM `{$global_table_name}` WHERE log_message LIKE %s", $like_clause ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			\OBJECT_K
@@ -288,172 +286,37 @@ class Comment_Author_Table extends Table {
 			if ( ! empty( $rows_to_migrate[ $global_row_id ] ) ) {
 				$global_row = $rows_to_migrate[ $global_row_id ];
 
-				if ( \strtotime( $row->last_updated ) < \strtotime( $global_row->last_updated ) ) {
-					$rows_to_update[ $row->id ] = $global_row;
+				if ( \strtotime( $row->last_updated ) >= \strtotime( $global_row->last_updated ) ) {
+					unset( $rows_to_migrate[ $global_row_id ] );
+
+					// Just delete this row.
+					$rows_to_delete[ $global_row_id ] = $global_row;
 				}
-
-				$rows_to_delete[ $global_row_id ] = $global_row;
-
-				unset( $rows_to_migrate[ $global_row_id ] );
 			}
 		}
 
 		// Migrated rows need to be deleted, too.
 		$rows_to_delete = $rows_to_delete + $rows_to_migrate;
 
-		// Number of affected rows.
-		$migrated = 0;
-		$deleted  = 0;
-
 		// Do INSERTs and UPDATEs in one query.
-		$insert_query = $this->prepare_insert_update_query(
-			$rows_to_update,
-			$rows_to_migrate,
-			$site_table_name,
-			[ 'email', 'hash', 'use_gravatar', 'last_updated', 'log_message' ]
-		);
-		if ( false !== $insert_query ) {
-			$migrated = $wpdb->query( $insert_query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery
-		}
-
-		// Do DELETEs in one query.
-		$delete_query = $this->prepare_delete_query( \array_keys( $rows_to_delete ), $global_table_name );
-		if ( false !== $delete_query ) {
-			$deleted = $wpdb->query( $delete_query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery
-		}
-
-		// Don't count updated rows twice, but do count the deleted rows if they
-		// were not included in the updated rows because they were too old.
-		return \max( $migrated - \count( $rows_to_update ), $deleted );
-	}
-
-	/**
-	 * Prepares the query for inserting or updating multiple rows at the same time.
-	 *
-	 * @since 2.3.0 Optional parameter `$fields` added.
-	 * @since 2.4.0 Parameter `$fields` made mandatory.
-	 *
-	 * @global \wpdb    $wpdb            The WordPress Database Access Abstraction.
-	 *
-	 * @param  object[] $rows_to_update  The table rows to update (existing ID, passed as index).
-	 * @param  object[] $rows_to_insert  The table rows to insert (new autoincrement ID).
-	 * @param  string   $table_name      The table name.
-	 * @param  string[] $fields          The fields to insert/update (not including the autoincrement ID).
-	 *
-	 * @return string|false              The prepared query, or false.
-	 */
-	protected function prepare_insert_update_query( array $rows_to_update, array $rows_to_insert, $table_name, array $fields ) {
-		global $wpdb;
-
-		// Allow only valid fields.
-		$fields = \array_intersect( $fields, $this->columns );
-
-		if ( ( empty( $rows_to_update ) && empty( $rows_to_insert ) ) || empty( $table_name ) || empty( $fields ) ) {
+		$migrated = $this->insert_or_update( [ 'email', 'hash', 'use_gravatar', 'last_updated', 'log_message' ], $rows_to_migrate, $site_id );
+		if ( false === $migrated ) {
 			return false;
 		}
 
-		// Prepare placeholders with ID.
-		$prepared_update_values = $this->get_prepared_values( $rows_to_update, $fields, true );
-		$values_clause_parts    = \array_fill( 0, \count( $rows_to_update ), $this->get_placeholders( $fields, true ) );
-
-		// Prepare placeholders without ID.
-		$prepared_insert_values = $this->get_prepared_values( $rows_to_insert, $fields, false );
-		$values_clause_parts    = \array_merge(
-			$values_clause_parts,
-			\array_fill( 0, \count( $rows_to_insert ), $this->get_placeholders( $fields, false ) )
-		);
-
-		// Finalize columns, values clause and prepared values array.
-		$columns         = '(id,' . \join( ',', $fields ) . ')';
-		$prepared_values = \array_merge( $prepared_update_values, $prepared_insert_values );
-		$values_clause   = \join( ',', $values_clause_parts );
-		$update_clause   = $this->get_update_clause( $fields );
-
-		return $wpdb->prepare(  // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-			"INSERT INTO `{$table_name}` {$columns}
-			 VALUES {$values_clause}
-			 ON DUPLICATE KEY UPDATE {$update_clause}",
-			$prepared_values
-		); // phpcs:enable WordPress.DB
-	}
-
-	/**
-	 * Retrieves the update clause based on the updated fields.
-	 *
-	 * @since 2.3.0
-	 *
-	 * @param  string[] $fields  An array of database columns.
-	 *
-	 * @return string
-	 */
-	protected function get_update_clause( array $fields ) {
-
-		$updated_fields      = \array_flip( $fields );
-		$update_clause_parts = [];
-
-		foreach ( $this->columns as $field ) {
-			if ( isset( $updated_fields[ $field ] ) ) {
-				$update_clause_parts[] = "{$field} = VALUES({$field})";
-			} else {
-				$update_clause_parts[] = "{$field} = {$field}";
+		// Do DELETEs in one query.
+		$deleted      = 0;
+		$delete_query = $this->prepare_delete_query( \array_keys( $rows_to_delete ), $global_table_name );
+		if ( false !== $delete_query ) {
+			$deleted = $wpdb->query( $delete_query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery
+			if ( false === $deleted ) {
+				return false;
 			}
 		}
 
-		return \join( ",\n", $update_clause_parts );
-	}
-
-	/**
-	 * Filters an array of values from a raw database result set based on the given columns.
-	 *
-	 * @since 2.3.0
-	 *
-	 * @param  object[] $rows    A query result set.
-	 * @param  string[] $fields  An array of database columns.
-	 * @param  bool     $with_id Optional. Whether to include the ID as the first field. Default true.
-	 *
-	 * @return array
-	 */
-	protected function get_prepared_values( array $rows, array $fields, $with_id = true ) {
-		$values = [];
-
-		foreach ( $rows as $id => $row ) {
-			// Optionally include ID.
-			if ( $with_id ) {
-				$values[] = $id;
-			}
-
-			// Add the selected fields.
-			foreach ( $fields as $field ) {
-				$values[] = $row->$field;
-			}
-		}
-
-		return $values;
-	}
-
-	/**
-	 * Returns the placeholder string for the given fields.
-	 *
-	 * @since 2.3.0
-	 *
-	 * @param  string[] $fields  An array of database columns.
-	 * @param  bool     $with_id Optional. Whether to include the ID as the first field. Default true.
-	 *
-	 * @return string   The comma-separated placeholders inside a pair of parentheses.
-	 */
-	protected function get_placeholders( array $fields, $with_id = true ) {
-		// ID is always included first.
-		\array_unshift( $fields, 'id' );
-
-		// Get raw placeholders.
-		$placeholders = $this->get_format( \array_flip( $fields ) );
-
-		// Use NULL placeholder when used without ID.
-		if ( ! $with_id ) {
-			$placeholders[0] = 'NULL';
-		}
-
-		return '(' . \join( ',', $placeholders ) . ')';
+		// Count the deleted rows if they were not included in the migrated rows
+		// because they were too old.
+		return \max( $migrated, $deleted );
 	}
 
 	/**
