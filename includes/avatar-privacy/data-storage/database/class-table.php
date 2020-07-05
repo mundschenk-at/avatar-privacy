@@ -91,6 +91,9 @@ abstract class Table {
 	 */
 	public function setup( $previous_version ) {
 		if ( $this->maybe_create_table( $previous_version ) ) {
+			// We may need to fix the schema manually.
+			$this->maybe_upgrade_schema( $previous_version );
+
 			// We may need to update the contents as well.
 			$this->maybe_upgrade_data( $previous_version );
 		}
@@ -219,9 +222,22 @@ abstract class Table {
 	abstract protected function get_table_definition( $table_name );
 
 	/**
+	 * Fixes the table schema when dbDelta cannot cope with the changes.
+	 *
+	 * The table itself is already guaranteed to exist.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param string $previous_version The previously installed plugin version.
+	 *
+	 * @return bool                    True if the schema was modified, false otherwise.
+	 */
+	abstract public function maybe_upgrade_schema( $previous_version );
+
+	/**
 	 * Sometimes, the table data needs to updated when upgrading.
 	 *
-	 * The table itself is already guarantueed to exist.
+	 * The table itself is already guaranteed to exist and have the correct schema.
 	 *
 	 * @param string $previous_version The previously installed plugin version.
 	 *

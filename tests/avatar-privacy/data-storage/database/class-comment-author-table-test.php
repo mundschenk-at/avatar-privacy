@@ -888,4 +888,127 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertSame( $result, $this->sut->prepare_delete_query( $ids, $table_name ) );
 	}
+	
+	/**
+	 * Tests ::maybe_upgrade_schema.
+	 *
+	 * @covers ::maybe_upgrade_schema
+	 */
+	public function test_maybe_upgrade_schema() {
+		$previous = '2.3.9';
+
+		$this->sut->shouldReceive( 'maybe_drop_hash_column' )->once()->andReturn( true );
+		$this->sut->shouldReceive( 'maybe_fix_last_updated_column_default' )->once()->andReturn( true );
+
+		$this->assertTrue( $this->sut->maybe_upgrade_schema( $previous ) );
+	}
+
+	/**
+	 * Tests ::maybe_drop_hash_column.
+	 *
+	 * @covers ::maybe_drop_hash_column
+	 */
+	public function test_maybe_drop_hash_column() {
+		// Fake global.
+		global $wpdb;
+		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$table_name = 'my_table';
+
+		$this->sut->shouldReceive( 'get_table_name' )->once()->andReturn( $table_name );
+
+		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SHOW COLUMNS FROM `%1$s` LIKE \'hash\'', $table_name )->andReturn( 'COLUMNS_QUERY' );
+		$wpdb->shouldReceive( 'get_var' )->once()->with( 'COLUMNS_QUERY' )->andReturn( 'hash' );
+
+		$wpdb->shouldReceive( 'prepare' )->once()->with( 'ALTER TABLE `%1$s` DROP COLUMN hash', $table_name )->andReturn( 'ALTER_QUERY' );
+		$wpdb->shouldReceive( 'query' )->once()->with( 'ALTER_QUERY' )->andReturn( 1 );
+
+		$this->assertTrue( $this->sut->maybe_drop_hash_column() );
+	}
+
+	/**
+	 * Tests ::maybe_drop_hash_column.
+	 *
+	 * @covers ::maybe_drop_hash_column
+	 */
+	public function test_maybe_drop_hash_column_no_need() {
+		// Fake global.
+		global $wpdb;
+		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$table_name = 'my_table';
+
+		$this->sut->shouldReceive( 'get_table_name' )->once()->andReturn( $table_name );
+
+		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SHOW COLUMNS FROM `%1$s` LIKE \'hash\'', $table_name )->andReturn( 'COLUMNS_QUERY' );
+		$wpdb->shouldReceive( 'get_var' )->once()->with( 'COLUMNS_QUERY' )->andReturn( false );
+
+		$wpdb->shouldReceive( 'prepare' )->never()->with( 'ALTER TABLE `%1$s` DROP COLUMN hash', $table_name );
+		$wpdb->shouldReceive( 'query' )->never()->with( 'ALTER_QUERY' );
+
+		$this->assertFalse( $this->sut->maybe_drop_hash_column() );
+	}
+
+	/**
+	 * Tests ::maybe_fix_last_updated_column_default.
+	 *
+	 * @covers ::maybe_fix_last_updated_column_default
+	 */
+	public function test_maybe_fix_last_updated_column_default() {
+		// Fake global.
+		global $wpdb;
+		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$table_name = 'my_table';
+		$column_def = [
+			'Default' => '0000-00-00 00:00:00',
+			'Foo'     => 'bar',
+		];
+
+		$this->sut->shouldReceive( 'get_table_name' )->once()->andReturn( $table_name );
+
+		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SHOW COLUMNS FROM `%1$s` LIKE \'last_updated\'', $table_name )->andReturn( 'COLUMN_DEFINITION_QUERY' );
+		$wpdb->shouldReceive( 'get_row' )->once()->with( 'COLUMN_DEFINITION_QUERY', \ARRAY_A )->andReturn( $column_def );
+
+		$wpdb->shouldReceive( 'prepare' )->once()->with( 'ALTER TABLE `%1$s` MODIFY COLUMN `last_updated` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL', $table_name )->andReturn( 'ALTER_QUERY' );
+		$wpdb->shouldReceive( 'query' )->once()->with( 'ALTER_QUERY' )->andReturn( 1 );
+
+		$this->assertNull( $this->sut->maybe_fix_last_updated_column_default() );
+	}
+
+	/**
+	 * Tests ::maybe_fix_last_updated_column_default.
+	 *
+	 * @covers ::maybe_fix_last_updated_column_default
+	 */
+	public function test_maybe_fix_last_updated_column_default_no_need() {
+		// Fake global.
+		global $wpdb;
+		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$table_name = 'my_table';
+		$column_def = [
+			'Default' => 'CURRENT_TIMESTAMP',
+			'Foo'     => 'bar',
+		];
+
+		$this->sut->shouldReceive( 'get_table_name' )->once()->andReturn( $table_name );
+
+		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SHOW COLUMNS FROM `%1$s` LIKE \'last_updated\'', $table_name )->andReturn( 'COLUMN_DEFINITION_QUERY' );
+		$wpdb->shouldReceive( 'get_row' )->once()->with( 'COLUMN_DEFINITION_QUERY', \ARRAY_A )->andReturn( $column_def );
+
+		$wpdb->shouldReceive( 'prepare' )->never()->with( 'ALTER TABLE `%1$s` MODIFY COLUMN `last_updated` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL', $table_name );
+		$wpdb->shouldReceive( 'query' )->never()->with( 'ALTER_QUERY' );
+
+		$this->assertNull( $this->sut->maybe_fix_last_updated_column_default() );
+	}
+
+	/**
+	 * Tests ::maybe_upgrade_data.
+	 *
+	 * @covers ::maybe_upgrade_data
+	 */
+	public function test_maybe_update_data_no_need() {
+		$previous = '0.4';
+
+		$this->sut->shouldReceive( 'fix_email_hashes' )->never();
+
+		$this->assertSame( 0, $this->sut->maybe_upgrade_data( $previous ) );
+	}
 }

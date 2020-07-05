@@ -125,6 +125,7 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$previous_version = '1.1.0';
 
 		$this->sut->shouldReceive( 'maybe_create_table' )->once()->with( $previous_version )->andReturn( true );
+		$this->sut->shouldReceive( 'maybe_upgrade_schema' )->once()->with( $previous_version );
 		$this->sut->shouldReceive( 'maybe_upgrade_data' )->once()->with( $previous_version );
 
 		$this->assertNull( $this->sut->setup( $previous_version ) );
@@ -139,6 +140,7 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$previous_version = '1.1.0';
 
 		$this->sut->shouldReceive( 'maybe_create_table' )->once()->with( $previous_version )->andReturn( false );
+		$this->sut->shouldReceive( 'maybe_upgrade_schema' )->never();
 		$this->sut->shouldReceive( 'maybe_upgrade_data' )->never();
 
 		$this->assertNull( $this->sut->setup( $previous_version ) );
