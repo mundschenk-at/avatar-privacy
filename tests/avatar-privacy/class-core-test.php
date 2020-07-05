@@ -332,7 +332,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$id    = 666;
 		$email = 'foo@bar.com';
 
-		$this->comment_author_fields->shouldReceive( 'update_hash' )->once()->with( $id, $email );
+		$this->comment_author_fields->shouldReceive( 'update_hash' )->once()->with( $email );
 
 		$this->assertNull( $this->sut->update_comment_author_hash( $id, $email ) );
 	}

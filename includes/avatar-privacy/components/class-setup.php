@@ -29,11 +29,13 @@ namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Component;
 
+use Avatar_Privacy\Core\Comment_Author_Fields;
 use Avatar_Privacy\Core\Settings;
 use Avatar_Privacy\Core\User_Fields;
 
 use Avatar_Privacy\Components\Image_Proxy;
 
+use Avatar_Privacy\Data_Storage\Database\Hashes_Table;
 use Avatar_Privacy\Data_Storage\Database\Table; // phpcs:ignore ImportDetection.Imports.RequireImports.Import -- needed for type annotations.
 use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Options;
@@ -135,26 +137,36 @@ class Setup implements Component {
 	 */
 	private $registered_user;
 
+	/**
+	 * The comment author fields API.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var Comment_Author_Fields
+	 */
+	private $comment_author;
 
 	/**
 	 * Creates a new Setup instance.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
-	 * @since 2.4.0 Parameters $settings, $registered_user, and $tables added,
-	 *              parameters $core and $database removed.
+	 * @since 2.4.0 Parameters $settings, $registered_user, $comment_author, and
+	 *              $tables added, parameters $core and $database removed.
 	 *
-	 * @param Settings        $settings        The settings API.
-	 * @param User_Fields     $registered_user The user fields API.
-	 * @param Transients      $transients      The transients handler.
-	 * @param Site_Transients $site_transients The site transients handler.
-	 * @param Options         $options         The options handler.
-	 * @param Network_Options $network_options The network options handler.
-	 * @param Table[]         $tables          The database table handlers.
-	 * @param Multisite       $multisite       The the multisite handler.
+	 * @param Settings              $settings        The settings API.
+	 * @param User_Fields           $registered_user The user fields API.
+	 * @param Comment_Author_Fields $comment_author  The comment author fields API.
+	 * @param Transients            $transients      The transients handler.
+	 * @param Site_Transients       $site_transients The site transients handler.
+	 * @param Options               $options         The options handler.
+	 * @param Network_Options       $network_options The network options handler.
+	 * @param Table[]               $tables          The database table handlers, indexed by their base name.
+	 * @param Multisite             $multisite       The the multisite handler.
 	 */
-	public function __construct( Settings $settings, User_Fields $registered_user, Transients $transients, Site_Transients $site_transients, Options $options, Network_Options $network_options, array $tables, Multisite $multisite ) {
+	public function __construct( Settings $settings, User_Fields $registered_user, Comment_Author_Fields $comment_author, Transients $transients, Site_Transients $site_transients, Options $options, Network_Options $network_options, array $tables, Multisite $multisite ) {
 		$this->settings        = $settings;
 		$this->registered_user = $registered_user;
+		$this->comment_author  = $comment_author;
 		$this->transients      = $transients;
 		$this->site_transients = $site_transients;
 		$this->options         = $options;
@@ -194,15 +206,29 @@ class Setup implements Component {
 			$installed_version = '';
 		}
 
-		// The current version is (probably) newer than the previously installed one.
-		$version = $this->settings->get_version();
-		if ( $version !== $installed_version ) {
-			// Update plugin settings if necessary.
-			$this->plugin_updated( $installed_version, $settings );
+		// Check if the plugin data needs to be updated.
+		$version       = $this->settings->get_version();
+		$update_needed = $version !== $installed_version;
+		$new_install   = empty( $installed_version );
+
+		if ( $update_needed ) {
+			if ( ! $new_install ) {
+				// Update plugin settings if necessary.
+				$settings = $this->update_settings( $installed_version, $settings );
+
+				// Preserve previous multisite behavior.
+				// This needs to happen before the database tables are set up.
+				if ( \is_multisite() && \version_compare( $installed_version, '0.5', '<' ) ) {
+					$this->network_options->set( Network_Options::USE_GLOBAL_TABLE, true );
+				}
+			}
 
 			// Clear transients.
 			$this->transients->invalidate();
 			$this->site_transients->invalidate();
+
+			// To be safe, let's always flush the rewrite rules if there has been an update.
+			$this->flush_rewrite_rules_soon();
 		}
 
 		// Check if our database tables need to created or updated.
@@ -212,50 +238,68 @@ class Setup implements Component {
 			$table->setup( $installed_version );
 		}
 
+		// Run additional upgrade routines now that the tables are set up, but
+		// only if this plugin has been previously installed.
+		if ( $update_needed && ! $new_install ) {
+			$this->update_plugin_data( $installed_version );
+		}
+
 		// Update installed version.
 		$settings[ Options::INSTALLED_VERSION ] = $version;
 		$this->options->set( Settings::OPTION_NAME, $settings );
 	}
 
 	/**
-	 * Upgrade plugin data.
+	 * Updates the plugin settings.
 	 *
 	 * @since 2.1.0 Visibility changed to protected.
+	 * @since 2.4.0 Renamed to update_settings. Parameter $settings passed by value
+	 *              and returned as the result of of the function.
 	 *
-	 * @param string $previous_version The version we are upgrading from.
-	 * @param array  $settings         The settings array. Passed by reference to
-	 *                                 allow for permanent changes. Saved at a the
-	 *                                 end of the upgrade routine.
+	 * @param  string $previous_version The version we are upgrading from.
+	 * @param  array  $settings         The settings array.
+	 *
+	 * @return array                    The updated settings array.
 	 */
-	protected function plugin_updated( $previous_version, array &$settings ) {
+	protected function update_settings( $previous_version, array $settings ) {
 		// Upgrade from version 0.4 or lower.
-		if ( ! empty( $previous_version ) && \version_compare( $previous_version, '0.5', '<' ) ) {
-			// Preserve previous multisite behavior.
-			if ( \is_multisite() ) {
-				$this->network_options->set( Network_Options::USE_GLOBAL_TABLE, true );
-			}
-
-			// Run upgrade command.
-			$this->maybe_update_user_hashes();
-
+		if ( \version_compare( $previous_version, '0.5', '<' ) ) {
 			// Drop old settings.
 			foreach ( self::OBSOLETE_SETTINGS as $key ) {
 				unset( $settings[ $key ] );
 			}
 		}
 
-		// Upgrade from anything below 1.0.RC.1.
-		if ( ! empty( $previous_version ) && \version_compare( $previous_version, '1.0-rc.1', '<' ) ) {
+		return $settings;
+	}
+
+	/**
+	 * Upgrades existing plugin data.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param string $previous_version The version we are upgrading from.
+	 */
+	protected function update_plugin_data( $previous_version ) {
+		// Upgrade from version 0.4 or lower.
+		if ( \version_compare( $previous_version, '0.5', '<' ) ) {
+			$this->maybe_update_user_hashes();
+		}
+
+		// Upgrade from anything below 1.0-rc.1.
+		if ( \version_compare( $previous_version, '1.0-rc.1', '<' ) ) {
 			$this->upgrade_old_avatar_defaults();
 		}
 
 		// Upgrade from anything below 2.1.0-alpha.3.
-		if ( ! empty( $previous_version ) && \version_compare( $previous_version, '2.1.0-alpha.3', '<' ) ) {
+		if ( \version_compare( $previous_version, '2.1.0-alpha.3', '<' ) ) {
 			$this->prefix_usermeta_keys();
 		}
 
-		// To be safe, let's always flush the rewrite rules if there has been an update.
-		$this->flush_rewrite_rules_soon();
+		// Upgrade from anything below 2.4.0.
+		if ( \version_compare( $previous_version, '2.4.0', '<' ) ) {
+			$this->maybe_add_email_hashes();
+		}
 	}
 
 	/**
@@ -372,5 +416,45 @@ class Setup implements Component {
 		foreach ( \get_users( $args ) as $user ) {
 			\update_user_meta( $user->ID, User_Fields::EMAIL_HASH_META_KEY, $this->registered_user->get_hash( $user->user_email ) );
 		}
+	}
+
+	/**
+	 * Adds hashes for stored e-mail addresses if necessary.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @global \wpdb  $wpdb The WordPress Database Access Abstraction.
+	 *
+	 * @return int          The number of upgraded rows.
+	 */
+	protected function maybe_add_email_hashes() {
+		global $wpdb;
+
+		// Add hashes when they are missing.
+		$emails = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder -- DB and column name.
+				'SELECT c.email FROM `%1$s` c LEFT OUTER JOIN `%2$s` h ON c.email = h.identifier AND h.type = "comment" AND h.hash IS NULL',
+				$wpdb->avatar_privacy,
+				$wpdb->avatar_privacy_hashes
+			)
+		);
+		$email_count = \count( $emails );
+
+		if ( $email_count > 0 ) {
+			// Add hashes for all retrieved rows.
+			$rows = [];
+			foreach ( $emails as $email ) {
+				$rows[] = [
+					'identifier' => $email,
+					'hash'       => $this->comment_author->get_hash( $email ),
+					'type'       => 'comment',
+				];
+			}
+
+			return (int) $this->tables[ Hashes_Table::TABLE_BASENAME ]->insert_or_update( [ 'identifier', 'hash', 'type' ], $rows );
+		}
+
+		return 0;
 	}
 }

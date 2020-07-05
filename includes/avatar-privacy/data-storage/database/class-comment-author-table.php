@@ -28,7 +28,6 @@ namespace Avatar_Privacy\Data_Storage\Database;
 
 use Avatar_Privacy\Data_Storage\Database\Table;
 use Avatar_Privacy\Data_Storage\Network_Options;
-use Avatar_Privacy\Tools\Hasher;
 
 /**
  * The database table used for storing (anonymous) comment author data.
@@ -51,7 +50,7 @@ class Comment_Author_Table extends Table {
 	 *
 	 * @var string
 	 */
-	const LAST_UPDATED = '0.5';
+	const LAST_UPDATED = '2.4.0';
 
 	/**
 	 * A column/field to placeholder mapping.
@@ -63,7 +62,6 @@ class Comment_Author_Table extends Table {
 	const COLUMN_FORMATS = [
 		'id'           => '%d',
 		'email'        => '%s',
-		'hash'         => '%s',
 		'use_gravatar' => '%d',
 		'last_updated' => '%s',
 		'log_message'  => '%s',
@@ -77,15 +75,6 @@ class Comment_Author_Table extends Table {
 	private $columns;
 
 	/**
-	 * The hashing helper.
-	 *
-	 * @since 2.4.0
-	 *
-	 * @var Hasher
-	 */
-	private $hasher;
-
-	/**
 	 * The options handler.
 	 *
 	 * @var Network_Options
@@ -96,16 +85,14 @@ class Comment_Author_Table extends Table {
 	 * Creates a new instance.
 	 *
 	 * @since 2.3.0 Parameter $core added.
-	 * @since 2.3.0 Parameter $core replaced with $hasher.
+	 * @since 2.4.0 Parameter $core removed.
 	 *
-	 * @param Hasher          $hasher            The hashing helper.
 	 * @param Network_Options $network_options The network options handler.
 	 */
-	public function __construct( Hasher $hasher, Network_Options $network_options ) {
+	public function __construct( Network_Options $network_options ) {
 		parent::__construct( self::TABLE_BASENAME, self::LAST_UPDATED, self::COLUMN_FORMATS );
 
 		$this->columns         = \array_keys( self::COLUMN_FORMATS );
-		$this->hasher          = $hasher;
 		$this->network_options = $network_options;
 	}
 
@@ -172,10 +159,8 @@ class Comment_Author_Table extends Table {
 				use_gravatar tinyint(1) NOT NULL,
 				last_updated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
 				log_message varchar(255),
-				hash varchar(64),
 				PRIMARY KEY (id),
-				UNIQUE KEY email (email),
-				UNIQUE KEY hash (hash)
+				UNIQUE KEY email (email)
 			)";
 	}
 
@@ -366,6 +351,48 @@ class Comment_Author_Table extends Table {
 	}
 
 	/**
+	 * Fixes the table schema when dbDelta cannot cope with the changes.
+	 *
+	 * The table itself is already guaranteed to exist.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param string $previous_version The previously installed plugin version.
+	 *
+	 * @return bool                    True if the schema was modified, false otherwise.
+	 */
+	public function maybe_upgrade_schema( $previous_version ) {
+		$result = false;
+
+		if ( \version_compare( $previous_version, '2.4.0', '<' ) ) {
+			$result = $this->maybe_drop_hash_column() || $result;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Drops the obsolete 'hash' column from the table (if it exists).
+	 *
+	 * @since 2.4.0
+	 *
+	 * @return bool
+	 */
+	protected function maybe_drop_hash_column() {
+		global $wpdb;
+
+		$table_name = $this->get_table_name();
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQLPlaceholders
+		if ( 'hash' === $wpdb->get_var( $wpdb->prepare( 'SHOW COLUMNS FROM `%1$s` LIKE \'hash\'', $table_name ) ) ) {
+			return (bool) $wpdb->query( $wpdb->prepare( 'ALTER TABLE `%1$s` DROP COLUMN hash', $table_name ) );
+		}
+		// phpcs:enable WordPress.DB
+
+		return false;
+	}
+
+	/**
 	 * Upgrades the table data if necessary.
 	 *
 	 * @since 2.3.0
@@ -378,49 +405,6 @@ class Comment_Author_Table extends Table {
 	 * @return int                      The number of upgraded rows.
 	 */
 	public function maybe_upgrade_data( $previous_version ) {
-		if ( \version_compare( $previous_version, '0.5', '<' ) ) {
-			return $this->fix_email_hashes();
-		}
-
 		return 0;
-	}
-
-	/**
-	 * Adds hashes for stored e-mail addresses if necessary.
-	 *
-	 * @since 2.4.0
-	 *
-	 * @global \wpdb  $wpdb The WordPress Database Access Abstraction.
-	 *
-	 * @return int          The number of upgraded rows.
-	 */
-	protected function fix_email_hashes() {
-		global $wpdb;
-
-		// Prepare data used for all upgrade routines.
-		$table_name = $this->get_table_name();
-
-		// Add hashes when they are missing.
-		$rows      = $wpdb->get_results( "SELECT id, email FROM {$table_name} WHERE hash is null", \OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
-		$row_count = \count( $rows );
-
-		if ( $row_count > 0 ) {
-			// Add hashes for all retrieved rows.
-			foreach ( $rows as $r ) {
-				$r->hash = $this->hasher->get_hash( $r->email );
-			}
-
-			// Do UPDATEs in one query.
-			$update_query = $this->prepare_insert_update_query( $rows, [], $table_name, [ 'hash' ] );
-
-			// Abort if there was an error. FIXME: Should be replaced with Exception.
-			if ( false === $update_query ) {
-				return 0;
-			}
-
-			$wpdb->query( $update_query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery
-		}
-
-		return $row_count;
 	}
 }

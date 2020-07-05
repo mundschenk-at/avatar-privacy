@@ -34,7 +34,6 @@ use Mockery as m;
 
 use Avatar_Privacy\Data_Storage\Database\Comment_Author_Table;
 use Avatar_Privacy\Data_Storage\Network_Options;
-use Avatar_Privacy\Tools\Hasher;
 
 /**
  * Avatar_Privacy\Data_Storage\Database\Comment_Author_Table unit test.
@@ -77,11 +76,10 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 	protected function set_up() {
 		parent::set_up();
 
-		$this->hasher          = m::mock( Hasher::class );
 		$this->network_options = m::mock( Network_Options::class );
 
 		// Partially mock system under test.
-		$this->sut = m::mock( Comment_Author_Table::class, [ $this->hasher, $this->network_options ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Comment_Author_Table::class, [ $this->network_options ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -91,9 +89,8 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_constructor() {
 		$mock = m::mock( Comment_Author_Table::class )->makePartial();
-		$mock->__construct( $this->hasher, $this->network_options );
+		$mock->__construct( $this->network_options );
 
-		$this->assert_attribute_same( $this->hasher, 'hasher', $mock );
 		$this->assert_attribute_same( $this->network_options, 'network_options', $mock );
 	}
 
@@ -108,6 +105,7 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$previous_version = '1.1.0';
 
 		$this->sut->shouldReceive( 'maybe_create_table' )->once()->with( $previous_version )->andReturn( true );
+		$this->sut->shouldReceive( 'maybe_upgrade_schema' )->once()->with( $previous_version );
 		$this->sut->shouldReceive( 'maybe_upgrade_data' )->once()->with( $previous_version );
 
 		$this->sut->shouldReceive( 'maybe_prepare_migration_queue' )->once();
@@ -127,6 +125,7 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$previous_version = '1.1.0';
 
 		$this->sut->shouldReceive( 'maybe_create_table' )->once()->with( $previous_version )->andReturn( false );
+		$this->sut->shouldReceive( 'maybe_upgrade_schema' )->never();
 		$this->sut->shouldReceive( 'maybe_upgrade_data' )->never();
 
 		$this->sut->shouldReceive( 'maybe_prepare_migration_queue' )->once();
@@ -870,7 +869,7 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertSame( $result, $this->sut->prepare_delete_query( $ids, $table_name ) );
 	}
-	
+
 	/**
 	 * Tests ::maybe_upgrade_schema.
 	 *
@@ -880,7 +879,6 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$previous = '2.3.9';
 
 		$this->sut->shouldReceive( 'maybe_drop_hash_column' )->once()->andReturn( true );
-		$this->sut->shouldReceive( 'maybe_fix_last_updated_column_default' )->once()->andReturn( true );
 
 		$this->assertTrue( $this->sut->maybe_upgrade_schema( $previous ) );
 	}
@@ -927,58 +925,6 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$wpdb->shouldReceive( 'query' )->never()->with( 'ALTER_QUERY' );
 
 		$this->assertFalse( $this->sut->maybe_drop_hash_column() );
-	}
-
-	/**
-	 * Tests ::maybe_fix_last_updated_column_default.
-	 *
-	 * @covers ::maybe_fix_last_updated_column_default
-	 */
-	public function test_maybe_fix_last_updated_column_default() {
-		// Fake global.
-		global $wpdb;
-		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$table_name = 'my_table';
-		$column_def = [
-			'Default' => '0000-00-00 00:00:00',
-			'Foo'     => 'bar',
-		];
-
-		$this->sut->shouldReceive( 'get_table_name' )->once()->andReturn( $table_name );
-
-		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SHOW COLUMNS FROM `%1$s` LIKE \'last_updated\'', $table_name )->andReturn( 'COLUMN_DEFINITION_QUERY' );
-		$wpdb->shouldReceive( 'get_row' )->once()->with( 'COLUMN_DEFINITION_QUERY', \ARRAY_A )->andReturn( $column_def );
-
-		$wpdb->shouldReceive( 'prepare' )->once()->with( 'ALTER TABLE `%1$s` MODIFY COLUMN `last_updated` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL', $table_name )->andReturn( 'ALTER_QUERY' );
-		$wpdb->shouldReceive( 'query' )->once()->with( 'ALTER_QUERY' )->andReturn( 1 );
-
-		$this->assertNull( $this->sut->maybe_fix_last_updated_column_default() );
-	}
-
-	/**
-	 * Tests ::maybe_fix_last_updated_column_default.
-	 *
-	 * @covers ::maybe_fix_last_updated_column_default
-	 */
-	public function test_maybe_fix_last_updated_column_default_no_need() {
-		// Fake global.
-		global $wpdb;
-		$wpdb       = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$table_name = 'my_table';
-		$column_def = [
-			'Default' => 'CURRENT_TIMESTAMP',
-			'Foo'     => 'bar',
-		];
-
-		$this->sut->shouldReceive( 'get_table_name' )->once()->andReturn( $table_name );
-
-		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SHOW COLUMNS FROM `%1$s` LIKE \'last_updated\'', $table_name )->andReturn( 'COLUMN_DEFINITION_QUERY' );
-		$wpdb->shouldReceive( 'get_row' )->once()->with( 'COLUMN_DEFINITION_QUERY', \ARRAY_A )->andReturn( $column_def );
-
-		$wpdb->shouldReceive( 'prepare' )->never()->with( 'ALTER TABLE `%1$s` MODIFY COLUMN `last_updated` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL', $table_name );
-		$wpdb->shouldReceive( 'query' )->never()->with( 'ALTER_QUERY' );
-
-		$this->assertNull( $this->sut->maybe_fix_last_updated_column_default() );
 	}
 
 	/**

@@ -35,10 +35,13 @@ use Mockery as m;
 use Avatar_Privacy\Components\Setup;
 
 use Avatar_Privacy\Core\Settings;
+use Avatar_Privacy\Core\Comment_Author_Fields;
 use Avatar_Privacy\Core\User_Fields;
 
 use Avatar_Privacy\Components\Image_Proxy;
 
+use Avatar_Privacy\Data_Storage\Database\Comment_Author_Table;
+use Avatar_Privacy\Data_Storage\Database\Hashes_Table;
 use Avatar_Privacy\Data_Storage\Database\Table;
 use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Options;
@@ -119,6 +122,14 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var User_Fields
 	 */
 	private $registered_user;
+
+	/**
+	 * The user fields API.
+	 *
+	 * @var Comment_Author_Fields
+	 */
+	private $comment_author;
+
 	/**
 	 * The system-under-test.
 	 *
@@ -138,6 +149,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Helper mocks.
 		$this->settings        = m::mock( Settings::class );
 		$this->registered_user = m::mock( User_Fields::class );
+		$this->comment_author  = m::mock( Comment_Author_Fields::class );
 		$this->transients      = m::mock( Transients::class );
 		$this->site_transients = m::mock( Site_Transients::class );
 		$this->options         = m::mock( Options::class );
@@ -151,11 +163,15 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 			[
 				$this->settings,
 				$this->registered_user,
+				$this->comment_author,
 				$this->transients,
 				$this->site_transients,
 				$this->options,
 				$this->network_options,
-				[ $this->table_one, $this->table_two ],
+				[
+					Comment_Author_Table::TABLE_BASENAME => $this->table_one,
+					Hashes_Table::TABLE_BASENAME         => $this->table_two,
+				],
 				$this->multisite,
 			]
 		)->makePartial()->shouldAllowMockingProtectedMethods();
@@ -173,6 +189,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$mock->__construct(
 			$this->settings,
 			$this->registered_user,
+			$this->comment_author,
 			$this->transients,
 			$this->site_transients,
 			$this->options,
@@ -183,6 +200,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assert_attribute_same( $this->settings, 'settings', $mock );
 		$this->assert_attribute_same( $this->registered_user, 'registered_user', $mock );
+		$this->assert_attribute_same( $this->comment_author, 'comment_author', $mock );
 		$this->assert_attribute_same( $this->transients, 'transients', $mock );
 		$this->assert_attribute_same( $this->site_transients, 'site_transients', $mock );
 		$this->assert_attribute_same( $this->options, 'options', $mock );
@@ -211,9 +229,11 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function provide_update_check_data() {
 		return [
-			[ '1.0', '', true ],
-			[ '1.0', '1.0', true ],
-			[ '1.0', null, false ],
+			[ '1.0', null, true, false ], // 0.4 or earlier.
+			[ '1.0', null, true, false, true, true ], // 0.4 or earlier, multisite.
+			[ '1.0', '0.5', true, false, true, false ], // multisite.
+			[ '1.0', '1.0', false, false ],
+			[ '1.0', null, true, true ],  // new installation.
 		];
 	}
 
@@ -224,12 +244,15 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @dataProvider provide_update_check_data
 	 *
-	 * @param  string $version        The simulated plugin version.
-	 * @param  string $installed      The previously installed plugin version (may be empty).
-	 * @param  bool   $settings_empty Whether the intial settings array is empty.
+	 * @param  string $version       The simulated plugin version.
+	 * @param  string $installed     The previously installed plugin version (may be empty).
+	 * @param  bool   $update_needed Whether the data needs to be updated.
+	 * @param  bool   $new_install   Whether this is a new installation.
+	 * @param  bool   $multisite     Optional. Whether this is a multisite installation. Default false.
+	 * @param  bool   $use_global    Optional. Whether this is a legacy installation which should default to the global table. Default false.
 	 */
-	public function test_update_check( $version, $installed, $settings_empty ) {
-		$settings = $settings_empty ? [] : [ 'foo' => 'bar' ];
+	public function test_update_check( $version, $installed, $update_needed, $new_install, $multisite = false, $use_global = false ) {
+		$settings = $new_install ? [] : [ 'foo' => 'bar' ];
 		if ( null !== $installed ) {
 			$settings[ Options::INSTALLED_VERSION ] = $installed;
 		}
@@ -243,10 +266,20 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->table_one->shouldReceive( 'setup' )->once()->with( $match_installed );
 		$this->table_two->shouldReceive( 'setup' )->once()->with( $match_installed );
 
-		if ( $version !== $installed ) {
-			$this->sut->shouldReceive( 'plugin_updated' )->once()->with( $match_installed, m::type( 'array' ) );
+		if ( $update_needed ) {
+			if ( ! $new_install ) {
+				$this->sut->shouldReceive( 'update_settings' )->once()->with( $match_installed, $settings )->andReturn( $settings );
+				$this->sut->shouldReceive( 'update_plugin_data' )->once()->with( $match_installed );
+
+				Functions\expect( 'is_multisite' )->once()->andReturn( $multisite );
+				if ( $multisite && $use_global ) {
+					$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::USE_GLOBAL_TABLE, true );
+				}
+			}
+
 			$this->transients->shouldReceive( 'invalidate' )->once();
 			$this->site_transients->shouldReceive( 'invalidate' )->once();
+			$this->sut->shouldReceive( 'flush_rewrite_rules_soon' )->once();
 		}
 
 		$this->options->shouldReceive( 'set' )->once()->with(
@@ -264,125 +297,97 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::plugin_updated.
+	 * Tests ::update_settings.
 	 *
-	 * @covers ::plugin_updated
+	 * @covers ::update_settings
 	 */
-	public function test_plugin_updated() {
+	public function test_update_settings() {
 		$previous = '0.4-or-earlier';
 		$settings = [
-			'foo'          => 'bar',
-			'mode_optin'   => true,
-			'use_gravatar' => true,
+			'foo'                   => 'bar',
+			'mode_optin'            => 'foo',
+			'use_gravatar'          => true,
+			'mode_checkforgravatar' => 'bar',
+			'default_show'          => false,
+			'checkbox_default'      => true,
 		];
 
-		// Global table use preserved for 0.4 or earlier.
-		Functions\expect( 'is_multisite' )->once()->andReturn( true );
-		$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::USE_GLOBAL_TABLE, true );
+		$result = $this->sut->update_settings( $previous, $settings );
 
-		$this->sut->shouldReceive( 'maybe_update_user_hashes' )->once();
-		$this->sut->shouldReceive( 'upgrade_old_avatar_defaults' )->once();
-		$this->sut->shouldReceive( 'prefix_usermeta_keys' )->once();
-		$this->sut->shouldReceive( 'flush_rewrite_rules_soon' )->once();
-
-		// Preserve pass-by-reference.
-		$this->assertNull( $this->invoke_method( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
-
-		$this->assertFalse( isset( $settings['mode_optin'] ) );
-		$this->assertFalse( isset( $settings['use_gravatar'] ) );
-		$this->assertFalse( isset( $settings['mode_checkforgravatar'] ) );
-		$this->assertFalse( isset( $settings['default_show'] ) );
-		$this->assertFalse( isset( $settings['checkbox_default'] ) );
+		$this->assertArrayHasKey( 'foo', $result );
+		$this->assertSame( 'bar', $result['foo'] );
+		$this->assertArrayNotHasKey( 'mode_optin', $result );
+		$this->assertArrayNotHasKey( 'use_gravatar', $result );
+		$this->assertArrayNotHasKey( 'mode_checkforgravatar', $result );
+		$this->assertArrayNotHasKey( 'default_show', $result );
+		$this->assertArrayNotHasKey( 'checkbox_default', $result );
 	}
 
 	/**
-	 * Tests ::plugin_updated.
+	 * Tests ::update_settings.
 	 *
-	 * @covers ::plugin_updated
+	 * @covers ::update_settings
 	 */
-	public function test_plugin_updated_pre_1_0() {
+	public function test_update_settings_pre_1_0() {
 		$previous = '0.9';
 		$settings = [
-			'foo'          => 'bar',
+			'foo' => 'bar',
 		];
 
-		// Global table use preserved for 0.4 or earlier.
-		Functions\expect( 'is_multisite' )->never();
-		$this->network_options->shouldReceive( 'set' )->never();
+		$result = $this->sut->update_settings( $previous, $settings );
 
-		$this->sut->shouldReceive( 'maybe_update_user_hashes' )->never();
-		$this->sut->shouldReceive( 'upgrade_old_avatar_defaults' )->once();
-		$this->sut->shouldReceive( 'prefix_usermeta_keys' )->once();
-		$this->sut->shouldReceive( 'flush_rewrite_rules_soon' )->once();
-
-		// Preserve pass-by-reference.
-		$this->assertNull( $this->invoke_method( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
-
-		$this->assertFalse( isset( $settings['mode_optin'] ) );
-		$this->assertFalse( isset( $settings['use_gravatar'] ) );
-		$this->assertFalse( isset( $settings['mode_checkforgravatar'] ) );
-		$this->assertFalse( isset( $settings['default_show'] ) );
-		$this->assertFalse( isset( $settings['checkbox_default'] ) );
+		$this->assertArrayHasKey( 'foo', $result );
+		$this->assertSame( 'bar', $result['foo'] );
+		$this->assertArrayNotHasKey( 'mode_optin', $result );
+		$this->assertArrayNotHasKey( 'use_gravatar', $result );
+		$this->assertArrayNotHasKey( 'mode_checkforgravatar', $result );
+		$this->assertArrayNotHasKey( 'default_show', $result );
+		$this->assertArrayNotHasKey( 'checkbox_default', $result );
 	}
 
 	/**
-	 * Tests ::plugin_updated.
+	 * Provides data for testing ::update_plugin_data.
 	 *
-	 * @covers ::plugin_updated
+	 * @return array
 	 */
-	public function test_plugin_updated_1_0() {
-		$previous = '1.0';
-		$settings = [
-			'foo'          => 'bar',
+	public function provide_update_plugin_data_data() {
+		return [
+			[ '0.4-or-earlier', [ 'maybe_update_user_hashes', 'upgrade_old_avatar_defaults', 'prefix_usermeta_keys', 'maybe_add_email_hashes' ] ],
+			[ '1.0-alpha.1', [ 'upgrade_old_avatar_defaults', 'prefix_usermeta_keys', 'maybe_add_email_hashes' ] ],
+			[ '2.1.0-alpha.2', [ 'prefix_usermeta_keys', 'maybe_add_email_hashes' ] ],
+			[ '2.4.0-beta.1', [ 'maybe_add_email_hashes' ] ],
+			[ '2.4.0', [] ],
 		];
-
-		// Global table use preserved for 0.4 or earlier.
-		Functions\expect( 'is_multisite' )->never();
-		$this->network_options->shouldReceive( 'set' )->never();
-
-		$this->sut->shouldReceive( 'maybe_update_user_hashes' )->never();
-		$this->sut->shouldReceive( 'upgrade_old_avatar_defaults' )->never();
-		$this->sut->shouldReceive( 'prefix_usermeta_keys' )->once();
-		$this->sut->shouldReceive( 'flush_rewrite_rules_soon' )->once();
-
-		// Preserve pass-by-reference.
-		$this->assertNull( $this->invoke_method( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
-
-		$this->assertFalse( isset( $settings['mode_optin'] ) );
-		$this->assertFalse( isset( $settings['use_gravatar'] ) );
-		$this->assertFalse( isset( $settings['mode_checkforgravatar'] ) );
-		$this->assertFalse( isset( $settings['default_show'] ) );
-		$this->assertFalse( isset( $settings['checkbox_default'] ) );
 	}
 
 	/**
-	 * Tests ::plugin_updated.
+	 * Tests ::update_plugin_data.
 	 *
-	 * @covers ::plugin_updated
+	 * @covers ::update_plugin_data
+	 *
+	 * @dataProvider provide_update_plugin_data_data
+	 *
+	 * @param  string $previous Previously installed version.
+	 * @param  array  $called   Called upgrade methods.
 	 */
-	public function test_plugin_updated_2_1() {
-		$previous = '2.1.0';
-		$settings = [
-			'foo'          => 'bar',
+	public function test_update_plugin_data( $previous, array $called ) {
+		$upgraders  = [
+			'maybe_update_user_hashes',
+			'upgrade_old_avatar_defaults',
+			'prefix_usermeta_keys',
+			'maybe_add_email_hashes',
 		];
+		$not_called = \array_diff( $upgraders, $called );
 
-		// Global table use preserved for 0.4 or earlier.
-		Functions\expect( 'is_multisite' )->never();
-		$this->network_options->shouldReceive( 'set' )->never();
+		foreach ( $called as $method ) {
+			$this->sut->shouldReceive( $method )->once();
+		}
 
-		$this->sut->shouldReceive( 'maybe_update_user_hashes' )->never();
-		$this->sut->shouldReceive( 'upgrade_old_avatar_defaults' )->never();
-		$this->sut->shouldReceive( 'prefix_usermeta_keys' )->never();
-		$this->sut->shouldReceive( 'flush_rewrite_rules_soon' )->once();
+		foreach ( $not_called as $method ) {
+			$this->sut->shouldReceive( $method )->never();
+		}
 
-		// Preserve pass-by-reference.
-		$this->assertNull( $this->invoke_method( $this->sut, 'plugin_updated', [ $previous, &$settings ] ) );
-
-		$this->assertFalse( isset( $settings['mode_optin'] ) );
-		$this->assertFalse( isset( $settings['use_gravatar'] ) );
-		$this->assertFalse( isset( $settings['mode_checkforgravatar'] ) );
-		$this->assertFalse( isset( $settings['default_show'] ) );
-		$this->assertFalse( isset( $settings['checkbox_default'] ) );
+		$this->assertNull( $this->sut->update_plugin_data( $previous ) );
 	}
 
 	/**
@@ -543,5 +548,83 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		}
 
 		$this->assertNull( $this->sut->maybe_update_user_hashes() );
+	}
+
+	/**
+	 * Tests ::maybe_add_email_hashes.
+	 *
+	 * @covers ::maybe_add_email_hashes
+	 */
+	public function test_maybe_add_email_hashes() {
+		global $wpdb;
+		$wpdb                        = m::mock( \wpdb::class ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wpdb->avatar_privacy        = 'avatar_privacy';
+		$wpdb->avatar_privacy_hashes = 'avatar_privacy_hashes';
+
+		$emails      = [
+			'foo@bar.com',
+			'bar@foo.com',
+			'hugo@example.org',
+		];
+		$rows        = [
+			[
+				'identifier' => $emails[0],
+				'hash'       => 'hash1',
+				'type'       => 'comment',
+			],
+			[
+				'identifier' => $emails[1],
+				'hash'       => 'hash2',
+				'type'       => 'comment',
+			],
+			[
+				'identifier' => $emails[2],
+				'hash'       => 'hash3',
+				'type'       => 'comment',
+			],
+		];
+		$email_count = \count( $emails );
+
+		$wpdb->shouldReceive( 'prepare' )->once()->with(
+			'SELECT c.email FROM `%1$s` c LEFT OUTER JOIN `%2$s` h ON c.email = h.identifier AND h.type = "comment" AND h.hash IS NULL',
+			$wpdb->avatar_privacy,
+			$wpdb->avatar_privacy_hashes
+		)->andReturn( 'EMAILS_QUERY' );
+		$wpdb->shouldReceive( 'get_col' )->once()->with( 'EMAILS_QUERY' )->andReturn( $emails );
+
+		$this->comment_author->shouldReceive( 'get_hash' )
+			->times( $email_count )
+			->with( m::type( 'string' ) )
+			->andReturn( 'hash1', 'hash2', 'hash3' );
+
+		$this->table_two->shouldReceive( 'insert_or_update' )->once()->with( [ 'identifier', 'hash', 'type' ], $rows )->andReturn( $email_count );
+
+		$this->assertSame( $email_count, $this->sut->maybe_add_email_hashes() );
+	}
+
+	/**
+	 * Tests ::maybe_add_email_hashes.
+	 *
+	 * @covers ::maybe_add_email_hashes
+	 */
+	public function test_maybe_add_email_hashes_not_needed() {
+		global $wpdb;
+		$wpdb                        = m::mock( \wpdb::class ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wpdb->avatar_privacy        = 'avatar_privacy';
+		$wpdb->avatar_privacy_hashes = 'avatar_privacy_hashes';
+
+		$emails = [];
+
+		$wpdb->shouldReceive( 'prepare' )->once()->with(
+			'SELECT c.email FROM `%1$s` c LEFT OUTER JOIN `%2$s` h ON c.email = h.identifier AND h.type = "comment" AND h.hash IS NULL',
+			$wpdb->avatar_privacy,
+			$wpdb->avatar_privacy_hashes
+		)->andReturn( 'EMAILS_QUERY' );
+		$wpdb->shouldReceive( 'get_col' )->once()->with( 'EMAILS_QUERY' )->andReturn( $emails );
+
+		$this->comment_author->shouldReceive( 'get_hash' )->never();
+		$this->table_two->shouldReceive( 'insert_or_update' )->never();
+
+		$this->assertSame( 0, $this->sut->maybe_add_email_hashes() );
 	}
 }

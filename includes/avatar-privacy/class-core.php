@@ -245,11 +245,11 @@ class Core {
 	/**
 	 * Updates the hash using the ID and email.
 	 *
-	 * @param  int    $id    The database key.
+	 * @param  int    $id    The database key. Deprecated.
 	 * @param  string $email The email.
 	 */
-	public function update_comment_author_hash( $id, $email ) {
-		$this->comment_author_fields->update_hash( $id, $email );
+	public function update_comment_author_hash( /* @scrutinizer ignore-unused */ $id, $email ) {
+		$this->comment_author_fields->update_hash( $email );
 	}
 
 	/**
