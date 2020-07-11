@@ -34,7 +34,6 @@ use Mockery as m;
 
 use Avatar_Privacy\Components\Privacy_Tools;
 
-use Avatar_Privacy\Core;
 use Avatar_Privacy\Core\Comment_Author_Fields;
 use Avatar_Privacy\Core\User_Fields;
 
@@ -56,18 +55,18 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $sut;
 
 	/**
-	 * Required helper object.
+	 * The user fields API.
 	 *
-	 * @var Core
+	 * @var User_Fields
 	 */
-	private $core;
+	private $registered_user;
 
 	/**
 	 * Required helper object.
 	 *
 	 * @var Comment_Author_Fields
 	 */
-	private $comment_author_fields;
+	private $comment_author;
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -82,10 +81,10 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\when( '__' )->returnArg();
 
 		// Mock required helpers.
-		$this->core                  = m::mock( Core::class );
-		$this->comment_author_fields = m::mock( Comment_Author_Fields::class );
+		$this->registered_user = m::mock( User_Fields::class );
+		$this->comment_author  = m::mock( Comment_Author_Fields::class );
 
-		$this->sut = m::mock( Privacy_Tools::class, [ $this->core, $this->comment_author_fields ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Privacy_Tools::class, [ $this->registered_user, $this->comment_author ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -96,10 +95,10 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Privacy_Tools::class )->makePartial();
 
-		$mock->__construct( $this->core, $this->comment_author_fields );
+		$mock->__construct( $this->registered_user, $this->comment_author );
 
-		$this->assert_attribute_same( $this->core, 'core', $mock );
-		$this->assert_attribute_same( $this->comment_author_fields, 'comment_author_fields', $mock );
+		$this->assert_attribute_same( $this->registered_user, 'registered_user', $mock );
+		$this->assert_attribute_same( $this->comment_author, 'comment_author', $mock );
 	}
 
 	/**
@@ -203,7 +202,7 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 		$site_url = 'https://some.blog';
 
 		Functions\expect( 'get_user_by' )->once()->with( 'email', $email )->andReturn( $user );
-		$this->core->shouldReceive( 'get_user_hash' )->once()->with( $user->ID )->andReturn( $hash );
+		$this->registered_user->shouldReceive( 'get_hash' )->once()->with( $user->ID )->andReturn( $hash );
 		Functions\expect( 'get_user_meta' )->once()->with( $user->ID, User_Fields::GRAVATAR_USE_META_KEY, true )->andReturn( $gravatar );
 		Functions\expect( 'get_user_meta' )->once()->with( $user->ID, User_Fields::ALLOW_ANONYMOUS_META_KEY, true )->andReturn( $anon );
 		Functions\expect( 'get_user_meta' )->once()->with( $user->ID, User_Fields::USER_AVATAR_META_KEY, true )->andReturn( $local );
@@ -228,7 +227,7 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 		$page  = 1;
 
 		Functions\expect( 'get_user_by' )->once()->with( 'email', $email )->andReturnFalse();
-		$this->core->shouldReceive( 'get_user_hash' )->never();
+		$this->registered_user->shouldReceive( 'get_hash' )->never();
 		Functions\expect( 'get_user_meta' )->never();
 		Functions\expect( 'site_url' )->never();
 
@@ -258,7 +257,7 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 			'log_message'  => 'we done something',
 		];
 
-		$this->comment_author_fields->shouldReceive( 'load' )->once()->with( $email )->andReturn( $raw_data );
+		$this->comment_author->shouldReceive( 'load' )->once()->with( $email )->andReturn( $raw_data );
 
 		$result = $this->sut->export_comment_author_data( $email, $page );
 
@@ -278,7 +277,7 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 		$email = 'foo@bar.org';
 		$page  = 1;
 
-		$this->comment_author_fields->shouldReceive( 'load' )->once()->with( $email )->andReturnFalse();
+		$this->comment_author->shouldReceive( 'load' )->once()->with( $email )->andReturnFalse();
 
 		$result = $this->sut->export_comment_author_data( $email, $page );
 
@@ -301,17 +300,13 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 		$user     = m::mock( 'WP_User' );
 		$user->ID = $user_id;
 
-		// Comment author mock.
-		$comment_author_id = 9;
-
 		Functions\expect( 'get_user_by' )->once()->with( 'email', $email )->andReturn( $user );
 		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, User_Fields::EMAIL_HASH_META_KEY )->andReturnTrue();
 		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, User_Fields::GRAVATAR_USE_META_KEY )->andReturnTrue();
 		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, User_Fields::ALLOW_ANONYMOUS_META_KEY )->andReturnTrue();
 		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, User_Fields::USER_AVATAR_META_KEY )->andReturnTrue();
 
-		$this->comment_author_fields->shouldReceive( 'get_key' )->once()->with( $email )->andReturn( $comment_author_id );
-		$this->sut->shouldReceive( 'delete_comment_author_data' )->once()->with( $comment_author_id, $email )->andReturn( 1 );
+		$this->comment_author->shouldReceive( 'delete' )->once()->with( $email )->andReturn( 1 );
 
 		$result = $this->sut->erase_data( $email, $page );
 
@@ -319,26 +314,5 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assertSame( 5, $result['items_removed'] );
 		$this->assertSame( 0, $result['items_retained'] );
 		$this->assertEmpty( $result['messages'] );
-	}
-
-	/**
-	 * Tests ::delete_comment_author_data.
-	 *
-	 * @covers ::delete_comment_author_data
-	 */
-	public function test_delete_comment_author_data() {
-		// Input data.
-		$id    = 777;
-		$email = 'foo@bar.org';
-
-		// Database mock.
-		global $wpdb;
-		$wpdb                 = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wpdb->avatar_privacy = 'avatar_privacy_table';
-
-		$wpdb->shouldReceive( 'delete' )->once()->with( $wpdb->avatar_privacy, [ 'id' => $id ], [ '%d' ] )->andReturn( 1 );
-		$this->comment_author_fields->shouldReceive( 'clear_cache' )->once()->with( $email );
-
-		$this->assertSame( 1, $this->sut->delete_comment_author_data( $id, $email ) );
 	}
 }
