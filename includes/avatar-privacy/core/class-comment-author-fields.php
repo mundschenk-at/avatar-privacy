@@ -360,4 +360,29 @@ class Comment_Author_Fields implements API {
 
 		return self::EMAIL_CACHE_PREFIX . $email_or_hash;
 	}
+
+	/**
+	 * Deletes the data for the comment author identified by an email address.
+	 *
+	 * @param  string $email The comment author's e-mail address or the unique hash.
+	 *
+	 * @return int|false     The number of rows deleted, or false on error.
+	 */
+	public function delete( $email ) {
+		$comment_author_rows = $this->comment_author_table->delete( [ 'email' => $email ] );
+		$hashes_rows         = $this->hashes_table->delete(
+			[
+				'identifier' => $email,
+				'type'       => 'comment',
+			]
+		);
+
+		if ( ! empty( $comment_author_rows ) || ! empty( $hashes_rows ) ) {
+			$this->clear_cache( $email );
+
+			return \max( (int) $comment_author_rows, (int) $hashes_rows );
+		}
+
+		return false;
+	}
 }

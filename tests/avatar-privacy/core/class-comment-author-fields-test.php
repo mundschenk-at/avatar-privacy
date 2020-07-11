@@ -587,4 +587,46 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertSame( $key, $this->sut->get_cache_key( $hash, $type ) );
 	}
+
+	/**
+	 * Provides data for testing ::delete.
+	 *
+	 * @return array
+	 */
+	public function provide_delete_data() {
+		return [
+			[ 1, 1, 1 ],
+			[ false, 1, 1 ],
+			[ 1, false, 1 ],
+			[ false, false, false ],
+		];
+	}
+
+	/**
+	 * Tests ::delete.
+	 *
+	 * @covers ::delete
+	 *
+	 * @dataProvider provide_delete_data
+	 *
+	 * @param  int|false $comment_author_rows Comment author delete result.
+	 * @param  int|false $hashes_rows         Hashes delete result.
+	 * @param  int|false $result              Expected result.
+	 */
+	public function test_delete( $comment_author_rows, $hashes_rows, $result ) {
+		$email = 'some@email';
+
+		$this->comment_author_table->shouldReceive( 'delete' )
+			->once()->with( [ 'email' => $email ] )
+			->andReturn( $comment_author_rows );
+		$this->hashes_table->shouldReceive( 'delete' )
+			->once()->with( [
+				'identifier' => $email,
+				'type'       => 'comment',
+			] )->andReturn( $hashes_rows );
+
+		$this->sut->shouldReceive( 'clear_cache' )->times( (int) $result )->with( $email );
+
+		$this->assertSame( $result, $this->sut->delete( $email ) );
+	}
 }
