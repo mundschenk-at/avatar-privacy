@@ -76,8 +76,7 @@ class User_Fields implements API {
 	private $hasher;
 
 	/**
-	 * Creates a \Avatar_Privacy\Core instance and registers all necessary hooks
-	 * and filters for the plugin.
+	 * Creates a new instance.
 	 *
 	 * @param Hasher $hasher  Required.
 	 */

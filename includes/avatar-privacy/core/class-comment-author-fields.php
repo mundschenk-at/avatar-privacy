@@ -80,8 +80,7 @@ class Comment_Author_Fields implements API {
 	private $hashes_table;
 
 	/**
-	 * Creates a \Avatar_Privacy\Core instance and registers all necessary hooks
-	 * and filters for the plugin.
+	 * Creates a new instance.
 	 *
 	 * @param Cache                $cache                Required.
 	 * @param Hasher               $hasher               Required.
@@ -232,8 +231,6 @@ class Comment_Author_Fields implements API {
 	/**
 	 * Inserts data into the comment author table (and the supplementary hashes
 	 * table). Also clears the cache if successful.
-	 *
-	 * @since 2.4.0 Parameter $last_updated removed.
 	 *
 	 * @param  string   $email        The mail address.
 	 * @param  int|null $use_gravatar A flag indicating if gravatar use is allowed. `null` indicates the default policy (i.e. not set).
