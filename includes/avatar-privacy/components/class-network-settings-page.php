@@ -214,13 +214,13 @@ class Network_Settings_Page implements Component {
 
 		// At last we redirect back to our options page.
 		\wp_safe_redirect(
-			\add_query_arg(
+			\add_query_arg( // @codeCoverageIgnoreStart
 				[
 					'page'             => self::OPTION_GROUP,
 					'settings-updated' => 'true',
 				],
 				\network_admin_url( 'settings.php' )
-			)
+			) // @codeCoverageIgnoreEnd
 		);
 
 		// And we are done.
