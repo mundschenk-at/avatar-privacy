@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -99,7 +99,7 @@ class Theme_My_Login_Profiles_Integration_Test extends \Avatar_Privacy\Tests\Tes
 	public function test_check() {
 		$this->assertFalse( $this->sut->check() );
 
-		$fake_plugin = m::mock( \Theme_My_Login_Profiles::class );
+		$fake_plugin = m::mock( \Theme_My_Login_Profiles::class ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		Functions\when( 'tml_get_form' )->justReturn( null );
 		Functions\when( 'tml_add_form_field' )->justReturn( null );
 

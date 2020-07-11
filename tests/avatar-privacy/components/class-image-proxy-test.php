@@ -132,7 +132,7 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Set up virtual filesystem.
-		$root = vfsStream::setup( 'root', null, $filesystem );
+		vfsStream::setup( 'root', null, $filesystem );
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
 		// Mock required helpers.
@@ -323,15 +323,6 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::load_cached_avatar
 	 */
 	public function test_load_cached_avatar_no_query_var() {
-		// Input parameters.
-		$basedir   = '/base/dir/';
-		$type      = 'user';
-		$hash      = '19b4a035996a6f641a10a02fac6d3c6be1dd2713dcc42914b3acc4128bbe9399';
-		$subdir    = '1/9/';
-		$extension = 'png';
-		$size      = 100;
-		$file      = "{$type}/{$subdir}{$hash}-{$size}.{$extension}";
-
 		// Mock WP global.
 		$wp             = m::mock( 'WP' );
 		$wp->query_vars = [];
@@ -353,7 +344,6 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_load_cached_avatar_invalid_query_var() {
 		// Input parameters.
-		$basedir   = '/base/dir/';
 		$type      = 'user';
 		$hash      = '19b4a035996a6f641a10a02faZ6d3c6be1dd2713dcc42914b3acc4128bbe9399'; // Invalid!
 		$subdir    = '1/9/';
@@ -418,7 +408,6 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 		$file         = vfsStream::url( 'root/uploads/cache/invalid_image.png' );
 		$cache_time   = 99; // In seconds.
 		$content_type = 'image/png';
-		$length       = \strlen( self::FAKE_IMAGE_DATA );
 
 		Functions\expect( '__' )->once()->with( m::type( 'string' ), 'avatar-privacy' )->andReturn( 'translated message' );
 		Functions\expect( 'esc_html' )->once()->with( 'translated message' )->andReturn( 'escaped message' );

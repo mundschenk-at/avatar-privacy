@@ -111,7 +111,7 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Set up virtual filesystem.
-		$root = vfsStream::setup( 'root', null, $filesystem );
+		vfsStream::setup( 'root', null, $filesystem );
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
 		$this->settings        = m::mock( Settings::class );
@@ -261,12 +261,11 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Control mocks.
-		$controls      = [
+		$controls = [
 			'option1' => m::mock( \Mundschenk\UI\Controls\Textarea::class ),
 			'option2' => m::mock( \Mundschenk\UI\Controls\Checkbox_Input::class ),
 			'option3' => m::mock( \Mundschenk\UI\Controls\Number_Input::class ),
 		];
-		$control_count = \count( $controls );
 		$this->set_value( $this->sut, 'controls', $controls );
 
 		// URLs.

@@ -334,10 +334,6 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 			'rating'        => 'g',
 			'found_avatar'  => false,
 		];
-		$age         = 999;
-
-		// Calculated values.
-		$hash = 'a hash';
 
 		$this->sut->shouldReceive( 'parse_id_or_email' )->once()->with( $id_or_email )->andThrow( m::mock( Avatar_Comment_Type_Exception::class ) );
 

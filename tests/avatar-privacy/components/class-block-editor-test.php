@@ -97,7 +97,7 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Set up virtual filesystem.
-		$root = vfsStream::setup( 'root', null, $filesystem );
+		vfsStream::setup( 'root', null, $filesystem );
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
 		$this->core = m::mock( Core::class );
@@ -177,7 +177,6 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_register_blocks() {
 		$base_url = 'fake://url';
-		$path     = '/plugin/';
 		$suffix   = '.min';
 		$version  = 'fake version';
 

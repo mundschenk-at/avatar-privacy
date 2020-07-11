@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019 Peter Putzer.
+ * Copyright 2019-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -68,7 +68,7 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Set up virtual filesystem used to simulate stream access.
-		$root = vfsStream::setup( 'root', null, $filesystem );
+		vfsStream::setup( 'root', null, $filesystem );
 
 		$this->sut = m::mock( Image_Stream::class )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
@@ -273,9 +273,6 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->set_value( $this->sut, 'write', $writable );
 		$this->set_value( $this->sut, 'data', $data );
 		$this->set_value( $this->sut, 'position', $position );
-
-		// Results.
-		$length = \strlen( $new_data );
 
 		// Check.
 		$this->assertSame( 0, $this->sut->stream_write( $new_data ) );

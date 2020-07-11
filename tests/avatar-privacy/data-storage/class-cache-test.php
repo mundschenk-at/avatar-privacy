@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -60,11 +60,10 @@ class Cache_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::__construct
 	 */
 	public function test_constructor() {
-
 		Functions\expect( 'wp_cache_get' )->once();
 		Functions\expect( 'wp_cache_set' )->once();
 
-		$result = new Cache();
+		$result = m::mock( Cache::class, [] );
 
 		$this->assert_attribute_same( Cache::PREFIX, 'prefix', $result );
 		$this->assert_attribute_same( Cache::GROUP, 'group', $result );

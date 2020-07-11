@@ -131,7 +131,7 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Set up virtual filesystem.
-		$root = vfsStream::setup( 'root', null, $filesystem );
+		vfsStream::setup( 'root', null, $filesystem );
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
 		// Helper mocks.
@@ -230,11 +230,7 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::do_site_cleanups
 	 */
 	public function test_do_site_cleanups() {
-		$site_ids   = [ 1, 2, 10 ];
-		$site_count = \count( $site_ids );
-
 		Functions\expect( 'is_multisite' )->once()->andReturn( false );
-
 		Functions\expect( 'get_sites' )->never();
 		Functions\expect( 'switch_to_blog' )->never();
 		Functions\expect( 'restore_current_blog' )->never();

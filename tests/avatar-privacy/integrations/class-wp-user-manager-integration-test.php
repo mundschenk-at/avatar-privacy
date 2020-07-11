@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -101,7 +101,7 @@ class WP_User_Manager_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_check() {
 		$this->assertFalse( $this->sut->check() );
 
-		$fake_plugin = m::mock( \WP_User_Manager::class );
+		$fake_plugin = m::mock( \WP_User_Manager::class ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		Functions\when( 'wpum_get_option' )->justReturn( true );
 
 		$this->assertTrue( $this->sut->check() );
