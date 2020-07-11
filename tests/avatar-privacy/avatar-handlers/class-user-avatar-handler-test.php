@@ -33,10 +33,8 @@ use Brain\Monkey\Functions;
 use Mockery as m;
 
 use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamDirectory;
 
 use Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler;
-use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
 use Avatar_Privacy\Core\User_Fields;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
@@ -162,7 +160,7 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'wp_parse_args' )->once()->with( $args, m::type( 'array' ) )->andReturn( $args );
 
-		$this->sut->shouldReceive( 'get_sub_dir' )->once()->with( $hash )->andReturn( 'a/b' );
+		$this->sut->shouldReceive( 'get_sub_dir' )->once()->with( $hash )->andReturn( $subdir );
 
 		$this->images->shouldReceive( 'get_image_editor' )->once()->with( $args['avatar'] )->andReturn( m::mock( \WP_Image_Editor::class ) );
 		$this->images->shouldReceive( 'get_resized_image_data' )->once()->with( m::type( \WP_Image_Editor::class ), $size, $size, $args['mimetype'] )->andReturn( $image );
@@ -200,7 +198,7 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'wp_parse_args' )->once()->with( $args, m::type( 'array' ) )->andReturn( $args );
 
-		$this->sut->shouldReceive( 'get_sub_dir' )->once()->with( $hash )->andReturn( 'a/b' );
+		$this->sut->shouldReceive( 'get_sub_dir' )->once()->with( $hash )->andReturn( $subdir );
 
 		$this->images->shouldReceive( 'get_image_editor' )->once()->with( $args['avatar'] )->andReturn( m::mock( \WP_Image_Editor::class ) );
 		$this->images->shouldReceive( 'get_resized_image_data' )->once()->with( m::type( \WP_Image_Editor::class ), $size, $size, $args['mimetype'] )->andReturn( $image );

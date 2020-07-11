@@ -36,11 +36,8 @@ use org\bovigo\vfs\vfsStream;
 
 use Avatar_Privacy\Components\Uninstallation;
 
-use Avatar_Privacy\Core;
 use Avatar_Privacy\Core\User_Fields;
 use Avatar_Privacy\Core\Settings;
-
-use Avatar_Privacy\Components\Image_Proxy;
 
 use Avatar_Privacy\Data_Storage\Database\Comment_Author_Table as Database;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
@@ -48,8 +45,6 @@ use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Data_Storage\Transients;
-
-use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
 /**
  * Avatar_Privacy\Components\Uninstallation unit test.

@@ -32,13 +32,8 @@ use Brain\Monkey\Functions;
 
 use Mockery as m;
 
-use org\bovigo\vfs\vfsStream;
-
 use Avatar_Privacy\Integrations\WP_User_Manager_Integration;
 
-use Avatar_Privacy\Core;
-
-use Avatar_Privacy\Components\User_Profile;
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
 

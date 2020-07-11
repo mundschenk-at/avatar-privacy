@@ -34,8 +34,6 @@ use Mockery as m;
 
 use Avatar_Privacy\Components\REST_API;
 
-use Avatar_Privacy\Core;
-
 /**
  * Avatar_Privacy\Components\REST_API unit test.
  *

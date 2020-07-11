@@ -33,14 +33,12 @@ use Brain\Monkey\Functions;
 use Mockery as m;
 
 use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamDirectory;
 
 use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache_Handler;
 
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
-use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Tools\Network\Gravatar_Service;
 
 /**
@@ -177,7 +175,7 @@ class Gravatar_Cache_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->file_cache->shouldReceive( 'get_base_dir' )->once()->andReturn( $basedir );
 
-		$this->sut->shouldReceive( 'get_sub_dir' )->once()->with( $hash, m::type( 'bool' ) )->andReturn( 'a/b' );
+		$this->sut->shouldReceive( 'get_sub_dir' )->once()->with( $hash, m::type( 'bool' ) )->andReturn( $subdir );
 
 		$this->gravatar->shouldReceive( 'get_image' )->once()->with( $email, $size, $rating )->andReturn( $image );
 
@@ -216,7 +214,7 @@ class Gravatar_Cache_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->file_cache->shouldReceive( 'get_base_dir' )->once()->andReturn( $basedir );
 
-		$this->sut->shouldReceive( 'get_sub_dir' )->once()->with( $hash, m::type( 'bool' ) )->andReturn( 'a/b' );
+		$this->sut->shouldReceive( 'get_sub_dir' )->once()->with( $hash, m::type( 'bool' ) )->andReturn( $subdir );
 
 		$this->gravatar->shouldReceive( 'get_image' )->once()->with( $email, $size, $rating )->andReturn( $image );
 

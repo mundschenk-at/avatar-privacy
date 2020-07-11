@@ -32,6 +32,8 @@ use Brain\Monkey\Functions;
 
 use Mockery as m;
 
+use Avatar_Privacy\Tests\Avatar_Privacy\CLI\TestCase;
+
 use Avatar_Privacy\CLI\Abstract_Command;
 
 /**
@@ -40,7 +42,7 @@ use Avatar_Privacy\CLI\Abstract_Command;
  * @coversDefaultClass \Avatar_Privacy\CLI\Abstract_Command
  * @usesDefaultClass \Avatar_Privacy\CLI\Abstract_Command
  */
-class Abstract_Command_Test extends \Avatar_Privacy\Tests\TestCase {
+class Abstract_Command_Test extends TestCase {
 
 	/**
 	 * Tests ::stop_the_insanity.
