@@ -336,6 +336,50 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assertFalse( $avatar_response['url'] );
 		$this->assertFalse( $avatar_response['found_avatar'] );
 	}
+	/**
+	 * Tests ::get_avatar_data.
+	 *
+	 * @covers ::get_avatar_data
+	 */
+	public function test_get_avatar_data_remote_icon() {
+		// Input parameters.
+		$id_or_email = (object) [ 'foo' => 'bar' ];
+		$size        = 90;
+		$default     = 'mm';
+		$remote_url  = 'https://some.remote/url';
+		$args        = [
+			'default'       => $default,
+			'size'          => $size,
+			'force_default' => false,
+			'rating'        => 'g',
+			'found_avatar'  => false,
+			'url'           => $remote_url,
+		];
+		$user_id     = false;
+		$email       = 'some@email';
+		$hash        = 'fake hash';
+		$age         = 999;
+
+		$this->sut->shouldReceive( 'parse_id_or_email' )->once()->with( $id_or_email )->andReturn( [ $user_id, $email, $age ] );
+
+		$this->core->shouldReceive( 'get_user_hash' )->never();
+		$this->core->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
+
+		Functions\expect( 'includes_url' )->once()->with( 'images/blank.gif' )->andReturn( self::BLANK_ICON );
+		Filters\expectApplied( 'avatar_privacy_default_icon_url' )->once()->with( self::BLANK_ICON, $hash, $size, [ 'default' => $default ] )->andReturn( self::DEFAULT_ICON );
+
+		$this->sut->shouldReceive( 'should_show_gravatar' )->once()->with( $user_id, $email, $id_or_email, $age, m::type( 'string' ) )->andReturn( false );
+
+		$this->remote_images->shouldReceive( 'validate_image_url' )->once()->with( $remote_url, 'avatar' )->andReturn( true );
+
+		// Call method.
+		$avatar_response = $this->sut->get_avatar_data( $args, $id_or_email );
+
+		// Assert result.
+		$this->assertArrayHasKey( 'url', $avatar_response );
+		$this->assertTrue( $avatar_response['found_avatar'] );
+		$this->assertSame( $remote_url, $avatar_response['url'] );
+	}
 
 	/**
 	 * Provide data for testing should_show_gravatar.
