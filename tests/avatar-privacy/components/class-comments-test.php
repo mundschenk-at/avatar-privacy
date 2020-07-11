@@ -36,7 +36,10 @@ use org\bovigo\vfs\vfsStream;
 
 use Avatar_Privacy\Components\Comments;
 
-use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\Comment_Author_Fields;
+
+use COOKIEPATH;
+use COOKIE_DOMAIN;
 
 /**
  * Avatar_Privacy\Components\Comments unit test.
@@ -58,9 +61,9 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Required helper object.
 	 *
-	 * @var Core
+	 * @var Comment_Author_Fields
 	 */
-	private $core;
+	private $comment_author;
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -94,9 +97,9 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
 		// Mock required helpers.
-		$this->core = m::mock( Core::class );
+		$this->comment_author = m::mock( Comment_Author_Fields::class );
 
-		$this->sut = m::mock( Comments::class, [ $this->core ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Comments::class, [ $this->comment_author ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -107,9 +110,9 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Comments::class )->makePartial();
 
-		$mock->__construct( $this->core );
+		$mock->__construct( $this->comment_author );
 
-		$this->assert_attribute_same( $this->core, 'core', $mock );
+		$this->assert_attribute_same( $this->comment_author, 'comment_author', $mock );
 	}
 
 	/**
@@ -341,7 +344,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'get_comment' )->once()->with( $comment_id )->andReturn( $comment );
 		Functions\expect( 'get_user_by' )->once()->with( 'email', $email )->andReturn( false );
 
-		$this->core->shouldReceive( 'update_comment_author_gravatar_use' )->once()->with( $email, $comment_id, true );
+		$this->comment_author->shouldReceive( 'update_gravatar_use' )->once()->with( $email, $comment_id, true );
 
 		$this->assertNull( $this->sut->comment_post( $comment_id, $comment_approved ) );
 	}
@@ -363,7 +366,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'get_comment' )->never();
 		Functions\expect( 'get_user_by' )->never();
 
-		$this->core->shouldReceive( 'update_comment_author_gravatar_use' )->never();
+		$this->comment_author->shouldReceive( 'update_gravatar_use' )->never();
 
 		$this->assertNull( $this->sut->comment_post( $comment_id, $comment_approved ) );
 	}
@@ -391,7 +394,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'get_comment' )->once()->with( $comment_id )->andReturn( $comment );
 		Functions\expect( 'get_user_by' )->never();
 
-		$this->core->shouldReceive( 'update_comment_author_gravatar_use' )->never();
+		$this->comment_author->shouldReceive( 'update_gravatar_use' )->never();
 
 		$this->assertNull( $this->sut->comment_post( $comment_id, $comment_approved ) );
 	}
@@ -419,7 +422,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'get_comment' )->once()->with( $comment_id )->andReturn( $comment );
 		Functions\expect( 'get_user_by' )->never();
 
-		$this->core->shouldReceive( 'update_comment_author_gravatar_use' )->never();
+		$this->comment_author->shouldReceive( 'update_gravatar_use' )->never();
 
 		$this->assertNull( $this->sut->comment_post( $comment_id, $comment_approved ) );
 	}
@@ -447,7 +450,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'get_comment' )->once()->with( $comment_id )->andReturn( $comment );
 		Functions\expect( 'get_user_by' )->once()->with( 'email', $email )->andReturn( m::mock( 'WP_User' ) );
 
-		$this->core->shouldReceive( 'update_comment_author_gravatar_use' )->never();
+		$this->comment_author->shouldReceive( 'update_gravatar_use' )->never();
 
 		$this->assertNull( $this->sut->comment_post( $comment_id, $comment_approved ) );
 	}
@@ -474,7 +477,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$user->shouldReceive( 'exists' )->once()->andReturn( false );
 
-		$this->core->shouldReceive( 'comment_author_allows_gravatar_use' )->once()->with( $comment->comment_author_email )->andReturn( $use_gravatar );
+		$this->comment_author->shouldReceive( 'allows_gravatar_use' )->once()->with( $comment->comment_author_email )->andReturn( $use_gravatar );
 
 		Filters\expectApplied( 'comment_cookie_lifetime' )->once()->with( 30000000 )->andReturn( $filter_lifetime );
 		Functions\expect( 'home_url' )->once()->andReturn( $home_url );

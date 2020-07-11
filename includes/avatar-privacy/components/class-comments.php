@@ -28,7 +28,7 @@
 namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Component;
-use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\Comment_Author_Fields;
 
 /**
  * Handles comment posting in WordPress.
@@ -54,19 +54,22 @@ class Comments implements Component {
 	/**
 	 * The core API.
 	 *
-	 * @var Core
+	 * @since 2.4.0
+	 *
+	 * @var Comment_Author_Fields
 	 */
-	private $core;
+	private $comment_author;
 
 	/**
 	 * Creates a new instance.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
+	 * @since 2.4.0 Parameter $core removed, $comment_author added.
 	 *
-	 * @param Core $core The core API.
+	 * @param Comment_Author_Fields $comment_author The comment author fields API.
 	 */
-	public function __construct( Core $core ) {
-		$this->core = $core;
+	public function __construct( Comment_Author_Fields $comment_author ) {
+		$this->comment_author = $comment_author;
 	}
 
 	/**
@@ -230,7 +233,7 @@ class Comments implements Component {
 
 		// Save the 'use gravatar' value.
 		$use_gravatar = ( isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) && ( 'true' === $_POST[ self::CHECKBOX_FIELD_NAME ] ) ) ? 1 : 0; // // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$this->core->update_comment_author_gravatar_use( $comment->comment_author_email, $comment_id, $use_gravatar );
+		$this->comment_author->update_gravatar_use( $comment->comment_author_email, $comment_id, $use_gravatar );
 	}
 
 	/**
@@ -253,7 +256,7 @@ class Comments implements Component {
 		}
 
 		// Does the author want to use gravatar?
-		$use_gravatar = $this->core->comment_author_allows_gravatar_use( $comment->comment_author_email );
+		$use_gravatar = $this->comment_author->allows_gravatar_use( $comment->comment_author_email );
 
 		// Set a cookie for the 'use gravatar' value.
 		/** This filter is documented in wp-includes/comment.php */
