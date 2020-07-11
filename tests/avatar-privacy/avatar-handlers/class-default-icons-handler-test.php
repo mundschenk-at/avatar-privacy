@@ -114,7 +114,7 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Set up virtual filesystem.
-		$root = vfsStream::setup( 'root', null, $filesystem );
+		vfsStream::setup( 'root', null, $filesystem );
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
 		// Helper mocks.
@@ -254,9 +254,6 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 			'fugazi' => $provider2,
 		];
 
-		// Expected result.
-		$url = 'https://some_url_for/the/avatar';
-
 		Functions\expect( 'wp_parse_args' )->once()->with( $args, m::type( 'array' ) )->andReturn( $args );
 
 		$this->sut->shouldReceive( 'get_provider_mapping' )->once()->andReturn( $icon_providers );
@@ -295,9 +292,6 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 			'bar'    => $provider1,
 			'fugazi' => $provider2,
 		];
-
-		// Expected result.
-		$url = 'https://some_url_for/the/avatar';
 
 		Functions\expect( 'wp_parse_args' )->once()->with( $args, m::type( 'array' ) )->andReturn( $args );
 

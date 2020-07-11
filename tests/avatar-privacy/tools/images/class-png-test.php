@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019 Peter Putzer.
+ * Copyright 2019-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -90,7 +90,7 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Set up virtual filesystem.
-		$root = vfsStream::setup( 'root', null, $filesystem );
+		vfsStream::setup( 'root', null, $filesystem );
 
 		$this->sut = m::mock( PNG::class )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
@@ -348,8 +348,6 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 		$y          = 42;
 
 		// The image.
-		$width    = 200;
-		$height   = 100;
 		$resource = 'foo';
 
 		// Expect failure.

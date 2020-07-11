@@ -191,12 +191,7 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		$size     = 64;
 
 		// Intermediate data.
-		$basedir  = 'the/file/cache/base/directory/';
-		$data     = 'binary image data';
-		$site_id  = 7;
-		$hash     = 'some hash';
-		$filename = "custom/{$site_id}/{$hash}-{$size}.png";
-		$icon     = [];
+		$icon = [];
 
 		// Expected result.
 		$default_url = 'https://some_host/images/blank.gif';
@@ -231,12 +226,11 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		$size     = 64;
 
 		// Intermediate data.
-		$basedir  = 'the/file/cache/base/directory/';
-		$data     = '';
-		$site_id  = 7;
-		$hash     = 'some hash';
-		$filename = "custom/{$site_id}/{$hash}-{$size}.png";
-		$icon     = [
+		$basedir = 'the/file/cache/base/directory/';
+		$data    = '';
+		$site_id = 7;
+		$hash    = 'some hash';
+		$icon    = [
 			'file' => '/the/original/image/file.png',
 			'type' => 'image/png',
 		];

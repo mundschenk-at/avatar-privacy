@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -90,7 +90,7 @@ class BBPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Set up virtual filesystem.
-		$root = vfsStream::setup( 'root', null, $filesystem );
+		vfsStream::setup( 'root', null, $filesystem );
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
 		// User form helper mock.
@@ -208,7 +208,7 @@ class BBPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param  array   $result            The expected result.
 	 */
 	public function test_parse_id_or_email( $data, $is_bbpress, $get_user_by_email, $result ) {
-		list( $user_id, $email, $age ) = $data;
+		list( $user_id, $email, /* $age */ ) = $data;
 
 		Functions\expect( 'is_bbpress' )->once()->andReturn( $is_bbpress );
 
@@ -225,8 +225,7 @@ class BBPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::add_user_profile_fields
 	 */
 	public function test_add_user_profile_fields() {
-		$user_id      = 5;
-		$use_gravatar = 'true';
+		$user_id = 5;
 
 		Functions\expect( 'bbp_get_user_id' )->once()->with( 0, true, false )->andReturn( $user_id );
 

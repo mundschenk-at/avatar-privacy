@@ -96,8 +96,6 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_get_hash() {
 		$user_id = '666';
-		$email   = 'foobar@email.org';
-		$user    = (object) [ 'user_email' => $email ];
 		$hash    = 'hashed_email';
 
 		Functions\expect( 'get_user_meta' )->with( $user_id, User_Fields::EMAIL_HASH_META_KEY, true )->once()->andReturn( $hash );

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019 Peter Putzer.
+ * Copyright 2019-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -98,7 +98,7 @@ class BuddyPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_check() {
 		$this->assertFalse( $this->sut->check() );
 
-		$fake_plugin = m::mock( \BuddyPress::class );
+		$fake_plugin = m::mock( \BuddyPress::class ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		$this->assertTrue( $this->sut->check() );
 	}

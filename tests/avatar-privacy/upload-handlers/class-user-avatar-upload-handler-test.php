@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -102,7 +102,7 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Set up virtual filesystem.
-		$root = vfsStream::setup( 'root', null, $filesystem );
+		vfsStream::setup( 'root', null, $filesystem );
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
 		// Ubiquitous functions.
@@ -506,7 +506,6 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param  bool   $result  The expected result.
 	 */
 	public function test_delete_uploaded_avatar( $user_id, $file, $result ) {
-		$hash   = 'some_hash';
 		$avatar = [ 'file' => vfsStream::url( $file ) ];
 
 		$this->sut->shouldReceive( 'invalidate_user_avatar_cache' )->once()->with( $user_id );

@@ -332,7 +332,6 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Input data.
 		$id    = 777;
 		$email = 'foo@bar.org';
-		$hash  = 'hashed_email';
 
 		// Database mock.
 		global $wpdb;

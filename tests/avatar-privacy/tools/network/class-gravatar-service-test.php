@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -280,7 +280,6 @@ class Gravatar_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 		$age          = 77;
 		$result       = false;
 		$final_result = '';
-		$duration     = 666;
 
 		if ( ! empty( $email ) ) {
 			$this->sut->shouldReceive( 'get_hash' )->twice()->with( $email )->andReturn( 'HASH' );
@@ -303,10 +302,9 @@ class Gravatar_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::validate
 	 */
 	public function test_validate_cached() {
-		$email    = 'foobar@example.org';
-		$age      = 77;
-		$result   = 'image/png';
-		$duration = 666;
+		$email  = 'foobar@example.org';
+		$age    = 77;
+		$result = 'image/png';
 
 		if ( ! empty( $email ) ) {
 			$this->sut->shouldReceive( 'get_hash' )->twice()->with( $email )->andReturn( 'HASH' );

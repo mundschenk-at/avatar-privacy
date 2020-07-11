@@ -124,7 +124,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 		];
 
 		// Set up virtual filesystem.
-		$root = vfsStream::setup( 'root', null, $filesystem );
+		vfsStream::setup( 'root', null, $filesystem );
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
 		// Ubiquitous functions.
@@ -288,16 +288,6 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		global $_FILES;
 
-		// Intermediate data.
-		$nonce            = '12345';
-		$normalized_files = [
-			Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR => [
-				'name' => 'filename',
-				'foo'  => 'bar',
-			],
-		];
-		$icon             = [];
-
 		// Set up fake request.
 		$_POST                  = [];
 		$_FILES['upload_index'] = $uploaded_file;
@@ -334,14 +324,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 		global $_FILES;
 
 		// Intermediate data.
-		$nonce            = '12345';
-		$normalized_files = [
-			Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR => [
-				'name' => 'filename',
-				'foo'  => 'bar',
-			],
-		];
-		$icon             = [];
+		$nonce = '12345';
 
 		// Set up fake request.
 		$_POST[ Custom_Default_Icon_Upload_Handler::NONCE_UPLOAD . $site_id ] = $nonce;
