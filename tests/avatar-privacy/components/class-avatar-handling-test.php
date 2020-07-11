@@ -290,21 +290,6 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Provide data for testing should_show_gravatar.
-	 *
-	 * @return array
-	 */
-	public function provide_should_show_gravatar_data() {
-		return [
-			[ false, false, '', false ], // No validation.
-			[ true, false, '', true ], // No validation.
-			[ true, true, false, false ], // Failed validation.
-			[ true, true, 'image/png', true ], // Succesful validaton.
-		];
-	}
-
-
-	/**
 	 * Tests ::get_avatar_data when $id_or_email is a comment with an non-avatar
 	 * comment type..
 	 *
@@ -350,6 +335,20 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assertArrayHasKey( 'url', $avatar_response );
 		$this->assertFalse( $avatar_response['url'] );
 		$this->assertFalse( $avatar_response['found_avatar'] );
+	}
+
+	/**
+	 * Provide data for testing should_show_gravatar.
+	 *
+	 * @return array
+	 */
+	public function provide_should_show_gravatar_data() {
+		return [
+			[ false, false, '', false ], // No validation.
+			[ true, false, '', true ], // No validation.
+			[ true, true, false, false ], // Failed validation.
+			[ true, true, 'image/png', true ], // Succesful validaton.
+		];
 	}
 
 	/**
