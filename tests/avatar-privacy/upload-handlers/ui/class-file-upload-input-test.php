@@ -169,18 +169,18 @@ class File_Upload_Input_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_constructor_no_value() {
 		$args = [
-			'erase_checkbox' => 'my_erase_checkbox_id',
-			'action'         => 'my_upload_action',
-			'nonce'          => 'my_upload_nonce',
-			'help_no_file'   => 'help-text-no-file',
-			'help_no_upload' => 'help-text-not-enough-capabilities',
-			'tab_id'         => 'my_tab_id',
-			'section'        => 'my_section',
-			'default'        => 'my_default',
-			'short'          => 'my_short',
-			'label'          => 'my_label',
-			'help_text'      => 'my_help_text',
-			'inline_help'    => false,
+			'erase_checkbox'   => 'my_erase_checkbox_id',
+			'action'           => 'my_upload_action',
+			'nonce'            => 'my_upload_nonce',
+			'help_no_file'     => 'help-text-no-file',
+			'help_no_upload'   => 'help-text-not-enough-capabilities',
+			'tab_id'           => 'my_tab_id',
+			'section'          => 'my_section',
+			'default'          => 'my_default',
+			'short'            => 'my_short',
+			'label'            => 'my_label',
+			'help_text'        => 'my_help_text',
+			'inline_help'      => false,
 			'outer_attributes' => [ 'foo' => 'bar' ],
 		];
 
