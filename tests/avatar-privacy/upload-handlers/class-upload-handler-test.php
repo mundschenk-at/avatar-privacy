@@ -178,6 +178,7 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @param bool $is_multisite  The result of is_multisite().
 	 * @param bool $global        A flag indicating global uploads on multisite.
+	 * @param bool $has_file      A flag indicating that the 'file' parameter has been set.
 	 */
 	public function test_upload( $is_multisite, $global, $has_file ) {
 		$file         = [ 'foo' => 'bar' ];
