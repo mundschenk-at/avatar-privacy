@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -60,12 +60,13 @@ class Site_Transients_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::__construct
 	 */
 	public function test_constructor() {
-		Functions\expect( 'get_site_transient' )->once();
-		Functions\expect( 'wp_using_ext_object_cache' )->once()->andReturn( true );
-		Functions\expect( 'set_site_transient' )->once();
+		$transients = m::mock( Site_Transients::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$result = new Site_Transients();
+		$transients->shouldReceive( 'get' )->once()->andReturn( false );
+		$transients->shouldReceive( 'invalidate' )->once();
 
-		$this->assert_attribute_same( Site_Transients::PREFIX, 'prefix', $result );
+		$transients->__construct();
+
+		$this->assert_attribute_same( Site_Transients::PREFIX, 'prefix', $transients );
 	}
 }

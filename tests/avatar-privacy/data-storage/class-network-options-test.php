@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -71,7 +71,7 @@ class Network_Options_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		Functions\expect( 'get_current_network_id' )->andReturn( 0 );
 
-		$result = new Network_Options();
+		$result = m::mock( Network_Options::class, [] );
 
 		$this->assert_attribute_same( Network_Options::PREFIX, 'prefix', $result );
 	}

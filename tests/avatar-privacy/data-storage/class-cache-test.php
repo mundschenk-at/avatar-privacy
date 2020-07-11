@@ -60,12 +60,14 @@ class Cache_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::__construct
 	 */
 	public function test_constructor() {
-		Functions\expect( 'wp_cache_get' )->once();
-		Functions\expect( 'wp_cache_set' )->once();
+		$cache = m::mock( Cache::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$result = m::mock( Cache::class, [] );
+		Functions\expect( 'wp_cache_get' )->once()->andReturn( false );
+		$cache->shouldReceive( 'invalidate' )->once();
 
-		$this->assert_attribute_same( Cache::PREFIX, 'prefix', $result );
-		$this->assert_attribute_same( Cache::GROUP, 'group', $result );
+		$cache->__construct();
+
+		$this->assert_attribute_same( Cache::PREFIX, 'prefix', $cache );
+		$this->assert_attribute_same( Cache::GROUP, 'group', $cache );
 	}
 }
