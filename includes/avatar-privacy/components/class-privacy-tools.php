@@ -28,7 +28,6 @@ namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Component;
 
-use Avatar_Privacy\Core;
 use Avatar_Privacy\Core\Comment_Author_Fields;
 use Avatar_Privacy\Core\User_Fields;
 
@@ -44,11 +43,13 @@ class Privacy_Tools implements Component {
 	const PAGING = 500;
 
 	/**
-	 * The core API.
+	 * The user fields API.
 	 *
-	 * @var Core
+	 * @since 2.4.0
+	 *
+	 * @var User_Fields
 	 */
-	private $core;
+	private $registered_user;
 
 	/**
 	 * The comment author API.
@@ -57,17 +58,17 @@ class Privacy_Tools implements Component {
 	 *
 	 * @var Comment_Author_Fields
 	 */
-	private $comment_author_fields;
+	private $comment_author;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param Core                  $core                  The core API.
-	 * @param Comment_Author_Fields $comment_author_fields The comment author API.
+	 * @param User_Fields           $registered_user The user fields API.
+	 * @param Comment_Author_Fields $comment_author  The comment author fields API.
 	 */
-	public function __construct( Core $core, Comment_Author_Fields $comment_author_fields ) {
-		$this->core                  = $core;
-		$this->comment_author_fields = $comment_author_fields;
+	public function __construct( User_Fields $registered_user, Comment_Author_Fields $comment_author ) {
+		$this->registered_user = $registered_user;
+		$this->comment_author  = $comment_author;
 	}
 
 	/**
@@ -178,7 +179,7 @@ class Privacy_Tools implements Component {
 		// Export the hashed email.
 		$user_data[] = [
 			'name'  => \__( 'User Email Hash', 'avatar-privacy' ),
-			'value' => $this->core->get_user_hash( $user->ID ),
+			'value' => $this->registered_user->get_hash( $user->ID ),
 		];
 
 		// Export the `use_gravatar` setting.
@@ -229,7 +230,7 @@ class Privacy_Tools implements Component {
 	 */
 	public function export_comment_author_data( $email, /* @scrutinizer ignore-unused */ $page = 1 ) {
 		// Load raw data.
-		$raw_data = $this->comment_author_fields->load( $email );
+		$raw_data = $this->comment_author->load( $email );
 		if ( empty( $raw_data ) ) {
 			return [
 				'data' => [],
@@ -316,10 +317,7 @@ class Privacy_Tools implements Component {
 		}
 
 		// Remove comment author data.
-		$id = $this->comment_author_fields->get_key( $email );
-		if ( ! empty( $id ) ) {
-			$items_removed += $this->delete_comment_author_data( $id, $email );
-		}
+		$items_removed += $this->comment_author->delete( $email );
 
 		return [
 			'items_removed'  => $items_removed,
@@ -327,27 +325,5 @@ class Privacy_Tools implements Component {
 			'messages'       => $messages,
 			'done'           => true,
 		];
-	}
-
-	/**
-	 * Deletes an entry from the avatar_privacy table.
-	 *
-	 * @since 2.1.0 Visibility changed to protected.
-	 *
-	 * @param  int    $id    The row ID.
-	 * @param  string $email The original email.
-	 *
-	 * @return int           The number of deleted rows (1 or 0).
-	 */
-	protected function delete_comment_author_data( $id, $email ) {
-		global $wpdb;
-
-		// Delete data from database.
-		$rows = (int) $wpdb->delete( $wpdb->avatar_privacy, [ 'id' => $id ], [ '%d' ] ); // WPCS: db call ok, cache ok.
-
-		// Delete cached data.
-		$this->comment_author_fields->clear_cache( $email );
-
-		return $rows;
 	}
 }
