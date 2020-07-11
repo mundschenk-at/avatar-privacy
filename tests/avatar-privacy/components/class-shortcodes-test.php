@@ -36,7 +36,6 @@ use org\bovigo\vfs\vfsStream;
 
 use Avatar_Privacy\Components\Shortcodes;
 
-use Avatar_Privacy\Core;
 use Avatar_Privacy\Tools\HTML\User_Form;
 
 /**

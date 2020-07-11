@@ -33,7 +33,6 @@ use Brain\Monkey\Functions;
 use Mockery as m;
 
 use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamDirectory;
 
 use Avatar_Privacy\Tools\Images\PNG;
 

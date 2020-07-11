@@ -36,8 +36,6 @@ use org\bovigo\vfs\vfsStream;
 
 use Avatar_Privacy\Upload_Handlers\UI\File_Upload_Input;
 
-use Avatar_Privacy\Core;
-use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
 
 

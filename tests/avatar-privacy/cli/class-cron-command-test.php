@@ -32,6 +32,8 @@ use Brain\Monkey\Functions;
 
 use Mockery as m;
 
+use Avatar_Privacy\Tests\Avatar_Privacy\CLI\TestCase;
+
 use Avatar_Privacy\CLI\Cron_Command;
 use Avatar_Privacy\Components\Image_Proxy;
 

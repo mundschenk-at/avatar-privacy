@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019 Peter Putzer.
+ * Copyright 2019-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -33,8 +33,6 @@ use Brain\Monkey\Functions;
 use Mockery as m;
 
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\SVG_Icon_Provider;
-use Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icon_Provider;
-use Avatar_Privacy\Avatar_Handlers\Default_Icons\Abstract_Icon_Provider;
 
 /**
  * Avatar_Privacy\Avatar_Handlers\Default_Icons\SVG_Icon_Provider unit test.

@@ -26,16 +26,11 @@
 
 namespace Avatar_Privacy\Tests\Avatar_Privacy;
 
-use Avatar_Privacy\Core;
-
 use Brain\Monkey\Actions;
 use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 
 use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamDirectory;
-
-use Mockery as m;
 
 /**
  * Unit tests for Avatar Privacy functions.

@@ -32,12 +32,12 @@ use Brain\Monkey\Functions;
 
 use Mockery as m;
 
+use Avatar_Privacy\Tests\Avatar_Privacy\CLI\TestCase;
+
 use Avatar_Privacy\CLI\Database_Command;
 
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Data_Storage\Database\Comment_Author_Table;
-
-use Avatar_Privacy\Tests\Avatar_Privacy\CLI\TestCase;
 
 /**
  * Avatar_Privacy\CLI\Database_Command unit test.

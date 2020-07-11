@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -34,7 +34,6 @@ use Mockery as m;
 
 use Avatar_Privacy\Components\User_Profile;
 
-use Avatar_Privacy\Core;
 use Avatar_Privacy\Tools\HTML\User_Form;
 
 /**

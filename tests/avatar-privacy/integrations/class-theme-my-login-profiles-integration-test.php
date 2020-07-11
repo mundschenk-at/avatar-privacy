@@ -32,11 +32,8 @@ use Brain\Monkey\Functions;
 
 use Mockery as m;
 
-use org\bovigo\vfs\vfsStream;
-
 use Avatar_Privacy\Integrations\Theme_My_Login_Profiles_Integration;
 
-use Avatar_Privacy\Core;
 use Avatar_Privacy\Tools\HTML\User_Form;
 
 

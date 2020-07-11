@@ -32,8 +32,6 @@ use Brain\Monkey\Functions;
 
 use Mockery as m;
 
-use org\bovigo\vfs\vfsStream;
-
 use Avatar_Privacy\Integrations\BuddyPress_Integration;
 
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;

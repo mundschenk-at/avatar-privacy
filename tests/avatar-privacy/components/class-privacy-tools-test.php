@@ -37,8 +37,6 @@ use Avatar_Privacy\Components\Privacy_Tools;
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Core\Comment_Author_Fields;
 use Avatar_Privacy\Core\User_Fields;
-use Avatar_Privacy\Data_Storage\Cache;
-use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
 /**
  * Avatar_Privacy\Components\Privacy_Tools unit test.

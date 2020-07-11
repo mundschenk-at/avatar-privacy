@@ -33,7 +33,6 @@ use Brain\Monkey\Functions;
 use Mockery as m;
 
 use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamDirectory;
 
 use Avatar_Privacy\Avatar_Handlers\Default_Icons_Handler;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Icon_Provider;
@@ -41,7 +40,6 @@ use Avatar_Privacy\Avatar_Handlers\Default_Icons\Icon_Provider;
 use Avatar_Privacy\Core;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
-use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Tools\Network\Remote_Image_Service;
 
 /**
@@ -206,8 +204,8 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Interim data.
-		$provider1      = m::mock( Avatar_Privacy\Avatar_Handlers\Default_Icons\Icon_Provider::class );
-		$provider2      = m::mock( Avatar_Privacy\Avatar_Handlers\Default_Icons\Icon_Provider::class );
+		$provider1      = m::mock( Icon_Provider::class );
+		$provider2      = m::mock( Icon_Provider::class );
 		$icon_providers = [
 			'foo'    => $provider1,
 			'bar'    => $provider1,
@@ -246,8 +244,8 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Interim data.
-		$provider1      = m::mock( Avatar_Privacy\Avatar_Handlers\Default_Icons\Icon_Provider::class );
-		$provider2      = m::mock( Avatar_Privacy\Avatar_Handlers\Default_Icons\Icon_Provider::class );
+		$provider1      = m::mock( Icon_Provider::class );
+		$provider2      = m::mock( Icon_Provider::class );
 		$icon_providers = [
 			'foo'    => $provider1,
 			'bar'    => $provider1,
@@ -285,8 +283,8 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Interim data.
-		$provider1      = m::mock( Avatar_Privacy\Avatar_Handlers\Default_Icons\Icon_Provider::class );
-		$provider2      = m::mock( Avatar_Privacy\Avatar_Handlers\Default_Icons\Icon_Provider::class );
+		$provider1      = m::mock( Icon_Provider::class );
+		$provider2      = m::mock( Icon_Provider::class );
 		$icon_providers = [
 			'foo'    => $provider1,
 			'bar'    => $provider1,
