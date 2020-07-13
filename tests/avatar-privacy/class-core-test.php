@@ -178,7 +178,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->expectException( \BadMethodCallException::class );
 		$this->expectExceptionMessage( 'Avatar_Privacy\Core::get_instance called without prior plugin intialization.' );
 
-		$core = \Avatar_Privacy\Core::get_instance();
+		$core = \Avatar_Privacy\Core::get_instance(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	}
 
 	/**
