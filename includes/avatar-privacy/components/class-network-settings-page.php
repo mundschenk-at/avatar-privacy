@@ -34,6 +34,7 @@ use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Transients;
 
 use Avatar_Privacy\Tools\Multisite;
+use Avatar_Privacy\Tools\HTML\Dependencies;
 
 use Mundschenk\UI\Control_Factory;
 use Mundschenk\UI\Controls;
@@ -94,21 +95,32 @@ class Network_Settings_Page implements Component {
 	private $triggered_notice = [];
 
 	/**
+	 * The script & style registration helper.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var Dependencies
+	 */
+	private $dependencies;
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
-	 * @since 2.4.0 Parameter $core removed.
+	 * @since 2.4.0 Parameter $core removed, parameter $dependencies added.
 	 *
 	 * @param Network_Options $network_options The network options handler.
 	 * @param Transients      $transients      The transients handler.
 	 * @param Settings        $settings        The default settings.
 	 * @param Multisite       $multisite       The the multisite handler.
+	 * @param Dependencies    $dependencies    The script & style registration helper.
 	 */
-	public function __construct( Network_Options $network_options, Transients $transients, Settings $settings, Multisite $multisite ) {
+	public function __construct( Network_Options $network_options, Transients $transients, Settings $settings, Multisite $multisite, Dependencies $dependencies ) {
 		$this->network_options = $network_options;
 		$this->transients      = $transients;
 		$this->settings        = $settings;
 		$this->multisite       = $multisite;
+		$this->dependencies    = $dependencies;
 	}
 
 	/**
@@ -258,7 +270,8 @@ class Network_Settings_Page implements Component {
 	 * Enqueue stylesheet for options page.
 	 */
 	public function print_styles() {
-		\wp_enqueue_style( 'avatar-privacy-settings', \plugins_url( 'admin/css/settings.css', \AVATAR_PRIVACY_PLUGIN_FILE ), [], $this->settings->get_version(), 'all' );
+		$this->dependencies->register_style( 'avatar-privacy-settings', 'admin/css/settings.css' );
+		$this->dependencies->enqueue_style( 'avatar-privacy-settings' );
 	}
 
 	/**

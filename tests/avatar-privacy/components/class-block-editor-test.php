@@ -36,7 +36,7 @@ use org\bovigo\vfs\vfsStream;
 
 use Avatar_Privacy\Components\Block_Editor;
 
-use Avatar_Privacy\Core;
+use Avatar_Privacy\Tools\HTML\Dependencies;
 use Avatar_Privacy\Tools\HTML\User_Form;
 
 /**
@@ -59,9 +59,9 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Mocked helper object.
 	 *
-	 * @var Core
+	 * @var Dependencies
 	 */
-	private $core;
+	private $dependencies;
 
 	/**
 	 * Mocked helper object.
@@ -89,10 +89,6 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 						],
 					],
 				],
-				'js'     => [
-					'dummy.js'        => 'Not really JavaScript',
-					'dummy.deps.json' => '["wp-blocks","wp-components","wp-editor","wp-element","wp-i18n","wp-polyfill"]',
-				],
 			],
 		];
 
@@ -100,9 +96,9 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 		vfsStream::setup( 'root', null, $filesystem );
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
-		$this->core = m::mock( Core::class );
-		$this->form = m::mock( User_Form::class );
-		$this->sut  = m::mock( Block_Editor::class, [ $this->core, $this->form ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->dependencies = m::mock( Dependencies::class );
+		$this->form         = m::mock( User_Form::class );
+		$this->sut          = m::mock( Block_Editor::class, [ $this->dependencies, $this->form ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -113,9 +109,9 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Block_Editor::class )->makePartial();
 
-		$mock->__construct( $this->core, $this->form );
+		$mock->__construct( $this->dependencies, $this->form );
 
-		$this->assert_attribute_same( $this->core, 'core', $mock );
+		$this->assert_attribute_same( $this->dependencies, 'dependencies', $mock );
 		$this->assert_attribute_same( $this->form, 'form', $mock );
 	}
 
@@ -176,43 +172,10 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::register_blocks
 	 */
 	public function test_register_blocks() {
-		$base_url = 'fake://url';
-		$suffix   = '.min';
-		$version  = 'fake version';
-
-		// Simulate blocks dependencies.
-		$blocks_version = 'fake blocks version';
-		$deps           = [ 'foo', 'bar' ];
-		$asset          = '<?php return [ "dependencies" => ' . \var_export( $deps, true ) . ', "version" => ' . \var_export( $blocks_version, true ) . ' ]; ?>'; // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
-		vfsStream::create( [
-			'plugin' => [
-				'admin' => [
-					'blocks' => [
-						'js' => [
-							'blocks.asset.php' => $asset,
-						],
-					],
-				],
-			],
-		] );
-
-		Functions\expect( 'plugins_url' )->once()->with( '', \AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $base_url );
-
-		Functions\expect( 'wp_register_script' )->once()->with(
-			'avatar-privacy-gutenberg',
-			"{$base_url}/admin/blocks/js/blocks.js",
-			$deps,
-			$blocks_version,
-			false
-		);
-
-		$this->core->shouldReceive( 'get_version' )->once()->andReturn( $version );
-		Functions\expect( 'wp_register_style' )->once()->with(
-			'avatar-privacy-gutenberg-style',
-			"{$base_url}/admin/css/blocks{$suffix}.css",
-			[],
-			$version
-		);
+		$this->dependencies->shouldReceive( 'register_block_script' )->once()
+			->with( 'avatar-privacy-gutenberg', 'admin/blocks/js/blocks' );
+		$this->dependencies->shouldReceive( 'register_style' )->once()
+			->with( 'avatar-privacy-gutenberg-style', 'admin/css/blocks.css' );
 
 		Functions\expect( 'register_block_type' )->once()->with(
 			'avatar-privacy/form',

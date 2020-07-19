@@ -26,9 +26,9 @@
 
 namespace Avatar_Privacy\Integrations;
 
-use Avatar_Privacy\Core;
 use Avatar_Privacy\Components\Comments;
 use Avatar_Privacy\Integrations\Plugin_Integration;
+use Avatar_Privacy\Tools\HTML\Dependencies;
 
 use wpdFormAttr\Form;
 use wpdFormAttr\Field;
@@ -42,11 +42,13 @@ use wpdFormAttr\Field;
 class WPDiscuz_Integration implements Plugin_Integration {
 
 	/**
-	 * The core API.
+	 * The script & style registration helper.
 	 *
-	 * @var Core
+	 * @since 2.4.0
+	 *
+	 * @var Dependencies
 	 */
-	private $core;
+	private $dependencies;
 
 	/**
 	 * The comment handling component.
@@ -65,12 +67,12 @@ class WPDiscuz_Integration implements Plugin_Integration {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param Core     $core     The core API.
-	 * @param Comments $comments The comment handler.
+	 * @param Dependencies $dependencies The script & style registration helper.
+	 * @param Comments     $comments     The comment handler.
 	 */
-	public function __construct( Core $core, Comments $comments ) {
-		$this->core     = $core;
-		$this->comments = $comments;
+	public function __construct( Dependencies $dependencies, Comments $comments ) {
+		$this->dependencies = $dependencies;
+		$this->comments     = $comments;
 	}
 
 	/**
@@ -113,23 +115,22 @@ class WPDiscuz_Integration implements Plugin_Integration {
 		require \AVATAR_PRIVACY_PLUGIN_PATH . '/public/partials/wpdiscuz/use-gravatar.php';
 	}
 
-
 	/**
 	 * Enqueue stylesheet comments form.
 	 */
 	public function enqeue_styles_and_scripts() {
-		// Set up resource file information.
-		$url    = \plugin_dir_url( \AVATAR_PRIVACY_PLUGIN_FILE );
-		$suffix = \SCRIPT_DEBUG ? '' : '.min';
+		// Register script.
+		$this->dependencies->register_script( 'avatar-privacy-wpdiscuz-use-gravatar', 'public/js/wpdiscuz/use-gravatar.js', [ 'jquery' ], false, true );
 
 		// Set up the localized script data.
 		$data = [
 			'cookie'   => Comments::COOKIE_PREFIX . \COOKIEHASH,
 			'checkbox' => Comments::CHECKBOX_FIELD_NAME,
 		];
-
-		\wp_enqueue_script( 'avatar-privacy-wpdiscuz-use-gravatar', "{$url}/public/js/wpdiscuz/use-gravatar{$suffix}.js", [ 'jquery' ], $this->core->get_version(), true );
 		\wp_localize_script( 'avatar-privacy-wpdiscuz-use-gravatar', 'avatarPrivacy', $data );
+
+		// Enqueue script.
+		$this->dependencies->enqueue_script( 'avatar-privacy-wpdiscuz-use-gravatar' );
 	}
 
 	/**
