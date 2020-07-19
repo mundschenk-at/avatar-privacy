@@ -36,6 +36,9 @@ use org\bovigo\vfs\vfsStream;
 
 use Avatar_Privacy\Integrations\WPDiscuz_Integration;
 
+use Avatar_Privacy\Components\Comments;
+use Avatar_Privacy\Tools\HTML\Dependencies;
+
 /**
  * Avatar_Privacy\Integrations\WPDiscuz_Integration unit test.
  *
@@ -49,21 +52,21 @@ class WPDiscuz_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var \Avatar_Privacy\Integrations\WPDiscuz_Integration
+	 * @var WPDiscuz_Integration
 	 */
 	private $sut;
 
 	/**
-	 * A test fixture.
+	 * Mocked helper object.
 	 *
-	 * @var \Avatar_Privacy\Core
+	 * @var Dependencies
 	 */
-	private $core;
+	private $dependencies;
 
 	/**
 	 * A test fixture.
 	 *
-	 * @var \Avatar_Privacy\Components\Comments
+	 * @var Comments
 	 */
 	private $comments;
 
@@ -98,11 +101,11 @@ class WPDiscuz_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
 		// Helper mocks.
-		$this->core     = m::mock( \Avatar_Privacy\Core::class );
-		$this->comments = m::mock( \Avatar_Privacy\Components\Comments::class );
+		$this->dependencies = m::mock( Dependencies::class );
+		$this->comments     = m::mock( Comments::class );
 
 		// Partially mock system under test.
-		$this->sut = m::mock( WPDiscuz_Integration::class, [ $this->core, $this->comments ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( WPDiscuz_Integration::class, [ $this->dependencies, $this->comments ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -111,13 +114,13 @@ class WPDiscuz_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::__construct
 	 */
 	public function test_constructor() {
-		$mock     = m::mock( WPDiscuz_Integration::class )->makePartial()->shouldAllowMockingProtectedMethods();
-		$core     = m::mock( \Avatar_Privacy\Core::class );
-		$comments = m::mock( \Avatar_Privacy\Components\Comments::class );
+		$mock         = m::mock( WPDiscuz_Integration::class )->makePartial()->shouldAllowMockingProtectedMethods();
+		$dependencies = m::mock( Dependencies::class );
+		$comments     = m::mock( Comments::class );
 
-		$mock->__construct( $core, $comments );
+		$mock->__construct( $dependencies, $comments );
 
-		$this->assert_attribute_same( $core, 'core', $mock );
+		$this->assert_attribute_same( $dependencies, 'dependencies', $mock );
 		$this->assert_attribute_same( $comments, 'comments', $mock );
 	}
 
@@ -142,7 +145,7 @@ class WPDiscuz_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_run() {
 		Actions\expectAdded( 'init' )->once()->with( [ $this->sut, 'init' ] );
 
-		$this->assertNull( $this->sut->run( $this->core ) );
+		$this->assertNull( $this->sut->run() );
 	}
 
 	/**
@@ -212,13 +215,11 @@ class WPDiscuz_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::enqeue_styles_and_scripts
 	 */
 	public function test_enqeue_styles_and_scripts() {
-		$version = '6.6.6';
+		$this->dependencies->shouldReceive( 'register_script' )->once()
+			->with( 'avatar-privacy-wpdiscuz-use-gravatar', m::type( 'string' ), [ 'jquery' ], false, true );
+		$this->dependencies->shouldReceive( 'enqueue_script' )->once()
+			->with( 'avatar-privacy-wpdiscuz-use-gravatar' );
 
-		Functions\expect( 'plugin_dir_url' )->once()->with( \AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( 'some/url' );
-
-		$this->core->shouldReceive( 'get_version' )->once()->andReturn( $version );
-
-		Functions\expect( 'wp_enqueue_script' )->once()->with( 'avatar-privacy-wpdiscuz-use-gravatar', m::type( 'string' ), [ 'jquery' ], $version, true );
 		Functions\expect( 'wp_localize_script' )->once()->with( 'avatar-privacy-wpdiscuz-use-gravatar', 'avatarPrivacy', m::type( 'array' ) );
 
 		$this->assertNull( $this->sut->enqeue_styles_and_scripts() );

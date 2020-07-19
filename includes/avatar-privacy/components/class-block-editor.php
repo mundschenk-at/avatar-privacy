@@ -26,8 +26,8 @@
 
 namespace Avatar_Privacy\Components;
 
-use Avatar_Privacy\Core;
 use Avatar_Privacy\Component;
+use Avatar_Privacy\Tools\HTML\Dependencies;
 use Avatar_Privacy\Tools\HTML\User_Form;
 
 /**
@@ -40,11 +40,13 @@ use Avatar_Privacy\Tools\HTML\User_Form;
 class Block_Editor implements Component {
 
 	/**
-	 * The core API.
+	 * The script & style registration helper.
 	 *
-	 * @var Core
+	 * @since 2.4.0
+	 *
+	 * @var Dependencies
 	 */
-	private $core;
+	private $dependencies;
 
 	/**
 	 * The profile form helper.
@@ -56,12 +58,12 @@ class Block_Editor implements Component {
 	/**
 	 * Initialize the class and set its properties.
 	 *
-	 * @param Core      $core The core API.
-	 * @param User_Form $form The profile form helper.
+	 * @param Dependencies $dependencies The script & style registration helper.
+	 * @param User_Form    $form         The profile form helper.
 	 */
-	public function __construct( Core $core, User_Form $form ) {
-		$this->core = $core;
-		$this->form = $form;
+	public function __construct( Dependencies $dependencies, User_Form $form ) {
+		$this->dependencies = $dependencies;
+		$this->form         = $form;
 	}
 
 	/**
@@ -88,16 +90,11 @@ class Block_Editor implements Component {
 	 * Registers the Gutenberg blocks.
 	 */
 	public function register_blocks() {
-		$suffix     = \SCRIPT_DEBUG ? '' : '.min';
-		$plugin_url = \plugins_url( '', \AVATAR_PRIVACY_PLUGIN_FILE );
-
 		// Register the script containing all our block types.
-		$blocks = 'admin/blocks/js/blocks';
-		$asset  = include \AVATAR_PRIVACY_PLUGIN_PATH . "/{$blocks}.asset.php";
-		\wp_register_script( 'avatar-privacy-gutenberg', "{$plugin_url}/{$blocks}.js", $asset['dependencies'], $asset['version'], false );
+		$this->dependencies->register_block_script( 'avatar-privacy-gutenberg', 'admin/blocks/js/blocks' );
 
 		// Register the stylesheet for the blocks.
-		\wp_register_style( 'avatar-privacy-gutenberg-style', "{$plugin_url}/admin/css/blocks{$suffix}.css", [], $this->core->get_version() );
+		$this->dependencies->register_style( 'avatar-privacy-gutenberg-style', 'admin/css/blocks.css' );
 
 		// Register each individual block type:
 		// The frontend form block.

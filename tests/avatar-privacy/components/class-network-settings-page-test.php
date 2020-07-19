@@ -40,6 +40,7 @@ use Avatar_Privacy\Core\Settings;
 use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Transients;
 use Avatar_Privacy\Tools\Multisite;
+use Avatar_Privacy\Tools\HTML\Dependencies;
 
 /**
  * Avatar_Privacy\Components\Network_Settings_Page unit test.
@@ -87,6 +88,13 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $multisite;
 
 	/**
+	 * Mocked helper object.
+	 *
+	 * @var Dependencies
+	 */
+	private $dependencies;
+
+	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 *
@@ -118,8 +126,9 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->network_options = m::mock( Network_Options::class );
 		$this->transients      = m::mock( Transients::class );
 		$this->multisite       = m::mock( Multisite::class );
+		$this->dependencies    = m::mock( Dependencies::class );
 
-		$this->sut = m::mock( Network_Settings_Page::class, [ $this->network_options, $this->transients, $this->settings, $this->multisite ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Network_Settings_Page::class, [ $this->network_options, $this->transients, $this->settings, $this->multisite, $this->dependencies ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -134,12 +143,14 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 			$this->network_options,
 			$this->transients,
 			$this->settings,
-			$this->multisite
+			$this->multisite,
+			$this->dependencies
 		);
 
 		$this->assert_attribute_same( $this->network_options, 'network_options', $mock );
 		$this->assert_attribute_same( $this->settings, 'settings', $mock );
 		$this->assert_attribute_same( $this->multisite, 'multisite', $mock );
+		$this->assert_attribute_same( $this->dependencies, 'dependencies', $mock );
 	}
 
 
@@ -359,12 +370,10 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::print_styles
 	 */
 	public function test_print_styles() {
-		$plugin_url = 'my-plugin-url';
-		$version    = '9.9.9';
-
-		$this->settings->shouldReceive( 'get_version' )->once()->andReturn( $version );
-		Functions\expect( 'plugins_url' )->once()->with( 'admin/css/settings.css', \AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $plugin_url );
-		Functions\expect( 'wp_enqueue_style' )->once()->with( 'avatar-privacy-settings', $plugin_url, [], $version, 'all' );
+		$this->dependencies->shouldReceive( 'register_style' )->once()
+			->with( 'avatar-privacy-settings', 'admin/css/settings.css' );
+		$this->dependencies->shouldReceive( 'enqueue_style' )->once()
+			->with( 'avatar-privacy-settings' );
 
 		$this->assertNull( $this->sut->print_styles() );
 	}
