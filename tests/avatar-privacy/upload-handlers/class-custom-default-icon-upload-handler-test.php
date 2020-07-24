@@ -64,13 +64,6 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	/**
 	 * Required helper object.
 	 *
-	 * @var Core
-	 */
-	private $core;
-
-	/**
-	 * Required helper object.
-	 *
 	 * @var Settings
 	 */
 	private $settings;
@@ -131,13 +124,12 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 		Functions\when( '__' )->returnArg();
 
 		// Mock required helpers.
-		$this->core       = m::mock( Core::class );
 		$this->file_cache = m::mock( Filesystem_Cache::class );
 		$this->settings   = m::mock( Settings::class );
 		$this->hasher     = m::mock( Hasher::class );
 		$this->options    = m::mock( Options::class );
 
-		$this->sut = m::mock( Custom_Default_Icon_Upload_Handler::class, [ $this->core, $this->file_cache, $this->settings, $this->hasher, $this->options ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Custom_Default_Icon_Upload_Handler::class, [ $this->file_cache, $this->settings, $this->hasher, $this->options ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -150,7 +142,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	public function test_constructor() {
 		$mock = m::mock( Custom_Default_Icon_Upload_Handler::class )->makePartial();
 
-		$mock->__construct( $this->core, $this->file_cache, $this->settings, $this->hasher, $this->options );
+		$mock->__construct( $this->file_cache, $this->settings, $this->hasher, $this->options );
 
 		$this->assert_attribute_same( $this->options, 'options', $mock );
 	}

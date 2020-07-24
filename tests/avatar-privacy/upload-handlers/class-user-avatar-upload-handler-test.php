@@ -36,7 +36,6 @@ use org\bovigo\vfs\vfsStream;
 
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
-use Avatar_Privacy\Core;
 use Avatar_Privacy\Core\User_Fields;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
@@ -61,16 +60,16 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Required helper object.
 	 *
-	 * @var Core
+	 * @var Filesystem_Cache
 	 */
-	private $core;
+	private $file_cache;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Filesystem_Cache
+	 * @var User_Fields
 	 */
-	private $file_cache;
+	private $registered_user;
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -107,10 +106,10 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\when( '__' )->returnArg();
 
 		// Mock required helpers.
-		$this->core       = m::mock( Core::class );
-		$this->file_cache = m::mock( Filesystem_Cache::class );
+		$this->file_cache      = m::mock( Filesystem_Cache::class );
+		$this->registered_user = m::mock( User_Fields::class );
 
-		$this->sut = m::mock( User_Avatar_Upload_Handler::class, [ $this->core, $this->file_cache ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( User_Avatar_Upload_Handler::class, [ $this->file_cache, $this->registered_user ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -123,9 +122,10 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( User_Avatar_Upload_Handler::class )->makePartial();
 
-		$mock->__construct( $this->core, $this->file_cache );
+		$mock->__construct( $this->file_cache, $this->registered_user );
 
 		$this->assert_attribute_same( User_Avatar_Upload_Handler::UPLOAD_DIR, 'upload_dir', $mock );
+		$this->assert_attribute_same( $this->registered_user, 'registered_user', $mock );
 	}
 
 	/**
@@ -523,7 +523,7 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$user_id = '777';
 		$hash    = 'some_hash';
 
-		$this->core->shouldReceive( 'get_user_hash' )->once()->with( $user_id )->andReturn( $hash );
+		$this->registered_user->shouldReceive( 'get_hash' )->once()->with( $user_id )->andReturn( $hash );
 		$this->file_cache->shouldReceive( 'invalidate' )->once()->with( 'user', "#/{$hash}-[1-9][0-9]*\.[a-z]{3}\$#" );
 
 		$this->assertNull( $this->sut->invalidate_user_avatar_cache( $user_id ) );
@@ -538,7 +538,7 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$user_id = '777';
 		$hash    = '';
 
-		$this->core->shouldReceive( 'get_user_hash' )->once()->with( $user_id )->andReturn( $hash );
+		$this->registered_user->shouldReceive( 'get_hash' )->once()->with( $user_id )->andReturn( $hash );
 		$this->file_cache->shouldReceive( 'invalidate' )->never();
 
 		$this->assertNull( $this->sut->invalidate_user_avatar_cache( $user_id ) );

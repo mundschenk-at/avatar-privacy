@@ -26,7 +26,6 @@
 
 namespace Avatar_Privacy\Upload_Handlers;
 
-use Avatar_Privacy\Core;
 use Avatar_Privacy\Core\User_Fields;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
@@ -56,15 +55,27 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	private $user_id_being_edited;
 
 	/**
+	 * The user fields API.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var User_Fields
+	 */
+	private $registered_user;
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
+	 * @since 2.4.0 Parameter $core removed, parameter $registered_user added.
 	 *
-	 * @param Core             $core        The core API.
-	 * @param Filesystem_Cache $file_cache  The file cache handler.
+	 * @param Filesystem_Cache $file_cache      The file cache handler.
+	 * @param User_Fields      $registered_user The user fields API.
 	 */
-	public function __construct( Core $core, Filesystem_Cache $file_cache ) {
-		parent::__construct( self::UPLOAD_DIR, $core, $file_cache );
+	public function __construct( Filesystem_Cache $file_cache, User_Fields $registered_user ) {
+		parent::__construct( self::UPLOAD_DIR, $file_cache );
+
+		$this->registered_user = $registered_user;
 	}
 
 	/**
@@ -199,7 +210,7 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 * @param  int $user_id The user ID.
 	 */
 	public function invalidate_user_avatar_cache( $user_id ) {
-		$hash = $this->core->get_user_hash( $user_id );
+		$hash = $this->registered_user->get_hash( $user_id );
 		if ( ! empty( $hash ) ) {
 			$this->file_cache->invalidate( 'user', "#/{$hash}-[1-9][0-9]*\.[a-z]{3}\$#" );
 		}

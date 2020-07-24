@@ -26,13 +26,13 @@
 
 namespace Avatar_Privacy\Upload_Handlers;
 
-use Avatar_Privacy\Core;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
 /**
  * Handles image uploads.
  *
  * @since 2.0.0
+ * @since 2.4.0 Property $core removed.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
@@ -52,13 +52,6 @@ abstract class Upload_Handler {
 	protected $file_cache;
 
 	/**
-	 * The core API.
-	 *
-	 * @var Core
-	 */
-	protected $core;
-
-	/**
 	 * The subfolder used for our uploaded files. Has to start with /.
 	 *
 	 * @var string
@@ -69,14 +62,13 @@ abstract class Upload_Handler {
 	 * Creates a new instance.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
+	 * @since 2.4.0 Parameter $core removed.
 	 *
 	 * @param string           $upload_dir  The subfolder used for our uploaded files. Has to start with /.
-	 * @param Core             $core        The core API.
 	 * @param Filesystem_Cache $file_cache  The file cache handler.
 	 */
-	public function __construct( $upload_dir, Core $core, Filesystem_Cache $file_cache ) {
+	public function __construct( $upload_dir, Filesystem_Cache $file_cache ) {
 		$this->upload_dir = $upload_dir;
-		$this->core       = $core;
 		$this->file_cache = $file_cache;
 	}
 
