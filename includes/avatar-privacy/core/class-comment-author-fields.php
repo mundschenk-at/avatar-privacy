@@ -37,7 +37,7 @@ use const MINUTE_IN_SECONDS;
 
 /**
  * The API for handling (anonymous) comment author data as part of the
- * Avatar_Privacy Core API.
+ * Avatar Privacy Core API.
  *
  * @since 2.4.0
  *

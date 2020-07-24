@@ -32,7 +32,7 @@ use Avatar_Privacy\Tools\Hasher;
 
 /**
  * The API for handling data attached to registered users as part of the
- * Avatar_Privacy Core API.
+ * Avatar Privacy Core API.
  *
  * @since 2.4.0
  *
