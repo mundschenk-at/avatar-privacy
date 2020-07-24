@@ -26,7 +26,6 @@
 
 namespace Avatar_Privacy\Upload_Handlers;
 
-use Avatar_Privacy\Core;
 use Avatar_Privacy\Core\Settings;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
@@ -89,15 +88,15 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	 * Creates a new instance.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
+	 * @since 2.4.0 Parameter $core removed.
 	 *
-	 * @param Core             $core        The core API.
 	 * @param Filesystem_Cache $file_cache  The file cache handler.
 	 * @param Settings         $settings    The settings API.
 	 * @param Hasher           $hasher      The hashing helper.
 	 * @param Options          $options     The options handler.
 	 */
-	public function __construct( Core $core, Filesystem_Cache $file_cache, Settings $settings, Hasher $hasher, Options $options ) {
-		parent::__construct( self::UPLOAD_DIR, $core, $file_cache );
+	public function __construct( Filesystem_Cache $file_cache, Settings $settings, Hasher $hasher, Options $options ) {
+		parent::__construct( self::UPLOAD_DIR, $file_cache );
 
 		$this->settings = $settings;
 		$this->hasher   = $hasher;

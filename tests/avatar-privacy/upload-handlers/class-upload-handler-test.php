@@ -36,7 +36,6 @@ use org\bovigo\vfs\vfsStream;
 
 use Avatar_Privacy\Upload_Handlers\Upload_Handler;
 
-use Avatar_Privacy\Core;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
 
@@ -56,13 +55,6 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var Upload_Handler
 	 */
 	private $sut;
-
-	/**
-	 * Required helper object.
-	 *
-	 * @var Core
-	 */
-	private $core;
 
 	/**
 	 * Required helper object.
@@ -103,10 +95,9 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
 		// Mock required helpers.
-		$this->core       = m::mock( Core::class );
 		$this->file_cache = m::mock( Filesystem_Cache::class );
 
-		$this->sut = m::mock( Upload_Handler::class, [ 'uploads', $this->core, $this->file_cache ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Upload_Handler::class, [ 'uploads', $this->file_cache ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -117,9 +108,8 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Upload_Handler::class )->makePartial();
 
-		$mock->__construct( 'uploads', $this->core, $this->file_cache );
+		$mock->__construct( 'uploads', $this->file_cache );
 
-		$this->assert_attribute_same( $this->core, 'core', $mock );
 		$this->assert_attribute_same( $this->file_cache, 'file_cache', $mock );
 	}
 
