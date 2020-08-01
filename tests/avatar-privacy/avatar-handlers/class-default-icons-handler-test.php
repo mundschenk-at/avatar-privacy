@@ -350,6 +350,15 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Tests ::get_type.
+	 *
+	 * @covers ::get_type
+	 */
+	public function test_get_type() {
+		$this->assertSame( '', $this->sut->get_type() );
+	}
+
+	/**
 	 * Tests ::avatar_defaults.
 	 *
 	 * @covers ::avatar_defaults

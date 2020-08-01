@@ -244,4 +244,17 @@ class Gravatar_Cache_Handler implements Avatar_Handler {
 		// Try to cache the icon.
 		return ! empty( $this->get_url( '', $hash, $size, $args ) );
 	}
+
+	/**
+	 * Retrieves the name of the cache subdirectory for avatars provided by this
+	 * handler (e.g. 'gravatar'). Implementations may return an empty string if
+	 * the actual type can vary.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @return string
+	 */
+	public function get_type() {
+		return 'gravatar';
+	}
 }
