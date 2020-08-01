@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -68,4 +68,15 @@ interface Avatar_Handler {
 	 * @return bool              Returns `true` if successful, `false` otherwise.
 	 */
 	public function cache_image( $type, $hash, $size, $subdir, $extension );
+
+	/**
+	 * Retrieves the name of the cache directory for avatars provided by this handler
+	 * (e.g. 'gravatar'). Implementations may return an empty string if the actual
+	 * type can vary.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @return string
+	 */
+	public function get_type();
 }

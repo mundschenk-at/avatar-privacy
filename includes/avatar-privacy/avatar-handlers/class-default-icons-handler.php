@@ -173,4 +173,17 @@ class Default_Icons_Handler implements Avatar_Handler {
 
 		return $avatar_defaults;
 	}
+
+	/**
+	 * Retrieves the name of the cache subdirectory for avatars provided by this
+	 * handler (e.g. 'gravatar'). Implementations may return an empty string if
+	 * the actual type can vary.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @return string
+	 */
+	public function get_type() {
+		return '';
+	}
 }

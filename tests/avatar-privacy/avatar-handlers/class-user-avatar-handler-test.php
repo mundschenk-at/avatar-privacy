@@ -324,4 +324,13 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertFalse( $this->sut->cache_image( $type, $hash, $size, $subdir, $extension ) );
 	}
+
+	/**
+	 * Tests ::get_type.
+	 *
+	 * @covers ::get_type
+	 */
+	public function test_get_type() {
+		$this->assertSame( 'user', $this->sut->get_type() );
+	}
 }
