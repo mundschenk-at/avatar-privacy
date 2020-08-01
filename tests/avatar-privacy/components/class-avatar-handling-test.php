@@ -359,6 +359,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$email       = 'some@email';
 		$hash        = 'fake hash';
 		$age         = 999;
+		$url_hash    = 'hashed URL';
 
 		$this->sut->shouldReceive( 'parse_id_or_email' )->once()->with( $id_or_email )->andReturn( [ $user_id, $email, $age ] );
 
@@ -371,6 +372,8 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'should_show_gravatar' )->once()->with( $user_id, $email, $id_or_email, $age, m::type( 'string' ) )->andReturn( false );
 
 		$this->remote_images->shouldReceive( 'validate_image_url' )->once()->with( $remote_url, 'avatar' )->andReturn( true );
+		$this->hasher->shouldReceive( 'get_hash' )->once()->with( $remote_url )->andReturn( $url_hash );
+		Filters\expectApplied( 'avatar_privacy_legacy_icon_url' )->once()->with( $remote_url, $url_hash, $size, [] )->andReturn( $remote_url );
 
 		// Call method.
 		$avatar_response = $this->sut->get_avatar_data( $args, $id_or_email );
