@@ -243,8 +243,21 @@ class Avatar_Handling implements Component {
 			&& $this->remote_images->validate_image_url( $args['url'], 'avatar' )
 		) {
 			// Fall back to avatars set by other plugins.
-			// This should be replaced by proper caching in a future release.
-			$url = $args['url'];
+			$hash = $this->core->get_hash( $args['url'] );
+
+			/**
+			 * Filters the legacy icon URL.
+			 *
+			 * @since 2.4.0
+			 *
+			 * @param  string $url   The legacy image URL.
+			 * @param  string $hash  The hashed URL.
+			 * @param  int    $size  The size of the avatar image in pixels.
+			 * @param  array  $args {
+			 *     An array of arguments.
+			 * }
+			 */
+			$url = \apply_filters( 'avatar_privacy_legacy_icon_url', $args['url'], $hash, $args['size'], [] );
 		}
 
 		$args['url']          = $url;
