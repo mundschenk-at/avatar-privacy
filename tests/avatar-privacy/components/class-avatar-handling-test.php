@@ -831,6 +831,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->comment_author->shouldReceive( 'allows_gravatar_use' )->once()->with( $email )->andReturn( true );
 		$this->comment_author->shouldReceive( 'has_gravatar_policy' )->never();
 		Filters\expectApplied( 'avatar_privacy_gravatar_use_default' )->never();
+		$this->comment_author->shouldReceive( 'update_hash' )->never();
 
 		$this->assertTrue( $this->sut->determine_gravatar_policy( $user_id, $email, $id_or_email ) );
 	}
@@ -849,6 +850,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->comment_author->shouldReceive( 'allows_gravatar_use' )->once()->with( $email )->andReturn( false );
 		$this->comment_author->shouldReceive( 'has_gravatar_policy' )->once()->with( $email )->andReturn( false );
 		Filters\expectApplied( 'avatar_privacy_gravatar_use_default' )->once()->with( false, $id_or_email )->andReturn( true );
+		$this->comment_author->shouldReceive( 'update_hash' )->once()->with( $email );
 
 		$this->assertTrue( $this->sut->determine_gravatar_policy( $user_id, $email, $id_or_email ) );
 	}

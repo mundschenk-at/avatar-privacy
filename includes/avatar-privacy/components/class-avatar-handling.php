@@ -566,6 +566,11 @@ class Avatar_Handling implements Component {
 			 * @param  int|string|object $id_or_email The Gravatar to retrieve. Can be a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
 			 */
 			$show_gravatar = \apply_filters( 'avatar_privacy_gravatar_use_default', false, $id_or_email );
+
+			if ( $show_gravatar && empty( $user_id ) ) {
+				// Create only the hash so that the gravatar can be regenerated.
+				$this->comment_author->update_hash( $email );
+			}
 		}
 
 		return $show_gravatar;
