@@ -30,14 +30,11 @@ namespace Avatar_Privacy\Avatar_Handlers;
  * Specifies an interface for handling avatar retrieval and caching.
  *
  * @since 2.0.0
+ * @since 2.4.0 Internal constants removed.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
 interface Avatar_Handler {
-
-	const GRAVATAR       = 'gravatar';
-	const USER_AVATAR    = 'user';
-	const DEFAULT_AVATAR = '-default-';
 
 	/**
 	 * Retrieves the URL for the given default icon type.
