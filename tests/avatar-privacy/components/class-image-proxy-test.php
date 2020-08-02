@@ -143,13 +143,22 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->user_avatar     = m::mock( User_Avatar_Handler::class );
 		$this->default_icons   = m::mock( Default_Icons_Handler::class );
 
+		$handlers = [
+			'gravatar_hook' => $this->gravatar,
+			'user_hook'     => $this->user_avatar,
+			'default_hook'  => $this->default_icons,
+		];
+
+		$this->gravatar->allows()->get_type()->andReturns( 'gravatar' );
+		$this->user_avatar->allows()->get_type()->andReturns( 'user' );
+		$this->default_icons->allows()->get_type()->andReturns( '' );
+
 		// Constructor arguments.
 		$args = [
 			$this->site_transients,
 			$this->options,
 			$this->file_cache,
-			$this->gravatar,
-			$this->user_avatar,
+			$handlers,
 			$this->default_icons,
 		];
 
@@ -164,23 +173,28 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Image_Proxy::class )->makePartial();
 
+		$handlers = [
+			'gravatar_hook' => $this->gravatar,
+			'user_hook'     => $this->user_avatar,
+			'default_hook'  => $this->default_icons,
+		];
+
 		$mock->__construct(
 			$this->site_transients,
 			$this->options,
 			$this->file_cache,
-			$this->gravatar,
-			$this->user_avatar,
+			$handlers,
 			$this->default_icons
 		);
 
 		$this->assert_attribute_same( $this->site_transients, 'site_transients', $mock );
 		$this->assert_attribute_same( $this->options, 'options', $mock );
 		$this->assert_attribute_same( $this->file_cache, 'file_cache', $mock );
+		$this->assert_attribute_same( $handlers, 'handler_hooks', $mock );
 		$this->assert_attribute_same(
 			[
-				Avatar_Handler::GRAVATAR       => $this->gravatar,
-				Avatar_Handler::USER_AVATAR    => $this->user_avatar,
-				Avatar_Handler::DEFAULT_AVATAR => $this->default_icons,
+				'gravatar' => $this->gravatar,
+				'user'     => $this->user_avatar,
 			],
 			'handlers',
 			$mock
@@ -194,9 +208,10 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_run() {
 		Filters\expectAdded( 'avatar_defaults' )->once()->with( [ $this->default_icons, 'avatar_defaults' ] );
-		Filters\expectAdded( 'avatar_privacy_default_icon_url' )->once()->with( [ $this->default_icons, 'get_url' ], 10, 4 );
-		Filters\expectAdded( 'avatar_privacy_gravatar_icon_url' )->once()->with( [ $this->gravatar, 'get_url' ], 10, 4 );
-		Filters\expectAdded( 'avatar_privacy_user_avatar_icon_url' )->once()->with( [ $this->user_avatar, 'get_url' ], 10, 4 );
+
+		Filters\expectAdded( 'gravatar_hook' )->once()->with( [ $this->gravatar, 'get_url' ], 10, 4 );
+		Filters\expectAdded( 'user_hook' )->once()->with( [ $this->user_avatar, 'get_url' ], 10, 4 );
+		Filters\expectAdded( 'default_hook' )->once()->with( [ $this->default_icons, 'get_url' ], 10, 4 );
 
 		Actions\expectAdded( 'init' )->once()->with( [ $this->sut, 'add_cache_rewrite_rules' ] );
 		Actions\expectAdded( 'parse_request' )->once()->with( [ $this->sut, 'load_cached_avatar' ] );
@@ -246,7 +261,7 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->file_cache->shouldReceive( 'get_base_dir' )->once()->andReturn( $basedir );
 
 		$this->default_icons->shouldReceive( 'cache_image' )->once()->with( $type, $hash, $size, $subdir, $extension )->andReturn( true );
-		$this->sut->shouldReceive( 'send_image' )->once()->with( "{$basedir}{$file}", DAY_IN_SECONDS, \Avatar_Privacy\Tools\Images\Type::SVG_IMAGE );
+		$this->sut->shouldReceive( 'send_image' )->once()->with( "{$basedir}{$file}", \DAY_IN_SECONDS, \Avatar_Privacy\Tools\Images\Type::SVG_IMAGE );
 		$this->sut->shouldReceive( 'exit_request' )->once();
 
 		$this->assertNull( $this->sut->load_cached_avatar( $wp ) );
@@ -276,7 +291,7 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->file_cache->shouldReceive( 'get_base_dir' )->once()->andReturn( $basedir );
 
 		$this->gravatar->shouldReceive( 'cache_image' )->once()->with( $type, $hash, $size, $subdir, $extension )->andReturn( true );
-		$this->sut->shouldReceive( 'send_image' )->once()->with( "{$basedir}{$file}", DAY_IN_SECONDS, \Avatar_Privacy\Tools\Images\Type::PNG_IMAGE );
+		$this->sut->shouldReceive( 'send_image' )->once()->with( "{$basedir}{$file}", \DAY_IN_SECONDS, \Avatar_Privacy\Tools\Images\Type::PNG_IMAGE );
 		$this->sut->shouldReceive( 'exit_request' )->once();
 
 		$this->assertNull( $this->sut->load_cached_avatar( $wp ) );

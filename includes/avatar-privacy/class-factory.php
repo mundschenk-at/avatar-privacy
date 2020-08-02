@@ -39,6 +39,7 @@ use Avatar_Privacy\CLI;
 
 use Avatar_Privacy\Upload_Handlers\Upload_Handler;
 
+use Avatar_Privacy\Avatar_Handlers\Avatar_Handler;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons_Handler;
 use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache_Handler;
@@ -143,6 +144,9 @@ class Factory extends Dice {
 			Components\Command_Line_Interface::class                => [
 				'constructParams' => [ $this->get_cli_commands() ],
 			],
+			Components\Image_Proxy::class                           => [
+				'constructParams' => [ $this->get_avatar_handlers() ],
+			],
 			Components\Integrations::class                          => [
 				'constructParams' => [ $this->get_plugin_integrations() ],
 			],
@@ -157,12 +161,10 @@ class Factory extends Dice {
 			Static_Icons\Silhouette_Icon_Provider::class            => self::SHARED,
 
 			// Avatar handlers.
+			Avatar_Handler::class                                   => self::SHARED,
 			Default_Icons_Handler::class                            => [
-				'shared'          => true,
 				'constructParams' => [ $this->get_default_icons() ],
 			],
-			Gravatar_Cache_Handler::class                           => self::SHARED,
-			User_Avatar_Handler::class                              => self::SHARED,
 
 			// Default icon generators.
 			Default_Icons\Generator::class                          => self::SHARED,
@@ -493,5 +495,27 @@ class Factory extends Dice {
 		}
 
 		return $tables;
+	}
+
+	/**
+	 * Retrieves a list of avatar handlers.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @return array {
+	 *     An array of `Avatar_Handler` instances (in `Dice` syntax), indexed by
+	 *     their filter hooks.
+	 *
+	 *     @type array {
+	 *         @type array $hook The instance definition.
+	 *     }
+	 * }
+	 */
+	protected function get_avatar_handlers() {
+		return [
+			'avatar_privacy_user_avatar_icon_url' => [ 'instance' => User_Avatar_Handler::class ],
+			'avatar_privacy_gravatar_icon_url'    => [ 'instance' => Gravatar_Cache_Handler::class ],
+			'avatar_privacy_default_icon_url'     => [ 'instance' => Default_Icons_Handler::class ],
+		];
 	}
 }

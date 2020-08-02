@@ -110,24 +110,27 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::get_rules
 	 */
 	public function test_get_rules() {
-		$version       = '6.6.6';
-		$components    = [
+		$version         = '6.6.6';
+		$components      = [
 			[ 'instance' => \Avatar_Privacy\Components\Setup::class ],
 			[ 'instance' => \Avatar_Privacy\Components\Avatar_Handling::class ],
 		];
-		$integrations  = [
+		$integrations    = [
 			[ 'instance' => \Avatar_Privacy\Integrations\BBPress_Integration::class ],
 		];
-		$default_icons = [
+		$default_icons   = [
 			[ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons\Mystery_Icon_Provider::class ],
 			[ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons\Identicon_Icon_Provider::class ],
 			[ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons\Wavatar_Icon_Provider::class ],
 		];
-		$cli_commands  = [
+		$cli_commands    = [
 			[ 'instance' => \Avatar_Privacy\CLI\Database_Command::class ],
 		];
-		$tables        = [
+		$tables          = [
 			[ 'instance' => \Avatar_Privacy\Data_Storage\Database\Table::class ],
+		];
+		$avatar_handlers = [
+			'some_hook' => [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Avatar_Handler::class ],
 		];
 
 		$this->sut->shouldReceive( 'get_plugin_version' )->once()->with( \AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $version );
@@ -135,13 +138,14 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'get_plugin_integrations' )->once()->andReturn( $integrations );
 		$this->sut->shouldReceive( 'get_default_icons' )->once()->andReturn( $default_icons );
 		$this->sut->shouldReceive( 'get_cli_commands' )->once()->andReturn( $cli_commands );
+		$this->sut->shouldReceive( 'get_avatar_handlers' )->once()->andReturn( $avatar_handlers );
 		$this->sut->shouldReceive( 'get_database_tables' )->once()->andReturn( $tables );
 
 		$result = $this->sut->get_rules();
 
 		$this->assert_is_array( $result );
 		$this->assertArrayHasKey( \Avatar_Privacy\Core::class, $result );
-		$this->assertArrayHasKey( \Avatar_Privacy\Avatar_Handlers\Gravatar_Cache_Handler::class, $result );
+		$this->assertArrayHasKey( \Avatar_Privacy\Avatar_Handlers\Avatar_Handler::class, $result );
 	}
 
 	/**
@@ -164,6 +168,7 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @uses Avatar_Privacy\Factory::__construct
 	 * @uses Avatar_Privacy\Factory::get_default_icons
 	 * @uses Avatar_Privacy\Factory::get_cli_commands
+	 * @uses Avatar_Privacy\Factory::get_avatar_handlers
 	 * @uses Avatar_Privacy\Factory::get_components
 	 * @uses Avatar_Privacy\Factory::get_database_tables
 	 * @uses Avatar_Privacy\Factory::get_plugin_integrations
@@ -250,5 +255,18 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assert_is_array( $result );
 		$this->assert_contains( [ 'instance' => \Avatar_Privacy\Data_Storage\Database\Comment_Author_Table::class ], $result, 'Table missing.' );
+	}
+
+	/**
+	 * Test ::get_avatar_handlers.
+	 *
+	 * @covers ::get_avatar_handlers
+	 */
+	public function test_get_avatar_handlers() {
+		$result = $this->sut->get_avatar_handlers();
+
+		$this->assert_is_array( $result );
+		$this->assert_contains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler::class ], $result, 'Avatar Handler missing.' );
+		$this->assertArrayHasKey( 'avatar_privacy_user_avatar_icon_url', $result );
 	}
 }

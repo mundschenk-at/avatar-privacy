@@ -28,10 +28,8 @@ namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Component;
 
-use Avatar_Privacy\Avatar_Handlers\Avatar_Handler;
+use Avatar_Privacy\Avatar_Handlers\Avatar_Handler; // phpcs:ignore ImportDetection.Imports.RequireImports -- used by annotations
 use Avatar_Privacy\Avatar_Handlers\Default_Icons_Handler;
-use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache_Handler;
-use Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
@@ -81,27 +79,55 @@ class Image_Proxy implements Component {
 	 *
 	 * @var Avatar_Handler[]
 	 */
-	private $handlers;
+	private $handlers = [];
+
+	/**
+	 * A mapping from filter hook to avatar handler.
+	 *
+	 * @var array {
+	 *     @type Avatar_Handler $hook The handler instance.
+	 * }
+	 */
+	private $handler_hooks;
+
+	/**
+	 * The default icons handler.
+	 *
+	 * @var Default_Icons_Handler
+	 */
+	private $default_icons;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param Site_Transients        $site_transients The site transients handler.
-	 * @param Options                $options         The options handler.
-	 * @param Filesystem_Cache       $file_cache      The filesystem cache handler.
-	 * @param Gravatar_Cache_Handler $gravatar        The Gravatar.com icon provider.
-	 * @param User_Avatar_Handler    $user_avatar     The user avatar handler.
-	 * @param Default_Icons_Handler  $default_icons   The default icons handler.
+	 * @since 2.4.0 Parameters $gravatar and $user_avatar replaced with the
+	 *              generic $handler.
+	 *
+	 * @param Site_Transients       $site_transients The site transients handler.
+	 * @param Options               $options         The options handler.
+	 * @param Filesystem_Cache      $file_cache      The filesystem cache handler.
+	 * @param Avatar_Handler[]      $handlers        The avatar handlers indexed
+	 *                                               by their filter hook (including
+	 *                                               the $default_icons handler).
+	 * @param Default_Icons_Handler $default_icons   The default icons handler.
 	 */
-	public function __construct( Site_Transients $site_transients, Options $options, Filesystem_Cache $file_cache, Gravatar_Cache_Handler $gravatar, User_Avatar_Handler $user_avatar, Default_Icons_Handler $default_icons ) {
+	public function __construct( Site_Transients $site_transients, Options $options, Filesystem_Cache $file_cache, array $handlers, Default_Icons_Handler $default_icons ) {
 		$this->site_transients = $site_transients;
 		$this->options         = $options;
 		$this->file_cache      = $file_cache;
 
 		// Avatar handlers.
-		$this->handlers[ Avatar_Handler::GRAVATAR ]       = $gravatar;
-		$this->handlers[ Avatar_Handler::USER_AVATAR ]    = $user_avatar;
-		$this->handlers[ Avatar_Handler::DEFAULT_AVATAR ] = $default_icons;
+		$this->handler_hooks = $handlers;
+		$this->default_icons = $default_icons;
+
+		foreach ( $handlers as $avatar_handler ) {
+			$type = $avatar_handler->get_type();
+
+			// The default handler will be ignored.
+			if ( ! empty( $type ) ) {
+				$this->handlers[ $type ] = $avatar_handler;
+			}
+		}
 	}
 
 	/**
@@ -111,12 +137,12 @@ class Image_Proxy implements Component {
 	 */
 	public function run() {
 		// Add new default avatars.
-		\add_filter( 'avatar_defaults', [ $this->handlers[ Avatar_Handler::DEFAULT_AVATAR ], 'avatar_defaults' ] );
+		\add_filter( 'avatar_defaults', [ $this->default_icons, 'avatar_defaults' ] );
 
 		// Generate the correct avatar images.
-		\add_filter( 'avatar_privacy_default_icon_url',     [ $this->handlers[ Avatar_Handler::DEFAULT_AVATAR ], 'get_url' ], 10, 4 );
-		\add_filter( 'avatar_privacy_gravatar_icon_url',    [ $this->handlers[ Avatar_Handler::GRAVATAR ], 'get_url' ],       10, 4 );
-		\add_filter( 'avatar_privacy_user_avatar_icon_url', [ $this->handlers[ Avatar_Handler::USER_AVATAR ], 'get_url' ],    10, 4 );
+		foreach ( $this->handler_hooks as $hook => $handler ) {
+			\add_filter( $hook, [ $handler, 'get_url' ], 10, 4 );
+		}
 
 		// Automatically regenerate missing image files.
 		\add_action( 'init',          [ $this, 'add_cache_rewrite_rules' ] );
@@ -164,7 +190,7 @@ class Image_Proxy implements Component {
 			if ( isset( $this->handlers[ $type ] ) ) {
 				$success = $this->handlers[ $type ]->cache_image( $type, $hash, $size, $subdir, $extension );
 			} else {
-				$success = $this->handlers[ Avatar_Handler::DEFAULT_AVATAR ]->cache_image( $type, $hash, $size, $subdir, $extension );
+				$success = $this->default_icons->cache_image( $type, $hash, $size, $subdir, $extension );
 			}
 
 			if ( ! $success ) {

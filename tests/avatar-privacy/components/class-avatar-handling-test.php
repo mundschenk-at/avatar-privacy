@@ -372,7 +372,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'should_show_gravatar' )->once()->with( $user_id, $email, $id_or_email, $age, m::type( 'string' ) )->andReturn( false );
 
 		$this->remote_images->shouldReceive( 'validate_image_url' )->once()->with( $remote_url, 'avatar' )->andReturn( true );
-		$this->hasher->shouldReceive( 'get_hash' )->once()->with( $remote_url )->andReturn( $url_hash );
+		$this->core->shouldReceive( 'get_hash' )->once()->with( $remote_url )->andReturn( $url_hash );
 		Filters\expectApplied( 'avatar_privacy_legacy_icon_url' )->once()->with( $remote_url, $url_hash, $size, [] )->andReturn( $remote_url );
 
 		// Call method.
