@@ -149,30 +149,34 @@ class Hasher_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::get_hash.
+	 * Provides data for testing ::get_hash.
 	 *
-	 * @covers ::get_hash
+	 * @return array
 	 */
-	public function test_get_hash() {
-		$salt  = 'foobar57';
-		$email = 'example@example.org';
-
-		$this->sut->shouldReceive( 'get_salt' )->once()->andReturn( $salt );
-
-		$this->assertSame( '874ccc6634195fdf4a1e5391a623fddb8a347d26cad4d9bbda683923afca3132', $this->sut->get_hash( $email ) );
+	public function provide_get_hash_data() {
+		return [
+			[ 'example@example.org', false, '874ccc6634195fdf4a1e5391a623fddb8a347d26cad4d9bbda683923afca3132' ],
+			[ '   example@example.org ', false, '874ccc6634195fdf4a1e5391a623fddb8a347d26cad4d9bbda683923afca3132' ],
+			[ 'example@EXAMPLE.org', false, '874ccc6634195fdf4a1e5391a623fddb8a347d26cad4d9bbda683923afca3132' ],
+			[ 'https://example.org/Some-Image.png', true, '9391b68b955364d41b306a7cb562095547437fa407bc3a26cbfacec777ec8ec8' ],
+			[ 'https://example.org/some-image.png', true, 'a96e279f47de085882ef102b1fe335f51c118087d8c3ea9a9bf8ab86b1d0fef4' ],
+		];
 	}
 
 	/**
 	 * Tests ::get_hash.
 	 *
 	 * @covers ::get_hash
+	 *
+	 * @dataProvider provide_get_hash_data
+	 *
+	 * @param  string $identifier     The identifier.
+	 * @param  bool   $case_sensitive Whether the identifier should treated as case-sensitive.
+	 * @param  string $result         The expected result.
 	 */
-	public function test_get_hash_with_whitespace() {
-		$salt  = 'foobar57';
-		$email = '   example@example.org ';
+	public function test_get_hash( $identifier, $case_sensitive, $result ) {
+		$this->sut->shouldReceive( 'get_salt' )->once()->andReturn( 'foobar57' );
 
-		$this->sut->shouldReceive( 'get_salt' )->once()->andReturn( $salt );
-
-		$this->assertSame( '874ccc6634195fdf4a1e5391a623fddb8a347d26cad4d9bbda683923afca3132', $this->sut->get_hash( $email ) );
+		$this->assertSame( $result, $this->sut->get_hash( $identifier, $case_sensitive ) );
 	}
 }
