@@ -175,7 +175,7 @@ class Gravatar_Cache_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->file_cache->shouldReceive( 'get_base_dir' )->once()->andReturn( $basedir );
 
-		$this->sut->shouldReceive( 'get_sub_dir' )->once()->with( $hash, m::type( 'bool' ) )->andReturn( $subdir );
+		$this->sut->shouldReceive( 'get_sub_dir' )->once()->with( $hash )->andReturn( $subdir );
 
 		$this->gravatar->shouldReceive( 'get_image' )->once()->with( $email, $size, $rating )->andReturn( $image );
 
@@ -214,7 +214,7 @@ class Gravatar_Cache_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->file_cache->shouldReceive( 'get_base_dir' )->once()->andReturn( $basedir );
 
-		$this->sut->shouldReceive( 'get_sub_dir' )->once()->with( $hash, m::type( 'bool' ) )->andReturn( $subdir );
+		$this->sut->shouldReceive( 'get_sub_dir' )->once()->with( $hash )->andReturn( $subdir );
 
 		$this->gravatar->shouldReceive( 'get_image' )->once()->with( $email, $size, $rating )->andReturn( $image );
 
@@ -231,12 +231,9 @@ class Gravatar_Cache_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function provide_get_sub_dir_data() {
 		return [
-			[ 'f0e4c2f76c58916ec258f246851bea091d14d4247a2fc3e18694461b1816e13b', true, 'a/0' ],
-			[ 'f0e4c2f76c58916ec258f246851bea091d14d4247a2fc3e18694461b1816e13b', false, 'f/0' ],
-			[ '7458549de917a04b3d57f76d7c2b7fe42309c07089f3356d87eeb36776b69496', true, 'a/4' ],
-			[ '7458549de917a04b3d57f76d7c2b7fe42309c07089f3356d87eeb36776b69496', false, '7/4' ],
-			[ '49ea535b117df03929284fa3c8d3f73e18a88b6a6650e66ea588c077360c30c6', true, '4/9' ],
-			[ '49ea535b117df03929284fa3c8d3f73e18a88b6a6650e66ea588c077360c30c6', false, 'b/9' ],
+			[ 'f0e4c2f76c58916ec258f246851bea091d14d4247a2fc3e18694461b1816e13b', 'f/0' ],
+			[ '7458549de917a04b3d57f76d7c2b7fe42309c07089f3356d87eeb36776b69496', '7/4' ],
+			[ '49ea535b117df03929284fa3c8d3f73e18a88b6a6650e66ea588c077360c30c6', '4/9' ],
 		];
 	}
 
@@ -248,11 +245,10 @@ class Gravatar_Cache_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @dataProvider provide_get_sub_dir_data
 	 *
 	 * @param  string $hash    The hashed identity.
-	 * @param  bool   $user    If the identity belongs to a user account.
 	 * @param  string $result  The expected result.
 	 */
-	public function test_get_sub_dir( $hash, $user, $result ) {
-		$this->assertSame( $result, $this->sut->get_sub_dir( $hash, $user ) );
+	public function test_get_sub_dir( $hash, $result ) {
+		$this->assertSame( $result, $this->sut->get_sub_dir( $hash ) );
 	}
 
 	/**
@@ -280,7 +276,7 @@ class Gravatar_Cache_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 			'mimetype'  => 'image/jpeg',
 		];
 
-		$this->core->shouldReceive( 'get_user_by_hash' )->never();
+		$this->core->shouldReceive( 'get_user_by_hash' )->once()->with( $hash )->andReturn( null );
 		$this->core->shouldReceive( 'get_comment_author_email' )->once()->with( $hash )->andReturn( $email );
 		$this->options->shouldReceive( 'get' )->once()->with( 'avatar_rating', 'g', true )->andReturn( $rating );
 
@@ -331,29 +327,6 @@ class Gravatar_Cache_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @covers ::cache_image
 	 **/
-	public function test_cache_image_incorrect_subdir() {
-		// Input parameters.
-		$type      = 'gravatar';
-		$hash      = '49ea535b117df03929284fa3c8d3f73e18a88b6a6650e66ea588c077360c30c6';
-		$size      = 99;
-		$subdir    = 'h/9';
-		$extension = 'jpg';
-
-		$this->core->shouldReceive( 'get_user_by_hash' )->never();
-		$this->core->shouldReceive( 'get_comment_author_email' )->never();
-
-		$this->options->shouldReceive( 'get' )->never();
-
-		$this->sut->shouldReceive( 'get_url' )->never();
-
-		$this->assertFalse( $this->sut->cache_image( $type, $hash, $size, $subdir, $extension ) );
-	}
-
-	/**
-	 * Tests ::cache_image.
-	 *
-	 * @covers ::cache_image
-	 **/
 	public function test_cache_image_no_user_email() {
 		// Input parameters.
 		$type      = 'gravatar';
@@ -393,7 +366,7 @@ class Gravatar_Cache_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Fake user.
 		$email = '';
 
-		$this->core->shouldReceive( 'get_user_by_hash' )->never();
+		$this->core->shouldReceive( 'get_user_by_hash' )->once()->with( $hash )->andReturn( null );
 		$this->core->shouldReceive( 'get_comment_author_email' )->once()->with( $hash )->andReturn( $email );
 
 		$this->options->shouldReceive( 'get' )->never();
