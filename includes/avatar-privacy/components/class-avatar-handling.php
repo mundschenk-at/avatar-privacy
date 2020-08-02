@@ -29,10 +29,8 @@ namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Component;
 
-use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\Comment_Author_Fields;
 use Avatar_Privacy\Core\User_Fields;
-
-use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Core\Settings;
 
 use Avatar_Privacy\Exceptions\Avatar_Comment_Type_Exception;
@@ -51,18 +49,29 @@ use Avatar_Privacy\Tools\Network\Remote_Image_Service;
 class Avatar_Handling implements Component {
 
 	/**
-	 * The options handler.
+	 * The settings API.
 	 *
-	 * @var Options
+	 * @var Settings
 	 */
-	private $options;
+	private $settings;
 
 	/**
-	 * The core API.
+	 * The user data helper.
 	 *
-	 * @var Core
+	 * @since 2.4.0
+	 *
+	 * @var User_Fields
 	 */
-	private $core;
+	private $registered_user;
+
+	/**
+	 * The comment author data helper.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var Comment_Author_Fields
+	 */
+	private $comment_author;
 
 	/**
 	 * The Gravatar network service.
@@ -84,17 +93,21 @@ class Avatar_Handling implements Component {
 	 * @since 2.0.0 Parameter $gravatar added.
 	 * @since 2.1.0 Parameter $plugin_file removed.
 	 * @since 2.3.4 Parameter $remote_images added.
+	 * @since 2.4.0 Parameters $settings, $user_fields and $comment_author_fields
+	 *              added, unused parameters $core and $options removed.
 	 *
-	 * @param Core                 $core          The core API.
-	 * @param Options              $options       The options handler.
-	 * @param Gravatar_Service     $gravatar      The Gravatar network service.
-	 * @param Remote_Image_Service $remote_images The remote images network service.
+	 * @param Settings              $settings              The settings API.
+	 * @param User_Fields           $user_fields           User data API.
+	 * @param Comment_Author_Fields $comment_author_fields Comment author data API.
+	 * @param Gravatar_Service      $gravatar              The Gravatar network service.
+	 * @param Remote_Image_Service  $remote_images         The remote images network service.
 	 */
-	public function __construct( Core $core, Options $options, Gravatar_Service $gravatar, Remote_Image_Service $remote_images ) {
-		$this->core          = $core;
-		$this->options       = $options;
-		$this->gravatar      = $gravatar;
-		$this->remote_images = $remote_images;
+	public function __construct( Settings $settings, User_Fields $user_fields, Comment_Author_Fields $comment_author_fields, Gravatar_Service $gravatar, Remote_Image_Service $remote_images ) {
+		$this->settings        = $settings;
+		$this->registered_user = $user_fields;
+		$this->comment_author  = $comment_author_fields;
+		$this->gravatar        = $gravatar;
+		$this->remote_images   = $remote_images;
 	}
 
 	/**
@@ -134,9 +147,7 @@ class Avatar_Handling implements Component {
 	 * Enables default filters from the user settings.
 	 */
 	public function enable_presets() {
-		$settings = $this->core->get_settings();
-
-		if ( ! empty( $settings[ Settings::GRAVATAR_USE_DEFAULT ] ) ) {
+		if ( ! empty( $this->settings->get( Settings::GRAVATAR_USE_DEFAULT ) ) ) {
 			// Use priority 9 to allow filters with the default priority to override this consistently.
 			\add_filter( 'avatar_privacy_gravatar_use_default', '__return_true', 9, 0 );
 		}
@@ -170,12 +181,12 @@ class Avatar_Handling implements Component {
 		// Generate the hash.
 		if ( ! empty( $user_id ) ) {
 			// Since we are having a non-empty $user_id, we'll always get a hash.
-			$hash = (string) $this->core->get_user_hash( (int) $user_id );
+			$hash = (string) $this->registered_user->get_hash( (int) $user_id );
 		} else {
 			// This might generate hashes for empty email addresses.
 			// That's OK in case some plugins want to display avatars for
 			// e.g. trackbacks and linkbacks.
-			$hash = $this->core->get_hash( $email );
+			$hash = $this->comment_author->get_hash( $email );
 		}
 
 		if ( ! $force_default && ! empty( $user_id ) ) {
@@ -243,7 +254,7 @@ class Avatar_Handling implements Component {
 			&& $this->remote_images->validate_image_url( $args['url'], 'avatar' )
 		) {
 			// Fall back to avatars set by other plugins.
-			$hash = $this->core->get_hash( $args['url'] );
+			$hash = $this->remote_images->get_hash( $args['url'] );
 
 			/**
 			 * Filters the legacy icon URL.
@@ -484,7 +495,7 @@ class Avatar_Handling implements Component {
 
 		// Fetch local avatar from meta and make sure it's properly stzed.
 		$url          = '';
-		$local_avatar = $this->core->get_user_avatar( $user_id );
+		$local_avatar = $this->registered_user->get_local_avatar( $user_id );
 		if ( ! empty( $local_avatar['file'] ) && ! empty( $local_avatar['type'] ) ) {
 			// Prepare filter arguments.
 			$args = [
@@ -535,11 +546,11 @@ class Avatar_Handling implements Component {
 			$use_default   = '' === $meta_value;
 		} else {
 			// For comments get the value from the plugin's table.
-			$show_gravatar = $this->core->comment_author_allows_gravatar_use( $email );
+			$show_gravatar = $this->comment_author->allows_gravatar_use( $email );
 
 			// Don't use the default policy for spam comments.
 			if ( ! $show_gravatar && ( ! $id_or_email instanceof \WP_Comment || ( 'spam' !== $id_or_email->comment_approved && 'trash' !== $id_or_email->comment_approved ) ) ) {
-				$use_default = ! $this->core->comment_author_has_gravatar_policy( $email );
+				$use_default = ! $this->comment_author->has_gravatar_policy( $email );
 			}
 		}
 
