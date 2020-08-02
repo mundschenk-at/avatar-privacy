@@ -128,7 +128,7 @@ class Comment_Author_Fields implements API {
 	public function has_gravatar_policy( $email_or_hash ) {
 		$data = $this->load( $email_or_hash );
 
-		return ! empty( $data );
+		return ! empty( $data ) && isset( $data->use_gravatar );
 	}
 
 	/**
