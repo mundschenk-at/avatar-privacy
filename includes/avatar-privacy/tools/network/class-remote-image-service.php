@@ -26,6 +26,8 @@
 
 namespace Avatar_Privacy\Tools\Network;
 
+use Avatar_Privacy\Tools\Hasher;
+
 /**
  * A class for accessing the generic remote images.
  *
@@ -33,6 +35,26 @@ namespace Avatar_Privacy\Tools\Network;
  * @author     Peter Putzer <github@mundschenk.at>
  */
 class Remote_Image_Service {
+
+	/**
+	 * The hashing helper.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var Hasher
+	 */
+	private $hasher;
+
+	/**
+	 * Creates a new instance.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param Hasher $hasher The hashing helper.
+	 */
+	public function __construct( Hasher $hasher ) {
+		$this->hasher = $hasher;
+	}
 
 	/**
 	 * Checks that the given string is a valid image URL.
@@ -72,5 +94,18 @@ class Remote_Image_Service {
 		 * @param bool   $allow_remote Whether URLs from other domains should be allowed.
 		 */
 		return \apply_filters( "avatar_privacy_validate_{$context}_url", $result, $maybe_url, $allow_remote );
+	}
+
+	/**
+	 * Retrieves the hash for the given image URL.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  string $url The remote image URL.
+	 *
+	 * @return string
+	 */
+	public function get_hash( $url ) {
+		return $this->hasher->get_hash( $url, true );
 	}
 }

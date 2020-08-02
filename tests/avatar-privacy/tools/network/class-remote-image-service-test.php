@@ -34,12 +34,15 @@ use Mockery as m;
 
 use Avatar_Privacy\Tools\Network\Remote_Image_Service;
 
+use Avatar_Privacy\Tools\Hasher;
 
 /**
  * Avatar_Privacy\Tools\Network\Remote_Image_Service unit test.
  *
  * @coversDefaultClass \Avatar_Privacy\Tools\Network\Remote_Image_Service
  * @usesDefaultClass \Avatar_Privacy\Tools\Network\Remote_Image_Service
+ *
+ * @uses ::__construct
  */
 class Remote_Image_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 
@@ -51,6 +54,13 @@ class Remote_Image_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $sut;
 
 	/**
+	 * Test fixture.
+	 *
+	 * @var Hasher
+	 */
+	private $hasher;
+
+	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 *
@@ -59,7 +69,23 @@ class Remote_Image_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 	protected function set_up() {
 		parent::set_up();
 
-		$this->sut = m::mock( Remote_Image_Service::class )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->hasher = m::mock( Hasher::class );
+
+		$this->sut = m::mock( Remote_Image_Service::class, [ $this->hasher ] )->makePartial()->shouldAllowMockingProtectedMethods();
+	}
+
+	/**
+	 * Tests the constructor.
+	 *
+	 * @covers ::__construct
+	 */
+	public function test_constructor() {
+		$hasher = m::mock( Hasher::class );
+		$mock   = m::mock( Remote_Image_Service::class )->makePartial()->shouldAllowMockingProtectedMethods();
+
+		$mock->__construct( $hasher );
+
+		$this->assert_attribute_same( $hasher, 'hasher', $mock );
 	}
 
 	/**
@@ -180,5 +206,19 @@ class Remote_Image_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 		Filters\expectApplied( "avatar_privacy_validate_{$context}_url" )->once()->with( $result, $maybe_url, $allow_remote )->andReturn( $result );
 
 		$this->assertSame( $result, $this->sut->validate_image_url( $maybe_url, $context ) );
+	}
+
+	/**
+	 * Test ::get_hash.
+	 *
+	 * @covers ::get_hash
+	 */
+	public function test_get_hash() {
+		$url  = 'https://example.org/some-image.png';
+		$hash = 'fake hash';
+
+		$this->hasher->shouldReceive( 'get_hash' )->once()->with( $url, true )->andReturn( $hash );
+
+		$this->assertSame( $hash, $this->sut->get_hash( $url ) );
 	}
 }
