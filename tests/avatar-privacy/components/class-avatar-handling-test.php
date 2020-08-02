@@ -34,9 +34,8 @@ use Mockery as m;
 
 use Avatar_Privacy\Components\Avatar_Handling;
 
-use Avatar_Privacy\Core;
+use Avatar_Privacy\Core\Comment_Author_Fields;
 use Avatar_Privacy\Core\User_Fields;
-use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Core\Settings;
 use Avatar_Privacy\Exceptions\Avatar_Comment_Type_Exception;
 use Avatar_Privacy\Tools\Network\Gravatar_Service;
@@ -76,9 +75,24 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Required helper object.
 	 *
-	 * @var Core
+	 * @var Settings
 	 */
-	private $core;
+	private $settings;
+
+
+	/**
+	 * The user data helper.
+	 *
+	 * @var User_Fields
+	 */
+	private $registered_user;
+
+	/**
+	 * The comment author data helper.
+	 *
+	 * @var Comment_Author_Fields
+	 */
+	private $comment_author;
 
 	/**
 	 * Required helper object.
@@ -93,13 +107,6 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var Remote_Image_Service
 	 */
 	private $remote_images;
-
-	/**
-	 * Required helper object.
-	 *
-	 * @var Options
-	 */
-	private $options;
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -119,12 +126,13 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		);
 
 		// Mock required helpers.
-		$this->core          = m::mock( Core::class );
-		$this->options       = m::mock( Options::class );
-		$this->gravatar      = m::mock( Gravatar_Service::class );
-		$this->remote_images = m::mock( Remote_Image_Service::class );
+		$this->settings        = m::mock( Settings::class );
+		$this->registered_user = m::mock( User_Fields::class );
+		$this->comment_author  = m::mock( Comment_Author_Fields::class );
+		$this->gravatar        = m::mock( Gravatar_Service::class );
+		$this->remote_images   = m::mock( Remote_Image_Service::class );
 
-		$this->sut = m::mock( Avatar_Handling::class, [ $this->core, $this->options, $this->gravatar, $this->remote_images ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Avatar_Handling::class, [ $this->settings, $this->registered_user, $this->comment_author, $this->gravatar, $this->remote_images ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -135,10 +143,11 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Avatar_Handling::class )->makePartial();
 
-		$mock->__construct( $this->core, $this->options, $this->gravatar, $this->remote_images );
+		$mock->__construct( $this->settings, $this->registered_user, $this->comment_author, $this->gravatar, $this->remote_images );
 
-		$this->assert_attribute_same( $this->core, 'core', $mock );
-		$this->assert_attribute_same( $this->options, 'options', $mock );
+		$this->assert_attribute_same( $this->settings, 'settings', $mock );
+		$this->assert_attribute_same( $this->registered_user, 'registered_user', $mock );
+		$this->assert_attribute_same( $this->comment_author, 'comment_author', $mock );
 		$this->assert_attribute_same( $this->gravatar, 'gravatar', $mock );
 		$this->assert_attribute_same( $this->remote_images, 'remote_images', $mock );
 	}
@@ -179,14 +188,14 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_enable_presets() {
 		// Gravatar use default true.
-		$this->core->shouldReceive( 'get_settings' )->once()->andReturn( [ Settings::GRAVATAR_USE_DEFAULT => true ] );
+		$this->settings->shouldReceive( 'get' )->once()->with( Settings::GRAVATAR_USE_DEFAULT )->andReturn( true );
 
 		Filters\expectAdded( 'avatar_privacy_gravatar_use_default' )->once()->with( '__return_true', 9, 0 );
 
 		$this->assertNull( $this->sut->enable_presets() );
 
 		// Gravatar use default false/empty.
-		$this->core->shouldReceive( 'get_settings' )->once()->andReturn( [ Settings::GRAVATAR_USE_DEFAULT => false ] );
+		$this->settings->shouldReceive( 'get' )->once()->with( Settings::GRAVATAR_USE_DEFAULT )->andReturn( false );
 
 		Filters\expectAdded( 'avatar_privacy_gravatar_use_default' )->never();
 
@@ -247,18 +256,18 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'parse_id_or_email' )->once()->with( $id_or_email )->andReturn( [ $user_id, $email, $age ] );
 
 		if ( ! empty( $user_id ) ) { // Registered user.
-			$this->core->shouldReceive( 'get_user_hash' )->once()->with( $user_id )->andReturn( $hash );
-			$this->core->shouldReceive( 'get_hash' )->never();
+			$this->registered_user->shouldReceive( 'get_hash' )->once()->with( $user_id )->andReturn( $hash );
+			$this->comment_author->shouldReceive( 'get_hash' )->never();
 
 			if ( ! $force_default ) {
 				$this->sut->shouldReceive( 'get_local_avatar_url' )->once()->with( $user_id, $hash, $size )->andReturn( $local_url );
 			}
 		} elseif ( ! empty( $email ) ) { // Anonymous comments.
-			$this->core->shouldReceive( 'get_user_hash' )->never();
-			$this->core->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
+			$this->registered_user->shouldReceive( 'get_hash' )->never();
+			$this->comment_author->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
 		} else { // No valid data.
-			$this->core->shouldReceive( 'get_user_hash' )->never();
-			$this->core->shouldReceive( 'get_hash' )->never();
+			$this->registered_user->shouldReceive( 'get_hash' )->never();
+			$this->comment_author->shouldReceive( 'get_hash' )->never();
 		}
 
 		if ( empty( $user_id ) && empty( $email ) ) {
@@ -322,8 +331,8 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'parse_id_or_email' )->once()->with( $id_or_email )->andThrow( m::mock( Avatar_Comment_Type_Exception::class ) );
 
-		$this->core->shouldReceive( 'get_user_hash' )->never();
-		$this->core->shouldReceive( 'get_hash' )->never();
+		$this->registered_user->shouldReceive( 'get_hash' )->never();
+		$this->comment_author->shouldReceive( 'get_hash' )->never();
 
 		$this->sut->shouldReceive( 'should_show_gravatar' )->never();
 
@@ -363,8 +372,8 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'parse_id_or_email' )->once()->with( $id_or_email )->andReturn( [ $user_id, $email, $age ] );
 
-		$this->core->shouldReceive( 'get_user_hash' )->never();
-		$this->core->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
+		$this->registered_user->shouldReceive( 'get_hash' )->never();
+		$this->comment_author->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
 
 		Functions\expect( 'includes_url' )->once()->with( 'images/blank.gif' )->andReturn( self::BLANK_ICON );
 		Filters\expectApplied( 'avatar_privacy_default_icon_url' )->once()->with( self::BLANK_ICON, $hash, $size, [ 'default' => $default ] )->andReturn( self::DEFAULT_ICON );
@@ -372,7 +381,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'should_show_gravatar' )->once()->with( $user_id, $email, $id_or_email, $age, m::type( 'string' ) )->andReturn( false );
 
 		$this->remote_images->shouldReceive( 'validate_image_url' )->once()->with( $remote_url, 'avatar' )->andReturn( true );
-		$this->core->shouldReceive( 'get_hash' )->once()->with( $remote_url )->andReturn( $url_hash );
+		$this->remote_images->shouldReceive( 'get_hash' )->once()->with( $remote_url )->andReturn( $url_hash );
 		Filters\expectApplied( 'avatar_privacy_legacy_icon_url' )->once()->with( $remote_url, $url_hash, $size, [] )->andReturn( $remote_url );
 
 		// Call method.
@@ -698,7 +707,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 			'type' => 'image/png',
 		];
 
-		$this->core->shouldReceive( 'get_user_avatar' )->once()->with( $user_id )->andReturn( $local );
+		$this->registered_user->shouldReceive( 'get_local_avatar' )->once()->with( $user_id )->andReturn( $local );
 		Filters\expectApplied( 'avatar_privacy_user_avatar_icon_url' )->once()->with( '', $hash, $size, m::type( 'array' ) )->andReturn( $result );
 
 		$this->assertSame( $result, $this->sut->get_local_avatar_url( $user_id, $hash, $size ) );
@@ -714,7 +723,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$hash    = 'some hash';
 		$size    = 100;
 
-		$this->core->shouldReceive( 'get_user_avatar' )->once()->with( $user_id )->andReturn( [] );
+		$this->registered_user->shouldReceive( 'get_local_avatar' )->once()->with( $user_id )->andReturn( [] );
 		Filters\expectApplied( 'avatar_privacy_user_avatar_icon_url' )->never();
 
 		$this->assertSame( '', $this->sut->get_local_avatar_url( $user_id, $hash, $size ) );
@@ -730,7 +739,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$hash    = 'some hash';
 		$size    = 100;
 
-		$this->core->shouldReceive( 'get_user_avatar' )->never();
+		$this->registered_user->shouldReceive( 'get_local_avatar' )->never();
 		Filters\expectApplied( 'avatar_privacy_user_avatar_icon_url' )->never();
 
 		$this->assertSame( '', $this->sut->get_local_avatar_url( $user_id, $hash, $size ) );
@@ -753,6 +762,10 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'get_user_meta' )->once()->with( $user_id, User_Fields::GRAVATAR_USE_META_KEY, true )->andReturn( $meta_value );
 		Filters\expectApplied( 'avatar_privacy_gravatar_use_default' )->never();
 
+		$this->comment_author->shouldReceive( 'allows_gravatar_use' )->never();
+		$this->comment_author->shouldReceive( 'has_gravatar_policy' )->never();
+		$this->comment_author->shouldReceive( 'update_hash' )->never();
+
 		$this->assertTrue( $this->sut->determine_gravatar_policy( $user_id, $email, $id_or_email ) );
 	}
 
@@ -772,6 +785,10 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'get_user_meta' )->once()->with( $user_id, User_Fields::GRAVATAR_USE_META_KEY, true )->andReturn( $meta_value );
 		Filters\expectApplied( 'avatar_privacy_gravatar_use_default' )->never();
+
+		$this->comment_author->shouldReceive( 'allows_gravatar_use' )->never();
+		$this->comment_author->shouldReceive( 'has_gravatar_policy' )->never();
+		$this->comment_author->shouldReceive( 'update_hash' )->never();
 
 		$this->assertFalse( $this->sut->determine_gravatar_policy( $user_id, $email, $id_or_email ) );
 	}
@@ -793,6 +810,10 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'get_user_meta' )->once()->with( $user_id, User_Fields::GRAVATAR_USE_META_KEY, true )->andReturn( $meta_value );
 		Filters\expectApplied( 'avatar_privacy_gravatar_use_default' )->once()->with( false, $id_or_email )->andReturn( true );
 
+		$this->comment_author->shouldReceive( 'allows_gravatar_use' )->never();
+		$this->comment_author->shouldReceive( 'has_gravatar_policy' )->never();
+		$this->comment_author->shouldReceive( 'update_hash' )->never();
+
 		$this->assertTrue( $this->sut->determine_gravatar_policy( $user_id, $email, $id_or_email ) );
 	}
 
@@ -807,8 +828,8 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$email       = 'anonymous@example.org';
 		$id_or_email = $email;
 
-		$this->core->shouldReceive( 'comment_author_allows_gravatar_use' )->once()->with( $email )->andReturn( true );
-		$this->core->shouldReceive( 'comment_author_has_gravatar_policy' )->never();
+		$this->comment_author->shouldReceive( 'allows_gravatar_use' )->once()->with( $email )->andReturn( true );
+		$this->comment_author->shouldReceive( 'has_gravatar_policy' )->never();
 		Filters\expectApplied( 'avatar_privacy_gravatar_use_default' )->never();
 
 		$this->assertTrue( $this->sut->determine_gravatar_policy( $user_id, $email, $id_or_email ) );
@@ -825,8 +846,8 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$email       = 'anonymous@example.org';
 		$id_or_email = $email;
 
-		$this->core->shouldReceive( 'comment_author_allows_gravatar_use' )->once()->with( $email )->andReturn( false );
-		$this->core->shouldReceive( 'comment_author_has_gravatar_policy' )->once()->with( $email )->andReturn( false );
+		$this->comment_author->shouldReceive( 'allows_gravatar_use' )->once()->with( $email )->andReturn( false );
+		$this->comment_author->shouldReceive( 'has_gravatar_policy' )->once()->with( $email )->andReturn( false );
 		Filters\expectApplied( 'avatar_privacy_gravatar_use_default' )->once()->with( false, $id_or_email )->andReturn( true );
 
 		$this->assertTrue( $this->sut->determine_gravatar_policy( $user_id, $email, $id_or_email ) );
