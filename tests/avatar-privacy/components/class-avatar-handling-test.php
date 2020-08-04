@@ -209,15 +209,15 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function provide_get_avatar_data_data() {
 		return [
-			[ 5, 'foo@bar.org', false, false, '', '', self::DEFAULT_ICON ],
-			[ 5, 'foo@bar.org', false, false, 'some/local/avatar.jpg', '', 'some/local/avatar.jpg' ],
-			[ 5, 'foo@bar.org', true, false, 'some/local/avatar.jpg', '', self::DEFAULT_ICON ],
-			[ 5, 'foo@bar.org', false, true, '', 'url/gravatar.png', 'url/gravatar.png' ],
-			[ 5, 'foo@bar.org', true, true, '', 'url/gravatar.png', self::DEFAULT_ICON ],
-			[ false, 'foo@bar.org', false, false, '', 'url/gravatar.png', self::DEFAULT_ICON ],
-			[ false, 'foo@bar.org', true, false, '', '', self::DEFAULT_ICON ],
-			[ false, 'foo@bar.org', false, true, '', 'url/gravatar.png', 'url/gravatar.png' ],
-			[ false, 'foo@bar.org', true, true, '', 'url/gravatar.png', self::DEFAULT_ICON ],
+			[ 5, 'foo@bar.org', false, false, '', '', null, self::DEFAULT_ICON ],
+			[ 5, 'foo@bar.org', false, false, 'some/local/avatar.jpg', '', null, 'some/local/avatar.jpg' ],
+			[ 5, 'foo@bar.org', true, false, 'some/local/avatar.jpg', '', null, self::DEFAULT_ICON ],
+			[ 5, 'foo@bar.org', false, true, '', 'url/gravatar.png', null, 'url/gravatar.png' ],
+			[ 5, 'foo@bar.org', true, true, '', 'url/gravatar.png', null, self::DEFAULT_ICON ],
+			[ false, 'foo@bar.org', false, false, '', 'url/gravatar.png', null, self::DEFAULT_ICON ],
+			[ false, 'foo@bar.org', true, false, '', '', null, self::DEFAULT_ICON ],
+			[ false, 'foo@bar.org', false, true, '', 'url/gravatar.png', null, 'url/gravatar.png' ],
+			[ false, 'foo@bar.org', true, true, '', 'url/gravatar.png', null, self::DEFAULT_ICON ],
 		];
 	}
 
@@ -228,15 +228,16 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @dataProvider provide_get_avatar_data_data
 	 *
-	 * @param  int|false $user_id              The user ID or false.
-	 * @param  string    $email                The email address.
-	 * @param  bool      $force_default        Whether to force a default icon.
-	 * @param  bool      $should_show_gravatar If gravatars should be shown.
-	 * @param  string    $local_url            The local URL (or '').
-	 * @param  string    $gravatar_url         The gravatar URL (if $should_show_gravatar is true).
-	 * @param  string    $result               The result URL.
+	 * @param  int|false   $user_id              The user ID or false.
+	 * @param  string      $email                The email address.
+	 * @param  bool        $force_default        Whether to force a default icon.
+	 * @param  bool        $should_show_gravatar If gravatars should be shown.
+	 * @param  string      $local_url            The local URL (or '').
+	 * @param  string      $gravatar_url         The gravatar URL (if $should_show_gravatar is true).
+	 * @param  string|null $legacy_url           A legacy URL set by another plugin.
+	 * @param  string      $result               The result URL.
 	 */
-	public function test_get_avatar_data( $user_id, $email, $force_default, $should_show_gravatar, $local_url, $gravatar_url, $result ) {
+	public function test_get_avatar_data( $user_id, $email, $force_default, $should_show_gravatar, $local_url, $gravatar_url, $legacy_url, $result ) {
 		// Input parameters.
 		$id_or_email = (object) [ 'foo' => 'bar' ];
 		$size        = 90;
@@ -275,14 +276,16 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		} else {
 			// Only if not short-circuiting.
 			if ( $force_default || empty( $local_url ) ) {
-				Functions\expect( 'includes_url' )->once()->with( 'images/blank.gif' )->andReturn( self::BLANK_ICON );
-				Filters\expectApplied( 'avatar_privacy_default_icon_url' )->once()->with( self::BLANK_ICON, $hash, $size, [ 'default' => $default ] )->andReturn( self::DEFAULT_ICON );
+				$this->sut->shouldReceive( 'get_default_icon_url' )->once()->with( $hash, $default, $size )->andReturn( self::DEFAULT_ICON );
 			}
 			if ( ! $force_default && empty( $local_url ) ) {
 				$this->sut->shouldReceive( 'should_show_gravatar' )->once()->with( $user_id, $email, $id_or_email, $age, m::type( 'string' ) )->andReturn( $should_show_gravatar );
 
 				if ( $should_show_gravatar ) {
-					Filters\expectApplied( 'avatar_privacy_gravatar_icon_url' )->once()->with( self::DEFAULT_ICON, $hash, $size, m::type( 'array' ) )->andReturn( $gravatar_url );
+					$this->sut->shouldReceive( 'get_gravatar_url' )->once()->with( $user_id, $email, $hash, self::DEFAULT_ICON, $size, $args['rating'], m::type( 'string' ) )->andReturn( $gravatar_url );
+				} elseif ( ! empty( $legacy_url ) ) {
+					$this->sut->shouldReceive( 'is_valid_image_url' )->once()->with( $legacy_url )->andReturn( true );
+					$this->sut->shouldReceive( 'get_legacy_icon_url' )->once()->with( $legacy_url, $size )->andReturn( $legacy_url );
 				}
 			}
 		}
@@ -336,8 +339,10 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'should_show_gravatar' )->never();
 
-		Filters\expectApplied( 'avatar_privacy_default_icon_url' )->never();
-		Filters\expectApplied( 'avatar_privacy_gravatar_icon_url' )->never();
+		$this->sut->shouldReceive( 'get_default_icon_url' )->never();
+		$this->sut->shouldReceive( 'get_gravatar_url' )->never();
+		$this->sut->shouldReceive( 'is_valid_image_url' )->never();
+		$this->sut->shouldReceive( 'get_legacy_icon_url' )->never();
 
 		$avatar_response = $this->sut->get_avatar_data( $args, $id_or_email );
 
@@ -368,21 +373,16 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$email       = 'some@email';
 		$hash        = 'fake hash';
 		$age         = 999;
-		$url_hash    = 'hashed URL';
 
 		$this->sut->shouldReceive( 'parse_id_or_email' )->once()->with( $id_or_email )->andReturn( [ $user_id, $email, $age ] );
 
 		$this->registered_user->shouldReceive( 'get_hash' )->never();
 		$this->comment_author->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
 
-		Functions\expect( 'includes_url' )->once()->with( 'images/blank.gif' )->andReturn( self::BLANK_ICON );
-		Filters\expectApplied( 'avatar_privacy_default_icon_url' )->once()->with( self::BLANK_ICON, $hash, $size, [ 'default' => $default ] )->andReturn( self::DEFAULT_ICON );
-
+		$this->sut->shouldReceive( 'get_default_icon_url' )->once()->with( $hash, $default, $size )->andReturn( self::DEFAULT_ICON );
 		$this->sut->shouldReceive( 'should_show_gravatar' )->once()->with( $user_id, $email, $id_or_email, $age, m::type( 'string' ) )->andReturn( false );
-
-		$this->remote_images->shouldReceive( 'validate_image_url' )->once()->with( $remote_url, 'avatar' )->andReturn( true );
-		$this->remote_images->shouldReceive( 'get_hash' )->once()->with( $remote_url )->andReturn( $url_hash );
-		Filters\expectApplied( 'avatar_privacy_legacy_icon_url' )->once()->with( $remote_url, $url_hash, $size, [] )->andReturn( $remote_url );
+		$this->sut->shouldReceive( 'is_valid_image_url' )->once()->with( $remote_url )->andReturn( true );
+		$this->sut->shouldReceive( 'get_legacy_icon_url' )->once()->with( $remote_url, $size )->andReturn( $remote_url );
 
 		// Call method.
 		$avatar_response = $this->sut->get_avatar_data( $args, $id_or_email );
@@ -746,6 +746,24 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Tests ::get_default_icon_url.
+	 *
+	 * @covers ::get_default_icon_url
+	 */
+	public function test_get_default_icon_url() {
+		$hash      = 'some hash';
+		$default   = 'foobar';
+		$size      = 100;
+		$blank_url = 'https://example.org/images/blank.gif';
+		$result    = 'https://example.org/images/default_image.png';
+
+		Functions\expect( 'includes_url' )->once()->with( 'images/blank.gif' )->andReturn( $blank_url );
+		Filters\expectApplied( 'avatar_privacy_default_icon_url' )->once()->with( $blank_url, $hash, $size, [ 'default' => $default ] )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->get_default_icon_url( $hash, $default, $size ) );
+	}
+
+	/**
 	 * Tests ::determine_gravatar_policy.
 	 *
 	 * @covers ::determine_gravatar_policy
@@ -853,5 +871,72 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->comment_author->shouldReceive( 'update_hash' )->once()->with( $email );
 
 		$this->assertTrue( $this->sut->determine_gravatar_policy( $user_id, $email, $id_or_email ) );
+	}
+
+	/**
+	 * Tests ::get_gravatar_url.
+	 *
+	 * @covers ::get_gravatar_url
+	 */
+	public function test_get_gravatar_url() {
+		$user_id  = 666;
+		$email    = 'some email';
+		$rating   = 'pg';
+		$mimetype = 'image/gif';
+		$hash     = 'some hash';
+		$size     = 100;
+		$url      = 'https://example.org/images/blank.gif';
+		$result   = 'https://example.org/images/cached_gravatar-100.gif';
+
+		Filters\expectApplied( 'avatar_privacy_gravatar_icon_url' )->once()->with( $url, $hash, $size, m::type( 'array' ) )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->get_gravatar_url( $user_id, $email, $hash, $url, $size, $rating, $mimetype ) );
+	}
+
+	/**
+	 * Provides data for testing ::is_valid_image_url.
+	 *
+	 * @return array
+	 */
+	public function provide_is_valid_image_url_data() {
+		return [
+			[ 'https://example.org/images/blank.gif', true ],
+			[ 'https://example.org/images/blank.gif', false ],
+			[ 'https://gravatar.com/some-gravatar.gif', false ],
+		];
+	}
+
+	/**
+	 * Tests ::is_valid_image_url.
+	 *
+	 * @covers ::is_valid_image_url
+	 *
+	 * @dataProvider provide_is_valid_image_url_data
+	 *
+	 * @param  string $url    The image URL.
+	 * @param  bool   $result The expected result.
+	 */
+	public function test_is_valid_image_url( $url, $result ) {
+		$this->remote_images->shouldReceive( 'validate_image_url' )->atMost()->once()->with( $url, 'avatar' )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->is_valid_image_url( $url ) );
+	}
+
+	/**
+	 * Tests ::get_legacy_icon_url.
+	 *
+	 * @covers ::get_legacy_icon_url
+	 */
+	public function test_get_legacy_icon_url() {
+		$url    = 'https://example.org/images/some-image.png';
+		$hash   = 'some hash';
+		$size   = 100;
+		$result = 'https://example.org/images/cached-image-100.png';
+
+		$this->remote_images->shouldReceive( 'get_hash' )->once()->with( $url )->andReturn( $hash );
+
+		Filters\expectApplied( 'avatar_privacy_legacy_icon_url' )->once()->with( $url, $hash, $size, [] )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->get_legacy_icon_url( $url, $size ) );
 	}
 }

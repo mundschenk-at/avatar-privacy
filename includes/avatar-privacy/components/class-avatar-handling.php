@@ -199,76 +199,15 @@ class Avatar_Handling implements Component {
 			}
 		}
 
-		// Prepare filter arguments.
-		$filter_args = [
-			'default' => $args['default'],
-		];
-
-		/**
-		 * Filters the default icon URL for the given e-mail.
-		 *
-		 * @param  string $url   The fallback icon URL (a blank GIF).
-		 * @param  string $hash  The hashed mail address.
-		 * @param  int    $size  The size of the avatar image in pixels.
-		 * @param  array  $args {
-		 *     An array of arguments.
-		 *
-		 *     @type string $default The default icon type.
-		 * }
-		 */
-		$url = \apply_filters( 'avatar_privacy_default_icon_url', \includes_url( 'images/blank.gif' ), $hash, $args['size'], $filter_args );
+		// Get a default icon.
+		$url = $this->get_default_icon_url( $hash, $args['default'], $args['size'] );
 
 		// Maybe display a gravatar.
 		if ( ! $force_default && $this->should_show_gravatar( $user_id, $email, $id_or_email, $age, $mimetype ) ) {
-			if ( empty( $mimetype ) ) {
-				$mimetype = Images\Type::PNG_IMAGE;
-			}
-
-			// Prepare filter arguments.
-			$filter_args = [
-				'user_id'  => $user_id,
-				'email'    => $email,
-				'rating'   => $args['rating'],
-				'mimetype' => $mimetype,
-			];
-
-			/**
-			 * Filters the Gravatar.com URL for the given e-mail.
-			 *
-			 * @param  string $url   The fallback default icon URL.
-			 * @param  string $hash  The hashed mail address.
-			 * @param  int    $size  The size of the avatar image in pixels.
-			 * @param  array  $args {
-			 *     An array of arguments.
-			 *
-			 *     @type int|false $user_id  A WordPress user ID (or false).
-			 *     @type string    $email    The mail address used to generate the identity hash.
-			 *     @type string    $rating   The audience rating (e.g. 'g', 'pg', 'r', 'x').
-			 *     @type string    $mimetype The expected MIME type of the Gravatar image.
-			 * }
-			 */
-			$url = \apply_filters( 'avatar_privacy_gravatar_icon_url', $url, $hash, $args['size'], $filter_args );
-		} elseif ( ! $force_default
-			&& ! empty( $args['url'] )
-			&& ! \strpos( $args['url'], 'gravatar.com' )
-			&& $this->remote_images->validate_image_url( $args['url'], 'avatar' )
-		) {
+			$url = $this->get_gravatar_url( $user_id, $email, $hash, $url, $args['size'], $args['rating'], $mimetype );
+		} elseif ( ! $force_default && ! empty( $args['url'] ) && $this->is_valid_image_url( $args['url'] ) ) {
 			// Fall back to avatars set by other plugins.
-			$hash = $this->remote_images->get_hash( $args['url'] );
-
-			/**
-			 * Filters the legacy icon URL.
-			 *
-			 * @since 2.4.0
-			 *
-			 * @param  string $url   The legacy image URL.
-			 * @param  string $hash  The hashed URL.
-			 * @param  int    $size  The size of the avatar image in pixels.
-			 * @param  array  $args {
-			 *     An array of arguments.
-			 * }
-			 */
-			$url = \apply_filters( 'avatar_privacy_legacy_icon_url', $args['url'], $hash, $args['size'], [] );
+			$url = $this->get_legacy_icon_url( $args['url'], $args['size'] );
 		}
 
 		$args['url']          = $url;
@@ -525,6 +464,38 @@ class Avatar_Handling implements Component {
 	}
 
 	/**
+	 * Retrieves the default icon URL for the given hash.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  string $hash    The hashed mail address.
+	 * @param  string $default The default icon type.
+	 * @param  int    $size    The size of the avatar image in pixels.
+	 *
+	 * @return string
+	 */
+	protected function get_default_icon_url( $hash, $default, $size ) {
+		// Prepare filter arguments.
+		$args = [
+			'default' => $default,
+		];
+
+		/**
+		 * Filters the default icon URL for the given e-mail.
+		 *
+		 * @param  string $url   The fallback icon URL (a blank GIF).
+		 * @param  string $hash  The hashed mail address.
+		 * @param  int    $size  The size of the avatar image in pixels.
+		 * @param  array  $args {
+		 *     An array of arguments.
+		 *
+		 *     @type string $default The default icon type.
+		 * }
+		 */
+		return \apply_filters( 'avatar_privacy_default_icon_url', \includes_url( 'images/blank.gif' ), $hash, $size, $args );
+	}
+
+	/**
 	 * Determines the gravatar use policy.
 	 *
 	 * @since 2.1.0 Visibility changed to protected.
@@ -574,5 +545,90 @@ class Avatar_Handling implements Component {
 		}
 
 		return $show_gravatar;
+	}
+
+	/**
+	 * Retrieves the Gravatar.com URL for the given e-mail.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  int|false $user_id  A WordPress user ID (or false).
+	 * @param  string    $email    The mail address used to generate the identity hash.
+	 * @param  string    $hash     The hashed e-mail address.
+	 * @param  string    $url      The fallback default icon URL.
+	 * @param  int       $size     The size of the avatar image in pixels.
+	 * @param  string    $rating   The audience rating (e.g. 'g', 'pg', 'r', 'x').
+	 * @param  string    $mimetype The expected MIME type of the Gravatar image.
+	 *
+	 * @return string
+	 */
+	protected function get_gravatar_url( $user_id, $email, $hash, $url, $size, $rating, $mimetype = null ) {
+		// Prepare filter arguments.
+		$args = [
+			'user_id'  => $user_id,
+			'email'    => $email,
+			'rating'   => $rating,
+			'mimetype' => empty( $mimetype ) ? Images\Type::PNG_IMAGE : $mimetype,
+		];
+
+		/**
+		 * Filters the Gravatar.com URL for the given e-mail.
+		 *
+		 * @param  string $url   The fallback default icon URL.
+		 * @param  string $hash  The hashed e-mail address.
+		 * @param  int    $size  The size of the avatar image in pixels.
+		 * @param  array  $args {
+		 *     An array of arguments.
+		 *
+		 *     @type int|false $user_id  A WordPress user ID (or false).
+		 *     @type string    $email    The mail address used to generate the identity hash.
+		 *     @type string    $rating   The audience rating (e.g. 'g', 'pg', 'r', 'x').
+		 *     @type string    $mimetype The expected MIME type of the Gravatar image.
+		 * }
+		 */
+		return \apply_filters( 'avatar_privacy_gravatar_icon_url', $url, $hash, $size, $args );
+	}
+
+	/**
+	 * Checks if an image URL is valid to use as a fallback avatar icon.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  string $url The image URL.
+	 *
+	 * @return bool
+	 */
+	protected function is_valid_image_url( $url ) {
+		return ( ! \strpos( $url, 'gravatar.com' ) && $this->remote_images->validate_image_url( $url, 'avatar' ) );
+	}
+
+	/**
+	 * Retrieves a URL pointing to the legacy icon scaled to the appropriate size.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  string $url  A valid image URL.
+	 * @param  int    $size The size of the avatar image in pixels.
+	 *
+	 * @return string
+	 */
+	protected function get_legacy_icon_url( $url, $size ) {
+		// Prepare filter arguments.
+		$hash = $this->remote_images->get_hash( $url );
+		$args = [];
+
+		/**
+		 * Filters the legacy icon URL.
+		 *
+		 * @since 2.4.0
+		 *
+		 * @param  string $url   The legacy image URL.
+		 * @param  string $hash  The hashed URL.
+		 * @param  int    $size  The size of the avatar image in pixels.
+		 * @param  array  $args {
+		 *     An array of arguments. Currently unused.
+		 * }
+		 */
+		return \apply_filters( 'avatar_privacy_legacy_icon_url', $url, $hash, $size, $args );
 	}
 }
