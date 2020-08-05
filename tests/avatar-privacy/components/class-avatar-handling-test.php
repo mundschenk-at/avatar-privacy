@@ -885,12 +885,11 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$mimetype = 'image/gif';
 		$hash     = 'some hash';
 		$size     = 100;
-		$url      = 'https://example.org/images/blank.gif';
 		$result   = 'https://example.org/images/cached_gravatar-100.gif';
 
-		Filters\expectApplied( 'avatar_privacy_gravatar_icon_url' )->once()->with( $url, $hash, $size, m::type( 'array' ) )->andReturn( $result );
+		Filters\expectApplied( 'avatar_privacy_gravatar_icon_url' )->once()->with( '', $hash, $size, m::type( 'array' ) )->andReturn( $result );
 
-		$this->assertSame( $result, $this->sut->get_gravatar_url( $user_id, $email, $hash, $url, $size, $rating, $mimetype ) );
+		$this->assertSame( $result, $this->sut->get_gravatar_url( $user_id, $email, $hash, $size, $rating, $mimetype ) );
 	}
 
 	/**

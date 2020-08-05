@@ -555,14 +555,13 @@ class Avatar_Handling implements Component {
 	 * @param  int|false $user_id  A WordPress user ID (or false).
 	 * @param  string    $email    The mail address used to generate the identity hash.
 	 * @param  string    $hash     The hashed e-mail address.
-	 * @param  string    $url      The fallback default icon URL.
 	 * @param  int       $size     The size of the avatar image in pixels.
 	 * @param  string    $rating   The audience rating (e.g. 'g', 'pg', 'r', 'x').
 	 * @param  string    $mimetype The expected MIME type of the Gravatar image.
 	 *
 	 * @return string
 	 */
-	protected function get_gravatar_url( $user_id, $email, $hash, $url, $size, $rating, $mimetype = null ) {
+	protected function get_gravatar_url( $user_id, $email, $hash, $size, $rating, $mimetype = null ) {
 		// Prepare filter arguments.
 		$args = [
 			'user_id'  => $user_id,
@@ -574,7 +573,7 @@ class Avatar_Handling implements Component {
 		/**
 		 * Filters the Gravatar.com URL for the given e-mail.
 		 *
-		 * @param  string $url   The fallback default icon URL.
+		 * @param  string $url   The fallback default icon URL (or '').
 		 * @param  string $hash  The hashed e-mail address.
 		 * @param  int    $size  The size of the avatar image in pixels.
 		 * @param  array  $args {
@@ -586,7 +585,7 @@ class Avatar_Handling implements Component {
 		 *     @type string    $mimetype The expected MIME type of the Gravatar image.
 		 * }
 		 */
-		return \apply_filters( 'avatar_privacy_gravatar_icon_url', $url, $hash, $size, $args );
+		return \apply_filters( 'avatar_privacy_gravatar_icon_url', '', $hash, $size, $args );
 	}
 
 	/**
