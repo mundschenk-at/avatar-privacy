@@ -166,15 +166,13 @@ class Avatar_Handling implements Component {
 	 * @return array
 	 */
 	public function get_avatar_data( $args, $id_or_email ) {
-		$force_default = ! empty( $args['force_default'] );
-		$mimetype      = '';
-
 		// Process the user identifier.
 		try {
 			list( $user_id, $email, $age ) = $this->parse_id_or_email( $id_or_email );
 		} catch ( Avatar_Comment_Type_Exception $e ) {
 			// The $id_or_email is a comment of a type that should not display an avatar.
-			$args['url'] = false;
+			$args['url']          = false;
+			$args['found_avatar'] = false;
 			return $args;
 		}
 
@@ -189,27 +187,33 @@ class Avatar_Handling implements Component {
 			$hash = $this->comment_author->get_hash( $email );
 		}
 
-		if ( ! $force_default && ! empty( $user_id ) ) {
-			// Fetch local avatar from meta and make sure it's properly stzed.
-			$args['url'] = $this->get_local_avatar_url( $user_id, $hash, $args['size'] );
-			if ( ! empty( $args['url'] ) ) {
-				// Great, we have got a local avatar.
-				$args['found_avatar'] = true;
-				return $args;
+		// We only need to check these if we are not forcing a default icon to be shown.
+		if ( empty( $args['force_default'] ) ) {
+			if ( ! empty( $user_id ) ) {
+				// Uploaded avatars take precedence.
+				$url = $this->get_local_avatar_url( $user_id, $hash, $args['size'] );
+			}
+
+			if ( empty( $url ) ) {
+				// "Sniffed" Gravatar MIME type.
+				$mimetype = '';
+
+				// Maybe display a gravatar.
+				if ( $this->should_show_gravatar( $user_id, $email, $id_or_email, $age, $mimetype ) ) {
+					$url = $this->get_gravatar_url( $user_id, $email, $hash, $args['size'], $args['rating'], $mimetype );
+				} elseif ( ! empty( $args['url'] ) && $this->is_valid_image_url( $args['url'] ) ) {
+					// Fall back to avatars set by other plugins.
+					$url = $this->get_legacy_icon_url( $args['url'], $args['size'] );
+				}
 			}
 		}
 
-		// Get a default icon.
-		$url = $this->get_default_icon_url( $hash, $args['default'], $args['size'] );
-
-		// Maybe display a gravatar.
-		if ( ! $force_default && $this->should_show_gravatar( $user_id, $email, $id_or_email, $age, $mimetype ) ) {
-			$url = $this->get_gravatar_url( $user_id, $email, $hash, $url, $args['size'], $args['rating'], $mimetype );
-		} elseif ( ! $force_default && ! empty( $args['url'] ) && $this->is_valid_image_url( $args['url'] ) ) {
-			// Fall back to avatars set by other plugins.
-			$url = $this->get_legacy_icon_url( $args['url'], $args['size'] );
+		if ( empty( $url ) ) {
+			// Nothing so far, use the default icon.
+			$url = $this->get_default_icon_url( $hash, $args['default'], $args['size'] );
 		}
 
+		// Return found image.
 		$args['url']          = $url;
 		$args['found_avatar'] = true;
 
