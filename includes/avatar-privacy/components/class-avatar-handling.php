@@ -116,13 +116,23 @@ class Avatar_Handling implements Component {
 	 * @return void
 	 */
 	public function run() {
-		\add_action( 'init', [ $this, 'init' ] );
+		// Allow remote URLs by default for legacy avatar images. Use priority 9
+		// to allow filters with the default priority to override this consistently.
+		\add_filter( 'avatar_privacy_allow_remote_avatar_url', '__return_true', 9, 0 );
+
+		// Start handling avatars when all plugins have been loaded and initialized.
+		\add_action( 'init', [ $this, 'setup_avatar_filters' ] );
+
+		// Generate presets from saved settings.
+		\add_action( 'init', [ $this, 'enable_presets' ] );
 	}
 
 	/**
-	 * Initialize additional plugin hooks.
+	 * Sets up avatar handling filters.
+	 *
+	 * @since 2.4.0 Renamed from init().
 	 */
-	public function init() {
+	public function setup_avatar_filters() {
 		/**
 		 * Filters the priority used for filtering the `pre_get_avatar_data` hook.
 		 *
@@ -134,13 +144,6 @@ class Avatar_Handling implements Component {
 
 		// New default image display: filter the gravatar image upon display.
 		\add_filter( 'pre_get_avatar_data', [ $this, 'get_avatar_data' ], $priority, 2 );
-
-		// Allow remote URLs by default for legacy avatar images. Use priority 9
-		// to allow filters with the default priority to override this consistently.
-		\add_filter( 'avatar_privacy_allow_remote_avatar_url', '__return_true', 9, 0 );
-
-		// Generate presets from saved settings.
-		$this->enable_presets();
 	}
 
 	/**

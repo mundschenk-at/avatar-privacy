@@ -158,27 +158,26 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::run
 	 */
 	public function test_run() {
-		Actions\expectAdded( 'init' )->once()->with( [ $this->sut, 'init' ] );
+		Filters\expectAdded( 'avatar_privacy_allow_remote_avatar_url' )->once()->with( '__return_true', 9, 0 );
+
+		Actions\expectAdded( 'init' )->once()->with( [ $this->sut, 'setup_avatar_filters' ] );
+		Actions\expectAdded( 'init' )->once()->with( [ $this->sut, 'enable_presets' ] );
 
 		$this->assertNull( $this->sut->run() );
 	}
 
 	/**
-	 * Tests ::init.
+	 * Tests ::setup_avatar_filters.
 	 *
-	 * @covers ::init
+	 * @covers ::setup_avatar_filters
 	 */
-	public function test_init() {
+	public function test_setup_avatar_filters() {
 		$priority = 666;
 
 		Filters\expectApplied( 'avatar_privacy_pre_get_avatar_data_filter_priority' )->once()->with( 9999 )->andReturn( $priority );
-
 		Filters\expectAdded( 'pre_get_avatar_data' )->once()->with( [ $this->sut, 'get_avatar_data' ], $priority, 2 );
-		Filters\expectAdded( 'avatar_privacy_allow_remote_avatar_url' )->once()->with( '__return_true', 9, 0 );
 
-		$this->sut->shouldReceive( 'enable_presets' )->once();
-
-		$this->assertNull( $this->sut->init() );
+		$this->assertNull( $this->sut->setup_avatar_filters() );
 	}
 
 	/**
