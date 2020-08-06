@@ -254,15 +254,15 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Calculated values.
 		$hash = 'a hash';
 
+		if ( ! empty( $legacy_url ) ) {
+			$args['url'] = $legacy_url;
+		}
+
 		$this->sut->shouldReceive( 'parse_id_or_email' )->once()->with( $id_or_email )->andReturn( [ $user_id, $email, $age ] );
 
 		if ( ! empty( $user_id ) ) { // Registered user.
 			$this->registered_user->shouldReceive( 'get_hash' )->once()->with( $user_id )->andReturn( $hash );
 			$this->comment_author->shouldReceive( 'get_hash' )->never();
-
-			if ( ! $force_default ) {
-				$this->sut->shouldReceive( 'get_local_avatar_url' )->once()->with( $user_id, $hash, $size )->andReturn( $local_url );
-			}
 		} elseif ( ! empty( $email ) ) { // Anonymous comments.
 			$this->registered_user->shouldReceive( 'get_hash' )->never();
 			$this->comment_author->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
@@ -271,25 +271,38 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 			$this->comment_author->shouldReceive( 'get_hash' )->never();
 		}
 
-		if ( empty( $user_id ) && empty( $email ) ) {
-			$this->sut->shouldReceive( 'should_show_gravatar' )->never();
+		if ( $force_default || ( empty( $local_url ) && empty( $should_show_gravatar ) && empty( $legacy_url ) ) ) {
+			$this->sut->shouldReceive( 'get_default_icon_url' )->once()->with( $hash, $default, $size )->andReturn( self::DEFAULT_ICON );
 		} else {
-			// Only if not short-circuiting.
-			if ( $force_default || empty( $local_url ) ) {
-				$this->sut->shouldReceive( 'get_default_icon_url' )->once()->with( $hash, $default, $size )->andReturn( self::DEFAULT_ICON );
-			}
-			if ( ! $force_default && empty( $local_url ) ) {
-				$this->sut->shouldReceive( 'should_show_gravatar' )->once()->with( $user_id, $email, $id_or_email, $age, m::type( 'string' ) )->andReturn( $should_show_gravatar );
+			$this->sut->shouldReceive( 'get_default_icon_url' )->never();
+		}
 
-				if ( $should_show_gravatar ) {
-					$this->sut->shouldReceive( 'get_gravatar_url' )->once()->with( $user_id, $email, $hash, self::DEFAULT_ICON, $size, $args['rating'], m::type( 'string' ) )->andReturn( $gravatar_url );
-				} elseif ( ! empty( $legacy_url ) ) {
+		if ( ! $force_default ) {
+			if ( ! empty( $user_id ) ) {
+				$this->sut->shouldReceive( 'get_local_avatar_url' )->once()->with( $user_id, $hash, $size )->andReturn( $local_url );
+			} else {
+				$this->sut->shouldReceive( 'get_local_avatar_url' )->never();
+			}
+
+			if ( empty( $local_url ) ) {
+				$this->sut->shouldReceive( 'should_show_gravatar' )->once()->with( $user_id, $email, $id_or_email, $age, m::type( 'string' ) )->andReturn( $should_show_gravatar );
+			} else {
+				$this->sut->shouldReceive( 'should_show_gravatar' )->never();
+			}
+
+			if ( $should_show_gravatar ) {
+				$this->sut->shouldReceive( 'get_gravatar_url' )->once()->with( $user_id, $email, $hash, $size, $args['rating'], m::type( 'string' ) )->andReturn( $gravatar_url );
+			} else {
+				$this->sut->shouldReceive( 'get_gravatar_url' )->never();
+
+				if ( ! empty( $legacy_url ) ) {
 					$this->sut->shouldReceive( 'is_valid_image_url' )->once()->with( $legacy_url )->andReturn( true );
 					$this->sut->shouldReceive( 'get_legacy_icon_url' )->once()->with( $legacy_url, $size )->andReturn( $legacy_url );
 				}
 			}
 		}
 
+		// Go for it!
 		$avatar_response = $this->sut->get_avatar_data( $args, $id_or_email );
 
 		if ( isset( $result ) ) {
@@ -379,10 +392,10 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->registered_user->shouldReceive( 'get_hash' )->never();
 		$this->comment_author->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
 
-		$this->sut->shouldReceive( 'get_default_icon_url' )->once()->with( $hash, $default, $size )->andReturn( self::DEFAULT_ICON );
 		$this->sut->shouldReceive( 'should_show_gravatar' )->once()->with( $user_id, $email, $id_or_email, $age, m::type( 'string' ) )->andReturn( false );
 		$this->sut->shouldReceive( 'is_valid_image_url' )->once()->with( $remote_url )->andReturn( true );
 		$this->sut->shouldReceive( 'get_legacy_icon_url' )->once()->with( $remote_url, $size )->andReturn( $remote_url );
+		$this->sut->shouldReceive( 'get_default_icon_url' )->never();
 
 		// Call method.
 		$avatar_response = $this->sut->get_avatar_data( $args, $id_or_email );
