@@ -37,8 +37,6 @@ use org\bovigo\vfs\vfsStream;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons_Handler;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Icon_Provider;
 
-use Avatar_Privacy\Core;
-use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Tools\Network\Remote_Image_Service;
 
@@ -58,20 +56,6 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var Default_Icons_Handler
 	 */
 	private $sut;
-
-	/**
-	 * The core API mock.
-	 *
-	 * @var Core
-	 */
-	private $core;
-
-	/**
-	 * The options handler mock.
-	 *
-	 * @var Options
-	 */
-	private $options;
 
 	/**
 	 * The filesystem cache handler mock.
