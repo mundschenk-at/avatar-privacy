@@ -38,14 +38,16 @@ abstract class Type {
 	const PNG_IMAGE  = 'image/png';
 	const SVG_IMAGE  = 'image/svg+xml';
 
-	const JPEG_EXTENSION = 'jpg';
-	const PNG_EXTENSION  = 'png';
-	const SVG_EXTENSION  = 'svg';
+	const JPEG_EXTENSION     = 'jpg';
+	const JPEG_ALT_EXTENSION = 'jpeg';
+	const PNG_EXTENSION      = 'png';
+	const SVG_EXTENSION      = 'svg';
 
 	const CONTENT_TYPE = [
-		self::JPEG_EXTENSION => self::JPEG_IMAGE,
-		self::PNG_EXTENSION  => self::PNG_IMAGE,
-		self::SVG_EXTENSION  => self::SVG_IMAGE,
+		self::JPEG_EXTENSION     => self::JPEG_IMAGE,
+		self::JPEG_ALT_EXTENSION => self::JPEG_IMAGE,
+		self::PNG_EXTENSION      => self::PNG_IMAGE,
+		self::SVG_EXTENSION      => self::SVG_IMAGE,
 	];
 
 	const FILE_EXTENSION = [

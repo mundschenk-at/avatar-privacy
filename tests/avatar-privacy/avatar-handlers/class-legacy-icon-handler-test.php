@@ -220,6 +220,7 @@ class Legacy_Icon_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 			[ 'https://example.org/gravatar/foobar.png', 'image/png' ],
 			[ 'https://example.org/gravatar/foobar.gif', 'image/png' ],
 			[ 'https://example.org/gravatar/foobar.jpg', 'image/jpeg' ],
+			[ 'https://example.org/gravatar/foobar.jpeg', 'image/jpeg' ],
 			[ 'https://example.org/gravatar/foobar.svg', 'image/svg+xml' ],
 		];
 	}
