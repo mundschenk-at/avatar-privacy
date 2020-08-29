@@ -1,8 +1,14 @@
 # Changelog
 
 ## 2.4.0 (unreleased)
+*   _Feature_: Legacy (default) avatars are now properly cached and resized.
 *   _Change_: The `yzalis/identicon` package has been updated to version 2.0.
 *   _Change_: Some unused files have been removed from the `vendor-scoped` directory.
+*   _Change_: A new per-site database table for fast hash lookup has been introduced
+              (base name `avatar_privacy_hashes`).
+*   _Bugfix_: Gravatars will be properly regenerated for comment authors that have
+              not set a policy (when the site-admin has switched the default to
+              "opt-out").
 
 ## 2.3.4 (2020-03-22)
 *   _Bugfix_: Allow plain URLs as default avatars. Use the filter hook
