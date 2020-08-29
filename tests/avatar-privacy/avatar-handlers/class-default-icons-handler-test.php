@@ -283,6 +283,9 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$provider2->shouldReceive( 'get_icon_url' )->never();
 
 		$this->remote_images->shouldReceive( 'validate_image_url' )->once()->with( $default_icon_type, 'default_icon' )->andReturn( true );
+		$this->remote_images->shouldReceive( 'get_hash' )->once()->with( $default_icon_type )->andReturn( $hash );
+
+		Filters\expectApplied( 'avatar_privacy_legacy_icon_url' )->once()->with( $default_icon_type, $hash, $size, m::type( 'array' ) )->andReturn( $default_icon_type );
 
 		$this->assertSame( $default_icon_type, $this->sut->get_url( $default_url, $hash, $size, $args ) );
 	}
