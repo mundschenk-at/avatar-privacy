@@ -43,6 +43,7 @@ use Avatar_Privacy\Avatar_Handlers\Avatar_Handler;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons_Handler;
 use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache_Handler;
+use Avatar_Privacy\Avatar_Handlers\Legacy_Icon_Handler;
 use Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler;
 
 use Avatar_Privacy\Data_Storage\Cache;
@@ -516,6 +517,7 @@ class Factory extends Dice {
 			'avatar_privacy_user_avatar_icon_url' => [ 'instance' => User_Avatar_Handler::class ],
 			'avatar_privacy_gravatar_icon_url'    => [ 'instance' => Gravatar_Cache_Handler::class ],
 			'avatar_privacy_default_icon_url'     => [ 'instance' => Default_Icons_Handler::class ],
+			'avatar_privacy_legacy_icon_url'      => [ 'instance' => Legacy_Icon_Handler::class ],
 		];
 	}
 }

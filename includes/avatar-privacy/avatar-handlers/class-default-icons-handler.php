@@ -130,8 +130,12 @@ class Default_Icons_Handler implements Avatar_Handler {
 		// Check if the given default icon type is a valid image URL (a common
 		// pattern due to how the default WordPress implementation uses Gravatar.com).
 		if ( $this->remote_images->validate_image_url( $args['default'], 'default_icon' ) ) {
-			// FIXME: Cache image!
-			return $args['default'];
+			// Prepare filter arguments.
+			$url  = $args['default'];
+			$hash = $this->remote_images->get_hash( $url );
+
+			/** This filter is documented in avatar-privacy/components/class-avatar-handling.php */
+			return \apply_filters( 'avatar_privacy_legacy_icon_url', $url, $hash, $size, [] );
 		}
 
 		// Return the fallback default icon URL.
