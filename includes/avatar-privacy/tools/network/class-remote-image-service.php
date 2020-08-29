@@ -26,7 +26,10 @@
 
 namespace Avatar_Privacy\Tools\Network;
 
+use Avatar_Privacy\Data_Storage\Cache;
+use Avatar_Privacy\Data_Storage\Database\Hashes_Table;
 use Avatar_Privacy\Tools\Hasher;
+use Avatar_Privacy\Tools\Images\Editor;
 
 /**
  * A class for accessing the generic remote images.
@@ -35,6 +38,15 @@ use Avatar_Privacy\Tools\Hasher;
  * @author     Peter Putzer <github@mundschenk.at>
  */
 class Remote_Image_Service {
+
+	/**
+	 * The cache handler.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var Cache
+	 */
+	private $cache;
 
 	/**
 	 * The hashing helper.
@@ -46,14 +58,70 @@ class Remote_Image_Service {
 	private $hasher;
 
 	/**
+	 * The images editor.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var Editor
+	 */
+	private $editor;
+
+	/**
+	 * The hashes database table.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var Hashes_Table
+	 */
+	private $table;
+
+	const IDENTIFIER_TYPE    = 'image-url';
+	const URL_CACHE_DURATION = 24 * \HOUR_IN_SECONDS;
+	/**
 	 * Creates a new instance.
 	 *
 	 * @since 2.4.0
 	 *
-	 * @param Hasher $hasher The hashing helper.
+	 * @param Cache        $cache  The cache helper.
+	 * @param Hasher       $hasher The hashing helper.
+	 * @param Editor       $editor The image editor.
+	 * @param Hashes_Table $table  The database table for storing hash <=> URL mappings.
 	 */
-	public function __construct( Hasher $hasher ) {
+	public function __construct( Cache $cache, Hasher $hasher, Editor $editor, Hashes_Table $table ) {
+		$this->cache  = $cache;
 		$this->hasher = $hasher;
+		$this->editor = $editor;
+		$this->table  = $table;
+	}
+
+	/**
+	 * Retrieves the remote image.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  string $url      The image URL.
+	 * @param  int    $size     The image size in pixels.
+	 * @param  string $mimetype The expected MIME type of the image data.
+	 *
+	 * @return string      The image data (or an empty string on error).
+	 */
+	public function get_image( $url, $size, $mimetype ) {
+		// Retrieve remote image.
+		$image = \wp_remote_retrieve_body(
+			/* @scrutinizer ignore-type */
+			\wp_remote_get( $url )
+		);
+
+		// Check if the image data is valid.
+		if ( false === $this->editor->get_mime_type( $image ) ) {
+			// Something went wrong, so we ignore the data.
+			return '';
+		}
+
+		// Resize and convert image.
+		return $this->editor->get_resized_image_data(
+			$this->editor->create_from_string( $image ), $size, $size, $mimetype
+		);
 	}
 
 	/**
@@ -97,7 +165,8 @@ class Remote_Image_Service {
 	}
 
 	/**
-	 * Retrieves the hash for the given image URL.
+	 * Retrieves the hash for the given image URL. This method ensures that a reverse
+	 * lookup using is possible by storing the URL and the hash in a database table.
 	 *
 	 * @since 2.4.0
 	 *
@@ -106,6 +175,60 @@ class Remote_Image_Service {
 	 * @return string
 	 */
 	public function get_hash( $url ) {
-		return $this->hasher->get_hash( $url, true );
+		// Generate hash.
+		$hash = $this->hasher->get_hash( $url );
+
+		// Check cache.
+		$key = "image-url_{$hash}";
+		if ( $url !== $this->cache->get( $key ) ) {
+			// OK, we need to update the database.
+			$data = [
+				'identifier' => $url,
+				'hash'       => $hash,
+				'type'       => self::IDENTIFIER_TYPE,
+			];
+			$this->table->replace( $data );
+
+			// Also prime the URL cache, just in case.
+			$this->cache->set( $key, $url, self::URL_CACHE_DURATION );
+		}
+
+		return $hash;
+	}
+
+	/**
+	 * Retrieves the image URL for the given hash value.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @global \wpdb $wpdb  The WordPress Database Access Abstraction.
+	 *
+	 * @param  string $hash The hashed URL.
+	 *
+	 * @return string|false
+	 */
+	public function get_image_url( $hash ) {
+		global $wpdb;
+
+		// Check cache.
+		$key = "image-url_{$hash}";
+		$url = $this->cache->get( $key );
+
+		if ( false === $url ) {
+			// Lookup image URL.
+			$url = $wpdb->get_var( $wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT identifier FROM `{$this->table->get_table_name()}` WHERE hash = %s AND type = %s",
+				$hash,
+				self::IDENTIFIER_TYPE
+			) ); // WPCS: db call ok, cache ok.
+
+			// Store only positive results.
+			if ( ! empty( $url ) ) {
+				$this->cache->set( $key, $url, self::URL_CACHE_DURATION );
+			}
+		}
+
+		return $url;
 	}
 }

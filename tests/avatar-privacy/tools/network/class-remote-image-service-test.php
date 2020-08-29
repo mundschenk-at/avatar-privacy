@@ -34,7 +34,10 @@ use Mockery as m;
 
 use Avatar_Privacy\Tools\Network\Remote_Image_Service;
 
+use Avatar_Privacy\Data_Storage\Cache;
+use Avatar_Privacy\Data_Storage\Database\Hashes_Table;
 use Avatar_Privacy\Tools\Hasher;
+use Avatar_Privacy\Tools\Images\Editor;
 
 /**
  * Avatar_Privacy\Tools\Network\Remote_Image_Service unit test.
@@ -56,9 +59,30 @@ class Remote_Image_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Test fixture.
 	 *
+	 * @var Cache
+	 */
+	private $cache;
+
+	/**
+	 * Test fixture.
+	 *
 	 * @var Hasher
 	 */
 	private $hasher;
+
+	/**
+	 * Test fixture.
+	 *
+	 * @var Editor
+	 */
+	private $editor;
+
+	/**
+	 * Test fixture.
+	 *
+	 * @var Hashes_Table
+	 */
+	private $table;
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -69,9 +93,20 @@ class Remote_Image_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 	protected function set_up() {
 		parent::set_up();
 
+		$this->cache  = m::mock( Cache::class );
 		$this->hasher = m::mock( Hasher::class );
+		$this->editor = m::mock( Editor::class );
+		$this->table  = m::mock( Hashes_Table::class );
 
-		$this->sut = m::mock( Remote_Image_Service::class, [ $this->hasher ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock(
+			Remote_Image_Service::class,
+			[
+				$this->cache,
+				$this->hasher,
+				$this->editor,
+				$this->table,
+			]
+		)->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -80,12 +115,66 @@ class Remote_Image_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::__construct
 	 */
 	public function test_constructor() {
+		$cache  = m::mock( Cache::class );
 		$hasher = m::mock( Hasher::class );
+		$editor = m::mock( Editor::class );
+		$table  = m::mock( Hashes_Table::class );
 		$mock   = m::mock( Remote_Image_Service::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$mock->__construct( $hasher );
+		$mock->__construct( $cache, $hasher, $editor, $table );
 
+		$this->assert_attribute_same( $cache, 'cache', $mock );
 		$this->assert_attribute_same( $hasher, 'hasher', $mock );
+		$this->assert_attribute_same( $editor, 'editor', $mock );
+		$this->assert_attribute_same( $table, 'table', $mock );
+	}
+
+	/**
+	 * Tests  ::get_image.
+	 *
+	 * @covers ::get_image
+	 */
+	public function test_get_image() {
+		$url      = 'https://some/fake/image.png';
+		$size     = 150;
+		$mimetype = 'image/jpeg';
+
+		$editor_mock        = m::mock( Editor::class );
+		$remote_data        = [ 'not', 'really', 'a', 'remote', 'result' ];
+		$image_data         = 'not really a PNG image';
+		$resized_image_data = 'not really resized, either';
+
+		Functions\expect( 'wp_remote_get' )->once()->with( $url )->andReturn( $remote_data );
+		Functions\expect( 'wp_remote_retrieve_body' )->once()->with( $remote_data )->andReturn( $image_data );
+
+		$this->editor->shouldReceive( 'get_mime_type' )->once()->with( $image_data )->andReturn( 'image/png' );
+		$this->editor->shouldReceive( 'create_from_string' )->once()->with( $image_data )->andReturn( $editor_mock );
+		$this->editor->shouldReceive( 'get_resized_image_data' )->once()->with( $editor_mock, $size, $size, $mimetype )->andReturn( $resized_image_data );
+
+		$this->assertSame( $resized_image_data, $this->sut->get_image( $url, $size, $mimetype ) );
+	}
+
+	/**
+	 * Tests  ::get_image.
+	 *
+	 * @covers ::get_image
+	 */
+	public function test_get_image_error() {
+		$url      = 'https://some/fake/image.png';
+		$size     = 150;
+		$mimetype = 'image/jpeg';
+
+		$remote_data = [ 'not', 'really', 'a', 'remote', 'result' ];
+		$image_data  = 'not really a PNG image';
+
+		Functions\expect( 'wp_remote_get' )->once()->with( $url )->andReturn( $remote_data );
+		Functions\expect( 'wp_remote_retrieve_body' )->once()->with( $remote_data )->andReturn( $image_data );
+
+		$this->editor->shouldReceive( 'get_mime_type' )->once()->with( $image_data )->andReturn( false );
+		$this->editor->shouldReceive( 'get_image_editor' )->never();
+		$this->editor->shouldReceive( 'get_resized_image_data' )->never();
+
+		$this->assertSame( '', $this->sut->get_image( $url, $size, $mimetype ) );
 	}
 
 	/**
@@ -216,9 +305,66 @@ class Remote_Image_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_hash() {
 		$url  = 'https://example.org/some-image.png';
 		$hash = 'fake hash';
+		$key  = "image-url_{$hash}";
 
-		$this->hasher->shouldReceive( 'get_hash' )->once()->with( $url, true )->andReturn( $hash );
+		$this->hasher->shouldReceive( 'get_hash' )->once()->with( $url )->andReturn( $hash );
+		$this->cache->shouldReceive( 'get' )->once()->with( $key )->andReturn( false );
+
+		$this->table->shouldReceive( 'replace' )->once()->with(
+			[
+				'identifier' => $url,
+				'hash'       => $hash,
+				'type'       => Remote_Image_Service::IDENTIFIER_TYPE,
+			]
+		)->andReturn( 1 );
+
+		$this->cache->shouldReceive( 'set' )->once()->with( $key, $url, m::type( 'int' ) );
 
 		$this->assertSame( $hash, $this->sut->get_hash( $url ) );
+	}
+
+	/**
+	 * Test ::get_hash.
+	 *
+	 * @covers ::get_hash
+	 */
+	public function test_get_hash_cached() {
+		$url  = 'https://example.org/some-image.png';
+		$hash = 'fake hash';
+		$key  = "image-url_{$hash}";
+
+		$this->hasher->shouldReceive( 'get_hash' )->once()->with( $url )->andReturn( $hash );
+		$this->cache->shouldReceive( 'get' )->once()->with( $key )->andReturn( $url );
+
+		$this->table->shouldReceive( 'replace' )->never();
+		$this->cache->shouldReceive( 'set' )->never();
+
+		$this->assertSame( $hash, $this->sut->get_hash( $url ) );
+	}
+
+	/**
+	 * Test ::get_image_url.
+	 *
+	 * @covers ::get_image_url
+	 */
+	public function test_get_image_url() {
+		$hash = 'fake hash';
+		$url  = 'https://example.org/some-image.png';
+
+		global $wpdb;
+		$wpdb  = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$key   = "image-url_{$hash}";
+		$table = 'my_table';
+		$query = 'SQL query';
+
+		$this->cache->shouldReceive( 'get' )->once()->with( $key )->andReturn( false );
+
+		$this->table->shouldReceive( 'get_table_name' )->once()->andReturn( $table );
+		$wpdb->shouldReceive( 'prepare' )->once()->with( m::type( 'string' ), $hash, Remote_Image_Service::IDENTIFIER_TYPE )->andReturn( $query );
+		$wpdb->shouldReceive( 'get_var' )->once()->with( $query )->andReturn( $url );
+
+		$this->cache->shouldReceive( 'set' )->once()->with( $key, $url, m::type( 'int' ) );
+
+		$this->assertSame( $url, $this->sut->get_image_url( $hash ) );
 	}
 }
