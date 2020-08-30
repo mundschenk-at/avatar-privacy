@@ -408,6 +408,7 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assert_matches_regular_expression( "|Content-Length: {$length}|", $headers[1] );
 		$this->assert_matches_regular_expression( '|Last-Modified: |', $headers[2] );
 		$this->assert_matches_regular_expression( '|Expires: |', $headers[3] );
+		$this->assert_matches_regular_expression( '|ETag: |', $headers[4] );
 	}
 
 	/**
