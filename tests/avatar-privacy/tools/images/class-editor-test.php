@@ -258,6 +258,13 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Intermediate data.
 		$current_width  = 42;
 		$current_height = 43;
+		$crop           = [
+			// Note these values are not realistic, but unique for testing purposes.
+			'x'      => 44,
+			'y'      => 45,
+			'width'  => 46,
+			'height' => 47,
+		];
 
 		// Result.
 		$data = 'fake image data';
@@ -268,7 +275,10 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 				'height' => $current_height,
 			]
 		);
-		$editor->shouldReceive( 'crop' )->once()->with( 0, 0, $current_width, $current_height, $width, $height, false )->andReturn( true );
+
+		$this->sut->shouldReceive( 'get_crop_dimensions' )->once()->with( $current_width, $current_height, $width, $height )->andReturn( $crop );
+
+		$editor->shouldReceive( 'crop' )->once()->with( $crop['x'], $crop['y'], $crop['width'], $crop['height'], $width, $height, false )->andReturn( true );
 
 		$this->sut->shouldReceive( 'get_image_data' )->once()->with( $editor, $format )->andReturn( $data );
 
@@ -310,6 +320,13 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Intermediate data.
 		$current_width  = 42;
 		$current_height = 43;
+		$crop           = [
+			// Note these values are not realistic, but unique for testing purposes.
+			'x'      => 44,
+			'y'      => 45,
+			'width'  => 46,
+			'height' => 47,
+		];
 
 		$editor->shouldReceive( 'get_size' )->once()->andReturn(
 			[
@@ -317,11 +334,50 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 				'height' => $current_height,
 			]
 		);
-		$editor->shouldReceive( 'crop' )->once()->with( 0, 0, $current_width, $current_height, $width, $height, false )->andReturn( m::mock( \WP_Error::class ) );
+
+		$this->sut->shouldReceive( 'get_crop_dimensions' )->once()->with( $current_width, $current_height, $width, $height )->andReturn( $crop );
+
+		$editor->shouldReceive( 'crop' )->once()->with( $crop['x'], $crop['y'], $crop['width'], $crop['height'], $width, $height, false )->andReturn( m::mock( \WP_Error::class ) );
 
 		$this->sut->shouldReceive( 'get_image_data' )->never();
 
 		$this->assertSame( '', $this->sut->get_resized_image_data( $editor, $width, $height, $format ) );
+	}
+
+	/**
+	 * Provides data for testing ::get_crop_dimensions.
+	 *
+	 * @return array
+	 */
+	public function provide_get_crop_dimensions_data() {
+		return [
+			// phpcs:disable WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
+			[ 100, 100, 200, 200, [ 'x' => 0, 'y' => 0, 'width' => 100, 'height' => 100 ] ],
+			[ 200, 100, 200, 200, [ 'x' => 50, 'y' => 0, 'width' => 100, 'height' => 100 ] ],
+			[ 101, 100, 200, 200, [ 'x' => 0, 'y' => 0, 'width' => 100, 'height' => 100 ] ],
+			[ 102, 100, 200, 200, [ 'x' => 1, 'y' => 0, 'width' => 100, 'height' => 100 ] ],
+			[ 100, 105, 200, 200, [ 'x' => 0, 'y' => 2, 'width' => 100, 'height' => 100 ] ],
+			[ 1024, 768, 200, 200, [ 'x' => 128, 'y' => 0, 'width' => 768, 'height' => 768 ] ],
+			[ 1024, 768, 1400, 900, [ 'x' => 0, 'y' => 55, 'width' => 1024, 'height' => 658 ] ],
+			// phpcs:enable WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
+		];
+	}
+
+	/**
+	 * Tests ::get_crop_dimensions.
+	 *
+	 * @covers ::get_crop_dimensions
+	 *
+	 * @dataProvider provide_get_crop_dimensions_data
+	 *
+	 * @param  int   $orig_w Original image width.
+	 * @param  int   $orig_h Original image height.
+	 * @param  int   $dest_w Destination image width.
+	 * @param  int   $dest_h Destination image height.
+	 * @param  array $result Expected result.
+	 */
+	public function test_get_crop_dimensions( $orig_w, $orig_h, $dest_w, $dest_h, array $result ) {
+		$this->assertSame( $result, $this->sut->get_crop_dimensions( $orig_w, $orig_h, $dest_w, $dest_h ) );
 	}
 
 	/**
