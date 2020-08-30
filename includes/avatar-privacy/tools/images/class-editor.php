@@ -170,15 +170,18 @@ class Editor {
 	}
 
 	/**
-	 * Resizes the given image and returns the image data.
+	 * Resizes the given image and returns the image data. If the aspect ratios
+	 * differ, the image is center-cropped.
 	 *
 	 * @since 2.0.5 Parameter $crop has been deprecated.
 	 * @since 2.1.0 Parameter $crop has been removed.
+	 * @since 2.4.0 Image is cropped if the target aspect ratio differs from the
+	 *              original one.
 	 *
-	 * @param  \WP_Image_Editor|\WP_Error $image      The image.
-	 * @param  int                        $width      The width in pixels.
-	 * @param  int                        $height     The height in pixels.
-	 * @param  string                     $format     Optional. The image mimetype. Default 'image/png'.
+	 * @param  \WP_Image_Editor|\WP_Error $image  The image.
+	 * @param  int                        $width  The width in pixels.
+	 * @param  int                        $height The height in pixels.
+	 * @param  string                     $format Optional. The image mimetype. Default 'image/png'.
 	 *
 	 * @return string
 	 */
@@ -189,17 +192,59 @@ class Editor {
 			return '';
 		}
 
-		// Retrieve the size of the original image.
+		// Caculate the crop dimensions.
 		$current = $image->get_size();
+		$crop    = $this->get_crop_dimensions( $current['width'], $current['height'], $width, $height );
 
 		// We need to use the `crop` method because `resize` includes a block against enlarging images.
-		if ( $image->crop( 0, 0, $current['width'], $current['height'], $width, $height, false ) instanceof \WP_Error ) {
+		if ( $image->crop( $crop['x'], $crop['y'], $crop['width'], $crop['height'], $width, $height, false ) instanceof \WP_Error ) {
 			$result = '';
 		} else {
 			$result = $this->get_image_data( $image, $format );
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Determines the necessary crop dimensions for moving from the original image
+	 * to the destination image.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  int $orig_w Original image width.
+	 * @param  int $orig_h Original image height.
+	 * @param  int $dest_w Destination image width.
+	 * @param  int $dest_h Destination image height.
+	 *
+	 * @return array {
+	 *     The crop dimensions and coordinates.
+	 *
+	 *     @type int $x      The X coordinate for the crop.
+	 *     @type int $y      The Y coordinate for the crop.
+	 *     @type int $width  The width of the crop.
+	 *     @type int $height The height of the crop.
+	 * }
+	 */
+	protected function get_crop_dimensions( $orig_w, $orig_h, $dest_w, $dest_h ) {
+		// We crop to the largest rectangle fitting inside the original image
+		// with the same aspect ratio as the destination image.
+		$factor = \min( $orig_w / $dest_w, $orig_h / $dest_h );
+
+		// Caclulate the crop dimensions.
+		$crop_w = \round( $dest_w * $factor );
+		$crop_h = \round( $dest_h * $factor );
+
+		// Center the crop.
+		$x = \floor( ( $orig_w - $crop_w ) / 2 );
+		$y = \floor( ( $orig_h - $crop_h ) / 2 );
+
+		return [
+			'x'      => (int) $x,
+			'y'      => (int) $y,
+			'width'  => (int) $crop_w,
+			'height' => (int) $crop_h,
+		];
 	}
 
 	/**
