@@ -142,64 +142,138 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Provides the data for testing get_unique_filename.
-	 *
-	 * @return array
-	 */
-	public function provide_upload_data() {
-		return [
-			[ false, false, false ],
-			[ false, true, false ],
-			[ true, false, false ],
-			[ true, true, false ],
-			[ false, false, true ],
-			[ false, true, true ],
-			[ true, false, true ],
-			[ true, true, true ],
-		];
-	}
-
-	/**
 	 * Tests ::upload.
 	 *
 	 * @covers ::upload
-	 *
-	 * @dataProvider provide_upload_data
-	 *
-	 * @param bool $is_multisite  The result of is_multisite().
-	 * @param bool $global        A flag indicating global uploads on multisite.
-	 * @param bool $has_file      A flag indicating that the 'file' parameter has been set.
 	 */
-	public function test_upload( $is_multisite, $global, $has_file ) {
-		$file         = [ 'foo' => 'bar' ];
-		$result       = [ 'bar' => 'foo' ];
-		$main_site_id = 5;
+	public function test_handle_upload() {
+		$file   = [ 'foo' => 'bar' ];
+		$result = [
+			'bar'  => 'foo',
+			'file' => '/my/path',
+		];
 
-		if ( $has_file ) {
-			$result['file'] = '/my/path';
+		$overrides = [
+			'mimes'                    => Upload_Handler::ALLOWED_MIME_TYPES,
+			'test_form'                => false,
+			'unique_filename_callback' => [ $this->sut, 'get_unique_filename' ],
+		];
 
-			Functions\expect( 'wp_normalize_path' )->once()->with( $result['file'] )->andReturn( '/my/normalized/path' );
-		}
+		$this->sut->shouldReceive( 'handle_upload' )->once()->with( $file, $overrides )->andReturn( $result );
 
-		if ( $global ) {
-			Functions\expect( 'is_multisite' )->once()->andReturn( $is_multisite );
+		$this->assertSame( $result, $this->sut->upload( $file ) );
+	}
 
-			if ( $is_multisite ) {
-				Functions\expect( 'get_main_site_id' )->once()->andReturn( $main_site_id );
-				Functions\expect( 'switch_to_blog' )->once()->with( $main_site_id );
-				Functions\expect( 'restore_current_blog' )->once();
-			}
-		}
+	/**
+	 * Tests ::handle_upload.
+	 *
+	 * @covers ::handle_upload
+	 */
+	public function test_handle_upload() {
+		$file   = [ 'foo' => 'bar' ];
+		$result = [
+			'bar'  => 'foo',
+			'file' => '/my/path',
+		];
+
+		$normalized_result         = $result;
+		$normalized_result['file'] = '/my/normalized/path';
+
+		$this->set_value( $this->sut, 'global_upload', true );
+		Functions\expect( 'is_multisite' )->once()->andReturn( false );
+		Functions\expect( 'get_main_site_id' )->never();
+		Functions\expect( 'switch_to_blog' )->never();
+		Functions\expect( 'restore_current_blog' )->never();
 
 		Filters\expectAdded( 'upload_dir' )->once()->with( [ $this->sut, 'custom_upload_dir' ] );
 		Functions\expect( 'wp_handle_upload' )->once()->with( $file, m::type( 'array' ) )->andReturn( $result );
+		Functions\expect( 'wp_normalize_path' )->once()->with( $result['file'] )->andReturn( $normalized_result['file'] );
 
-		if ( $has_file ) {
-			// Path should be normalized in final result.
-			$result['file'] = '/my/normalized/path';
-		}
+		$this->assertSame( $normalized_result, $this->sut->handle_upload( $file ) );
+		$this->assertFalse( Filters\has( 'upload_dir', [ $this->sut, 'custom_upload_dir' ] ) );
+	}
 
-		$this->assertSame( $result, $this->sut->upload( $file, $global ) );
+	/**
+	 * Tests ::handle_upload.
+	 *
+	 * @covers ::handle_upload
+	 */
+	public function test_handle_upload_error() {
+		$file   = [ 'foo' => 'bar' ];
+		$result = [
+			'bar'  => 'foo',
+		];
+
+		$this->set_value( $this->sut, 'global_upload', true );
+		Functions\expect( 'is_multisite' )->once()->andReturn( false );
+		Functions\expect( 'get_main_site_id' )->never();
+		Functions\expect( 'switch_to_blog' )->never();
+		Functions\expect( 'restore_current_blog' )->never();
+
+		Filters\expectAdded( 'upload_dir' )->once()->with( [ $this->sut, 'custom_upload_dir' ] );
+		Functions\expect( 'wp_handle_upload' )->once()->with( $file, m::type( 'array' ) )->andReturn( $result );
+		Functions\expect( 'wp_normalize_path' )->never();
+
+		$this->assertSame( $result, $this->sut->handle_upload( $file ) );
+		$this->assertFalse( Filters\has( 'upload_dir', [ $this->sut, 'custom_upload_dir' ] ) );
+	}
+
+	/**
+	 * Tests ::handle_upload.
+	 *
+	 * @covers ::handle_upload
+	 */
+	public function test_handle_upload_global_upload() {
+		$file         = [ 'foo' => 'bar' ];
+		$result       = [
+			'bar'  => 'foo',
+			'file' => '/my/path',
+		];
+		$main_site_id = 5;
+
+		$normalized_result         = $result;
+		$normalized_result['file'] = '/my/normalized/path';
+
+		$this->set_value( $this->sut, 'global_upload', true );
+		Functions\expect( 'is_multisite' )->once()->andReturn( true );
+		Functions\expect( 'get_main_site_id' )->once()->andReturn( $main_site_id );
+		Functions\expect( 'switch_to_blog' )->once()->with( $main_site_id );
+		Functions\expect( 'restore_current_blog' )->once();
+
+		Filters\expectAdded( 'upload_dir' )->once()->with( [ $this->sut, 'custom_upload_dir' ] );
+		Functions\expect( 'wp_handle_upload' )->once()->with( $file, m::type( 'array' ) )->andReturn( $result );
+		Functions\expect( 'wp_normalize_path' )->once()->with( $result['file'] )->andReturn( $normalized_result['file'] );
+
+		$this->assertSame( $normalized_result, $this->sut->handle_upload( $file ) );
+		$this->assertFalse( Filters\has( 'upload_dir', [ $this->sut, 'custom_upload_dir' ] ) );
+	}
+
+	/**
+	 * Tests ::handle_upload.
+	 *
+	 * @covers ::handle_upload
+	 */
+	public function test_handle_upload_global_upload_no_multisite() {
+		$file   = [ 'foo' => 'bar' ];
+		$result = [
+			'bar'  => 'foo',
+			'file' => '/my/path',
+		];
+
+		$normalized_result         = $result;
+		$normalized_result['file'] = '/my/normalized/path';
+
+		$this->set_value( $this->sut, 'global_upload', true );
+		Functions\expect( 'is_multisite' )->once()->andReturn( false );
+		Functions\expect( 'get_main_site_id' )->never();
+		Functions\expect( 'switch_to_blog' )->never();
+		Functions\expect( 'restore_current_blog' )->never();
+
+		Filters\expectAdded( 'upload_dir' )->once()->with( [ $this->sut, 'custom_upload_dir' ] );
+		Functions\expect( 'wp_handle_upload' )->once()->with( $file, m::type( 'array' ) )->andReturn( $result );
+		Functions\expect( 'wp_normalize_path' )->once()->with( $result['file'] )->andReturn( $normalized_result['file'] );
+
+		$this->assertSame( $normalized_result, $this->sut->handle_upload( $file ) );
 		$this->assertFalse( Filters\has( 'upload_dir', [ $this->sut, 'custom_upload_dir' ] ) );
 	}
 

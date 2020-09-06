@@ -59,17 +59,31 @@ abstract class Upload_Handler {
 	private $upload_dir;
 
 	/**
+	 * Whether to use the global upload directory.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var bool
+	 */
+	private $global_upload;
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
-	 * @since 2.4.0 Parameter $core removed.
+	 * @since 2.4.0 Parameter $core removed, parameter $global_upload added.
 	 *
-	 * @param string           $upload_dir  The subfolder used for our uploaded files. Has to start with /.
-	 * @param Filesystem_Cache $file_cache  The file cache handler.
+	 * @param string           $upload_dir    The subfolder used for our uploaded
+	 *                                        files. Has to start with /.
+	 * @param Filesystem_Cache $file_cache    The file cache handler.
+	 * @param bool             $global_upload Optional. A flag indicating whether
+	 *                                        there should be a global upload directory
+	 *                                        on multisite. Default false.
 	 */
-	public function __construct( $upload_dir, Filesystem_Cache $file_cache ) {
-		$this->upload_dir = $upload_dir;
-		$this->file_cache = $file_cache;
+	public function __construct( $upload_dir, Filesystem_Cache $file_cache, $global_upload = false ) {
+		$this->upload_dir    = $upload_dir;
+		$this->file_cache    = $file_cache;
+		$this->global_upload = $global_upload;
 	}
 
 	/**
@@ -97,19 +111,41 @@ abstract class Upload_Handler {
 	/**
 	 * Handles the file upload by optionally switching to the primary site of the network.
 	 *
-	 * @param  array $file   A slice of the $_FILES superglobal.
-	 * @param  bool  $global Optional A flag indicating if the upload should be global on a multisite installation. Default false.
+	 * @since 2.4.0 Parameter $global replaced with property.
+	 *
+	 * @param  array $file  A slice of the $_FILES superglobal.
 	 *
 	 * @return string[]     Information about the uploaded file.
 	 */
-	protected function upload( array $file, $global = false ) {
+	protected function upload( array $file ) {
+		// Prepare arguments.
+		$overrides = [
+			'mimes'                    => self::ALLOWED_MIME_TYPES,
+			'test_form'                => false,
+			'unique_filename_callback' => [ $this, 'get_unique_filename' ],
+		];
+
+		return $this->handle_upload( $file, $overrides );
+	}
+
+	/**
+	 * Handles the file upload by optionally switching to the primary site of the network.
+	 *
+	 * @param  array    $file      A slice of the $_FILES superglobal.
+	 * @param  string[] $overrides An associative array of names => values to override
+	 *                             default variables. See `wp_handle_uploads` documentation
+	 *                             for the full list of available overrides.
+	 *
+	 * @return string[]            Information about the uploaded file.
+	 */
+	protected function handle_upload( array $file, array $overrides = [] ) {
 		// Enable front end support.
 		if ( ! function_exists( 'wp_handle_upload' ) ) {
 			require_once \ABSPATH . 'wp-admin/includes/file.php'; // @codeCoverageIgnore
 		}
 
 		// Should we use a global directory for uploads?
-		$use_global_upload_dir = $global && \is_multisite();
+		$use_global_upload_dir = $this->global_upload && \is_multisite();
 
 		// Switch to primary site if this should be a global upload.
 		if ( $use_global_upload_dir ) {
@@ -119,15 +155,8 @@ abstract class Upload_Handler {
 		// Ensure custom upload directory.
 		\add_filter( 'upload_dir', [ $this, 'custom_upload_dir' ] );
 
-		// Prepare arguments.
-		$args = [
-			'mimes'                    => self::ALLOWED_MIME_TYPES,
-			'test_form'                => false,
-			'unique_filename_callback' => [ $this, 'get_unique_filename' ],
-		];
-
 		// Move uploaded file.
-		$result = \wp_handle_upload( $file, $args );
+		$result = \wp_handle_upload( $file, $overrides );
 
 		// Ensure normalized path on Windows.
 		if ( ! empty( $result['file'] ) ) {
