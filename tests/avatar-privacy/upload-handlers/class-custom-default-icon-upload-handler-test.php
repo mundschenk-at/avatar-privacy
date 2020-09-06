@@ -210,7 +210,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 
 		Functions\expect( 'wp_unslash' )->never();
 		$this->sut->shouldReceive( 'normalize_files_array' )->once()->with( $uploaded_file )->andReturn( $normalized_files );
-		$this->sut->shouldReceive( 'upload' )->once()->with( $normalized_files[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ], false )->andReturn( $icon );
+		$this->sut->shouldReceive( 'upload' )->once()->with( $normalized_files[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] )->andReturn( $icon );
 		$this->sut->shouldReceive( 'delete_uploaded_icon' )->once()->with( $site_id )->andReturn( true );
 		$this->sut->shouldReceive( 'handle_errors' )->never();
 
@@ -256,7 +256,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 
 		Functions\expect( 'wp_unslash' )->never();
 		$this->sut->shouldReceive( 'normalize_files_array' )->once()->with( $uploaded_file )->andReturn( $normalized_files );
-		$this->sut->shouldReceive( 'upload' )->once()->with( $normalized_files[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ], false )->andReturn( $icon );
+		$this->sut->shouldReceive( 'upload' )->once()->with( $normalized_files[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] )->andReturn( $icon );
 		$this->sut->shouldReceive( 'delete_uploaded_icon' )->never();
 		$this->sut->shouldReceive( 'handle_errors' )->once()->with( $icon );
 
