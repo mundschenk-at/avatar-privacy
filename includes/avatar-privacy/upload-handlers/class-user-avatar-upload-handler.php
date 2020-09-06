@@ -73,7 +73,7 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 * @param User_Fields      $registered_user The user fields API.
 	 */
 	public function __construct( Filesystem_Cache $file_cache, User_Fields $registered_user ) {
-		parent::__construct( self::UPLOAD_DIR, $file_cache );
+		parent::__construct( self::UPLOAD_DIR, $file_cache, true );
 
 		$this->registered_user = $registered_user;
 	}

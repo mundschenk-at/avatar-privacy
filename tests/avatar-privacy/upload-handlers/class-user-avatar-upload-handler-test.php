@@ -125,6 +125,7 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$mock->__construct( $this->file_cache, $this->registered_user );
 
 		$this->assert_attribute_same( User_Avatar_Upload_Handler::UPLOAD_DIR, 'upload_dir', $mock );
+		$this->assert_attribute_same( true, 'global_upload', $mock );
 		$this->assert_attribute_same( $this->registered_user, 'registered_user', $mock );
 	}
 
