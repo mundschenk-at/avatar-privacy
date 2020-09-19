@@ -27,8 +27,9 @@
 namespace Avatar_Privacy\Core;
 
 use Avatar_Privacy\Core\API;
+use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Tools\Hasher;
-
+use Avatar_Privacy\Tools\Images;
 
 /**
  * The API for handling data attached to registered users as part of the
@@ -76,12 +77,21 @@ class User_Fields implements API {
 	private $hasher;
 
 	/**
+	 * The filesystem cache handler.
+	 *
+	 * @var Filesystem_Cache
+	 */
+	private $file_cache;
+
+	/**
 	 * Creates a new instance.
 	 *
-	 * @param Hasher $hasher  Required.
+	 * @param Hasher           $hasher     The hashing helper..
+	 * @param Filesystem_Cache $file_cache The file cache handler.
 	 */
-	public function __construct( Hasher $hasher ) {
-		$this->hasher = $hasher;
+	public function __construct( Hasher $hasher, Filesystem_Cache $file_cache ) {
+		$this->hasher     = $hasher;
+		$this->file_cache = $file_cache;
 	}
 
 	/**
@@ -169,5 +179,88 @@ class User_Fields implements API {
 		}
 
 		return $avatar;
+	}
+
+	/**
+	 * Sets the local avatar to the uploaded image.
+	 *
+	 * @internal
+	 *
+	 * @param  int      $user_id       The user ID.
+	 * @param  string[] $uploaded_avatar {
+	 *     The uploaded avatar information (the result of ::handle_upload()).
+	 *
+	 *     @type string $file The image file path.
+	 *     @type string $type The MIME type of the uploaded image.
+	 * }
+	 *
+	 * @throws \InvalidArgumentException An exception is thrown if the user ID does
+	 *                                   not exist or the upload result does not
+	 *                                   contain the 'file' key.
+	 */
+	public function set_uploaded_local_avatar( $user_id, $uploaded_avatar ) {
+		if ( ! $this->user_exists( $user_id ) ) {
+			throw new \InvalidArgumentException( "Invalid user ID {$user_id}" );
+		} elseif ( empty( $uploaded_avatar['file'] ) ) {
+			throw new \InvalidArgumentException( 'Missing upload file path' );
+		} elseif ( empty( $uploaded_avatar['type'] ) ) {
+			throw new \InvalidArgumentException( 'Missing image MIME type' );
+		} elseif ( ! isset( Images\Type::FILE_EXTENSION[ $uploaded_avatar['type'] ] ) ) {
+			throw new \InvalidArgumentException( "Invalid MIME type {$uploaded_avatar['type']}" );
+		}
+
+		// Delete old images.
+		$this->delete_local_avatar( $user_id );
+
+		// Save user information (overwriting previous).
+		\update_user_meta( $user_id, self::USER_AVATAR_META_KEY, $uploaded_avatar );
+	}
+
+	/**
+	 * Checks whether the given user ID is valid.
+	 *
+	 * @param  int $user_id The user ID.
+	 *
+	 * @return bool
+	 */
+	protected function user_exists( $user_id ) {
+		return (bool) \get_users(
+			[
+				'include' => $user_id,
+				'fields'  => 'ID',
+			]
+		);
+	}
+
+	/**
+	 * Deletes the local avatar of the given user.
+	 *
+	 * @param  int $user_id The user ID.
+	 *
+	 * @return bool
+	 */
+	public function delete_local_avatar( $user_id ) {
+		// Invalidate cached avatar images.
+		$this->invalidate_local_avatar_cache( $user_id );
+
+		// Delete original upload.
+		$avatar = \get_user_meta( $user_id, self::USER_AVATAR_META_KEY, true );
+		if ( ! empty( $avatar['file'] ) && \file_exists( $avatar['file'] ) && \unlink( $avatar['file'] ) ) {
+			return \delete_user_meta( $user_id, self::USER_AVATAR_META_KEY );
+		}
+
+		return false;
+	}
+
+	/**
+	 * Invalidates cached avatar images.
+	 *
+	 * @param  int $user_id The user ID.
+	 */
+	public function invalidate_local_avatar_cache( $user_id ) {
+		$hash = $this->get_hash( $user_id );
+		if ( ! empty( $hash ) ) {
+			$this->file_cache->invalidate( 'user', "#/{$hash}-[1-9][0-9]*\.[a-z]{3}\$#" );
+		}
 	}
 }

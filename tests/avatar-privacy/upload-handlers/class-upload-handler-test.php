@@ -142,12 +142,322 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Tests ::maybe_save_data (success).
+	 *
+	 * @covers ::maybe_save_data
+	 */
+	public function test_maybe_save_data() {
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+		// Input data.
+		$nonce        = 'my_nonce';
+		$nonce_value  = '12345';
+		$action       = 'my_action';
+		$upload_field = 'my-upload-field';
+		$erase_field  = 'my-erase-field';
+		$args         = [
+			'nonce'        => $nonce,
+			'action'       => $action,
+			'upload_field' => $upload_field,
+			'erase_field'  => $erase_field,
+			'foo'          => 'bar',
+		];
+
+		// Set up fake request.
+		$_POST[ $nonce ] = $nonce_value;
+
+		// Intermediary data.
+		$file_slice    = [
+			'name'   => 'foobar',
+			'foobaz' => 'barfoo',
+		];
+		$upload_result = [
+			'file' => '/some/path/image.png',
+			'type' => 'image/png',
+		];
+
+		// Great Expectations.
+		Functions\expect( '_doing_it_wrong' )->never();
+		Functions\expect( 'sanitize_key' )->once()->with( $nonce_value )->andReturn( 'sanitized_nonce' );
+		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', $action )->andReturn( true );
+
+		$this->sut->shouldReceive( 'get_file_slice' )->once()->with( $args )->andReturn( $file_slice );
+		$this->sut->shouldReceive( 'upload' )->once()->with( $file_slice, $args )->andReturn( $upload_result );
+		$this->sut->shouldReceive( 'handle_upload_errors' )->never();
+		$this->sut->shouldReceive( 'store_file_data' )->once()->with( $upload_result, $args );
+		$this->sut->shouldReceive( 'delete_file_data' )->never();
+
+		// Check results.
+		$this->assertNull( $this->sut->maybe_save_data( $args ) );
+	}
+
+	/**
+	 * Tests ::maybe_save_data (doing it wrong).
+	 *
+	 * @covers ::maybe_save_data
+	 */
+	public function test_maybe_save_data_doing_it_wrong() {
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+		// Input data.
+		$nonce        = 'my_nonce';
+		$nonce_value  = '12345';
+		$action       = 'my_action';
+		$upload_field = 'my-upload-field';
+		$erase_field  = 'my-erase-field';
+		$args         = [
+			'action'       => $action,
+			'upload_field' => $upload_field,
+			'erase_field'  => $erase_field,
+			'foo'          => 'bar',
+		];
+
+		// Set up fake request.
+		$_POST[ $nonce ] = $nonce_value;
+
+		// Great Expectations.
+		Functions\expect( '_doing_it_wrong' )->once()->with( m::type( 'string' ), 'Required arguments missing', 'Avatar Privacy 2.4.0' );
+		Functions\expect( 'sanitize_key' )->never();
+		Functions\expect( 'wp_verify_nonce' )->never();
+
+		$this->sut->shouldReceive( 'get_file_slice' )->never();
+		$this->sut->shouldReceive( 'upload' )->never();
+		$this->sut->shouldReceive( 'handle_upload_errors' )->never();
+		$this->sut->shouldReceive( 'store_file_data' )->never();
+		$this->sut->shouldReceive( 'delete_file_data' )->never();
+
+		// Check results.
+		$this->assertNull( $this->sut->maybe_save_data( $args ) );
+	}
+
+	/**
+	 * Tests ::maybe_save_data (upload error).
+	 *
+	 * @covers ::maybe_save_data
+	 */
+	public function test_maybe_save_data_upload_error() {
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+		// Input data.
+		$nonce        = 'my_nonce';
+		$nonce_value  = '12345';
+		$action       = 'my_action';
+		$upload_field = 'my-upload-field';
+		$erase_field  = 'my-erase-field';
+		$args         = [
+			'nonce'        => $nonce,
+			'action'       => $action,
+			'upload_field' => $upload_field,
+			'erase_field'  => $erase_field,
+			'foo'          => 'bar',
+		];
+
+		// Set up fake request.
+		$_POST[ $nonce ] = $nonce_value;
+
+		// Intermediary data.
+		$file_slice    = [
+			'name'   => 'foobar',
+			'foobaz' => 'barfoo',
+		];
+		$upload_result = [
+			'error' => 'Invalid file type.',
+		];
+
+		// Great Expectations.
+		Functions\expect( '_doing_it_wrong' )->never();
+		Functions\expect( 'sanitize_key' )->once()->with( $nonce_value )->andReturn( 'sanitized_nonce' );
+		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', $action )->andReturn( true );
+
+		$this->sut->shouldReceive( 'get_file_slice' )->once()->with( $args )->andReturn( $file_slice );
+		$this->sut->shouldReceive( 'upload' )->once()->with( $file_slice, $args )->andReturn( $upload_result );
+		$this->sut->shouldReceive( 'handle_upload_errors' )->once()->with( $upload_result, $args );
+		$this->sut->shouldReceive( 'store_file_data' )->never();
+		$this->sut->shouldReceive( 'delete_file_data' )->never();
+
+		// Check results.
+		$this->assertNull( $this->sut->maybe_save_data( $args ) );
+	}
+
+	/**
+	 * Tests ::maybe_save_data (missing nonce).
+	 *
+	 * @covers ::maybe_save_data
+	 */
+	public function test_maybe_save_data_no_nonce() {
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+		// Input data.
+		$nonce        = 'my_nonce';
+		$action       = 'my_action';
+		$upload_field = 'my-upload-field';
+		$erase_field  = 'my-erase-field';
+		$args         = [
+			'nonce'        => $nonce,
+			'action'       => $action,
+			'upload_field' => $upload_field,
+			'erase_field'  => $erase_field,
+			'foo'          => 'bar',
+		];
+
+		// Set up fake request.
+		$_POST = [];
+
+		// Great Expectations.
+		Functions\expect( '_doing_it_wrong' )->never();
+		Functions\expect( 'sanitize_key' )->never();
+		Functions\expect( 'wp_verify_nonce' )->never();
+
+		$this->sut->shouldReceive( 'get_file_slice' )->never();
+		$this->sut->shouldReceive( 'upload' )->never();
+		$this->sut->shouldReceive( 'handle_upload_errors' )->never();
+		$this->sut->shouldReceive( 'store_file_data' )->never();
+		$this->sut->shouldReceive( 'delete_file_data' )->never();
+
+		// Check results.
+		$this->assertNull( $this->sut->maybe_save_data( $args ) );
+	}
+
+	/**
+	 * Tests ::maybe_save_data (incorrect nonce).
+	 *
+	 * @covers ::maybe_save_data
+	 */
+	public function test_maybe_save_data_incorrect_nonce() {
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+		// Input data.
+		$nonce        = 'my_nonce';
+		$nonce_value  = '12345';
+		$action       = 'my_action';
+		$upload_field = 'my-upload-field';
+		$erase_field  = 'my-erase-field';
+		$args         = [
+			'nonce'        => $nonce,
+			'action'       => $action,
+			'upload_field' => $upload_field,
+			'erase_field'  => $erase_field,
+			'foo'          => 'bar',
+		];
+
+		// Set up fake request.
+		$_POST[ $nonce ] = $nonce_value;
+
+		// Great Expectations.
+		Functions\expect( '_doing_it_wrong' )->never();
+		Functions\expect( 'sanitize_key' )->once()->with( $nonce_value )->andReturn( 'sanitized_nonce' );
+		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', $action )->andReturn( false );
+
+		$this->sut->shouldReceive( 'get_file_slice' )->never();
+		$this->sut->shouldReceive( 'upload' )->never();
+		$this->sut->shouldReceive( 'handle_upload_errors' )->never();
+		$this->sut->shouldReceive( 'store_file_data' )->never();
+		$this->sut->shouldReceive( 'delete_file_data' )->never();
+
+		// Check results.
+		$this->assertNull( $this->sut->maybe_save_data( $args ) );
+	}
+
+	/**
+	 * Tests ::maybe_save_data when used to delete the current icon.
+	 *
+	 * @covers ::maybe_save_data
+	 */
+	public function test_maybe_save_data_delete() {
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+		// Input data.
+		$nonce        = 'my_nonce';
+		$nonce_value  = '12345';
+		$action       = 'my_action';
+		$upload_field = 'my-upload-field';
+		$erase_field  = 'my-erase-field';
+		$args         = [
+			'nonce'        => $nonce,
+			'action'       => $action,
+			'upload_field' => $upload_field,
+			'erase_field'  => $erase_field,
+			'foo'          => 'bar',
+		];
+
+		// Set up fake request.
+		$_POST[ $nonce ]       = $nonce_value;
+		$_POST[ $erase_field ] = 'true';
+
+		// Intermediary data.
+		$file_slice = [
+			'foobaz' => 'barfoo',
+		];
+
+		// Great Expectations.
+		Functions\expect( '_doing_it_wrong' )->never();
+		Functions\expect( 'sanitize_key' )->once()->with( $nonce_value )->andReturn( 'sanitized_nonce' );
+		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', $action )->andReturn( true );
+
+		$this->sut->shouldReceive( 'get_file_slice' )->once()->with( $args )->andReturn( $file_slice );
+		$this->sut->shouldReceive( 'upload' )->never();
+		$this->sut->shouldReceive( 'handle_upload_errors' )->never();
+		$this->sut->shouldReceive( 'store_file_data' )->never();
+		$this->sut->shouldReceive( 'delete_file_data' )->once()->with( $args );
+
+		// Check results.
+		$this->assertNull( $this->sut->maybe_save_data( $args ) );
+	}
+
+	/**
+	 * Tests ::maybe_save_data when used to delete the current icon.
+	 *
+	 * @covers ::maybe_save_data
+	 */
+	public function test_maybe_save_data_delete_incorrect_var() {
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+		// Input data.
+		$nonce        = 'my_nonce';
+		$nonce_value  = '12345';
+		$action       = 'my_action';
+		$upload_field = 'my-upload-field';
+		$erase_field  = 'my-erase-field';
+		$args         = [
+			'nonce'        => $nonce,
+			'action'       => $action,
+			'upload_field' => $upload_field,
+			'erase_field'  => $erase_field,
+			'foo'          => 'bar',
+		];
+
+		// Set up fake request.
+		$_POST[ $nonce ]       = $nonce_value;
+		$_POST[ $erase_field ] = true; // This should be a string, not a boolean.
+
+		// Intermediary data.
+		$file_slice = [
+			'foobaz' => 'barfoo',
+		];
+
+		// Great Expectations.
+		Functions\expect( '_doing_it_wrong' )->never();
+		Functions\expect( 'sanitize_key' )->once()->with( $nonce_value )->andReturn( 'sanitized_nonce' );
+		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', $action )->andReturn( true );
+
+		$this->sut->shouldReceive( 'get_file_slice' )->once()->with( $args )->andReturn( $file_slice );
+		$this->sut->shouldReceive( 'upload' )->never();
+		$this->sut->shouldReceive( 'handle_upload_errors' )->never();
+		$this->sut->shouldReceive( 'store_file_data' )->never();
+		$this->sut->shouldReceive( 'delete_file_data' )->never();
+
+		// Check results.
+		$this->assertNull( $this->sut->maybe_save_data( $args ) );
+	}
+
+	/**
 	 * Tests ::upload.
 	 *
 	 * @covers ::upload
 	 */
-	public function test_handle_upload() {
+	public function test_upload() {
 		$file   = [ 'foo' => 'bar' ];
+		$args   = [ 'bar' => 'baz' ];
 		$result = [
 			'bar'  => 'foo',
 			'file' => '/my/path',
@@ -161,7 +471,7 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'handle_upload' )->once()->with( $file, $overrides )->andReturn( $result );
 
-		$this->assertSame( $result, $this->sut->upload( $file ) );
+		$this->assertSame( $result, $this->sut->upload( $file, $args ) );
 	}
 
 	/**

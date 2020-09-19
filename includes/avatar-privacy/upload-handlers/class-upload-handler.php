@@ -109,15 +109,108 @@ abstract class Upload_Handler {
 	}
 
 	/**
+	 * Processes the submitted form and saves the upload results if possible.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @global array $_POST  Post request superglobal.
+	 *
+	 * @param  array $args {
+	 *     An array of arguments passed to the form processing methods. All of
+	 *     the listed arguments are required.
+	 *
+	 *     @type string $nonce        The nonce.
+	 *     @type string $action       The form action.
+	 *     @type string $upload_field The upload field name.
+	 *     @type string $erase_field  The erase checkbox field name.
+	 * }
+	 */
+	protected function maybe_save_data( array $args ) {
+		// Check arguments.
+		if ( empty( $args['nonce'] ) || empty( $args['action'] ) || empty( $args['upload_field'] ) || empty( $args['erase_field'] ) ) {
+			\_doing_it_wrong( __METHOD__, 'Required arguments missing', 'Avatar Privacy 2.4.0' );
+			return;
+		}
+
+		// Verify nonce.
+		if ( ! isset( $_POST[ $args['nonce'] ] ) || ! \wp_verify_nonce( \sanitize_key( $_POST[ $args['nonce'] ] ), $args['action'] ) ) {
+			return;
+		}
+
+		// Verify a file was uploaded.
+		$file_slice = $this->get_file_slice( $args );
+		if ( ! empty( $file_slice['name'] ) ) {
+
+			// Upload to our custom directory.
+			$upload_result = $this->handle_upload( $file_slice, $args );
+
+			// Handle upload failures.
+			if ( empty( $upload_result['file'] ) ) {
+				$this->handle_upload_errors( $upload_result, $args );
+				return; // Abort.
+			}
+
+			// Save the new avatar image.
+			$this->store_file_data( $upload_result, $args );
+		} elseif ( ! empty( $_POST[ $args['erase_field'] ] ) && 'true' === $_POST[ $args['erase_field'] ] ) {
+			// Just delete the current avatar.
+			$this->delete_file_data( $args );
+		}
+	}
+
+	/**
+	 * Retrieves the relevant slice of the global $_FILES array.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @global array $_FILES Uploaded files superglobal.
+	 *
+	 * @param  array $args   Arguments passed from ::maybe_save_data().
+	 *
+	 * @return array         A slice of the $_FILES array.
+	 */
+	abstract protected function get_file_slice( array $args );
+
+	/**
+	 * Handles upload errors and prints appropriate notices.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  array $upload_result The result of ::handle_upload().
+	 * @param  array $args          Arguments passed from ::maybe_save_data().
+	 */
+	abstract protected function handle_upload_errors( array $upload_result, array $args );
+
+	/**
+	 * Stores metadata about the uploaded file.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  array $upload_result The result of ::handle_upload().
+	 * @param  array $args          Arguments passed from ::maybe_save_data().
+	 */
+	abstract protected function store_file_data( array $upload_result, array $args );
+
+	/**
+	 * Deletes a previously uploaded file and its metadata.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  array $args Arguments passed from ::maybe_save_data().
+	 */
+	abstract protected function delete_file_data( array $args );
+
+	/**
 	 * Handles the file upload by optionally switching to the primary site of the network.
 	 *
 	 * @since 2.4.0 Parameter $global replaced with property.
 	 *
 	 * @param  array $file  A slice of the $_FILES superglobal.
+	 * @param  array $args  Arguments passed from ::maybe_save_data().
 	 *
 	 * @return string[]     Information about the uploaded file.
 	 */
-	protected function upload( array $file ) {
+	protected function upload( array $file, $args ) {
 		// Prepare arguments.
 		$overrides = [
 			'mimes'                    => self::ALLOWED_MIME_TYPES,
