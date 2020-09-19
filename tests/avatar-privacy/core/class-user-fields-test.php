@@ -32,7 +32,10 @@ use Brain\Monkey\Functions;
 
 use Mockery as m;
 
+use org\bovigo\vfs\vfsStream;
+
 use Avatar_Privacy\Core\User_Fields;
+use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Tools\Hasher;
 
 /**
@@ -60,16 +63,36 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $hasher;
 
 	/**
+	 * Required helper object.
+	 *
+	 * @var Filesystem_Cache
+	 */
+	private $file_cache;
+
+	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
 	protected function set_up() { // @codingStandardsIgnoreLine
 		parent::set_up();
 
-		$this->hasher = m::mock( Hasher::class );
+		$filesystem = [
+			'uploads'   => [
+				'some.png'            => '',
+				'Jane-Doe_avatar.gif' => '',
+				'Foobar_avatar.png'   => '',
+				'Foobar_avatar_1.png' => '',
+			],
+		];
+
+		// Set up virtual filesystem.
+		vfsStream::setup( 'root', null, $filesystem );
+
+		$this->hasher     = m::mock( Hasher::class );
+		$this->file_cache = m::mock( Filesystem_Cache::class );
 
 		// Partially mock system under test.
-		$this->sut = m::mock( User_Fields::class, [ $this->hasher ] )
+		$this->sut = m::mock( User_Fields::class, [ $this->hasher, $this->file_cache ] )
 			->makePartial()
 			->shouldAllowMockingProtectedMethods();
 	}
@@ -81,12 +104,14 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_constructor() {
 		// Mock required helpers.
-		$hasher = m::mock( Hasher::class )->makePartial();
+		$hasher     = m::mock( Hasher::class )->makePartial();
+		$file_cache = m::mock( Filesystem_Cache::class )->makePartial();
 
 		$user_fields = m::mock( User_Fields::class )->makePartial();
-		$user_fields->__construct( $hasher );
+		$user_fields->__construct( $hasher, $file_cache );
 
 		$this->assert_attribute_same( $hasher, 'hasher', $user_fields );
+		$this->assert_attribute_same( $file_cache, 'file_cache', $user_fields );
 	}
 
 	/**
@@ -234,5 +259,212 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'get_user_meta' )->once()->with( $user_id, User_Fields::USER_AVATAR_META_KEY, true )->andReturn( false );
 
 		$this->assertSame( [], $this->sut->get_local_avatar( $user_id ) );
+	}
+
+	/**
+	 * Tests ::set_uploaded_local_avatar.
+	 *
+	 * @covers ::set_uploaded_local_avatar
+	 */
+	public function test_set_uploaded_local_avatar() {
+		$user_id = 42;
+		$avatar  = [
+			'type' => 'image/png',
+			'file' => '/some/fake/file.png',
+		];
+
+		$this->sut->shouldReceive( 'user_exists' )->once()->with( $user_id )->andReturn( true );
+		$this->sut->shouldReceive( 'delete_local_avatar' )->once()->with( $user_id );
+
+		Functions\expect( 'update_user_meta' )->once()->with( $user_id, User_Fields::USER_AVATAR_META_KEY, $avatar );
+
+		$this->assertNull( $this->sut->set_uploaded_local_avatar( $user_id, $avatar ) );
+	}
+
+	/**
+	 * Tests ::set_uploaded_local_avatar.
+	 *
+	 * @covers ::set_uploaded_local_avatar
+	 */
+	public function test_set_uploaded_local_avatar_user_does_not_exist() {
+		$user_id = 42;
+		$avatar  = [
+			'type' => 'image/png',
+			'file' => '/some/fake/file.png',
+		];
+
+		$this->sut->shouldReceive( 'user_exists' )->once()->with( $user_id )->andReturn( false );
+		$this->sut->shouldReceive( 'delete_local_avatar' )->never();
+
+		Functions\expect( 'update_user_meta' )->never();
+
+		$this->expect_exception( \InvalidArgumentException::class );
+
+		$this->assertNull( $this->sut->set_uploaded_local_avatar( $user_id, $avatar ) );
+	}
+
+	/**
+	 * Tests ::set_uploaded_local_avatar.
+	 *
+	 * @covers ::set_uploaded_local_avatar
+	 */
+	public function test_set_uploaded_local_avatar_missing_file() {
+		$user_id = 42;
+		$avatar  = [
+			'type' => 'image/png',
+		];
+
+		$this->sut->shouldReceive( 'user_exists' )->once()->with( $user_id )->andReturn( true );
+		$this->sut->shouldReceive( 'delete_local_avatar' )->never();
+
+		Functions\expect( 'update_user_meta' )->never();
+
+		$this->expect_exception( \InvalidArgumentException::class );
+
+		$this->assertNull( $this->sut->set_uploaded_local_avatar( $user_id, $avatar ) );
+	}
+
+	/**
+	 * Tests ::set_uploaded_local_avatar.
+	 *
+	 * @covers ::set_uploaded_local_avatar
+	 */
+	public function test_set_uploaded_local_avatar_missing_mimetype() {
+		$user_id = 42;
+		$avatar  = [
+			'file' => '/some/fake/file.png',
+		];
+
+		$this->sut->shouldReceive( 'user_exists' )->once()->with( $user_id )->andReturn( true );
+		$this->sut->shouldReceive( 'delete_local_avatar' )->never();
+
+		Functions\expect( 'update_user_meta' )->never();
+
+		$this->expect_exception( \InvalidArgumentException::class );
+
+		$this->assertNull( $this->sut->set_uploaded_local_avatar( $user_id, $avatar ) );
+	}
+
+	/**
+	 * Tests ::set_uploaded_local_avatar.
+	 *
+	 * @covers ::set_uploaded_local_avatar
+	 */
+	public function test_set_uploaded_local_avatar_invalid_mimetype() {
+		$user_id = 42;
+		$avatar  = [
+			'type' => 'image/tiff',
+			'file' => '/some/fake/file.tif',
+		];
+
+		$this->sut->shouldReceive( 'user_exists' )->once()->with( $user_id )->andReturn( true );
+		$this->sut->shouldReceive( 'delete_local_avatar' )->never();
+
+		Functions\expect( 'update_user_meta' )->never();
+
+		$this->expect_exception( \InvalidArgumentException::class );
+
+		$this->assertNull( $this->sut->set_uploaded_local_avatar( $user_id, $avatar ) );
+	}
+
+	/**
+	 * Tests ::user_exists.
+	 *
+	 * @covers ::user_exists
+	 */
+	public function test_user_exists() {
+		$user_id = 42;
+
+		Functions\expect( 'get_users' )->once()->with( [
+			'include' => $user_id,
+			'fields'  => 'ID',
+		] )->andReturn( [ $user_id ] );
+
+		$this->assertTrue( $this->sut->user_exists( $user_id ) );
+	}
+
+	/**
+	 * Tests ::user_exists.
+	 *
+	 * @covers ::user_exists
+	 */
+	public function test_user_exists_does_not_exist() {
+		$user_id = 42;
+
+		Functions\expect( 'get_users' )->once()->with( [
+			'include' => $user_id,
+			'fields'  => 'ID',
+		] )->andReturn( [] );
+
+		$this->assertFalse( $this->sut->user_exists( $user_id ) );
+	}
+
+	/**
+	 * Tests ::delete_local_avatar.
+	 *
+	 * @covers ::delete_local_avatar
+	 */
+	public function test_delete_local_avatar() {
+		$user_id = 42;
+		$avatar  = [
+			'type' => 'image/png',
+			'file' => vfsStream::url( 'root/uploads/some.png' ),
+		];
+
+		$this->sut->shouldReceive( 'invalidate_local_avatar_cache' )->once()->with( $user_id );
+
+		Functions\expect( 'get_user_meta' )->once()->with( $user_id, User_Fields::USER_AVATAR_META_KEY, true )->andReturn( $avatar );
+		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, User_Fields::USER_AVATAR_META_KEY )->andReturn( true );
+
+		$this->assertSame( true, $this->sut->delete_local_avatar( $user_id ) );
+	}
+
+	/**
+	 * Tests ::delete_local_avatar.
+	 *
+	 * @covers ::delete_local_avatar
+	 */
+	public function test_delete_local_avatar_invalid_file() {
+		$user_id = 42;
+		$avatar  = [
+			'type' => 'image/png',
+			'file' => vfsStream::url( 'root/uploads/does-not-exist.png' ),
+		];
+
+		$this->sut->shouldReceive( 'invalidate_local_avatar_cache' )->once()->with( $user_id );
+
+		Functions\expect( 'get_user_meta' )->once()->with( $user_id, User_Fields::USER_AVATAR_META_KEY, true )->andReturn( $avatar );
+		Functions\expect( 'delete_user_meta' )->never();
+
+		$this->assertSame( false, $this->sut->delete_local_avatar( $user_id ) );
+	}
+
+	/**
+	 * Tests ::invalidate_local_avatar_cache.
+	 *
+	 * @covers ::invalidate_local_avatar_cache
+	 */
+	public function test_invalidate_local_avatar_cache() {
+		$user_id = 42;
+		$hash    = 'fake hash';
+
+		$this->sut->shouldReceive( 'get_hash' )->once()->with( $user_id )->andReturn( $hash );
+		$this->file_cache->shouldReceive( 'invalidate' )->once()->with( 'user', m::pattern( "/#\/{$hash}-/" ) );
+
+		$this->assertNull( $this->sut->invalidate_local_avatar_cache( $user_id ) );
+	}
+
+	/**
+	 * Tests ::invalidate_local_avatar_cache.
+	 *
+	 * @covers ::invalidate_local_avatar_cache
+	 */
+	public function test_invalidate_local_avatar_no_hash() {
+		$user_id = 42;
+
+		$this->sut->shouldReceive( 'get_hash' )->once()->with( $user_id )->andReturn( '' );
+		$this->file_cache->shouldReceive( 'invalidate' )->never();
+
+		$this->assertNull( $this->sut->invalidate_local_avatar_cache( $user_id ) );
 	}
 }

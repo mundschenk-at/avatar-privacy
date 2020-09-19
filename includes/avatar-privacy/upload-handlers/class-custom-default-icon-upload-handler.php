@@ -113,64 +113,89 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	 * @param  string|string[] $option_value The option value. Passed by reference.
 	 */
 	public function save_uploaded_default_icon( $site_id, &$option_value ) {
-		if ( ! isset( $_POST[ self::NONCE_UPLOAD . $site_id ] ) || ! \wp_verify_nonce( \sanitize_key( $_POST[ self::NONCE_UPLOAD . $site_id ] ), self::ACTION_UPLOAD ) ) { // Input var okay.
-			return;
-		}
+		// Prepare arguments.
+		$args = [
+			'nonce'        => self::NONCE_UPLOAD . $site_id,
+			'action'       => self::ACTION_UPLOAD,
+			'upload_field' => Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR,
+			'erase_field'  => self::CHECKBOX_ERASE,
+			'site_id'      => $site_id,
+			'option_value' => &$option_value,
+		];
 
-		$upload_index     = $this->options->get_name( Settings::OPTION_NAME );
-		$normalized_files = ! empty( $_FILES[ $upload_index ]['name'] ) ? $this->normalize_files_array( $_FILES[ $upload_index ] ) : []; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- ::upload uses \wp_handle_upload, $_FILES does not need wp_unslash.
-		if ( ! empty( $normalized_files[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ]['name'] ) ) {
-			// Upload to our custom directory.
-			$icon = $this->upload( $normalized_files[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] );
-
-			// Handle upload failures.
-			if ( empty( $icon['file'] ) ) {
-				$this->handle_errors( $icon );
-				return; // Abort.
-			}
-
-			// Save the new default avatar image.
-			$option_value = $this->assign_new_icon( $site_id, $icon );
-		} elseif ( ! empty( $_POST[ self::CHECKBOX_ERASE ] ) && 'true' === $_POST[ self::CHECKBOX_ERASE ] ) { // Input var okay.
-			// Just delete the current default avatar.
-			$this->delete_uploaded_icon( $site_id );
-			$option_value = [];
-		}
+		$this->maybe_save_data( $args );
 	}
 
 	/**
-	 * Assigns a new user avatar to the given user ID.
+	 * Retrieves the relevant slice of the global $_FILES array.
 	 *
-	 * @param  int   $site_id A site ID.
-	 * @param  array $icon    The result of `wp_handle_upload()`.
+	 * @since 2.4.0
 	 *
-	 * @return array
+	 * @param  array $args Arguments passed from ::maybe_save_data().
+	 *
+	 * @return array       A slice of the $_FILES array.
 	 */
-	private function assign_new_icon( $site_id, array $icon ) {
-		// Delete old images.
-		$this->delete_uploaded_icon( $site_id );
+	protected function get_file_slice( array $args ) {
+		$upload_index = $this->options->get_name( Settings::OPTION_NAME );
 
-		// Save user information (overwriting previous).
-		return $icon;
+		if ( ! empty( $_FILES[ $upload_index ]['name'] ) ) {
+			$normalized_files = $this->normalize_files_array( $_FILES[ $upload_index ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- $_FILES does not need wp_unslash.
+
+			if ( ! empty( $normalized_files[ $args['upload_field'] ] ) ) {
+				return $normalized_files[ $args['upload_field'] ];
+			}
+		}
+
+		return [];
 	}
 
 	/**
 	 * Handles upload errors and prints appropriate notices.
 	 *
 	 * @since 2.1.0 Visibility changed to protected.
+	 * @since 2.4.0 Renamed to handle_upload_errors, parameter $result renamed
+	 *              to $upload_result. Parameter $args added.
 	 *
-	 * @param  array $result The result of \wp_handle_upload().
+	 * @param  array $upload_result The result of ::handle_upload().
+	 * @param  array $args          Arguments passed from ::maybe_save_data().
 	 */
-	protected function handle_errors( array $result ) {
+	protected function handle_upload_errors( array $upload_result, array $args ) {
 		$id = $this->options->get_name( Settings::OPTION_NAME ) . '[' . Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR . ']';
-		switch ( $result['error'] ) {
+		switch ( $upload_result['error'] ) {
 			case 'Sorry, this file type is not permitted for security reasons.':
 				\add_settings_error( $id, 'default_avatar_invalid_image_type', \__( 'Please upload a valid PNG, GIF or JPEG image for the avatar.', 'avatar-privacy' ), 'error' );
 				break;
 
 			default:
-				\add_settings_error( $id, 'default_avatar_other_error', \sprintf( '<strong>%s</strong> %s', \__( 'There was an error uploading the avatar: ', 'avatar-privacy' ), \esc_attr( $result['error'] ) ), 'error' );
+				\add_settings_error( $id, 'default_avatar_other_error', \sprintf( '<strong>%s</strong> %s', \__( 'There was an error uploading the avatar: ', 'avatar-privacy' ), \esc_attr( $upload_result['error'] ) ), 'error' );
 		}
+	}
+
+	/**
+	 * Stores metadata about the uploaded file.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  array $upload_result The result of ::handle_upload().
+	 * @param  array $args          Arguments passed from ::maybe_save_data().
+	 */
+	protected function store_file_data( array $upload_result, array $args ) {
+		$this->delete_uploaded_icon( $args['site_id'] );
+
+		$args['option_value'] = $upload_result;
+	}
+
+	/**
+	 * Deletes a previously uploaded file and its metadata.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  array $args Arguments passed from ::maybe_save_data().
+	 */
+	protected function delete_file_data( array $args ) {
+		$this->delete_uploaded_icon( $args['site_id'] );
+
+		$args['option_value'] = [];
 	}
 
 	/**

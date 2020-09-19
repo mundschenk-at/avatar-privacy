@@ -142,272 +142,80 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Provides data for testing save_uploaded_user_avatar.
-	 *
-	 * @return array
-	 */
-	public function provide_save_uploaded_user_avatar_data() {
-		return [
-			[
-				6,
-				[
-					'name' => 'filename',
-					'foo'  => 'bar',
-				],
-			],
-			[
-				7,
-				[
-					'name' => [ 'filename', 'filename2' ],
-					'type' => [ 'image/gif', 'application/x-photoshop' ],
-					'foo'  => [ 'bar', 'baz' ],
-				],
-			],
-
-		];
-	}
-
-	/**
 	 * Tests ::save_uploaded_user_avatar.
 	 *
 	 * @covers ::save_uploaded_user_avatar
-	 * @covers ::assign_new_user_avatar
-	 *
-	 * @dataProvider provide_save_uploaded_user_avatar_data
-	 *
-	 * @param  int      $user_id       The user ID.
-	 * @param  string[] $uploaded_file The files array.
 	 */
-	public function test_save_uploaded_user_avatar( $user_id, $uploaded_file ) {
+	public function test_save_uploaded_user_avatar() {
 		// Input data.
-		$nonce  = 'my_nonce';
-		$action = 'my_action';
-		$field  = 'my_upload_input';
-		$erase  = 'my_erase_checkbox';
+		$user_id = 4711;
+		$nonce   = 'my_nonce';
+		$action  = 'my_action';
+		$field   = 'my_upload_input';
+		$erase   = 'my_erase_checkbox';
 
-		// Intermediate data.
-		$nonce_value = '12345';
-		$avatar      = [ 'file' => 'filename' ];
-
-		// Set up fake request.
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		global $_FILES;
-		$_POST[ $nonce . $user_id ] = $nonce_value;
-		$_FILES[ $field ]           = $uploaded_file;
-
-		// Great Expectations.
-		Functions\expect( 'sanitize_key' )->once()->with( $nonce_value )->andReturn( 'sanitized_nonce' );
-		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', $action )->andReturn( true );
-
-		Functions\expect( 'wp_unslash' )->never();
-		$this->sut->shouldReceive( 'upload' )->once()->with( $uploaded_file )->andReturn( $avatar );
-		$this->sut->shouldReceive( 'delete_uploaded_avatar' )->once()->with( $user_id )->andReturn( true );
-		$this->sut->shouldReceive( 'handle_errors' )->never();
-
-		Functions\expect( 'update_user_meta' )->once()->with( $user_id, User_Fields::USER_AVATAR_META_KEY, $avatar );
+		$this->sut->shouldReceive( 'maybe_save_data' )->once()->with( m::on( function ( $args ) use ( $nonce, $action, $field, $erase, $user_id ) {
+			return ! empty( $args['nonce'] ) && "{$nonce}{$user_id}" === $args['nonce']
+			&& ! empty( $args['action'] ) && $action === $args['action']
+			&& ! empty( $args['upload_field'] ) && $field === $args['upload_field']
+			&& ! empty( $args['erase_field'] ) && $erase === $args['erase_field']
+			&& ! empty( $args['user_id'] ) && $user_id === $args['user_id'];
+		} ) );
 
 		// Check results.
 		$this->assertNull( $this->sut->save_uploaded_user_avatar( $user_id, $nonce, $action, $field, $erase ) );
 	}
 
 	/**
-	 * Tests ::save_uploaded_user_avatar with an error occurring during upload.
+	 * Tests ::get_file_slice.
 	 *
-	 * @covers ::save_uploaded_user_avatar
-	 *
-	 * @dataProvider provide_save_uploaded_user_avatar_data
-	 *
-	 * @param  int      $user_id       The user ID.
-	 * @param  string[] $uploaded_file The files array.
+	 * @covers ::get_file_slice
 	 */
-	public function test_save_uploaded_user_avatar_with_error( $user_id, $uploaded_file ) {
-		// Input data.
-		$nonce  = 'my_nonce';
-		$action = 'my_action';
-		$field  = 'my_upload_input';
-		$erase  = 'my_erase_checkbox';
-
-		// Intermediate data.
-		$nonce_value = '12345';
-		$avatar      = [];
-
-		// Set up fake request.
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		global $_FILES;
-		$_POST[ $nonce . $user_id ] = $nonce_value;
-		$_FILES[ $field ]           = $uploaded_file;
-
-		// Great Expectations.
-		Functions\expect( 'sanitize_key' )->once()->with( $nonce_value )->andReturn( 'sanitized_nonce' );
-		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', $action )->andReturn( true );
-
-		Functions\expect( 'wp_unslash' )->never();
-		$this->sut->shouldReceive( 'upload' )->once()->with( $uploaded_file )->andReturn( $avatar );
-		$this->sut->shouldReceive( 'delete_uploaded_avatar' )->never();
-		$this->sut->shouldReceive( 'handle_errors' )->once()->with( $avatar );
-
-		// Check results.
-		$this->assertNull( $this->sut->save_uploaded_user_avatar( $user_id, $nonce, $action, $field, $erase ) );
-	}
-
-	/**
-	 * Tests ::save_uploaded_user_avatar when no nonce is present.
-	 *
-	 * @covers ::save_uploaded_user_avatar
-	 *
-	 * @dataProvider provide_save_uploaded_user_avatar_data
-	 *
-	 * @param  int      $user_id       The user ID.
-	 * @param  string[] $uploaded_file The files array.
-	 */
-	public function test_save_uploaded_user_avatar_no_nonce( $user_id, $uploaded_file ) {
-		// Input data.
-		$nonce  = 'my_nonce';
-		$action = 'my_action';
-		$field  = 'my_upload_input';
-		$erase  = 'my_erase_checkbox';
-
-		// Set up fake request.
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		global $_FILES;
-		$_POST            = [];
-		$_FILES[ $field ] = $uploaded_file;
-
-		// Great Expectations.
-		Functions\expect( 'sanitize_key' )->never();
-		Functions\expect( 'wp_verify_nonce' )->never();
-
-		$this->sut->shouldReceive( 'upload' )->never();
-		$this->sut->shouldReceive( 'delete_uploaded_avatar' )->never();
-		$this->sut->shouldReceive( 'handle_errors' )->never();
-
-		// Check results.
-		$this->assertNull( $this->sut->save_uploaded_user_avatar( $user_id, $nonce, $action, $field, $erase ) );
-	}
-
-	/**
-	 * Tests ::save_uploaded_user_avatar with an incorrect nonce.
-	 *
-	 * @covers ::save_uploaded_user_avatar
-	 *
-	 * @dataProvider provide_save_uploaded_user_avatar_data
-	 *
-	 * @param  int      $user_id       The user ID.
-	 * @param  string[] $uploaded_file The files array.
-	 */
-	public function test_save_uploaded_user_avatar_incorrect_nonce( $user_id, $uploaded_file ) {
-		// Input data.
-		$nonce  = 'my_nonce';
-		$action = 'my_action';
-		$field  = 'my_upload_input';
-		$erase  = 'my_erase_checkbox';
-
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+	public function test_get_file_slice() {
 		global $_FILES;
 
-		// Intermediate data.
-		$nonce_value = '12345';
-
-		// Set up fake request.
-		$_POST[ $nonce . $user_id ] = $nonce_value;
-		$_FILES[ $field ]           = $uploaded_file;
-
-		// Great Expectations.
-		Functions\expect( 'sanitize_key' )->once()->with( $nonce_value )->andReturn( 'sanitized_nonce' );
-		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', $action )->andReturn( false );
-
-		$this->sut->shouldReceive( 'upload' )->never();
-		$this->sut->shouldReceive( 'delete_uploaded_avatar' )->never();
-		$this->sut->shouldReceive( 'handle_errors' )->never();
-
-		// Check results.
-		$this->assertNull( $this->sut->save_uploaded_user_avatar( $user_id, $nonce, $action, $field, $erase ) );
-	}
-
-	/**
-	 * Tests ::save_uploaded_user_avatar when used to delete the current icon.
-	 *
-	 * @covers ::save_uploaded_user_avatar
-	 * @covers ::assign_new_user_avatar
-	 *
-	 * @dataProvider provide_save_uploaded_user_avatar_data
-	 *
-	 * @param  int      $user_id       The user ID.
-	 * @param  string[] $uploaded_file The files array.
-	 */
-	public function test_save_uploaded_user_avatar_delete_icon( $user_id, $uploaded_file ) {
-		// Input data.
-		$nonce  = 'my_nonce';
-		$action = 'my_action';
-		$field  = 'my_upload_input';
-		$erase  = 'my_erase_checkbox';
-
-		// Intermediate data.
-		$nonce_value = '12345';
-
-		// Set up fake request.
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		global $_FILES;
-		$_POST  = [
-			$nonce . $user_id => $nonce_value,
-			$erase            => 'true',
+		$upload_field = 'my_upload_field';
+		$args         = [
+			'upload_field' => $upload_field,
 		];
-		$_FILES = [];
 
-		// Great Expectations.
-		Functions\expect( 'sanitize_key' )->once()->with( $nonce_value )->andReturn( 'sanitized_nonce' );
-		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', $action )->andReturn( true );
+		// Intermediate data.
+		$uploaded_file = [
+			'name' => [ 'filename' ],
+			'type' => [ 'image/gif' ],
+			'foo'  => [ 'bar' ],
+		];
 
-		$this->sut->shouldReceive( 'upload' )->never();
-		$this->sut->shouldReceive( 'handle_errors' )->never();
+		// Set up fake request.
+		$_FILES = [ $upload_field => $uploaded_file ];
 
-		$this->sut->shouldReceive( 'delete_uploaded_avatar' )->once()->with( $user_id );
-
-		// Check results.
-		$this->assertNull( $this->sut->save_uploaded_user_avatar( $user_id, $nonce, $action, $field, $erase ) );
+		$this->assertSame( $uploaded_file, $this->sut->get_file_slice( $args ) );
 	}
 
 	/**
-	 * Tests ::save_uploaded_user_avatar when used to delete the current icon.
+	 * Tests ::get_file_slice.
 	 *
-	 * @covers ::save_uploaded_user_avatar
-	 * @covers ::assign_new_user_avatar
-	 *
-	 * @dataProvider provide_save_uploaded_user_avatar_data
-	 *
-	 * @param  int      $user_id       The user ID.
-	 * @param  string[] $uploaded_file The files array.
+	 * @covers ::get_file_slice
 	 */
-	public function test_save_uploaded_user_avatar_delete_icon_incorrect_var( $user_id, $uploaded_file ) {
-		// Input data.
-		$nonce  = 'my_nonce';
-		$action = 'my_action';
-		$field  = 'my_upload_input';
-		$erase  = 'my_erase_checkbox';
+	public function test_get_file_slice_upload_field_missing() {
+		global $_FILES;
+
+		$upload_field = 'my_upload_field';
+		$args         = [
+			'upload_field' => $upload_field,
+		];
 
 		// Intermediate data.
-		$nonce_value = '12345';
+		$uploaded_file = [
+			'name' => [ 'filename' ],
+			'type' => [ 'image/gif' ],
+			'foo'  => [ 'bar' ],
+		];
 
 		// Set up fake request.
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		global $_FILES;
-		$_POST  = [
-			$nonce . $user_id => $nonce_value,
-			$erase            => true, // This should be a string, not a boolean.
-		];
-		$_FILES = [];
+		$_FILES = [ 'foo' => $uploaded_file ];
 
-		// Great Expectations.
-		Functions\expect( 'sanitize_key' )->once()->with( $nonce_value )->andReturn( 'sanitized_nonce' );
-		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', $action )->andReturn( true );
-
-		$this->sut->shouldReceive( 'upload' )->never();
-		$this->sut->shouldReceive( 'handle_errors' )->never();
-
-		$this->sut->shouldReceive( 'delete_uploaded_avatar' )->never();
-
-		// Check results.
-		$this->assertNull( $this->sut->save_uploaded_user_avatar( $user_id, $nonce, $action, $field, $erase ) );
+		$this->assertSame( [], $this->sut->get_file_slice( $args ) );
 	}
 
 	/**
@@ -415,7 +223,7 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @return array
 	 */
-	public function provide_handle_errors_data() {
+	public function provide_handle_upload_errors_data() {
 		return [
 			[ 'Sorry, this file type is not permitted for security reasons.' ],
 			[ 'Something else.' ],
@@ -423,20 +231,90 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::handle_errors.
+	 * Tests ::handle_upload_errors.
 	 *
-	 * @covers ::handle_errors
+	 * @covers ::handle_upload_errors
 	 *
-	 * @dataProvider provide_handle_errors_data
+	 * @dataProvider provide_handle_upload_errors_data
 	 *
 	 * @param  string $error_string Original error message.
 	 */
-	public function test_handle_errors( $error_string ) {
-		$result = [ 'error' => $error_string ];
+	public function test_handle_upload_errors( $error_string ) {
+		$upload_result = [ 'error' => $error_string ];
+		$args          = [
+			'foo' => 'bar',
+		];
 
 		Actions\expectAdded( 'user_profile_update_errors' )->once()->with( m::type( 'Closure' ) );
 
-		$this->assertNull( $this->sut->handle_errors( $result ) );
+		$this->assertNull( $this->sut->handle_upload_errors( $upload_result, $args ) );
+	}
+
+	/**
+	 * Tests ::store_file_data.
+	 *
+	 * @covers ::store_file_data
+	 */
+	public function test_store_file_data() {
+		$upload_result = [
+			'name' => 'some/image.png',
+			'type' => 'image/png',
+		];
+		$user_id       = 4711;
+		$args          = [
+			'foo'     => 'bar',
+			'user_id' => $user_id,
+		];
+
+		$this->registered_user->shouldReceive( 'set_uploaded_local_avatar' )->once()->with( $user_id, $upload_result );
+
+		$this->assertNull( $this->sut->store_file_data( $upload_result, $args ) );
+	}
+
+	/**
+	 * Tests ::delete_file_data.
+	 *
+	 * @covers ::delete_file_data
+	 */
+	public function test_delete_file_data() {
+		$user_id = 4711;
+		$args    = [
+			'foo'     => 'bar',
+			'user_id' => $user_id,
+		];
+
+		$this->registered_user->shouldReceive( 'delete_local_avatar' )->once()->with( $user_id );
+
+		$this->assertNull( $this->sut->delete_file_data( $args ) );
+	}
+
+	/**
+	 * Tests ::upload.
+	 *
+	 * @covers ::upload
+	 *
+	 * @uses \Avatar_Privacy\Upload_Handlers\Upload_Handler::upload
+	 */
+	public function test_upload() {
+		$user_id       = 4711;
+		$args          = [
+			'foo'     => 'bar',
+			'user_id' => $user_id,
+		];
+		$uploaded_file = [
+			'name' => [ 'filename' ],
+			'type' => [ 'image/gif' ],
+			'foo'  => [ 'bar' ],
+		];
+		$result        = [
+			'bar'  => 'foo',
+			'file' => '/my/path',
+		];
+
+		$this->sut->shouldReceive( 'handle_upload' )->once()->with( $uploaded_file, m::type( 'array' ) )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->upload( $uploaded_file, $args ) );
+		$this->assert_attribute_same( $user_id, 'user_id_being_edited', $this->sut );
 	}
 
 	/**
@@ -504,7 +382,7 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param  string $file    The icon path.
 	 * @param  bool   $result  The expected result.
 	 */
-	public function test_delete_uploaded_avatar( $user_id, $file, $result ) {
+	public function xtest_delete_uploaded_avatar( $user_id, $file, $result ) {
 		$avatar = [ 'file' => vfsStream::url( $file ) ];
 
 		$this->sut->shouldReceive( 'invalidate_user_avatar_cache' )->once()->with( $user_id );
@@ -516,31 +394,32 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::invalidate_user_avatar_cache.
+	 * Tests ::delete_uploaded_avatar.
 	 *
-	 * @covers ::invalidate_user_avatar_cache
+	 * @covers ::delete_uploaded_avatar
 	 */
-	public function test_invalidate_user_avatar_cache() {
-		$user_id = '777';
-		$hash    = 'some_hash';
+	public function test_delete_uploaded_avatar() {
+		$user_id = 4711;
 
-		$this->registered_user->shouldReceive( 'get_hash' )->once()->with( $user_id )->andReturn( $hash );
-		$this->file_cache->shouldReceive( 'invalidate' )->once()->with( 'user', "#/{$hash}-[1-9][0-9]*\.[a-z]{3}\$#" );
+		Functions\expect( '_deprecated_function' )->once()->with( m::type( 'string' ), 'Avatar Privacy 2.4.0', 'Avatar_Privacy\Core:delete_user_avatar' );
 
-		$this->assertNull( $this->sut->invalidate_user_avatar_cache( $user_id ) );
+		$this->registered_user->shouldReceive( 'delete_local_avatar' )->once()->with( $user_id );
+
+		$this->assertNull( $this->sut->delete_uploaded_avatar( $user_id ) );
 	}
+
 
 	/**
 	 * Tests ::invalidate_user_avatar_cache.
 	 *
 	 * @covers ::invalidate_user_avatar_cache
 	 */
-	public function test_invalidate_user_avatar_cache_no_hash() {
-		$user_id = '777';
-		$hash    = '';
+	public function test_invalidate_user_avatar_cache() {
+		$user_id = 4711;
 
-		$this->registered_user->shouldReceive( 'get_hash' )->once()->with( $user_id )->andReturn( $hash );
-		$this->file_cache->shouldReceive( 'invalidate' )->never();
+		Functions\expect( '_deprecated_function' )->once()->with( m::type( 'string' ), 'Avatar Privacy 2.4.0', 'Avatar_Privacy\Core::invalidate_user_avatar_cache' );
+
+		$this->registered_user->shouldReceive( 'invalidate_local_avatar_cache' )->once()->with( $user_id );
 
 		$this->assertNull( $this->sut->invalidate_user_avatar_cache( $user_id ) );
 	}

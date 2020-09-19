@@ -36,7 +36,6 @@ use org\bovigo\vfs\vfsStream;
 
 use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler;
 
-use Avatar_Privacy\Core;
 use Avatar_Privacy\Core\Settings;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
@@ -177,7 +176,6 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	 * Tests ::save_uploaded_default_icon.
 	 *
 	 * @covers ::save_uploaded_default_icon
-	 * @covers ::assign_new_icon
 	 *
 	 * @dataProvider provide_save_uploaded_default_icon_data
 	 *
@@ -185,244 +183,122 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	 * @param  string[] $uploaded_file The files array.
 	 */
 	public function test_save_uploaded_default_icon( $site_id, $uploaded_file ) {
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$this->sut->shouldReceive( 'maybe_save_data' )->once()->with( m::on( function ( $args ) use ( $site_id ) {
+			return ! empty( $args['nonce'] )
+			&& ! empty( $args['action'] )
+			&& ! empty( $args['upload_field'] )
+			&& ! empty( $args['erase_field'] )
+			&& ! empty( $args['site_id'] )
+			&& $args['site_id'] === $site_id
+			&& \array_key_exists( 'option_value', $args );
+		} ) );
+
+		// Check results.
+		$value = null;
+		$this->assertNull( $this->sut->save_uploaded_default_icon( $site_id, $value ) );
+	}
+
+	/**
+	 * Tests ::get_file_slice.
+	 *
+	 * @covers ::get_file_slice
+	 */
+	public function test_get_file_slice() {
 		global $_FILES;
 
+		$upload_field = 'my_upload_field';
+		$args         = [
+			'upload_field' => $upload_field,
+		];
+
 		// Intermediate data.
-		$nonce            = '12345';
+		$uploaded_file    = [
+			'name' => [ 'filename', 'filename2' ],
+			'type' => [ 'image/gif', 'application/x-photoshop' ],
+			'foo'  => [ 'bar', 'baz' ],
+		];
+		$upload_index     = 'some_file_index';
+		$result           = [
+			'name' => 'filename',
+			'foo'  => 'bar',
+		];
 		$normalized_files = [
-			Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR => [
-				'name' => 'filename',
-				'foo'  => 'bar',
-			],
+			$upload_field => $result,
 		];
-		$icon             = [ 'file' => 'filename' ];
 
 		// Set up fake request.
-		$_POST[ Custom_Default_Icon_Upload_Handler::NONCE_UPLOAD . $site_id ] = $nonce;
-		$_FILES['upload_index'] = $uploaded_file;
+		$_FILES = [ $upload_index => $uploaded_file ];
 
-		// Great Expectations.
-		Functions\expect( 'sanitize_key' )->once()->with( $nonce )->andReturn( 'sanitized_nonce' );
-		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', Custom_Default_Icon_Upload_Handler::ACTION_UPLOAD )->andReturn( true );
-
-		$this->options->shouldReceive( 'get_name' )->once()->with( Settings::OPTION_NAME )->andReturn( 'upload_index' );
-
-		Functions\expect( 'wp_unslash' )->never();
+		$this->options->shouldReceive( 'get_name' )->once()->with( Settings::OPTION_NAME )->andReturn( $upload_index );
 		$this->sut->shouldReceive( 'normalize_files_array' )->once()->with( $uploaded_file )->andReturn( $normalized_files );
-		$this->sut->shouldReceive( 'upload' )->once()->with( $normalized_files[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] )->andReturn( $icon );
-		$this->sut->shouldReceive( 'delete_uploaded_icon' )->once()->with( $site_id )->andReturn( true );
-		$this->sut->shouldReceive( 'handle_errors' )->never();
 
-		// Check results.
-		$value = null;
-		$this->assertNull( $this->sut->save_uploaded_default_icon( $site_id, $value ) );
-		$this->assertSame( $icon, $value );
+		$this->assertSame( $result, $this->sut->get_file_slice( $args ) );
 	}
 
 	/**
-	 * Tests ::save_uploaded_default_icon with an error occurring during upload.
+	 * Tests ::get_file_slice.
 	 *
-	 * @covers ::save_uploaded_default_icon
-	 *
-	 * @dataProvider provide_save_uploaded_default_icon_data
-	 *
-	 * @param  int      $site_id       The site ID.
-	 * @param  string[] $uploaded_file The files array.
+	 * @covers ::get_file_slice
 	 */
-	public function test_save_uploaded_default_icon_with_error( $site_id, $uploaded_file ) {
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+	public function test_get_file_slice_empty_uploads() {
 		global $_FILES;
 
+		$upload_field = 'my_upload_field';
+		$args         = [
+			'upload_field' => $upload_field,
+		];
+
 		// Intermediate data.
-		$nonce            = '12345';
+		$uploaded_file = [
+			'type' => [ 'image/gif', 'application/x-photoshop' ],
+			'foo'  => [ 'bar', 'baz' ],
+		];
+		$upload_index  = 'some_file_index';
+
+		// Set up fake request.
+		$_FILES = [ $upload_index => $uploaded_file ];
+
+		$this->options->shouldReceive( 'get_name' )->once()->with( Settings::OPTION_NAME )->andReturn( $upload_index );
+		$this->sut->shouldReceive( 'normalize_files_array' )->never();
+
+		$this->assertSame( [], $this->sut->get_file_slice( $args ) );
+	}
+
+	/**
+	 * Tests ::get_file_slice.
+	 *
+	 * @covers ::get_file_slice
+	 */
+	public function test_get_file_slice_upload_field_missing() {
+		global $_FILES;
+
+		$upload_field = 'my_upload_field';
+		$args         = [
+			'upload_field' => $upload_field,
+		];
+
+		// Intermediate data.
+		$uploaded_file    = [
+			'name' => [ 'filename', 'filename2' ],
+			'type' => [ 'image/gif', 'application/x-photoshop' ],
+			'foo'  => [ 'bar', 'baz' ],
+		];
+		$upload_index     = 'some_file_index';
+		$result           = [
+			'name' => 'filename',
+			'foo'  => 'bar',
+		];
 		$normalized_files = [
-			Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR => [
-				'name' => 'filename',
-				'foo'  => 'bar',
-			],
+			'some_other_upload_field' => $result,
 		];
-		$icon             = [];
 
 		// Set up fake request.
-		$_POST[ Custom_Default_Icon_Upload_Handler::NONCE_UPLOAD . $site_id ] = $nonce;
-		$_FILES['upload_index'] = $uploaded_file;
+		$_FILES = [ $upload_index => $uploaded_file ];
 
-		// Great Expectations.
-		Functions\expect( 'sanitize_key' )->once()->with( $nonce )->andReturn( 'sanitized_nonce' );
-		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', Custom_Default_Icon_Upload_Handler::ACTION_UPLOAD )->andReturn( true );
-
-		$this->options->shouldReceive( 'get_name' )->once()->with( Settings::OPTION_NAME )->andReturn( 'upload_index' );
-
-		Functions\expect( 'wp_unslash' )->never();
+		$this->options->shouldReceive( 'get_name' )->once()->with( Settings::OPTION_NAME )->andReturn( $upload_index );
 		$this->sut->shouldReceive( 'normalize_files_array' )->once()->with( $uploaded_file )->andReturn( $normalized_files );
-		$this->sut->shouldReceive( 'upload' )->once()->with( $normalized_files[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] )->andReturn( $icon );
-		$this->sut->shouldReceive( 'delete_uploaded_icon' )->never();
-		$this->sut->shouldReceive( 'handle_errors' )->once()->with( $icon );
 
-		// Check results.
-		$value = null;
-		$this->assertNull( $this->sut->save_uploaded_default_icon( $site_id, $value ) );
-		$this->assertNull( $value );
-	}
-
-	/**
-	 * Tests ::save_uploaded_default_icon when no nonce is present.
-	 *
-	 * @covers ::save_uploaded_default_icon
-	 *
-	 * @dataProvider provide_save_uploaded_default_icon_data
-	 *
-	 * @param  int      $site_id       The site ID.
-	 * @param  string[] $uploaded_file The files array.
-	 */
-	public function test_save_uploaded_default_icon_no_nonce( $site_id, $uploaded_file ) {
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		global $_FILES;
-
-		// Set up fake request.
-		$_POST                  = [];
-		$_FILES['upload_index'] = $uploaded_file;
-
-		// Great Expectations.
-		Functions\expect( 'sanitize_key' )->never();
-		Functions\expect( 'wp_verify_nonce' )->never();
-
-		$this->options->shouldReceive( 'get_name' )->never();
-
-		$this->sut->shouldReceive( 'normalize_files_array' )->never();
-		$this->sut->shouldReceive( 'upload' )->never();
-		$this->sut->shouldReceive( 'delete_uploaded_icon' )->never();
-		$this->sut->shouldReceive( 'handle_errors' )->never();
-
-		// Check results.
-		$value = null;
-		$this->assertNull( $this->sut->save_uploaded_default_icon( $site_id, $value ) );
-		$this->assertNull( $value );
-	}
-
-	/**
-	 * Tests ::save_uploaded_default_icon with an incorrect nonce.
-	 *
-	 * @covers ::save_uploaded_default_icon
-	 *
-	 * @dataProvider provide_save_uploaded_default_icon_data
-	 *
-	 * @param  int      $site_id       The site ID.
-	 * @param  string[] $uploaded_file The files array.
-	 */
-	public function test_save_uploaded_default_icon_incorrect_nonce( $site_id, $uploaded_file ) {
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		global $_FILES;
-
-		// Intermediate data.
-		$nonce = '12345';
-
-		// Set up fake request.
-		$_POST[ Custom_Default_Icon_Upload_Handler::NONCE_UPLOAD . $site_id ] = $nonce;
-		$_FILES['upload_index'] = $uploaded_file;
-
-		// Great Expectations.
-		Functions\expect( 'sanitize_key' )->once()->with( $nonce )->andReturn( 'sanitized_nonce' );
-		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', Custom_Default_Icon_Upload_Handler::ACTION_UPLOAD )->andReturn( false );
-
-		$this->options->shouldReceive( 'get_name' )->never();
-
-		$this->sut->shouldReceive( 'normalize_files_array' )->never();
-		$this->sut->shouldReceive( 'upload' )->never();
-		$this->sut->shouldReceive( 'delete_uploaded_icon' )->never();
-		$this->sut->shouldReceive( 'handle_errors' )->never();
-
-		// Check results.
-		$value = null;
-		$this->assertNull( $this->sut->save_uploaded_default_icon( $site_id, $value ) );
-		$this->assertNull( $value );
-	}
-
-	/**
-	 * Tests ::save_uploaded_default_icon when used to delete the current icon.
-	 *
-	 * @covers ::save_uploaded_default_icon
-	 * @covers ::assign_new_icon
-	 *
-	 * @dataProvider provide_save_uploaded_default_icon_data
-	 *
-	 * @param  int      $site_id       The site ID.
-	 * @param  string[] $uploaded_file The files array.
-	 */
-	public function test_save_uploaded_default_icon_delete_icon( $site_id, $uploaded_file ) {
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		global $_FILES;
-
-		// Intermediate data.
-		$nonce = '12345';
-
-		// Set up fake request.
-		$_POST  = [
-			Custom_Default_Icon_Upload_Handler::NONCE_UPLOAD . $site_id => $nonce,
-			Custom_Default_Icon_Upload_Handler::CHECKBOX_ERASE => 'true',
-		];
-		$_FILES = [];
-
-		// Great Expectations.
-		Functions\expect( 'sanitize_key' )->once()->with( $nonce )->andReturn( 'sanitized_nonce' );
-		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', Custom_Default_Icon_Upload_Handler::ACTION_UPLOAD )->andReturn( true );
-
-		$this->options->shouldReceive( 'get_name' )->once()->with( Settings::OPTION_NAME )->andReturn( 'upload_index' );
-
-		$this->sut->shouldReceive( 'normalize_files_array' )->never();
-		$this->sut->shouldReceive( 'upload' )->never();
-		$this->sut->shouldReceive( 'handle_errors' )->never();
-
-		$this->sut->shouldReceive( 'delete_uploaded_icon' )->once()->with( $site_id )->andReturn( true );
-
-		// Check results.
-		$value = null;
-		$this->assertNull( $this->sut->save_uploaded_default_icon( $site_id, $value ) );
-		$this->assertSame( [], $value );
-	}
-
-	/**
-	 * Tests ::save_uploaded_default_icon when used to delete the current icon.
-	 *
-	 * @covers ::save_uploaded_default_icon
-	 * @covers ::assign_new_icon
-	 *
-	 * @dataProvider provide_save_uploaded_default_icon_data
-	 *
-	 * @param  int      $site_id       The site ID.
-	 * @param  string[] $uploaded_file The files array.
-	 */
-	public function test_save_uploaded_default_icon_delete_icon_incorrect_var( $site_id, $uploaded_file ) {
-		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		global $_FILES;
-
-		// Intermediate data.
-		$nonce = '12345';
-
-		// Set up fake request.
-		$_POST  = [
-			Custom_Default_Icon_Upload_Handler::NONCE_UPLOAD . $site_id => $nonce,
-			Custom_Default_Icon_Upload_Handler::CHECKBOX_ERASE => true, // This should be a string, not a boolean.
-		];
-		$_FILES = [];
-
-		// Great Expectations.
-		Functions\expect( 'sanitize_key' )->once()->with( $nonce )->andReturn( 'sanitized_nonce' );
-		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', Custom_Default_Icon_Upload_Handler::ACTION_UPLOAD )->andReturn( true );
-
-		$this->options->shouldReceive( 'get_name' )->once()->with( Settings::OPTION_NAME )->andReturn( 'upload_index' );
-
-		$this->sut->shouldReceive( 'normalize_files_array' )->never();
-		$this->sut->shouldReceive( 'upload' )->never();
-		$this->sut->shouldReceive( 'handle_errors' )->never();
-
-		$this->sut->shouldReceive( 'delete_uploaded_icon' )->never();
-
-		// Check results.
-		$value = null;
-		$this->assertNull( $this->sut->save_uploaded_default_icon( $site_id, $value ) );
-		$this->assertNull( $value );
+		$this->assertSame( [], $this->sut->get_file_slice( $args ) );
 	}
 
 	/**
@@ -430,7 +306,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	 *
 	 * @return array
 	 */
-	public function provide_handle_errors_data() {
+	public function provide_handle_upload_errors_data() {
 		return [
 			[ 'Sorry, this file type is not permitted for security reasons.', 'default_avatar_invalid_image_type' ],
 			[ 'Something else.', 'default_avatar_other_error' ],
@@ -438,24 +314,74 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	}
 
 	/**
-	 * Tests ::handle_errors.
+	 * Tests ::handle_upload_errors.
 	 *
-	 * @covers ::handle_errors
+	 * @covers ::handle_upload_errors
 	 *
-	 * @dataProvider provide_handle_errors_data
+	 * @dataProvider provide_handle_upload_errors_data
 	 *
 	 * @param  string $error_string Original error message.
 	 * @param  string $error_type   Resulting error type.
 	 */
-	public function test_handle_errors( $error_string, $error_type ) {
-		$result = [ 'error' => $error_string ];
+	public function test_handle_upload_errors( $error_string, $error_type ) {
+		$upload_result = [ 'error' => $error_string ];
+		$args          = [
+			'foo'          => 'bar',
+			'site_id'      => 42,
+		];
 
 		$this->options->shouldReceive( 'get_name' )->once()->with( Settings::OPTION_NAME )->andReturn( 'settings_name' );
 
 		Functions\expect( 'esc_attr' )->atMost()->once()->andReturn( 'escaped_string' );
 		Functions\expect( 'add_settings_error' )->once()->with( m::pattern( '/^settings_name\[.*\]$/' ), $error_type, m::type( 'string' ), 'error' );
 
-		$this->assertNull( $this->sut->handle_errors( $result ) );
+		$this->assertNull( $this->sut->handle_upload_errors( $upload_result, $args ) );
+	}
+
+	/**
+	 * Tests ::store_file_data.
+	 *
+	 * @covers ::store_file_data
+	 */
+	public function test_store_file_data() {
+		$option_value = null;
+		$site_id      = 42;
+
+		$icon = [
+			'file' => '/some/path/image.png',
+			'type' => 'image/png',
+		];
+		$args = [
+			'foo'          => 'bar',
+			'site_id'      => $site_id,
+			'option_value' => &$option_value,
+		];
+
+		$this->sut->shouldReceive( 'delete_uploaded_icon' )->once()->with( $site_id );
+
+		$this->assertNull( $this->sut->store_file_data( $icon, $args ) );
+		$this->assertSame( $icon, $option_value );
+	}
+
+	/**
+	 * Tests ::delete_file_data.
+	 *
+	 * @covers ::delete_file_data
+	 */
+	public function test_delete_file_data() {
+		$option_value = null;
+		$site_id      = 42;
+
+		$args = [
+			'foo'          => 'bar',
+			'site_id'      => $site_id,
+			'option_value' => &$option_value,
+		];
+
+		$this->sut->shouldReceive( 'delete_uploaded_icon' )->once()->with( $site_id );
+
+		$this->assertNull( $this->sut->delete_file_data( $args ) );
+		$this->assertSame( [], $option_value );
 	}
 
 	/**

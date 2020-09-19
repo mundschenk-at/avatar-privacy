@@ -105,58 +105,47 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 * @param  string $erase_field  The HTML name of the "erase" checkbox.
 	 */
 	public function save_uploaded_user_avatar( $user_id, $nonce, $action, $upload_field, $erase_field ) {
-		// Ensure nonce is specific to the ID of the user.
-		$nonce .= $user_id;
+		// Prepare arguments.
+		$args = [
+			'nonce'        => "{$nonce}{$user_id}",
+			'action'       => $action,
+			'upload_field' => $upload_field,
+			'erase_field'  => $erase_field,
+			'user_id'      => $user_id,
+		];
 
-		if ( ! isset( $_POST[ $nonce ] ) || ! \wp_verify_nonce( \sanitize_key( $_POST[ $nonce ] ), $action ) ) {
-			return;
-		}
-
-		if ( ! empty( $_FILES[ $upload_field ]['name'] ) ) { // Input var okay.
-
-			// Make user_id known to unique_filename_callback function.
-			$this->user_id_being_edited = $user_id;
-
-			// Upload to our custom directory.
-			$avatar = $this->upload( $_FILES[ $upload_field ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- ::upload uses \wp_handle_upload, $_FILES does not need wp_unslash.
-
-			// Handle upload failures.
-			if ( empty( $avatar['file'] ) ) {
-				$this->handle_errors( $avatar );
-				return; // Abort.
-			}
-
-			// Save the new avatar image.
-			$this->assign_new_user_avatar( $user_id, $avatar );
-		} elseif ( ! empty( $_POST[ $erase_field ] ) && 'true' === $_POST[ $erase_field ] ) {
-			// Just delete the current avatar.
-			$this->delete_uploaded_avatar( $user_id );
-		}
+		$this->maybe_save_data( $args );
 	}
 
 	/**
-	 * Assigns a new user avatar to the given user ID.
+	 * Retrieves the relevant slice of the global $_FILES array.
 	 *
-	 * @param  int   $user_id A user ID.
-	 * @param  array $avatar  The result of `wp_handle_upload()`.
+	 * @since 2.4.0
+	 *
+	 * @param  array $args Arguments passed from ::maybe_save_data().
+	 *
+	 * @return array       A slice of the $_FILES array.
 	 */
-	private function assign_new_user_avatar( $user_id, array $avatar ) {
-		// Delete old images.
-		$this->delete_uploaded_avatar( $user_id );
+	protected function get_file_slice( array $args ) {
+		if ( ! empty( $_FILES[ $args['upload_field'] ] ) ) {
+			return $_FILES[ $args['upload_field'] ]; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- $_FILES does not need wp_unslash.
+		}
 
-		// Save user information (overwriting previous).
-		\update_user_meta( $user_id, User_Fields::USER_AVATAR_META_KEY, $avatar );
+		return [];
 	}
 
 	/**
 	 * Handles upload errors and prints appropriate notices.
 	 *
 	 * @since 2.1.0 Visibility changed to protected.
+	 * @since 2.4.0 Renamed to handle_upload_errors, parameter $result renamed
+	 *              to $upload_result. Parameter $args added.
 	 *
-	 * @param  array $result The result of \wp_handle_upload().
+	 * @param  array $upload_result The result of ::upload().
+	 * @param  array $args          Arguments passed from ::maybe_save_data().
 	 */
-	protected function handle_errors( array $result ) {
-		switch ( $result['error'] ) {
+	protected function handle_upload_errors( array $upload_result, array $args ) {
+		switch ( $upload_result['error'] ) {
 			case 'Sorry, this file type is not permitted for security reasons.':
 				\add_action( 'user_profile_update_errors', function( \WP_Error $errors ) { // phpcs:ignore PEAR.Functions.FunctionCallSignature.MultipleArguments,PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket
 					$errors->add( 'avatar_error', \__( 'Please upload a valid PNG, GIF or JPEG image for the avatar.', 'avatar-privacy' ) ); // @codeCoverageIgnore
@@ -164,10 +153,50 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 				break;
 
 			default:
-				\add_action( 'user_profile_update_errors', function( \WP_Error $errors ) use ( $result ) { // phpcs:ignore PEAR.Functions.FunctionCallSignature.MultipleArguments,PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket
-					$errors->add( 'avatar_error', \sprintf( '<strong>%s</strong> %s', \__( 'There was an error uploading the avatar: ', 'avatar-privacy' ), \esc_attr( $result['error'] ) ) ); // @codeCoverageIgnore
+				\add_action( 'user_profile_update_errors', function( \WP_Error $errors ) use ( $upload_result ) { // phpcs:ignore PEAR.Functions.FunctionCallSignature.MultipleArguments,PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket
+					$errors->add( 'avatar_error', \sprintf( '<strong>%s</strong> %s', \__( 'There was an error uploading the avatar: ', 'avatar-privacy' ), \esc_attr( $upload_result['error'] ) ) ); // @codeCoverageIgnore
 				} ); // phpcs:ignore PEAR.Functions.FunctionCallSignature.CloseBracketLine
 		}
+	}
+
+	/**
+	 * Stores metadata about the uploaded file.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  array $upload_result The result of ::upload().
+	 * @param  array $args          Arguments passed from ::maybe_save_data().
+	 */
+	protected function store_file_data( array $upload_result, array $args ) {
+		$this->registered_user->set_uploaded_local_avatar( $args['user_id'], $upload_result );
+	}
+
+	/**
+	 * Deletes a previously uploaded file and its metadata.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  array $args Arguments passed from ::maybe_save_data().
+	 */
+	protected function delete_file_data( array $args ) {
+		$this->registered_user->delete_local_avatar( $args['user_id'] );
+	}
+
+	/**
+	 * Handles the file upload by optionally switching to the primary site of the network.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  array $file  A slice of the $_FILES superglobal.
+	 * @param  array $args  Arguments passed from ::maybe_save_data().
+	 *
+	 * @return string[]     Information about the uploaded file.
+	 */
+	protected function upload( array $file, $args ) {
+		// Make user_id known to unique_filename_callback function.
+		$this->user_id_being_edited = $args['user_id'];
+
+		return parent::upload( $file, $args );
 	}
 
 	/**
@@ -189,17 +218,14 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	/**
 	 * Delete the uploaded avatar (including all cached size variants) for the given user.
 	 *
+	 * @deprecated 2.4.0 Use \Avatar_Privacy\Core:delete_user_avatar instead.
+	 *
 	 * @param  int $user_id The user ID.
 	 */
 	public function delete_uploaded_avatar( $user_id ) {
-		// Invalidate cached avatar images.
-		$this->invalidate_user_avatar_cache( $user_id );
+		\_deprecated_function( __METHOD__, 'Avatar Privacy 2.4.0', 'Avatar_Privacy\Core:delete_user_avatar' );
 
-		// Delete original upload.
-		$avatar = \get_user_meta( $user_id, User_Fields::USER_AVATAR_META_KEY, true );
-		if ( ! empty( $avatar['file'] ) && \file_exists( $avatar['file'] ) && \unlink( $avatar['file'] ) ) {
-			\delete_user_meta( $user_id, User_Fields::USER_AVATAR_META_KEY );
-		}
+		$this->registered_user->delete_local_avatar( $user_id );
 	}
 
 	/**
@@ -207,12 +233,14 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 *
 	 * @since 2.2.0
 	 *
+	 * @deprecated 2.4.0 Use \Avatar_Privacy\Core::invalidate_user_avatar_cache
+	 *                   instead.
+	 *
 	 * @param  int $user_id The user ID.
 	 */
 	public function invalidate_user_avatar_cache( $user_id ) {
-		$hash = $this->registered_user->get_hash( $user_id );
-		if ( ! empty( $hash ) ) {
-			$this->file_cache->invalidate( 'user', "#/{$hash}-[1-9][0-9]*\.[a-z]{3}\$#" );
-		}
+		\_deprecated_function( __METHOD__, 'Avatar Privacy 2.4.0', 'Avatar_Privacy\Core::invalidate_user_avatar_cache' );
+
+		$this->registered_user->invalidate_local_avatar_cache( $user_id );
 	}
 }
