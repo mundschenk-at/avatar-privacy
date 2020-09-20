@@ -2,6 +2,7 @@
 
 ## 2.4.0 (unreleased)
 *   _Feature_: Legacy (default) avatars are now properly cached and resized.
+*   _Change_: Requires at least PHP 7.0.
 *   _Change_: The `yzalis/identicon` package has been updated to version 2.0.
 *   _Change_: Some unused files have been removed from the `vendor-scoped` directory.
 *   _Change_: A new per-site database table for fast hash lookup has been introduced

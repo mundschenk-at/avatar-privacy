@@ -5,7 +5,7 @@ Plugin URI: https://code.mundschenk.at/avatar-privacy/
 Author URI: https://code.mundschenk.at/
 Tags: gravatar, avatar, privacy, caching, bbpress, buddypress
 Requires at least: 4.9
-Requires PHP: 5.6
+Requires PHP: 7.0
 Tested up to: 5.4
 Stable tag: 2.3.4
 License: GPLv2 or later
