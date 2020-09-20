@@ -44,7 +44,7 @@ class Avatar_Privacy_Requirements extends Mundschenk_WP_Requirements {
 	 */
 	public function __construct() {
 		$requirements = array(
-			'php'              => '5.6.0',
+			'php'              => '7.0.0',
 			'multibyte'        => false,
 			'utf-8'            => false,
 			'gd'               => true,
