@@ -33,7 +33,7 @@ use Avatar_Privacy\Avatar_Handlers\Avatar_Handler;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
 
-use Avatar_Privacy\Tools\Images;
+use Avatar_Privacy\Tools\Images\Image_File;
 use Avatar_Privacy\Tools\Network\Gravatar_Service;
 
 /**
@@ -114,12 +114,12 @@ class Gravatar_Cache_Handler implements Avatar_Handler {
 			'user_id'  => false,
 			'email'    => '',
 			'rating'   => 'g',
-			'mimetype' => Images\Type::PNG_IMAGE,
+			'mimetype' => Image_File::PNG_IMAGE,
 			'force'    => false,
 		];
 
 		$args     = \wp_parse_args( $args, $defaults );
-		$filename = "gravatar/{$this->get_sub_dir( $hash )}/{$hash}-{$size}." . Images\Type::FILE_EXTENSION[ $args['mimetype'] ];
+		$filename = "gravatar/{$this->get_sub_dir( $hash )}/{$hash}-{$size}." . Image_File::FILE_EXTENSION[ $args['mimetype'] ];
 
 		// Only retrieve new Gravatar if necessary.
 		if ( $args['force'] || ! \file_exists( "{$this->file_cache->get_base_dir()}{$filename}" ) ) {
@@ -186,7 +186,7 @@ class Gravatar_Cache_Handler implements Avatar_Handler {
 			'user_id'  => $user_id,
 			'email'    => $email,
 			'rating'   => $this->options->get( 'avatar_rating', 'g', true ),
-			'mimetype' => Images\Type::CONTENT_TYPE[ $extension ],
+			'mimetype' => Image_File::CONTENT_TYPE[ $extension ],
 		];
 
 		// Try to cache the icon.

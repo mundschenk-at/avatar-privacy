@@ -29,7 +29,7 @@ namespace Avatar_Privacy\Core;
 use Avatar_Privacy\Core\API;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Tools\Hasher;
-use Avatar_Privacy\Tools\Images;
+use Avatar_Privacy\Tools\Images\Image_File;
 
 /**
  * The API for handling data attached to registered users as part of the
@@ -205,7 +205,7 @@ class User_Fields implements API {
 			throw new \InvalidArgumentException( 'Missing upload file path' );
 		} elseif ( empty( $uploaded_avatar['type'] ) ) {
 			throw new \InvalidArgumentException( 'Missing image MIME type' );
-		} elseif ( ! isset( Images\Type::FILE_EXTENSION[ $uploaded_avatar['type'] ] ) ) {
+		} elseif ( ! isset( Image_File::FILE_EXTENSION[ $uploaded_avatar['type'] ] ) ) {
 			throw new \InvalidArgumentException( "Invalid MIME type {$uploaded_avatar['type']}" );
 		}
 

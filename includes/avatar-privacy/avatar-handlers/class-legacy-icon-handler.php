@@ -31,7 +31,7 @@ use Avatar_Privacy\Avatar_Handlers\Avatar_Handler;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
 
-use Avatar_Privacy\Tools\Images;
+use Avatar_Privacy\Tools\Images\Image_File;
 use Avatar_Privacy\Tools\Network\Remote_Image_Service;
 
 /**
@@ -85,7 +85,7 @@ class Legacy_Icon_Handler implements Avatar_Handler {
 		$this->remote_images = $remote_images;
 
 		// TODO: Remove when minimum PHP version is updated to 7.0.
-		$this->content_type_mapping = Images\Type::CONTENT_TYPE;
+		$this->content_type_mapping = Image_File::CONTENT_TYPE;
 	}
 
 	/**
@@ -110,7 +110,7 @@ class Legacy_Icon_Handler implements Avatar_Handler {
 		];
 
 		$args     = \wp_parse_args( $args, $defaults );
-		$filename = "legacy/{$this->get_sub_dir( $hash )}/{$hash}-{$size}." . Images\Type::FILE_EXTENSION[ $args['mimetype'] ];
+		$filename = "legacy/{$this->get_sub_dir( $hash )}/{$hash}-{$size}." . Image_File::FILE_EXTENSION[ $args['mimetype'] ];
 
 		// Only retrieve new Gravatar if necessary.
 		if ( $args['force'] || ! \file_exists( "{$this->file_cache->get_base_dir()}{$filename}" ) ) {
@@ -136,14 +136,14 @@ class Legacy_Icon_Handler implements Avatar_Handler {
 	 *                     is not one of our supported image formats).
 	 */
 	protected function get_target_mime_type( $url ) {
-		$mimetype  = Images\Type::PNG_IMAGE;
+		$mimetype  = Image_File::PNG_IMAGE;
 		$extension = \pathinfo(
 			/* @scrutinizer ignore-type */
 			\wp_parse_url( $url, \PHP_URL_PATH ),
 			\PATHINFO_EXTENSION
 		);
 
-		// TODO: Replace with Images\Type::CONTENT_TYPE when minimum PHP version is 7.0 or higher.
+		// TODO: Replace with Image_File::CONTENT_TYPE when minimum PHP version is 7.0 or higher.
 		if ( isset( $this->content_type_mapping[ $extension ] ) ) {
 			$mimetype = $this->content_type_mapping[ $extension ];
 		}
@@ -185,7 +185,7 @@ class Legacy_Icon_Handler implements Avatar_Handler {
 
 		// Prepare arguments.
 		$args = [
-			'mimetype' => Images\Type::CONTENT_TYPE[ $extension ],
+			'mimetype' => Image_File::CONTENT_TYPE[ $extension ],
 		];
 
 		// Try to cache the icon.
