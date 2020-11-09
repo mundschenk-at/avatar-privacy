@@ -48,6 +48,8 @@ use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Data_Storage\Transients;
 
+use Avatar_Privacy\Tools\Images\Image_File;
+
 /**
  * Avatar_Privacy\Components\Image_Proxy unit test.
  *
@@ -261,7 +263,7 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->file_cache->shouldReceive( 'get_base_dir' )->once()->andReturn( $basedir );
 
 		$this->default_icons->shouldReceive( 'cache_image' )->once()->with( $type, $hash, $size, $subdir, $extension )->andReturn( true );
-		$this->sut->shouldReceive( 'send_image' )->once()->with( "{$basedir}{$file}", \DAY_IN_SECONDS, \Avatar_Privacy\Tools\Images\Type::SVG_IMAGE );
+		$this->sut->shouldReceive( 'send_image' )->once()->with( "{$basedir}{$file}", \DAY_IN_SECONDS, Image_File::SVG_IMAGE );
 		$this->sut->shouldReceive( 'exit_request' )->once();
 
 		$this->assertNull( $this->sut->load_cached_avatar( $wp ) );
@@ -291,7 +293,7 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->file_cache->shouldReceive( 'get_base_dir' )->once()->andReturn( $basedir );
 
 		$this->gravatar->shouldReceive( 'cache_image' )->once()->with( $type, $hash, $size, $subdir, $extension )->andReturn( true );
-		$this->sut->shouldReceive( 'send_image' )->once()->with( "{$basedir}{$file}", \DAY_IN_SECONDS, \Avatar_Privacy\Tools\Images\Type::PNG_IMAGE );
+		$this->sut->shouldReceive( 'send_image' )->once()->with( "{$basedir}{$file}", \DAY_IN_SECONDS, Image_File::PNG_IMAGE );
 		$this->sut->shouldReceive( 'exit_request' )->once();
 
 		$this->assertNull( $this->sut->load_cached_avatar( $wp ) );

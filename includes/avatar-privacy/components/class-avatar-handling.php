@@ -35,7 +35,7 @@ use Avatar_Privacy\Core\Settings;
 
 use Avatar_Privacy\Exceptions\Avatar_Comment_Type_Exception;
 
-use Avatar_Privacy\Tools\Images;
+use Avatar_Privacy\Tools\Images\Image_File;
 use Avatar_Privacy\Tools\Network\Gravatar_Service;
 use Avatar_Privacy\Tools\Network\Remote_Image_Service;
 
@@ -574,7 +574,7 @@ class Avatar_Handling implements Component {
 			'user_id'  => $user_id,
 			'email'    => $email,
 			'rating'   => $rating,
-			'mimetype' => empty( $mimetype ) ? Images\Type::PNG_IMAGE : $mimetype,
+			'mimetype' => empty( $mimetype ) ? Image_File::PNG_IMAGE : $mimetype,
 		];
 
 		/**

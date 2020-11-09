@@ -35,7 +35,7 @@ use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 
-use Avatar_Privacy\Tools\Images;
+use Avatar_Privacy\Tools\Images\Image_File;
 
 /**
  * Handles the creation and caching of avatar images. Default icons are created by
@@ -199,7 +199,7 @@ class Image_Proxy implements Component {
 			}
 		}
 
-		$this->send_image( $file, \DAY_IN_SECONDS, Images\Type::CONTENT_TYPE[ $extension ] );
+		$this->send_image( $file, \DAY_IN_SECONDS, Image_File::CONTENT_TYPE[ $extension ] );
 
 		// We're done.
 		$this->exit_request();

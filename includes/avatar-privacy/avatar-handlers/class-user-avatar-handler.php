@@ -31,6 +31,7 @@ use Avatar_Privacy\Avatar_Handlers\Avatar_Handler;
 use Avatar_Privacy\Core\User_Fields;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Tools\Images;
+use Avatar_Privacy\Tools\Images\Image_File;
 
 
 /**
@@ -111,12 +112,12 @@ class User_Avatar_Handler implements Avatar_Handler {
 		// Default arguments.
 		$defaults = [
 			'avatar'   => '',
-			'mimetype' => Images\Type::PNG_IMAGE,
+			'mimetype' => Image_File::PNG_IMAGE,
 			'force'    => false,
 		];
 
 		$args      = \wp_parse_args( $args, $defaults );
-		$extension = Images\Type::FILE_EXTENSION[ $args['mimetype'] ];
+		$extension = Image_File::FILE_EXTENSION[ $args['mimetype'] ];
 		$filename  = "user/{$this->get_sub_dir( $hash )}/{$hash}-{$size}.{$extension}";
 
 		if ( $args['force'] || ! \file_exists( "{$this->base_dir}{$filename}" ) ) {

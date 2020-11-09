@@ -33,6 +33,7 @@ use Avatar_Privacy\Core\Settings;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
 use Avatar_Privacy\Tools\Images;
+use Avatar_Privacy\Tools\Images\Image_File;
 
 use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler as Upload;
 
@@ -113,7 +114,7 @@ class Custom_Icon_Provider extends Abstract_Icon_Provider {
 
 		// We need the current site ID.
 		$site_id   = \get_current_blog_id();
-		$extension = Images\Type::FILE_EXTENSION[ $icon['type'] ];
+		$extension = Image_File::FILE_EXTENSION[ $icon['type'] ];
 		$identity  = $this->upload->get_hash( $site_id );
 		$filename  = "custom/{$site_id}/{$identity}-{$size}.{$extension}";
 
