@@ -55,4 +55,76 @@ class Image_File {
 		self::PNG_IMAGE  => self::PNG_EXTENSION,
 		self::SVG_IMAGE  => self::SVG_EXTENSION,
 	];
+
+	/**
+	 * Handles the file upload by optionally switching to the primary site of the network.
+	 *
+	 * @param  array    $file      A slice of the $_FILES superglobal.
+	 * @param  string[] $overrides An associative array of names => values to override
+	 *                             default variables. See `wp_handle_uploads` documentation
+	 *                             for the full list of available overrides.
+	 *
+	 * @return string[]            Information about the uploaded file.
+	 */
+	public function handle_upload( array $file, array $overrides = [] ) {
+		// Enable front end support.
+		if ( ! function_exists( 'wp_handle_upload' ) ) {
+			require_once \ABSPATH . 'wp-admin/includes/file.php'; // @codeCoverageIgnore
+		}
+
+		// Switch to primary site if this should be a global upload.
+		$use_global_upload_dir = $this->is_global_upload( $overrides );
+		if ( $use_global_upload_dir ) {
+			\switch_to_blog( \get_main_site_id() );
+		}
+
+		// Ensure custom upload directory.
+		$upload_dir        = $overrides['upload_dir'];
+		$upload_dir_filter = function( array $uploads ) use ( $upload_dir ) {
+			// @codeCoverageIgnoreStart
+			$uploads['path']   = \str_replace( $uploads['subdir'], $upload_dir, $uploads['path'] );
+			$uploads['url']    = \str_replace( $uploads['subdir'], $upload_dir, $uploads['url'] );
+			$uploads['subdir'] = $upload_dir;
+
+			return $uploads;
+			// @codeCoverageIgnoreEnd
+		};
+
+		\add_filter( 'upload_dir', $upload_dir_filter );
+
+		// Move uploaded file.
+		$result = \wp_handle_upload( $file, $overrides );
+
+		// Restore standard upload directory.
+		\remove_filter( 'upload_dir', $upload_dir_filter );
+
+		// Ensure normalized path on Windows.
+		if ( ! empty( $result['file'] ) ) {
+			$result['file'] = \wp_normalize_path( $result['file'] );
+		}
+
+		// Switch back to current site.
+		if ( $use_global_upload_dir ) {
+			\restore_current_blog();
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Determines if the upload should use the global upload directory.
+	 *
+	 * @param  string[] $overrides {
+	 *     An associative array of names => values to override default variables.
+	 *     See `wp_handle_uploads` documentation for the full list of available
+	 *     overrides.
+	 *
+	 *     @type bool $global_upload Whether to use the global uploads directory on multisite.
+	 * }
+	 *
+	 * @return bool
+	 */
+	protected function is_global_upload( $overrides ) {
+		return ( ! empty( $overrides['global_upload'] ) && \is_multisite() );
+	}
 }
