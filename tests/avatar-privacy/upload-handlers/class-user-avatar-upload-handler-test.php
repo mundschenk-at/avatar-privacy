@@ -38,6 +38,7 @@ use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
 use Avatar_Privacy\Core\User_Fields;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
+use Avatar_Privacy\Tools\Images\Image_File;
 
 /**
  * Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler unit test.
@@ -63,6 +64,13 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var Filesystem_Cache
 	 */
 	private $file_cache;
+
+	/**
+	 * Required helper object.
+	 *
+	 * @var Image_File
+	 */
+	private $image_file;
 
 	/**
 	 * Required helper object.
@@ -107,9 +115,10 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Mock required helpers.
 		$this->file_cache      = m::mock( Filesystem_Cache::class );
+		$this->image_file      = m::mock( Image_File::class );
 		$this->registered_user = m::mock( User_Fields::class );
 
-		$this->sut = m::mock( User_Avatar_Upload_Handler::class, [ $this->file_cache, $this->registered_user ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( User_Avatar_Upload_Handler::class, [ $this->file_cache, $this->image_file, $this->registered_user ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -122,7 +131,7 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( User_Avatar_Upload_Handler::class )->makePartial();
 
-		$mock->__construct( $this->file_cache, $this->registered_user );
+		$mock->__construct( $this->file_cache, $this->image_file, $this->registered_user );
 
 		$this->assert_attribute_same( User_Avatar_Upload_Handler::UPLOAD_DIR, 'upload_dir', $mock );
 		$this->assert_attribute_same( true, 'global_upload', $mock );
@@ -311,7 +320,7 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 			'file' => '/my/path',
 		];
 
-		$this->sut->shouldReceive( 'handle_upload' )->once()->with( $uploaded_file, m::type( 'array' ) )->andReturn( $result );
+		$this->image_file->shouldReceive( 'handle_upload' )->once()->with( $uploaded_file, m::type( 'array' ) )->andReturn( $result );
 
 		$this->assertSame( $result, $this->sut->upload( $uploaded_file, $args ) );
 		$this->assert_attribute_same( $user_id, 'user_id_being_edited', $this->sut );
