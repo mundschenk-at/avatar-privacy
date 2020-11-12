@@ -40,6 +40,7 @@ use Avatar_Privacy\Core\Settings;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Tools\Hasher;
+use Avatar_Privacy\Tools\Images\Image_File;
 
 
 /**
@@ -84,6 +85,13 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	/**
 	 * Required helper object.
 	 *
+	 * @var Image_File
+	 */
+	private $image_file;
+
+	/**
+	 * Required helper object.
+	 *
 	 * @var Options
 	 */
 	private $options;
@@ -124,11 +132,12 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 
 		// Mock required helpers.
 		$this->file_cache = m::mock( Filesystem_Cache::class );
+		$this->image_file = m::mock( Image_File::class );
 		$this->settings   = m::mock( Settings::class );
 		$this->hasher     = m::mock( Hasher::class );
 		$this->options    = m::mock( Options::class );
 
-		$this->sut = m::mock( Custom_Default_Icon_Upload_Handler::class, [ $this->file_cache, $this->settings, $this->hasher, $this->options ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Custom_Default_Icon_Upload_Handler::class, [ $this->file_cache, $this->image_file, $this->settings, $this->hasher, $this->options ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -141,7 +150,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	public function test_constructor() {
 		$mock = m::mock( Custom_Default_Icon_Upload_Handler::class )->makePartial();
 
-		$mock->__construct( $this->file_cache, $this->settings, $this->hasher, $this->options );
+		$mock->__construct( $this->file_cache, $this->image_file, $this->settings, $this->hasher, $this->options );
 
 		$this->assert_attribute_same( $this->options, 'options', $mock );
 	}

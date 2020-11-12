@@ -38,6 +38,7 @@ use Avatar_Privacy\Upload_Handlers\Upload_Handler;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
+use Avatar_Privacy\Tools\Images\Image_File;
 
 /**
  * Avatar_Privacy\Upload_Handlers\Upload_Handler unit test.
@@ -62,6 +63,16 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var Filesystem_Cache
 	 */
 	private $file_cache;
+
+	/**
+	 * Required helper object.
+	 *
+	 * @var Image_File
+	 */
+	private $image_file;
+
+	const GLOBAL_UPLOAD = true;
+	const UPLOAD_DIR    = 'uploads';
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -96,8 +107,9 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Mock required helpers.
 		$this->file_cache = m::mock( Filesystem_Cache::class );
+		$this->image_file = m::mock( Image_File::class );
 
-		$this->sut = m::mock( Upload_Handler::class, [ 'uploads', $this->file_cache ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Upload_Handler::class, [ self::UPLOAD_DIR, $this->file_cache, $this->image_file, self::GLOBAL_UPLOAD ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -108,9 +120,12 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Upload_Handler::class )->makePartial();
 
-		$mock->__construct( 'uploads', $this->file_cache );
+		$mock->__construct( self::UPLOAD_DIR, $this->file_cache, $this->image_file );
 
+		$this->assert_attribute_same( self::UPLOAD_DIR, 'upload_dir', $mock );
+		$this->assert_attribute_same( false, 'global_upload', $mock );
 		$this->assert_attribute_same( $this->file_cache, 'file_cache', $mock );
+		$this->assert_attribute_same( $this->image_file, 'image_file', $mock );
 	}
 
 	/**
@@ -465,126 +480,15 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$overrides = [
 			'mimes'                    => Upload_Handler::ALLOWED_MIME_TYPES,
+			'global_upload'            => self::GLOBAL_UPLOAD,
+			'upload_dir'               => self::UPLOAD_DIR,
 			'test_form'                => false,
 			'unique_filename_callback' => [ $this->sut, 'get_unique_filename' ],
 		];
 
-		$this->sut->shouldReceive( 'handle_upload' )->once()->with( $file, $overrides )->andReturn( $result );
+		$this->image_file->shouldReceive( 'handle_upload' )->once()->with( $file, $overrides )->andReturn( $result );
 
 		$this->assertSame( $result, $this->sut->upload( $file, $args ) );
-	}
-
-	/**
-	 * Tests ::handle_upload.
-	 *
-	 * @covers ::handle_upload
-	 */
-	public function test_handle_upload() {
-		$file   = [ 'foo' => 'bar' ];
-		$result = [
-			'bar'  => 'foo',
-			'file' => '/my/path',
-		];
-
-		$normalized_result         = $result;
-		$normalized_result['file'] = '/my/normalized/path';
-
-		$this->set_value( $this->sut, 'global_upload', true );
-		Functions\expect( 'is_multisite' )->once()->andReturn( false );
-		Functions\expect( 'get_main_site_id' )->never();
-		Functions\expect( 'switch_to_blog' )->never();
-		Functions\expect( 'restore_current_blog' )->never();
-
-		Filters\expectAdded( 'upload_dir' )->once()->with( [ $this->sut, 'custom_upload_dir' ] );
-		Functions\expect( 'wp_handle_upload' )->once()->with( $file, m::type( 'array' ) )->andReturn( $result );
-		Functions\expect( 'wp_normalize_path' )->once()->with( $result['file'] )->andReturn( $normalized_result['file'] );
-
-		$this->assertSame( $normalized_result, $this->sut->handle_upload( $file ) );
-		$this->assertFalse( Filters\has( 'upload_dir', [ $this->sut, 'custom_upload_dir' ] ) );
-	}
-
-	/**
-	 * Tests ::handle_upload.
-	 *
-	 * @covers ::handle_upload
-	 */
-	public function test_handle_upload_error() {
-		$file   = [ 'foo' => 'bar' ];
-		$result = [
-			'bar'  => 'foo',
-		];
-
-		$this->set_value( $this->sut, 'global_upload', true );
-		Functions\expect( 'is_multisite' )->once()->andReturn( false );
-		Functions\expect( 'get_main_site_id' )->never();
-		Functions\expect( 'switch_to_blog' )->never();
-		Functions\expect( 'restore_current_blog' )->never();
-
-		Filters\expectAdded( 'upload_dir' )->once()->with( [ $this->sut, 'custom_upload_dir' ] );
-		Functions\expect( 'wp_handle_upload' )->once()->with( $file, m::type( 'array' ) )->andReturn( $result );
-		Functions\expect( 'wp_normalize_path' )->never();
-
-		$this->assertSame( $result, $this->sut->handle_upload( $file ) );
-		$this->assertFalse( Filters\has( 'upload_dir', [ $this->sut, 'custom_upload_dir' ] ) );
-	}
-
-	/**
-	 * Tests ::handle_upload.
-	 *
-	 * @covers ::handle_upload
-	 */
-	public function test_handle_upload_global_upload() {
-		$file         = [ 'foo' => 'bar' ];
-		$result       = [
-			'bar'  => 'foo',
-			'file' => '/my/path',
-		];
-		$main_site_id = 5;
-
-		$normalized_result         = $result;
-		$normalized_result['file'] = '/my/normalized/path';
-
-		$this->set_value( $this->sut, 'global_upload', true );
-		Functions\expect( 'is_multisite' )->once()->andReturn( true );
-		Functions\expect( 'get_main_site_id' )->once()->andReturn( $main_site_id );
-		Functions\expect( 'switch_to_blog' )->once()->with( $main_site_id );
-		Functions\expect( 'restore_current_blog' )->once();
-
-		Filters\expectAdded( 'upload_dir' )->once()->with( [ $this->sut, 'custom_upload_dir' ] );
-		Functions\expect( 'wp_handle_upload' )->once()->with( $file, m::type( 'array' ) )->andReturn( $result );
-		Functions\expect( 'wp_normalize_path' )->once()->with( $result['file'] )->andReturn( $normalized_result['file'] );
-
-		$this->assertSame( $normalized_result, $this->sut->handle_upload( $file ) );
-		$this->assertFalse( Filters\has( 'upload_dir', [ $this->sut, 'custom_upload_dir' ] ) );
-	}
-
-	/**
-	 * Tests ::handle_upload.
-	 *
-	 * @covers ::handle_upload
-	 */
-	public function test_handle_upload_global_upload_no_multisite() {
-		$file   = [ 'foo' => 'bar' ];
-		$result = [
-			'bar'  => 'foo',
-			'file' => '/my/path',
-		];
-
-		$normalized_result         = $result;
-		$normalized_result['file'] = '/my/normalized/path';
-
-		$this->set_value( $this->sut, 'global_upload', true );
-		Functions\expect( 'is_multisite' )->once()->andReturn( false );
-		Functions\expect( 'get_main_site_id' )->never();
-		Functions\expect( 'switch_to_blog' )->never();
-		Functions\expect( 'restore_current_blog' )->never();
-
-		Filters\expectAdded( 'upload_dir' )->once()->with( [ $this->sut, 'custom_upload_dir' ] );
-		Functions\expect( 'wp_handle_upload' )->once()->with( $file, m::type( 'array' ) )->andReturn( $result );
-		Functions\expect( 'wp_normalize_path' )->once()->with( $result['file'] )->andReturn( $normalized_result['file'] );
-
-		$this->assertSame( $normalized_result, $this->sut->handle_upload( $file ) );
-		$this->assertFalse( Filters\has( 'upload_dir', [ $this->sut, 'custom_upload_dir' ] ) );
 	}
 
 	/**

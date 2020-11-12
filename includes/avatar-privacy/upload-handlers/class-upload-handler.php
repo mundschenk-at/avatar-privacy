@@ -28,6 +28,8 @@ namespace Avatar_Privacy\Upload_Handlers;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
+use Avatar_Privacy\Tools\Images\Image_File;
+
 /**
  * Handles image uploads.
  *
@@ -59,6 +61,15 @@ abstract class Upload_Handler {
 	private $upload_dir;
 
 	/**
+	 * The image file handler.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var Image_File
+	 */
+	private $image_file;
+
+	/**
 	 * Whether to use the global upload directory.
 	 *
 	 * @since 2.4.0
@@ -71,18 +82,20 @@ abstract class Upload_Handler {
 	 * Creates a new instance.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
-	 * @since 2.4.0 Parameter $core removed, parameter $global_upload added.
+	 * @since 2.4.0 Parameter $core removed, parameters $image_File and $global_upload added.
 	 *
 	 * @param string           $upload_dir    The subfolder used for our uploaded
 	 *                                        files. Has to start with /.
 	 * @param Filesystem_Cache $file_cache    The file cache handler.
+	 * @param Image_File       $image_file    The image file handler.
 	 * @param bool             $global_upload Optional. A flag indicating whether
 	 *                                        there should be a global upload directory
 	 *                                        on multisite. Default false.
 	 */
-	public function __construct( $upload_dir, Filesystem_Cache $file_cache, $global_upload = false ) {
+	public function __construct( $upload_dir, Filesystem_Cache $file_cache, Image_File $image_file, $global_upload = false ) {
 		$this->upload_dir    = $upload_dir;
 		$this->file_cache    = $file_cache;
+		$this->image_file    = $image_file;
 		$this->global_upload = $global_upload;
 	}
 
@@ -142,7 +155,7 @@ abstract class Upload_Handler {
 		if ( ! empty( $file_slice['name'] ) ) {
 
 			// Upload to our custom directory.
-			$upload_result = $this->handle_upload( $file_slice, $args );
+			$upload_result = $this->upload( $file_slice, $args );
 
 			// Handle upload failures.
 			if ( empty( $upload_result['file'] ) ) {
@@ -214,57 +227,13 @@ abstract class Upload_Handler {
 		// Prepare arguments.
 		$overrides = [
 			'mimes'                    => self::ALLOWED_MIME_TYPES,
+			'global_upload'            => $this->global_upload,
+			'upload_dir'               => $this->upload_dir,
 			'test_form'                => false,
 			'unique_filename_callback' => [ $this, 'get_unique_filename' ],
 		];
 
-		return $this->handle_upload( $file, $overrides );
-	}
-
-	/**
-	 * Handles the file upload by optionally switching to the primary site of the network.
-	 *
-	 * @param  array    $file      A slice of the $_FILES superglobal.
-	 * @param  string[] $overrides An associative array of names => values to override
-	 *                             default variables. See `wp_handle_uploads` documentation
-	 *                             for the full list of available overrides.
-	 *
-	 * @return string[]            Information about the uploaded file.
-	 */
-	protected function handle_upload( array $file, array $overrides = [] ) {
-		// Enable front end support.
-		if ( ! function_exists( 'wp_handle_upload' ) ) {
-			require_once \ABSPATH . 'wp-admin/includes/file.php'; // @codeCoverageIgnore
-		}
-
-		// Should we use a global directory for uploads?
-		$use_global_upload_dir = $this->global_upload && \is_multisite();
-
-		// Switch to primary site if this should be a global upload.
-		if ( $use_global_upload_dir ) {
-			\switch_to_blog( \get_main_site_id() );
-		}
-
-		// Ensure custom upload directory.
-		\add_filter( 'upload_dir', [ $this, 'custom_upload_dir' ] );
-
-		// Move uploaded file.
-		$result = \wp_handle_upload( $file, $overrides );
-
-		// Ensure normalized path on Windows.
-		if ( ! empty( $result['file'] ) ) {
-			$result['file'] = \wp_normalize_path( $result['file'] );
-		}
-
-		// Restore standard upload directory.
-		\remove_filter( 'upload_dir', [ $this, 'custom_upload_dir' ] );
-
-		// Switch back to current site.
-		if ( $use_global_upload_dir ) {
-			\restore_current_blog();
-		}
-
-		return $result;
+		return $this->image_file->handle_upload( $file, $overrides );
 	}
 
 	/**
