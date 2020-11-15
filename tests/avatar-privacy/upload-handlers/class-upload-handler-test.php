@@ -466,14 +466,33 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Tests ::get_filename.
+	 *
+	 * @covers ::get_filename
+	 */
+	public function test_get_filename() {
+		$filename = 'some_file.png';
+		$args     = [
+			'foo' => 'bar',
+			'bar' => 'baz',
+		];
+
+		$this->assertSame( $filename, $this->sut->get_filename( $filename, $args ) );
+	}
+
+	/**
 	 * Tests ::upload.
 	 *
 	 * @covers ::upload
 	 */
 	public function test_upload() {
-		$file   = [ 'foo' => 'bar' ];
-		$args   = [ 'bar' => 'baz' ];
-		$result = [
+		$filename = 'my_file_name.ext';
+		$file     = [
+			'foo'  => 'bar',
+			'name' => $filename,
+		];
+		$args     = [ 'bar' => 'baz' ];
+		$result   = [
 			'bar'  => 'foo',
 			'file' => '/my/path',
 		];
@@ -483,9 +502,9 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 			'global_upload'            => self::GLOBAL_UPLOAD,
 			'upload_dir'               => self::UPLOAD_DIR,
 			'test_form'                => false,
-			'unique_filename_callback' => [ $this->sut, 'get_unique_filename' ],
 		];
 
+		$this->sut->shouldReceive( 'get_filename' )->once()->with( $filename, $args )->andReturn( $filename );
 		$this->image_file->shouldReceive( 'handle_upload' )->once()->with( $file, $overrides )->andReturn( $result );
 
 		$this->assertSame( $result, $this->sut->upload( $file, $args ) );
@@ -497,6 +516,8 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::custom_upload_dir
 	 */
 	public function test_custom_upload_dir() {
+		Functions\expect( '_deprecated_function' )->once()->with( Upload_Handler::class . '::custom_upload_dir', 'Avatar Privacy 2.4.0' );
+
 		$result = $this->sut->custom_upload_dir(
 			[
 				'path'   => 'FOO/SUB',

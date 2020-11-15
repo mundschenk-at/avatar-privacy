@@ -398,41 +398,40 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	 *
 	 * @return array
 	 */
-	public function provide_get_unique_filename_data() {
+	public function provide_get_filename_data() {
 		return [
-			[ 'some.png', '.png', 'some_3.png' ],
-			[ 'some.gif', '.gif', 'some_1.gif' ],
-			[ 'other.png', '.png', 'other.png' ],
+			[ 'some.png', 'Foobar', 'Foobar.png' ],
+			[ 'some.gif', 'Foo &amp; Bar', 'Foo-Bar.gif' ],
+			[ 'other.png', 'custom-default-icon', 'custom-default-icon.png' ],
 		];
 	}
 
 	/**
-	 * Tests ::get_unique_filename.
+	 * Tests ::get_filename.
 	 *
-	 * @covers ::get_unique_filename
+	 * @covers ::get_filename
 	 *
-	 * @uses Avatar_Privacy\Upload_Handlers\Upload_Handler::get_unique_filename
-	 *
-	 * @dataProvider provide_get_unique_filename_data
+	 * @dataProvider provide_get_filename_data
 	 *
 	 * @param string $filename  The proposed filename.
-	 * @param string $extension The file extension (including leading dot).
+	 * @param string $site_name The site name (blogname).
 	 * @param string $result    The resulting filename.
 	 */
-	public function test_get_unique_filename( $filename, $extension, $result ) {
+	public function test_get_filename( $filename, $site_name, $result ) {
+		$args = [
+			'foo' => 'bar',
+		];
+
 		Functions\expect( 'sanitize_file_name' )->once()->with( m::type( 'string' ) )->andReturnUsing(
 			function( $arg ) {
-				return $arg;
+				return \preg_replace( [ '/ /', '/&/', '/-{2,}/' ], [ '-', '', '-' ], $arg );
 			}
 		);
 
 		// Regardless of the input filename, we use the blogname option.
-		$this->options->shouldReceive( 'get' )->once()->with( 'blogname', 'custom-default-icon', true )->andReturn( 'some' );
+		$this->options->shouldReceive( 'get' )->once()->with( 'blogname', 'custom-default-icon', true )->andReturn( $site_name );
 
-		// The result depends on the extension.
-		$result = '.gif' === $extension ? 'some_1.gif' : 'some_3.png';
-
-		$this->assertSame( $result, $this->sut->get_unique_filename( vfsStream::url( 'root/uploads' ), $filename, $extension ) );
+		$this->assertSame( $result, $this->sut->get_filename( $filename, $args ) );
 	}
 
 	/**

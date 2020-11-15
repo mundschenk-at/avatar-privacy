@@ -201,18 +201,24 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	}
 
 	/**
-	 * Returns a unique filename.
+	 * Retrieves the filename to use.
 	 *
-	 * @param string $directory The uploads directory.
-	 * @param string $filename  The proposed filename.
-	 * @param string $extension The file extension (including leading dot).
+	 * @since 2.4.0
+	 *
+	 * @param  string $filename The proposed filename.
+	 * @param  array  $args     Arguments passed from ::maybe_save_data().
 	 *
 	 * @return string
 	 */
-	public function get_unique_filename( $directory, $filename, $extension ) {
-		$filename = \sanitize_file_name( \htmlspecialchars_decode( /* @scrutinizer ignore-type */ $this->options->get( 'blogname', 'custom-default-icon', true ) ) );
+	protected function get_filename( $filename, array $args ) {
+		$extension = \pathinfo( $filename, \PATHINFO_EXTENSION );
 
-		return parent::get_unique_filename( $directory, $filename, $extension );
+		return \sanitize_file_name(
+			\htmlspecialchars_decode(
+				/* @scrutinizer ignore-type */
+				$this->options->get( 'blogname', 'custom-default-icon', true )
+			) . ".{$extension}"
+		);
 	}
 
 	/**

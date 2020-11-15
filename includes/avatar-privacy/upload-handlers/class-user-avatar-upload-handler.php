@@ -50,13 +50,6 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	const UPLOAD_DIR = '/avatar-privacy/user-avatar';
 
 	/**
-	 * The ID of the user whose profile is being edited.
-	 *
-	 * @var int
-	 */
-	private $user_id_being_edited;
-
-	/**
 	 * The user fields API.
 	 *
 	 * @since 2.4.0
@@ -186,36 +179,21 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	}
 
 	/**
-	 * Handles the file upload by optionally switching to the primary site of the network.
+	 * Retrieves the filename to use.
 	 *
 	 * @since 2.4.0
 	 *
-	 * @param  array $file  A slice of the $_FILES superglobal.
-	 * @param  array $args  Arguments passed from ::maybe_save_data().
-	 *
-	 * @return string[]     Information about the uploaded file.
-	 */
-	protected function upload( array $file, $args ) {
-		// Make user_id known to unique_filename_callback function.
-		$this->user_id_being_edited = $args['user_id'];
-
-		return parent::upload( $file, $args );
-	}
-
-	/**
-	 * Returns a unique filename.
-	 *
-	 * @param string $directory The uploads directory.
-	 * @param string $filename  The proposed filename.
-	 * @param string $extension The file extension (including leading dot).
+	 * @param  string $filename The proposed filename.
+	 * @param  array  $args     Arguments passed from ::maybe_save_data().
 	 *
 	 * @return string
 	 */
-	public function get_unique_filename( $directory, $filename, $extension ) {
-		$user     = \get_user_by( 'id', $this->user_id_being_edited );
-		$filename = \sanitize_file_name( $user->display_name . '_avatar' );
+	protected function get_filename( $filename, array $args ) {
+		$user      = \get_user_by( 'id', $args['user_id'] );
+		$extension = \pathinfo( $filename, \PATHINFO_EXTENSION );
+		$filename  = \sanitize_file_name( $user->display_name . '_avatar.' . $extension );
 
-		return parent::get_unique_filename( $directory, $filename, $extension );
+		return $filename;
 	}
 
 	/**
