@@ -160,13 +160,13 @@ class User_Fields implements API {
 		 *
 		 * @since 2.2.0
 		 *
-		 * @param array|null {
+		 * @param array|null $avatar {
 		 *     Optional. The user avatar information. Default null.
 		 *
-		 *     @type string $file The local filename.
-		 *     @type string $type The MIME type.
+		 *     @type string  $file The local filename.
+		 *     @type string  $type The MIME type.
 		 * }
-		 * @param int $user_id The user ID.
+		 * @param int        $user_id The user ID.
 		 */
 		$avatar = \apply_filters( 'avatar_privacy_pre_get_user_avatar', null, $user_id );
 		if ( ! empty( $avatar ) && ! empty( $avatar['file'] ) && ! empty( $avatar['type'] ) ) {

@@ -36,8 +36,9 @@ use Avatar_Privacy\Data_Storage\Transients;
 use Avatar_Privacy\Tools\Multisite;
 use Avatar_Privacy\Tools\HTML\Dependencies;
 
-use Mundschenk\UI\Control_Factory;
+use Mundschenk\UI\Control; // phpcs:ignore ImportDetection.Imports.RequireImports.Import -- necessary for type hints.
 use Mundschenk\UI\Controls;
+use Mundschenk\UI\Control_Factory;
 
 /**
  * Handles the network settings page on multisite installations.

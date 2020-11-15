@@ -121,7 +121,7 @@ class Dependencies {
 	 *                              If $version is set to false, the style file's
 	 *                              modification time is used automatically. If
 	 *                              set to null, no version is added.
-	 * @param  bool        $media   Optional. The media for which this stylesheet
+	 * @param  string      $media   Optional. The media for which this stylesheet
 	 *                              has been defined. Accepts media types like 'all',
 	 *                              'print' and 'screen', or media queries like
 	 *                              '(orientation: portrait)' and '(max-width: 640px)'.
