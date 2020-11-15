@@ -65,6 +65,8 @@ class Cron_Command extends Abstract_Command {
 	 *
 	 * @param  array $args       The positional arguments.
 	 * @param  array $assoc_args The associative arguments.
+	 *
+	 * @return void
 	 */
 	public function list_( /* @scrutinizer ignore-unused */ array $args, /* @scrutinizer ignore-unused */ array $assoc_args ) {
 		$job  = Image_Proxy::CRON_JOB_ACTION;
@@ -91,6 +93,8 @@ class Cron_Command extends Abstract_Command {
 	 *
 	 * @param  array $args       The positional arguments.
 	 * @param  array $assoc_args The associative arguments.
+	 *
+	 * @return void
 	 */
 	public function delete( /* @scrutinizer ignore-unused */ array $args, /* @scrutinizer ignore-unused */ array $assoc_args ) {
 		$job    = Image_Proxy::CRON_JOB_ACTION;

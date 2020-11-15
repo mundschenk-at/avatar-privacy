@@ -144,6 +144,8 @@ class Dependencies {
 	 * Enqueues the script specified by the handle.
 	 *
 	 * @param  string $handle A registered script handle.
+	 *
+	 * @return void
 	 */
 	public function enqueue_script( $handle ) {
 		$key = \preg_replace( [ '/^avatar-privacy-/', '/-/' ], [ '', '_' ], $handle );
@@ -167,6 +169,8 @@ class Dependencies {
 	 * Enqueues the stylesheet specified by the handle.
 	 *
 	 * @param  string $handle A registered stylesheet handle.
+	 *
+	 * @return void
 	 */
 	public function enqueue_style( $handle ) {
 		$key = \preg_replace( [ '/^avatar-privacy-/', '/-style$/', '/-/' ], [ '', '', '_' ], $handle );

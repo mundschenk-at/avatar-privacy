@@ -150,7 +150,7 @@ class Settings implements API {
 	 *
 	 * @since 2.4.0
 	 *
-	 * @var string
+	 * @return string
 	 */
 	public function get_version() {
 		return $this->version;

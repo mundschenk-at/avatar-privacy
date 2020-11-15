@@ -127,6 +127,8 @@ class PNG {
 	 * @param  int      $width  Image width in pixels.
 	 * @param  int      $height Image height in pixels.
 	 *
+	 * @return void
+	 *
 	 * @throws \InvalidArgumentException One of the first two parameters was not a valid image resource.
 	 * @throws \RuntimeException         The image could not be copied.
 	 */
@@ -158,6 +160,8 @@ class PNG {
 	 * @param  int      $lightness  The lightness/Luminosity (0-100).
 	 * @param  int      $x          The horizontal coordinate.
 	 * @param  int      $y          The vertical coordinate.
+	 *
+	 * @return void
 	 *
 	 * @throws \InvalidArgumentException Not a valid image resource.
 	 * @throws \RuntimeException         The image could not be filled.

@@ -131,6 +131,8 @@ class Avatar_Handling implements Component {
 	 * Sets up avatar handling filters.
 	 *
 	 * @since 2.4.0 Renamed from init().
+	 *
+	 * @return void
 	 */
 	public function setup_avatar_filters() {
 		/**
@@ -148,6 +150,8 @@ class Avatar_Handling implements Component {
 
 	/**
 	 * Enables default filters from the user settings.
+	 *
+	 * @return void
 	 */
 	public function enable_presets() {
 		if ( ! empty( $this->settings->get( Settings::GRAVATAR_USE_DEFAULT ) ) ) {

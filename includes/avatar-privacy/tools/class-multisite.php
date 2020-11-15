@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -42,6 +42,8 @@ class Multisite {
 	 *
 	 * @param  callable $task       The task to execute. Should take the site ID as its parameter.
 	 * @param  int|null $network_id Optional. The network ID (`null` means the current netwrok). Default null.
+	 *
+	 * @return void
 	 */
 	public function do_for_all_sites_in_network( callable $task, $network_id = null ) {
 		foreach ( $this->get_site_ids( $network_id ) as $site_id ) {

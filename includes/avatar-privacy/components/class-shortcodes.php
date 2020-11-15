@@ -80,6 +80,8 @@ class Shortcodes implements Component {
 
 	/**
 	 * Adds our shortcode and overrdies the WordPress caption shortcodes to allow nesting.
+	 *
+	 * @return void
 	 */
 	public function add_shortcodes() {
 		// Add new media credit shortcode.

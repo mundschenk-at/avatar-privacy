@@ -194,6 +194,8 @@ class User_Fields implements API {
 	 *     @type string $type The MIME type of the uploaded image.
 	 * }
 	 *
+	 * @return void
+	 *
 	 * @throws \InvalidArgumentException An exception is thrown if the user ID does
 	 *                                   not exist or the upload result does not
 	 *                                   contain the 'file' key.
@@ -256,6 +258,8 @@ class User_Fields implements API {
 	 * Invalidates cached avatar images.
 	 *
 	 * @param  int $user_id The user ID.
+	 *
+	 * @return void
 	 */
 	public function invalidate_local_avatar_cache( $user_id ) {
 		$hash = $this->get_hash( $user_id );

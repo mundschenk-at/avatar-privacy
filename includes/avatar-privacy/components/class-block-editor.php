@@ -88,6 +88,8 @@ class Block_Editor implements Component {
 
 	/**
 	 * Registers the Gutenberg blocks.
+	 *
+	 * @return void
 	 */
 	public function register_blocks() {
 		// Register the script containing all our block types.

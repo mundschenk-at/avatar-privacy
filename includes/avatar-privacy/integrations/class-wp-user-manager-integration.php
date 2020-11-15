@@ -133,6 +133,8 @@ class WP_User_Manager_Integration implements Plugin_Integration {
 	 * Flushes the user avatar cache if necessary.
 	 *
 	 * @param  int $user_id The user ID.
+	 *
+	 * @return void
 	 */
 	public function maybe_flush_cache_after_saving_user_avatar( $user_id ) {
 		if ( ! empty( $this->flush_cache ) ) {

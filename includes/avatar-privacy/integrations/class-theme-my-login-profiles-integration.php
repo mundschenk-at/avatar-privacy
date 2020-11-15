@@ -69,6 +69,8 @@ class Theme_My_Login_Profiles_Integration implements Plugin_Integration {
 
 	/**
 	 * Activate the integration.
+	 *
+	 * @return void
 	 */
 	public function run() {
 		\add_action( 'init', [ $this, 'integrate_with_theme_my_login' ] );
@@ -76,6 +78,8 @@ class Theme_My_Login_Profiles_Integration implements Plugin_Integration {
 
 	/**
 	 * Integrates with Theme My Login after all plugins have been loaded.
+	 *
+	 * @return void
 	 */
 	public function integrate_with_theme_my_login() {
 		$form = /* @scrutinizer ignore-call */ \tml_get_form( 'profile' );

@@ -64,6 +64,8 @@ class Integrations implements Component {
 
 	/**
 	 * Activate all applicable plugin integrations.
+	 *
+	 * @return void
 	 */
 	public function activate() {
 		foreach ( $this->integrations as $integration ) {
@@ -76,6 +78,8 @@ class Integrations implements Component {
 
 	/**
 	 * Start up enabled integrations.
+	 *
+	 * @return void
 	 */
 	public function run() {
 		\add_action( 'plugins_loaded', [ $this, 'activate' ] );

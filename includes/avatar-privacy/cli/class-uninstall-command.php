@@ -127,6 +127,8 @@ class Uninstall_Command extends Abstract_Command {
 	 *
 	 * @param  array $args       The positional arguments.
 	 * @param  array $assoc_args The associative arguments.
+	 *
+	 * @return void
 	 */
 	public function uninstall( /* @scrutinizer ignore-unused */ array $args, array $assoc_args ) {
 		$live          = get_flag_value( $assoc_args, 'live', false );
@@ -170,6 +172,8 @@ class Uninstall_Command extends Abstract_Command {
 	 * @param  int    $site_id       The site ID.
 	 * @param  string $for_site      Label part describing the site ("for site <ID>").
 	 * @param  bool   $remove_global A flag indicating that global data should be removed as well.
+	 *
+	 * @return void
 	 */
 	protected function delete_data( $site_id, $for_site, $remove_global ) {
 
@@ -202,6 +206,8 @@ class Uninstall_Command extends Abstract_Command {
 	 *
 	 * @param  string $for_site      Label part describing the site ("for site <ID>").
 	 * @param  bool   $remove_global A flag indicating that global data should be removed as well.
+	 *
+	 * @return void
 	 */
 	protected function print_data_to_delete( $for_site, $remove_global ) {
 		if ( $remove_global ) {

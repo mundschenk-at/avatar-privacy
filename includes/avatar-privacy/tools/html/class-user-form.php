@@ -141,6 +141,8 @@ class User_Form {
 	 *
 	 *     @type bool $show_description True if the long description should be displayed. Default true.
 	 * }
+	 *
+	 * @return void
 	 */
 	public function use_gravatar_checkbox( $user_id, array $args = [] ) {
 		$this->checkbox( $user_id, $this->use_gravatar['nonce'], $this->use_gravatar['action'], $this->use_gravatar['field'], User_Fields::GRAVATAR_USE_META_KEY, $this->use_gravatar['partial'], $args );
@@ -173,6 +175,8 @@ class User_Form {
 	 *
 	 *     @type bool $show_descriptions True if the long description should be displayed. Default true.
 	 * }
+	 *
+	 * @return void
 	 */
 	public function allow_anonymous_checkbox( $user_id, array $args = [] ) {
 		$this->checkbox( $user_id, $this->allow_anonymous['nonce'], $this->allow_anonymous['action'], $this->allow_anonymous['field'], User_Fields::ALLOW_ANONYMOUS_META_KEY, $this->allow_anonymous['partial'], $args );
@@ -206,6 +210,8 @@ class User_Form {
 	 *     @type int  $avatar_size       The width/height of the avatar preview image (in pixels). Default 96.
 	 *     @type bool $show_descriptions True if the long description should be displayed. Default true.
 	 * }
+	 *
+	 * @return void
 	 */
 	public function avatar_uploader( $user_id, array $args = [] ) {
 		// Set up variables used by the included partial.
@@ -276,6 +282,8 @@ class User_Form {
 	 *
 	 *     @type bool $show_descriptions True if the long description should be displayed. Default true.
 	 * }
+	 *
+	 * @return void
 	 */
 	protected function checkbox( $user_id, $nonce, $action, $field_name, $meta_key, $partial, array $args = [] ) {
 		// Set up variables used by the included partial.
@@ -303,6 +311,8 @@ class User_Form {
 	 * @global array $_POST Post request superglobal.
 	 *
 	 * @param int $user_id The ID of the user that has just been saved.
+	 *
+	 * @return void
 	 */
 	public function save_use_gravatar_checkbox( $user_id ) {
 		$this->save_checkbox( $user_id, $this->use_gravatar['nonce'], $this->use_gravatar['action'], $this->use_gravatar['field'], User_Fields::GRAVATAR_USE_META_KEY );
@@ -315,6 +325,8 @@ class User_Form {
 	 * @global array $_POST Post request superglobal.
 	 *
 	 * @param int $user_id The ID of the user that has just been saved.
+	 *
+	 * @return void
 	 */
 	public function save_allow_anonymous_checkbox( $user_id ) {
 		$this->save_checkbox( $user_id, $this->allow_anonymous['nonce'], $this->allow_anonymous['action'], $this->allow_anonymous['field'], User_Fields::ALLOW_ANONYMOUS_META_KEY );
@@ -329,6 +341,8 @@ class User_Form {
 	 * @param string $action     The action required for saving the field.
 	 * @param string $field_name The HTML name of the field to be saved.
 	 * @param string $meta_key   The user meta key to save to.
+	 *
+	 * @return void
 	 */
 	protected function save_checkbox( $user_id, $nonce, $action, $field_name, $meta_key ) {
 		// Ensure nonce is specific to the ID of the user.
@@ -347,6 +361,8 @@ class User_Form {
 	 * Saves the uploaded avatar image to the proper directory.
 	 *
 	 * @param  int $user_id The user ID.
+	 *
+	 * @return void
 	 */
 	public function save_uploaded_user_avatar( $user_id ) {
 		$this->upload->save_uploaded_user_avatar( $user_id, $this->user_avatar['nonce'], $this->user_avatar['action'], $this->user_avatar['field'], $this->user_avatar['erase'] );
@@ -363,6 +379,8 @@ class User_Form {
 	 * @global array $_FILES Uploaded files superglobal.
 	 *
 	 * @param  int $user_id The ID of the edited user.
+	 *
+	 * @return void
 	 */
 	public function save( $user_id ) {
 		if ( ! \current_user_can( 'edit_user', $user_id ) ) {
@@ -382,6 +400,8 @@ class User_Form {
 	 *
 	 * @global array $_POST  Post request superglobal.
 	 * @global array $_FILES Uploaded files superglobal.
+	 *
+	 * @return void
 	 */
 	public function process_form_submission() {
 		// Check that user is logged in.
@@ -397,6 +417,8 @@ class User_Form {
 	/**
 	 * Registers the `process_form_submission` method with the `init` hook, but
 	 * makes sure not to do it twice.
+	 *
+	 * @return void
 	 */
 	public function register_form_submission() {
 		if ( ! \has_action( 'init', [ $this, 'process_form_submission' ] ) ) {

@@ -99,6 +99,8 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 * @param  string $action       The action required for saving the field.
 	 * @param  string $upload_field The HTML name of the "upload" field.
 	 * @param  string $erase_field  The HTML name of the "erase" checkbox.
+	 *
+	 * @return void
 	 */
 	public function save_uploaded_user_avatar( $user_id, $nonce, $action, $upload_field, $erase_field ) {
 		// Prepare arguments.
@@ -139,6 +141,8 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 *
 	 * @param  array $upload_result The result of ::upload().
 	 * @param  array $args          Arguments passed from ::maybe_save_data().
+	 *
+	 * @return void
 	 */
 	protected function handle_upload_errors( array $upload_result, array $args ) {
 		switch ( $upload_result['error'] ) {
@@ -162,6 +166,8 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 *
 	 * @param  array $upload_result The result of ::upload().
 	 * @param  array $args          Arguments passed from ::maybe_save_data().
+	 *
+	 * @return void
 	 */
 	protected function store_file_data( array $upload_result, array $args ) {
 		$this->registered_user->set_uploaded_local_avatar( $args['user_id'], $upload_result );
@@ -173,6 +179,8 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 * @since 2.4.0
 	 *
 	 * @param  array $args Arguments passed from ::maybe_save_data().
+	 *
+	 * @return void
 	 */
 	protected function delete_file_data( array $args ) {
 		$this->registered_user->delete_local_avatar( $args['user_id'] );
@@ -202,6 +210,8 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 * @deprecated 2.4.0 Use \Avatar_Privacy\Core:delete_user_avatar instead.
 	 *
 	 * @param  int $user_id The user ID.
+	 *
+	 * @return void
 	 */
 	public function delete_uploaded_avatar( $user_id ) {
 		\_deprecated_function( __METHOD__, 'Avatar Privacy 2.4.0', 'Avatar_Privacy\Core:delete_user_avatar' );
@@ -218,6 +228,8 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 *                   instead.
 	 *
 	 * @param  int $user_id The user ID.
+	 *
+	 * @return void
 	 */
 	public function invalidate_user_avatar_cache( $user_id ) {
 		\_deprecated_function( __METHOD__, 'Avatar Privacy 2.4.0', 'Avatar_Privacy\Core::invalidate_user_avatar_cache' );

@@ -43,6 +43,8 @@ abstract class Abstract_Command implements Command {
 	 *
 	 * @global \WP_Object_Cache $wp_object_cache The WordPress object cache.
 	 * @global \wpdb            $wpdb            The WordPress database.
+	 *
+	 * @return void
 	 */
 	protected function stop_the_insanity() {
 		global $wpdb, $wp_object_cache;

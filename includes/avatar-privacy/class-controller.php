@@ -68,6 +68,8 @@ class Controller {
 
 	/**
 	 * Starts the plugin for real.
+	 *
+	 * @return void
 	 */
 	public function run() {
 		// Set plugin singleton.

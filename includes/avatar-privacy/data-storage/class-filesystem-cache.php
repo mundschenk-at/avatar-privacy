@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -176,6 +176,8 @@ class Filesystem_Cache {
 	 *
 	 * @param string $subdir Optional. Limit invalidation to the given subdirectory. Default ''.
 	 * @param string $regex  Optional. Limit invalidation to files matching the given regular expression. Default ''.
+	 *
+	 * @return void
 	 */
 	public function invalidate( $subdir = '', $regex = '' ) {
 		try {
@@ -203,6 +205,8 @@ class Filesystem_Cache {
 	 * @param  int    $age    The maximum file age in seconds.
 	 * @param  string $subdir Optional. Limit invalidation to the given subdirectory. Default ''.
 	 * @param  string $regex  Optional. Limit invalidation to files matching the given regular expression. Default ''.
+	 *
+	 * @return void
 	 */
 	public function invalidate_files_older_than( $age, $subdir = '', $regex = '' ) {
 		try {

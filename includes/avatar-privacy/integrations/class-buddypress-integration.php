@@ -64,6 +64,8 @@ class BuddyPress_Integration implements Plugin_Integration {
 
 	/**
 	 * Activate the integration.
+	 *
+	 * @return void
 	 */
 	public function run() {
 		// Integrate with BuddyPress's avatar handling.
@@ -73,6 +75,8 @@ class BuddyPress_Integration implements Plugin_Integration {
 	/**
 	 * Removes the BuddyPress avatar filter and disables Avatar Privacy
 	 * profile image upload.
+	 *
+	 * @return void
 	 */
 	public function integrate_with_buddypress_avatars() {
 		// Remove BuddyPress avatar filter.
@@ -132,6 +136,8 @@ class BuddyPress_Integration implements Plugin_Integration {
 	 * @param  int    $item_id The user ID (if `$args['object']` is `user` ).
 	 * @param  string $type    Information about the capture method for the avatar.
 	 * @param  array  $args    Arguments for the avatar function.
+	 *
+	 * @return void
 	 */
 	public function invalidate_cache_after_avatar_upload( $item_id, $type, array $args ) {
 		if ( ! empty( $args['object'] ) && 'user' === $args['object'] && ! empty( $args['item_id'] ) ) {

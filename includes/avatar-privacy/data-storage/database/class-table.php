@@ -88,6 +88,8 @@ abstract class Table {
 	 * @since 2.4.0
 	 *
 	 * @param string $previous_version The previously installed plugin version.
+	 *
+	 * @return void
 	 */
 	public function setup( $previous_version ) {
 		if ( $this->maybe_create_table( $previous_version ) ) {
@@ -250,6 +252,8 @@ abstract class Table {
 	 *
 	 * @param  \wpdb  $db         The database instance.
 	 * @param  string $table_name The table name (with prefix).
+	 *
+	 * @return void
 	 */
 	protected function register_table( \wpdb $db, $table_name ) {
 		$basename = $this->table_basename;
@@ -288,6 +292,8 @@ abstract class Table {
 	 * @global \wpdb $wpdb The WordPress Database Access Abstraction.
 	 *
 	 * @param int|null $site_id Optional. The site ID. Null means the current $blog_id. Ddefault null.
+	 *
+	 * @return void
 	 */
 	public function drop_table( $site_id = null ) {
 		global $wpdb;

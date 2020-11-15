@@ -104,6 +104,8 @@ class Database_Command extends Abstract_Command {
 	 *
 	 * @param  array $args       The positional arguments.
 	 * @param  array $assoc_args The associative arguments.
+	 *
+	 * @return void
 	 */
 	public function show( /* @scrutinizer ignore-unused */ array $args, /* @scrutinizer ignore-unused */ array $assoc_args ) {
 		global $wpdb;
@@ -186,6 +188,8 @@ class Database_Command extends Abstract_Command {
 	 *
 	 * @param  array $args       The positional arguments.
 	 * @param  array $assoc_args The associative arguments.
+	 *
+	 * @return void
 	 */
 	public function list_( /* @scrutinizer ignore-unused */ array $args, array $assoc_args ) {
 		$assoc_args = \wp_parse_args( $assoc_args, [
@@ -235,6 +239,8 @@ class Database_Command extends Abstract_Command {
 	 *
 	 * @param  array $args       The positional arguments.
 	 * @param  array $assoc_args The associative arguments.
+	 *
+	 * @return void
 	 */
 	public function create( /* @scrutinizer ignore-unused */ array $args, array $assoc_args ) {
 		$global    = get_flag_value( $assoc_args, 'global', false );
@@ -278,6 +284,8 @@ class Database_Command extends Abstract_Command {
 	 *
 	 * @param  array $args       The positional arguments.
 	 * @param  array $assoc_args The associative arguments.
+	 *
+	 * @return void
 	 */
 	public function upgrade( /* @scrutinizer ignore-unused */ array $args, array $assoc_args ) {
 		$global    = get_flag_value( $assoc_args, 'global', false );

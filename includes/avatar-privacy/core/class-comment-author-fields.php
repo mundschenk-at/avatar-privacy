@@ -261,6 +261,8 @@ class Comment_Author_Fields implements API {
 	 * @param  string $email        The comment author's mail address.
 	 * @param  int    $comment_id   The comment ID.
 	 * @param  int    $use_gravatar 1 if Gravatar.com is enabled, 0 otherwise.
+	 *
+	 * @return void
 	 */
 	public function update_gravatar_use( $email, $comment_id, $use_gravatar ) {
 		$data = $this->load( $email );
@@ -339,6 +341,8 @@ class Comment_Author_Fields implements API {
 	 *
 	 * @param  string $email_or_hash The comment author's e-mail address or the unique hash.
 	 * @param  string $type          Optional. The identifier type ('email' or 'hash'). Default 'email'.
+	 *
+	 * @return void
 	 */
 	public function clear_cache( $email_or_hash, $type = 'email' ) {
 		$this->cache->delete( $this->get_cache_key( $email_or_hash, $type ) );

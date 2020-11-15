@@ -109,7 +109,9 @@ class Core {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Core $instance Only used for plugin initialization. Don't ever pass a value in user code.
+	 * @param  Core $instance Only used for plugin initialization. Don't ever pass a value in user code.
+	 *
+	 * @return void
 	 *
 	 * @throws \BadMethodCallException Thrown when Avatar_Privacy_Core::set_instance after plugin initialization.
 	 */
@@ -141,7 +143,7 @@ class Core {
 	/**
 	 * Retrieves the plugin version.
 	 *
-	 * @var string
+	 * @return string
 	 */
 	public function get_version() {
 		return $this->settings->get_version();
@@ -237,6 +239,8 @@ class Core {
 	 * @param  string $email        The comment author's mail address.
 	 * @param  int    $comment_id   The comment ID.
 	 * @param  int    $use_gravatar 1 if Gravatar.com is enabled, 0 otherwise.
+	 *
+	 * @return void
 	 */
 	public function update_comment_author_gravatar_use( $email, $comment_id, $use_gravatar ) {
 		$this->comment_author_fields->update_gravatar_use( $email, $comment_id, $use_gravatar );
@@ -247,6 +251,8 @@ class Core {
 	 *
 	 * @param  int    $id    The database key. Deprecated.
 	 * @param  string $email The email.
+	 *
+	 * @return void
 	 */
 	public function update_comment_author_hash( /* @scrutinizer ignore-unused */ $id, $email ) {
 		$this->comment_author_fields->update_hash( $email );

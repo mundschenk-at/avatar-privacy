@@ -103,6 +103,8 @@ class Comment_Author_Table extends Table {
 	 * @since 2.4.0
 	 *
 	 * @param string $previous_version The previously installed plugin version.
+	 *
+	 * @return void
 	 */
 	public function setup( $previous_version ) {
 		parent::setup( $previous_version );
@@ -168,6 +170,8 @@ class Comment_Author_Table extends Table {
 	 * Tries set up the migration queue if the trigger is set.
 	 *
 	 * @since 2.4.0 Moved to class Comment_Author_Table.
+	 *
+	 * @return void
 	 */
 	protected function maybe_prepare_migration_queue() {
 		$queue = $this->network_options->get( Network_Options::START_GLOBAL_TABLE_MIGRATION );
@@ -192,6 +196,8 @@ class Comment_Author_Table extends Table {
 	 * Tries to migrate global table data if the current site is queued.
 	 *
 	 * @since 2.4.0 Moved to class Comment_Author_Table.
+	 *
+	 * @return void
 	 */
 	protected function maybe_migrate_from_global_table() {
 		if (

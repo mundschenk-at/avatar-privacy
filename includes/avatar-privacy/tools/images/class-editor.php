@@ -318,6 +318,8 @@ class Editor {
 	 * @since 2.3.0
 	 *
 	 * @param  string $stream The image stream wrapper URL.
+	 *
+	 * @return void
 	 */
 	protected function delete_stream( $stream ) {
 		$stream_class = $this->stream_class; // PHP 5.6 workaround.

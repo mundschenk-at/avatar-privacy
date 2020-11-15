@@ -239,9 +239,11 @@ class Comments implements Component {
 	/**
 	 * Sets the comment_use_gravatar_ cookie. Based on `wp_set_comment_cookies`.
 	 *
-	 * @param \WP_Comment $comment         Comment object.
-	 * @param \WP_User    $user            Comment author's user object. The user may not exist.
-	 * @param bool        $cookies_consent Optional. Comment author's consent to store cookies. Default true.
+	 * @param  \WP_Comment $comment         Comment object.
+	 * @param  \WP_User    $user            Comment author's user object. The user may not exist.
+	 * @param  bool        $cookies_consent Optional. Comment author's consent to store cookies. Default true.
+	 *
+	 * @return void
 	 */
 	public function set_comment_cookies( \WP_Comment $comment, \WP_User $user, $cookies_consent = true ) {
 		// If the user already exists, or the user opted out of cookies, don't set cookies.
