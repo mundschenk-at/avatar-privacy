@@ -463,8 +463,8 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->site_transients->shouldReceive( 'get' )->once()->with( Image_Proxy::CRON_JOB_LOCK_GRAVATARS )->andReturnFalse();
 
-		Filters\expectApplied( 'avatar_privacy_gravatars_max_age' )->once()->with( 2 * DAY_IN_SECONDS )->andReturn( $max_age );
-		Filters\expectApplied( 'avatar_privacy_gravatars_cleanup_interval' )->once()->with( DAY_IN_SECONDS )->andReturn( $interval );
+		Filters\expectApplied( 'avatar_privacy_gravatars_max_age' )->once()->with( 2 * \DAY_IN_SECONDS )->andReturn( $max_age );
+		Filters\expectApplied( 'avatar_privacy_gravatars_cleanup_interval' )->once()->with( \DAY_IN_SECONDS )->andReturn( $interval );
 
 		$this->sut->shouldReceive( 'invalidate_cached_images' )->once()->with( Image_Proxy::CRON_JOB_LOCK_GRAVATARS, 'gravatar', $interval, $max_age );
 
@@ -498,8 +498,8 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->site_transients->shouldReceive( 'get' )->once()->with( Image_Proxy::CRON_JOB_LOCK_ALL_IMAGES )->andReturnFalse();
 
-		Filters\expectApplied( 'avatar_privacy_all_images_max_age' )->once()->with( 7 * DAY_IN_SECONDS )->andReturn( $max_age );
-		Filters\expectApplied( 'avatar_privacy_all_images_cleanup_interval' )->once()->with( 7 * DAY_IN_SECONDS )->andReturn( $interval );
+		Filters\expectApplied( 'avatar_privacy_all_images_max_age' )->once()->with( 7 * \DAY_IN_SECONDS )->andReturn( $max_age );
+		Filters\expectApplied( 'avatar_privacy_all_images_cleanup_interval' )->once()->with( 7 * \DAY_IN_SECONDS )->andReturn( $interval );
 
 		$this->sut->shouldReceive( 'invalidate_cached_images' )->once()->with( Image_Proxy::CRON_JOB_LOCK_ALL_IMAGES, '', $interval, $max_age );
 
