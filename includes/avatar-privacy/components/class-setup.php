@@ -190,6 +190,8 @@ class Setup implements Component {
 
 	/**
 	 * Checks if the default settings or database schema need to be upgraded.
+	 *
+	 * @return void
 	 */
 	public function update_check() {
 		// Force reading the settings from the DB, but do not cache the result.
@@ -279,6 +281,8 @@ class Setup implements Component {
 	 * @since 2.4.0
 	 *
 	 * @param string $previous_version The version we are upgrading from.
+	 *
+	 * @return void
 	 */
 	protected function update_plugin_data( $previous_version ) {
 		// Upgrade from version 0.4 or lower.
@@ -308,6 +312,8 @@ class Setup implements Component {
 	 * @since 2.1.0 Parameter `$network_wide` added.
 	 *
 	 * @param  bool $network_wide A flag indicating if the plugin was network-activated.
+	 *
+	 * @return void
 	 */
 	public function deactivate( $network_wide ) {
 		if ( ! $network_wide ) {
@@ -333,6 +339,8 @@ class Setup implements Component {
 	 * Triggers a rebuild of the rewrite rules on the next page load.
 	 *
 	 * @since 2.1.0
+	 *
+	 * @return void
 	 */
 	public function flush_rewrite_rules_soon() {
 		// Deleting the option forces a rebuild in the proper context on the next load.
@@ -350,6 +358,8 @@ class Setup implements Component {
 	 * @since 2.1.0
 	 *
 	 * @global wpdb $wpdb The WordPress Database Access Abstraction.
+	 *
+	 * @return void
 	 */
 	public function prefix_usermeta_keys() {
 		global $wpdb;
@@ -376,6 +386,8 @@ class Setup implements Component {
 	 * The deactivation tasks for a single site.
 	 *
 	 * @since 2.1.0
+	 *
+	 * @return void
 	 */
 	public function deactivate_plugin() {
 		// Disable cron jobs.
@@ -392,6 +404,8 @@ class Setup implements Component {
 	 * Tries to upgrade the `avatar_defaults` option.
 	 *
 	 * @since 2.1.0 Visibility changed to protected, $options parameter removed.
+	 *
+	 * @return void
 	 */
 	protected function upgrade_old_avatar_defaults() {
 		$obsolete_avatar_defaults = self::OBSOLETE_AVATAR_DEFAULTS;
@@ -406,6 +420,8 @@ class Setup implements Component {
 	 * Updates user hashes where they don't exist yet.
 	 *
 	 * @since 2.1.0 Visibility changed to protected.
+	 *
+	 * @return void
 	 */
 	protected function maybe_update_user_hashes() {
 		$args = [

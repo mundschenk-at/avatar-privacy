@@ -134,6 +134,8 @@ class Uninstallation implements Component {
 	 * and `avatar_privacy_uninstallation_global` actions.
 	 *
 	 * @since 2.3.0
+	 *
+	 * @return void
 	 */
 	public function enqueue_cleanup_tasks() {
 		// Delete cached files.
@@ -161,6 +163,8 @@ class Uninstallation implements Component {
 	 * Executes all the registered site clean-ups (for all sites if on multisite).
 	 *
 	 * @since 2.1.0
+	 *
+	 * @return void
 	 */
 	protected function do_site_cleanups() {
 		if ( \is_multisite() ) {
@@ -191,6 +195,8 @@ class Uninstallation implements Component {
 	 * Deletes uploaded avatar images.
 	 *
 	 * @since 2.1.0 Visibility changed to public, made non-static.
+	 *
+	 * @return void
 	 */
 	public function delete_uploaded_avatars() {
 		$user_avatar = User_Fields::USER_AVATAR_META_KEY;
@@ -212,6 +218,8 @@ class Uninstallation implements Component {
 	 * Deletes all user meta data added by the plugin.
 	 *
 	 * @since 2.1.0 Visibility changed to public, made non-static.
+	 *
+	 * @return void
 	 */
 	public function delete_user_meta() {
 		\delete_metadata( 'user', 0, User_Fields::GRAVATAR_USE_META_KEY, null, true );
@@ -224,6 +232,8 @@ class Uninstallation implements Component {
 	 * Deletes the site-specific plugin options.
 	 *
 	 * @since 2.1.0 Visibility changed to public, made non-static.
+	 *
+	 * @return void
 	 */
 	public function delete_options() {
 		// Delete our settings.
@@ -237,6 +247,8 @@ class Uninstallation implements Component {
 	 * Deletes the global plugin options (except for the salt).
 	 *
 	 * @since 2.1.0
+	 *
+	 * @return void
 	 */
 	public function delete_network_options() {
 		$this->network_options->delete( Network_Options::USE_GLOBAL_TABLE );
@@ -248,6 +260,8 @@ class Uninstallation implements Component {
 	 * Deletes all the plugin's site-specific transients.
 	 *
 	 * @since 2.1.0 Visibility changed to public, made non-static.
+	 *
+	 * @return void
 	 */
 	public function delete_transients() {
 		// Remove regular transients.
@@ -260,6 +274,8 @@ class Uninstallation implements Component {
 	 * Deletes all the plugin's global transients ("site transients").
 	 *
 	 * @since 2.1.0
+	 *
+	 * @return void
 	 */
 	public function delete_network_transients() {
 		// Remove site transients.

@@ -213,6 +213,8 @@ abstract class PNG_Parts_Generator extends Parts_Generator {
 	 *                                 relative to the parts directory, or an
 	 *                                 existing image resource.
 	 *
+	 * @return void
+	 *
 	 * @throws \RuntimeException The image could not be copied.
 	 */
 	protected function combine_images( $base, $image ) {

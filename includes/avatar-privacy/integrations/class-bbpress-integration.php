@@ -67,6 +67,8 @@ class BBPress_Integration implements Plugin_Integration {
 
 	/**
 	 * Activate the integration.
+	 *
+	 * @@return void
 	 */
 	public function run() {
 		if ( ! \is_admin() ) {
@@ -76,6 +78,8 @@ class BBPress_Integration implements Plugin_Integration {
 
 	/**
 	 * Init action handler.
+	 *
+	 * @return void
 	 */
 	public function init() {
 		// Load user data from email for bbPress.
@@ -122,6 +126,8 @@ class BBPress_Integration implements Plugin_Integration {
 
 	/**
 	 * Add user profile fields for bbPress.
+	 *
+	 * @return void
 	 */
 	public function add_user_profile_fields() {
 		// Get user ID from bbPress.

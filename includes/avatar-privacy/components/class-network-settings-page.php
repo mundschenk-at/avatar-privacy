@@ -146,6 +146,8 @@ class Network_Settings_Page implements Component {
 	/**
 	 * Registers the settings with the settings API. This is only used to display
 	 * an explanation of the wrong gravatar settings.
+	 *
+	 * @return void
 	 */
 	public function register_network_settings() {
 		// Create our options page.
@@ -176,6 +178,8 @@ class Network_Settings_Page implements Component {
 
 	/**
 	 * Displays the network options page.
+	 *
+	 * @return void
 	 */
 	public function print_settings_page() {
 		// Load the settings page HTML.
@@ -187,6 +191,8 @@ class Network_Settings_Page implements Component {
 	 *
 	 * @global array $_POST                 Post request superglobal.
 	 * @global array $new_whitelist_options The options whitelisted by the settings API.
+	 *
+	 * @return void
 	 */
 	public function save_network_settings() {
 		// Check if the user has the correct permissions.
@@ -243,6 +249,8 @@ class Network_Settings_Page implements Component {
 	 * Prints any additional markup for the given form section.
 	 *
 	 * @param array $section The section information.
+	 *
+	 * @return void
 	 */
 	public function print_settings_section( $section ) {
 		// Set up variables used by the included partial.
@@ -261,6 +269,8 @@ class Network_Settings_Page implements Component {
 	 * @codeCoverageIgnore
 	 *
 	 * @param  int $status Optional. A status code in the range 0 to 254. Default 0.
+	 *
+	 * @return void
 	 */
 	protected function exit_request( $status = 0 ) {
 		exit( $status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -268,6 +278,8 @@ class Network_Settings_Page implements Component {
 
 	/**
 	 * Enqueue stylesheet for options page.
+	 *
+	 * @return void
 	 */
 	public function print_styles() {
 		$this->dependencies->register_style( 'avatar-privacy-settings', 'admin/css/settings.css' );
@@ -281,6 +293,8 @@ class Network_Settings_Page implements Component {
 	 * @param  string $notice_id    HTML ID attribute for the notice.
 	 * @param  string $message      Translated message string.
 	 * @param  string $notice_level 'updated', 'notice-info', etc.
+	 *
+	 * @return void
 	 */
 	protected function trigger_admin_notice( $setting_name, $notice_id, $message, $notice_level ) {
 		if ( empty( $this->triggered_notice[ $setting_name ] ) ) {
@@ -295,6 +309,8 @@ class Network_Settings_Page implements Component {
 	 * Persists the settings errors across the redirect.
 	 *
 	 * Uses a regular transient to stay compatible with core.
+	 *
+	 * @return void
 	 */
 	protected function persist_settings_errors() {
 		// A regular transient is used here, since it is automatically cleared right after the redirect.
@@ -308,6 +324,8 @@ class Network_Settings_Page implements Component {
 	 * @param string $option     Name of the network option.
 	 * @param mixed  $value      New value of the network option.
 	 * @param mixed  $old_value  Old value of the network option.
+	 *
+	 * @return void
 	 */
 	public function start_migration_from_global_table( $option, $value, $old_value ) {
 		if ( $option !== $this->network_options->get_name( Network_Options::USE_GLOBAL_TABLE ) ) {

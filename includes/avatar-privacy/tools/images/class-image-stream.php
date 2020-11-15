@@ -255,6 +255,8 @@ class Image_Stream {
 
 	/**
 	 * Truncates the stream after a seek operation beyond its length.
+	 *
+	 * @return void
 	 */
 	protected function truncate_after_seek() {
 		if ( $this->position > \strlen( $this->data ) ) {
@@ -266,6 +268,8 @@ class Image_Stream {
 	 * Truncates the stream to a given size.
 	 *
 	 * @param int $length The new length in bytes.
+	 *
+	 * @return bool
 	 */
 	public function stream_truncate( $length ) {
 		$current_length = \strlen( $this->data );
@@ -424,6 +428,8 @@ class Image_Stream {
 	 * Deletes the given stream handle and its data.
 	 *
 	 * @param  string $handle The stream handle.
+	 *
+	 * @return void
 	 */
 	public static function delete_handle( $handle ) {
 		unset( self::$handles[ $handle ] );
@@ -448,6 +454,8 @@ class Image_Stream {
 	 * @since 2.1.0
 	 *
 	 * @param  string $protocol Optional. The wrapper-specific URL protocol. Default 'avprimg'.
+	 *
+	 * @return void
 	 */
 	public static function register( $protocol = self::PROTOCOL ) {
 		if ( ! \in_array( $protocol, \stream_get_wrappers(), true ) ) {

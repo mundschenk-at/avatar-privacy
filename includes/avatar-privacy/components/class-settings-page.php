@@ -112,6 +112,8 @@ class Settings_Page implements Component {
 
 	/**
 	 * Run tasks in the settings header.
+	 *
+	 * @return void
 	 */
 	public function settings_head() {
 		if ( \ob_start( [ $this, 'add_form_encoding' ] ) ) {
@@ -121,6 +123,8 @@ class Settings_Page implements Component {
 
 	/**
 	 * Run tasks in the settings footer.
+	 *
+	 * @return void
 	 */
 	public function settings_footer() {
 		// Add show/hide javascript.
@@ -138,6 +142,8 @@ class Settings_Page implements Component {
 	/**
 	 * Registers the settings with the settings API. This is only used to display
 	 * an explanation of the wrong gravatar settings.
+	 *
+	 * @return void
 	 */
 	public function register_settings() {
 		\register_setting( 'discussion', $this->options->get_name( Settings::OPTION_NAME ), [ $this, 'sanitize_settings' ] );

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019 Peter Putzer.
+ * Copyright 2019-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -41,6 +41,8 @@ class Number_Generator {
 	 *
 	 * @param  string $hash A string of hexadecimal digits (i.e. the result of a
 	 *                      hash function).
+	 *
+	 * @return void
 	 */
 	public function seed( $hash ) {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand -- we need deterministic "randomness".
@@ -49,6 +51,8 @@ class Number_Generator {
 
 	/**
 	 * Resets the pseudo-random number generator to a less predictable value.
+	 *
+	 * @return void
 	 */
 	public function reset() {
 		\mt_srand(); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand

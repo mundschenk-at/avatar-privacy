@@ -64,6 +64,8 @@ class Ultimate_Member_Integration implements Plugin_Integration {
 
 	/**
 	 * Activate the integration.
+	 *
+	 * @return void
 	 */
 	public function run() {
 		// Integrate with Ultimate Member's avatar handling.
@@ -77,6 +79,8 @@ class Ultimate_Member_Integration implements Plugin_Integration {
 	/**
 	 * Removes the Ultimate Member avatar filter and disables Avatar Privacy
 	 * profile image upload.
+	 *
+	 * @return void
 	 */
 	public function integrate_with_ultimate_member_avatars() {
 		// Remove Ultimate Member avatar filter.

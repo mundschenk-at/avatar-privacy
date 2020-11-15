@@ -86,6 +86,8 @@ class WPDiscuz_Integration implements Plugin_Integration {
 
 	/**
 	 * Activate the integration.
+	 *
+	 * @return void
 	 */
 	public function run() {
 		\add_action( 'init', [ $this, 'init' ] );
@@ -93,6 +95,8 @@ class WPDiscuz_Integration implements Plugin_Integration {
 
 	/**
 	 * Init action handler.
+	 *
+	 * @return void
 	 */
 	public function init() {
 		if ( ! \is_user_logged_in() ) {
@@ -109,6 +113,8 @@ class WPDiscuz_Integration implements Plugin_Integration {
 
 	/**
 	 * Prints the wpDiscuz "Use Gravatar" checkbox.
+	 *
+	 * @return void
 	 */
 	public function print_gravatar_checkbox() {
 		// Include the partial.
@@ -117,6 +123,8 @@ class WPDiscuz_Integration implements Plugin_Integration {
 
 	/**
 	 * Enqueue stylesheet comments form.
+	 *
+	 * @return void
 	 */
 	public function enqeue_styles_and_scripts() {
 		// Register script.
@@ -137,6 +145,8 @@ class WPDiscuz_Integration implements Plugin_Integration {
 	 * Sets the "Use Gravatar" cookie.
 	 *
 	 * @param \WP_Comment $comment Comment object.
+	 *
+	 * @return void
 	 */
 	public function set_comment_cookies( \WP_Comment $comment ) {
 		$user           = \wp_get_current_user();
@@ -149,6 +159,8 @@ class WPDiscuz_Integration implements Plugin_Integration {
 	 * Stores the wpDiscuz form fields for later use.
 	 *
 	 * @param  Form $form The form object.
+	 *
+	 * @return void
 	 */
 	public function store_cookie_consent_checkbox( Form $form ) {
 		$form->initFormFields();

@@ -154,6 +154,8 @@ class Image_Proxy implements Component {
 
 	/**
 	 * Add rewrite rules for nice avatar caching.
+	 *
+	 * @return void
 	 */
 	public function add_cache_rewrite_rules() {
 		/**
@@ -172,6 +174,8 @@ class Image_Proxy implements Component {
 	 * Short-circuits WordPress initialization and load displays the cached avatar image.
 	 *
 	 * @param \WP $wp The WordPress global object.
+	 *
+	 * @return void
 	 */
 	public function load_cached_avatar( \WP $wp ) {
 		if ( empty( $wp->query_vars['avatar-privacy-file'] ) || ! \preg_match( '#^([a-z]+)/((?:[0-9a-z]/)*)([a-f0-9]{64})(?:-([0-9]+))?\.(jpg|png|svg)$#i', $wp->query_vars['avatar-privacy-file'], $parts ) ) {
@@ -213,6 +217,8 @@ class Image_Proxy implements Component {
 	 * @param  string $file         The full path to the image.
 	 * @param  int    $cache_time   The time the image should be cached by the brwoser (in seconds).
 	 * @param  string $content_type The content MIME type.
+	 *
+	 * @return void
 	 */
 	protected function send_image( $file, $cache_time, $content_type ) {
 		$image = @\file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_get_contents, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, Generic.PHP.NoSilencedErrors.Discouraged
@@ -240,6 +246,8 @@ class Image_Proxy implements Component {
 	 * Schedules a cron job to clean up the image cache once per day. Otherwise the
 	 * cache would grow unchecked and new avatar images uploaded to Gravatar.com
 	 * would not be picked up.
+	 *
+	 * @return void
 	 */
 	public function enable_image_cache_cleanup() {
 		// Schedule our cron action.
@@ -255,6 +263,8 @@ class Image_Proxy implements Component {
 	/**
 	 * Deletes cached gravatar images that are too old. Uses a site transient to ensure
 	 * that the clean-up happens only once per day on multisite installations.
+	 *
+	 * @return void
 	 */
 	public function trim_gravatar_cache() {
 		if ( ! $this->site_transients->get( self::CRON_JOB_LOCK_GRAVATARS ) ) {
@@ -279,6 +289,8 @@ class Image_Proxy implements Component {
 	/**
 	 * Deletes cached image files that are too old. Uses a site transient to ensure
 	 * that the clean-up happens only once per day on multisite installations.
+	 *
+	 * @return void
 	 */
 	public function trim_image_cache() {
 		if ( ! $this->site_transients->get( self::CRON_JOB_LOCK_ALL_IMAGES ) ) {
@@ -315,6 +327,8 @@ class Image_Proxy implements Component {
 	 * @param  string $subdir   The subdirectory to clean.
 	 * @param  int    $interval The cron job run interval in seconds.
 	 * @param  int    $max_age  The maximum age of the image files in seconds.
+	 *
+	 * @return void
 	 */
 	protected function invalidate_cached_images( $lock, $subdir, $interval, $max_age ) {
 		// Invalidate all files in the subdirectory older than the maximum age.
@@ -331,6 +345,8 @@ class Image_Proxy implements Component {
 	 * @codeCoverageIgnore
 	 *
 	 * @param  int $status Optional. A status code in the range 0 to 254. Default 0.
+	 *
+	 * @return void
 	 */
 	protected function exit_request( $status = 0 ) {
 		exit( $status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

@@ -113,6 +113,8 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	 *
 	 * @param  int             $site_id      A site ID.
 	 * @param  string|string[] $option_value The option value. Passed by reference.
+	 *
+	 * @return void
 	 */
 	public function save_uploaded_default_icon( $site_id, &$option_value ) {
 		// Prepare arguments.

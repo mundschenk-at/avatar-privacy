@@ -139,6 +139,8 @@ abstract class Upload_Handler {
 	 *     @type string $upload_field The upload field name.
 	 *     @type string $erase_field  The erase checkbox field name.
 	 * }
+	 *
+	 * @return void
 	 */
 	protected function maybe_save_data( array $args ) {
 		// Check arguments.
@@ -193,6 +195,8 @@ abstract class Upload_Handler {
 	 *
 	 * @param  array $upload_result The result of ::handle_upload().
 	 * @param  array $args          Arguments passed from ::maybe_save_data().
+	 *
+	 * @return void
 	 */
 	abstract protected function handle_upload_errors( array $upload_result, array $args );
 
@@ -203,6 +207,8 @@ abstract class Upload_Handler {
 	 *
 	 * @param  array $upload_result The result of ::handle_upload().
 	 * @param  array $args          Arguments passed from ::maybe_save_data().
+	 *
+	 * @return void
 	 */
 	abstract protected function store_file_data( array $upload_result, array $args );
 
@@ -212,6 +218,8 @@ abstract class Upload_Handler {
 	 * @since 2.4.0
 	 *
 	 * @param  array $args Arguments passed from ::maybe_save_data().
+	 *
+	 * @return void
 	 */
 	abstract protected function delete_file_data( array $args );
 

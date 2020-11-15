@@ -82,6 +82,8 @@ class Privacy_Tools implements Component {
 
 	/**
 	 * Initializes additional plugin hooks.
+	 *
+	 * @return void
 	 */
 	public function admin_init() {
 		// Add privacy notice suggestion.
@@ -98,6 +100,8 @@ class Privacy_Tools implements Component {
 	 * Adds a privacy notice snippet.
 	 *
 	 * @since 2.1.0 Visibility changed to protected.
+	 *
+	 * @return void
 	 */
 	protected function add_privacy_notice_content() {
 		// Don't crash on older versions of WordPress.

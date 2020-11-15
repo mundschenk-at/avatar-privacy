@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -89,6 +89,8 @@ class User_Profile implements Component {
 
 	/**
 	 * Initialize additional plugin hooks.
+	 *
+	 * @return void
 	 */
 	public function admin_init() {
 		// Add the checkbox to the user profile form if we're in the WP backend.
@@ -107,6 +109,8 @@ class User_Profile implements Component {
 
 	/**
 	 * Enables output buffering.
+	 *
+	 * @return void
 	 */
 	public function admin_head() {
 		if ( \ob_start( [ $this, 'replace_profile_picture_section' ] ) ) {
@@ -116,6 +120,8 @@ class User_Profile implements Component {
 
 	/**
 	 * Cleans up any output buffering.
+	 *
+	 * @return void
 	 */
 	public function admin_footer() {
 		// Clean up output buffering.
@@ -127,6 +133,8 @@ class User_Profile implements Component {
 
 	/**
 	 * Prints the enctype "multipart/form-data".
+	 *
+	 * @return void
 	 */
 	public function print_form_encoding() {
 		echo ' enctype="multipart/form-data"';
@@ -151,6 +159,8 @@ class User_Profile implements Component {
 	 * Stores the profile fields markup for later use.
 	 *
 	 * @param \WP_User $user The current user whose profile to modify.
+	 *
+	 * @return void
 	 */
 	public function add_user_profile_fields( \WP_User $user ) {
 		$this->markup =

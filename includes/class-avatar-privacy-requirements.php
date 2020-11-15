@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -96,6 +96,8 @@ class Avatar_Privacy_Requirements extends Mundschenk_WP_Requirements {
 
 	/**
 	 * Prints 'GD extension missing' admin notice
+	 *
+	 * @return void
 	 */
 	public function admin_notices_gd_incompatible() {
 		$this->display_error_notice(
@@ -120,6 +122,8 @@ class Avatar_Privacy_Requirements extends Mundschenk_WP_Requirements {
 
 	/**
 	 * Prints 'GD extension missing' admin notice
+	 *
+	 * @return void
 	 */
 	public function admin_notices_uploads_not_writable() {
 		$this->display_error_notice(
