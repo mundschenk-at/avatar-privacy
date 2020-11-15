@@ -27,6 +27,7 @@
 namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Component;
+use Avatar_Privacy\Integrations\Plugin_Integration; // phpcs:ignore ImportDetection.Imports.RequireImports.Import -- necessary for type hints.
 
 /**
  * A registry for plugin integrations.

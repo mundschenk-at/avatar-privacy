@@ -77,7 +77,7 @@ class Factory extends Dice {
 	/**
 	 * The factory instance.
 	 *
-	 * @var Factory
+	 * @var Factory|null
 	 */
 	private static $factory;
 

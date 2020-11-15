@@ -140,7 +140,7 @@ class Avatar_Handling implements Component {
 		 *
 		 * @since 2.3.4
 		 *
-		 * @param $priority Default 9999.
+		 * @param int $priority Default 9999.
 		 */
 		$priority = \apply_filters( 'avatar_privacy_pre_get_avatar_data_filter_priority', 9999 );
 
