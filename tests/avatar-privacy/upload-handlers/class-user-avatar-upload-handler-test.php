@@ -298,74 +298,52 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::upload.
-	 *
-	 * @covers ::upload
-	 *
-	 * @uses \Avatar_Privacy\Upload_Handlers\Upload_Handler::upload
-	 */
-	public function test_upload() {
-		$user_id       = 4711;
-		$args          = [
-			'foo'     => 'bar',
-			'user_id' => $user_id,
-		];
-		$uploaded_file = [
-			'name' => [ 'filename' ],
-			'type' => [ 'image/gif' ],
-			'foo'  => [ 'bar' ],
-		];
-		$result        = [
-			'bar'  => 'foo',
-			'file' => '/my/path',
-		];
-
-		$this->image_file->shouldReceive( 'handle_upload' )->once()->with( $uploaded_file, m::type( 'array' ) )->andReturn( $result );
-
-		$this->assertSame( $result, $this->sut->upload( $uploaded_file, $args ) );
-		$this->assert_attribute_same( $user_id, 'user_id_being_edited', $this->sut );
-	}
-
-	/**
-	 * Provides the data for testing get_unique_filename.
+	 * Provides the data for testing get_filename.
 	 *
 	 * @return array
 	 */
-	public function provide_get_unique_filename_data() {
+	public function provide_get_filename_data() {
 		return [
-			[ 'some.png', '.png', 'Jack-Straw_avatar.png', (object) [ 'display_name' => 'Jack Straw' ] ],
-			[ 'some.gif', '.gif', 'Jane-Doe_avatar_1.gif', (object) [ 'display_name' => 'Jane Doe' ] ],
-			[ 'other.png', '.png', 'Foobar_avatar_2.png', (object) [ 'display_name' => 'Foobar' ] ],
+			[ 'some.png', 'Jack-Straw_avatar.png', (object) [ 'display_name' => 'Jack Straw' ] ],
+			[ 'some.gif', 'Jane-Doe_avatar.gif', (object) [ 'display_name' => 'Jane Doe' ] ],
+			[ 'other.png', 'Foobar_avatar.png', (object) [ 'display_name' => 'Foobar' ] ],
 		];
 	}
 
 	/**
-	 * Tests ::get_unique_filename.
+	 * Tests ::get_filename.
 	 *
-	 * @covers ::get_unique_filename
+	 * @covers ::get_filename
 	 *
-	 * @uses Avatar_Privacy\Upload_Handlers\Upload_Handler::get_unique_filename
-	 *
-	 * @dataProvider provide_get_unique_filename_data
+	 * @dataProvider provide_get_filename_data
 	 *
 	 * @param string $filename  The proposed filename.
-	 * @param string $extension The file extension (including leading dot).
 	 * @param string $result    The resulting filename.
 	 * @param object $user      The user object.
 	 */
-	public function test_get_unique_filename( $filename, $extension, $result, $user ) {
+	public function test_get_filename( $filename, $result, $user ) {
 		// Set up dummy user ID.
 		$user_id = 666;
-		$this->set_value( $this->sut, 'user_id_being_edited', $user_id );
+		$args    = [
+			'foo'     => 'bar',
+			'user_id' => $user_id,
+		];
 
 		Functions\expect( 'get_user_by' )->once()->with( 'id', $user_id )->andReturn( $user );
 		Functions\expect( 'sanitize_file_name' )->once()->with( m::type( 'string' ) )->andReturnUsing(
 			function( $arg ) {
-				return \str_replace( ' ', '-', $arg );
+				return \strtr(
+					$arg,
+					[
+						' '  => '-',
+						'&'  => '',
+						'--' => '-',
+					]
+				);
 			}
 		);
 
-		$this->assertSame( $result, $this->sut->get_unique_filename( vfsStream::url( 'root/uploads' ), $filename, $extension ) );
+		$this->assertSame( $result, $this->sut->get_filename( $filename, $args ) );
 	}
 
 	/**

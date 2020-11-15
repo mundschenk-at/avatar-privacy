@@ -102,6 +102,8 @@ abstract class Upload_Handler {
 	/**
 	 * Returns a unique filename.
 	 *
+	 * @deprecated 2.4.0
+	 *
 	 * @param string $directory The uploads directory.
 	 * @param string $filename  The proposed filename.
 	 * @param string $extension The file extension (including leading dot).
@@ -214,6 +216,20 @@ abstract class Upload_Handler {
 	abstract protected function delete_file_data( array $args );
 
 	/**
+	 * Retrieves the filename to use.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  string $filename The proposed filename.
+	 * @param  array  $args     Arguments passed from ::maybe_save_data().
+	 *
+	 * @return string
+	 */
+	protected function get_filename( $filename, array $args ) {
+		return $filename;
+	}
+
+	/**
 	 * Handles the file upload by optionally switching to the primary site of the network.
 	 *
 	 * @since 2.4.0 Parameter $global replaced with property.
@@ -229,9 +245,11 @@ abstract class Upload_Handler {
 			'mimes'                    => self::ALLOWED_MIME_TYPES,
 			'global_upload'            => $this->global_upload,
 			'upload_dir'               => $this->upload_dir,
-			'test_form'                => false,
-			'unique_filename_callback' => [ $this, 'get_unique_filename' ],
+			'test_form'                => false, // Do not check the form action.
 		];
+
+		// Allow for subclass-specific filenames.
+		$file['name'] = $this->get_filename( $file['name'], $args );
 
 		return $this->image_file->handle_upload( $file, $overrides );
 	}
@@ -239,11 +257,15 @@ abstract class Upload_Handler {
 	/**
 	 * Returns a custom upload directory.
 	 *
+	 * @deprecated 2.4.0
+	 *
 	 * @param  array $uploads The uploads data.
 	 *
 	 * @return array
 	 */
 	public function custom_upload_dir( array $uploads ) {
+		\_deprecated_function( __METHOD__, 'Avatar Privacy 2.4.0' );
+
 		$uploads['path']   = \str_replace( $uploads['subdir'], $this->upload_dir, $uploads['path'] );
 		$uploads['url']    = \str_replace( $uploads['subdir'], $this->upload_dir, $uploads['url'] );
 		$uploads['subdir'] = $this->upload_dir;
