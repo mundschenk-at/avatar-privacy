@@ -246,6 +246,7 @@ abstract class Upload_Handler {
 			'global_upload'            => $this->global_upload,
 			'upload_dir'               => $this->upload_dir,
 			'test_form'                => false, // Do not check the form action.
+			'action'                   => 'avatar_privacy_upload', // Use custom $action component in hooks.
 		];
 
 		// Allow for subclass-specific filenames.

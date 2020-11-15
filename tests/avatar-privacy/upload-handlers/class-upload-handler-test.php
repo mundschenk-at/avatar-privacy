@@ -502,6 +502,7 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 			'global_upload'            => self::GLOBAL_UPLOAD,
 			'upload_dir'               => self::UPLOAD_DIR,
 			'test_form'                => false,
+			'action'                   => 'avatar_privacy_upload',
 		];
 
 		$this->sut->shouldReceive( 'get_filename' )->once()->with( $filename, $args )->andReturn( $filename );
