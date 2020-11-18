@@ -40,11 +40,14 @@ use Avatar_Privacy\Tools\Images\Image_File;
  */
 abstract class Upload_Handler {
 
-	const ALLOWED_MIME_TYPES = [
-		'jpg|jpeg|jpe' => 'image/jpeg',
-		'gif'          => 'image/gif',
-		'png'          => 'image/png',
-	];
+	/**
+	 * A mapping of file extension patterns to MIME types.
+	 *
+	 * @deprecated 2.4.0
+	 *
+	 * @var string[]
+	 */
+	const ALLOWED_MIME_TYPES = Image_File::ALLOWED_UPLOAD_MIME_TYPES;
 
 	/**
 	 * The filesystem cache handler.
@@ -250,11 +253,8 @@ abstract class Upload_Handler {
 	protected function upload( array $file, $args ) {
 		// Prepare arguments.
 		$overrides = [
-			'mimes'                    => self::ALLOWED_MIME_TYPES,
-			'global_upload'            => $this->global_upload,
-			'upload_dir'               => $this->upload_dir,
-			'test_form'                => false, // Do not check the form action.
-			'action'                   => 'avatar_privacy_upload', // Use custom $action component in hooks.
+			'global_upload' => $this->global_upload,
+			'upload_dir'    => $this->upload_dir,
 		];
 
 		// Allow for subclass-specific filenames.
