@@ -498,11 +498,8 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		$overrides = [
-			'mimes'                    => Upload_Handler::ALLOWED_MIME_TYPES,
-			'global_upload'            => self::GLOBAL_UPLOAD,
-			'upload_dir'               => self::UPLOAD_DIR,
-			'test_form'                => false,
-			'action'                   => 'avatar_privacy_upload',
+			'global_upload' => self::GLOBAL_UPLOAD,
+			'upload_dir'    => self::UPLOAD_DIR,
 		];
 
 		$this->sut->shouldReceive( 'get_filename' )->once()->with( $filename, $args )->andReturn( $filename );

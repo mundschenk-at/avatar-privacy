@@ -29,6 +29,8 @@ namespace Avatar_Privacy\Tools\Images;
 /**
  * A utility class for handling image files.
  *
+ * @internal
+ *
  * @since 2.4.0
  *
  * @author Peter Putzer <github@mundschenk.at>
@@ -36,11 +38,13 @@ namespace Avatar_Privacy\Tools\Images;
 class Image_File {
 	const JPEG_IMAGE = 'image/jpeg';
 	const PNG_IMAGE  = 'image/png';
+	const GIF_IMAGE  = 'image/gif';
 	const SVG_IMAGE  = 'image/svg+xml';
 
 	const JPEG_EXTENSION     = 'jpg';
 	const JPEG_ALT_EXTENSION = 'jpeg';
 	const PNG_EXTENSION      = 'png';
+	const GIF_EXTENSION      = 'gif';
 	const SVG_EXTENSION      = 'svg';
 
 	const CONTENT_TYPE = [
@@ -53,7 +57,14 @@ class Image_File {
 	const FILE_EXTENSION = [
 		self::JPEG_IMAGE => self::JPEG_EXTENSION,
 		self::PNG_IMAGE  => self::PNG_EXTENSION,
+		self::GIF_IMAGE  => self::GIF_EXTENSION,
 		self::SVG_IMAGE  => self::SVG_EXTENSION,
+	];
+
+	const ALLOWED_UPLOAD_MIME_TYPES = [
+		'jpg|jpeg|jpe' => self::JPEG_IMAGE,
+		'gif'          => self::GIF_IMAGE,
+		'png'          => self::PNG_IMAGE,
 	];
 
 	/**
@@ -93,7 +104,7 @@ class Image_File {
 		\add_filter( 'upload_dir', $upload_dir_filter );
 
 		// Move uploaded file.
-		$result = \wp_handle_upload( $file, $overrides );
+		$result = \wp_handle_upload( $file, $this->prepare_overrides( $overrides ) );
 
 		// Restore standard upload directory.
 		\remove_filter( 'upload_dir', $upload_dir_filter );
@@ -126,5 +137,24 @@ class Image_File {
 	 */
 	protected function is_global_upload( $overrides ) {
 		return ( ! empty( $overrides['global_upload'] ) && \is_multisite() );
+	}
+
+	/**
+	 * Prepares the overrides array for `wp_handle_upload()`.
+	 *
+	 * @param  string[] $overrides An associative array of names => values to override
+	 *                             default variables. See `wp_handle_uploads` documentation
+	 *                             for the full list of available overrides.
+	 *
+	 * @return string[]
+	 */
+	protected function prepare_overrides( array $overrides ) {
+		$defaults = [
+			'mimes'     => self::ALLOWED_UPLOAD_MIME_TYPES,
+			'action'    => 'avatar_privacy_upload',
+			'test_form' => false,
+		];
+
+		return \wp_parse_args( $overrides, $defaults );
 	}
 }

@@ -65,12 +65,16 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::handle_upload
 	 */
 	public function test_handle_upload() {
-		$file       = [ 'foo' => 'bar' ];
-		$upload_dir = '/some/upload/directory';
-		$overrides  = [
+		$file           = [ 'foo' => 'bar' ];
+		$upload_dir     = '/some/upload/directory';
+		$overrides      = [
 			'upload_dir' => $upload_dir,
 		];
-		$result     = [
+		$prep_overrides = [
+			'upload_dir' => $upload_dir,
+			'foo'        => 'bar',
+		];
+		$result         = [
 			'bar'  => 'foo',
 			'file' => '/my/path',
 		];
@@ -84,7 +88,8 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'restore_current_blog' )->never();
 
 		Filters\expectAdded( 'upload_dir' )->once()->with( m::type( 'Closure' ) );
-		Functions\expect( 'wp_handle_upload' )->once()->with( $file, $overrides )->andReturn( $result );
+		$this->sut->shouldReceive( 'prepare_overrides' )->once()->with( $overrides )->andReturn( $prep_overrides );
+		Functions\expect( 'wp_handle_upload' )->once()->with( $file, $prep_overrides )->andReturn( $result );
 		Functions\expect( 'wp_normalize_path' )->once()->with( $result['file'] )->andReturn( $normalized_result['file'] );
 		Filters\expectRemoved( 'upload_dir' )->once()->with( m::type( 'Closure' ) );
 
@@ -97,12 +102,16 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::handle_upload
 	 */
 	public function test_handle_upload_error() {
-		$file       = [ 'foo' => 'bar' ];
-		$upload_dir = '/some/upload/directory';
-		$overrides  = [
+		$file           = [ 'foo' => 'bar' ];
+		$upload_dir     = '/some/upload/directory';
+		$overrides      = [
 			'upload_dir' => $upload_dir,
 		];
-		$result     = [
+		$prep_overrides = [
+			'upload_dir' => $upload_dir,
+			'foo'        => 'bar',
+		];
+		$result         = [
 			'bar'  => 'foo',
 		];
 
@@ -112,7 +121,8 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'restore_current_blog' )->never();
 
 		Filters\expectAdded( 'upload_dir' )->once()->with( m::type( 'Closure' ) );
-		Functions\expect( 'wp_handle_upload' )->once()->with( $file, $overrides )->andReturn( $result );
+		$this->sut->shouldReceive( 'prepare_overrides' )->once()->with( $overrides )->andReturn( $prep_overrides );
+		Functions\expect( 'wp_handle_upload' )->once()->with( $file, $prep_overrides )->andReturn( $result );
 		Functions\expect( 'wp_normalize_path' )->never();
 		Filters\expectRemoved( 'upload_dir' )->once()->with( m::type( 'Closure' ) );
 
@@ -125,16 +135,20 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::handle_upload
 	 */
 	public function test_handle_upload_global_upload() {
-		$file         = [ 'foo' => 'bar' ];
-		$upload_dir   = '/some/upload/directory';
-		$overrides    = [
+		$file           = [ 'foo' => 'bar' ];
+		$upload_dir     = '/some/upload/directory';
+		$overrides      = [
 			'upload_dir' => $upload_dir,
 		];
-		$result       = [
+		$prep_overrides = [
+			'upload_dir' => $upload_dir,
+			'foo'        => 'bar',
+		];
+		$result         = [
 			'bar'  => 'foo',
 			'file' => '/my/path',
 		];
-		$main_site_id = 5;
+		$main_site_id   = 5;
 
 		$normalized_result         = $result;
 		$normalized_result['file'] = '/my/normalized/path';
@@ -145,7 +159,8 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'restore_current_blog' )->once();
 
 		Filters\expectAdded( 'upload_dir' )->once()->with( m::type( 'Closure' ) );
-		Functions\expect( 'wp_handle_upload' )->once()->with( $file, $overrides )->andReturn( $result );
+		$this->sut->shouldReceive( 'prepare_overrides' )->once()->with( $overrides )->andReturn( $prep_overrides );
+		Functions\expect( 'wp_handle_upload' )->once()->with( $file, $prep_overrides )->andReturn( $result );
 		Functions\expect( 'wp_normalize_path' )->once()->with( $result['file'] )->andReturn( $normalized_result['file'] );
 		Filters\expectRemoved( 'upload_dir' )->once()->with( m::type( 'Closure' ) );
 
@@ -189,5 +204,29 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 		}
 
 		$this->assertSame( $result, $this->sut->is_global_upload( $overrides ) );
+	}
+
+	/**
+	 * Tests ::prepare_overrides.
+	 *
+	 * @covers ::prepare_overrides
+	 */
+	public function test_prepare_overrides() {
+		$overrides = [
+			'global_upload' => true,
+			'foo'           => 'bar',
+		];
+
+		Functions\expect( 'wp_parse_args' )->once()->andReturnUsing( function( $overrides, $defaults ) {
+			return \array_merge( $defaults, $overrides );
+		} );
+
+		$result = $this->sut->prepare_overrides( $overrides );
+
+		$this->assertArrayHasKey( 'global_upload', $result );
+		$this->assertArrayHasKey( 'foo', $result );
+		$this->assertArrayHasKey( 'mimes', $result );
+		$this->assertArrayHasKey( 'action', $result );
+		$this->assertArrayHasKey( 'test_form', $result );
 	}
 }
