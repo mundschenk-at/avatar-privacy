@@ -338,7 +338,7 @@ class Network_Settings_Page implements Component {
 		if ( empty( $value ) && ! empty( $old_value ) ) {
 			// Add all sites in the current network to the queue.
 			$site_ids = $this->multisite->get_site_ids();
-			$queue    = \array_combine( $site_ids, $site_ids );
+			$queue    = (array) \array_combine( $site_ids, $site_ids );
 
 			// Remove the main site ID from the queue.
 			unset( $queue[ \get_main_site_id() ] );
