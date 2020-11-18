@@ -233,6 +233,6 @@ class Block_Editor implements Component {
 		// Include partial.
 		\ob_start();
 		require \AVATAR_PRIVACY_PLUGIN_PATH . '/public/partials/block/avatar.php';
-		return \ob_get_clean();
+		return (string) \ob_get_clean();
 	}
 }

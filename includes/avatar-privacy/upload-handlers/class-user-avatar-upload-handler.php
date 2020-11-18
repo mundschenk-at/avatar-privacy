@@ -84,7 +84,7 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	public function get_avatar_upload_markup( \WP_User $user ) {
 		\ob_start();
 		require \AVATAR_PRIVACY_PLUGIN_PATH . '/admin/partials/profile/user-avatar-upload.php';
-		return \ob_get_clean();
+		return (string) \ob_get_clean();
 	}
 
 	/**

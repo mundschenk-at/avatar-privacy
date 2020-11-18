@@ -163,7 +163,7 @@ class User_Form {
 	public function get_use_gravatar_checkbox( $user_id, array $args = [] ) {
 		\ob_start();
 		$this->use_gravatar_checkbox( $user_id, $args );
-		return \ob_get_clean();
+		return (string) \ob_get_clean();
 	}
 
 	/**
@@ -197,7 +197,7 @@ class User_Form {
 	public function get_allow_anonymous_checkbox( $user_id, array $args = [] ) {
 		\ob_start();
 		$this->allow_anonymous_checkbox( $user_id, $args );
-		return \ob_get_clean();
+		return (string) \ob_get_clean();
 	}
 
 	/**
@@ -264,7 +264,7 @@ class User_Form {
 	public function get_avatar_uploader( $user_id, array $args = [] ) {
 		\ob_start();
 		$this->avatar_uploader( $user_id, $args );
-		return \ob_get_clean();
+		return (string) \ob_get_clean();
 	}
 
 	/**

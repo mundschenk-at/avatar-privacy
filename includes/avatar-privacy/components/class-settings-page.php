@@ -180,7 +180,7 @@ class Settings_Page implements Component {
 		\ob_start();
 		require \AVATAR_PRIVACY_PLUGIN_PATH . '/admin/partials/sections/avatars-disabled.php';
 		require \AVATAR_PRIVACY_PLUGIN_PATH . '/admin/partials/sections/avatars-enabled.php';
-		return \ob_get_clean();
+		return (string) \ob_get_clean();
 	}
 
 	/**
