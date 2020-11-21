@@ -32,6 +32,8 @@ use Brain\Monkey\Functions;
 
 use Mockery as m;
 
+use org\bovigo\vfs\vfsStream;
+
 use Avatar_Privacy\Tools\Images\Image_File;
 
 /**
@@ -55,6 +57,25 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	protected function set_up() {
 		parent::set_up();
+
+		$png_data = \base64_decode( // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions
+			'iVBORw0KGgoAAAANSUhEUgAAABwAAAASCAMAAAB/2U7WAAAABl' .
+			'BMVEUAAAD///+l2Z/dAAAASUlEQVR4XqWQUQoAIAxC2/0vXZDr' .
+			'EX4IJTRkb7lobNUStXsB0jIXIAMSsQnWlsV+wULF4Avk9fLq2r' .
+			'8a5HSE35Q3eO2XP1A1wQkZSgETvDtKdQAAAABJRU5ErkJggg=='
+		);
+
+		$filesystem = [
+			'tmp'       => [],
+			'upload'    => [],
+			'other'     => [
+				'invalid_image.gif' => 'xxx',
+				'valid_image.png'   => $png_data,
+			],
+		];
+
+		// Set up virtual filesystem.
+		$this->root = vfsStream::setup( 'root', null, $filesystem );
 
 		$this->sut = m::mock( Image_File::class )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
@@ -165,6 +186,106 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 		Filters\expectRemoved( 'upload_dir' )->once()->with( m::type( 'Closure' ) );
 
 		$this->assertSame( $normalized_result, $this->sut->handle_upload( $file, $overrides ) );
+	}
+
+	/**
+	 * Tests ::handle_sideload.
+	 *
+	 * @covers ::handle_sideload
+	 */
+	public function test_handle_sideload() {
+		$image_url  = vfsStream::url( 'root/other/valid_image.png' );
+		$temp_file  = vfsStream::url( 'root/tmp/temp_image' );
+		$upload_dir = vfsStream::url( 'root/upload/' );
+
+		$overrides = [
+			'upload_dir' => $upload_dir,
+		];
+
+		$overrides_with_action           = $overrides;
+		$overrides_with_action['action'] = 'avatar_privacy_sideload';
+
+		$result = [
+			'bar'  => 'foo',
+			'file' => '/my/path',
+		];
+
+		Functions\expect( 'wp_tempnam' )->once()->with( $image_url )->andReturn( $temp_file );
+
+		$this->sut->shouldReceive( 'handle_upload' )->once()->with( m::type( 'array' ), $overrides_with_action )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->handle_sideload( $image_url, $overrides ) );
+	}
+
+	/**
+	 * Tests ::handle_sideload.
+	 *
+	 * @covers ::handle_sideload
+	 */
+	public function test_handle_sideload_copy_error() {
+		$image_url  = vfsStream::url( 'root/other/valid_image.png' );
+		$temp_file  = vfsStream::url( 'root/tmp/temp_image' );
+		$upload_dir = vfsStream::url( 'root/upload/' );
+
+		$overrides = [
+			'upload_dir' => $upload_dir,
+		];
+
+		$overrides_with_action           = $overrides;
+		$overrides_with_action['action'] = 'avatar_privacy_sideload';
+
+		$result = [
+			'bar'  => 'foo',
+			'file' => '/my/path',
+		];
+
+		// Make sure that the temporary file is not writable.
+		\touch( $temp_file );
+		\chmod( $temp_file, 0444 );
+
+		Functions\expect( 'wp_tempnam' )->once()->with( $image_url )->andReturn( $temp_file );
+
+		$this->expect_exception( \RuntimeException::class );
+
+		$this->sut->shouldReceive( 'handle_upload' )->never();
+
+		// Prevent underlying filesystem error.
+		//$this->assertSame( $result, @$this->sut->handle_sideload( $image_url, $overrides ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+		$this->assertNull( @$this->sut->handle_sideload( $image_url, $overrides ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+	}
+
+	/**
+	 * Tests ::handle_sideload.
+	 *
+	 * @covers ::handle_sideload
+	 */
+	public function test_handle_sideload_error() {
+		$image_url  = vfsStream::url( 'root/other/valid_image.png' );
+		$temp_file  = vfsStream::url( 'root/tmp/temp_image' );
+		$upload_dir = vfsStream::url( 'root/upload/' );
+
+		$overrides = [
+			'upload_dir' => $upload_dir,
+		];
+
+		$overrides_with_action           = $overrides;
+		$overrides_with_action['action'] = 'avatar_privacy_sideload';
+
+		$error_message = 'some error occured';
+		$result        = [
+			'bar'   => 'foo',
+			'file'  => '/my/path',
+			'error' => $error_message,
+		];
+
+		Functions\expect( 'wp_tempnam' )->once()->with( $image_url )->andReturn( $temp_file );
+
+		$this->sut->shouldReceive( 'handle_upload' )->once()->with( m::type( 'array' ), $overrides_with_action )->andReturn( $result );
+
+		$this->expect_exception( \RuntimeException::class );
+
+		$this->assertNull( $this->sut->handle_sideload( $image_url, $overrides ) );
+		$this->assertFalse( \file_exists( $temp_file ) );
 	}
 
 	/**
