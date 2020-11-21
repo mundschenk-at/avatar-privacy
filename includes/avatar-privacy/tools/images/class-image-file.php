@@ -123,6 +123,58 @@ class Image_File {
 	}
 
 	/**
+	 * Handles the file upload by optionally switching to the primary site of the network.
+	 *
+	 * @param  string   $image_url The image file to sideload.
+	 * @param  string[] $overrides An associative array of names => values to override
+	 *                             default variables. See `wp_handle_uploads` documentation
+	 *                             for the full list of available overrides.
+	 *
+	 * @return string[]            Information about the sideloaded file.
+	 *
+	 * @throws \RuntimeException   The method throws a `RuntimeException` when an
+	 *                             error is returned by `::handle_upload()` or the
+	 *                             image file could not be copied.
+	 */
+	public function handle_sideload( $image_url, array $overrides = [] ) {
+		// Enable front end support.
+		if ( ! function_exists( 'wp_tempnam' ) ) {
+			require_once \ABSPATH . 'wp-admin/includes/file.php'; // @codeCoverageIgnore
+		}
+
+		// Save the file.
+		$temp_file = \wp_tempnam( $image_url );
+		if ( ! \copy( $image_url, $temp_file ) ) {
+			throw new \RuntimeException( "Error copying $image_url to $temp_file." );
+		}
+
+		// Prepare file data.
+		$file_data = [
+			'error'    => null,
+			'tmp_name' => $temp_file,
+			'name'     => $image_url,
+		];
+
+		// Use a custom action if none is set.
+		if ( empty( $overrides['action'] ) ) {
+			$overrides['action'] = 'avatar_privacy_sideload';
+		}
+
+		// Now, sideload it in.
+		$sideloaded = $this->handle_upload( $file_data, $overrides );
+
+		if ( ! empty( $sideloaded['error'] ) ) {
+			// Delete temporary file.
+			/* @scrutinizer ignore-unhandled. */ @unlink( $temp_file );
+
+			// Signal error.
+			throw new \RuntimeException( $sideloaded['error'] );
+		}
+
+		return $sideloaded;
+	}
+
+	/**
 	 * Determines if the upload should use the global upload directory.
 	 *
 	 * @param  string[] $overrides {
