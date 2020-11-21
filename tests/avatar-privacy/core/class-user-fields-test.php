@@ -37,6 +37,7 @@ use org\bovigo\vfs\vfsStream;
 use Avatar_Privacy\Core\User_Fields;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Tools\Hasher;
+use Avatar_Privacy\Tools\Images\Image_File;
 
 /**
  * Avatar_Privacy_Factory unit test.
@@ -70,6 +71,13 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $file_cache;
 
 	/**
+	 * Required helper object.
+	 *
+	 * @var Image_File
+	 */
+	private $image_file;
+
+	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
@@ -90,9 +98,10 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->hasher     = m::mock( Hasher::class );
 		$this->file_cache = m::mock( Filesystem_Cache::class );
+		$this->image_file = m::mock( Image_File::class );
 
 		// Partially mock system under test.
-		$this->sut = m::mock( User_Fields::class, [ $this->hasher, $this->file_cache ] )
+		$this->sut = m::mock( User_Fields::class, [ $this->hasher, $this->file_cache, $this->image_file ] )
 			->makePartial()
 			->shouldAllowMockingProtectedMethods();
 	}
@@ -104,14 +113,16 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_constructor() {
 		// Mock required helpers.
-		$hasher     = m::mock( Hasher::class )->makePartial();
-		$file_cache = m::mock( Filesystem_Cache::class )->makePartial();
+		$hasher     = m::mock( Hasher::class );
+		$file_cache = m::mock( Filesystem_Cache::class );
+		$image_file = m::mock( Image_File::class );
 
 		$user_fields = m::mock( User_Fields::class )->makePartial();
-		$user_fields->__construct( $hasher, $file_cache );
+		$user_fields->__construct( $hasher, $file_cache, $image_file );
 
 		$this->assert_attribute_same( $hasher, 'hasher', $user_fields );
 		$this->assert_attribute_same( $file_cache, 'file_cache', $user_fields );
+		$this->assert_attribute_same( $image_file, 'image_file', $user_fields );
 	}
 
 	/**
@@ -466,5 +477,25 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->file_cache->shouldReceive( 'invalidate' )->never();
 
 		$this->assertNull( $this->sut->invalidate_local_avatar_cache( $user_id ) );
+	}
+
+	/**
+	 * Tests ::set_local_avatar.
+	 *
+	 * @covers ::set_local_avatar
+	 */
+	public function test_set_local_avatar() {
+		// Set up arguments.
+		$user_id    = 666;
+		$image_url  = 'https://example.org/path/image.png';
+		$sideloaded = [
+			'file' => '/stored/avatar.png',
+			'type' => 'image/png',
+		];
+
+		$this->image_file->shouldReceiVe( 'handle_sideload' )->once()->with( $image_url, m::type( 'array' ) )->andReturn( $sideloaded );
+		$this->sut->shouldReceive( 'set_uploaded_local_avatar' )->once()->with( $user_id, $sideloaded );
+
+		$this->assertNull( $this->sut->set_local_avatar( $user_id, $image_url ) );
 	}
 }
