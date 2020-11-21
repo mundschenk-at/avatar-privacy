@@ -30,6 +30,7 @@ use Avatar_Privacy\Core\API;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Tools\Hasher;
 use Avatar_Privacy\Tools\Images\Image_File;
+use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
 /**
  * The API for handling data attached to registered users as part of the
@@ -84,14 +85,23 @@ class User_Fields implements API {
 	private $file_cache;
 
 	/**
+	 * The image file handler.
+	 *
+	 * @var Image_File
+	 */
+	private $image_file;
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param Hasher           $hasher     The hashing helper..
 	 * @param Filesystem_Cache $file_cache The file cache handler.
+	 * @param Image_File       $image_file The image file handler.
 	 */
-	public function __construct( Hasher $hasher, Filesystem_Cache $file_cache ) {
+	public function __construct( Hasher $hasher, Filesystem_Cache $file_cache, Image_File $image_file ) {
 		$this->hasher     = $hasher;
 		$this->file_cache = $file_cache;
+		$this->image_file = $image_file;
 	}
 
 	/**
@@ -182,13 +192,43 @@ class User_Fields implements API {
 	}
 
 	/**
+	 * Sets the local avatar for the given user.
+	 *
+	 * Please note that the calling function is responsible for cleaning up the
+	 * provided image if it is a temporary file (i.e the image is copied before
+	 * being used as the new avatar).
+	 *
+	 * @param  int    $user_id   The user ID.
+	 * @param  string $image_url The image URL or filename.
+	 *
+	 * @return void
+	 *
+	 * @throws \InvalidArgumentException An exception is thrown if the user ID does
+	 *                                   not exist or the upload result does not
+	 *                                   contain the 'file' key.
+	 * @throws \RuntimeException         A `RuntimeException` is thrown if the sideloading
+	 *                                   fails for some reason.
+	 */
+	public function set_local_avatar( $user_id, $image_url ) {
+		// Prepare arguments.
+		$overrides = [
+			'global_upload' => true,
+			'upload_dir'    => User_Avatar_Upload_Handler::UPLOAD_DIR,
+		];
+
+		$sideloaded_avatar = $this->image_file->handle_sideload( $image_url, $overrides );
+
+		$this->set_uploaded_local_avatar( $user_id, $sideloaded_avatar );
+	}
+
+	/**
 	 * Sets the local avatar to the uploaded image.
 	 *
 	 * @internal
 	 *
 	 * @param  int      $user_id       The user ID.
 	 * @param  string[] $uploaded_avatar {
-	 *     The uploaded avatar information (the result of ::handle_upload()).
+	 *     The uploaded avatar information (the result of Image_File::handle_upload()).
 	 *
 	 *     @type string $file The image file path.
 	 *     @type string $type The MIME type of the uploaded image.

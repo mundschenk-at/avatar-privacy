@@ -314,4 +314,24 @@ class Core {
 	public function get_user_avatar( $user_id ) {
 		return $this->user_fields->get_local_avatar( $user_id );
 	}
+
+	/**
+	 * Sets the local avatar for the given user.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  int    $user_id The user ID.
+	 * @param  string $image   Raw image data.
+	 *
+	 * @return void
+	 *
+	 * @throws \InvalidArgumentException An exception is thrown if the user ID does
+	 *                                   not exist or the upload result does not
+	 *                                   contain the 'file' key.
+	 * @throws \RuntimeException         A `RuntimeException` is thrown if the sideloading
+	 *                                   fails for some reason.
+	 */
+	public function set_user_avatar( $user_id, $image ) {
+		$this->user_fields->set_local_avatar( $user_id, $image );
+	}
 }

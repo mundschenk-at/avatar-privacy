@@ -396,4 +396,18 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertSame( $avatar, $this->sut->get_user_avatar( $user_id ) );
 	}
+
+	/**
+	 * Tests ::set_user_avatar.
+	 *
+	 * @covers ::set_user_avatar
+	 */
+	public function test_set_user_avatar() {
+		$user_id = 42;
+		$image   = 'fake image data';
+
+		$this->user_fields->shouldReceive( 'set_local_avatar' )->once()->with( $user_id, $image );
+
+		$this->assertNull( $this->sut->set_user_avatar( $user_id, $image ) );
+	}
 }
