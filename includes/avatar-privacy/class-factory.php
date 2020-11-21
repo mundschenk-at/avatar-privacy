@@ -84,7 +84,7 @@ class Factory extends Dice {
 	/**
 	 * Creates a new instance.
 	 */
-	protected function __construct() {
+	final protected function __construct() {
 		// Add rules.
 		foreach ( $this->get_rules() as $classname => $rule ) {
 			$this->addRule( $classname, $rule );
