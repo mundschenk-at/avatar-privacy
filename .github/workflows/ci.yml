@@ -23,7 +23,7 @@ jobs:
       - name: Setup problem matchers for PHPUnit
         run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
       - name: Remove unused Composer dependencies
-        run: composer remove humbug/php-scoper sirbrillig/phpcs-import-detection --dev --no-interaction --no-update
+        run: composer remove humbug/php-scoper sirbrillig/phpcs-import-detection szepeviktor/phpstan-wordpress --dev --no-interaction --no-update
       - name: Set proper PHP version requirements for running tests
         if: ${{ matrix.php-versions == '5.6' }}
         run: composer require "php:>=5.6" --no-interaction --no-update
