@@ -27,7 +27,7 @@
 namespace Avatar_Privacy\Integrations;
 
 use Avatar_Privacy\Integrations\Plugin_Integration;
-use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
+use Avatar_Privacy\Core\User_Fields;
 
 use Carbon_Fields\Field\Field;
 
@@ -36,6 +36,7 @@ use Carbon_Fields\Field\Field;
  *
  * @since  2.2.0
  * @since  2.3.0 Methods and properties related to obsolete profile picture upload hnadling removed.
+ * @since  2.4.0 The $upload property has been replaced by the new user data API ($user_fields).
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
@@ -44,11 +45,13 @@ class WP_User_Manager_Integration implements Plugin_Integration {
 	const WP_USER_MANAGER_META_KEY = 'current_user_avatar';
 
 	/**
-	 * The avatar upload handler.
+	 * The user data helper.
 	 *
-	 * @var User_Avatar_Upload_Handler
+	 * @since 2.4.0
+	 *
+	 * @var User_Fields
 	 */
-	private $upload;
+	private $user_fields;
 
 	/**
 	 * A flag indicating that the user avatar cache should be invalidated soon.
@@ -60,10 +63,12 @@ class WP_User_Manager_Integration implements Plugin_Integration {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param User_Avatar_Upload_Handler $upload  The avatar upload handler.
+	 * @since 2.4.0 Parameter $uploads removed, $user_fields added.
+	 *
+	 * @param User_Fields $user_fields The user data API.
 	 */
-	public function __construct( User_Avatar_Upload_Handler $upload ) {
-		$this->upload = $upload;
+	public function __construct( User_Fields $user_fields ) {
+		$this->user_fields = $user_fields;
 	}
 
 	/**
@@ -138,7 +143,7 @@ class WP_User_Manager_Integration implements Plugin_Integration {
 	 */
 	public function maybe_flush_cache_after_saving_user_avatar( $user_id ) {
 		if ( ! empty( $this->flush_cache ) ) {
-			$this->upload->invalidate_user_avatar_cache( $user_id );
+			$this->user_fields->invalidate_local_avatar_cache( $user_id );
 		}
 	}
 }
