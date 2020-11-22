@@ -34,7 +34,7 @@ use Mockery as m;
 
 use Avatar_Privacy\Integrations\BuddyPress_Integration;
 
-use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
+use Avatar_Privacy\Core\User_Fields;
 
 
 /**
@@ -57,9 +57,9 @@ class BuddyPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Mocked helper object.
 	 *
-	 * @var User_Avatar_Upload_Handler
+	 * @var User_Fields
 	 */
-	private $upload;
+	private $user_fields;
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -70,9 +70,9 @@ class BuddyPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	protected function set_up() {
 		parent::set_up();
 
-		$this->upload = m::mock( User_Avatar_Upload_Handler::class );
+		$this->user_fields = m::mock( User_Fields::class );
 
-		$this->sut = m::mock( BuddyPress_Integration::class, [ $this->upload ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( BuddyPress_Integration::class, [ $this->user_fields ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -83,9 +83,9 @@ class BuddyPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( BuddyPress_Integration::class )->makePartial();
 
-		$mock->__construct( $this->upload );
+		$mock->__construct( $this->user_fields );
 
-		$this->assert_attribute_same( $this->upload, 'upload', $mock );
+		$this->assert_attribute_same( $this->user_fields, 'user_fields', $mock );
 	}
 
 	/**
@@ -204,7 +204,7 @@ class BuddyPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 			'item_id' => $item_id,
 		];
 
-		$this->upload->shouldReceive( 'invalidate_user_avatar_cache' )->once()->with( $item_id );
+		$this->user_fields->shouldReceive( 'invalidate_local_avatar_cache' )->once()->with( $item_id );
 
 		$this->assertNull( $this->sut->invalidate_cache_after_avatar_upload( $item_id, $type, $args ) );
 	}
@@ -224,7 +224,7 @@ class BuddyPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 			'item_id' => $item_id,
 		];
 
-		$this->upload->shouldReceive( 'invalidate_user_avatar_cache' )->never();
+		$this->user_fields->shouldReceive( 'invalidate_local_avatar_cache' )->never();
 
 		$this->assertNull( $this->sut->invalidate_cache_after_avatar_upload( $item_id, $type, $args ) );
 	}

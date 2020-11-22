@@ -27,7 +27,7 @@
 namespace Avatar_Privacy\Integrations;
 
 use Avatar_Privacy\Integrations\Plugin_Integration;
-use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
+use Avatar_Privacy\Core\User_Fields;
 
 /**
  * An integration for BuddyPress.
@@ -38,19 +38,23 @@ use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 class BuddyPress_Integration implements Plugin_Integration {
 
 	/**
-	 * The avatar upload handler.
+	 * The user data helper.
 	 *
-	 * @var User_Avatar_Upload_Handler
+	 * @since 2.4.0
+	 *
+	 * @var User_Fields
 	 */
-	private $upload;
+	private $user_fields;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param User_Avatar_Upload_Handler $upload  The avatar upload handler.
+	 * @since 2.4.0 Parameter $uploads removed, $user_fields added.
+	 *
+	 * @param User_Fields $user_fields The user data API.
 	 */
-	public function __construct( User_Avatar_Upload_Handler $upload ) {
-		$this->upload = $upload;
+	public function __construct( User_Fields $user_fields ) {
+		$this->user_fields = $user_fields;
 	}
 
 	/**
@@ -141,7 +145,7 @@ class BuddyPress_Integration implements Plugin_Integration {
 	 */
 	public function invalidate_cache_after_avatar_upload( $item_id, $type, array $args ) {
 		if ( ! empty( $args['object'] ) && 'user' === $args['object'] && ! empty( $args['item_id'] ) ) {
-			$this->upload->invalidate_user_avatar_cache( $args['item_id'] );
+			$this->user_fields->invalidate_local_avatar_cache( $args['item_id'] );
 		}
 	}
 }
