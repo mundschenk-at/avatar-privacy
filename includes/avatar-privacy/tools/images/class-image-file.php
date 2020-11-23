@@ -144,7 +144,7 @@ class Image_File {
 
 		// Save the file.
 		$temp_file = \wp_tempnam( $image_url );
-		if ( ! \copy( $image_url, $temp_file ) ) {
+		if ( ! @\copy( $image_url, $temp_file ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors -- We throw our own exception.
 			throw new \RuntimeException( "Error copying $image_url to $temp_file." );
 		}
 
