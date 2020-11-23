@@ -42,6 +42,8 @@ Avatar Privacy includes the following [WP-CLI](https://wp-cli.org) commands:
 * `wp avatar-privacy uninstall`: Remove data added by Avatar Privacy.
 * `wp avatar-privacy cron list`: List active cron jobs created by the plugin.
 * `wp avatar-privacy cron delete`: Delete cron jobs created by the plugin.
+* `wp avatar-privacy user set-local-avatar`: Sets a local avatar image for a user.
+* `wp avatar-privacy user delete-local-avatar`: Deletes the local avatar image for a user.
 
 
 = Feedback =

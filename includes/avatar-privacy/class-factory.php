@@ -468,6 +468,7 @@ class Factory extends Dice {
 			[ 'instance' => CLI\Cron_Command::class ],
 			[ 'instance' => CLI\Database_Command::class ],
 			[ 'instance' => CLI\Uninstall_Command::class ],
+			[ 'instance' => CLI\User_Command::class ],
 		];
 	}
 
