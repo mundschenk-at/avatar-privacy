@@ -100,7 +100,7 @@ class User_Command extends Abstract_Command {
 	 */
 	public function set_local_avatar( array $args, array $assoc_args ) {
 		$live      = get_flag_value( $assoc_args, 'live', false );
-		$user_id   = \absint( $args[0] );
+		$user_id   = (int) $args[0];
 		$image_url = $args[1];
 
 		$user       = \get_user_by( 'id', $user_id );
@@ -167,7 +167,7 @@ class User_Command extends Abstract_Command {
 	 */
 	public function delete_local_avatar( array $args, array $assoc_args ) {
 		$live    = get_flag_value( $assoc_args, 'live', false );
-		$user_id = \absint( $args[0] );
+		$user_id = (int) $args[0];
 
 		$user       = \get_user_by( 'id', $user_id );
 		$user_login = ! empty( $user ) ? $user->user_login : '';

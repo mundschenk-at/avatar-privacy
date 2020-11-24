@@ -128,7 +128,6 @@ class User_Command_Test extends TestCase {
 			'live' => $live,
 		];
 		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'live', false )->andReturn( $live );
-		Functions\expect( 'absint' )->once()->with( $user_id )->andReturn( $user_id );
 		Functions\expect( 'get_user_by' )->once()->with( 'id',  $user_id )->andReturn( $user );
 		Functions\expect( 'esc_url_raw' )->once()->with( $image_url )->andReturn( $image_url );
 
@@ -169,7 +168,6 @@ class User_Command_Test extends TestCase {
 			'live' => $live,
 		];
 		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'live', false )->andReturn( $live );
-		Functions\expect( 'absint' )->once()->with( $user_id )->andReturn( $user_id );
 		Functions\expect( 'get_user_by' )->once()->with( 'id',  $user_id )->andReturn( $user );
 		Functions\expect( 'esc_url_raw' )->once()->with( $image_url )->andReturn( $image_url );
 
@@ -204,7 +202,6 @@ class User_Command_Test extends TestCase {
 			'live' => $live,
 		];
 		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'live', false )->andReturn( $live );
-		Functions\expect( 'absint' )->once()->with( $user_id )->andReturn( $user_id );
 		Functions\expect( 'get_user_by' )->once()->with( 'id',  $user_id )->andReturn( $user );
 		Functions\expect( 'esc_url_raw' )->never();
 
@@ -241,7 +238,6 @@ class User_Command_Test extends TestCase {
 			'live' => $live,
 		];
 		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'live', false )->andReturn( $live );
-		Functions\expect( 'absint' )->once()->with( $user_id )->andReturn( $user_id );
 		Functions\expect( 'get_user_by' )->once()->with( 'id',  $user_id )->andReturn( $user );
 		Functions\expect( 'esc_url_raw' )->once()->with( $image_url )->andReturn( 'escaped URL' );
 
@@ -282,7 +278,6 @@ class User_Command_Test extends TestCase {
 			'live' => $live,
 		];
 		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'live', false )->andReturn( $live );
-		Functions\expect( 'absint' )->once()->with( $user_id )->andReturn( $user_id );
 		Functions\expect( 'get_user_by' )->once()->with( 'id',  $user_id )->andReturn( $user );
 		Functions\expect( 'esc_url_raw' )->once()->with( $image_url )->andReturn( $image_url );
 
@@ -322,7 +317,6 @@ class User_Command_Test extends TestCase {
 			'live' => $live,
 		];
 		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'live', false )->andReturn( $live );
-		Functions\expect( 'absint' )->once()->with( $user_id )->andReturn( $user_id );
 		Functions\expect( 'get_user_by' )->once()->with( 'id',  $user_id )->andReturn( $user );
 
 		$this->wp_cli->shouldReceive( 'warning' )->never();
@@ -361,7 +355,6 @@ class User_Command_Test extends TestCase {
 			'live' => $live,
 		];
 		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'live', false )->andReturn( $live );
-		Functions\expect( 'absint' )->once()->with( $user_id )->andReturn( $user_id );
 		Functions\expect( 'get_user_by' )->once()->with( 'id',  $user_id )->andReturn( $user );
 
 		$this->wp_cli->shouldReceive( 'warning' )->once()->with( m::type( 'string' ) );
@@ -395,7 +388,6 @@ class User_Command_Test extends TestCase {
 			'live' => $live,
 		];
 		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'live', false )->andReturn( $live );
-		Functions\expect( 'absint' )->once()->with( $user_id )->andReturn( $user_id );
 		Functions\expect( 'get_user_by' )->once()->with( 'id',  $user_id )->andReturn( $user );
 
 		$this->wp_cli->shouldReceive( 'warning' )->never();
@@ -431,7 +423,6 @@ class User_Command_Test extends TestCase {
 			'live' => $live,
 		];
 		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'live', false )->andReturn( $live );
-		Functions\expect( 'absint' )->once()->with( $user_id )->andReturn( $user_id );
 		Functions\expect( 'get_user_by' )->once()->with( 'id',  $user_id )->andReturn( $user );
 
 		$this->wp_cli->shouldReceive( 'warning' )->never();
@@ -470,7 +461,6 @@ class User_Command_Test extends TestCase {
 			'live' => $live,
 		];
 		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'live', false )->andReturn( $live );
-		Functions\expect( 'absint' )->once()->with( $user_id )->andReturn( $user_id );
 		Functions\expect( 'get_user_by' )->once()->with( 'id',  $user_id )->andReturn( $user );
 
 		$this->wp_cli->shouldReceive( 'warning' )->never();
