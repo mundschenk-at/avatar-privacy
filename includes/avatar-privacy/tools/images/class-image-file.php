@@ -150,10 +150,14 @@ class Image_File {
 
 		// Prepare file data.
 		$file_data = [
-			'error'    => null,
 			'tmp_name' => $temp_file,
 			'name'     => $image_url,
 		];
+
+		// Optionally override target filename.
+		if ( ! empty( $overrides['filename'] ) ) {
+			$file_data['name'] = $overrides['filename'];
+		}
 
 		// Use a custom action if none is set.
 		if ( empty( $overrides['action'] ) ) {

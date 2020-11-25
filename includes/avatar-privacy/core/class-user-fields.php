@@ -191,6 +191,7 @@ class User_Fields implements API {
 		return $avatar;
 	}
 
+	// phpcs:disable Squiz.Commenting.FunctionCommentThrowTag.WrongNumber -- until PHPCS bug is fixed.
 	/**
 	 * Sets the local avatar for the given user.
 	 *
@@ -210,16 +211,23 @@ class User_Fields implements API {
 	 *                                   fails for some reason.
 	 */
 	public function set_local_avatar( $user_id, $image_url ) {
+		$filename = \parse_url( $image_url, \PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- we only support PHP 7.0 and higher.
+		if ( empty( $filename ) ) {
+			throw new \InvalidArgumentException( "Malformed URL {$image_url}" );
+		}
+
 		// Prepare arguments.
 		$overrides = [
 			'global_upload' => true,
 			'upload_dir'    => User_Avatar_Upload_Handler::UPLOAD_DIR,
+			'filename'      => $this->get_local_avatar_filename( $user_id, $filename ),
 		];
 
 		$sideloaded_avatar = $this->image_file->handle_sideload( $image_url, $overrides );
 
 		$this->set_uploaded_local_avatar( $user_id, $sideloaded_avatar );
 	}
+	// phpcs:enable Squiz.Commenting.FunctionCommentThrowTag.WrongNumber -- until PHPCS bug is fixed.
 
 	/**
 	 * Sets the local avatar to the uploaded image.
