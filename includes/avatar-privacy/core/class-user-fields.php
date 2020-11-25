@@ -307,4 +307,26 @@ class User_Fields implements API {
 			$this->file_cache->invalidate( 'user', "#/{$hash}-[1-9][0-9]*\.[a-z]{3}\$#" );
 		}
 	}
+
+	/**
+	 * Retrieves the base filename (without the extension) for a local avatar image
+	 * for the given user.
+	 *
+	 * @internal
+	 *
+	 * @param  int    $user_id  The user ID.
+	 * @param  string $filename The original filename.
+	 *
+	 * @return string
+	 */
+	public function get_local_avatar_filename( $user_id, $filename ) {
+		$user = \get_user_by( 'id', $user_id );
+		if ( ! $user instanceof \WP_User ) {
+			return $filename;
+		}
+
+		$extension = \pathinfo( $filename, \PATHINFO_EXTENSION );
+
+		return \sanitize_file_name( "{$user->display_name}_avatar.{$extension}" );
+	}
 }

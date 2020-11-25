@@ -298,50 +298,21 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Provides the data for testing get_filename.
-	 *
-	 * @return array
-	 */
-	public function provide_get_filename_data() {
-		return [
-			[ 'some.png', 'Jack-Straw_avatar.png', (object) [ 'display_name' => 'Jack Straw' ] ],
-			[ 'some.gif', 'Jane-Doe_avatar.gif', (object) [ 'display_name' => 'Jane Doe' ] ],
-			[ 'other.png', 'Foobar_avatar.png', (object) [ 'display_name' => 'Foobar' ] ],
-		];
-	}
-
-	/**
 	 * Tests ::get_filename.
 	 *
 	 * @covers ::get_filename
-	 *
-	 * @dataProvider provide_get_filename_data
-	 *
-	 * @param string $filename  The proposed filename.
-	 * @param string $result    The resulting filename.
-	 * @param object $user      The user object.
 	 */
-	public function test_get_filename( $filename, $result, $user ) {
-		// Set up dummy user ID.
-		$user_id = 666;
-		$args    = [
+	public function test_get_filename() {
+		// Set up arguments.
+		$user_id  = 666;
+		$args     = [
 			'foo'     => 'bar',
 			'user_id' => $user_id,
 		];
+		$filename = '/some/file.png';
+		$result   = 'Foobar_avatar.png';
 
-		Functions\expect( 'get_user_by' )->once()->with( 'id', $user_id )->andReturn( $user );
-		Functions\expect( 'sanitize_file_name' )->once()->with( m::type( 'string' ) )->andReturnUsing(
-			function( $arg ) {
-				return \strtr(
-					$arg,
-					[
-						' '  => '-',
-						'&'  => '',
-						'--' => '-',
-					]
-				);
-			}
-		);
+		$this->registered_user->shouldReceive( 'get_local_avatar_filename' )->once()->with( $user_id, $filename )->andReturn( $result );
 
 		$this->assertSame( $result, $this->sut->get_filename( $filename, $args ) );
 	}

@@ -480,6 +480,73 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Provides the data for testing get_local_avatar_filename.
+	 *
+	 * @return array
+	 */
+	public function provide_get_local_avatar_filename_data() {
+		return [
+			[ '/some/dir/some.png', 'Jack-Straw_avatar.png', 'Jack Straw' ],
+			[ 'some/dir/some.gif', 'Jane-Doe_avatar.gif', 'Jane Doe' ],
+			[ 'other.png', 'Foobar_avatar.png', 'Foobar' ],
+		];
+	}
+
+	/**
+	 * Tests ::get_local_avatar_filename.
+	 *
+	 * @covers ::get_local_avatar_filename
+	 *
+	 * @dataProvider provide_get_local_avatar_filename_data
+	 *
+	 * @param string $filename     The proposed filename.
+	 * @param string $result       The resulting filename.
+	 * @param string $display_name The user object.
+	 */
+	public function test_get_local_avatar_filename( $filename, $result, $display_name ) {
+		// Set up dummy user ID.
+		$user_id            = 666;
+		$user               = m::mock( \WP_User::class );
+		$user->ID           = $user_id;
+		$user->display_name = $display_name;
+
+		Functions\expect( 'get_user_by' )->once()->with( 'id', $user_id )->andReturn( $user );
+		Functions\expect( 'sanitize_file_name' )->once()->with( m::type( 'string' ) )->andReturnUsing(
+			function( $arg ) {
+				return \strtr(
+					$arg,
+					[
+						' '  => '-',
+						'&'  => '',
+						'--' => '-',
+					]
+				);
+			}
+		);
+
+		$this->assertSame( $result, $this->sut->get_local_avatar_filename( $user_id, $filename ) );
+	}
+
+	/**
+	 * Tests ::get_local_avatar_filename.
+	 *
+	 * @covers ::get_local_avatar_filename
+	 *
+	 * @dataProvider provide_get_local_avatar_filename_data
+	 *
+	 * @param string $filename     The proposed filename.
+	 */
+	public function test_get_local_avatar_filename_user_does_not_exist( $filename ) {
+		// Set up parameters..
+		$user_id = 666;
+
+		Functions\expect( 'get_user_by' )->once()->with( 'id', $user_id )->andReturn( false );
+		Functions\expect( 'sanitize_file_name' )->never();
+
+		$this->assertSame( $filename, $this->sut->get_local_avatar_filename( $user_id, $filename ) );
+	}
+
+	/**
 	 * Tests ::set_local_avatar.
 	 *
 	 * @covers ::set_local_avatar
