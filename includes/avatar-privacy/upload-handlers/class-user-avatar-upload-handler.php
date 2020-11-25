@@ -197,11 +197,7 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 * @return string
 	 */
 	protected function get_filename( $filename, array $args ) {
-		$user      = \get_user_by( 'id', $args['user_id'] );
-		$extension = \pathinfo( $filename, \PATHINFO_EXTENSION );
-		$filename  = \sanitize_file_name( $user->display_name . '_avatar.' . $extension );
-
-		return $filename;
+		return $this->registered_user->get_local_avatar_filename( $args['user_id'], $filename );
 	}
 
 	/**
