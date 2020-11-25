@@ -142,7 +142,7 @@ class WP_User_Manager_Integration implements Plugin_Integration {
 	 * @return void
 	 */
 	public function maybe_flush_cache_after_saving_user_avatar( $user_id ) {
-		if ( ! empty( $this->flush_cache ) ) {
+		if ( $this->flush_cache ) {
 			$this->user_fields->invalidate_local_avatar_cache( $user_id );
 		}
 	}
