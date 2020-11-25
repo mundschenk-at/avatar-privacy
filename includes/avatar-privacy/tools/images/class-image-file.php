@@ -70,12 +70,12 @@ class Image_File {
 	/**
 	 * Handles the file upload by optionally switching to the primary site of the network.
 	 *
-	 * @param  array    $file      A slice of the $_FILES superglobal.
-	 * @param  string[] $overrides An associative array of names => values to override
+	 * @param  string[] $file      A slice of the $_FILES superglobal.
+	 * @param  array    $overrides An associative array of names => values to override
 	 *                             default variables. See `wp_handle_uploads` documentation
 	 *                             for the full list of available overrides.
 	 *
-	 * @return string[]            Information about the uploaded file.
+	 * @return string[]         Information about the uploaded file.
 	 */
 	public function handle_upload( array $file, array $overrides = [] ) {
 		// Enable front end support.
@@ -125,16 +125,16 @@ class Image_File {
 	/**
 	 * Handles the file upload by optionally switching to the primary site of the network.
 	 *
-	 * @param  string   $image_url The image file to sideload.
-	 * @param  string[] $overrides An associative array of names => values to override
-	 *                             default variables. See `wp_handle_uploads` documentation
-	 *                             for the full list of available overrides.
+	 * @param  string $image_url The image file to sideload.
+	 * @param  array  $overrides An associative array of names => values to override
+	 *                           default variables. See `wp_handle_uploads` documentation
+	 *                           for the full list of available overrides.
 	 *
-	 * @return string[]            Information about the sideloaded file.
+	 * @return string[]          Information about the sideloaded file.
 	 *
-	 * @throws \RuntimeException   The method throws a `RuntimeException` when an
-	 *                             error is returned by `::handle_upload()` or the
-	 *                             image file could not be copied.
+	 * @throws \RuntimeException The method throws a `RuntimeException` when an
+	 *                           error is returned by `::handle_upload()` or the
+	 *                           image file could not be copied.
 	 */
 	public function handle_sideload( $image_url, array $overrides = [] ) {
 		// Enable front end support.
