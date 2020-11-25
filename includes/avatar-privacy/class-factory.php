@@ -125,7 +125,6 @@ class Factory extends Dice {
 			Options::class                                          => self::SHARED,
 			Network_Options::class                                  => self::SHARED,
 			Filesystem_Cache::class                                 => self::SHARED,
-			Settings::class                                         => self::SHARED,
 
 			// Core API.
 			API::class                                              => self::SHARED,
