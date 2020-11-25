@@ -68,13 +68,6 @@ class Comment_Author_Table extends Table {
 	];
 
 	/**
-	 * The columns of this table.
-	 *
-	 * @var string[]
-	 */
-	private $columns;
-
-	/**
 	 * The options handler.
 	 *
 	 * @var Network_Options
@@ -92,7 +85,6 @@ class Comment_Author_Table extends Table {
 	public function __construct( Network_Options $network_options ) {
 		parent::__construct( self::TABLE_BASENAME, self::LAST_UPDATED, self::COLUMN_FORMATS );
 
-		$this->columns         = \array_keys( self::COLUMN_FORMATS );
 		$this->network_options = $network_options;
 	}
 

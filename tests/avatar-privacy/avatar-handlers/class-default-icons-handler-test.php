@@ -37,7 +37,6 @@ use org\bovigo\vfs\vfsStream;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons_Handler;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Icon_Provider;
 
-use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Tools\Network\Remote_Image_Service;
 
 /**
@@ -56,13 +55,6 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var Default_Icons_Handler
 	 */
 	private $sut;
-
-	/**
-	 * The filesystem cache handler mock.
-	 *
-	 * @var Filesystem_Cache
-	 */
-	private $file_cache;
 
 	/**
 	 * The image editor support class.
@@ -100,7 +92,6 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
 		// Helper mocks.
-		$this->file_cache     = m::mock( Filesystem_Cache::class );
 		$this->icon_providers = [
 			m::mock( Icon_Provider::class ),
 			m::mock( Icon_Provider::class ),
@@ -112,7 +103,6 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut = m::mock(
 			Default_Icons_Handler::class,
 			[
-				$this->file_cache,
 				$this->icon_providers,
 				$this->remote_images,
 			]
@@ -126,16 +116,14 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_constructor() {
 		$mock           = m::mock( Default_Icons_Handler::class )->makePartial()->shouldAllowMockingProtectedMethods();
-		$file_cache     = m::mock( Filesystem_Cache::class );
 		$icon_providers = [
 			m::mock( Icon_Provider::class ),
 			m::mock( Icon_Provider::class ),
 		];
 		$remote_images  = m::mock( Remote_Image_Service::class );
 
-		$mock->__construct( $file_cache, $icon_providers, $remote_images );
+		$mock->__construct( $icon_providers, $remote_images );
 
-		$this->assert_attribute_same( $file_cache, 'file_cache', $mock );
 		$this->assert_attribute_same( $icon_providers, 'icon_providers', $mock );
 		$this->assert_attribute_same( $remote_images, 'remote_images', $mock );
 	}

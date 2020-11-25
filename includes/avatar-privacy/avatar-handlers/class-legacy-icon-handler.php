@@ -29,7 +29,6 @@ namespace Avatar_Privacy\Avatar_Handlers;
 use Avatar_Privacy\Avatar_Handlers\Avatar_Handler;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
-use Avatar_Privacy\Data_Storage\Options;
 
 use Avatar_Privacy\Tools\Images\Image_File;
 use Avatar_Privacy\Tools\Network\Remote_Image_Service;
@@ -42,13 +41,6 @@ use Avatar_Privacy\Tools\Network\Remote_Image_Service;
  * @author Peter Putzer <giGrthub@mundschenk.at>
  */
 class Legacy_Icon_Handler implements Avatar_Handler {
-
-	/**
-	 * The options handler.
-	 *
-	 * @var Options
-	 */
-	private $options;
 
 	/**
 	 * The filesystem cache handler.
@@ -75,12 +67,10 @@ class Legacy_Icon_Handler implements Avatar_Handler {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param Options              $options       The options handler.
 	 * @param Filesystem_Cache     $file_cache    The file cache handler.
 	 * @param Remote_Image_Service $remote_images The remote image service.
 	 */
-	public function __construct( Options $options, Filesystem_Cache $file_cache, Remote_Image_Service $remote_images ) {
-		$this->options       = $options;
+	public function __construct( Filesystem_Cache $file_cache, Remote_Image_Service $remote_images ) {
 		$this->file_cache    = $file_cache;
 		$this->remote_images = $remote_images;
 

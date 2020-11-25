@@ -32,7 +32,6 @@ use Avatar_Privacy\Avatar_Handlers\Avatar_Handler; // phpcs:ignore ImportDetecti
 use Avatar_Privacy\Avatar_Handlers\Default_Icons_Handler;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
-use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 
 use Avatar_Privacy\Tools\Images\Image_File;
@@ -52,13 +51,6 @@ class Image_Proxy implements Component {
 	const CRON_JOB_LOCK_ALL_IMAGES = 'cron_job_lock_all_images';
 
 	const CRON_JOB_ACTION = 'avatar_privacy_daily';
-
-	/**
-	 * The options handler.
-	 *
-	 * @var Options
-	 */
-	private $options;
 
 	/**
 	 * The site transients handler.
@@ -101,19 +93,17 @@ class Image_Proxy implements Component {
 	 * Creates a new instance.
 	 *
 	 * @since 2.4.0 Parameters $gravatar and $user_avatar replaced with the
-	 *              generic $handler.
+	 *              generic $handler. Parameter $options removed.
 	 *
 	 * @param Site_Transients       $site_transients The site transients handler.
-	 * @param Options               $options         The options handler.
 	 * @param Filesystem_Cache      $file_cache      The filesystem cache handler.
 	 * @param Avatar_Handler[]      $handlers        The avatar handlers indexed
 	 *                                               by their filter hook (including
 	 *                                               the $default_icons handler).
 	 * @param Default_Icons_Handler $default_icons   The default icons handler.
 	 */
-	public function __construct( Site_Transients $site_transients, Options $options, Filesystem_Cache $file_cache, array $handlers, Default_Icons_Handler $default_icons ) {
+	public function __construct( Site_Transients $site_transients, Filesystem_Cache $file_cache, array $handlers, Default_Icons_Handler $default_icons ) {
 		$this->site_transients = $site_transients;
-		$this->options         = $options;
 		$this->file_cache      = $file_cache;
 
 		// Avatar handlers.

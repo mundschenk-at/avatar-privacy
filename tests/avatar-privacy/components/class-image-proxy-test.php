@@ -44,7 +44,6 @@ use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache_Handler;
 use Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
-use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Data_Storage\Transients;
 
@@ -80,13 +79,6 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var Site_Transients
 	 */
 	private $site_transients;
-
-	/**
-	 * Required helper object.
-	 *
-	 * @var Options
-	 */
-	private $options;
 
 	/**
 	 * Required helper object.
@@ -139,7 +131,6 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Mock required helpers.
 		$this->site_transients = m::mock( Site_Transients::class );
-		$this->options         = m::mock( Options::class );
 		$this->file_cache      = m::mock( Filesystem_Cache::class );
 		$this->gravatar        = m::mock( Gravatar_Cache_Handler::class );
 		$this->user_avatar     = m::mock( User_Avatar_Handler::class );
@@ -158,7 +149,6 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Constructor arguments.
 		$args = [
 			$this->site_transients,
-			$this->options,
 			$this->file_cache,
 			$handlers,
 			$this->default_icons,
@@ -183,14 +173,12 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock->__construct(
 			$this->site_transients,
-			$this->options,
 			$this->file_cache,
 			$handlers,
 			$this->default_icons
 		);
 
 		$this->assert_attribute_same( $this->site_transients, 'site_transients', $mock );
-		$this->assert_attribute_same( $this->options, 'options', $mock );
 		$this->assert_attribute_same( $this->file_cache, 'file_cache', $mock );
 		$this->assert_attribute_same( $handlers, 'handler_hooks', $mock );
 		$this->assert_attribute_same(
