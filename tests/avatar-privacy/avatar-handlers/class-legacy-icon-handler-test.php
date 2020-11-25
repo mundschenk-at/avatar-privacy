@@ -37,7 +37,6 @@ use org\bovigo\vfs\vfsStream;
 use Avatar_Privacy\Avatar_Handlers\Legacy_Icon_Handler;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
-use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Tools\Network\Remote_Image_Service;
 
 /**
@@ -56,13 +55,6 @@ class Legacy_Icon_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var Legacy_Icon_Handler
 	 */
 	private $sut;
-
-	/**
-	 * The filesystem cache handler mock.
-	 *
-	 * @var Options
-	 */
-	private $options;
 
 	/**
 	 * The filesystem cache handler mock.
@@ -100,7 +92,6 @@ class Legacy_Icon_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
 		// Helper mocks.
-		$this->options       = m::mock( Options::class );
 		$this->file_cache    = m::mock( Filesystem_Cache::class );
 		$this->remote_images = m::mock( Remote_Image_Service::class );
 
@@ -108,7 +99,6 @@ class Legacy_Icon_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut = m::mock(
 			Legacy_Icon_Handler::class,
 			[
-				$this->options,
 				$this->file_cache,
 				$this->remote_images,
 			]
@@ -122,13 +112,11 @@ class Legacy_Icon_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_constructor() {
 		$mock          = m::mock( Legacy_Icon_Handler::class )->makePartial()->shouldAllowMockingProtectedMethods();
-		$options       = m::mock( Options::class );
 		$file_cache    = m::mock( Filesystem_Cache::class );
 		$remote_images = m::mock( Remote_Image_Service::class );
 
-		$mock->__construct( $options, $file_cache, $remote_images );
+		$mock->__construct( $file_cache, $remote_images );
 
-		$this->assert_attribute_same( $options, 'options', $mock );
 		$this->assert_attribute_same( $file_cache, 'file_cache', $mock );
 		$this->assert_attribute_same( $remote_images, 'remote_images', $mock );
 	}

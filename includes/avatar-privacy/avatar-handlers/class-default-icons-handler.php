@@ -28,7 +28,6 @@ namespace Avatar_Privacy\Avatar_Handlers;
 
 use Avatar_Privacy\Avatar_Handlers\Avatar_Handler;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Icon_Provider; // phpcs:ignore ImportDetection.Imports.RequireImports.Import -- needed for PHPDoc
-use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Tools\Network\Remote_Image_Service;
 
 /**
@@ -39,13 +38,6 @@ use Avatar_Privacy\Tools\Network\Remote_Image_Service;
  * @author Peter Putzer <github@mundschenk.at>
  */
 class Default_Icons_Handler implements Avatar_Handler {
-
-	/**
-	 * The filesystem cache handler.
-	 *
-	 * @var Filesystem_Cache
-	 */
-	private $file_cache;
 
 	/**
 	 * A list of icon providers.
@@ -73,13 +65,12 @@ class Default_Icons_Handler implements Avatar_Handler {
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
 	 * @since 2.3.4 Parameter $remote_images added.
+	 * @since 2.4.0 Parameter $file_cache removed.
 	 *
-	 * @param Filesystem_Cache     $file_cache     The file cache handler.
 	 * @param Icon_Provider[]      $icon_providers An array of icon providers.
 	 * @param Remote_Image_Service $remote_images  The remote images handler.
 	 */
-	public function __construct( Filesystem_Cache $file_cache, array $icon_providers, Remote_Image_Service $remote_images ) {
-		$this->file_cache     = $file_cache;
+	public function __construct( array $icon_providers, Remote_Image_Service $remote_images ) {
 		$this->icon_providers = $icon_providers;
 		$this->remote_images  = $remote_images;
 	}
