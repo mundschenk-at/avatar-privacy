@@ -24,5 +24,11 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
+// Avatar Privacy constants.
 define( 'AVATAR_PRIVACY_PLUGIN_FILE', '/some/path/file' );
 define( 'AVATAR_PRIVACY_PLUGIN_PATH', '/some/path' );
+
+// WordPress Core constants.
+define( 'COOKIE_DOMAIN', 'example.org' );
+define( 'COOKIEHASH', 'b7d8d5a26884619e3b3b4481ba778642' );
+define( 'COOKIEPATH', '/some/path' );
