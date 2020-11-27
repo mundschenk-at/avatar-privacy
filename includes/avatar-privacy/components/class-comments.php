@@ -83,6 +83,8 @@ class Comments implements Component {
 
 	/**
 	 * Initialize additional plugin hooks.
+	 *
+	 * @return void
 	 */
 	public function init() {
 		// Add the checkbox to the comment form.
@@ -213,6 +215,8 @@ class Comments implements Component {
 	 * @param string $comment_id       The ID of the comment that has just been saved.
 	 * @param string $comment_approved Whether the comment has been approved (1)
 	 *                                 or not (0) or is marked as spam (spam).
+	 *
+	 * @return void
 	 */
 	public function comment_post( $comment_id, $comment_approved ) {
 		// Don't save anything for spam comments, trackbacks/pingbacks, and registered user's comments.

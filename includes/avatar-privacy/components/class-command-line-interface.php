@@ -27,6 +27,7 @@
 namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Component;
+use Avatar_Privacy\CLI\Command; // phpcs:ignore ImportDetection.Imports.RequireImports.Import -- needed for type hinting.
 
 /**
  * The component providing CLI commands.
@@ -55,6 +56,8 @@ class Command_Line_Interface implements Component {
 
 	/**
 	 * Sets up the various hooks for the plugin component.
+	 *
+	 * @return void
 	 */
 	public function run() {
 		\add_action( 'cli_init', [ $this, 'register_commands' ] );
@@ -62,6 +65,8 @@ class Command_Line_Interface implements Component {
 
 	/**
 	 * Registeres all the different CLI commands.
+	 *
+	 * @return void
 	 */
 	public function register_commands() {
 		foreach ( $this->commands as $cmd ) {
