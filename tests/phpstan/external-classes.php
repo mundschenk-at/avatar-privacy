@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * This file is part of Avatar Privacy.
  *
@@ -36,5 +36,47 @@ namespace Carbon_Fields\Field {
 		 * @return string
 		 */
 		public function get_base_name() {}
+	}
+}
+
+// Theme My login stubs.
+namespace {
+	class Theme_My_Login_Form {
+		/**
+		 * Theme My Login stub.
+		 *
+		 * @return Theme_My_Login_Form_Field
+		 */
+		public function getField() {}
+
+		/**
+		 * Theme My Login stub.
+		 *
+		 * @param  string $field The field name.
+		 *
+		 * @return Theme_My_Login_Form_Field|bool
+		 */
+		public function get_field( $field ) {}
+
+		/**
+		 * Theme My Login stub.
+		 *
+		 * @param string $key   The attribute key.
+		 * @param string $value The attribute value.
+		 *
+		 * @return void
+		 */
+		public function add_attribute( $key, $value = null ) {}
+	}
+
+	class Theme_My_Login_Form_Field {
+		/**
+		 * Theme My Login stub.
+		 *
+		 * @param string|callable $content The field content or a callable function to generate it.
+		 *
+		 * @return void
+		 */
+		public function set_content( $content = '' ) {}
 	}
 }

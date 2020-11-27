@@ -93,3 +93,25 @@ function wpum_get_option( $key = '', $default = false ) {
 function carbon_get_user_meta( $id, $name, $container_id = '' ) {
 	return ''; // Return something, for Scrutinizer-CI.
 }
+
+// Theme My Login stubs.
+
+/**
+ * Stub for Theme My Login.
+ *
+ * @param  string|Theme_My_Login_Form $form Optional. The form name or object.
+ *
+ * @return Theme_My_Login_Form|bool
+ */
+function tml_get_form( $form = '' ) {}
+
+/**
+ * Stub for Theme My Login.
+ *
+ * @param string|Theme_My_Login_Form       $form  The form name or object.
+ * @param string|Theme_My_Login_Form_Field $field The field name or object.
+ * @param array                            $args  Optional. An array of arguments for registering a form field.
+ *
+ * @return Theme_My_Login_Form_Field
+ */
+function tml_add_form_field( $form, $field, $args = [] ) {}
