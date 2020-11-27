@@ -163,7 +163,7 @@ class Settings_Page implements Component {
 	 * @return string
 	 */
 	public function add_form_encoding( $content ) {
-		return \preg_replace( '#(<form method="post") (action="options.php">)#Usi', '\1 enctype="multipart/form-data" \2', $content );
+		return (string) \preg_replace( '#(<form method="post") (action="options.php">)#Usi', '\1 enctype="multipart/form-data" \2', $content );
 	}
 
 	/**

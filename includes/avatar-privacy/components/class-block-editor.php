@@ -187,15 +187,15 @@ class Block_Editor implements Component {
 		// Include partials.
 		\ob_start();
 		require \AVATAR_PRIVACY_PLUGIN_PATH . '/public/partials/block/frontend-form.php';
-		$markup = \ob_get_clean();
+		$markup = (string) \ob_get_clean();
 
 		// As an additional precaution, remove some data if we are in preview mode.
 		if ( ! empty( $attributes['preview'] ) ) {
 			// Remove nonces and other hidden fields.
-			$markup = \preg_replace( '/<input[^>]+type=["\']hidden[^>]+>/Si', '', $markup );
+			$markup = (string) \preg_replace( '/<input[^>]+type=["\']hidden[^>]+>/Si', '', $markup );
 
 			// Also remove links.
-			$markup = \preg_replace( '/(<a[^>]+)href=("[^"]*"|\'[^\']*\')([^>]+>)/Si', '$1$3', $markup );
+			$markup = (string) \preg_replace( '/(<a[^>]+)href=("[^"]*"|\'[^\']*\')([^>]+>)/Si', '$1$3', $markup );
 		}
 
 		return $markup;

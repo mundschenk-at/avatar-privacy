@@ -149,7 +149,7 @@ class User_Profile implements Component {
 	 */
 	public function replace_profile_picture_section( $content ) {
 		if ( ! empty( $this->markup ) ) {
-			return \preg_replace( '#<tr class="user-profile-picture">.*</tr>#Usi', $this->markup, $content );
+			return (string) \preg_replace( '#<tr class="user-profile-picture">.*</tr>#Usi', $this->markup, $content );
 		}
 
 		return $content;

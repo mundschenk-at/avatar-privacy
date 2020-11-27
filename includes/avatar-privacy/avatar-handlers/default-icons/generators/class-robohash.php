@@ -166,7 +166,7 @@ class Robohash extends Parts_Generator {
 			list( $partname, ) = \explode( '-', $file );
 			if ( isset( $parts[ $partname ] ) ) {
 				$parts[ $partname ][ $file ] = $this->prepare_svg_part(
-					\file_get_contents( $info ) // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+					(string) \file_get_contents( $info ) // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 				);
 			}
 		}
@@ -210,7 +210,7 @@ class Robohash extends Parts_Generator {
 	protected function render_svg( $color, $bg_color, $body, $face, $eyes, $mouth, $accessory ) {
 		\ob_start();
 		require \AVATAR_PRIVACY_PLUGIN_PATH . '/public/partials/robohash/svg.php';
-		return \ob_get_clean();
+		return (string) \ob_get_clean();
 	}
 
 	/**

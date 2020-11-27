@@ -215,7 +215,7 @@ class Image_Proxy implements Component {
 
 		if ( ! empty( $image ) ) {
 			$length        = \strlen( $image );
-			$last_modified = \filemtime( $file );
+			$last_modified = (int) \filemtime( $file );
 
 			// Let's set some HTTP headers.
 			\header( "Content-Type: {$content_type}" );
