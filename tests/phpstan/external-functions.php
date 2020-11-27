@@ -115,3 +115,30 @@ function tml_get_form( $form = '' ) {}
  * @return Theme_My_Login_Form_Field
  */
 function tml_add_form_field( $form, $field, $args = [] ) {}
+
+// Ultimate Member stubs.
+
+/**
+ * Stub for Ultimate Member.
+ *
+ * @param int|string $user_id User ID.
+ * @param int|string $size    Size in pixels.
+ *
+ * @return array              Note: The PHPDoc comment of "bool|string" does not
+ *                            correspond to the actual code.
+ */
+function um_get_user_avatar_data( $user_id = '', $size = '96' ) {}
+
+/**
+ * Stub for Ultimate Member.
+ *
+ * @param  string $avatar        Default image if user ID is invalid.
+ * @param  string $id_or_email   The identifier.
+ * @param  string $size          The expected size.
+ * @param  string $avatar_class  Unused.
+ * @param  string $default       Unused.
+ * @param  string $alt           Unused.
+ *
+ * @return string
+ */
+function um_get_avatar( $avatar = '', $id_or_email = '', $size = '96', $avatar_class = '', $default = '', $alt = '' ) {}
