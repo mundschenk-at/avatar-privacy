@@ -80,3 +80,28 @@ namespace {
 		public function set_content( $content = '' ) {}
 	}
 }
+
+// wpDiscuz.
+namespace wpdFormAttr {
+	class Form {
+		/**
+		 * Stub for wpDiscuz
+		 *
+		 * @return void
+		 */
+		public function initFormFields() {}
+
+		/**
+		 * Stub for wpDiscuz
+		 *
+		 * @return array
+		 */
+		public function getFormCustomFields() {
+			return [];
+		}
+	}
+}
+
+namespace wpdFormAttr\Field {
+	class CookiesConsent {}
+}
