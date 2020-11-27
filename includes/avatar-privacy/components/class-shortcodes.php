@@ -121,7 +121,7 @@ class Shortcodes implements Component {
 		// Include partials.
 		\ob_start();
 		require \AVATAR_PRIVACY_PLUGIN_PATH . '/public/partials/shortcode/avatar-upload.php';
-		return \ob_get_clean();
+		return (string) \ob_get_clean();
 	}
 
 	/**

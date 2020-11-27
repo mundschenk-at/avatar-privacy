@@ -184,7 +184,7 @@ class Comments implements Component {
 			// As a last ressort, add the checkbox after all the other fields.
 			\end( $fields );
 			$before_or_after = 'after';
-			$field           = \key( $fields );
+			$field           = (string) \key( $fields );
 		}
 
 		return [ $before_or_after, $field ];
@@ -205,7 +205,7 @@ class Comments implements Component {
 		require \AVATAR_PRIVACY_PLUGIN_PATH . '/public/partials/comments/use-gravatar.php';
 
 		// Return included markup.
-		return \ob_get_clean();
+		return (string) \ob_get_clean();
 	}
 
 	/**
