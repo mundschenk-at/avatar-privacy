@@ -76,6 +76,12 @@
         "coverage": [
             "phpunit --testsuite AvatarPrivacy --coverage-html tests/coverage"
         ],
+        "phpstan": [
+            "phpstan analyze"
+        ],
+        "phpstan-clean": [
+            "phpstan clear-result-cache && phpstan analyze"
+        ],
         "scope-dependencies": [
             "@php vendor/bin/php-scoper add-prefix --config=.scoper.inc.php --force --quiet"
         ],
