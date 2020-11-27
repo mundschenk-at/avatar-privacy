@@ -24,7 +24,7 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-// phpcs:disable WordPress.NamingConventions, Squiz.Commenting.FunctionComment.Missing
+// phpcs:disable WordPress.NamingConventions, Squiz.Commenting.FunctionComment.Missing, Squiz.Commenting.FunctionComment.InvalidNoReturn
 
 // bbPress stubs.
 
@@ -45,9 +45,7 @@ function is_bbpress() {
  *
  * @return int
  */
-function bbp_get_user_id( $user_id = 0, $displayed_user_fallback = true, $current_user_fallback = false ) {
-	return $user_id;
-}
+function bbp_get_user_id( $user_id = 0, $displayed_user_fallback = true, $current_user_fallback = false ) {}
 
 // BuddyPress stubs.
 
@@ -58,9 +56,7 @@ function bbp_get_user_id( $user_id = 0, $displayed_user_fallback = true, $curren
  *
  * @return string
  */
-function bp_core_fetch_avatar( array $args ) {
-	return '';
-}
+function bp_core_fetch_avatar( array $args ) {}
 /**
  * Stub for BuddyPress
  *
@@ -70,9 +66,7 @@ function bp_core_fetch_avatar( array $args ) {
  *
  * @return string
  */
-function bp_core_get_avatar_data_url_filter( $retval, $id_or_email, array $args ) {
-	return '';
-}
+function bp_core_get_avatar_data_url_filter( $retval, $id_or_email, array $args ) {}
 
 // WP User Manager stubs.
 
@@ -85,7 +79,7 @@ function bp_core_get_avatar_data_url_filter( $retval, $id_or_email, array $args 
  * @return mixed
  */
 function wpum_get_option( $key = '', $default = false ) {
-	return $default;
+	return $default; // Return something, for Scrutinizer-CI.
 }
 /**
  * Stub for WP User Manager (Carbon Fields).
@@ -97,5 +91,5 @@ function wpum_get_option( $key = '', $default = false ) {
  * @return mixed
  */
 function carbon_get_user_meta( $id, $name, $container_id = '' ) {
-	return '';
+	return ''; // Return something, for Scrutinizer-CI.
 }

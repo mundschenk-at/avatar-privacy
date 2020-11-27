@@ -24,7 +24,7 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-// phpcs:disable WordPress.NamingConventions, Squiz.Commenting.ClassComment.Missing
+// phpcs:disable WordPress.NamingConventions, Squiz.Commenting.ClassComment.Missing, Generic.Files.OneObjectStructurePerFile.MultipleFound, Squiz.Commenting.FunctionComment.InvalidNoReturn
 
 // WP User Manager stubs.
 
@@ -35,8 +35,6 @@ namespace Carbon_Fields\Field {
 		 *
 		 * @return string
 		 */
-		public function get_base_name() {
-			return '';
-		}
+		public function get_base_name() {}
 	}
 }
