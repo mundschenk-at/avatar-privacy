@@ -156,7 +156,7 @@ class Comment_Author_Fields implements API {
 	 *
 	 * @param  string $email_or_hash The comment author's e-mail address or the unique hash.
 	 *
-	 * @return object|null           The dataset as an object or null.
+	 * @return \stdClass|null        The dataset as an object or null.
 	 */
 	public function load( $email_or_hash ) {
 		global $wpdb;
