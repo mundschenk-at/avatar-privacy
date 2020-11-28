@@ -200,7 +200,8 @@ class Dependencies {
 	protected function maybe_add_minification_suffix( $src ) {
 		if ( ! empty( $this->suffix ) && ! empty( $src ) ) {
 			$i   = \pathinfo( $src );
-			$src = "{$i['dirname']}/{$i['filename']}{$this->suffix}.{$i['extension']}";
+			$ext = ! empty( $i['extension'] ) ? ".{$i['extension']}" : ''; // @phpstan-ignore-line -- https://github.com/phpstan/phpstan/issues/3297
+			$src = "{$i['dirname']}/{$i['filename']}{$this->suffix}{$ext}";
 		}
 
 		return $src;
