@@ -373,14 +373,8 @@ class Comment_Author_Table extends Table {
 	 * @return bool                    True if the schema was modified, false otherwise.
 	 */
 	public function maybe_upgrade_schema( $previous_version ) {
-		$result = false;
-
-		if ( \version_compare( $previous_version, '2.4.0', '<' ) ) {
-			$result = $this->maybe_drop_hash_column() || $result;
-			$result = $this->maybe_fix_last_updated_column_default() || $result;
-		}
-
-		return $result;
+		return \version_compare( $previous_version, '2.4.0', '<' )
+			&& ($this->maybe_drop_hash_column() || $this->maybe_fix_last_updated_column_default());
 	}
 
 	/**
