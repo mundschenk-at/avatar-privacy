@@ -709,6 +709,11 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		return [
 			[ 'avprimg://somehost/path', 'somehost/path' ],
 			[ 'foobar://somehost/path?query', 'somehost/path' ],
+			[ 'foobar://only-host/', 'only-host/' ],
+			[ 'foobar://only-host', 'only-host/' ],
+			[ '//somehost/path', 'somehost/path' ],
+			[ 'foobar:///only/path', null ],
+			[ 'foobar://', null ],
 		];
 	}
 
@@ -724,6 +729,10 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_get_handle_from_url( $url, $result ) {
 		$classname = \get_class( $this->sut );
+
+		if ( null === $result ) {
+			$this->expect_exception( \InvalidArgumentException::class );
+		}
 
 		$this->assertSame( $result, $classname::get_handle_from_url( $url ) );
 	}

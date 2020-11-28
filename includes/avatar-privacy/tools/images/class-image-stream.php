@@ -438,14 +438,26 @@ class Image_Stream {
 	/**
 	 * Retrieves the stream handle from the wrapper URL.
 	 *
+	 * @since  2.4.0  An exception is thrown when an invalid URL is passed to the method.
+	 *
 	 * @param  string $url The wrapper URL.
 	 *
 	 * @return string      The handle.
+	 *
+	 * @throws \InvalidArgumentException Throws an exception if the URLis not valid.
 	 */
 	public static function get_handle_from_url( $url ) {
 		$parts = \parse_url( $url ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
 
-		return $parts['host'] . $parts['path'];
+		// Validate results.
+		if ( empty( $parts ) ) {
+			throw new \InvalidArgumentException( "{$url} is not a valid URL" );
+		}
+
+		$host = $parts['host'] ?? '';
+		$path = $parts['path'] ?? '/';
+
+		return $host . $path;
 	}
 
 	/**
