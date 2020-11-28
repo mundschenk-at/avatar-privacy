@@ -193,11 +193,14 @@ class Gravatar_Service {
 	/**
 	 * Pings Gravatar.com to check if there is an image for the given hash.
 	 *
-	 * @since 2.1.0 Visibility changed to protected.
+	 * @since  2.1.0  Visibility changed to protected.
+	 * @since  2.4.0  Returns '' instead of 0 when no Gravatar can be found.
 	 *
-	 * @param  string $email    The e-mail address to check.
+	 * @param  string $email The e-mail address to check.
 	 *
-	 * @return string|int|false
+	 * @return string|false  Returns the image MIME type if successful, the empty
+	 *                       string there is no Gravatar for the e-mail address,
+	 *                       and `false` in case of an error.
 	 */
 	protected function ping_gravatar( $email ) {
 		// Ask gravatar.com.
@@ -214,7 +217,7 @@ class Gravatar_Service {
 
 			case 404:
 				// No image found.
-				$result = 0;
+				$result = '';
 				break;
 
 			default:
@@ -227,10 +230,13 @@ class Gravatar_Service {
 	/**
 	 * Calculates the proper caching duration.
 	 *
-	 * @since 2.1.0 Visibility changed to protected.
+	 * @since  2.1.0  Visibility changed to protected.
+	 * @since  2.4.0  The type hint of $result has been adjusted according the
+	 *                simplified return value of `::ping_gravatar`.
 	 *
-	 * @param string|int|false $result   The result of the validation check.
-	 * @param int              $age      The "age" (difference between now and the creation date) of a comment or post (in sceonds).
+	 * @param  string|false $result The result of the validation check.
+	 * @param  int          $age    The "age" (difference between now and the
+	 *                              creation date) of a comment or post (in seconds).
 	 *
 	 * @return int
 	 */
