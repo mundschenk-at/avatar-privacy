@@ -371,7 +371,7 @@ class Monster_ID extends PNG_Parts_Generator {
 				$g         = ( $rgb >> 8 ) & 0xFF;
 				$b         = $rgb & 0xFF;
 				$alpha     = ( $rgb & 0x7F000000 ) >> 24;
-				$lightness = ( $r + $g + $b ) / 3 / 255 * self::PERCENT;
+				$lightness = (int) ( ( $r + $g + $b ) / 3 / 255 * self::PERCENT );
 				if ( $lightness > 10 && $lightness < 99 && $alpha < 115 ) {
 					// Convert HSL color to RGB.
 					list( $r, $g, $b ) = HSLtoRGB( $hue, $saturation, $lightness );

@@ -423,7 +423,7 @@ class Avatar_Handling implements Component {
 	 * @return int              The age in seconds.
 	 */
 	protected function get_age( $date_gmt ) {
-		return \time() - \mysql2date( 'U', $date_gmt );
+		return \time() - (int) \mysql2date( 'U', $date_gmt );
 	}
 
 	/**
