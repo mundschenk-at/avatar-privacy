@@ -354,7 +354,7 @@ class Gravatar_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'wp_remote_head' )->once()->with( 'URL' )->andReturn( $response );
 		Functions\expect( 'wp_remote_retrieve_response_code' )->once()->with( $response )->andReturn( $http_code );
 
-		$this->assertSame( 0, $this->sut->ping_gravatar( $email ) );
+		$this->assertSame( '', $this->sut->ping_gravatar( $email ) );
 	}
 
 	/**
