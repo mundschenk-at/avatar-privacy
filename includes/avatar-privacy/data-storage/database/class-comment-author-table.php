@@ -252,7 +252,6 @@ class Comment_Author_Table extends Table {
 		}
 
 		// Select the rows to migrate.
-		$like_clause     = "set with comment % (site: %, blog: {$wpdb->esc_like( $site_id )})";
 
 		/**
 		 * Rows to delete indexed by the ID column in the global table.
@@ -266,7 +265,10 @@ class Comment_Author_Table extends Table {
 		 * @var \stdClass[]
 		 */
 		$rows_to_migrate = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-			$wpdb->prepare( "SELECT * FROM `{$global_table_name}` WHERE log_message LIKE %s", $like_clause ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$wpdb->prepare(
+				"SELECT * FROM `{$global_table_name}` WHERE log_message LIKE %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"set with comment % (site: %, blog: {$wpdb->esc_like( $site_id )})"
+			),
 			\OBJECT_K
 		);
 
