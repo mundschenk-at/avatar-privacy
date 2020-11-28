@@ -141,7 +141,7 @@ class Image_Proxy implements Component {
 
 		// Generate the correct avatar images.
 		foreach ( $this->handler_hooks as $hook => $handler ) {
-			\add_filter( $hook, [ $handler, 'get_url' ], 10, 4 );
+			\add_filter( $hook, [ $handler, 'get_url' ], 10, 4 ); // @phpstan-ignore-line -- WordPress array syntax not supported (yet).
 		}
 
 		// Automatically regenerate missing image files.

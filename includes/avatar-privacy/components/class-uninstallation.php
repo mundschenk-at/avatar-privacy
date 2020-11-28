@@ -173,7 +173,7 @@ class Uninstallation implements Component {
 				'fields'     => 'ids',
 				'number'     => '',
 			];
-			foreach ( \get_sites( $query ) as $site_id ) {
+			foreach ( \get_sites( $query ) as $site_id ) { // @phpstan-ignore-line -- get_sites() always returns a list with the 'ids' argument.
 				\switch_to_blog( $site_id );
 
 				/**
