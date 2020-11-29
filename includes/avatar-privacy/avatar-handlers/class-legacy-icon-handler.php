@@ -57,14 +57,6 @@ class Legacy_Icon_Handler implements Avatar_Handler {
 	private $remote_images;
 
 	/**
-	 * A mapping of extension to MIME type. Necessary for working around PHP 5.6
-	 * limitations.
-	 *
-	 * @var string[]
-	 */
-	private $content_type_mapping;
-
-	/**
 	 * Creates a new instance.
 	 *
 	 * @param Filesystem_Cache     $file_cache    The file cache handler.
@@ -73,9 +65,6 @@ class Legacy_Icon_Handler implements Avatar_Handler {
 	public function __construct( Filesystem_Cache $file_cache, Remote_Image_Service $remote_images ) {
 		$this->file_cache    = $file_cache;
 		$this->remote_images = $remote_images;
-
-		// TODO: Remove when minimum PHP version is updated to 7.0.
-		$this->content_type_mapping = Image_File::CONTENT_TYPE;
 	}
 
 	/**
@@ -133,9 +122,9 @@ class Legacy_Icon_Handler implements Avatar_Handler {
 			\PATHINFO_EXTENSION
 		);
 
-		// TODO: Replace with Image_File::CONTENT_TYPE when minimum PHP version is 7.0 or higher.
-		if ( isset( $this->content_type_mapping[ $extension ] ) ) {
-			$mimetype = $this->content_type_mapping[ $extension ];
+		// Determine MIME type based on the file extension.
+		if ( isset( Image_File::CONTENT_TYPE[ $extension ] ) ) {
+			$mimetype = Image_File::CONTENT_TYPE[ $extension ];
 		}
 
 		return $mimetype;

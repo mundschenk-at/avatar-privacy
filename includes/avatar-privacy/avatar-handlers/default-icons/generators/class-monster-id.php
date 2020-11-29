@@ -209,34 +209,6 @@ class Monster_ID extends PNG_Parts_Generator {
 	];
 
 	/**
-	 * A copy of self::SAME_COLOR_PARTS.
-	 *
-	 * @var array
-	 */
-	private $same_color_parts;
-
-	/**
-	 * A copy of self::SPECIFIC_COLOR_PARTS.
-	 *
-	 * @var array
-	 */
-	private $specific_color_parts;
-
-	/**
-	 * A copy of self::RANDOM_COLOR_PARTS.
-	 *
-	 * @var array
-	 */
-	private $random_color_parts;
-
-	/**
-	 * A copy of self::PART_OPTIMIZATION.
-	 *
-	 * @var array
-	 */
-	private $part_optimization;
-
-	/**
 	 * Creates a new instance.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
@@ -252,12 +224,6 @@ class Monster_ID extends PNG_Parts_Generator {
 		Number_Generator $number_generator,
 		Site_Transients $site_transients
 	) {
-		// Needed for PHP 5.6 compatibility.
-		$this->same_color_parts     = self::SAME_COLOR_PARTS;
-		$this->specific_color_parts = self::SPECIFIC_COLOR_PARTS;
-		$this->random_color_parts   = self::RANDOM_COLOR_PARTS;
-		$this->part_optimization    = self::PART_OPTIMIZATION;
-
 		parent::__construct(
 			\AVATAR_PRIVACY_PLUGIN_PATH . '/public/images/monster-id',
 			[ 'legs', 'hair', 'arms', 'body', 'eyes', 'mouth' ],
@@ -306,19 +272,19 @@ class Monster_ID extends PNG_Parts_Generator {
 			$im = $this->png->create_from_file( "{$this->parts_dir}/{$file}" );
 
 			// Randomly color body parts.
-			if ( 'body' === $part || isset( $this->same_color_parts[ $file ] ) ) {
+			if ( 'body' === $part || isset( self::SAME_COLOR_PARTS[ $file ] ) ) {
 				// Use the main color.
 				$this->colorize_image( $im, $args['hue'], $args['saturation'], $file );
-			} elseif ( isset( $this->random_color_parts[ $file ] ) ) {
+			} elseif ( isset( self::RANDOM_COLOR_PARTS[ $file ] ) ) {
 				$this->colorize_image(
 					$im,
 					$this->number_generator->get( 0, self::DEGREE - 1 ),
 					$this->number_generator->get( 25, self::PERCENT ),
 					$file
 				);
-			} elseif ( isset( $this->specific_color_parts[ $file ] ) ) {
+			} elseif ( isset( self::SPECIFIC_COLOR_PARTS[ $file ] ) ) {
 				// Retrieve specific hue range.
-				list( $low, $high ) = $this->specific_color_parts[ $file ];
+				list( $low, $high ) = self::SPECIFIC_COLOR_PARTS[ $file ];
 
 				$this->colorize_image(
 					$im,
@@ -352,11 +318,11 @@ class Monster_ID extends PNG_Parts_Generator {
 		$hue = $hue < 0 ? self::DEGREE + $hue : $hue;
 
 		\imageAlphaBlending( $image, false );
-		if ( isset( $this->part_optimization[ $part ] ) ) {
-			$xmin = $this->part_optimization[ $part ][0][0];
-			$xmax = $this->part_optimization[ $part ][0][1];
-			$ymin = $this->part_optimization[ $part ][1][0];
-			$ymax = $this->part_optimization[ $part ][1][1];
+		if ( isset( self::PART_OPTIMIZATION[ $part ] ) ) {
+			$xmin = self::PART_OPTIMIZATION[ $part ][0][0];
+			$xmax = self::PART_OPTIMIZATION[ $part ][0][1];
+			$ymin = self::PART_OPTIMIZATION[ $part ][1][0];
+			$ymax = self::PART_OPTIMIZATION[ $part ][1][1];
 		} else {
 			$xmin = 0;
 			$xmax = \imageSX( $image ) - 1;
