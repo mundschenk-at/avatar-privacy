@@ -80,7 +80,7 @@ class Avatar_Privacy_Uninstallation_Requirements_Test extends TestCase {
 		$this->assertSame( 'avatar-privacy', $this->get_value( $req, 'textdomain' ) );
 		$this->assertSame(
 			[
-				'php'       => '5.6.0',
+				'php'       => '7.0.0',
 				'multibyte' => false,
 				'utf-8'     => false,
 			],

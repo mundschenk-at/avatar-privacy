@@ -42,7 +42,7 @@ class Avatar_Privacy_Uninstallation_Requirements extends Mundschenk_WP_Requireme
 	 */
 	public function __construct() {
 		$requirements = array(
-			'php' => '5.6.0',
+			'php' => '7.0.0',
 		);
 
 		parent::__construct( 'Avatar Privacy', AVATAR_PRIVACY_PLUGIN_FILE, 'avatar-privacy', $requirements );
