@@ -376,7 +376,7 @@ class Comment_Author_Table extends Table {
 		$result = false;
 
 		if ( \version_compare( $previous_version, '2.4.0', '<' ) ) {
-			$result = $this->maybe_drop_hash_column() || $result;
+			$result = $this->maybe_drop_hash_column() || $result; // @phpstan-ignore-line -- to make copy & paste less error prone.
 			$result = $this->maybe_fix_last_updated_column_default() || $result;
 		}
 
