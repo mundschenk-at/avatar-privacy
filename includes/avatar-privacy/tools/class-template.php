@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -47,6 +47,17 @@ abstract class Template {
 			'target' => true,
 		],
 	];
+
+	/**
+	 * Retrieves and translates the URL for linking to Gravatar.com (for explanations).
+	 *
+	 * @since 2.4.0
+	 *
+	 * @return string
+	 */
+	public static function get_gravatar_link_url() {
+		return \__( 'https://en.gravatar.com/', 'avatar-privacy' );
+	}
 
 	/**
 	 * Retrieves and filters the `rel` attribute for links to gravatar.com.
