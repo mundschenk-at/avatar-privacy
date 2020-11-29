@@ -26,6 +26,7 @@
 
 namespace Avatar_Privacy\Tools\Images;
 
+use Avatar_Privacy\Tools\Images\Image_File;
 use Avatar_Privacy\Tools\Images\Image_Stream;
 
 /**
@@ -39,6 +40,20 @@ use Avatar_Privacy\Tools\Images\Image_Stream;
 class Editor {
 
 	const DEFAULT_STREAM = 'avprimg://image_editor/dummy/path';
+
+	/**
+	 * Allowed image formats for exporting.
+	 *
+	 * @internal
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var string[]
+	 */
+	const ALLOWED_IMAGE_FORMATS = [
+		Image_File::JPEG_IMAGE => true,
+		Image_File::PNG_IMAGE  => true,
+	];
 
 	/**
 	 * A stream wrapper URL.
@@ -153,26 +168,23 @@ class Editor {
 	 * @return string
 	 */
 	public function get_image_data( $image, $format = 'image/png' ) {
-		// Needed for PHP 5.6 compatibility.
-		$file_extensions = [
-			'image/jpeg' => 'jpg',
-			'image/png'  => 'png',
-		];
-
 		// Check for validity.
-		if ( $image instanceof \WP_Error || ! isset( $file_extensions[ $format ] ) ) {
+		if (
+			$image instanceof \WP_Error ||
+			! isset( self::ALLOWED_IMAGE_FORMATS[ $format ] ) ||
+			! isset( Image_File::FILE_EXTENSION[ $format ] )
+		) {
 			return '';
 		}
 
 		// Convert the image the given format and extract data.
-		$extension = ".{$file_extensions[ $format ]}";
-		if ( $image->save( $this->stream_url . $extension, $format ) instanceof \WP_Error ) {
+		$extension = Image_File::FILE_EXTENSION[ $format ];
+		if ( $image->save( "{$this->stream_url}.{$extension}", $format ) instanceof \WP_Error ) {
 			return '';
 		}
 
 		// Read the data from memory stream and clean up.
-		$stream_class = $this->stream_class; // HPP 5.6 workaround.
-		return $stream_class::get_data( $this->handle . $extension, true );
+		return $this->stream_class::get_data( "{$this->handle}.{$extension}", true );
 	}
 
 	/**
@@ -328,7 +340,6 @@ class Editor {
 	 * @return void
 	 */
 	protected function delete_stream( $stream ) {
-		$stream_class = $this->stream_class; // PHP 5.6 workaround.
-		$stream_class::delete_handle( $stream_class::get_handle_from_url( $stream ) );
+		$this->stream_class::delete_handle( $this->stream_class::get_handle_from_url( $stream ) );
 	}
 }
