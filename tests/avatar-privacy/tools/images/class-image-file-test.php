@@ -253,6 +253,43 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @covers ::handle_sideload
 	 */
+	public function test_handle_sideload_with_filename_override() {
+		$image_url  = vfsStream::url( 'root/other/valid_image.png' );
+		$temp_file  = vfsStream::url( 'root/tmp/temp_image' );
+		$upload_dir = vfsStream::url( 'root/upload/' );
+
+		$new_filename = 'some-other-name.png';
+		$overrides    = [
+			'upload_dir' => $upload_dir,
+			'filename'   => $new_filename,
+		];
+
+		$overrides_with_action           = $overrides;
+		$overrides_with_action['action'] = 'avatar_privacy_sideload';
+
+		$result = [
+			'bar'  => 'foo',
+			'file' => '/my/path',
+		];
+
+		Functions\expect( 'wp_tempnam' )->once()->with( $image_url )->andReturn( $temp_file );
+
+		$this->sut->shouldReceive( 'handle_upload' )->once()->with( m::on( function( $file_data ) use ( $temp_file, $new_filename ) {
+			return (
+				! empty( $file_data['tmp_name'] ) && $file_data['tmp_name'] === $temp_file &&
+				! empty( $file_data['name'] ) && $file_data['name'] === $new_filename
+			);
+		} ), m::type( 'array' ) )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->handle_sideload( $image_url, $overrides ) );
+	}
+
+
+	/**
+	 * Tests ::handle_sideload.
+	 *
+	 * @covers ::handle_sideload
+	 */
 	public function test_handle_sideload_error() {
 		$image_url  = vfsStream::url( 'root/other/valid_image.png' );
 		$temp_file  = vfsStream::url( 'root/tmp/temp_image' );
