@@ -28,6 +28,7 @@ namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generator;
 use Avatar_Privacy\Data_Storage\Site_Transients;
+use Avatar_Privacy\Exceptions\Part_Files_Not_Found_Exception;
 use Avatar_Privacy\Tools\Number_Generator;
 
 /**
@@ -137,7 +138,7 @@ abstract class Parts_Generator implements Generator {
 	 *
 	 * @return array A simple array of files, indexe by part.
 	 *
-	 * @throws \RuntimeException The part files could not be found.
+	 * @throws Part_Files_Not_Found_Exception The part files could not be found.
 	 */
 	protected function get_randomized_parts() {
 		return $this->randomize_parts( $this->get_parts() );
@@ -209,7 +210,7 @@ abstract class Parts_Generator implements Generator {
 	 *                          is determined by the subclasses).
 	 * }
 	 *
-	 * @throws \RuntimeException The part files could not be found.
+	 * @throws Part_Files_Not_Found_Exception The part files could not be found.
 	 */
 	protected function get_parts() {
 		if ( empty( $this->all_parts ) ) {
@@ -242,7 +243,7 @@ abstract class Parts_Generator implements Generator {
 	 *     @type string $type The part definition list, indexed by type.
 	 * }
 	 *
-	 * @throws \RuntimeException The part files could not be found.
+	 * @throws Part_Files_Not_Found_Exception The part files could not be found.
 	 */
 	protected function build_parts_array() {
 		// Make sure the keys are in the correct order.
@@ -253,7 +254,7 @@ abstract class Parts_Generator implements Generator {
 
 		// Raise an exception if there were no files found.
 		if ( $parts === $empty_parts ) {
-			throw new \RuntimeException( "Could not find parts images in {$this->parts_dir}" );
+			throw new Part_Files_Not_Found_Exception( "Could not find parts images in {$this->parts_dir}" );
 		}
 
 		return $this->sort_parts( $parts );

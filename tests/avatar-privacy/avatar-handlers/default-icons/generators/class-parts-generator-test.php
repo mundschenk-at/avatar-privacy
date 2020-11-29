@@ -35,6 +35,7 @@ use Mockery as m;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Parts_Generator;
 
 use Avatar_Privacy\Data_Storage\Site_Transients;
+use Avatar_Privacy\Exceptions\Part_Files_Not_Found_Exception;
 use Avatar_Privacy\Tools\Number_Generator;
 
 /**
@@ -168,7 +169,7 @@ class Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->number_generator->shouldReceive( 'seed' )->once()->with( $seed );
 		$this->number_generator->shouldReceive( 'reset' )->once();
 
-		$this->sut->shouldReceive( 'get_randomized_parts' )->once()->andThrow( \RuntimeException::class );
+		$this->sut->shouldReceive( 'get_randomized_parts' )->once()->andThrow( Part_Files_Not_Found_Exception::class );
 		$this->sut->shouldReceive( 'get_additional_arguments' )->never();
 		$this->sut->shouldReceive( 'get_avatar' )->never();
 
@@ -441,7 +442,7 @@ class Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'read_parts_from_filesystem' )->once()->with( $empty_parts )->andReturn( $empty_parts );
 
-		$this->expectException( \RuntimeException::class );
+		$this->expectException( Part_Files_Not_Found_Exception::class );
 
 		$this->sut->shouldReceive( 'sort_parts' )->never();
 
