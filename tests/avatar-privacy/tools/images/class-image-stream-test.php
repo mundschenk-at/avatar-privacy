@@ -522,7 +522,7 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @covers ::url_stat
 	 */
-	public function test_url_stat_error() {
+	public function test_url_stat_no_handle() {
 		$path  = vfsStream::url( 'root/folder/filename.txt' );
 		$flags = 0; // STREAM_URL_STAT_QUIET does not have to be explicitely set.
 
@@ -547,6 +547,21 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 			],
 			$this->sut->url_stat( $path, $flags )
 		);
+	}
+
+	/**
+	 * Tests ::url_stat.
+	 *
+	 * @covers ::url_stat
+	 */
+	public function test_url_stat_error() {
+		$path  = vfsStream::url( 'root/invalid/folder/filename.txt' );
+		$flags = 0;
+
+		$this->sut->shouldReceive( 'get_handle_from_url' )->once()->with( $path )->andReturn( 'handle' );
+		$this->sut->shouldReceive( 'handle_exists' )->once()->with( 'handle' )->andReturn( true );
+
+		$this->assertFalse( $this->sut->url_stat( $path, $flags ) );
 	}
 
 	/**

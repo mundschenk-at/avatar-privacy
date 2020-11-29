@@ -312,12 +312,19 @@ class Image_Stream {
 	 *
 	 * @param  string $path  The URL.
 	 * @param  int    $flags Additional flags set by the streams API.
-	 * @return array
+	 *
+	 * @return array|false
 	 */
 	public function url_stat( $path, /* @scrutinizer ignore-unused */ $flags ) {
 		if ( static::handle_exists( static::get_handle_from_url( $path ) ) ) {
-			// If fopen() fails, we are in trouble anyway.
-			return \fstat( /* @scrutinizer ignore-type */ \fopen( $path, 'r' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+			$h = @\fopen( $path, 'r' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+
+			// If fopen() failed, we are in trouble.
+			if ( ! \is_resource( $h ) ) {
+				return false;
+			}
+
+			return \fstat( $h );
 		}
 
 		// Since we don't really have folders, treat every call as if STREAM_URL_STAT_QUIET was set.
@@ -444,14 +451,14 @@ class Image_Stream {
 	 *
 	 * @return string      The handle.
 	 *
-	 * @throws \InvalidArgumentException Throws an exception if the URLis not valid.
+	 * @throws \InvalidArgumentException Throws an exception if the URL is not valid.
 	 */
 	public static function get_handle_from_url( $url ) {
 		$parts = \parse_url( $url ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
 
 		// Validate results.
 		if ( empty( $parts ) ) {
-			throw new \InvalidArgumentException( "{$url} is not a valid URL" );
+			throw new \InvalidArgumentException( "{$url} is not a valid stream URL" );
 		}
 
 		$host = $parts['host'] ?? '';
