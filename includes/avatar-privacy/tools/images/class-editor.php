@@ -68,22 +68,28 @@ class Editor {
 	/**
 	 * Creates a new image editor helper.
 	 *
-	 * @since 2.1.0
+	 * @since  2.1.0
+	 * @since  2.4.0 An exception is thrown when an invalid URL is passed to the method.
 	 *
 	 * @param string $url          Optional. The stream URL to be used for in-memory-images. Default self::DEFAULT_STREAM.
 	 * @param string $stream_class Optional. The stream wrapper class that should be used. Default Image_Stream.
+	 *
+	 * @throws \InvalidArgumentException Throws an exception if the default stream URL is not valid.
 	 */
 	public function __construct( $url = self::DEFAULT_STREAM, $stream_class = Image_Stream::class ) {
 		$this->stream_url   = $url;
 		$this->stream_class = $stream_class;
 
-		// Also save the memory handle.
-		$parts        = \parse_url( $url ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
-		$host         = ! empty( $parts['host'] ) ? $parts['host'] : '';
-		$path         = ! empty( $parts['path'] ) ? $parts['path'] : '';
-		$this->handle = "{$host}{$path}";
+		// Determine stream URL scheme.
+		$scheme = \parse_url( $url, \PHP_URL_SCHEME ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+		if ( empty( $scheme ) ) {
+			throw new \InvalidArgumentException( "{$url} is not a valid stream URL" );
+		}
 
-		$stream_class::register( $parts['scheme'] );
+		// Also save the memory handle.
+		$this->handle = $stream_class::get_handle_from_url( $url );
+
+		$stream_class::register( $scheme );
 	}
 
 	/**

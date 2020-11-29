@@ -47,6 +47,8 @@ use Avatar_Privacy\Tools\Images\Image_Stream;
  */
 class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 
+	const HANDLE = 'root/folder/fake_image';
+
 	/**
 	 * The system-under-test.
 	 *
@@ -92,10 +94,11 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 		vfsStream::setup( 'root', null, $filesystem );
 
 		$this->stream = m::mock( Image_Stream::class )->shouldAllowMockingProtectedMethods();
+		$this->stream->shouldReceive( 'get_handle_from_url' )->once()->with( m::type( 'string' ) )->andReturn( self::HANDLE );
 		$this->stream->shouldReceive( 'register' )->once()->with( m::type( 'string' ) );
 
 		// Use vfsStream since we are not really registering our wrapper.
-		$this->stream_url = vfsStream::url( 'root/folder/fake_image' );
+		$this->stream_url = vfsStream::url( self::HANDLE );
 		$this->sut        = m::mock( Editor::class, [ $this->stream_url, \get_class( $this->stream ) ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
@@ -106,19 +109,39 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_constructor() {
 		$url                 = 'fake://stream/with/path';
+		$handle              = 'my_handle';
 		$mocked_stream_class = \get_class( $this->stream );
 
 		$mock = m::mock( Editor::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
+		$this->stream->shouldReceive( 'get_handle_from_url' )->once()->with( $url )->andReturn( $handle );
 		$this->stream->shouldReceive( 'register' )->once()->with( 'fake' );
 
 		$mock->__construct( $url, $mocked_stream_class );
 
 		$this->assert_attribute_same( $url, 'stream_url', $mock );
 		$this->assert_attribute_same( $mocked_stream_class, 'stream_class', $mock );
-		$this->assert_attribute_same( 'stream/with/path', 'handle', $mock );
+		$this->assert_attribute_same( $handle, 'handle', $mock );
 	}
 
+	/**
+	 * Tests ::__construct.
+	 *
+	 * @covers ::__construct
+	 */
+	public function test_constructor_invalid_url() {
+		$url                 = '://stream/with/path';
+		$mocked_stream_class = \get_class( $this->stream );
+
+		$mock = m::mock( Editor::class )->makePartial()->shouldAllowMockingProtectedMethods();
+
+		$this->expect_exception( \InvalidArgumentException::class );
+
+		$this->stream->shouldReceive( 'get_handle_from_url' )->never();
+		$this->stream->shouldReceive( 'register' )->never();
+
+		$mock->__construct( $url, $mocked_stream_class );
+	}
 
 	/**
 	 * Tests ::create_from_stream.
