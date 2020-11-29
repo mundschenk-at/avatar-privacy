@@ -234,11 +234,6 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 		$overrides_with_action           = $overrides;
 		$overrides_with_action['action'] = 'avatar_privacy_sideload';
 
-		$result = [
-			'bar'  => 'foo',
-			'file' => '/my/path',
-		];
-
 		// Make sure that the temporary file is not writable.
 		\touch( $temp_file );
 		\chmod( $temp_file, 0444 );
@@ -250,7 +245,6 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'handle_upload' )->never();
 
 		// Prevent underlying filesystem error.
-		//$this->assertSame( $result, @$this->sut->handle_sideload( $image_url, $overrides ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
 		$this->assertNull( @$this->sut->handle_sideload( $image_url, $overrides ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
 	}
 
