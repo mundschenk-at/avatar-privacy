@@ -43,6 +43,19 @@ use Avatar_Privacy\Tools\Template;
 class Template_Test extends \Avatar_Privacy\Tests\TestCase {
 
 	/**
+	 * Tests ::get_gravatar_link_url.
+	 *
+	 * @covers ::get_gravatar_link_url
+	 */
+	public function test_get_gravatar_link_url() {
+		$translated_url = 'https://language.gravatar.com/';
+
+		Functions\expect( '__' )->once()->with( m::type( 'string' ), 'avatar-privacy' )->andReturn( $translated_url );
+
+		$this->assertSame( $translated_url, Template::get_gravatar_link_url() );
+	}
+
+	/**
 	 * Tests ::get_gravatar_link_rel.
 	 *
 	 * @covers ::get_gravatar_link_rel
