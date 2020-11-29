@@ -167,7 +167,7 @@ class Editor {
 	 *
 	 * @return string
 	 */
-	public function get_image_data( $image, $format = 'image/png' ) {
+	public function get_image_data( $image, $format = Image_File::PNG_IMAGE ) {
 		// Check for validity.
 		if (
 			$image instanceof \WP_Error ||
@@ -203,7 +203,7 @@ class Editor {
 	 *
 	 * @return string
 	 */
-	public function get_resized_image_data( $image, $width, $height, $format = 'image/png' ) {
+	public function get_resized_image_data( $image, $width, $height, $format = Image_File::PNG_IMAGE ) {
 
 		// Try to resize only if we haven't been handed an error object.
 		if ( $image instanceof \WP_Error ) {

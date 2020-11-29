@@ -35,6 +35,7 @@ use Mockery as m;
 use org\bovigo\vfs\vfsStream;
 
 use Avatar_Privacy\Tools\Images\Editor;
+use Avatar_Privacy\Tools\Images\Image_File;
 use Avatar_Privacy\Tools\Images\Image_Stream;
 
 /**
@@ -210,7 +211,7 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_get_image_data() {
 		$editor = m::mock( \WP_Image_Editor::class );
-		$format = 'image/jpeg';
+		$format = Image_File::JPEG_IMAGE;
 		$data   = 'fake image data';
 
 		$editor->shouldReceive( 'save' )->once()->with( $this->stream_url . '.jpg', $format )->andReturn( true );
@@ -242,7 +243,7 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_get_image_data_invalid_format() {
 		$editor = m::mock( \WP_Error::class );
-		$format = 'image/jpeg';
+		$format = Image_File::JPEG_IMAGE;
 
 		$editor->shouldReceive( 'save' )->never();
 		$this->stream->shouldReceive( 'get_data' )->never();
@@ -257,7 +258,7 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_get_image_data_save_fails() {
 		$editor = m::mock( \WP_Image_Editor::class );
-		$format = 'image/jpeg';
+		$format = Image_File::JPEG_IMAGE;
 
 		$editor->shouldReceive( 'save' )->once()->with( $this->stream_url . '.jpg', $format )->andReturn( m::mock( \WP_Error::class ) );
 
@@ -274,7 +275,7 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_resized_image_data() {
 		// Inputs.
 		$editor = m::mock( \WP_Image_Editor::class );
-		$format = 'image/jpeg';
+		$format = Image_File::JPEG_IMAGE;
 		$width  = 64;
 		$height = 120;
 
@@ -316,7 +317,7 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_resized_image_data_wp_error() {
 		// Inputs.
 		$editor = m::mock( \WP_Error::class );
-		$format = 'image/jpeg';
+		$format = Image_File::JPEG_IMAGE;
 		$width  = 64;
 		$height = 120;
 
@@ -336,7 +337,7 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_resized_image_data_crop_fails() {
 		// Inputs.
 		$editor = m::mock( \WP_Image_Editor::class );
-		$format = 'image/jpeg';
+		$format = Image_File::JPEG_IMAGE;
 		$width  = 64;
 		$height = 120;
 
