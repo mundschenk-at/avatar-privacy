@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019 Peter Putzer.
+ * Copyright 2019-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -60,11 +60,13 @@ abstract class Parts_Generator implements Generator {
 	/**
 	 * Lists of files, indexed by part types.
 	 *
+	 * @since 2.4.0 Property renamed to $all_parts, visibility changed to private.
+	 *
 	 * @var array {
 	 *     @type string[] $type An array of files.
 	 * }
 	 */
-	protected $parts;
+	private $all_parts;
 
 	/**
 	 * The random number generator.
@@ -210,25 +212,25 @@ abstract class Parts_Generator implements Generator {
 	 * @throws \RuntimeException The part files could not be found.
 	 */
 	protected function get_parts() {
-		if ( empty( $this->parts ) ) {
+		if ( empty( $this->all_parts ) ) {
 			// Calculate transient key.
 			$basename = \basename( $this->parts_dir );
 			$key      = "avatar_privacy_{$basename}_parts";
 
 			// Check existence of transient.
-			$this->parts = $this->site_transients->get( $key );
-			if ( empty( $this->parts ) ) {
+			$this->all_parts = $this->site_transients->get( $key );
+			if ( empty( $this->all_parts ) ) {
 				// Look at the actual filesystem.
-				$this->parts = $this->build_parts_array();
+				$this->all_parts = $this->build_parts_array();
 
 				// Only store transient if we got a result.
-				if ( ! empty( $this->parts ) ) {
-					$this->site_transients->set( $key, $this->parts, \YEAR_IN_SECONDS );
+				if ( ! empty( $this->all_parts ) ) {
+					$this->site_transients->set( $key, $this->all_parts, \YEAR_IN_SECONDS );
 				}
 			}
 		}
 
-		return $this->parts;
+		return $this->all_parts;
 	}
 
 	/**
