@@ -79,7 +79,7 @@ class PNG {
 					throw new \InvalidArgumentException( "Invalid image type $type." );
 			}
 
-			if ( false === $color || ! \imageFilledRectangle( $image, 0, 0, $width, $height, $color ) ) { // @phpstan-ignore-line -- https://github.com/phpstan/phpstan-src/pull/386
+			if ( false === $color || ! \imageFilledRectangle( $image, 0, 0, $width, $height, $color ) ) {
 				throw new \RuntimeException( "Error filling image of type $type." ); // @codeCoverageIgnore
 			}
 		} catch ( \RuntimeException $e ) {
@@ -175,7 +175,7 @@ class PNG {
 		list( $red, $green, $blue ) = HSLtoRGB( $hue, $saturation, $lightness );
 		$color                      = \imageColorAllocate( $image, $red, $green, $blue );
 
-		if ( false === $color || ! \imageFill( $image, $x, $y, $color ) ) { // @phpstan-ignore-line -- https://github.com/phpstan/phpstan-src/pull/386
+		if ( false === $color || ! \imageFill( $image, $x, $y, $color ) ) {
 			throw new \RuntimeException( "Error filling image with HSL ({$hue}, {$saturation}, {$lightness})." ); // @codeCoverageIgnore
 		}
 	}
