@@ -344,7 +344,9 @@ class Monster_ID extends PNG_Parts_Generator {
 
 					// Change color of pixel.
 					$color = \imageColorAllocateAlpha( $image, $r, $g, $b, $alpha );
-					\imageSetPixel( $image, $i, $j, $color );
+					if ( false !== $color ) {
+						\imageSetPixel( $image, $i, $j, $color );
+					}
 				}
 			}
 		}
