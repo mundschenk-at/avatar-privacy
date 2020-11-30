@@ -12,7 +12,7 @@ parameters:
     inferPrivatePropertyTypeFromConstructor: true
     treatPhpDocTypesAsCertain: false
     checkMissingIterableValueType: false
-    reportUnmatchedIgnoredErrors: false
+    reportUnmatchedIgnoredErrors: true
     bootstrapFiles:
         # Missing constants, function and class stubs
         - tests/phpstan/constants.php
