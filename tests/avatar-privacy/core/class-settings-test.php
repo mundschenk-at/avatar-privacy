@@ -304,6 +304,94 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Tests ::set.
+	 *
+	 * @covers ::set
+	 */
+	public function test_set() {
+		$setting_key   = 'my_key';
+		$setting_value = 'bar';
+
+		$site_id       = 55;
+		$orig_settings = [
+			'a_setting'  => 666,
+			$setting_key => 'some other value',
+			'something'  => 'else',
+		];
+
+		$new_settings                 = $orig_settings;
+		$new_settings[ $setting_key ] = $setting_value;
+
+		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
+
+		$this->sut->shouldReceive( 'get_all_settings' )->once()->andReturn( $orig_settings );
+		$this->options->shouldReceive( 'set' )->once()->with( Settings::OPTION_NAME, $new_settings )->andReturn( true );
+
+		$this->assertTrue( $this->sut->set( $setting_key, $setting_value ) );
+		$this->assert_attribute_same( [ $site_id => $new_settings ], 'settings', $this->sut );
+	}
+
+	/**
+	 * Tests ::set.
+	 *
+	 * @covers ::set
+	 */
+	public function test_set_db_error() {
+		$setting_key   = 'my_key';
+		$setting_value = 'bar';
+
+		$site_id       = 55;
+		$orig_settings = [
+			'a_setting'  => 666,
+			$setting_key => 'some other value',
+			'something'  => 'else',
+		];
+
+		$new_settings                 = $orig_settings;
+		$new_settings[ $setting_key ] = $setting_value;
+
+		$cached_settings = $this->get_value( $this->sut, 'settings' );
+
+		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
+
+		$this->sut->shouldReceive( 'get_all_settings' )->once()->andReturn( $orig_settings );
+		$this->options->shouldReceive( 'set' )->once()->with( Settings::OPTION_NAME, $new_settings )->andReturn( false );
+
+		$this->assertFalse( $this->sut->set( $setting_key, $setting_value ) );
+		$this->assert_attribute_same( $cached_settings, 'settings', $this->sut );
+	}
+
+	/**
+	 * Tests ::set.
+	 *
+	 * @covers ::set
+	 */
+	public function test_set_invalid_setting() {
+		$setting_key   = 'invalid_key';
+		$setting_value = 'bar';
+
+		$site_id       = 55;
+		$orig_settings = [
+			'a_setting' => 666,
+			'my_key'    => 'some other value',
+			'something' => 'else',
+		];
+
+		$cached_settings = $this->get_value( $this->sut, 'settings' );
+
+		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
+
+		$this->sut->shouldReceive( 'get_all_settings' )->once()->andReturn( $orig_settings );
+
+		$this->expect_exception( \UnexpectedValueException::class );
+
+		$this->options->shouldReceive( 'set' )->never();
+
+		$this->assertNull( $this->sut->set( $setting_key, $setting_value ) );
+		$this->assert_attribute_same( $cached_settings, 'settings', $this->sut );
+	}
+
+	/**
 	 * Tests ::get_fields.
 	 *
 	 * @covers ::get_fields

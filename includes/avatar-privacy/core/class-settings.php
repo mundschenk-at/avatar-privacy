@@ -206,6 +206,40 @@ class Settings implements API {
 	}
 
 	/**
+	 * Sets a single setting.
+	 *
+	 * @since  2.4.0
+	 *
+	 * @internal
+	 *
+	 * @param  string $setting The setting name (index).
+	 * @param  mixed  $value   The setting value.
+	 *
+	 * @return bool
+	 *
+	 * @throws \UnexpectedValueException Thrown when the setting name is invalid.
+	 */
+	public function set( $setting, $value ) {
+		$site_id      = \get_current_blog_id();
+		$all_settings = $this->get_all_settings();
+
+		if ( ! isset( $all_settings[ $setting ] ) ) {
+			throw new \UnexpectedValueException( "Invalid setting name '{$setting}'." );
+		}
+
+		// Update DB.
+		$all_settings[ $setting ] = $value;
+		$result                   = $this->options->set( self::OPTION_NAME, $all_settings );
+
+		// Update cached settings only if DB the DB write was successful.
+		if ( $result ) {
+			$this->settings[ $site_id ] = $all_settings;
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Retrieves the settings field definitions.
 	 *
 	 * @param string $information_header Optional. The HTML markup for the informational header in the settings. Default ''.
