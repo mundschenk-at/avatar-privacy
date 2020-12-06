@@ -111,6 +111,7 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::get_all_settings
 	 */
 	public function test_get_all_settings() {
+		$site_id  = 4711;
 		$settings = [
 			'foo'                      => 'bar',
 			Options::INSTALLED_VERSION => self::VERSION,
@@ -118,6 +119,8 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 		$defaults = [
 			'foo' => 'bar',
 		];
+
+		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
 
 		$this->options->shouldReceive( 'get' )
 			->once()
@@ -137,13 +140,16 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::get_all_settings
 	 */
 	public function test_get_all_settings_repeated() {
+		$site_id  = 4711;
 		$original = [
 			'foo'                      => 'bar',
 			Options::INSTALLED_VERSION => self::VERSION,
 		];
 
 		// Prepare state - settings have alreaddy been loaded.
-		$this->set_value( $this->sut, 'settings', $original );
+		$this->set_value( $this->sut, 'settings', [ $site_id => $original ] );
+
+		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
 
 		$this->options->shouldReceive( 'get' )
 			->never();
@@ -159,6 +165,7 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::get_all_settings
 	 */
 	public function test_get_all_settings_forced() {
+		$site_id  = 4711;
 		$original = [
 			'foo'                      => 'bar',
 			Options::INSTALLED_VERSION => self::VERSION,
@@ -172,7 +179,9 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Prepare state - settings have alreaddy been loaded.
-		$this->set_value( $this->sut, 'settings', $original );
+		$this->set_value( $this->sut, 'settings', [ $site_id => $original ] );
+
+		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
 
 		$this->options->shouldReceive( 'get' )
 			->once()
@@ -192,6 +201,7 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::get_all_settings
 	 */
 	public function test_get_all_settings_no_version() {
+		$site_id  = 4711;
 		$original = [
 			'foo' => 'bar',
 		];
@@ -204,7 +214,9 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Prepare state - settings have alreaddy been loaded.
-		$this->set_value( $this->sut, 'settings', $original );
+		$this->set_value( $this->sut, 'settings', [ $site_id => $original ] );
+
+		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
 
 		$this->options->shouldReceive( 'get' )
 			->once()
@@ -224,6 +236,7 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::get_all_settings
 	 */
 	public function test_get_all_settings_version_mismatch() {
+		$site_id  = 4711;
 		$original = [
 			'foo'                      => 'bar',
 			Options::INSTALLED_VERSION => '1.2.3',
@@ -237,7 +250,9 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Prepare state - settings have alreaddy been loaded.
-		$this->set_value( $this->sut, 'settings', $original );
+		$this->set_value( $this->sut, 'settings', [ $site_id => $original ] );
+
+		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
 
 		$this->options->shouldReceive( 'get' )
 			->once()

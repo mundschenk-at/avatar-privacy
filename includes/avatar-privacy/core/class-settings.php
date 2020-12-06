@@ -115,11 +115,13 @@ class Settings implements API {
 	private $version;
 
 	/**
-	 * The user's settings.
+	 * The user's settings (indexed by site ID to be multisite-safe).
 	 *
 	 * @since 2.4.0
 	 *
-	 * @var array
+	 * @var array {
+	 *     @type array $site_settings The plugin settings for the site.
+	 * }
 	 */
 	private $settings = [];
 
@@ -159,39 +161,42 @@ class Settings implements API {
 	/**
 	 * Retrieves the complete plugin settings array.
 	 *
-	 * @since 2.0.0 Parameter $force added.
-	 * @since 2.4.0 Moved to Avatar_Privacy\Core\Settings::get_all_settings.
+	 * @since  2.0.0 Parameter $force added.
+	 * @since  2.4.0 Moved to Avatar_Privacy\Core\Settings::get_all_settings.
 	 *
-	 * @param bool $force Optional. Forces retrieval of settings from database. Default false.
+	 * @param  bool $force Optional. Forces retrieval of settings from database. Default false.
 	 *
 	 * @return array
 	 */
 	public function get_all_settings( $force = false ) {
+		$site_id = \get_current_blog_id();
+
 		// Force a re-read if the cached settings do not appear to be from the current version.
-		if ( empty( $this->settings ) ||
-			empty( $this->settings[ Options::INSTALLED_VERSION ] ) ||
-			$this->version !== $this->settings[ Options::INSTALLED_VERSION ] ||
+		if ( empty( $this->settings[ $site_id ] ) ||
+			empty( $this->settings[ $site_id ][ Options::INSTALLED_VERSION ] ) ||
+			$this->version !== $this->settings[ $site_id ][ Options::INSTALLED_VERSION ] ||
 			$force
 		) {
-			$this->settings = (array) $this->options->get( self::OPTION_NAME, $this->get_defaults() );
+			$this->settings[ $site_id ] = (array) $this->options->get( self::OPTION_NAME, $this->get_defaults() );
 		}
 
-		return $this->settings;
+		return $this->settings[ $site_id ];
 	}
 
 	/**
 	 * Retrieves a single setting.
 	 *
-	 * @since 2.4.0
+	 * @since  2.4.0
 	 *
 	 * @param  string $setting The setting name (index).
+	 * @param  bool   $force   Optional. Forces retrieval of settings from database. Default false.
 	 *
 	 * @return mixed           The requested setting value.
 	 *
 	 * @throws \UnexpectedValueException Thrown when the setting name is invalid.
 	 */
-	public function get( $setting ) {
-		$all_settings = $this->get_all_settings();
+	public function get( $setting, $force = false ) {
+		$all_settings = $this->get_all_settings( $force );
 
 		if ( ! isset( $all_settings[ $setting ] ) ) {
 			throw new \UnexpectedValueException( "Invalid setting name '{$setting}'." );
