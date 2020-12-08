@@ -36,6 +36,8 @@ use org\bovigo\vfs\vfsStream;
 
 use Avatar_Privacy\Tools\Images\Image_File;
 
+use Avatar_Privacy\Exceptions\Upload_Handling_Exception;
+
 /**
  * Avatar_Privacy\Tools\Images\Image_File unit test.
  *
@@ -240,7 +242,7 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'wp_tempnam' )->once()->with( $image_url )->andReturn( $temp_file );
 
-		$this->expect_exception( \RuntimeException::class );
+		$this->expect_exception( Upload_Handling_Exception::class );
 
 		$this->sut->shouldReceive( 'handle_upload' )->never();
 
@@ -313,7 +315,7 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'handle_upload' )->once()->with( m::type( 'array' ), $overrides_with_action )->andReturn( $result );
 
-		$this->expect_exception( \RuntimeException::class );
+		$this->expect_exception( Upload_Handling_Exception::class );
 
 		$this->assertNull( $this->sut->handle_sideload( $image_url, $overrides ) );
 		$this->assertFalse( \file_exists( $temp_file ) );
