@@ -28,8 +28,6 @@ namespace Avatar_Privacy\Upload_Handlers;
 
 use Avatar_Privacy\Core\User_Fields;
 
-use Avatar_Privacy\Data_Storage\Filesystem_Cache;
-
 use Avatar_Privacy\Tools\Images\Image_File;
 
 use Avatar_Privacy\Upload_Handlers\Upload_Handler;
@@ -62,14 +60,14 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 * Creates a new instance.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
-	 * @since 2.4.0 Parameter $core removed, parameters $image_file and $registered_user added.
+	 * @since 2.4.0 Parameters $core and $file_cache removed, parameters $image_file
+	 *              and $registered_user added.
 	 *
-	 * @param Filesystem_Cache $file_cache      The file cache handler.
-	 * @param Image_File       $image_file      The image file handler.
-	 * @param User_Fields      $registered_user The user fields API.
+	 * @param Image_File  $image_file      The image file handler.
+	 * @param User_Fields $registered_user The user fields API.
 	 */
-	public function __construct( Filesystem_Cache $file_cache, Image_File $image_file, User_Fields $registered_user ) {
-		parent::__construct( self::UPLOAD_DIR, $file_cache, $image_file, true );
+	public function __construct( Image_File $image_file, User_Fields $registered_user ) {
+		parent::__construct( self::UPLOAD_DIR, $image_file, true );
 
 		$this->registered_user = $registered_user;
 	}

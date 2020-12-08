@@ -26,12 +26,11 @@
 
 namespace Avatar_Privacy\Upload_Handlers;
 
+use Avatar_Privacy\Core\Default_Avatars;
 use Avatar_Privacy\Core\Settings;
 
-use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
 
-use Avatar_Privacy\Tools\Hasher;
 use Avatar_Privacy\Tools\Images\Image_File;
 
 use Avatar_Privacy\Upload_Handlers\Upload_Handler;
@@ -60,23 +59,17 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 
 	const UPLOAD_DIR = '/avatar-privacy/custom-default';
 
+	const ERROR_FILE          = 'default_avatar_file_error';
+	const ERROR_INVALID_IMAGE = 'default_avatar_invalid_image_type';
+	const ERROR_OTHER         = 'default_avatar_other_error';
 	/**
-	 * The settings API.
+	 * The default avatars API.
 	 *
 	 * @since 2.4.0
 	 *
-	 * @var Settings
+	 * @var Default_Avatars
 	 */
-	private $settings;
-
-	/**
-	 * The hashing helper.
-	 *
-	 * @since 2.4.0
-	 *
-	 * @var Hasher
-	 */
-	private $hasher;
+	private $default_avatars;
 
 	/**
 	 * The options handler.
@@ -89,20 +82,18 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	 * Creates a new instance.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
-	 * @since 2.4.0 Parameter $core removed, parameter $image_file added.
+	 * @since 2.4.0 Parameters $core and $file_cache removed, parameters $image_file,
+	 *              and $default_avatars added.
 	 *
-	 * @param Filesystem_Cache $file_cache  The file cache handler.
-	 * @param Image_File       $image_file  The image file handler.
-	 * @param Settings         $settings    The settings API.
-	 * @param Hasher           $hasher      The hashing helper.
-	 * @param Options          $options     The options handler.
+	 * @param Image_File      $image_file      The image file handler.
+	 * @param Default_Avatars $default_avatars The default avatars API.
+	 * @param Options         $options         The options handler.
 	 */
-	public function __construct( Filesystem_Cache $file_cache, Image_File $image_file, Settings $settings, Hasher $hasher, Options $options ) {
-		parent::__construct( self::UPLOAD_DIR, $file_cache, $image_file );
+	public function __construct( Image_File $image_file, Default_Avatars $default_avatars, Options $options ) {
+		parent::__construct( self::UPLOAD_DIR, $image_file );
 
-		$this->settings = $settings;
-		$this->hasher   = $hasher;
-		$this->options  = $options;
+		$this->default_avatars = $default_avatars;
+		$this->options         = $options;
 	}
 
 	/**
@@ -164,15 +155,18 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	 * @param  array $args          Arguments passed from ::maybe_save_data().
 	 */
 	protected function handle_upload_errors( array $upload_result, array $args ) {
-		$id = $this->options->get_name( Settings::OPTION_NAME ) . '[' . Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR . ']';
 		switch ( $upload_result['error'] ) {
 			case 'Sorry, this file type is not permitted for security reasons.':
-				\add_settings_error( $id, 'default_avatar_invalid_image_type', \__( 'Please upload a valid PNG, GIF or JPEG image for the avatar.', 'avatar-privacy' ), 'error' );
+				$id      = self::ERROR_INVALID_IMAGE;
+				$message = \__( 'Please upload a valid PNG, GIF or JPEG image for the avatar.', 'avatar-privacy' );
 				break;
 
 			default:
-				\add_settings_error( $id, 'default_avatar_other_error', \sprintf( '<strong>%s</strong> %s', \__( 'There was an error uploading the avatar: ', 'avatar-privacy' ), \esc_attr( $upload_result['error'] ) ), 'error' );
+				$id      = self::ERROR_OTHER;
+				$message = \sprintf( '<strong>%s</strong> %s', \__( 'There was an error uploading the avatar: ', 'avatar-privacy' ), \esc_attr( $upload_result['error'] ) );
 		}
+
+		$this->raise_settings_error( $id, $message );
 	}
 
 	/**
@@ -184,28 +178,38 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	 * @param  array $args          Arguments passed from ::maybe_save_data().
 	 */
 	protected function store_file_data( array $upload_result, array $args ) {
-		$this->delete_uploaded_icon( $args['site_id'] );
-
-		$args['option_value'] = $upload_result;
+		// Delete previous image and thumbnails.
+		if ( $this->delete_uploaded_icon( $args['site_id'] ) ) {
+			// Store new option value.
+			$args['option_value'] = $upload_result;
+		} else {
+			// There was an error deleting the previous image file.
+			$this->handle_file_delete_error();
+		}
 	}
 
 	/**
 	 * Deletes a previously uploaded file and its metadata.
 	 *
-	 * @since 2.4.0
+	 * @since  2.4.0
 	 *
 	 * @param  array $args Arguments passed from ::maybe_save_data().
 	 */
 	protected function delete_file_data( array $args ) {
-		$this->delete_uploaded_icon( $args['site_id'] );
-
-		$args['option_value'] = [];
+		// Delete previous image and thumbnails.
+		if ( $this->delete_uploaded_icon( $args['site_id'] ) ) {
+			// Store new option value.
+			$args['option_value'] = [];
+		} else {
+			// There was an error deleting the previous image file.
+			$this->handle_file_delete_error();
+		}
 	}
 
 	/**
 	 * Retrieves the filename to use.
 	 *
-	 * @since 2.4.0
+	 * @since  2.4.0
 	 *
 	 * @param  string $filename The proposed filename.
 	 * @param  array  $args     Arguments passed from ::maybe_save_data().
@@ -213,14 +217,7 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	 * @return string
 	 */
 	protected function get_filename( $filename, array $args ) {
-		$extension = \pathinfo( $filename, \PATHINFO_EXTENSION );
-
-		return \sanitize_file_name(
-			\htmlspecialchars_decode(
-				/* @scrutinizer ignore-type */
-				$this->options->get( 'blogname', 'custom-default-icon', true )
-			) . ".{$extension}"
-		);
+		return $this->default_avatars->get_custom_default_avatar_filename( $filename );
 	}
 
 	/**
@@ -231,10 +228,9 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	 * @return bool
 	 */
 	public function delete_uploaded_icon( $site_id ) {
-		$this->file_cache->invalidate( 'custom', "#/{$this->get_hash( $site_id )}-[1-9][0-9]*\.[a-z]{3}\$#" );
+		if ( $this->default_avatars->delete_custom_default_avatar_image_file() ) {
+			$this->default_avatars->invalidate_custom_default_avatar_cache( $site_id );
 
-		$icon = $this->settings->get( Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR );
-		if ( ! empty( $icon['file'] ) && \file_exists( $icon['file'] ) && \unlink( $icon['file'] ) ) {
 			return true;
 		}
 
@@ -242,15 +238,38 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	}
 
 	/**
-	 * Retrieves the hash for the custom default icon for the given site.
+	 * Raises an error on the settings page.
 	 *
-	 * @since 2.4.0
+	 * @since  2.4.0
 	 *
-	 * @param  int $site_id The site ID.
+	 * @internal
 	 *
-	 * @return string
+	 * @param  string $id      The error ID.
+	 * @param  string $message The error message.
+	 * @param  string $type    Optional. The error type. Default 'error'.
+	 *
+	 * @return void
 	 */
-	public function get_hash( $site_id ) {
-		return $this->hasher->get_hash( "custom-default-{$site_id}" );
+	protected function raise_settings_error( $id, $message, $type = 'error' ) {
+		\add_settings_error(
+			$this->options->get_name( Settings::OPTION_NAME ) . '[' . Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR . ']',
+			$id,
+			$message,
+			$type
+		);
+	}
+
+	/**
+	 * Handles errors during file deletion.
+	 *
+	 * @since  2.4.0
+	 *
+	 * @internal
+	 *
+	 * @return void
+	 */
+	protected function handle_file_delete_error() {
+		$icon = $this->default_avatars->get_custom_default_avatar();
+		$this->raise_settings_error( self::ERROR_FILE, \sprintf( '<strong>%s</strong> %s', \__( 'Could not delete avatar image file:', 'avatar-privacy' ), \esc_attr( $icon['file'] ) ) );
 	}
 }
