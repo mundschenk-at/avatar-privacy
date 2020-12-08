@@ -75,7 +75,7 @@ class Image_File {
 	 *                             default variables. See `wp_handle_uploads` documentation
 	 *                             for the full list of available overrides.
 	 *
-	 * @return string[]         Information about the uploaded file.
+	 * @return string[]            Information about the uploaded file.
 	 */
 	public function handle_upload( array $file, array $overrides = [] ) {
 		// Enable front end support.
