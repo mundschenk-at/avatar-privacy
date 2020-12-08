@@ -36,10 +36,9 @@ use org\bovigo\vfs\vfsStream;
 
 use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler;
 
+use Avatar_Privacy\Core\Default_Avatars;
 use Avatar_Privacy\Core\Settings;
-use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Data_Storage\Options;
-use Avatar_Privacy\Tools\Hasher;
 use Avatar_Privacy\Tools\Images\Image_File;
 
 
@@ -64,23 +63,9 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	/**
 	 * Required helper object.
 	 *
-	 * @var Settings
+	 * @var Default_Avatars
 	 */
-	private $settings;
-
-	/**
-	 * Required helper object.
-	 *
-	 * @var Hasher
-	 */
-	private $hasher;
-
-	/**
-	 * Required helper object.
-	 *
-	 * @var Filesystem_Cache
-	 */
-	private $file_cache;
+	private $default_avatars;
 
 	/**
 	 * Required helper object.
@@ -131,13 +116,11 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 		Functions\when( '__' )->returnArg();
 
 		// Mock required helpers.
-		$this->file_cache = m::mock( Filesystem_Cache::class );
-		$this->image_file = m::mock( Image_File::class );
-		$this->settings   = m::mock( Settings::class );
-		$this->hasher     = m::mock( Hasher::class );
-		$this->options    = m::mock( Options::class );
+		$this->image_file      = m::mock( Image_File::class );
+		$this->default_avatars = m::mock( Default_Avatars::class );
+		$this->options         = m::mock( Options::class );
 
-		$this->sut = m::mock( Custom_Default_Icon_Upload_Handler::class, [ $this->file_cache, $this->image_file, $this->settings, $this->hasher, $this->options ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Custom_Default_Icon_Upload_Handler::class, [ $this->image_file, $this->default_avatars, $this->options ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -150,8 +133,9 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	public function test_constructor() {
 		$mock = m::mock( Custom_Default_Icon_Upload_Handler::class )->makePartial();
 
-		$mock->__construct( $this->file_cache, $this->image_file, $this->settings, $this->hasher, $this->options );
+		$mock->__construct( $this->image_file, $this->default_avatars, $this->options );
 
+		$this->assert_attribute_same( $this->default_avatars, 'default_avatars', $mock );
 		$this->assert_attribute_same( $this->options, 'options', $mock );
 	}
 
@@ -317,8 +301,8 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	 */
 	public function provide_handle_upload_errors_data() {
 		return [
-			[ 'Sorry, this file type is not permitted for security reasons.', 'default_avatar_invalid_image_type' ],
-			[ 'Something else.', 'default_avatar_other_error' ],
+			[ 'Sorry, this file type is not permitted for security reasons.', Custom_Default_Icon_Upload_Handler::ERROR_INVALID_IMAGE ],
+			[ 'Something else.', Custom_Default_Icon_Upload_Handler::ERROR_OTHER ],
 		];
 	}
 
@@ -339,10 +323,9 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 			'site_id'      => 42,
 		];
 
-		$this->options->shouldReceive( 'get_name' )->once()->with( Settings::OPTION_NAME )->andReturn( 'settings_name' );
-
 		Functions\expect( 'esc_attr' )->atMost()->once()->andReturn( 'escaped_string' );
-		Functions\expect( 'add_settings_error' )->once()->with( m::pattern( '/^settings_name\[.*\]$/' ), $error_type, m::type( 'string' ), 'error' );
+
+		$this->sut->shouldReceive( 'raise_settings_error' )->once()->with( $error_type, m::type( 'string' ) );
 
 		$this->assertNull( $this->sut->handle_upload_errors( $upload_result, $args ) );
 	}
@@ -366,10 +349,37 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 			'option_value' => &$option_value,
 		];
 
-		$this->sut->shouldReceive( 'delete_uploaded_icon' )->once()->with( $site_id );
+		$this->sut->shouldReceive( 'delete_uploaded_icon' )->once()->with( $site_id )->andReturn( true );
 
 		$this->assertNull( $this->sut->store_file_data( $icon, $args ) );
 		$this->assertSame( $icon, $option_value );
+	}
+
+	/**
+	 * Tests ::store_file_data.
+	 *
+	 * @covers ::store_file_data
+	 */
+	public function test_store_file_data_error_during_delete() {
+		$option_value = null;
+		$site_id      = 42;
+
+		$icon = [
+			'file' => '/some/path/image.png',
+			'type' => 'image/png',
+		];
+		$args = [
+			'foo'          => 'bar',
+			'site_id'      => $site_id,
+			'option_value' => &$option_value,
+		];
+
+		$this->sut->shouldReceive( 'delete_uploaded_icon' )->once()->with( $site_id )->andReturn( false );
+
+		$this->sut->shouldReceive( 'handle_file_delete_error' )->once();
+
+		$this->assertNull( $this->sut->store_file_data( $icon, $args ) );
+		$this->assertNotSame( $icon, $option_value );
 	}
 
 	/**
@@ -387,49 +397,47 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 			'option_value' => &$option_value,
 		];
 
-		$this->sut->shouldReceive( 'delete_uploaded_icon' )->once()->with( $site_id );
+		$this->sut->shouldReceive( 'delete_uploaded_icon' )->once()->with( $site_id )->andReturn( true );
 
 		$this->assertNull( $this->sut->delete_file_data( $args ) );
 		$this->assertSame( [], $option_value );
 	}
 
 	/**
-	 * Provides the data for testing get_unique_filename.
+	 * Tests ::delete_file_data.
 	 *
-	 * @return array
+	 * @covers ::delete_file_data
 	 */
-	public function provide_get_filename_data() {
-		return [
-			[ 'some.png', 'Foobar', 'Foobar.png' ],
-			[ 'some.gif', 'Foo &amp; Bar', 'Foo-Bar.gif' ],
-			[ 'other.png', 'custom-default-icon', 'custom-default-icon.png' ],
+	public function test_delete_file_data_error_during_delete() {
+		$option_value = null;
+		$site_id      = 42;
+
+		$args = [
+			'foo'          => 'bar',
+			'site_id'      => $site_id,
+			'option_value' => &$option_value,
 		];
+
+		$this->sut->shouldReceive( 'delete_uploaded_icon' )->once()->with( $site_id )->andReturn( false );
+		$this->sut->shouldReceive( 'handle_file_delete_error' )->once();
+
+		$this->assertNull( $this->sut->delete_file_data( $args ) );
+		$this->assertNotSame( [], $option_value );
 	}
 
 	/**
 	 * Tests ::get_filename.
 	 *
 	 * @covers ::get_filename
-	 *
-	 * @dataProvider provide_get_filename_data
-	 *
-	 * @param string $filename  The proposed filename.
-	 * @param string $site_name The site name (blogname).
-	 * @param string $result    The resulting filename.
 	 */
-	public function test_get_filename( $filename, $site_name, $result ) {
-		$args = [
+	public function test_get_filename() {
+		$args     = [
 			'foo' => 'bar',
 		];
+		$filename = '/some/file.png';
+		$result   = 'custom-default-icon.png';
 
-		Functions\expect( 'sanitize_file_name' )->once()->with( m::type( 'string' ) )->andReturnUsing(
-			function( $arg ) {
-				return \preg_replace( [ '/ /', '/&/', '/-{2,}/' ], [ '-', '', '-' ], $arg );
-			}
-		);
-
-		// Regardless of the input filename, we use the blogname option.
-		$this->options->shouldReceive( 'get' )->once()->with( 'blogname', 'custom-default-icon', true )->andReturn( $site_name );
+		$this->default_avatars->shouldReceive( 'get_custom_default_avatar_filename' )->once()->with( $filename )->andReturn( $result );
 
 		$this->assertSame( $result, $this->sut->get_filename( $filename, $args ) );
 	}
@@ -441,8 +449,8 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	 */
 	public function provide_delete_uploaded_icon_data() {
 		return [
-			[ 1, 'root/uploads/some.png', true ],
-			[ 2, 'root/uploads/notthere.png', false ],
+			[ 1, true ],
+			[ 2, false ],
 		];
 	}
 
@@ -453,34 +461,57 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	 *
 	 * @dataProvider provide_delete_uploaded_icon_data
 	 *
-	 * @param  int    $site_id The site ID.
-	 * @param  string $file    The icon path.
-	 * @param  bool   $result  The expected result.
+	 * @param  int  $site_id The site ID.
+	 * @param  bool $result  The expected result.
 	 */
-	public function test_delete_uploaded_icon( $site_id, $file, $result ) {
-		$hash = 'some_hash';
-		$icon = [
-			'file' => vfsStream::url( $file ),
-		];
+	public function test_delete_uploaded_icon( $site_id, $result ) {
 
-		$this->sut->shouldReceive( 'get_hash' )->once()->with( $site_id )->andReturn( $hash );
-		$this->file_cache->shouldReceive( 'invalidate' )->once()->with( 'custom', "#/{$hash}-[1-9][0-9]*\.[a-z]{3}\$#" );
-		$this->settings->shouldReceive( 'get' )->once()->with( Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR )->andReturn( $icon );
+		$this->default_avatars->shouldReceive( 'delete_custom_default_avatar_image_file' )->once()->andReturn( $result );
+
+		if ( $result ) {
+			$this->default_avatars->shouldReceive( 'invalidate_custom_default_avatar_cache' )->once()->with( $site_id );
+		}
 
 		$this->assertSame( $result, $this->sut->delete_uploaded_icon( $site_id ) );
 	}
 
 	/**
-	 * Tests ::get_hash.
+	 * Tests ::raise_settings_error.
 	 *
-	 * @covers ::get_hash
+	 * @covers ::raise_settings_error
 	 */
-	public function test_get_hash() {
-		$site_id = 123;
-		$hash    = 'fake hash';
+	public function test_raise_settings_error() {
+		$id      = 'my_error_id';
+		$message = 'some error message';
+		$type    = 'my-error-type';
 
-		$this->hasher->shouldReceive( 'get_hash' )->once()->with( "custom-default-{$site_id}" )->andReturn( $hash );
+		$setting = 'my-setting';
 
-		$this->assertSame( $hash, $this->sut->get_hash( $site_id ) );
+		$this->options->shouldReceive( 'get_name' )->once()->with( Settings::OPTION_NAME )->andReturn( $setting );
+
+		Functions\expect( 'add_settings_error' )->once()->with( m::pattern( '/^my-setting\[.*\]$/' ), $id, $message, $type );
+
+		$this->assertNull( $this->sut->raise_settings_error( $id, $message, $type ) );
+	}
+
+	/**
+	 * Tests ::handle_file_delete_error.
+	 *
+	 * @covers ::handle_file_delete_error
+	 */
+	public function test_handle_file_delete_error() {
+		$file = '/some/image.png';
+		$icon = [
+			'file' => $file,
+			'type' => 'image/png',
+		];
+
+		$this->default_avatars->shouldReceive( 'get_custom_default_avatar' )->once()->andReturn( $icon );
+
+		Functions\expect( 'esc_attr' )->atMost()->once()->andReturn( 'escaped_string' );
+		
+		$this->sut->shouldReceive( 'raise_settings_error' )->once()->with( Custom_Default_Icon_Upload_Handler::ERROR_FILE, m::type( 'string' ) );
+
+		$this->assertNull( $this->sut->handle_file_delete_error() );
 	}
 }

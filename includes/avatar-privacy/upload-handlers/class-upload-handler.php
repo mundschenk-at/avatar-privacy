@@ -26,15 +26,13 @@
 
 namespace Avatar_Privacy\Upload_Handlers;
 
-use Avatar_Privacy\Data_Storage\Filesystem_Cache;
-
 use Avatar_Privacy\Tools\Images\Image_File;
 
 /**
  * Handles image uploads.
  *
  * @since 2.0.0
- * @since 2.4.0 Property $core removed.
+ * @since 2.4.0 Properties $core, and $file_cache removed.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
@@ -48,13 +46,6 @@ abstract class Upload_Handler {
 	 * @var string[]
 	 */
 	const ALLOWED_MIME_TYPES = Image_File::ALLOWED_UPLOAD_MIME_TYPES;
-
-	/**
-	 * The filesystem cache handler.
-	 *
-	 * @var Filesystem_Cache
-	 */
-	protected $file_cache;
 
 	/**
 	 * The subfolder used for our uploaded files. Has to start with /.
@@ -85,19 +76,18 @@ abstract class Upload_Handler {
 	 * Creates a new instance.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
-	 * @since 2.4.0 Parameter $core removed, parameters $image_File and $global_upload added.
+	 * @since 2.4.0 Parameters $core and $file_cache removed, parameters
+	 *              $image_File and $global_upload added.
 	 *
-	 * @param string           $upload_dir    The subfolder used for our uploaded
-	 *                                        files. Has to start with /.
-	 * @param Filesystem_Cache $file_cache    The file cache handler.
-	 * @param Image_File       $image_file    The image file handler.
-	 * @param bool             $global_upload Optional. A flag indicating whether
-	 *                                        there should be a global upload directory
-	 *                                        on multisite. Default false.
+	 * @param string     $upload_dir    The subfolder used for our uploaded files.
+	 *                                  Has to start with /.
+	 * @param Image_File $image_file    The image file handler.
+	 * @param bool       $global_upload Optional. A flag indicating whether there
+	 *                                  should be a global upload directory on
+	 *                                  multisite. Default false.
 	 */
-	public function __construct( $upload_dir, Filesystem_Cache $file_cache, Image_File $image_file, $global_upload = false ) {
+	public function __construct( $upload_dir, Image_File $image_file, $global_upload = false ) {
 		$this->upload_dir    = $upload_dir;
-		$this->file_cache    = $file_cache;
 		$this->image_file    = $image_file;
 		$this->global_upload = $global_upload;
 	}
