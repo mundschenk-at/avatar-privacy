@@ -28,14 +28,12 @@ namespace Avatar_Privacy\Avatar_Handlers\Default_Icons;
 
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Abstract_Icon_Provider;
 
-use Avatar_Privacy\Core\Settings;
+use Avatar_Privacy\Core\Default_Avatars;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 
 use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Tools\Images\Image_File;
-
-use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler as Upload;
 
 /**
  * An icon provider for uploaded custom default icons.
@@ -55,20 +53,13 @@ class Custom_Icon_Provider extends Abstract_Icon_Provider {
 	private $file_cache;
 
 	/**
-	 * The upload handler.
-	 *
-	 * @var Upload
-	 */
-	private $upload;
-
-	/**
 	 * The settings API.
 	 *
 	 * @since 2.4.0
 	 *
-	 * @var Settings
+	 * @var Default_Avatars
 	 */
-	private $settings;
+	private $default_avatars;
 
 	/**
 	 * The image editor support class.
@@ -80,20 +71,18 @@ class Custom_Icon_Provider extends Abstract_Icon_Provider {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @since 2.4.0 Parameter $settings added, parameter $core removed.
+	 * @since 2.4.0 Parameter $default_avatars added, parameter $core removed.
 	 *
-	 * @param Filesystem_Cache $file_cache The file cache handler.
-	 * @param Upload           $upload     The upload handler.
-	 * @param Settings         $settings   The settings API.
-	 * @param Images\Editor    $images     The image editing handler.
+	 * @param Filesystem_Cache $file_cache      The file cache handler.
+	 * @param Default_Avatars  $default_avatars The custom default avatars API.
+	 * @param Images\Editor    $images          The image editing handler.
 	 */
-	public function __construct( Filesystem_Cache $file_cache, Upload $upload, Settings $settings, Images\Editor $images ) {
+	public function __construct( Filesystem_Cache $file_cache, Default_Avatars $default_avatars, Images\Editor $images ) {
 		parent::__construct( [ 'custom' ] );
 
-		$this->file_cache = $file_cache;
-		$this->upload     = $upload;
-		$this->settings   = $settings;
-		$this->images     = $images;
+		$this->file_cache      = $file_cache;
+		$this->default_avatars = $default_avatars;
+		$this->images          = $images;
 	}
 
 	/**
@@ -107,7 +96,7 @@ class Custom_Icon_Provider extends Abstract_Icon_Provider {
 	public function get_icon_url( $identity, $size ) {
 		// Abort if no custom image has been set.
 		$default = \includes_url( 'images/blank.gif' );
-		$icon    = $this->settings->get( Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR );
+		$icon    = $this->default_avatars->get_custom_default_avatar();
 		if ( empty( $icon['file'] ) ) {
 			return $default;
 		}
@@ -115,7 +104,7 @@ class Custom_Icon_Provider extends Abstract_Icon_Provider {
 		// We need the current site ID.
 		$site_id   = \get_current_blog_id();
 		$extension = Image_File::FILE_EXTENSION[ $icon['type'] ];
-		$identity  = $this->upload->get_hash( $site_id );
+		$identity  = $this->default_avatars->get_hash( $site_id );
 		$filename  = "custom/{$site_id}/{$identity}-{$size}.{$extension}";
 
 		// Only generate a new icon if necessary.

@@ -34,10 +34,9 @@ use Mockery as m;
 
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Custom_Icon_Provider;
 
-use Avatar_Privacy\Core\Settings;
+use Avatar_Privacy\Core\Default_Avatars;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
 use Avatar_Privacy\Tools\Images;
-use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler as Upload;
 
 /**
  * Avatar_Privacy\Avatar_Handlers\Default_Icons\Custom_Icon_Provider unit test.
@@ -58,18 +57,11 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $file_cache;
 
 	/**
-	 * The upload handler.
+	 * The custom default avatar handler.
 	 *
-	 * @var Upload
+	 * @var Default_Avatars
 	 */
-	private $upload;
-
-	/**
-	 * The settings API.
-	 *
-	 * @var Settings
-	 */
-	private $settings;
+	private $default_avatars;
 
 	/**
 	 * The image editor support class.
@@ -95,18 +87,16 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 		parent::set_up();
 
 		// Helper mocks.
-		$this->file_cache = m::mock( Filesystem_Cache::class );
-		$this->upload     = m::mock( Upload::class );
-		$this->settings   = m::mock( Settings::class );
-		$this->images     = m::mock( Images\Editor::class );
+		$this->file_cache      = m::mock( Filesystem_Cache::class );
+		$this->default_avatars = m::mock( Default_Avatars::class );
+		$this->images          = m::mock( Images\Editor::class );
 
 		// Partially mock system under test.
 		$this->sut = m::mock(
 			Custom_Icon_Provider::class,
 			[
 				$this->file_cache,
-				$this->upload,
-				$this->settings,
+				$this->default_avatars,
 				$this->images,
 			]
 		)->makePartial()->shouldAllowMockingProtectedMethods();
@@ -121,18 +111,16 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_constructor() {
 		// Dependencies.
-		$file_cache = m::mock( Filesystem_Cache::class );
-		$upload     = m::mock( Upload::class );
-		$settings   = m::mock( Settings::class );
-		$images     = m::mock( Images\Editor::class );
+		$file_cache      = m::mock( Filesystem_Cache::class );
+		$default_avatars = m::mock( Default_Avatars::class );
+		$images          = m::mock( Images\Editor::class );
 
 		$mock = m::mock( Custom_Icon_Provider::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invoke_method( $mock, '__construct', [ $file_cache, $upload, $settings, $images ] );
+		$this->invoke_method( $mock, '__construct', [ $file_cache, $default_avatars, $images ] );
 
 		$this->assert_attribute_same( $file_cache, 'file_cache', $mock );
-		$this->assert_attribute_same( $upload, 'upload', $mock );
-		$this->assert_attribute_same( $settings, 'settings', $mock );
+		$this->assert_attribute_same( $default_avatars, 'default_avatars', $mock );
 		$this->assert_attribute_same( $images, 'images', $mock );
 	}
 
@@ -163,11 +151,11 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'includes_url' )->once()->with( 'images/blank.gif' )->andReturn( $default_url );
 
-		$this->settings->shouldReceive( 'get' )->once()->with( Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR )->andReturn( $icon );
+		$this->default_avatars->shouldReceive( 'get_custom_default_avatar' )->once()->andReturn( $icon );
 
 		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
 
-		$this->upload->shouldReceive( 'get_hash' )->once()->andReturn( $hash );
+		$this->default_avatars->shouldReceive( 'get_hash' )->once()->andReturn( $hash );
 
 		$this->file_cache->shouldReceive( 'get_base_dir' )->once()->with()->andReturn( $basedir );
 
@@ -198,11 +186,11 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'includes_url' )->once()->with( 'images/blank.gif' )->andReturn( $default_url );
 
-		$this->settings->shouldReceive( 'get' )->once()->with( Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR )->andReturn( $icon );
+		$this->default_avatars->shouldReceive( 'get_custom_default_avatar' )->once()->andReturn( $icon );
 
 		Functions\expect( 'get_current_blog_id' )->never();
 
-		$this->upload->shouldReceive( 'get_hash' )->never();
+		$this->default_avatars->shouldReceive( 'get_hash' )->never();
 
 		$this->file_cache->shouldReceive( 'get_base_dir' )->never();
 
@@ -240,11 +228,11 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'includes_url' )->once()->with( 'images/blank.gif' )->andReturn( $default_url );
 
-		$this->settings->shouldReceive( 'get' )->once()->with( Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR )->andReturn( $icon );
+		$this->default_avatars->shouldReceive( 'get_custom_default_avatar' )->once()->andReturn( $icon );
 
 		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
 
-		$this->upload->shouldReceive( 'get_hash' )->once()->andReturn( $hash );
+		$this->default_avatars->shouldReceive( 'get_hash' )->once()->andReturn( $hash );
 
 		$this->file_cache->shouldReceive( 'get_base_dir' )->once()->with()->andReturn( $basedir );
 
