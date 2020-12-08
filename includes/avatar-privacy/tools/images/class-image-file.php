@@ -26,6 +26,8 @@
 
 namespace Avatar_Privacy\Tools\Images;
 
+use Avatar_Privacy\Exceptions\Upload_Handling_Exception;
+
 /**
  * A utility class for handling image files.
  *
@@ -132,9 +134,9 @@ class Image_File {
 	 *
 	 * @return string[]          Information about the sideloaded file.
 	 *
-	 * @throws \RuntimeException The method throws a `RuntimeException` when an
-	 *                           error is returned by `::handle_upload()` or the
-	 *                           image file could not be copied.
+	 * @throws Upload_Handling_Exception The method throws a `RuntimeException`
+	 *                                   when an error is returned by `::handle_upload()`
+	 *                                   or the image file could not be copied.
 	 */
 	public function handle_sideload( $image_url, array $overrides = [] ) {
 		// Enable front end support.
@@ -145,7 +147,7 @@ class Image_File {
 		// Save the file.
 		$temp_file = \wp_tempnam( $image_url );
 		if ( ! @\copy( $image_url, $temp_file ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors -- We throw our own exception.
-			throw new \RuntimeException( "Error copying $image_url to $temp_file." );
+			throw new Upload_Handling_Exception( "Error copying $image_url to $temp_file." );
 		}
 
 		// Prepare file data.
@@ -172,7 +174,7 @@ class Image_File {
 			/* @scrutinizer ignore-unhandled. */ @unlink( $temp_file );
 
 			// Signal error.
-			throw new \RuntimeException( $sideloaded['error'] );
+			throw new Upload_Handling_Exception( $sideloaded['error'] );
 		}
 
 		return $sideloaded;

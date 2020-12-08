@@ -28,6 +28,7 @@ namespace Avatar_Privacy\Core;
 
 use Avatar_Privacy\Core\API;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
+use Avatar_Privacy\Exceptions\Upload_Handling_Exception; // phpcs:ignore ImportDetection.Imports.RequireImports -- needed for PHPDoc annotation.
 use Avatar_Privacy\Tools\Hasher;
 use Avatar_Privacy\Tools\Images\Image_File;
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
@@ -207,7 +208,7 @@ class User_Fields implements API {
 	 * @throws \InvalidArgumentException An exception is thrown if the user ID does
 	 *                                   not exist or the upload result does not
 	 *                                   contain the 'file' key.
-	 * @throws \RuntimeException         A `RuntimeException` is thrown if the sideloading
+	 * @throws Upload_Handling_Exception An exceptions is thrown if the sideloading
 	 *                                   fails for some reason.
 	 */
 	public function set_local_avatar( $user_id, $image_url ) {
