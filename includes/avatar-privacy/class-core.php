@@ -28,10 +28,14 @@
 namespace Avatar_Privacy;
 
 use Avatar_Privacy\Core\Comment_Author_Fields;
+use Avatar_Privacy\Core\Default_Avatars;
 use Avatar_Privacy\Core\User_Fields;
 use Avatar_Privacy\Core\Settings;
 
 use Avatar_Privacy\Tools\Hasher;
+
+use Avatar_Privacy\Exceptions\File_Deletion_Exception;  // phpcs:ignore ImportDetection.Imports.RequireImports -- needed for PHPDoc annotation.
+use Avatar_Privacy\Exceptions\Upload_Handling_Exception;  // phpcs:ignore ImportDetection.Imports.RequireImports -- needed for PHPDoc annotation.
 
 /**
  * The core database API of the Avatar Privacy plugin.
@@ -76,6 +80,15 @@ class Core {
 	private $comment_author_fields;
 
 	/**
+	 * The default avatars API.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var Default_Avatars
+	 */
+	private $default_avatars;
+
+	/**
 	 * The singleton instance.
 	 *
 	 * @var Core
@@ -87,19 +100,28 @@ class Core {
 	 * and filters for the plugin.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
-	 * @since 2.4.0 Parameters $hasher, $user_fields and $comment_author_fields added, $transients,
-	 *              $version, $options, $site_transients and $cache removed.
+	 * @since 2.4.0 Parameters $hasher, $user_fields, $comment_author_fields, and
+	 *              $default_avatars added, $transients, $version, $options,
+	 *              $site_transients, and $cache removed.
 	 *
 	 * @param Settings              $settings              Required.
 	 * @param Hasher                $hasher                Required.
 	 * @param User_Fields           $user_fields           Required.
 	 * @param Comment_Author_Fields $comment_author_fields Required.
+	 * @param Default_Avatars       $default_avatars       Required.
 	 */
-	public function __construct( Settings $settings, Hasher $hasher, User_Fields $user_fields, Comment_Author_Fields $comment_author_fields ) {
+	public function __construct(
+		Settings $settings,
+		Hasher $hasher,
+		User_Fields $user_fields,
+		Comment_Author_Fields $comment_author_fields,
+		Default_Avatars $default_avatars
+	) {
 		$this->settings              = $settings;
 		$this->hasher                = $hasher;
 		$this->user_fields           = $user_fields;
 		$this->comment_author_fields = $comment_author_fields;
+		$this->default_avatars       = $default_avatars;
 	}
 
 	/**
@@ -333,5 +355,49 @@ class Core {
 	 */
 	public function set_user_avatar( $user_id, $image ) {
 		$this->user_fields->set_local_avatar( $user_id, $image );
+	}
+
+	/**
+	 * Retrieves the full-size custom default avatar for the current site.
+	 *
+	 * Note: On multisite, the caller is responsible for switching to the site
+	 * (using `switch_to_blog`) before calling this method, and for restoring
+	 * the original site afterwards (using `restore_current_blog`).
+	 *
+	 * @return array {
+	 *     An avatar definition, or the empty array.
+	 *
+	 *     @type string $file The local filename.
+	 *     @type string $type The MIME type.
+	 * }
+	 */
+	public function get_custom_default_avatar() {
+		return $this->default_avatars->get_custom_default_avatar();
+	}
+
+	/**
+	 * Sets the custom default avatar for the current site.
+	 *
+	 * Please note that the calling function is responsible for cleaning up the
+	 * provided image if it is a temporary file (i.e the image is copied before
+	 * being used as the new avatar).
+	 *
+	 * On multisite, the caller is responsible for switching to the site
+	 * (using `switch_to_blog`) before calling this method, and for restoring
+	 * the original site afterwards (using `restore_current_blog`).
+	 *
+	 * @param  string $image_url The image URL or filename.
+	 *
+	 * @return void
+	 *
+	 * @throws \InvalidArgumentException An exception is thrown if the image URL
+	 *                                   is invalid.
+	 * @throws Upload_Handling_Exception An exception is thrown if there was an
+	 *                                   while processing the image sideloading.
+	 * @throws File_Deletion_Exception   An exception is thrown if the previously
+	 *                                   set image could not be deleted.
+	 */
+	public function set_custom_default_avatar( $image_url ) {
+		$this->default_avatars->set_custom_default_avatar( $image_url );
 	}
 }
