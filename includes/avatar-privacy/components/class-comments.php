@@ -236,7 +236,7 @@ class Comments implements Component {
 		}
 
 		// Save the 'use gravatar' value.
-		$use_gravatar = ( isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) && ( 'true' === $_POST[ self::CHECKBOX_FIELD_NAME ] ) ) ? 1 : 0; // // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$use_gravatar = ( isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) && ( 'true' === $_POST[ self::CHECKBOX_FIELD_NAME ] ) ) ? 1 : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$this->comment_author->update_gravatar_use( $comment->comment_author_email, $comment_id, $use_gravatar );
 	}
 
