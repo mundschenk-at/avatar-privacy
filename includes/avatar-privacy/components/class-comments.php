@@ -212,7 +212,7 @@ class Comments implements Component {
 	 * Saves the value of the 'use gravatar' checkbox from the comment form in
 	 * the database, but only for non-spam comments.
 	 *
-	 * @param string $comment_id       The ID of the comment that has just been saved.
+	 * @param int    $comment_id       The ID of the comment that has just been saved.
 	 * @param string $comment_approved Whether the comment has been approved (1)
 	 *                                 or not (0) or is marked as spam (spam).
 	 *
