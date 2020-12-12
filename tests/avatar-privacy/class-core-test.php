@@ -35,6 +35,7 @@ use Mockery as m;
 use Avatar_Privacy\Core;
 
 use Avatar_Privacy\Core\Comment_Author_Fields;
+use Avatar_Privacy\Core\Default_Avatars;
 use Avatar_Privacy\Core\User_Fields;
 use Avatar_Privacy\Core\Settings;
 
@@ -88,6 +89,13 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $user_fields;
 
 	/**
+	 * Required helper object.
+	 *
+	 * @var Default_Avatars
+	 */
+	private $default_avatars;
+
+	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 *
@@ -102,6 +110,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->hasher                = m::mock( Hasher::class );
 		$this->user_fields           = m::mock( User_Fields::class );
 		$this->comment_author_fields = m::mock( Comment_Author_Fields::class );
+		$this->default_avatars       = m::mock( Default_Avatars::class );
 
 		// Partially mock system under test.
 		$this->sut = m::mock(
@@ -111,6 +120,7 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 				$this->hasher,
 				$this->user_fields,
 				$this->comment_author_fields,
+				$this->default_avatars,
 			]
 		)->makePartial()->shouldAllowMockingProtectedMethods();
 	}
@@ -140,14 +150,16 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$hasher                = m::mock( Hasher::class );
 		$user_fields           = m::mock( User_Fields::class );
 		$comment_author_fields = m::mock( Comment_Author_Fields::class );
+		$default_avatars       = m::mock( Default_Avatars::class );
 
 		$core = m::mock( Core::class )->makePartial();
-		$core->__construct( $settings, $hasher, $user_fields, $comment_author_fields );
+		$core->__construct( $settings, $hasher, $user_fields, $comment_author_fields, $default_avatars );
 
 		$this->assert_attribute_same( $settings, 'settings', $core );
 		$this->assert_attribute_same( $hasher, 'hasher', $core );
 		$this->assert_attribute_same( $user_fields, 'user_fields', $core );
 		$this->assert_attribute_same( $comment_author_fields, 'comment_author_fields', $core );
+		$this->assert_attribute_same( $default_avatars, 'default_avatars', $core );
 	}
 
 	/**
@@ -409,5 +421,34 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->user_fields->shouldReceive( 'set_local_avatar' )->once()->with( $user_id, $image );
 
 		$this->assertNull( $this->sut->set_user_avatar( $user_id, $image ) );
+	}
+
+	/**
+	 * Tests ::get_custom_default_avatar.
+	 *
+	 * @covers ::get_custom_default_avatar
+	 */
+	public function test_get_custom_default_avatar() {
+		$avatar = [
+			'type' => 'image/png',
+			'file' => '/some/fake/file.png',
+		];
+
+		$this->default_avatars->shouldReceive( 'get_custom_default_avatar' )->once()->andReturn( $avatar );
+
+		$this->assertSame( $avatar, $this->sut->get_custom_default_avatar() );
+	}
+
+	/**
+	 * Tests ::set_custom_default_avatar.
+	 *
+	 * @covers ::set_custom_default_avatar
+	 */
+	public function test_set_custom_default_avatar() {
+		$image_url = 'https://example.org/path/image.png';
+
+		$this->default_avatars->shouldReceive( 'set_custom_default_avatar' )->once()->with( $image_url );
+
+		$this->assertNull( $this->sut->set_custom_default_avatar( $image_url ) );
 	}
 }
