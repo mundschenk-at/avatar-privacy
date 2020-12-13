@@ -243,6 +243,7 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assert_is_array( $result );
 		$this->assert_contains( [ 'instance' => \Avatar_Privacy\CLI\Database_Command::class ], $result, 'Command missing.' );
+		$this->assert_contains( [ 'instance' => \Avatar_Privacy\CLI\Default_Command::class ], $result, 'Command missing.' );
 	}
 
 	/**
