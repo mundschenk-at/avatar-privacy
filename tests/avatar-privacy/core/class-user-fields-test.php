@@ -273,6 +273,47 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Tests ::set_local_avatar.
+	 *
+	 * @covers ::set_local_avatar
+	 */
+	public function test_set_local_avatar() {
+		// Set up arguments.
+		$user_id    = 666;
+		$image_url  = 'https://example.org/path/image.png';
+		$filename   = '/path/image.png';
+		$sideloaded = [
+			'file' => '/stored/avatar.png',
+			'type' => 'image/png',
+		];
+
+		$this->sut->shouldReceive( 'get_local_avatar_filename' )->once()->with( $user_id, $filename )->andReturn( 'Some-User_avatar.png' );
+		$this->image_file->shouldReceiVe( 'handle_sideload' )->once()->with( $image_url, m::type( 'array' ) )->andReturn( $sideloaded );
+		$this->sut->shouldReceive( 'set_uploaded_local_avatar' )->once()->with( $user_id, $sideloaded );
+
+		$this->assertNull( $this->sut->set_local_avatar( $user_id, $image_url ) );
+	}
+
+	/**
+	 * Tests ::set_local_avatar.
+	 *
+	 * @covers ::set_local_avatar
+	 */
+	public function test_set_local_avatar_malformed_url() {
+		// Set up arguments.
+		$user_id   = 666;
+		$image_url = 'https://?malformed.example.org';
+
+		$this->expect_exception( \InvalidArgumentException::class );
+
+		$this->sut->shouldReceive( 'get_local_avatar_filename' )->never();
+		$this->image_file->shouldReceiVe( 'handle_sideload' )->never();
+		$this->sut->shouldReceive( 'set_uploaded_local_avatar' )->never();
+
+		$this->assertNull( $this->sut->set_local_avatar( $user_id, $image_url ) );
+	}
+
+	/**
 	 * Tests ::set_uploaded_local_avatar.
 	 *
 	 * @covers ::set_uploaded_local_avatar
@@ -544,46 +585,5 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'sanitize_file_name' )->never();
 
 		$this->assertSame( $filename, $this->sut->get_local_avatar_filename( $user_id, $filename ) );
-	}
-
-	/**
-	 * Tests ::set_local_avatar.
-	 *
-	 * @covers ::set_local_avatar
-	 */
-	public function test_set_local_avatar() {
-		// Set up arguments.
-		$user_id    = 666;
-		$image_url  = 'https://example.org/path/image.png';
-		$filename   = '/path/image.png';
-		$sideloaded = [
-			'file' => '/stored/avatar.png',
-			'type' => 'image/png',
-		];
-
-		$this->sut->shouldReceive( 'get_local_avatar_filename' )->once()->with( $user_id, $filename )->andReturn( 'Some-User_avatar.png' );
-		$this->image_file->shouldReceiVe( 'handle_sideload' )->once()->with( $image_url, m::type( 'array' ) )->andReturn( $sideloaded );
-		$this->sut->shouldReceive( 'set_uploaded_local_avatar' )->once()->with( $user_id, $sideloaded );
-
-		$this->assertNull( $this->sut->set_local_avatar( $user_id, $image_url ) );
-	}
-
-	/**
-	 * Tests ::set_local_avatar.
-	 *
-	 * @covers ::set_local_avatar
-	 */
-	public function test_set_local_avatar_malformed_url() {
-		// Set up arguments.
-		$user_id   = 666;
-		$image_url = 'https://?malformed.example.org';
-
-		$this->expect_exception( \InvalidArgumentException::class );
-
-		$this->sut->shouldReceive( 'get_local_avatar_filename' )->never();
-		$this->image_file->shouldReceiVe( 'handle_sideload' )->never();
-		$this->sut->shouldReceive( 'set_uploaded_local_avatar' )->never();
-
-		$this->assertNull( $this->sut->set_local_avatar( $user_id, $image_url ) );
 	}
 }
