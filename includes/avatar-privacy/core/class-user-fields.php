@@ -338,4 +338,107 @@ class User_Fields implements API {
 
 		return \sanitize_file_name( "{$user->display_name}_avatar.{$extension}" );
 	}
+
+	/**
+	 * Checks whether a user has opted-in to Gravatar usage.
+	 *
+	 * @param  int $user_id The user ID.
+	 *
+	 * @return bool
+	 */
+	public function allows_gravatar_use( $user_id ) {
+		return 'true' === \get_user_meta( $user_id, self::GRAVATAR_USE_META_KEY, true );
+	}
+
+	/**
+	 * Checks whether a user has set a Gravatar usage policy.
+	 *
+	 * @param  int $user_id The user ID.
+	 *
+	 * @return bool
+	 */
+	public function has_gravatar_policy( $user_id ) {
+		return ! empty( \get_user_meta( $user_id, self::GRAVATAR_USE_META_KEY, true ) );
+	}
+
+	/**
+	 * Updates a user's gravatar policy.
+	 *
+	 * @param  int  $user_id      The user ID.
+	 * @param  bool $use_gravatar Whether using Gravatar should be allowed or not.
+	 *
+	 * @return void
+	 */
+	public function update_gravatar_use( $user_id, $use_gravatar ) {
+		// Use true/false instead of 1/0 since a '0' value is removed from
+		// the database and then we can't differentiate between "has opted-out"
+		// and "never saved a value".
+		\update_user_meta( $user_id, self::GRAVATAR_USE_META_KEY, $use_gravatar ? 'true' : 'false' );
+	}
+
+	/**
+	 * Checks whether a user has opted-in to anonymous commenting.
+	 *
+	 * @param  int $user_id The user ID.
+	 *
+	 * @return bool
+	 */
+	public function allows_anonymous_commenting( $user_id ) {
+		return 'true' === \get_user_meta( $user_id, self::ALLOW_ANONYMOUS_META_KEY, true );
+	}
+
+	/**
+	 * Checks whether a user has set an anonymous commenting policy.
+	 *
+	 * @param  int $user_id The user ID.
+	 *
+	 * @return bool
+	 */
+	public function has_anonymous_commenting_policy( $user_id ) {
+		return ! empty( \get_user_meta( $user_id, self::ALLOW_ANONYMOUS_META_KEY, true ) );
+	}
+
+	/**
+	 * Updates a user's anonymous commenting policy.
+	 *
+	 * @param  int  $user_id   The user ID.
+	 * @param  bool $anonymous Whether anonymous commenting should be allowed or not.
+	 *
+	 * @return void
+	 */
+	public function update_anonymous_commenting( $user_id, $anonymous ) {
+		// Use true/false instead of 1/0 since a '0' value is removed from
+		// the database and then we can't differentiate between "has opted-out"
+		// and "never saved a value".
+		\update_user_meta( $user_id, self::ALLOW_ANONYMOUS_META_KEY, $anonymous ? 'true' : 'false' );
+	}
+
+	/**
+	 * Deletes the stored metadata for a user.
+	 *
+	 * Currently this includes:
+	 *     - the email hash,
+	 *     - the Gravatar usage policy,
+	 *     - the anonymous commenting policy, and
+	 *     - the local avatar.
+	 *
+	 * @internal
+	 *
+	 * @param  int $user_id The user ID.
+	 *
+	 * @return int          The number of removed metadata fields.
+	 */
+	public function delete( $user_id ) {
+		$count = 0;
+
+		// Delete the "simple" meta fields.
+		$count += (int) \delete_user_meta( $user_id, self::EMAIL_HASH_META_KEY );
+		$count += (int) \delete_user_meta( $user_id, self::GRAVATAR_USE_META_KEY );
+		$count += (int) \delete_user_meta( $user_id, self::ALLOW_ANONYMOUS_META_KEY );
+
+		// Also delete a local avatar if one has been set (including all image files).
+		$count += (int) $this->delete_local_avatar( $user_id );
+
+		return $count;
+	}
 }
