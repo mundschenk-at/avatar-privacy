@@ -586,4 +586,201 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertSame( $filename, $this->sut->get_local_avatar_filename( $user_id, $filename ) );
 	}
+
+	/**
+	 * Provides data for testing ::allows_gravatar_use, ::allows_anonymous_commenting
+	 *
+	 * @return array
+	 */
+	public function provide_allows_metafield_data() {
+		return [
+			'True value'       => [ 'true', true ],
+			'False value'      => [ 'false', false ],
+			'Missing value'    => [ '', false ],
+			'Unexpected value' => [ 5, false ],
+		];
+	}
+
+	/**
+	 * Tests ::allows_gravatar_use.
+	 *
+	 * @covers ::allows_gravatar_use
+	 *
+	 * @dataProvider provide_allows_metafield_data
+	 *
+	 * @param string $meta   The stored meta data.
+	 * @param bool   $result The expected result.
+	 */
+	public function test_allows_gravatar_use( $meta, $result ) {
+		// Set up parameters..
+		$user_id = 666;
+
+		Functions\expect( 'get_user_meta' )->once()->with( $user_id, User_Fields::GRAVATAR_USE_META_KEY, true )->andReturn( $meta );
+
+		$this->assertSame( $result, $this->sut->allows_gravatar_use( $user_id ) );
+	}
+
+	/**
+	 * Provides data for testing ::has_gravatar_policy, ::has_anonymous_comment_policy
+	 *
+	 * @return array
+	 */
+	public function provide_has_metafield_policy_data() {
+		return [
+			'True value'       => [ 'true', true ],
+			'False value'      => [ 'false', true ],
+			'Missing value'    => [ '', false ],
+		];
+	}
+
+	/**
+	 * Tests ::has_gravatar_policy.
+	 *
+	 * @covers ::has_gravatar_policy
+	 *
+	 * @dataProvider provide_has_metafield_policy_data
+	 *
+	 * @param string $meta   The stored meta data.
+	 * @param bool   $result The expected result.
+	 */
+	public function test_has_gravatar_policy( $meta, $result ) {
+		// Set up parameters..
+		$user_id = 666;
+
+		Functions\expect( 'get_user_meta' )->once()->with( $user_id, User_Fields::GRAVATAR_USE_META_KEY, true )->andReturn( $meta );
+
+		$this->assertSame( $result, $this->sut->has_gravatar_policy( $user_id ) );
+	}
+
+	/**
+	 * Provides data for testing ::update_gravatar_use, ::update_anonymous_commenting
+	 *
+	 * @return array
+	 */
+	public function provide_update_metafield_data() {
+		return [
+			'True value'       => [ true, 'true' ],
+			'False value'      => [ false, 'false' ],
+		];
+	}
+
+	/**
+	 * Tests ::update_gravatar_use.
+	 *
+	 * @covers ::update_gravatar_use
+	 *
+	 * @dataProvider provide_update_metafield_data
+	 *
+	 * @param string $value         The value to be set.
+	 * @param bool   $expected_meta The expected meta value stored in the database.
+	 */
+	public function test_update_gravatar_use( $value, $expected_meta ) {
+		// Set up parameters..
+		$user_id = 666;
+
+		Functions\expect( 'update_user_meta' )->once()->with( $user_id, User_Fields::GRAVATAR_USE_META_KEY, $expected_meta );
+
+		$this->assertNull( $this->sut->update_gravatar_use( $user_id, $value ) );
+	}
+
+	/**
+	 * Tests ::allows_anonymous_commenting.
+	 *
+	 * @covers ::allows_anonymous_commenting
+	 *
+	 * @dataProvider provide_allows_metafield_data
+	 *
+	 * @param string $meta   The stored meta data.
+	 * @param bool   $result The expected result.
+	 */
+	public function test_allows_anonymous_commenting( $meta, $result ) {
+		// Set up parameters..
+		$user_id = 666;
+
+		Functions\expect( 'get_user_meta' )->once()->with( $user_id, User_Fields::ALLOW_ANONYMOUS_META_KEY, true )->andReturn( $meta );
+
+		$this->assertSame( $result, $this->sut->allows_anonymous_commenting( $user_id ) );
+	}
+
+	/**
+	 * Tests ::has_anonymous_commenting_policy.
+	 *
+	 * @covers ::has_anonymous_commenting_policy
+	 *
+	 * @dataProvider provide_has_metafield_policy_data
+	 *
+	 * @param string $meta   The stored meta data.
+	 * @param bool   $result The expected result.
+	 */
+	public function test_has_has_anonymous_policy( $meta, $result ) {
+		// Set up parameters..
+		$user_id = 666;
+
+		Functions\expect( 'get_user_meta' )->once()->with( $user_id, User_Fields::ALLOW_ANONYMOUS_META_KEY, true )->andReturn( $meta );
+
+		$this->assertSame( $result, $this->sut->has_anonymous_commenting_policy( $user_id ) );
+	}
+
+	/**
+	 * Tests ::update_anonymous_commenting.
+	 *
+	 * @covers ::update_anonymous_commenting
+	 *
+	 * @dataProvider provide_update_metafield_data
+	 *
+	 * @param string $value         The value to be set.
+	 * @param bool   $expected_meta The expected meta value stored in the database.
+	 */
+	public function test_update_anonymous_commenting( $value, $expected_meta ) {
+		// Set up parameters..
+		$user_id = 666;
+
+		Functions\expect( 'update_user_meta' )->once()->with( $user_id, User_Fields::ALLOW_ANONYMOUS_META_KEY, $expected_meta );
+
+		$this->assertNull( $this->sut->update_anonymous_commenting( $user_id, $value ) );
+	}
+
+	/**
+	 * Provides data for testing ::delete.
+	 *
+	 * @return array
+	 */
+	public function provide_delete_data() {
+		return [
+			'everything'              => [ 4, true, true, true, true ],
+			'no hash'                 => [ 3, false, true, true, true ],
+			'no gravatar'             => [ 3, true, false, true, true ],
+			'no anonymous'            => [ 3, true, true, false, true ],
+			'no avatar'               => [ 3, true, true, true, false ],
+			'no anonymous, no avatar' => [ 2, true, true, false, false ],
+			'only hash'               => [ 1, true, false, false, false ],
+			'nothing'                 => [ 0, false, false, false, false ],
+		];
+	}
+
+	/**
+	 * Tests ::delete.
+	 *
+	 * @covers ::delete
+	 *
+	 * @dataProvider provide_delete_data
+	 *
+	 * @param  int  $result       The expected result.
+	 * @param  bool $hash_del     Whether the email hash was deleted.
+	 * @param  bool $gravatar_del Whether the Gravatar usage policy was deleted.
+	 * @param  bool $anon_del     Whether the anoymous commenting policy was deleted.
+	 * @param  bool $avatar_del   Whether the local avatar was deleted.
+	 */
+	public function test_delete( $result, $hash_del, $gravatar_del, $anon_del, $avatar_del ) {
+		// Set up parameters..
+		$user_id = 666;
+
+		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, User_Fields::EMAIL_HASH_META_KEY )->andReturn( $hash_del );
+		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, User_Fields::GRAVATAR_USE_META_KEY )->andReturn( $gravatar_del );
+		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, User_Fields::ALLOW_ANONYMOUS_META_KEY )->andReturn( $anon_del );
+
+		$this->sut->shouldReceive( 'delete_local_avatar' )->once()->with( $user_id )->andReturn( $avatar_del );
+
+		$this->assertSame( $result, $this->sut->delete( $user_id ) );
+	}
 }
