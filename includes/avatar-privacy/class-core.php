@@ -364,6 +364,8 @@ class Core {
 	 * (using `switch_to_blog`) before calling this method, and for restoring
 	 * the original site afterwards (using `restore_current_blog`).
 	 *
+	 * @since 2.4.0
+	 *
 	 * @return array {
 	 *     An avatar definition, or the empty array.
 	 *
@@ -385,6 +387,8 @@ class Core {
 	 * On multisite, the caller is responsible for switching to the site
 	 * (using `switch_to_blog`) before calling this method, and for restoring
 	 * the original site afterwards (using `restore_current_blog`).
+	 *
+	 * @since 2.4.0
 	 *
 	 * @param  string $image_url The image URL or filename.
 	 *
