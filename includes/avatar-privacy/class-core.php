@@ -358,6 +358,73 @@ class Core {
 	}
 
 	/**
+	 * Checks whether a user has opted-in to Gravatar usage.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  int $user_id The user ID.
+	 *
+	 * @return bool
+	 */
+	public function user_allows_gravatar_use( $user_id ) {
+		return $this->user_fields->allows_gravatar_use( $user_id );
+	}
+
+	/**
+	 * Checks whether a user has set a Gravatar usage policy.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  int $user_id The user ID.
+	 *
+	 * @return bool
+	 */
+	public function user_has_gravatar_policy( $user_id ) {
+		return $this->user_fields->has_gravatar_policy( $user_id );
+	}
+
+	/**
+	 * Updates a user's gravatar policy.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  int  $user_id      The user ID.
+	 * @param  bool $use_gravatar Whether using Gravatar should be allowed or not.
+	 *
+	 * @return void
+	 */
+	public function update_user_gravatar_use( $user_id, $use_gravatar ) {
+		$this->user_fields->update_gravatar_use( $user_id, $use_gravatar );
+	}
+
+	/**
+	 * Checks whether a user has opted-in to anonymous commenting.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  int $user_id The user ID.
+	 *
+	 * @return bool
+	 */
+	public function user_allows_anonymous_commenting( $user_id ) {
+		return $this->user_fields->allows_anonymous_commenting( $user_id );
+	}
+
+	/**
+	 * Updates a user's gravatar policy.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  int  $user_id   The user ID.
+	 * @param  bool $anonymous Whether anonymous commenting should be allowed or not.
+	 *
+	 * @return void
+	 */
+	public function update_user_anonymous_commenting( $user_id, $anonymous ) {
+		$this->user_fields->update_anonymous_commenting( $user_id, $anonymous );
+	}
+
+	/**
 	 * Retrieves the full-size custom default avatar for the current site.
 	 *
 	 * Note: On multisite, the caller is responsible for switching to the site
