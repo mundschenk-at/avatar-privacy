@@ -308,8 +308,6 @@ class User_Form {
 	 * Saves the value of the 'use_gravatar' checkbox from the user profile in
 	 * the database.
 	 *
-	 * @global array $_POST Post request superglobal.
-	 *
 	 * @param int $user_id The ID of the user that has just been saved.
 	 *
 	 * @return void
@@ -321,8 +319,6 @@ class User_Form {
 	/**
 	 * Saves the value of the 'allow_anonymous' checkbox from the user profile in
 	 * the database.
-	 *
-	 * @global array $_POST Post request superglobal.
 	 *
 	 * @param int $user_id The ID of the user that has just been saved.
 	 *
@@ -370,13 +366,11 @@ class User_Form {
 
 	/**
 	 * Saves all the custom fields of the user form into the database/the
-	 * the filesystem. The data is taken from the $_POST and $_FILES superglobals.
+	 * the filesystem. (The data is ultimately taken from the $_POST and $_FILES
+	 * superglobals.)
 	 *
 	 * If the current user lacks the capability to edit the profile of the given
-	 * user_id, the data is not saved.
-	 *
-	 * @global array $_POST  Post request superglobal.
-	 * @global array $_FILES Uploaded files superglobal.
+	 * user ID, the data is not saved.
 	 *
 	 * @param  int $user_id The ID of the edited user.
 	 *
@@ -397,9 +391,6 @@ class User_Form {
 	 *
 	 * This method should only be hooked for frontend forms (via the `init`
 	 * action hook).
-	 *
-	 * @global array $_POST  Post request superglobal.
-	 * @global array $_FILES Uploaded files superglobal.
 	 *
 	 * @return void
 	 */
