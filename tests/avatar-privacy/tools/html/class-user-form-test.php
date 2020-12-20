@@ -37,6 +37,7 @@ use org\bovigo\vfs\vfsStream;
 use Avatar_Privacy\Tools\HTML\User_Form;
 
 use Avatar_Privacy\Core\User_Fields;
+use Avatar_Privacy\Exceptions\Invalid_Nonce_Exception;
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler as Upload;
 
 /**
@@ -89,14 +90,16 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_constructor() {
 		$upload          = m::mock( Upload::class );
+		$registered_user = m::mock( User_Fields::class );
 		$use_gravatar    = [ 'a' ]; // The contents don't matter here.
 		$allow_anonymous = [ 'b' ]; // The contents don't matter here.
 		$user_avatar     = [ 'c' ]; // The contents don't matter here.
 
 		$mock = m::mock( User_Form::class )->makePartial()->shouldAllowMockingProtectedMethods();
-		$mock->__construct( $upload, $use_gravatar, $allow_anonymous, $user_avatar );
+		$mock->__construct( $upload, $registered_user, $use_gravatar, $allow_anonymous, $user_avatar );
 
 		$this->assert_attribute_same( $upload, 'upload', $mock );
+		$this->assert_attribute_same( $registered_user, 'registered_user', $mock );
 		$this->assert_attribute_same( $use_gravatar, 'use_gravatar', $mock );
 		$this->assert_attribute_same( $allow_anonymous, 'allow_anonymous', $mock );
 		$this->assert_attribute_same( $user_avatar, 'user_avatar', $mock );
@@ -139,8 +142,14 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 			'foo' => 'bar',
 		];
 
+		// Intermediate values.
+		$value = 'my value'; // Would be `true` or `false` in reality, but as a marker we use this.
+
+		// Prepare object state.
+		$registered_user = m::mock( User_Fields::class );
 		$this->sut->__construct(
 			m::mock( Upload::class ), // Ignored for this testcase.
+			$registered_user,
 			[
 				'nonce'   => $nonce,
 				'action'  => $action,
@@ -151,12 +160,12 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 			[] // Ignored for this testcase.
 		);
 
+		$registered_user->shouldReceive( 'allows_gravatar_use' )->once()->with( $user_id )->andReturn( $value );
 		$this->sut->shouldReceive( 'checkbox' )->once()->with(
-			$user_id,
-			$nonce,
+			$value,
+			"{$nonce}{$user_id}",
 			$action,
 			$field_name,
-			User_Fields::GRAVATAR_USE_META_KEY,
 			$partial,
 			m::type( 'array' )
 		)->andReturnUsing(
@@ -210,10 +219,12 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 		$erase_name = 'my_erase_checkbox_id';
 		$partial    = '/some/fake/partial.php';
 
-		$upload = m::mock( Upload::class );
-
+		// Prepare object state.
+		$upload          = m::mock( Upload::class );
+		$registered_user = m::mock( User_Fields::class );
 		$this->sut->__construct(
 			$upload,
+			$registered_user,
 			[], // Ignored for this testcase.
 			[], // Ignored for this testcase.
 			[
@@ -228,7 +239,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 		// FIXME: We should check for template variables.
 		Filters\expectApplied( 'avatar_privacy_profile_picture_upload_disabled' )->once()->with( false )->andReturn( false );
 
-		Functions\expect( 'get_user_meta' )->once()->with( $user_id,  User_Fields::USER_AVATAR_META_KEY, true )->andReturn( [ 'fake avatar' ] );
+		$registered_user->shouldReceive( 'get_local_avatar' )->once()->with( $user_id )->andReturn( [ 'fake avatar' ] );
 		Functions\expect( 'current_user_can' )->once()->with( 'upload_files' )->andReturn( true );
 		Functions\expect( 'wp_parse_args' )->once()->with(
 			$args,
@@ -283,9 +294,15 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 			'foo' => 'bar',
 		];
 
+		// Intermediate values.
+		$value = 'my value'; // Would be `true` or `false` in reality, but as a marker we use this.
+
+		// Prepare object state.
+		$registered_user = m::mock( User_Fields::class );
 		$this->sut->__construct(
 			m::mock( Upload::class ), // Ignored for this testcase.
-			[],                       // Ignored for this testcase.
+			$registered_user,
+			[], // Ignored for this testcase.
 			[
 				'nonce'   => $nonce,
 				'action'  => $action,
@@ -295,12 +312,12 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 			[] // Ignored for this testcase.
 		);
 
+		$registered_user->shouldReceive( 'allows_anonymous_commenting' )->once()->with( $user_id )->andReturn( $value );
 		$this->sut->shouldReceive( 'checkbox' )->once()->with(
-			$user_id,
-			$nonce,
+			$value,
+			"{$nonce}{$user_id}",
 			$action,
 			$field_name,
-			User_Fields::ALLOW_ANONYMOUS_META_KEY,
 			$partial,
 			$args
 		)->andReturnUsing(
@@ -321,24 +338,22 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_checkbox() {
 		// Input parameters.
-		$user_id    = 5;
+		$value      = 'my value'; // Would be `true` or `false` in reality, but as a marker we use this.
 		$nonce      = 'my_nonce';
 		$action     = 'my_action';
 		$field_name = 'my_checkbox_id';
-		$meta_key   = 'my_meta_key';
 		$partial    = '/some/fake/partial.php';
 		$args       = [
 			'foo' => 'bar',
 		];
 
-		Functions\expect( 'get_user_meta' )->once()->with( $user_id, $meta_key, true )->andReturn( 'true' );
 		Functions\expect( 'wp_parse_args' )->once()->with( $args, [ 'show_descriptions' => true ] )->andReturnUsing( function( $args, $defaults ) {
 			return \array_merge( $defaults, $args );
 		} );
 
 		$this->expectOutputString( 'MY_PARTIAL' );
 
-		$this->assertNull( $this->sut->checkbox( $user_id, $nonce, $action, $field_name, $meta_key, $partial, $args ) );
+		$this->assertNull( $this->sut->checkbox( $value, $nonce, $action, $field_name, $partial, $args ) );
 	}
 
 	/**
@@ -353,8 +368,14 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 		$action     = 'my_action';
 		$field_name = 'my_checkbox_id';
 
+		// Intermediate values.
+		$value = 'my value'; // Would be `true` or `false` in reality, but as a marker we use this.
+
+		// Prepare object state.
+		$registered_user = m::mock( User_Fields::class );
 		$this->sut->__construct(
 			m::mock( Upload::class ), // Ignored for this testcase.
+			$registered_user,
 			[
 				'nonce'   => $nonce,
 				'action'  => $action,
@@ -365,13 +386,43 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 			[] // Ignored for this testcase.
 		);
 
-		$this->sut->shouldReceive( 'save_checkbox' )->once()->with(
-			$user_id,
-			$nonce,
-			$action,
-			$field_name,
-			User_Fields::GRAVATAR_USE_META_KEY
+		$this->sut->shouldReceive( 'get_submitted_checkbox_value' )->once()->with( "{$nonce}{$user_id}", $action, $field_name )->andReturn( $value );
+		$registered_user->shouldReceive( 'update_gravatar_use' )->once()->with( $user_id, $value );
+
+		$this->assertNull( $this->sut->save_use_gravatar_checkbox( $user_id ) );
+	}
+
+	/**
+	 * Tests ::save_use_gravatar_checkbox.
+	 *
+	 * @covers ::save_use_gravatar_checkbox
+	 */
+	public function test_save_use_gravatar_checkbox_invalid_nonce() {
+		// Input parameters.
+		$user_id    = 5;
+		$nonce      = 'my_nonce';
+		$action     = 'my_action';
+		$field_name = 'my_checkbox_id';
+
+		// Prepare object state.
+		$registered_user = m::mock( User_Fields::class );
+		$this->sut->__construct(
+			m::mock( Upload::class ), // Ignored for this testcase.
+			$registered_user,
+			[
+				'nonce'   => $nonce,
+				'action'  => $action,
+				'field'   => $field_name,
+				'partial' => '', // Ignored for this testcase.
+			],
+			[], // Ignored for this testcase.
+			[] // Ignored for this testcase.
 		);
+
+		$this->sut->shouldReceive( 'get_submitted_checkbox_value' )->once()->with( "{$nonce}{$user_id}", $action, $field_name )->andThrow( Invalid_Nonce_Exception::class );
+		$registered_user->shouldReceive( 'update_gravatar_use' )->never();
+
+		$this->expect_exception( Invalid_Nonce_Exception::class );
 
 		$this->assertNull( $this->sut->save_use_gravatar_checkbox( $user_id ) );
 	}
@@ -388,8 +439,14 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 		$action     = 'my_action';
 		$field_name = 'my_checkbox_id';
 
+		// Intermediate values.
+		$value = 'my value'; // Would be `true` or `false` in reality, but as a marker we use this.
+
+		// Prepare object state.
+		$registered_user = m::mock( User_Fields::class );
 		$this->sut->__construct(
 			m::mock( Upload::class ), // Ignored for this testcase.
+			$registered_user,
 			[],                       // Ignored for this testcase.
 			[
 				'nonce'   => $nonce,
@@ -400,13 +457,43 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 			[] // Ignored for this testcase.
 		);
 
-		$this->sut->shouldReceive( 'save_checkbox' )->once()->with(
-			$user_id,
-			$nonce,
-			$action,
-			$field_name,
-			User_Fields::ALLOW_ANONYMOUS_META_KEY
+		$this->sut->shouldReceive( 'get_submitted_checkbox_value' )->once()->with( "{$nonce}{$user_id}", $action, $field_name )->andReturn( $value );
+		$registered_user->shouldReceive( 'update_anonymous_commenting' )->once()->with( $user_id, $value );
+
+		$this->assertNull( $this->sut->save_allow_anonymous_checkbox( $user_id ) );
+	}
+
+	/**
+	 * Tests ::save_allow_anonymous_checkbox.
+	 *
+	 * @covers ::save_allow_anonymous_checkbox
+	 */
+	public function test_save_allow_anonymous_checkbox_invalid_nonce() {
+		// Input parameters.
+		$user_id    = 5;
+		$nonce      = 'my_nonce';
+		$action     = 'my_action';
+		$field_name = 'my_checkbox_id';
+
+		// Prepare object state.
+		$registered_user = m::mock( User_Fields::class );
+		$this->sut->__construct(
+			m::mock( Upload::class ), // Ignored for this testcase.
+			$registered_user,
+			[], // Ignored for this testcase.
+			[
+				'nonce'   => $nonce,
+				'action'  => $action,
+				'field'   => $field_name,
+				'partial' => '', // Ignored for this testcase.
+			],
+			[] // Ignored for this testcase.
 		);
+
+		$this->sut->shouldReceive( 'get_submitted_checkbox_value' )->once()->with( "{$nonce}{$user_id}", $action, $field_name )->andThrow( Invalid_Nonce_Exception::class );
+		$registered_user->shouldReceive( 'update_anonymous_commenting' )->never();
+
+		$this->expect_exception( Invalid_Nonce_Exception::class );
 
 		$this->assertNull( $this->sut->save_allow_anonymous_checkbox( $user_id ) );
 	}
@@ -416,60 +503,60 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @return array
 	 */
-	public function provide_save_checkbox_data() {
+	public function provide_get_submitted_checkbox_value_data() {
 		return [
-			[ true, 'true', 'true' ],
+			[ true, 'true', true ],
 			[ false, 'true', null ],
 			[ null, 'true', null ],
-			[ true, 'false', 'false' ],
-			[ true, 0, 'false' ],
+			[ true, 'false', false ],
+			[ true, 0, false ],
+			[ true, 1, false ],
 		];
 	}
 
 	/**
-	 * Tests ::save_checkbox.
+	 * Tests ::get_submitted_checkbox_value.
 	 *
-	 * @covers ::save_checkbox
+	 * @covers ::get_submitted_checkbox_value
 	 *
-	 * @dataProvider provide_save_checkbox_data
+	 * @dataProvider provide_get_submitted_checkbox_value_data
 	 *
 	 * @param  bool|null   $verify       The result of verify_nonce (or null, if it should not be set at all).
 	 * @param  string|null $checkbox     The checkbox value, or null if it should not be set at all.
-	 * @param  string|null $result       The expected result for `use_gravatar` (or null if the value should not be updated).
+	 * @param  string|null $result       The expected result.
 	 */
-	public function test_save_checkbox( $verify, $checkbox, $result ) {
+	public function test_get_submitted_checkbox_value( $verify, $checkbox, $result ) {
 		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		// Input parameters.
-		$user_id    = 5;
 		$nonce      = 'my_nonce';
 		$action     = 'my_action';
 		$field_name = 'my_checkbox_id';
-		$meta_key   = 'my_meta_key';
 
 		// Set up fake request.
-		$nonce_value = '12345';
-		$_POST       = [];
+		$_POST = [];
 		if ( null !== $checkbox ) {
 			$_POST[ $field_name ] = $checkbox;
 		}
+		if ( null !== $verify ) {
+			$nonce_value     = '12345';
+			$_POST[ $nonce ] = $nonce_value;
+		}
 
 		// Great Expectations.
-		if ( null !== $verify ) {
-			$_POST[ "{$nonce}{$user_id}" ] = $nonce_value;
+		if ( ! empty( $nonce_value ) ) {
 			Functions\expect( 'sanitize_key' )->once()->with( $nonce_value )->andReturn( 'sanitized_nonce' );
 			Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', $action )->andReturn( $verify );
 		} else {
 			Functions\expect( 'sanitize_key' )->never();
 			Functions\expect( 'wp_verify_nonce' )->never();
 		}
-		if ( null !== $result ) {
-			Functions\expect( 'update_user_meta' )->once()->with( $user_id, $meta_key, $result );
-		} else {
-			Functions\expect( 'update_user_meta' )->never();
+
+		if ( ! $verify ) {
+			$this->expect_exception( Invalid_Nonce_Exception::class );
 		}
 
-		$this->assertNull( $this->sut->save_checkbox( $user_id, $nonce, $action, $field_name, $meta_key ) );
+		$this->assertSame( $result, $this->sut->get_submitted_checkbox_value( $nonce, $action, $field_name ) );
 	}
 
 	/**
@@ -486,10 +573,12 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 		$erase_name = 'my_erase_checkbox_id';
 		$partial    = '/some/fake/partial.php';
 
-		$upload = m::mock( Upload::class );
+		$upload          = m::mock( Upload::class );
+		$registered_user = m::mock( User_Fields::class );
 
 		$this->sut->__construct(
 			$upload,
+			$registered_user,
 			[], // Ignored for this testcase.
 			[], // Ignored for this testcase.
 			[

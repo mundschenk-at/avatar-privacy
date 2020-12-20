@@ -27,6 +27,7 @@
 namespace Avatar_Privacy\Tools\HTML;
 
 use Avatar_Privacy\Core\User_Fields;
+use Avatar_Privacy\Exceptions\Invalid_Nonce_Exception;
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler as Upload;
 
 /**
@@ -45,6 +46,15 @@ class User_Form {
 	 * @var Upload
 	 */
 	protected $upload;
+
+	/**
+	 * The user fields API.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var User_Fields
+	 */
+	protected $registered_user;
 
 	/**
 	 * The configuration data for the `use_gravatar` checkbox.
@@ -92,8 +102,11 @@ class User_Form {
 	/**
 	 * Creates a new form helper instance.
 	 *
-	 * @param Upload $upload          The upload handler.
-	 * @param array  $use_gravatar {
+	 * @since 2.4.0 Parameter $registered_user added.
+	 *
+	 * @param Upload      $upload          The upload handler.
+	 * @param User_Fields $registered_user The user fields API handler.
+	 * @param array       $use_gravatar {
 	 *     The configuration data for the `use_gravatar` checkbox.
 	 *
 	 *     @type string $nonce   The nonce root (the ID of the user in question
@@ -103,7 +116,7 @@ class User_Form {
 	 *     @type string $partial The path to the partial template file (relative
 	 *                           to the plugin path).
 	 * }
-	 * @param array  $allow_anonymous {
+	 * @param array       $allow_anonymous {
 	 *     The configuration data for the `allow_anonymous` checkbox.
 	 *
 	 *     @type string $nonce   The nonce root (the ID of the user in question
@@ -113,7 +126,7 @@ class User_Form {
 	 *     @type string $partial The path to the partial template file (relative
 	 *                           to the plugin path).
 	 * }
-	 * @param array  $user_avatar {
+	 * @param array       $user_avatar {
 	 *     The configuration data for the user avatar uploader.
 	 *
 	 *     @type string $nonce   The nonce root (the ID of the user in question
@@ -125,8 +138,9 @@ class User_Form {
 	 *                           to the plugin path).
 	 * }
 	 */
-	public function __construct( Upload $upload, array $use_gravatar, array $allow_anonymous, array $user_avatar ) {
+	public function __construct( Upload $upload, User_Fields $registered_user, array $use_gravatar, array $allow_anonymous, array $user_avatar ) {
 		$this->upload          = $upload;
+		$this->registered_user = $registered_user;
 		$this->use_gravatar    = $use_gravatar;
 		$this->allow_anonymous = $allow_anonymous;
 		$this->user_avatar     = $user_avatar;
@@ -145,7 +159,7 @@ class User_Form {
 	 * @return void
 	 */
 	public function use_gravatar_checkbox( $user_id, array $args = [] ) {
-		$this->checkbox( $user_id, $this->use_gravatar['nonce'], $this->use_gravatar['action'], $this->use_gravatar['field'], User_Fields::GRAVATAR_USE_META_KEY, $this->use_gravatar['partial'], $args );
+		$this->checkbox( $this->registered_user->allows_gravatar_use( $user_id ), "{$this->use_gravatar['nonce']}{$user_id}", $this->use_gravatar['action'], $this->use_gravatar['field'], $this->use_gravatar['partial'], $args );
 	}
 
 	/**
@@ -179,7 +193,7 @@ class User_Form {
 	 * @return void
 	 */
 	public function allow_anonymous_checkbox( $user_id, array $args = [] ) {
-		$this->checkbox( $user_id, $this->allow_anonymous['nonce'], $this->allow_anonymous['action'], $this->allow_anonymous['field'], User_Fields::ALLOW_ANONYMOUS_META_KEY, $this->allow_anonymous['partial'], $args );
+		$this->checkbox( $this->registered_user->allows_anonymous_commenting( $user_id ), "{$this->allow_anonymous['nonce']}{$user_id}", $this->allow_anonymous['action'], $this->allow_anonymous['field'], $this->allow_anonymous['partial'], $args );
 	}
 
 	/**
@@ -220,7 +234,7 @@ class User_Form {
 		$action         = $this->user_avatar['action'];
 		$upload_field   = $this->user_avatar['field'];
 		$erase_field    = $this->user_avatar['erase'];
-		$current_avatar = \get_user_meta( $user_id, User_Fields::USER_AVATAR_META_KEY, true );
+		$current_avatar = $this->registered_user->get_local_avatar( $user_id );
 
 		/**
 		 * Filters whether native profile picture uploading is disabled for some
@@ -270,12 +284,14 @@ class User_Form {
 	/**
 	 * Prints checkbox markup, initialized from the given user meta key.
 	 *
-	 * @param  int    $user_id    The ID of the user to edit.
-	 * @param  string $nonce      The nonce root required for saving the field
-	 *                            (the user ID will be automatically appended).
+	 * @since  2.4.0 Parameters $user_id, and $meta_key removed, parameter $value
+	 *               added. The parameter $nonce now has to include the variable
+	 *               part (user ID).
+	 *
+	 * @param  bool   $value      Whether the checkbox should be checked, or not.
+	 * @param  string $nonce      The nonce root required for saving the field.
 	 * @param  string $action     The action required for saving the field.
 	 * @param  string $field_name The HTML name of the checkbox field.
-	 * @param  string $meta_key   The user meta key to load data from.
 	 * @param  string $partial    The relative path to the partial to load.
 	 * @param  array  $args {
 	 *     Additional arguments for the template.
@@ -285,11 +301,9 @@ class User_Form {
 	 *
 	 * @return void
 	 */
-	protected function checkbox( $user_id, $nonce, $action, $field_name, $meta_key, $partial, array $args = [] ) {
+	protected function checkbox( $value, $nonce, $action, $field_name, $partial, array $args = [] ) {
 		// Set up variables used by the included partial.
 		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$value  = 'true' === \get_user_meta( $user_id, $meta_key, true );
-		$nonce .= $user_id; // Ensure nonce is specific to the ID of the user.
 
 		// Merge default arguments.
 		$args = \wp_parse_args( $args, [
@@ -308,49 +322,55 @@ class User_Form {
 	 * Saves the value of the 'use_gravatar' checkbox from the user profile in
 	 * the database.
 	 *
-	 * @param int $user_id The ID of the user that has just been saved.
+	 * @param  int $user_id            The ID of the user that has just been saved.
 	 *
 	 * @return void
+	 *
+	 * @throws Invalid_Nonce_Exception An exception is thrown when the nonce cannot
+	 *                                 be verified.
 	 */
 	public function save_use_gravatar_checkbox( $user_id ) {
-		$this->save_checkbox( $user_id, $this->use_gravatar['nonce'], $this->use_gravatar['action'], $this->use_gravatar['field'], User_Fields::GRAVATAR_USE_META_KEY );
+		$this->registered_user->update_gravatar_use( $user_id, $this->get_submitted_checkbox_value( "{$this->use_gravatar['nonce']}{$user_id}", $this->use_gravatar['action'], $this->use_gravatar['field'] ) );
 	}
 
 	/**
 	 * Saves the value of the 'allow_anonymous' checkbox from the user profile in
 	 * the database.
 	 *
-	 * @param int $user_id The ID of the user that has just been saved.
+	 * @param  int $user_id            The ID of the user that has just been saved.
 	 *
 	 * @return void
+	 *
+	 * @throws Invalid_Nonce_Exception An exception is thrown when the nonce cannot
+	 *                                 be verified.
 	 */
 	public function save_allow_anonymous_checkbox( $user_id ) {
-		$this->save_checkbox( $user_id, $this->allow_anonymous['nonce'], $this->allow_anonymous['action'], $this->allow_anonymous['field'], User_Fields::ALLOW_ANONYMOUS_META_KEY );
+		$this->registered_user->update_anonymous_commenting( $user_id, $this->get_submitted_checkbox_value( "{$this->allow_anonymous['nonce']}{$user_id}", $this->allow_anonymous['action'], $this->allow_anonymous['field'] ) );
 	}
 
 	/**
-	 * Saves the value of a checkbox to user meta.
+	 * Retrieves the checkbox value to save.
 	 *
-	 * @param int    $user_id    The ID of the user that has just been saved.
-	 * @param string $nonce      The nonce root required for saving the field
-	 *                           (the user ID will be automatically appended).
-	 * @param string $action     The action required for saving the field.
-	 * @param string $field_name The HTML name of the field to be saved.
-	 * @param string $meta_key   The user meta key to save to.
+	 * @since  2.4.0
 	 *
-	 * @return void
+	 * @global array $_POST            Post request superglobal.
+	 *
+	 * @param  string $nonce           The nonce root required for saving the field
+	 *                                 (the user ID will be automatically appended).
+	 * @param  string $action          The action required for saving the field.
+	 * @param  string $field_name      The HTML name of the field to be saved.
+	 *
+	 * @return bool
+	 *
+	 * @throws Invalid_Nonce_Exception An exception is thrown when the nonce cannot
+	 *                                 be verified.
 	 */
-	protected function save_checkbox( $user_id, $nonce, $action, $field_name, $meta_key ) {
-		// Ensure nonce is specific to the ID of the user.
-		$nonce .= $user_id;
-
+	protected function get_submitted_checkbox_value( $nonce, $action, $field_name ) {
 		if ( isset( $_POST[ $nonce ] ) && \wp_verify_nonce( \sanitize_key( $_POST[ $nonce ] ), $action ) ) {
-			// Use true/false instead of 1/0 since a '0' value is removed from
-			// the database and then we can't differentiate between "has opted-out"
-			// and "never saved a value".
-			$value = isset( $_POST[ $field_name ] ) && ( 'true' === $_POST[ $field_name ] ) ? 'true' : 'false';
-			\update_user_meta( $user_id, $meta_key, $value );
+			return isset( $_POST[ $field_name ] ) && ( 'true' === $_POST[ $field_name ] );
 		}
+
+		throw new Invalid_Nonce_Exception( 'Could not verify checkbox nonce.' );
 	}
 
 	/**
@@ -372,9 +392,15 @@ class User_Form {
 	 * If the current user lacks the capability to edit the profile of the given
 	 * user ID, the data is not saved.
 	 *
+	 * @since  2.4.0 The method now throws an exception when a nonce cannot be
+	 *               verified.
+	 *
 	 * @param  int $user_id The ID of the edited user.
 	 *
 	 * @return void
+	 *
+	 * @throws Invalid_Nonce_Exception An exception is thrown when a nonce
+	 *                                 cannot be verified.
 	 */
 	public function save( $user_id ) {
 		if ( ! \current_user_can( 'edit_user', $user_id ) ) {
@@ -392,7 +418,13 @@ class User_Form {
 	 * This method should only be hooked for frontend forms (via the `init`
 	 * action hook).
 	 *
+	 * @since  2.4.0 The method now throws an exception when a nonce cannot be
+	 *               verified.
+	 *
 	 * @return void
+	 *
+	 * @throws Invalid_Nonce_Exception An exception is thrown when a nonce
+	 *                                 cannot be verified.
 	 */
 	public function process_form_submission() {
 		// Check that user is logged in.
