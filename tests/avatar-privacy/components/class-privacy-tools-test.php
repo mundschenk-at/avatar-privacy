@@ -203,9 +203,11 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'get_user_by' )->once()->with( 'email', $email )->andReturn( $user );
 		$this->registered_user->shouldReceive( 'get_hash' )->once()->with( $user->ID )->andReturn( $hash );
-		Functions\expect( 'get_user_meta' )->once()->with( $user->ID, User_Fields::GRAVATAR_USE_META_KEY, true )->andReturn( $gravatar );
-		Functions\expect( 'get_user_meta' )->once()->with( $user->ID, User_Fields::ALLOW_ANONYMOUS_META_KEY, true )->andReturn( $anon );
-		Functions\expect( 'get_user_meta' )->once()->with( $user->ID, User_Fields::USER_AVATAR_META_KEY, true )->andReturn( $local );
+		$this->registered_user->shouldReceive( 'has_gravatar_policy' )->once()->with( $user->ID )->andReturn( true );
+		$this->registered_user->shouldReceive( 'allows_gravatar_use' )->once()->with( $user->ID )->andReturn( $gravatar );
+		$this->registered_user->shouldReceive( 'has_anonymous_commenting_policy' )->once()->with( $user->ID )->andReturn( true );
+		$this->registered_user->shouldReceive( 'allows_anonymous_commenting' )->once()->with( $user->ID )->andReturn( $anon );
+		$this->registered_user->shouldReceive( 'get_local_avatar' )->once()->with( $user->ID )->andReturn( $local );
 		Functions\expect( 'site_url' )->once()->andReturn( $site_url );
 
 		$result = $this->sut->export_user_data( $email, $page );
@@ -228,7 +230,9 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'get_user_by' )->once()->with( 'email', $email )->andReturnFalse();
 		$this->registered_user->shouldReceive( 'get_hash' )->never();
-		Functions\expect( 'get_user_meta' )->never();
+		$this->registered_user->shouldReceive( 'allows_gravatar_use' )->never();
+		$this->registered_user->shouldReceive( 'allows_anonymous_commenting' )->never();
+		$this->registered_user->shouldReceive( 'get_local_avatar' )->never();
 		Functions\expect( 'site_url' )->never();
 
 		$result = $this->sut->export_user_data( $email, $page );
@@ -301,11 +305,8 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 		$user->ID = $user_id;
 
 		Functions\expect( 'get_user_by' )->once()->with( 'email', $email )->andReturn( $user );
-		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, User_Fields::EMAIL_HASH_META_KEY )->andReturnTrue();
-		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, User_Fields::GRAVATAR_USE_META_KEY )->andReturnTrue();
-		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, User_Fields::ALLOW_ANONYMOUS_META_KEY )->andReturnTrue();
-		Functions\expect( 'delete_user_meta' )->once()->with( $user_id, User_Fields::USER_AVATAR_META_KEY )->andReturnTrue();
 
+		$this->registered_user->shouldReceive( 'delete' )->once()->with( $user_id )->andReturn( 4 );
 		$this->comment_author->shouldReceive( 'delete' )->once()->with( $email )->andReturn( 1 );
 
 		$result = $this->sut->erase_data( $email, $page );
