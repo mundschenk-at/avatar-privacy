@@ -543,8 +543,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		foreach ( $users as $u ) {
 			$hash = \md5( $u->user_email );
 
-			$this->registered_user->shouldReceive( 'get_hash' )->once()->with( $u->user_email )->andReturn( $hash );
-			Functions\expect( 'update_user_meta' )->once()->with( $u->ID, User_Fields::EMAIL_HASH_META_KEY, $hash );
+			$this->registered_user->shouldReceive( 'get_hash' )->once()->with( $u->ID )->andReturn( $hash );
 		}
 
 		$this->assertNull( $this->sut->maybe_update_user_hashes() );

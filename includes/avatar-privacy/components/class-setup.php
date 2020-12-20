@@ -430,7 +430,8 @@ class Setup implements Component {
 		];
 
 		foreach ( \get_users( $args ) as $user ) {
-			\update_user_meta( $user->ID, User_Fields::EMAIL_HASH_META_KEY, $this->registered_user->get_hash( $user->user_email ) );
+			// Ensure that there is a user hash - retrieving the hash updates the meta field.
+			$this->registered_user->get_hash( $user->ID );
 		}
 	}
 
