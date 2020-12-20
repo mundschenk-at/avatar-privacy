@@ -106,27 +106,6 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::get_use_gravatar_checkbox.
-	 *
-	 * @covers ::get_use_gravatar_checkbox
-	 */
-	public function test_get_use_gravatar_checkbox() {
-		// Input parameters.
-		$user_id = 5;
-		$args    = [
-			'foo' => 'bar',
-		];
-
-		$this->sut->shouldReceive( 'use_gravatar_checkbox' )->once()->with( $user_id, $args )->andReturnUsing(
-			function() {
-				echo 'USE_GRAVATAR';
-			}
-		);
-
-		$this->assertSame( 'USE_GRAVATAR', $this->sut->get_use_gravatar_checkbox( $user_id, $args ) );
-	}
-
-	/**
 	 * Tests ::use_gravatar_checkbox.
 	 *
 	 * @covers ::use_gravatar_checkbox
@@ -177,6 +156,80 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->expectOutputString( 'USE_GRAVATAR' );
 
 		$this->assertNull( $this->sut->use_gravatar_checkbox( $user_id, $args ) );
+	}
+
+	/**
+	 * Tests ::get_use_gravatar_checkbox.
+	 *
+	 * @covers ::get_use_gravatar_checkbox
+	 */
+	public function test_get_use_gravatar_checkbox() {
+		// Input parameters.
+		$user_id = 5;
+		$args    = [
+			'foo' => 'bar',
+		];
+
+		$this->sut->shouldReceive( 'use_gravatar_checkbox' )->once()->with( $user_id, $args )->andReturnUsing(
+			function() {
+				echo 'USE_GRAVATAR';
+			}
+		);
+
+		$this->assertSame( 'USE_GRAVATAR', $this->sut->get_use_gravatar_checkbox( $user_id, $args ) );
+	}
+
+	/**
+	 * Tests ::allow_anonymous_checkbox.
+	 *
+	 * @covers ::allow_anonymous_checkbox
+	 */
+	public function test_allow_anonymous_checkbox() {
+		// Input parameters.
+		$user_id    = 5;
+		$nonce      = 'my_nonce';
+		$action     = 'my_action';
+		$field_name = 'my_checkbox_id';
+		$partial    = '/some/fake/partial.php';
+		$args       = [
+			'foo' => 'bar',
+		];
+
+		// Intermediate values.
+		$value = 'my value'; // Would be `true` or `false` in reality, but as a marker we use this.
+
+		// Prepare object state.
+		$registered_user = m::mock( User_Fields::class );
+		$this->sut->__construct(
+			m::mock( Upload::class ), // Ignored for this testcase.
+			$registered_user,
+			[], // Ignored for this testcase.
+			[
+				'nonce'   => $nonce,
+				'action'  => $action,
+				'field'   => $field_name,
+				'partial' => $partial,
+			],
+			[] // Ignored for this testcase.
+		);
+
+		$registered_user->shouldReceive( 'allows_anonymous_commenting' )->once()->with( $user_id )->andReturn( $value );
+		$this->sut->shouldReceive( 'checkbox' )->once()->with(
+			$value,
+			"{$nonce}{$user_id}",
+			$action,
+			$field_name,
+			$partial,
+			$args
+		)->andReturnUsing(
+			function() {
+				echo 'ALLOW_ANON';
+			}
+		);
+
+		$this->expectOutputString( 'ALLOW_ANON' );
+
+		$this->assertNull( $this->sut->allow_anonymous_checkbox( $user_id, $args ) );
 	}
 
 	/**
@@ -275,60 +328,6 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 		);
 
 		$this->assertSame( 'UPLOADER', $this->sut->get_avatar_uploader( $user_id, $args ) );
-	}
-
-
-	/**
-	 * Tests ::allow_anonymous_checkbox.
-	 *
-	 * @covers ::allow_anonymous_checkbox
-	 */
-	public function test_allow_anonymous_checkbox() {
-		// Input parameters.
-		$user_id    = 5;
-		$nonce      = 'my_nonce';
-		$action     = 'my_action';
-		$field_name = 'my_checkbox_id';
-		$partial    = '/some/fake/partial.php';
-		$args       = [
-			'foo' => 'bar',
-		];
-
-		// Intermediate values.
-		$value = 'my value'; // Would be `true` or `false` in reality, but as a marker we use this.
-
-		// Prepare object state.
-		$registered_user = m::mock( User_Fields::class );
-		$this->sut->__construct(
-			m::mock( Upload::class ), // Ignored for this testcase.
-			$registered_user,
-			[], // Ignored for this testcase.
-			[
-				'nonce'   => $nonce,
-				'action'  => $action,
-				'field'   => $field_name,
-				'partial' => $partial,
-			],
-			[] // Ignored for this testcase.
-		);
-
-		$registered_user->shouldReceive( 'allows_anonymous_commenting' )->once()->with( $user_id )->andReturn( $value );
-		$this->sut->shouldReceive( 'checkbox' )->once()->with(
-			$value,
-			"{$nonce}{$user_id}",
-			$action,
-			$field_name,
-			$partial,
-			$args
-		)->andReturnUsing(
-			function() {
-				echo 'ALLOW_ANON';
-			}
-		);
-
-		$this->expectOutputString( 'ALLOW_ANON' );
-
-		$this->assertNull( $this->sut->allow_anonymous_checkbox( $user_id, $args ) );
 	}
 
 	/**
