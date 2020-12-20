@@ -424,6 +424,76 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Tests ::user_allows_gravatar_use.
+	 *
+	 * @covers ::user_allows_gravatar_use
+	 */
+	public function test_user_allows_gravatar_use() {
+		$user_id = 42;
+		$result  = true;
+
+		$this->user_fields->shouldReceive( 'allows_gravatar_use' )->once()->with( $user_id )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->user_allows_gravatar_use( $user_id ) );
+	}
+
+	/**
+	 * Tests ::user_has_gravatar_policy.
+	 *
+	 * @covers ::user_has_gravatar_policy
+	 */
+	public function test_user_has_gravatar_policy() {
+		$user_id = 42;
+		$result  = true;
+
+		$this->user_fields->shouldReceive( 'has_gravatar_policy' )->once()->with( $user_id )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->user_has_gravatar_policy( $user_id ) );
+	}
+
+	/**
+	 * Tests ::update_user_gravatar_use.
+	 *
+	 * @covers ::update_user_gravatar_use
+	 */
+	public function test_update_user_gravatar_use() {
+		$user_id = 42;
+		$value   = true;
+
+		$this->user_fields->shouldReceive( 'update_gravatar_use' )->once()->with( $user_id, $value );
+
+		$this->assertNull( $this->sut->update_user_gravatar_use( $user_id, $value ) );
+	}
+
+	/**
+	 * Tests ::user_allows_anonymous_commenting.
+	 *
+	 * @covers ::user_allows_anonymous_commenting
+	 */
+	public function test_user_allows_anonymous_commenting() {
+		$user_id = 42;
+		$result  = true;
+
+		$this->user_fields->shouldReceive( 'allows_anonymous_commenting' )->once()->with( $user_id )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->user_allows_anonymous_commenting( $user_id ) );
+	}
+
+	/**
+	 * Tests ::update_user_anonymous_commenting.
+	 *
+	 * @covers ::update_user_anonymous_commenting
+	 */
+	public function test_update_user_anonymous_commenting() {
+		$user_id = 42;
+		$value   = true;
+
+		$this->user_fields->shouldReceive( 'update_anonymous_commenting' )->once()->with( $user_id, $value );
+
+		$this->assertNull( $this->sut->update_user_anonymous_commenting( $user_id, $value ) );
+	}
+
+	/**
 	 * Tests ::get_custom_default_avatar.
 	 *
 	 * @covers ::get_custom_default_avatar
