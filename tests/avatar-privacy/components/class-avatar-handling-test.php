@@ -526,7 +526,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 
 				if ( ! empty( $user_id ) ) {
 					$user->ID = $user_id;
-					$user->shouldReceive( 'get' )->once()->with( User_Fields::ALLOW_ANONYMOUS_META_KEY )->andReturn( 'true' );
+					$this->registered_user->shouldReceive( 'allows_anonymous_commenting' )->once()->with( $user_id )->andReturn( 'true' );
 				} else {
 					$user = false;
 				}
@@ -786,10 +786,8 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$email       = 'user@example.org';
 		$id_or_email = m::mock( 'WP_User' );
 
-		// Query results.
-		$meta_value = 'true';
-
-		Functions\expect( 'get_user_meta' )->once()->with( $user_id, User_Fields::GRAVATAR_USE_META_KEY, true )->andReturn( $meta_value );
+		$this->registered_user->shouldReceive( 'allows_gravatar_use' )->once()->with( $user_id )->andReturn( true );
+		$this->registered_user->shouldReceive( 'has_gravatar_policy' )->once()->with( $user_id )->andReturn( true );
 		Filters\expectApplied( 'avatar_privacy_gravatar_use_default' )->never();
 
 		$this->comment_author->shouldReceive( 'allows_gravatar_use' )->never();
@@ -810,10 +808,8 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$email       = 'user@example.org';
 		$id_or_email = m::mock( 'WP_User' );
 
-		// Query results.
-		$meta_value = 'false';
-
-		Functions\expect( 'get_user_meta' )->once()->with( $user_id, User_Fields::GRAVATAR_USE_META_KEY, true )->andReturn( $meta_value );
+		$this->registered_user->shouldReceive( 'allows_gravatar_use' )->once()->with( $user_id )->andReturn( false );
+		$this->registered_user->shouldReceive( 'has_gravatar_policy' )->once()->with( $user_id )->andReturn( true );
 		Filters\expectApplied( 'avatar_privacy_gravatar_use_default' )->never();
 
 		$this->comment_author->shouldReceive( 'allows_gravatar_use' )->never();
@@ -834,10 +830,8 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$email       = 'user@example.org';
 		$id_or_email = m::mock( 'WP_User' );
 
-		// Query results.
-		$meta_value = '';
-
-		Functions\expect( 'get_user_meta' )->once()->with( $user_id, User_Fields::GRAVATAR_USE_META_KEY, true )->andReturn( $meta_value );
+		$this->registered_user->shouldReceive( 'allows_gravatar_use' )->once()->with( $user_id )->andReturn( false );
+		$this->registered_user->shouldReceive( 'has_gravatar_policy' )->once()->with( $user_id )->andReturn( false );
 		Filters\expectApplied( 'avatar_privacy_gravatar_use_default' )->once()->with( false, $id_or_email )->andReturn( true );
 
 		$this->comment_author->shouldReceive( 'allows_gravatar_use' )->never();
@@ -858,6 +852,9 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$email       = 'anonymous@example.org';
 		$id_or_email = $email;
 
+		$this->registered_user->shouldReceive( 'allows_gravatar_use' )->never();
+		$this->registered_user->shouldReceive( 'has_gravatar_policy' )->never();
+
 		$this->comment_author->shouldReceive( 'allows_gravatar_use' )->once()->with( $email )->andReturn( true );
 		$this->comment_author->shouldReceive( 'has_gravatar_policy' )->never();
 		Filters\expectApplied( 'avatar_privacy_gravatar_use_default' )->never();
@@ -876,6 +873,9 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$user_id     = false;
 		$email       = 'anonymous@example.org';
 		$id_or_email = $email;
+
+		$this->registered_user->shouldReceive( 'allows_gravatar_use' )->never();
+		$this->registered_user->shouldReceive( 'has_gravatar_policy' )->never();
 
 		$this->comment_author->shouldReceive( 'allows_gravatar_use' )->once()->with( $email )->andReturn( false );
 		$this->comment_author->shouldReceive( 'has_gravatar_policy' )->once()->with( $email )->andReturn( false );

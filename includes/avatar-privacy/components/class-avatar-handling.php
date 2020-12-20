@@ -299,7 +299,7 @@ class Avatar_Handling implements Component {
 		} elseif ( empty( $user_id ) && ! empty( $email ) ) {
 			// Check if anonymous comments "as user" are allowed.
 			$user = \get_user_by( 'email', $email );
-			if ( ! empty( $user ) && 'true' === $user->get( User_Fields::ALLOW_ANONYMOUS_META_KEY ) ) {
+			if ( ! empty( $user ) && $this->registered_user->allows_anonymous_commenting( $user->ID ) ) {
 				$user_id = $user->ID;
 			}
 		}
@@ -523,9 +523,8 @@ class Avatar_Handling implements Component {
 
 		if ( ! empty( $user_id ) ) {
 			// For users get the value from the usermeta table.
-			$meta_value    = \get_user_meta( $user_id, User_Fields::GRAVATAR_USE_META_KEY, true );
-			$show_gravatar = 'true' === $meta_value;
-			$use_default   = '' === $meta_value;
+			$show_gravatar = $this->registered_user->allows_gravatar_use( $user_id );
+			$use_default   = ! $this->registered_user->has_gravatar_policy( $user_id );
 		} else {
 			// For comments get the value from the plugin's table.
 			$show_gravatar = $this->comment_author->allows_gravatar_use( $email );
