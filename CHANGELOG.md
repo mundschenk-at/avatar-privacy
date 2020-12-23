@@ -2,6 +2,8 @@
 
 ## 2.4.0 (unreleased)
 *   _Feature_: Legacy (default) avatars are now properly cached and resized.
+*   _Feature_: There are now API methods to get and set a user's (local) avatar
+               (and their Gravatar and anonymous commenting policies).
 *   _Change_: Requires at least PHP 7.0.
 *   _Change_: The `yzalis/identicon` package has been updated to version 2.0.
 *   _Change_: Some unused files have been removed from the `vendor-scoped` directory.
@@ -12,6 +14,8 @@
 *   _Bugfix_: Gravatars will be properly regenerated for comment authors that have
               not set a policy (when the site-admin has switched the default to
               "opt-out").
+*   _Bugfix_: When a user requests deletion of their personal data, this now includes
+              the uploaded avatar image files.
 
 ## 2.3.4 (2020-03-22)
 *   _Bugfix_: Allow plain URLs as default avatars. Use the filter hook
