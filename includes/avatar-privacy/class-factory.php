@@ -68,11 +68,20 @@ use Avatar_Privacy\Tools\HTML\User_Form;
  * @since 1.0.0
  * @since 2.1.0 Class made concrete.
  * @since 2.3.0 Moved to Avatar_Privacy\Factory.
+ * @since 2.4.0 Named instances converted to use class constants.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
 class Factory extends Dice {
 	const SHARED = [ 'shared' => true ];
+
+	// Named instances.
+	const USERFORM_PROFILE_INSTANCE                 = '$UserProfileForm';
+	const USERFORM_FRONTEND_INSTANCE                = '$FrontendUserForm';
+	const USERFORM_THEME_MY_LOGIN_PROFILES_INSTANCE = '$ThemeMyLoginProfilesUserForm';
+	const USERFORM_BBPRESS_PROFILE_INSTANCE         = '$bbPressProfileForm';
+	const JDENTICON_INSTANCE                        = '$JdenticonIdenticon';
+	const RETRO_IDENTICON_INSTANCE                  = '$RetroIdenticon';
 
 	/**
 	 * The factory instance.
@@ -170,12 +179,12 @@ class Factory extends Dice {
 			Default_Icons\Generator::class                          => self::SHARED,
 			Default_Icons\Generators\Jdenticon::class               => [
 				'substitutions' => [
-					\Jdenticon\Identicon::class => [ 'instance' => '$JdenticonIdenticon' ],
+					\Jdenticon\Identicon::class => [ 'instance' => self::JDENTICON_INSTANCE ],
 				],
 			],
 			Default_Icons\Generators\Retro::class                   => [
 				'substitutions' => [
-					\Identicon\Identicon::class => [ 'instance' => '$RetroIdenticon' ],
+					\Identicon\Identicon::class => [ 'instance' => self::RETRO_IDENTICON_INSTANCE ],
 				],
 			],
 			Default_Icons\Generators\Rings::class                   => [
@@ -189,14 +198,14 @@ class Factory extends Dice {
 			],
 
 			// Icon components.
-			'$JdenticonIdenticon'                                   => [
+			self::JDENTICON_INSTANCE                                => [
 				'instanceOf'      => \Jdenticon\Identicon::class,
 				'constructParams' => [
 					// Some extra styling for the Jdenticon instance.
 					[ 'style' => [ 'padding' => 0 ] ],
 				],
 			],
-			'$RetroIdenticon'                                       => [
+			self::RETRO_IDENTICON_INSTANCE                          => [
 				'instanceOf'      => \Identicon\Identicon::class,
 				'constructParams' => [
 					// The constructor argument is not type-hinted.
@@ -209,7 +218,7 @@ class Factory extends Dice {
 
 			// Form helpers.
 			User_Form::class                                        => self::SHARED,
-			'$UserProfileForm'                                      => [
+			self::USERFORM_PROFILE_INSTANCE                         => [
 				'instanceOf'      => User_Form::class,
 				'constructParams' => [
 					[
@@ -233,7 +242,7 @@ class Factory extends Dice {
 					],
 				],
 			],
-			'$bbPressProfileForm'                                   => [
+			self::USERFORM_BBPRESS_PROFILE_INSTANCE                 => [
 				'instanceOf'      => User_Form::class,
 				'constructParams' => [
 					[
@@ -257,7 +266,7 @@ class Factory extends Dice {
 					],
 				],
 			],
-			'$FrontendUserForm'                                     => [
+			self::USERFORM_FRONTEND_INSTANCE                        => [
 				'instanceOf'      => User_Form::class,
 				'constructParams' => [
 					[
@@ -281,7 +290,7 @@ class Factory extends Dice {
 					],
 				],
 			],
-			'$ThemeMyLoginProfilesUserForm'                         => [
+			self::USERFORM_THEME_MY_LOGIN_PROFILES_INSTANCE         => [
 				'instanceOf'      => User_Form::class,
 				'constructParams' => [
 					[
@@ -308,17 +317,17 @@ class Factory extends Dice {
 
 			Components\Block_Editor::class                          => [
 				'substitutions' => [
-					User_Form::class => [ 'instance' => '$FrontendUserForm' ],
+					User_Form::class => [ 'instance' => self::USERFORM_FRONTEND_INSTANCE ],
 				],
 			],
 			Components\Shortcodes::class                            => [
 				'substitutions' => [
-					User_Form::class => [ 'instance' => '$FrontendUserForm' ],
+					User_Form::class => [ 'instance' => self::USERFORM_FRONTEND_INSTANCE ],
 				],
 			],
 			Components\User_Profile::class                          => [
 				'substitutions' => [
-					User_Form::class => [ 'instance' => '$UserProfileForm' ],
+					User_Form::class => [ 'instance' => self::USERFORM_PROFILE_INSTANCE ],
 				],
 			],
 
@@ -326,12 +335,12 @@ class Factory extends Dice {
 			Integrations\Plugin_Integration::class                  => self::SHARED,
 			Integrations\BBPress_Integration::class                 => [
 				'substitutions' => [
-					User_Form::class => [ 'instance' => '$bbPressProfileForm' ],
+					User_Form::class => [ 'instance' => self::USERFORM_BBPRESS_PROFILE_INSTANCE ],
 				],
 			],
 			Integrations\Theme_My_Login_Profiles_Integration::class => [
 				'substitutions' => [
-					User_Form::class => [ 'instance' => '$ThemeMyLoginProfilesUserForm' ],
+					User_Form::class => [ 'instance' => self::USERFORM_THEME_MY_LOGIN_PROFILES_INSTANCE ],
 				],
 			],
 
