@@ -74,6 +74,9 @@ class Options extends \Mundschenk\Data_Storage\Options {
 			case 'custom':
 				$this->set( 'avatar_default', 'mystery', true, true );
 				break;
+
+			default:
+				return;
 		}
 	}
 }
