@@ -29,11 +29,14 @@ namespace Avatar_Privacy\Tools;
 /**
  * A collection of utility methods for use in templates.
  *
+ * @internal
+ *
  * @since 2.0.0
+ * @since 2.4.0 Class made concrete and marked as internal.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-abstract class Template {
+class Template {
 
 	/**
 	 * The allowed HTML tags and attributes for checkbox labels.
@@ -85,5 +88,43 @@ abstract class Template {
 		 * @param string $target Default '_self'.
 		 */
 		return \esc_attr( \apply_filters( 'avatar_privacy_gravatar_link_target', '_self' ) );
+	}
+
+	/**
+	 * Parses and echoes a partial template.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  string $partial The file path of the partial to include (relative
+	 *                         to the plugin directory.
+	 * @param  array  $args    Arguments passed to the partial. Only string keys
+	 *                         allowed and the keys must be valid variable names.
+	 *
+	 * @return void
+	 */
+	public function print_partial( $partial, array $args = [] ) {
+		if ( \extract( $args ) !== \count( $args ) ) { // phpcs:ignore WordPress.PHP.DontExtract.extract_extract -- needed for "natural" partials.
+			\_doing_it_wrong( __METHOD__, \esc_html( "Invalid arguments passed to partial {$partial}." ), 'Avatar Privacy 2.4.0' );
+		}
+
+		require \AVATAR_PRIVACY_PLUGIN_PATH . "/{$partial}";
+	}
+
+	/**
+	 * Parses a partial template and returns the content as a string.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  string $partial The file path of the partial to include (relative
+	 *                         to the plugin directory.
+	 * @param  array  $args    Arguments passed to the partial. Only string keys
+	 *                         allowed and the keys must be valid variable names.
+	 *
+	 * @return string
+	 */
+	public function get_partial( $partial, array $args = [] ) {
+		\ob_start();
+		$this->print_partial( $partial, $args );
+		return (string) \ob_get_clean();
 	}
 }
