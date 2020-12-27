@@ -479,4 +479,57 @@ class User_Form {
 			\add_action( 'init', [ $this, 'process_form_submission' ] );
 		}
 	}
+
+	/**
+	 * Prints the form for the specified user, using the given PHP template.
+	 *
+	 * @since  2.4.0
+	 *
+	 * @param  string $partial The file path of the partial to include (relative
+	 *                         to the plugin directory.
+	 * @param  int    $user_id The ID of the edited user.
+	 * @param  array  $args    Arguments passed to the partial. Only string keys
+	 *                         allowed and the keys must be valid variable names.
+	 *
+	 * @return void
+	 */
+	public function print_form( $partial, $user_id, array $args = [] ) {
+		$this->template->print_partial( $partial, $this->get_partial_arguments( $user_id, $args ) );
+	}
+
+	/**
+	 * Retrieves the form markup for the specified user, using the given PHP template.
+	 *
+	 * @since  2.4.0
+	 *
+	 * @param  string $partial The file path of the partial to include (relative
+	 *                         to the plugin directory.
+	 * @param  int    $user_id The ID of the edited user.
+	 * @param  array  $args    Arguments passed to the partial. Only string keys
+	 *                         allowed and the keys must be valid variable names.
+	 *
+	 * @return string
+	 */
+	public function get_form( $partial, $user_id, array $args = [] ) {
+		return $this->template->get_partial( $partial, $this->get_partial_arguments( $user_id, $args ) );
+	}
+
+	/**
+	 * Prepares the arguments array for passing to Template::get_partial and
+	 * Template::print_partial.
+	 *
+	 * @since  2.4.0
+	 *
+	 * @param  int   $user_id The ID of the edited user.
+	 * @param  array $args    Arguments passed to the partial. Only string keys
+	 *                        allowed and the keys must be valid variable names.
+	 *
+	 * @return array
+	 */
+	protected function get_partial_arguments( $user_id, array $args ) {
+		$args['form']    = $this;
+		$args['user_id'] = $user_id;
+
+		return $args;
+	}
 }

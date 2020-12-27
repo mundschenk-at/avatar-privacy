@@ -661,4 +661,79 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertNull( $this->sut->register_form_submission() );
 	}
+
+	/**
+	 * Tests ::print_form.
+	 *
+	 * @covers ::print_form
+	 */
+	public function test_print_form() {
+		// Parameters.
+		$partial = 'some/fake/partial.php';
+		$user_id = 42;
+		$args    = [
+			'foo' => 'bar',
+		];
+
+		// Results.
+		$prepared_args = [
+			'user_id' => $user_id,
+			'form'    => $this->sut,
+			'foo'     => 'bar',
+		];
+
+		$this->sut->shouldReceive( 'get_partial_arguments' )->once()->with( $user_id, $args )->andReturn( $prepared_args );
+		$this->template->shouldReceive( 'print_partial' )->once()->with( $partial, $prepared_args );
+
+		$this->assertNull( $this->sut->print_form( $partial, $user_id, $args ) );
+	}
+
+	/**
+	 * Tests ::get_form.
+	 *
+	 * @covers ::get_form
+	 */
+	public function test_get_form() {
+		// Parameters.
+		$partial = 'some/fake/partial.php';
+		$user_id = 42;
+		$args    = [
+			'foo' => 'bar',
+		];
+
+		// Results.
+		$prepared_args = [
+			'user_id' => $user_id,
+			'form'    => $this->sut,
+			'foo'     => 'bar',
+		];
+		$result        = 'form markup';
+
+		$this->sut->shouldReceive( 'get_partial_arguments' )->once()->with( $user_id, $args )->andReturn( $prepared_args );
+		$this->template->shouldReceive( 'get_partial' )->once()->with( $partial, $prepared_args )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->get_form( $partial, $user_id, $args ) );
+	}
+
+	/**
+	 * Tests ::get_partial_arguments.
+	 *
+	 * @covers ::get_partial_arguments
+	 */
+	public function test_get_partial_arguments() {
+		// Parameters.
+		$user_id = 42;
+		$args    = [
+			'foo' => 'bar',
+		];
+
+		// Results.
+		$result = [
+			'foo'     => 'bar',
+			'form'    => $this->sut,
+			'user_id' => $user_id,
+		];
+
+		$this->assertSame( $result, $this->sut->get_partial_arguments( $user_id, $args ) );
+	}
 }
