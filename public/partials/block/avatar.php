@@ -36,7 +36,7 @@ use Avatar_Privacy\Tools\HTML\User_Form;
  */
 
 // Combine classes.
-$classes = \trim( "{$class_name} {$align}" );
+$classes = \trim( "{$class_name} {$align}" ); // @phpstan-ignore-line -- https://github.com/phpstan/phpstan/issues/3515
 
 // Provide a proper alt text, as this is a content image.
 $alt = \sprintf(
