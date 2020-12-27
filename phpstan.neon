@@ -21,7 +21,9 @@ parameters:
     scanFiles:
         - vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php
     paths:
-        - includes/
+      - includes/
+      - admin/partials/
+      - public/partials/
     excludes_analyse:
         - tests/
     ignoreErrors:
