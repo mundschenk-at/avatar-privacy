@@ -282,7 +282,7 @@ class Default_Avatars_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$upload_filename = 'fancy-image.png';
 		$avatar          = [
-			'type' => 'image/png',
+			'file' => '/some/fake/file.tif',
 		];
 
 		$this->sut->shouldReceive( 'get_custom_default_avatar_filename' )->once()->with( $filename )->andReturn( $upload_filename );
