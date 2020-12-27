@@ -27,6 +27,7 @@
 namespace Avatar_Privacy\Tools\HTML;
 
 use Avatar_Privacy\Core\User_Fields;
+use Avatar_Privacy\Exceptions\Form_Field_Not_Found_Exception;
 use Avatar_Privacy\Exceptions\Invalid_Nonce_Exception;
 use Avatar_Privacy\Tools\Template;
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler as Upload;
@@ -344,7 +345,12 @@ class User_Form {
 	 *                                 be verified.
 	 */
 	public function save_use_gravatar_checkbox( $user_id ) {
-		$this->registered_user->update_gravatar_use( $user_id, $this->get_submitted_checkbox_value( "{$this->use_gravatar['nonce']}{$user_id}", $this->use_gravatar['action'], $this->use_gravatar['field'] ) );
+		try {
+			$this->registered_user->update_gravatar_use( $user_id, $this->get_submitted_checkbox_value( "{$this->use_gravatar['nonce']}{$user_id}", $this->use_gravatar['action'], $this->use_gravatar['field'] ) );
+		} catch ( Form_Field_Not_Found_Exception $e ) {
+			// No attempt to set the field (probably no form submitted).
+			return;
+		}
 	}
 
 	/**
@@ -359,7 +365,12 @@ class User_Form {
 	 *                                 be verified.
 	 */
 	public function save_allow_anonymous_checkbox( $user_id ) {
-		$this->registered_user->update_anonymous_commenting( $user_id, $this->get_submitted_checkbox_value( "{$this->allow_anonymous['nonce']}{$user_id}", $this->allow_anonymous['action'], $this->allow_anonymous['field'] ) );
+		try {
+			$this->registered_user->update_anonymous_commenting( $user_id, $this->get_submitted_checkbox_value( "{$this->allow_anonymous['nonce']}{$user_id}", $this->allow_anonymous['action'], $this->allow_anonymous['field'] ) );
+		} catch ( Form_Field_Not_Found_Exception $e ) {
+			// No attempt to set the field (probably no form submitted).
+			return;
+		}
 	}
 
 	/**
@@ -376,12 +387,18 @@ class User_Form {
 	 *
 	 * @return bool
 	 *
-	 * @throws Invalid_Nonce_Exception An exception is thrown when the nonce cannot
-	 *                                 be verified.
+	 * @throws Form_Field_Not_Found_Exception An exception is thrown when the field
+	 *                                        does not exist (i.e. no form was submitted).
+	 * @throws Invalid_Nonce_Exception        An exception is thrown when the nonce
+	 *                                        cannot be verified.
 	 */
 	protected function get_submitted_checkbox_value( $nonce, $action, $field_name ) {
+		if ( ! isset( $_POST[ $field_name ] ) ) {
+			throw new Form_Field_Not_Found_Exception( "Form field '{$field_name}' not found." );
+		}
+
 		if ( isset( $_POST[ $nonce ] ) && \wp_verify_nonce( \sanitize_key( $_POST[ $nonce ] ), $action ) ) {
-			return isset( $_POST[ $field_name ] ) && ( 'true' === $_POST[ $field_name ] );
+			return 'true' === $_POST[ $field_name ];
 		}
 
 		throw new Invalid_Nonce_Exception( 'Could not verify checkbox nonce.' );
