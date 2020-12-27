@@ -138,6 +138,8 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$user     = m::mock( '\WP_User' );
 		$user->ID = 666;
 
+		Functions\expect( '_deprecated_function' )->once()->with( m::type( 'string' ), 'Avatar Privacy 2.4.0' );
+
 		$this->assertSame( 'USER_AVATAR_UPLOAD_666', $this->sut->get_avatar_upload_markup( $user ) );
 	}
 

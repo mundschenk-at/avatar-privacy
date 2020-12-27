@@ -75,11 +75,15 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	/**
 	 * Retrieves the markup for uploading user avatars.
 	 *
+	 * @deprecated 2.4.0
+	 *
 	 * @param  \WP_User $user The profile user.
 	 *
 	 * @return string
 	 */
 	public function get_avatar_upload_markup( \WP_User $user ) {
+		\_deprecated_function( __METHOD__, 'Avatar Privacy 2.4.0' );
+
 		\ob_start();
 		require \AVATAR_PRIVACY_PLUGIN_PATH . '/admin/partials/profile/user-avatar-upload.php';
 		return (string) \ob_get_clean();
