@@ -32,12 +32,11 @@ use Brain\Monkey\Functions;
 
 use Mockery as m;
 
-use org\bovigo\vfs\vfsStream;
-
 use Avatar_Privacy\Components\Settings_Page;
 
 use Avatar_Privacy\Core\Settings;
 use Avatar_Privacy\Data_Storage\Options;
+use Avatar_Privacy\Tools\Template;
 use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler;
 
 /**
@@ -60,16 +59,16 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Mocked helper object.
 	 *
-	 * @var Core
-	 */
-	private $core;
-
-	/**
-	 * Mocked helper object.
-	 *
 	 * @var Settings
 	 */
 	private $settings;
+
+	/**
+	 * The Template alias mock.
+	 *
+	 * @var Template;
+	 */
+	private $template;
 
 	/**
 	 * Mocked helper object.
@@ -94,29 +93,12 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	protected function set_up() {
 		parent::set_up();
 
-		$filesystem = [
-			'plugin'    => [
-				'admin' => [
-					'partials' => [
-						'sections' => [
-							'avatars-disabled-script.php' => 'AVATARS_DISABLED_SCRIPT',
-							'avatars-disabled.php'        => 'AVATARS_DISABLED',
-							'avatars-enabled.php'         => 'AVATARS_ENABLED',
-						],
-					],
-				],
-			],
-		];
-
-		// Set up virtual filesystem.
-		vfsStream::setup( 'root', null, $filesystem );
-		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
-
-		$this->settings = m::mock( Settings::class );
 		$this->options  = m::mock( Options::class );
 		$this->upload   = m::mock( Custom_Default_Icon_Upload_Handler::class );
+		$this->settings = m::mock( Settings::class );
+		$this->template = m::mock( Template::class );
 
-		$this->sut = m::mock( Settings_Page::class, [ $this->options, $this->upload, $this->settings ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Settings_Page::class, [ $this->options, $this->upload, $this->settings, $this->template ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -127,11 +109,12 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Settings_Page::class )->makePartial();
 
-		$mock->__construct( $this->options, $this->upload, $this->settings );
+		$mock->__construct( $this->options, $this->upload, $this->settings, $this->template );
 
 		$this->assert_attribute_same( $this->options, 'options', $mock );
 		$this->assert_attribute_same( $this->upload, 'upload', $mock );
 		$this->assert_attribute_same( $this->settings, 'settings', $mock );
+		$this->assert_attribute_same( $this->template, 'template', $mock );
 	}
 
 
@@ -192,7 +175,7 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 		\ob_start();
 		$this->set_value( $this->sut, 'buffering', true );
 
-		$this->expectOutputString( 'AVATARS_DISABLED_SCRIPT' );
+		$this->template->shouldReceive( 'print_partial' )->once()->with( 'admin/partials/sections/avatars-disabled-script.php' );
 
 		$this->assertNull( $this->sut->settings_footer() );
 		$this->assert_attribute_same( false, 'buffering', $this->sut );
@@ -256,6 +239,9 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_get_settings_header() {
 		$this->options->shouldReceive( 'get' )->once()->with( 'show_avatars', false, true )->andReturn( true );
+
+		$this->template->shouldReceive( 'get_partial' )->once()->with( 'admin/partials/sections/avatars-disabled.php', m::type( 'array' ) )->andReturn( 'AVATARS_DISABLED' );
+		$this->template->shouldReceive( 'get_partial' )->once()->with( 'admin/partials/sections/avatars-enabled.php', m::type( 'array' ) )->andReturn( 'AVATARS_ENABLED' );
 
 		$this->assertSame( 'AVATARS_DISABLEDAVATARS_ENABLED', $this->sut->get_settings_header() );
 	}

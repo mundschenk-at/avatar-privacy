@@ -38,6 +38,7 @@ use Avatar_Privacy\Tools\HTML\User_Form;
 
 use Avatar_Privacy\Core\User_Fields;
 use Avatar_Privacy\Exceptions\Invalid_Nonce_Exception;
+use Avatar_Privacy\Tools\Template;
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler as Upload;
 
 /**
@@ -50,12 +51,47 @@ use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler as Upload;
  */
 class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 
+	const USE_GRAVATAR_NONCE      = 'my_use_gravatar_nonce';
+	const USE_GRAVATAR_ACTION     = 'my_use_gravatar_action';
+	const USE_GRAVATAR_FIELD      = 'my_use_gravatar_checkbox_id';
+	const USE_GRAVATAR_PARTIAL    = '/my/use_gravatar/partial.php';
+	const ALLOW_ANON_NONCE        = 'my_uallow_anon_nonce';
+	const ALLOW_ANON_ACTION       = 'my_allow_anon_action';
+	const ALLOW_ANON_FIELD        = 'my_allow_anon_checkbox_id';
+	const ALLOW_ANON_PARTIAL      = '/my/allow_anon/partial.php';
+	const USER_AVATAR_NONCE       = 'my_user_avatar_nonce';
+	const USER_AVATAR_ACTION      = 'my_user_avatar_action';
+	const USER_AVATAR_FIELD       = 'my_user_avatar_file_selector_id';
+	const USER_AVATAR_ERASE_FIELD = 'my_user_avatar_erase_checkbox_id';
+	const USER_AVATAR_PARTIAL     = '/my/user_avatar/partial.php';
+
 	/**
 	 * The system-under-test.
 	 *
 	 * @var User_Form
 	 */
 	private $sut;
+
+	/**
+	 * The user avatar upload handler mock.
+	 *
+	 * @var Upload
+	 */
+	private $upload;
+
+	/**
+	 * THe user fields API mock.
+	 *
+	 * @var User_Fields
+	 */
+	private $registered_user;
+
+	/**
+	 * The Template alias mock.
+	 *
+	 * @var Template;
+	 */
+	private $template;
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -80,7 +116,34 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 		vfsStream::setup( 'root', null, $filesystem );
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
-		$this->sut = m::mock( User_Form::class )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->upload          = m::mock( Upload::class );
+		$this->registered_user = m::mock( User_Fields::class );
+		$this->template        = m::mock( Template::class );
+		$this->sut             = m::mock( User_Form::class, [
+			$this->upload,
+			$this->registered_user,
+			$this->template,
+			[
+				'nonce'   => self::USE_GRAVATAR_NONCE,
+				'action'  => self::USE_GRAVATAR_ACTION,
+				'field'   => self::USE_GRAVATAR_FIELD,
+				'partial' => self::USE_GRAVATAR_PARTIAL,
+			],
+			[
+				'nonce'   => self::ALLOW_ANON_NONCE,
+				'action'  => self::ALLOW_ANON_ACTION,
+				'field'   => self::ALLOW_ANON_FIELD,
+				'partial' => self::ALLOW_ANON_PARTIAL,
+			],
+			[
+				'nonce'   => self::USER_AVATAR_NONCE,
+				'action'  => self::USER_AVATAR_ACTION,
+				'field'   => self::USER_AVATAR_FIELD,
+				'erase'   => self::USER_AVATAR_ERASE_FIELD,
+				'partial' => self::USER_AVATAR_PARTIAL,
+			],
+
+		] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -91,15 +154,17 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$upload          = m::mock( Upload::class );
 		$registered_user = m::mock( User_Fields::class );
+		$template        = m::mock( Template::class );
 		$use_gravatar    = [ 'a' ]; // The contents don't matter here.
 		$allow_anonymous = [ 'b' ]; // The contents don't matter here.
 		$user_avatar     = [ 'c' ]; // The contents don't matter here.
 
 		$mock = m::mock( User_Form::class )->makePartial()->shouldAllowMockingProtectedMethods();
-		$mock->__construct( $upload, $registered_user, $use_gravatar, $allow_anonymous, $user_avatar );
+		$mock->__construct( $upload, $registered_user, $template, $use_gravatar, $allow_anonymous, $user_avatar );
 
 		$this->assert_attribute_same( $upload, 'upload', $mock );
 		$this->assert_attribute_same( $registered_user, 'registered_user', $mock );
+		$this->assert_attribute_same( $template, 'template', $mock );
 		$this->assert_attribute_same( $use_gravatar, 'use_gravatar', $mock );
 		$this->assert_attribute_same( $allow_anonymous, 'allow_anonymous', $mock );
 		$this->assert_attribute_same( $user_avatar, 'user_avatar', $mock );
@@ -113,10 +178,10 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_use_gravatar_checkbox() {
 		// Input parameters.
 		$user_id    = 5;
-		$nonce      = 'my_nonce';
-		$action     = 'my_action';
-		$field_name = 'my_checkbox_id';
-		$partial    = '/some/fake/partial.php';
+		$nonce      = self::USE_GRAVATAR_NONCE;
+		$action     = self::USE_GRAVATAR_ACTION;
+		$field_name = self::USE_GRAVATAR_FIELD;
+		$partial    = self::USE_GRAVATAR_PARTIAL;
 		$args       = [
 			'foo' => 'bar',
 		];
@@ -124,22 +189,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Intermediate values.
 		$value = 'my value'; // Would be `true` or `false` in reality, but as a marker we use this.
 
-		// Prepare object state.
-		$registered_user = m::mock( User_Fields::class );
-		$this->sut->__construct(
-			m::mock( Upload::class ), // Ignored for this testcase.
-			$registered_user,
-			[
-				'nonce'   => $nonce,
-				'action'  => $action,
-				'field'   => $field_name,
-				'partial' => $partial,
-			],
-			[], // Ignored for this testcase.
-			[] // Ignored for this testcase.
-		);
-
-		$registered_user->shouldReceive( 'allows_gravatar_use' )->once()->with( $user_id )->andReturn( $value );
+		$this->registered_user->shouldReceive( 'allows_gravatar_use' )->once()->with( $user_id )->andReturn( $value );
 		$this->sut->shouldReceive( 'checkbox' )->once()->with(
 			$value,
 			"{$nonce}{$user_id}",
@@ -187,10 +237,10 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_allow_anonymous_checkbox() {
 		// Input parameters.
 		$user_id    = 5;
-		$nonce      = 'my_nonce';
-		$action     = 'my_action';
-		$field_name = 'my_checkbox_id';
-		$partial    = '/some/fake/partial.php';
+		$nonce      = self::ALLOW_ANON_NONCE;
+		$action     = self::ALLOW_ANON_ACTION;
+		$field_name = self::ALLOW_ANON_FIELD;
+		$partial    = self::ALLOW_ANON_PARTIAL;
 		$args       = [
 			'foo' => 'bar',
 		];
@@ -198,22 +248,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Intermediate values.
 		$value = 'my value'; // Would be `true` or `false` in reality, but as a marker we use this.
 
-		// Prepare object state.
-		$registered_user = m::mock( User_Fields::class );
-		$this->sut->__construct(
-			m::mock( Upload::class ), // Ignored for this testcase.
-			$registered_user,
-			[], // Ignored for this testcase.
-			[
-				'nonce'   => $nonce,
-				'action'  => $action,
-				'field'   => $field_name,
-				'partial' => $partial,
-			],
-			[] // Ignored for this testcase.
-		);
-
-		$registered_user->shouldReceive( 'allows_anonymous_commenting' )->once()->with( $user_id )->andReturn( $value );
+		$this->registered_user->shouldReceive( 'allows_anonymous_commenting' )->once()->with( $user_id )->andReturn( $value );
 		$this->sut->shouldReceive( 'checkbox' )->once()->with(
 			$value,
 			"{$nonce}{$user_id}",
@@ -266,33 +301,12 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		// Object state.
-		$nonce      = 'my_nonce';
-		$action     = 'my_action';
-		$field_name = 'my_input_id';
-		$erase_name = 'my_erase_checkbox_id';
-		$partial    = '/some/fake/partial.php';
-
-		// Prepare object state.
-		$upload          = m::mock( Upload::class );
-		$registered_user = m::mock( User_Fields::class );
-		$this->sut->__construct(
-			$upload,
-			$registered_user,
-			[], // Ignored for this testcase.
-			[], // Ignored for this testcase.
-			[
-				'nonce'   => $nonce,
-				'action'  => $action,
-				'field'   => $field_name,
-				'erase'   => $erase_name,
-				'partial' => $partial,
-			]
-		);
+		$partial = self::USER_AVATAR_PARTIAL;
 
 		// FIXME: We should check for template variables.
 		Filters\expectApplied( 'avatar_privacy_profile_picture_upload_disabled' )->once()->with( false )->andReturn( false );
 
-		$registered_user->shouldReceive( 'get_local_avatar' )->once()->with( $user_id )->andReturn( [ 'fake avatar' ] );
+		$this->registered_user->shouldReceive( 'get_local_avatar' )->once()->with( $user_id )->andReturn( [ 'fake avatar' ] );
 		Functions\expect( 'current_user_can' )->once()->with( 'upload_files' )->andReturn( true );
 		Functions\expect( 'wp_parse_args' )->once()->with(
 			$args,
@@ -304,7 +318,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 			return \array_merge( $defaults, $args );
 		} );
 
-		$this->expectOutputString( 'MY_PARTIAL' );
+		$this->template->shouldReceive( 'print_partial' )->once()->with( $partial, m::type( 'array' ) );
 
 		$this->assertNull( $this->sut->avatar_uploader( $user_id, $args ) );
 	}
@@ -350,7 +364,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 			return \array_merge( $defaults, $args );
 		} );
 
-		$this->expectOutputString( 'MY_PARTIAL' );
+		$this->template->shouldReceive( 'print_partial' )->once()->with( $partial, m::type( 'array' ) );
 
 		$this->assertNull( $this->sut->checkbox( $value, $nonce, $action, $field_name, $partial, $args ) );
 	}
@@ -363,30 +377,15 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_save_use_gravatar_checkbox() {
 		// Input parameters.
 		$user_id    = 5;
-		$nonce      = 'my_nonce';
-		$action     = 'my_action';
-		$field_name = 'my_checkbox_id';
+		$nonce      = self::USE_GRAVATAR_NONCE;
+		$action     = self::USE_GRAVATAR_ACTION;
+		$field_name = self::USE_GRAVATAR_FIELD;
 
 		// Intermediate values.
 		$value = 'my value'; // Would be `true` or `false` in reality, but as a marker we use this.
 
-		// Prepare object state.
-		$registered_user = m::mock( User_Fields::class );
-		$this->sut->__construct(
-			m::mock( Upload::class ), // Ignored for this testcase.
-			$registered_user,
-			[
-				'nonce'   => $nonce,
-				'action'  => $action,
-				'field'   => $field_name,
-				'partial' => '', // Ignored for this testcase.
-			],
-			[], // Ignored for this testcase.
-			[] // Ignored for this testcase.
-		);
-
 		$this->sut->shouldReceive( 'get_submitted_checkbox_value' )->once()->with( "{$nonce}{$user_id}", $action, $field_name )->andReturn( $value );
-		$registered_user->shouldReceive( 'update_gravatar_use' )->once()->with( $user_id, $value );
+		$this->registered_user->shouldReceive( 'update_gravatar_use' )->once()->with( $user_id, $value );
 
 		$this->assertNull( $this->sut->save_use_gravatar_checkbox( $user_id ) );
 	}
@@ -399,27 +398,12 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_save_use_gravatar_checkbox_invalid_nonce() {
 		// Input parameters.
 		$user_id    = 5;
-		$nonce      = 'my_nonce';
-		$action     = 'my_action';
-		$field_name = 'my_checkbox_id';
-
-		// Prepare object state.
-		$registered_user = m::mock( User_Fields::class );
-		$this->sut->__construct(
-			m::mock( Upload::class ), // Ignored for this testcase.
-			$registered_user,
-			[
-				'nonce'   => $nonce,
-				'action'  => $action,
-				'field'   => $field_name,
-				'partial' => '', // Ignored for this testcase.
-			],
-			[], // Ignored for this testcase.
-			[] // Ignored for this testcase.
-		);
+		$nonce      = self::USE_GRAVATAR_NONCE;
+		$action     = self::USE_GRAVATAR_ACTION;
+		$field_name = self::USE_GRAVATAR_FIELD;
 
 		$this->sut->shouldReceive( 'get_submitted_checkbox_value' )->once()->with( "{$nonce}{$user_id}", $action, $field_name )->andThrow( Invalid_Nonce_Exception::class );
-		$registered_user->shouldReceive( 'update_gravatar_use' )->never();
+		$this->registered_user->shouldReceive( 'update_gravatar_use' )->never();
 
 		$this->expect_exception( Invalid_Nonce_Exception::class );
 
@@ -434,30 +418,15 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_save_allow_anonymous_checkbox() {
 		// Input parameters.
 		$user_id    = 5;
-		$nonce      = 'my_nonce';
-		$action     = 'my_action';
-		$field_name = 'my_checkbox_id';
+		$nonce      = self::ALLOW_ANON_NONCE;
+		$action     = self::ALLOW_ANON_ACTION;
+		$field_name = self::ALLOW_ANON_FIELD;
 
 		// Intermediate values.
 		$value = 'my value'; // Would be `true` or `false` in reality, but as a marker we use this.
 
-		// Prepare object state.
-		$registered_user = m::mock( User_Fields::class );
-		$this->sut->__construct(
-			m::mock( Upload::class ), // Ignored for this testcase.
-			$registered_user,
-			[],                       // Ignored for this testcase.
-			[
-				'nonce'   => $nonce,
-				'action'  => $action,
-				'field'   => $field_name,
-				'partial' => '', // Ignored for this testcase.
-			],
-			[] // Ignored for this testcase.
-		);
-
 		$this->sut->shouldReceive( 'get_submitted_checkbox_value' )->once()->with( "{$nonce}{$user_id}", $action, $field_name )->andReturn( $value );
-		$registered_user->shouldReceive( 'update_anonymous_commenting' )->once()->with( $user_id, $value );
+		$this->registered_user->shouldReceive( 'update_anonymous_commenting' )->once()->with( $user_id, $value );
 
 		$this->assertNull( $this->sut->save_allow_anonymous_checkbox( $user_id ) );
 	}
@@ -470,27 +439,12 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_save_allow_anonymous_checkbox_invalid_nonce() {
 		// Input parameters.
 		$user_id    = 5;
-		$nonce      = 'my_nonce';
-		$action     = 'my_action';
-		$field_name = 'my_checkbox_id';
-
-		// Prepare object state.
-		$registered_user = m::mock( User_Fields::class );
-		$this->sut->__construct(
-			m::mock( Upload::class ), // Ignored for this testcase.
-			$registered_user,
-			[], // Ignored for this testcase.
-			[
-				'nonce'   => $nonce,
-				'action'  => $action,
-				'field'   => $field_name,
-				'partial' => '', // Ignored for this testcase.
-			],
-			[] // Ignored for this testcase.
-		);
+		$nonce      = self::ALLOW_ANON_NONCE;
+		$action     = self::ALLOW_ANON_ACTION;
+		$field_name = self::ALLOW_ANON_FIELD;
 
 		$this->sut->shouldReceive( 'get_submitted_checkbox_value' )->once()->with( "{$nonce}{$user_id}", $action, $field_name )->andThrow( Invalid_Nonce_Exception::class );
-		$registered_user->shouldReceive( 'update_anonymous_commenting' )->never();
+		$this->registered_user->shouldReceive( 'update_anonymous_commenting' )->never();
 
 		$this->expect_exception( Invalid_Nonce_Exception::class );
 
@@ -566,30 +520,12 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_save_uploaded_user_avatar() {
 		// Input parameters.
 		$user_id    = 5;
-		$nonce      = 'my_nonce';
-		$action     = 'my_action';
-		$field_name = 'my_input_id';
-		$erase_name = 'my_erase_checkbox_id';
-		$partial    = '/some/fake/partial.php';
+		$nonce      = self::USER_AVATAR_NONCE;
+		$action     = self::USER_AVATAR_ACTION;
+		$field_name = self::USER_AVATAR_FIELD;
+		$erase_name = self::USER_AVATAR_ERASE_FIELD;
 
-		$upload          = m::mock( Upload::class );
-		$registered_user = m::mock( User_Fields::class );
-
-		$this->sut->__construct(
-			$upload,
-			$registered_user,
-			[], // Ignored for this testcase.
-			[], // Ignored for this testcase.
-			[
-				'nonce'   => $nonce,
-				'action'  => $action,
-				'field'   => $field_name,
-				'erase'   => $erase_name,
-				'partial' => $partial,
-			]
-		);
-
-		$upload->shouldReceive( 'save_uploaded_user_avatar' )->once()->with( $user_id, $nonce, $action, $field_name, $erase_name );
+		$this->upload->shouldReceive( 'save_uploaded_user_avatar' )->once()->with( $user_id, $nonce, $action, $field_name, $erase_name );
 
 		$this->assertNull( $this->sut->save_uploaded_user_avatar( $user_id ) );
 	}

@@ -34,6 +34,7 @@ use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Transients;
 
 use Avatar_Privacy\Tools\Multisite;
+use Avatar_Privacy\Tools\Template;
 use Avatar_Privacy\Tools\HTML\Dependencies;
 
 use Mundschenk\UI\Control; // phpcs:ignore ImportDetection.Imports.RequireImports.Import -- necessary for type hints.
@@ -105,23 +106,35 @@ class Network_Settings_Page implements Component {
 	private $dependencies;
 
 	/**
+	 * The templating handler.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var Template
+	 */
+	private $template;
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
-	 * @since 2.4.0 Parameter $core removed, parameter $dependencies added.
+	 * @since 2.4.0 Parameter $core removed, parameters $dependencies, and $template
+	 *              added.
 	 *
 	 * @param Network_Options $network_options The network options handler.
 	 * @param Transients      $transients      The transients handler.
 	 * @param Settings        $settings        The default settings.
 	 * @param Multisite       $multisite       The the multisite handler.
 	 * @param Dependencies    $dependencies    The script & style registration helper.
+	 * @param Template        $template        The templating handler.
 	 */
-	public function __construct( Network_Options $network_options, Transients $transients, Settings $settings, Multisite $multisite, Dependencies $dependencies ) {
+	public function __construct( Network_Options $network_options, Transients $transients, Settings $settings, Multisite $multisite, Dependencies $dependencies, Template $template ) {
 		$this->network_options = $network_options;
 		$this->transients      = $transients;
 		$this->settings        = $settings;
 		$this->multisite       = $multisite;
 		$this->dependencies    = $dependencies;
+		$this->template        = $template;
 	}
 
 	/**
@@ -184,7 +197,7 @@ class Network_Settings_Page implements Component {
 	 */
 	public function print_settings_page() {
 		// Load the settings page HTML.
-		require \AVATAR_PRIVACY_PLUGIN_PATH . '/admin/partials/network/settings-page.php';
+		$this->template->print_partial( 'admin/partials/network/settings-page.php' );
 	}
 
 	/**
@@ -255,13 +268,13 @@ class Network_Settings_Page implements Component {
 	 */
 	public function print_settings_section( $section ) {
 		// Set up variables used by the included partial.
-		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$section_id  = ! empty( $section['id'] ) ? $section['id'] : '';
-		$description = \__( 'General settings applying to all sites in the network.', 'avatar-privacy' );
-		// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$args = [
+			'section_id'  => ! empty( $section['id'] ) ? $section['id'] : '',
+			'description' => \__( 'General settings applying to all sites in the network.', 'avatar-privacy' ),
+		];
 
 		// Load the settings page HTML.
-		require \AVATAR_PRIVACY_PLUGIN_PATH . '/admin/partials/network/section.php';
+		$this->template->print_partial( 'admin/partials/network/section.php', $args );
 	}
 
 	/**

@@ -28,6 +28,7 @@ namespace Avatar_Privacy\Tools\HTML;
 
 use Avatar_Privacy\Core\User_Fields;
 use Avatar_Privacy\Exceptions\Invalid_Nonce_Exception;
+use Avatar_Privacy\Tools\Template;
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler as Upload;
 
 /**
@@ -55,6 +56,15 @@ class User_Form {
 	 * @var User_Fields
 	 */
 	protected $registered_user;
+
+	/**
+	 * The templating handler.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var Template
+	 */
+	private $template;
 
 	/**
 	 * The configuration data for the `use_gravatar` checkbox.
@@ -102,10 +112,11 @@ class User_Form {
 	/**
 	 * Creates a new form helper instance.
 	 *
-	 * @since 2.4.0 Parameter $registered_user added.
+	 * @since 2.4.0 Parameters $registered_user, and $template added.
 	 *
 	 * @param Upload      $upload          The upload handler.
 	 * @param User_Fields $registered_user The user fields API handler.
+	 * @param Template    $template        The templating handler.
 	 * @param array       $use_gravatar {
 	 *     The configuration data for the `use_gravatar` checkbox.
 	 *
@@ -138,9 +149,10 @@ class User_Form {
 	 *                           to the plugin path).
 	 * }
 	 */
-	public function __construct( Upload $upload, User_Fields $registered_user, array $use_gravatar, array $allow_anonymous, array $user_avatar ) {
+	public function __construct( Upload $upload, User_Fields $registered_user, Template $template, array $use_gravatar, array $allow_anonymous, array $user_avatar ) {
 		$this->upload          = $upload;
 		$this->registered_user = $registered_user;
+		$this->template        = $template;
 		$this->use_gravatar    = $use_gravatar;
 		$this->allow_anonymous = $allow_anonymous;
 		$this->user_avatar     = $user_avatar;
@@ -228,13 +240,11 @@ class User_Form {
 	 * @return void
 	 */
 	public function avatar_uploader( $user_id, array $args = [] ) {
-		// Set up variables used by the included partial.
-		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$nonce          = "{$this->user_avatar['nonce']}{$user_id}";
-		$action         = $this->user_avatar['action'];
-		$upload_field   = $this->user_avatar['field'];
-		$erase_field    = $this->user_avatar['erase'];
-		$current_avatar = $this->registered_user->get_local_avatar( $user_id );
+		// Merge default arguments.
+		$args = \wp_parse_args( $args, [
+			'avatar_size'       => 96,
+			'show_descriptions' => true,
+		] );
 
 		/**
 		 * Filters whether native profile picture uploading is disabled for some
@@ -245,21 +255,23 @@ class User_Form {
 		 * @param bool $disabled Default false.
 		 */
 		$uploads_disabled = \apply_filters( 'avatar_privacy_profile_picture_upload_disabled', false );
-		$can_upload       = empty( $uploads_disabled ) && \current_user_can( 'upload_files' );
 
-		// Merge default arguments.
-		$args = \wp_parse_args( $args, [
-			'avatar_size'       => 96,
-			'show_descriptions' => true,
-		] );
-
-		// Make additional arguments available to the template as well.
-		$size             = $args['avatar_size'];
-		$show_description = $args['show_descriptions'];
-		// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Set up variables used by the included partial.
+		$partial_args = [
+			'user_id'          => $user_id,
+			'nonce'            => "{$this->user_avatar['nonce']}{$user_id}",
+			'action'           => $this->user_avatar['action'],
+			'upload_field'     => $this->user_avatar['field'],
+			'erase_field'      => $this->user_avatar['erase'],
+			'current_avatar'   => $this->registered_user->get_local_avatar( $user_id ),
+			'uploads_disabled' => $uploads_disabled,
+			'can_upload'       => empty( $uploads_disabled ) && \current_user_can( 'upload_files' ),
+			'size'             => $args['avatar_size'],
+			'show_description' => $args['show_descriptions'],
+		];
 
 		// Include partial.
-		require \AVATAR_PRIVACY_PLUGIN_PATH . $this->user_avatar['partial'];
+		$this->template->print_partial( $this->user_avatar['partial'], $partial_args );
 	}
 
 	/**
@@ -302,20 +314,22 @@ class User_Form {
 	 * @return void
 	 */
 	protected function checkbox( $value, $nonce, $action, $field_name, $partial, array $args = [] ) {
-		// Set up variables used by the included partial.
-		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-
 		// Merge default arguments.
 		$args = \wp_parse_args( $args, [
 			'show_descriptions' => true,
 		] );
 
-		// Make additional arguments available to the template as well.
-		$show_description = $args['show_descriptions'];
-		// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Set up variables used by the included partial.
+		$partial_args = [
+			'nonce'            => $nonce,
+			'action'           => $action,
+			'field_name'       => $field_name,
+			'value'            => $value,
+			'show_description' => $args['show_descriptions'],
+		];
 
 		// Include partial.
-		require \AVATAR_PRIVACY_PLUGIN_PATH . $partial;
+		$this->template->print_partial( $partial, $partial_args );
 	}
 
 	/**

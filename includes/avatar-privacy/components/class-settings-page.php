@@ -33,6 +33,8 @@ use Avatar_Privacy\Core\Settings;
 
 use Avatar_Privacy\Data_Storage\Options;
 
+use Avatar_Privacy\Tools\Template;
+
 use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler as Upload;
 
 use Mundschenk\UI\Control_Factory;
@@ -69,6 +71,15 @@ class Settings_Page implements Component {
 	private $settings;
 
 	/**
+	 * The templating handler.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var Template
+	 */
+	private $template;
+
+	/**
 	 * Indiciates whether the settings page is buffering its output.
 	 *
 	 * @var bool
@@ -79,16 +90,18 @@ class Settings_Page implements Component {
 	 * Creates a new instance.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
-	 * @since 2.4.0 Paraemter $core removed.
+	 * @since 2.4.0 Paraemter $core removed, parameter $template added.
 	 *
 	 * @param Options  $options     The options handler.
 	 * @param Upload   $upload      The file upload handler.
 	 * @param Settings $settings    The settings API.
+	 * @param Template $template    The templating handler.
 	 */
-	public function __construct( Options $options, Upload $upload, Settings $settings ) {
+	public function __construct( Options $options, Upload $upload, Settings $settings, Template $template ) {
 		$this->options   = $options;
 		$this->upload    = $upload;
 		$this->settings  = $settings;
+		$this->template  = $template;
 		$this->buffering = false;
 	}
 
@@ -129,7 +142,7 @@ class Settings_Page implements Component {
 	public function settings_footer() {
 		// Add show/hide javascript.
 		if ( \wp_script_is( 'jquery', 'done' ) ) {
-			require \AVATAR_PRIVACY_PLUGIN_PATH . '/admin/partials/sections/avatars-disabled-script.php';
+			$this->template->print_partial( 'admin/partials/sections/avatars-disabled-script.php' );
 		}
 
 		// Clean up output buffering.
@@ -173,14 +186,12 @@ class Settings_Page implements Component {
 	 */
 	public function get_settings_header() {
 		// Set up variables used by the included partial.
-		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$show_avatars = $this->options->get( 'show_avatars', false, true );
-		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$args = [
+			'show_avatars' => $this->options->get( 'show_avatars', false, true ),
+		];
 
-		\ob_start();
-		require \AVATAR_PRIVACY_PLUGIN_PATH . '/admin/partials/sections/avatars-disabled.php';
-		require \AVATAR_PRIVACY_PLUGIN_PATH . '/admin/partials/sections/avatars-enabled.php';
-		return (string) \ob_get_clean();
+		return $this->template->get_partial( 'admin/partials/sections/avatars-disabled.php', $args ) .
+			$this->template->get_partial( 'admin/partials/sections/avatars-enabled.php', $args );
 	}
 
 	/**

@@ -27,6 +27,7 @@
 namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Component;
+use Avatar_Privacy\Tools\Template;
 use Avatar_Privacy\Tools\HTML\Dependencies;
 use Avatar_Privacy\Tools\HTML\User_Form;
 
@@ -49,6 +50,15 @@ class Block_Editor implements Component {
 	private $dependencies;
 
 	/**
+	 * The template helper.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var Template
+	 */
+	private $template;
+
+	/**
 	 * The profile form helper.
 	 *
 	 * @var User_Form
@@ -59,10 +69,12 @@ class Block_Editor implements Component {
 	 * Initialize the class and set its properties.
 	 *
 	 * @param Dependencies $dependencies The script & style registration helper.
+	 * @param Template     $template     The template helper.
 	 * @param User_Form    $form         The profile form helper.
 	 */
-	public function __construct( Dependencies $dependencies, User_Form $form ) {
+	public function __construct( Dependencies $dependencies, Template $template, User_Form $form ) {
 		$this->dependencies = $dependencies;
+		$this->template     = $template;
 		$this->form         = $form;
 	}
 
@@ -179,15 +191,15 @@ class Block_Editor implements Component {
 			return '';
 		}
 
-		// Make form helper available to partial.
-		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$form = $this->form;
-		// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Set up variables used by the included partial.
+		$args = [
+			'user_id'    => $user_id,
+			'form'       => $this->form,
+			'attributes' => $attributes,
+		];
 
-		// Include partials.
-		\ob_start();
-		require \AVATAR_PRIVACY_PLUGIN_PATH . '/public/partials/block/frontend-form.php';
-		$markup = (string) \ob_get_clean();
+		// Include partial.
+		$markup = $this->template->get_partial( 'public/partials/block/frontend-form.php', $args );
 
 		// As an additional precaution, remove some data if we are in preview mode.
 		if ( ! empty( $attributes['preview'] ) ) {
@@ -224,15 +236,14 @@ class Block_Editor implements Component {
 		}
 
 		// Set up variables used by the included partial.
-		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$size       = $attributes['avatar_size'];
-		$class_name = $attributes['className'];
-		$align      = ! empty( $attributes['align'] ) ? "align{$attributes['align']}" : '';
-		// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$args = [
+			'user'       => $user,
+			'size'       => $attributes['avatar_size'],
+			'class_name' => $attributes['className'],
+			'align'      => ! empty( $attributes['align'] ) ? "align{$attributes['align']}" : '',
+		];
 
 		// Include partial.
-		\ob_start();
-		require \AVATAR_PRIVACY_PLUGIN_PATH . '/public/partials/block/avatar.php';
-		return (string) \ob_get_clean();
+		return $this->template->get_partial( 'public/partials/block/avatar.php', $args );
 	}
 }

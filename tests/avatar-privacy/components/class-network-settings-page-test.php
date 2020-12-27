@@ -32,14 +32,13 @@ use Brain\Monkey\Functions;
 
 use Mockery as m;
 
-use org\bovigo\vfs\vfsStream;
-
 use Avatar_Privacy\Components\Network_Settings_Page;
 
 use Avatar_Privacy\Core\Settings;
 use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Transients;
 use Avatar_Privacy\Tools\Multisite;
+use Avatar_Privacy\Tools\Template;
 use Avatar_Privacy\Tools\HTML\Dependencies;
 
 /**
@@ -95,6 +94,13 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $dependencies;
 
 	/**
+	 * The Template alias mock.
+	 *
+	 * @var Template;
+	 */
+	private $template;
+
+	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 *
@@ -105,30 +111,14 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\when( '__' )->returnArg();
 
-		$filesystem = [
-			'plugin'    => [
-				'admin' => [
-					'partials' => [
-						'network' => [
-							'section.php'       => 'NETWORK_SECTION',
-							'settings-page.php' => 'NETWORK_SETTINGS_PAGE',
-						],
-					],
-				],
-			],
-		];
-
-		// Set up virtual filesystem.
-		vfsStream::setup( 'root', null, $filesystem );
-		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
-
 		$this->settings        = m::mock( Settings::class );
 		$this->network_options = m::mock( Network_Options::class );
 		$this->transients      = m::mock( Transients::class );
 		$this->multisite       = m::mock( Multisite::class );
 		$this->dependencies    = m::mock( Dependencies::class );
+		$this->template        = m::mock( Template::class );
 
-		$this->sut = m::mock( Network_Settings_Page::class, [ $this->network_options, $this->transients, $this->settings, $this->multisite, $this->dependencies ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Network_Settings_Page::class, [ $this->network_options, $this->transients, $this->settings, $this->multisite, $this->dependencies, $this->template ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -144,13 +134,15 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 			$this->transients,
 			$this->settings,
 			$this->multisite,
-			$this->dependencies
+			$this->dependencies,
+			$this->template
 		);
 
 		$this->assert_attribute_same( $this->network_options, 'network_options', $mock );
 		$this->assert_attribute_same( $this->settings, 'settings', $mock );
 		$this->assert_attribute_same( $this->multisite, 'multisite', $mock );
 		$this->assert_attribute_same( $this->dependencies, 'dependencies', $mock );
+		$this->assert_attribute_same( $this->template, 'template', $mock );
 	}
 
 
@@ -247,7 +239,7 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::print_settings_page
 	 */
 	public function test_print_settings_page() {
-		$this->expectOutputString( 'NETWORK_SETTINGS_PAGE' );
+		$this->template->shouldReceive( 'print_partial' )->once()->with( 'admin/partials/network/settings-page.php' );
 
 		$this->assertNull( $this->sut->print_settings_page() );
 	}
@@ -359,7 +351,7 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 			'id' => 'foo',
 		];
 
-		$this->expectOutputString( 'NETWORK_SECTION' );
+		$this->template->shouldReceive( 'print_partial' )->once()->with( 'admin/partials/network/section.php', m::type( 'array' ) );
 
 		$this->assertNull( $this->sut->print_settings_section( $section ) );
 	}

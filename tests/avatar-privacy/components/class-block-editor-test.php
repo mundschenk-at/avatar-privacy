@@ -32,10 +32,9 @@ use Brain\Monkey\Functions;
 
 use Mockery as m;
 
-use org\bovigo\vfs\vfsStream;
-
 use Avatar_Privacy\Components\Block_Editor;
 
+use Avatar_Privacy\Tools\Template;
 use Avatar_Privacy\Tools\HTML\Dependencies;
 use Avatar_Privacy\Tools\HTML\User_Form;
 
@@ -64,6 +63,13 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $dependencies;
 
 	/**
+	 * The Template alias mock.
+	 *
+	 * @var Template;
+	 */
+	private $template;
+
+	/**
 	 * Mocked helper object.
 	 *
 	 * @var User_Form
@@ -79,26 +85,10 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	protected function set_up() {
 		parent::set_up();
 
-		$filesystem = [
-			'plugin'    => [
-				'public' => [
-					'partials' => [
-						'block' => [
-							'frontend-form.php'    => 'BLOCK',
-							'avatar.php'           => 'AVATAR',
-						],
-					],
-				],
-			],
-		];
-
-		// Set up virtual filesystem.
-		vfsStream::setup( 'root', null, $filesystem );
-		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
-
 		$this->dependencies = m::mock( Dependencies::class );
+		$this->template     = m::mock( Template::class );
 		$this->form         = m::mock( User_Form::class );
-		$this->sut          = m::mock( Block_Editor::class, [ $this->dependencies, $this->form ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut          = m::mock( Block_Editor::class, [ $this->dependencies, $this->template, $this->form ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -109,9 +99,10 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Block_Editor::class )->makePartial();
 
-		$mock->__construct( $this->dependencies, $this->form );
+		$mock->__construct( $this->dependencies, $this->template, $this->form );
 
 		$this->assert_attribute_same( $this->dependencies, 'dependencies', $mock );
+		$this->assert_attribute_same( $this->template, 'template', $mock );
 		$this->assert_attribute_same( $this->form, 'form', $mock );
 	}
 
@@ -249,9 +240,14 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 		// System state.
 		$user_id = 42;
 
+		// Result.
+		$block = 'MY_BLOCK';
+
 		Functions\expect( 'get_current_user_id' )->once()->andReturn( $user_id );
 
-		$this->assertSame( 'BLOCK', $this->sut->render_frontend_form( $atts ) );
+		$this->template->shouldReceive( 'get_partial' )->once()->with( 'public/partials/block/frontend-form.php', m::type( 'array' ) )->andReturn( $block );
+
+		$this->assertSame( $block, $this->sut->render_frontend_form( $atts ) );
 	}
 
 	/**
@@ -266,6 +262,8 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		Functions\expect( 'get_current_user_id' )->once()->andReturn( 0 );
+
+		$this->template->shouldReceive( 'get_partial' )->never();
 
 		$this->assertSame( '', $this->sut->render_frontend_form( $atts ) );
 	}
@@ -285,10 +283,15 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 		// System state.
 		$user_id = 42;
 
+		// Result.
+		$block = 'MY_BLOCK';
+
 		Functions\expect( 'get_current_user_id' )->once()->andReturn( $user_id );
 
+		$this->template->shouldReceive( 'get_partial' )->once()->with( 'public/partials/block/frontend-form.php', m::type( 'array' ) )->andReturn( $block );
+
 		// Cleanup should probably be a separate method for testing.
-		$this->assertSame( 'BLOCK', $this->sut->render_frontend_form( $atts ) );
+		$this->assertSame( $block, $this->sut->render_frontend_form( $atts ) );
 	}
 
 	/**
@@ -306,9 +309,14 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 			'align'       => 'bar',
 		];
 
+		// Result.
+		$block = 'MY_AVATAR_BLOCK';
+
 		Functions\expect( 'get_user_by' )->once()->with( 'ID', $user_id )->andReturn( m::mock( \WP_User::class ) );
 
-		$this->assertSame( 'AVATAR', $this->sut->render_avatar( $atts ) );
+		$this->template->shouldReceive( 'get_partial' )->once()->with( 'public/partials/block/avatar.php', m::type( 'array' ) )->andReturn( $block );
+
+		$this->assertSame( $block, $this->sut->render_avatar( $atts ) );
 	}
 
 	/**
@@ -327,6 +335,8 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		Functions\expect( 'get_user_by' )->once()->with( 'ID', $user_id )->andReturn( null );
+
+		$this->template->shouldReceive( 'get_partial' )->never();
 
 		$this->assertSame( '', $this->sut->render_avatar( $atts ) );
 	}
