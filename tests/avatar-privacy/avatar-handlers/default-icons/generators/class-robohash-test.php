@@ -321,23 +321,6 @@ class Robohash_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::render_svg.
-	 *
-	 * @covers ::render_svg
-	 */
-	public function test_render_svg() {
-		$color     = '#fakecolor';
-		$bg_color  = '#fakecolor2';
-		$body      = 'body svg';
-		$face      = 'face svg';
-		$eyes      = 'eyes svg';
-		$mouth     = 'mouth svg';
-		$accessory = 'accessory svg';
-
-		$this->assertSame( 'MY_SVG_PARTIAL', $this->sut->render_svg( $color, $bg_color, $body, $face, $eyes, $mouth, $accessory ) );
-	}
-
-	/**
 	 * Tests ::prepare_svg_part.
 	 *
 	 * @covers ::prepare_svg_part

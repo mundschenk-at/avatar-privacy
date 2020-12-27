@@ -207,25 +207,6 @@ class Robohash extends Parts_Generator {
 	}
 
 	/**
-	 * Combines the parts into a single SVG image.
-	 *
-	 * @param  string $color     The robot body color as CSS color string (e.g. `#ff9800`).
-	 * @param  string $bg_color  The background color as a CSS color string (e.g. `#80d8ff`).
-	 * @param  string $body      The SVG elements making up the robot's body.
-	 * @param  string $face      The SVG elements making up the robot's face.
-	 * @param  string $eyes      The SVG elements making up the robot's eyes.
-	 * @param  string $mouth     The SVG elements making up the robot's mouth.
-	 * @param  string $accessory The SVG elements making up the robot's accessory.
-	 *
-	 * @return string
-	 */
-	protected function render_svg( $color, $bg_color, $body, $face, $eyes, $mouth, $accessory ) {
-		\ob_start();
-		require \AVATAR_PRIVACY_PLUGIN_PATH . '/public/partials/robohash/svg.php';
-		return (string) \ob_get_clean();
-	}
-
-	/**
 	 * Prepares SVG elements for inclusion as robot parts.
 	 *
 	 * @param  string $svg The part to include.
