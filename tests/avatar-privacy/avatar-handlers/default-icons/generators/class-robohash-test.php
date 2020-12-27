@@ -38,6 +38,7 @@ use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Robohash;
 
 use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Tools\Number_Generator;
+use Avatar_Privacy\Tools\Template;
 
 
 /**
@@ -61,6 +62,13 @@ class Robohash_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var Number_Generator
 	 */
 	private $number_generator;
+
+	/**
+	 * The Template alias mock.
+	 *
+	 * @var Template;
+	 */
+	private $template;
 
 	/**
 	 * The full path of the folder containing the real images.
@@ -98,11 +106,6 @@ class Robohash_Test extends \Avatar_Privacy\Tests\TestCase {
 						],
 						'robohash-empty' => [],
 					],
-					'partials' => [
-						'robohash' => [
-							'svg.php' => 'MY_SVG_PARTIAL',
-						],
-					],
 				],
 			],
 		];
@@ -116,12 +119,14 @@ class Robohash_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Helper mocks.
 		$this->number_generator = m::mock( Number_Generator::class );
+		$this->template         = m::mock( Template::class );
 
 		// Partially mock system under test.
 		$this->sut = m::mock( Robohash::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		// Override the parts directory as the constructor is never invoked.
+		// Set the necessary properties as the constructor is never invoked.
 		$this->set_value( $this->sut, 'number_generator', $this->number_generator );
+		$this->set_value( $this->sut, 'template', $this->template );
 	}
 
 	/**
@@ -135,12 +140,12 @@ class Robohash_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$transients       = m::mock( Site_Transients::class );
 		$number_generator = m::mock( Number_Generator::class );
+		$template         = m::mock( Template::class );
 		$mock             = m::mock( Robohash::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invoke_method( $mock, '__construct', [ $number_generator, $transients ] );
+		$this->invoke_method( $mock, '__construct', [ $number_generator, $transients, $template ] );
 
-		// An attribute of the Parts_Generator superclass.
-		$this->assert_attribute_same( $transients, 'site_transients', $mock );
+		$this->assert_attribute_same( $template, 'template', $mock );
 	}
 
 	/**
@@ -188,16 +193,19 @@ class Robohash_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Result.
 		$svg_image = 'some SVG data';
 
-		$this->sut->shouldReceive( 'render_svg' )->once()->with(
-			// Colors.
-			$args['color'],
-			$args['bg_color'],
-			// Robot parts.
-			$parts['body'],
-			$parts['face'],
-			$parts['eyes'],
-			$parts['mouth'],
-			$parts['accessory']
+		$this->template->shouldReceive( 'get_partial' )->once()->with(
+			'public/partials/robohash/svg.php',
+			[
+				// Colors.
+				'color'     => $args['color'],
+				'bg_color'  => $args['bg_color'],
+				// Robot parts.
+				'body'      => $parts['body'],
+				'face'      => $parts['face'],
+				'eyes'      => $parts['eyes'],
+				'mouth'     => $parts['mouth'],
+				'accessory' => $parts['accessory'],
+			]
 		)->andReturn( $svg_image );
 
 		$this->assertSame( $svg_image, $this->sut->get_avatar( $size, $parts, $args ) );

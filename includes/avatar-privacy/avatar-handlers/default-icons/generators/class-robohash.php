@@ -30,6 +30,7 @@ use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Parts_Generator;
 
 use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Tools\Number_Generator;
+use Avatar_Privacy\Tools\Template;
 
 /**
  * An icon generator based on the Robohash SVG library by Nimiq.
@@ -40,6 +41,7 @@ use Avatar_Privacy\Tools\Number_Generator;
  * @link https://github.com/nimiq/robohash
  *
  * @since 2.3.0
+ * @since 2.4.0 Internal method render_svg removed.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
@@ -79,18 +81,30 @@ class Robohash extends Parts_Generator {
 	];
 
 	/**
+	 * The templating handler.
+	 *
+	 * @var Template
+	 */
+	private $template;
+
+	/**
 	 * Creates a new instance.
+	 *
+	 * @since 2.4.0 Parameter $template added.
 	 *
 	 * @param Number_Generator $number_generator A pseudo-random number generator.
 	 * @param Site_Transients  $site_transients  The transients handler.
+	 * @param Template         $template         The templating handler.
 	 */
-	public function __construct( Number_Generator $number_generator, Site_Transients $site_transients ) {
+	public function __construct( Number_Generator $number_generator, Site_Transients $site_transients, Template $template ) {
 		parent::__construct(
 			\dirname( \AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/images/robohash',
 			[ 'body', 'face', 'eyes', 'mouth', 'accessory' ],
 			$number_generator,
 			$site_transients
 		);
+
+		$this->template = $template;
 	}
 
 	/**
@@ -125,17 +139,15 @@ class Robohash extends Parts_Generator {
 	 * @return string       The image data (bytes).
 	 */
 	protected function get_avatar( $size, array $parts, array $args ) {
-		return $this->render_svg(
-			// Colors.
-			$args['color'],
-			$args['bg_color'],
-			// Robot parts.
-			$parts['body'],
-			$parts['face'],
-			$parts['eyes'],
-			$parts['mouth'],
-			$parts['accessory']
-		);
+
+		// Add robot parts to arguments.
+		$args['body']      = $parts['body'];
+		$args['face']      = $parts['face'];
+		$args['eyes']      = $parts['eyes'];
+		$args['mouth']     = $parts['mouth'];
+		$args['accessory'] = $parts['accessory'];
+
+		return $this->template->get_partial( 'public/partials/robohash/svg.php', $args );
 	}
 
 	/**
