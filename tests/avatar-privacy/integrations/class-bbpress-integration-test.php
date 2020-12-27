@@ -32,8 +32,6 @@ use Brain\Monkey\Functions;
 
 use Mockery as m;
 
-use org\bovigo\vfs\vfsStream;
-
 use Avatar_Privacy\Integrations\BBPress_Integration;
 
 use Avatar_Privacy\Tools\HTML\User_Form;
@@ -70,27 +68,6 @@ class BBPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	protected function set_up() {
 		parent::set_up();
-
-		$filesystem = [
-			'uploads' => [
-				'delete' => [
-					'existing_file.txt'  => 'CONTENT',
-				],
-			],
-			'plugin'  => [
-				'public' => [
-					'partials' => [
-						'bbpress' => [
-							'user-profile-picture.php' => 'PROFILE_PICTURE_MARKUP',
-						],
-					],
-				],
-			],
-		];
-
-		// Set up virtual filesystem.
-		vfsStream::setup( 'root', null, $filesystem );
-		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
 		// User form helper mock.
 		$this->form = m::mock( User_Form::class );
@@ -228,7 +205,8 @@ class BBPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'bbp_get_user_id' )->once()->with( 0, true, false )->andReturn( $user_id );
 
-		$this->expectOutputString( 'PROFILE_PICTURE_MARKUP' );
+		$this->form->shouldReceive( 'print_form' )->once()->with( 'public/partials/bbpress/user-profile-picture.php', $user_id );
+
 		$this->assertNull( $this->sut->add_user_profile_fields() );
 	}
 
@@ -240,7 +218,8 @@ class BBPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_add_user_profile_fields_failure() {
 		Functions\expect( 'bbp_get_user_id' )->once()->with( 0, true, false )->andReturn( false );
 
-		$this->expectOutputString( '' );
+		$this->form->shouldReceive( 'print_form' )->never();
+
 		$this->assertNull( $this->sut->add_user_profile_fields() );
 	}
 }

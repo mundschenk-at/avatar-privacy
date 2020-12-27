@@ -102,7 +102,7 @@ class Shortcodes implements Component {
 	 *
 	 * @return string          The HTML markup for the upload form.
 	 */
-	public function render_frontend_form_shortcode( $atts, $content = null ) {
+	public function render_frontend_form_shortcode( $atts, /* @scrutinizer ignore-unused */ $content = null ) {
 		$user_id = \get_current_user_id();
 
 		// User not logged in.
@@ -110,18 +110,14 @@ class Shortcodes implements Component {
 			return '';
 		}
 
-		// Make sure that $atts really is an array, might be an empty string in some edge cases.
-		$atts = $this->sanitize_frontend_form_attributes( empty( $atts ) ? [] : $atts );
-
-		// Make form helper available to partial.
-		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$form = $this->form;
-		// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Set up variables used by the included partial.
+		$args = [
+			// Make sure that $atts really is an array, might be an empty string in some edge cases.
+			'atts'    => $this->sanitize_frontend_form_attributes( empty( $atts ) ? [] : $atts ),
+		];
 
 		// Include partials.
-		\ob_start();
-		require \AVATAR_PRIVACY_PLUGIN_PATH . '/public/partials/shortcode/avatar-upload.php';
-		return (string) \ob_get_clean();
+		return $this->form->get_form( 'public/partials/shortcode/avatar-upload.php', $user_id, $args );
 	}
 
 	/**
