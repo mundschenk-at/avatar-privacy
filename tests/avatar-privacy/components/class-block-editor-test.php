@@ -245,7 +245,7 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'get_current_user_id' )->once()->andReturn( $user_id );
 
-		$this->template->shouldReceive( 'get_partial' )->once()->with( 'public/partials/block/frontend-form.php', m::type( 'array' ) )->andReturn( $block );
+		$this->form->shouldReceive( 'get_form' )->once()->with( 'public/partials/block/frontend-form.php', $user_id, m::type( 'array' ) )->andReturn( $block );
 
 		$this->assertSame( $block, $this->sut->render_frontend_form( $atts ) );
 	}
@@ -263,7 +263,7 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'get_current_user_id' )->once()->andReturn( 0 );
 
-		$this->template->shouldReceive( 'get_partial' )->never();
+		$this->form->shouldReceive( 'get_form' )->never();
 
 		$this->assertSame( '', $this->sut->render_frontend_form( $atts ) );
 	}
@@ -288,7 +288,7 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'get_current_user_id' )->once()->andReturn( $user_id );
 
-		$this->template->shouldReceive( 'get_partial' )->once()->with( 'public/partials/block/frontend-form.php', m::type( 'array' ) )->andReturn( $block );
+		$this->form->shouldReceive( 'get_form' )->once()->with( 'public/partials/block/frontend-form.php', $user_id, m::type( 'array' ) )->andReturn( $block );
 
 		// Cleanup should probably be a separate method for testing.
 		$this->assertSame( $block, $this->sut->render_frontend_form( $atts ) );

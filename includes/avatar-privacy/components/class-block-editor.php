@@ -191,15 +191,8 @@ class Block_Editor implements Component {
 			return '';
 		}
 
-		// Set up variables used by the included partial.
-		$args = [
-			'user_id'    => $user_id,
-			'form'       => $this->form,
-			'attributes' => $attributes,
-		];
-
 		// Include partial.
-		$markup = $this->template->get_partial( 'public/partials/block/frontend-form.php', $args );
+		$markup = $this->form->get_form( 'public/partials/block/frontend-form.php', $user_id, [ 'attributes' => $attributes ] );
 
 		// As an additional precaution, remove some data if we are in preview mode.
 		if ( ! empty( $attributes['preview'] ) ) {

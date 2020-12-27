@@ -32,8 +32,6 @@ use Brain\Monkey\Functions;
 
 use Mockery as m;
 
-use org\bovigo\vfs\vfsStream;
-
 use Avatar_Privacy\Components\Shortcodes;
 
 use Avatar_Privacy\Tools\HTML\User_Form;
@@ -71,22 +69,6 @@ class Shortcodes_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	protected function set_up() {
 		parent::set_up();
-
-		$filesystem = [
-			'plugin'    => [
-				'public' => [
-					'partials' => [
-						'shortcode' => [
-							'avatar-upload.php'    => 'SHORTCODE',
-						],
-					],
-				],
-			],
-		];
-
-		// Set up virtual filesystem.
-		vfsStream::setup( 'root', null, $filesystem );
-		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
 		$this->form = m::mock( User_Form::class );
 		$this->sut  = m::mock( Shortcodes::class, [ $this->form ] )->makePartial()->shouldAllowMockingProtectedMethods();
@@ -160,11 +142,15 @@ class Shortcodes_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Systme state.
 		$user_id = 42;
 
+		// Result.
+		$shortcode = 'my shortcode markup';
+
 		Functions\expect( 'get_current_user_id' )->once()->andReturn( $user_id );
 
 		$this->sut->shouldReceive( 'sanitize_frontend_form_attributes' )->once()->with( $atts )->andReturn( $atts );
+		$this->form->shouldReceive( 'get_form' )->once()->with( 'public/partials/shortcode/avatar-upload.php', $user_id, [ 'atts' => $atts ] )->andReturn( $shortcode );
 
-		$this->assertSame( 'SHORTCODE', $this->sut->render_frontend_form_shortcode( $atts, null ) );
+		$this->assertSame( $shortcode, $this->sut->render_frontend_form_shortcode( $atts, null ) );
 	}
 
 	/**
@@ -181,6 +167,7 @@ class Shortcodes_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'get_current_user_id' )->once()->andReturn( 0 );
 
 		$this->sut->shouldReceive( 'sanitize_frontend_form_attributes' )->never();
+		$this->form->shouldReceive( 'get_form' )->never();
 
 		$this->assertSame( '', $this->sut->render_frontend_form_shortcode( $atts, null ) );
 	}
