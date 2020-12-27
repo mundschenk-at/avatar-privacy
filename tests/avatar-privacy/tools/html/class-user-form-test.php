@@ -37,6 +37,7 @@ use org\bovigo\vfs\vfsStream;
 use Avatar_Privacy\Tools\HTML\User_Form;
 
 use Avatar_Privacy\Core\User_Fields;
+use Avatar_Privacy\Exceptions\Form_Field_Not_Found_Exception;
 use Avatar_Privacy\Exceptions\Invalid_Nonce_Exception;
 use Avatar_Privacy\Tools\Template;
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler as Upload;
@@ -411,6 +412,24 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Tests ::save_use_gravatar_checkbox.
+	 *
+	 * @covers ::save_use_gravatar_checkbox
+	 */
+	public function test_save_use_gravatar_checkbox_no_form() {
+		// Input parameters.
+		$user_id    = 5;
+		$nonce      = self::USE_GRAVATAR_NONCE;
+		$action     = self::USE_GRAVATAR_ACTION;
+		$field_name = self::USE_GRAVATAR_FIELD;
+
+		$this->sut->shouldReceive( 'get_submitted_checkbox_value' )->once()->with( "{$nonce}{$user_id}", $action, $field_name )->andThrow( Form_Field_Not_Found_Exception::class );
+		$this->registered_user->shouldReceive( 'update_gravatar_use' )->never();
+
+		$this->assertNull( $this->sut->save_use_gravatar_checkbox( $user_id ) );
+	}
+
+	/**
 	 * Tests ::save_allow_anonymous_checkbox.
 	 *
 	 * @covers ::save_allow_anonymous_checkbox
@@ -452,6 +471,24 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Tests ::save_allow_anonymous_checkbox.
+	 *
+	 * @covers ::save_allow_anonymous_checkbox
+	 */
+	public function test_save_allow_anonymous_checkbox_no_form() {
+		// Input parameters.
+		$user_id    = 5;
+		$nonce      = self::ALLOW_ANON_NONCE;
+		$action     = self::ALLOW_ANON_ACTION;
+		$field_name = self::ALLOW_ANON_FIELD;
+
+		$this->sut->shouldReceive( 'get_submitted_checkbox_value' )->once()->with( "{$nonce}{$user_id}", $action, $field_name )->andThrow( Form_Field_Not_Found_Exception::class );
+		$this->registered_user->shouldReceive( 'update_anonymous_commenting' )->never();
+
+		$this->assertNull( $this->sut->save_allow_anonymous_checkbox( $user_id ) );
+	}
+
+	/**
 	 * Provides data for testing ::save_checkbox.
 	 *
 	 * @return array
@@ -464,6 +501,9 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 			[ true, 'false', false ],
 			[ true, 0, false ],
 			[ true, 1, false ],
+			[ true, null, null ],
+			[ false, null, null ],
+			[ null, null, null ],
 		];
 	}
 
@@ -497,7 +537,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 		}
 
 		// Great Expectations.
-		if ( ! empty( $nonce_value ) ) {
+		if ( isset( $checkbox ) && ! empty( $nonce_value ) ) {
 			Functions\expect( 'sanitize_key' )->once()->with( $nonce_value )->andReturn( 'sanitized_nonce' );
 			Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', $action )->andReturn( $verify );
 		} else {
@@ -505,7 +545,9 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 			Functions\expect( 'wp_verify_nonce' )->never();
 		}
 
-		if ( ! $verify ) {
+		if ( null === $checkbox ) {
+			$this->expect_exception( Form_Field_Not_Found_Exception::class );
+		} elseif ( ! $verify ) {
 			$this->expect_exception( Invalid_Nonce_Exception::class );
 		}
 
