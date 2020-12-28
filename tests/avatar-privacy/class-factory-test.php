@@ -34,8 +34,10 @@ use org\bovigo\vfs\vfsStream;
 
 use Mockery as m;
 
+use Avatar_Privacy\Factory;
+
 /**
- * Avatar_Privacy\Factory unit test.
+ * Factory unit test.
  *
  * @coversDefaultClass \Avatar_Privacy\Factory
  * @usesDefaultClass \Avatar_Privacy\Factory
@@ -45,7 +47,7 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var \Avatar_Privacy\Factory
+	 * @var Factory
 	 */
 	private $sut;
 
@@ -75,7 +77,7 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 		\set_include_path( 'vfs://root/' ); // @codingStandardsIgnoreLine
 
 		// Set up the mock.
-		$this->sut = m::mock( \Avatar_Privacy\Factory::class )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Factory::class )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -132,6 +134,30 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 		$avatar_handlers = [
 			'some_hook' => [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Avatar_Handler::class ],
 		];
+		$user_form_args  = [
+			[
+				// use_gravatar.
+				'nonce'   => 'avatar_privacy_tml_profiles_use_gravatar_nonce_',
+				'action'  => 'avatar_privacy_tml_profiles_edit_use_gravatar',
+				'field'   => 'avatar-privacy-tml-profiles-use-gravatar',
+				'partial' => 'public/partials/tml-profiles/use-gravatar.php',
+			],
+			[
+				// allow_anonymous.
+				'nonce'   => 'avatar_privacy_tml_profiles_allow_anonymous_nonce_',
+				'action'  => 'avatar_privacy_tml_profiles_edit_allow_anonymous',
+				'field'   => 'avatar_privacy-tml-profiles-allow_anonymous',
+				'partial' => 'public/partials/tml-profiles/allow-anonymous.php',
+			],
+			[
+				// user_avatar.
+				'nonce'   => 'avatar_privacy_tml_profiles_upload_avatar_nonce_',
+				'action'  => 'avatar_privacy_tml_profiles_upload_avatar',
+				'field'   => 'avatar-privacy-tml-profiles-user-avatar-upload',
+				'erase'   => 'avatar-privacy-tml-profiles-user-avatar-erase',
+				'partial' => 'public/partials/tml-profiles/user-avatar-upload.php',
+			],
+		];
 
 		$this->sut->shouldReceive( 'get_plugin_version' )->once()->with( \AVATAR_PRIVACY_PLUGIN_FILE )->andReturn( $version );
 		$this->sut->shouldReceive( 'get_components' )->once()->andReturn( $components );
@@ -140,6 +166,7 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'get_cli_commands' )->once()->andReturn( $cli_commands );
 		$this->sut->shouldReceive( 'get_avatar_handlers' )->once()->andReturn( $avatar_handlers );
 		$this->sut->shouldReceive( 'get_database_tables' )->once()->andReturn( $tables );
+		$this->sut->shouldReceive( 'get_user_form_parameters' )->times( 4 )->with( m::type( 'string' ) )->andReturn( $user_form_args );
 
 		$result = $this->sut->get_rules();
 
@@ -166,23 +193,25 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::get
 	 *
 	 * @uses Avatar_Privacy\Factory::__construct
-	 * @uses Avatar_Privacy\Factory::get_default_icons
-	 * @uses Avatar_Privacy\Factory::get_cli_commands
 	 * @uses Avatar_Privacy\Factory::get_avatar_handlers
+	 * @uses Avatar_Privacy\Factory::get_cli_commands
 	 * @uses Avatar_Privacy\Factory::get_components
 	 * @uses Avatar_Privacy\Factory::get_database_tables
+	 * @uses Avatar_Privacy\Factory::get_database_tables
+	 * @uses Avatar_Privacy\Factory::get_default_icons
 	 * @uses Avatar_Privacy\Factory::get_plugin_integrations
 	 * @uses Avatar_Privacy\Factory::get_plugin_version
 	 * @uses Avatar_Privacy\Factory::get_rules
+	 * @uses Avatar_Privacy\Factory::get_user_form_parameters
 	 */
 	public function test_get() {
 		Functions\expect( 'get_plugin_data' )->once()->with( m::type( 'string' ), false, false )->andReturn( [ 'Version' => '42' ] );
 
-		$result1 = \Avatar_Privacy\Factory::get();
+		$result1 = Factory::get();
 
-		$this->assertInstanceOf( \Avatar_Privacy\Factory::class, $result1 );
+		$this->assertInstanceOf( Factory::class, $result1 );
 
-		$result2 = \Avatar_Privacy\Factory::get();
+		$result2 = Factory::get();
 
 		$this->assertSame( $result1, $result2 );
 	}
@@ -269,5 +298,49 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assert_is_array( $result );
 		$this->assert_contains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler::class ], $result, 'Avatar Handler missing.' );
 		$this->assertArrayHasKey( 'avatar_privacy_user_avatar_icon_url', $result );
+	}
+
+	/**
+	 * Provides data for testing ::get_user_form_parameters.
+	 *
+	 * @return array
+	 */
+	public function provide_get_user_form_parameters_data() {
+		return [
+			[ Factory::USERFORM_PROFILE_INSTANCE, true ],
+			[ Factory::USERFORM_FRONTEND_INSTANCE, true ],
+			[ Factory::USERFORM_THEME_MY_LOGIN_PROFILES_INSTANCE, true ],
+			[ Factory::USERFORM_BBPRESS_PROFILE_INSTANCE, true ],
+			[ 'foobar', false ],
+		];
+	}
+
+	/**
+	 * Test ::get_user_form_parameters.
+	 *
+	 * @covers ::get_user_form_parameters
+	 *
+	 * @dataProvider provide_get_user_form_parameters_data
+	 *
+	 * @param  string $instance A named instance in Dice syntax.
+	 * @param  bool   $valid    Whether the named instance is expected to be valid.
+	 */
+	public function test_get_user_form_parameters( $instance, $valid ) {
+		if ( ! $valid ) {
+			$this->expect_exception( \InvalidArgumentException::class );
+		}
+
+		$result = $this->sut->get_user_form_parameters( $instance );
+
+		if ( $valid ) {
+			$this->assert_is_array( $result );
+			$this->assertCount( 3, $result );
+			$this->assertArrayHasKey( 0, $result );
+			$this->assertArrayHasKey( 1, $result );
+			$this->assertArrayHasKey( 2, $result );
+			$this->assertArrayHasKey( 'nonce', $result[0] );
+		} else {
+			$this->assertNull( $result );
+		}
 	}
 }
