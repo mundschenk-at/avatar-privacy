@@ -122,16 +122,16 @@ class File_Upload_Input extends Controls\Input {
 	 * @var string
 	 */
 	protected function get_element_markup() {
-		$value    = $this->get_value();
-		$checkbox = '';
-		$nonce    = \wp_nonce_field( $this->action, $this->nonce . \get_current_blog_id(), true, false );
+		$value           = $this->get_value();
+		$checkbox_markup = '';
+		$nonce_markup    = \wp_nonce_field( $this->action, $this->nonce . \get_current_blog_id(), true, false );
 
 		if ( ! empty( $value ) ) {
-			$checkbox =
+			$checkbox_markup =
 				"<input id=\"{$this->erase_checkbox_id}\" name=\"{$this->erase_checkbox_id}\" value=\"true\" type=\"checkbox\">
 				 <label for=\"{$this->erase_checkbox_id}\">" . \__( 'Delete custom default avatar.', 'avatar-privacy' ) . '</label>';
 		}
 
-		return $nonce . parent::get_element_markup() . $checkbox;
+		return $nonce_markup . parent::get_element_markup() . $checkbox_markup;
 	}
 }
