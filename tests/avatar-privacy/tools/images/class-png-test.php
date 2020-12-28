@@ -36,6 +36,8 @@ use org\bovigo\vfs\vfsStream;
 
 use Avatar_Privacy\Tools\Images\PNG;
 
+use Avatar_Privacy\Exceptions\PNG_Image_Exception;
+
 /**
  * Avatar_Privacy\Tools\Images\PNG unit test.
  *
@@ -227,7 +229,7 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_create_from_file_invalid() {
 
-		$this->expectException( \RuntimeException::class );
+		$this->expectException( PNG_Image_Exception::class );
 
 		$this->assertNull( $this->sut->create_from_file( '/not/a/valid/PNG' ) );
 	}
@@ -379,7 +381,7 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 		}
 
 		// Expect failure.
-		$this->expectException( \RuntimeException::class );
+		$this->expectException( PNG_Image_Exception::class );
 
 		$this->sut->fill_hsl( $resource, $hue, $saturation, $lightness, $x, $y );
 
