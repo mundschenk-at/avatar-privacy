@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019 Peter Putzer.
+ * Copyright 2019-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -30,6 +30,7 @@ namespace Avatar_Privacy\Tools\Images;
  * A utility class providing some methods for dealing with SVG images.
  *
  * @since 2.3.0
+ * @since 2.4.0 Attributes changed to use constants.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
@@ -193,11 +194,21 @@ abstract class SVG {
 			self::ATTR_CLIPPATHUNITS => true,
 			self::ATTR_ID            => true,
 		],
-		'defs'           => true,
+		'defs'           => [
+			// Global attributes.
+			self::ATTR_CLASS         => true,
+			self::ATTR_ID            => true,
+			self::ATTR_STYLE         => true,
+		],
 		'style'          => [
 			self::ATTR_TYPE => true,
 		],
-		'desc'           => true,
+		'desc'           => [
+			// Global attributes.
+			self::ATTR_CLASS         => true,
+			self::ATTR_ID            => true,
+			self::ATTR_STYLE         => true,
+		],
 		'ellipse'        => [
 			self::ATTR_CLASS             => true,
 			self::ATTR_CLIP_PATH         => true,
@@ -633,7 +644,12 @@ abstract class SVG {
 			self::ATTR_TRANSFORM        => true,
 			self::ATTR_XLINK_HREF       => true,
 		],
-		'title'          => true,
+		'title'          => [
+			// Global attributes.
+			self::ATTR_CLASS         => true,
+			self::ATTR_ID            => true,
+			self::ATTR_STYLE         => true,
+		],
 		'tspan'          => [
 			self::ATTR_CLASS             => true,
 			self::ATTR_CLIP_PATH         => true,
