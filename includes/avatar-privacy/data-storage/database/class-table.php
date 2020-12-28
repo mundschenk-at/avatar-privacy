@@ -180,7 +180,7 @@ abstract class Table {
 		// Force DB update?
 		$db_needs_update = \version_compare( $previous_version, $this->update_threshold, '<' );
 
-		// Check if the table exists.
+		// Check if the table has already been registered.
 		if ( ! $db_needs_update && \property_exists( $wpdb, $this->table_basename ) ) {
 			return false;
 		}
@@ -188,21 +188,19 @@ abstract class Table {
 		// Set up table name.
 		$table_name = $this->get_table_name();
 
-		// Fix $wpdb object if table already exists, unless we need an update.
+		// Just fix $wpdb object if table already exists, unless we need an update.
 		if ( ! $db_needs_update && $this->table_exists( $table_name ) ) {
 			$this->register_table( $wpdb, $table_name );
-			return false;
+		} else {
+			// Create/update the table.
+			$this->db_delta( $this->get_table_definition( $table_name ) . " {$wpdb->get_charset_collate()};" );
+
+			if ( $this->table_exists( $table_name ) ) {
+				$this->register_table( $wpdb, $table_name );
+				return true;
+			}
 		}
 
-		// Create the table.
-		$this->db_delta( $this->get_table_definition( $table_name ) . " {$wpdb->get_charset_collate()};" );
-
-		if ( $this->table_exists( $table_name ) ) {
-			$this->register_table( $wpdb, $table_name );
-			return true;
-		}
-
-		// Should not ever happen.
 		return false;
 	}
 
