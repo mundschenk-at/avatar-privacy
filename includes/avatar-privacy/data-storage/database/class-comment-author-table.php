@@ -296,23 +296,22 @@ class Comment_Author_Table extends Table {
 
 		// Do INSERTs and UPDATEs in one query.
 		$migrated = $this->insert_or_update( [ 'email', 'hash', 'use_gravatar', 'last_updated', 'log_message' ], $rows_to_migrate, $site_id );
-		if ( false === $migrated ) {
-			return false;
-		}
+		if ( false !== $migrated ) {
+			// Do DELETEs in one query.
+			$deleted      = 0;
+			$delete_query = $this->prepare_delete_query( \array_keys( $rows_to_delete ), $global_table_name );
+			if ( false !== $delete_query ) {
+				$deleted = $wpdb->query( $delete_query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery
+			}
 
-		// Do DELETEs in one query.
-		$deleted      = 0;
-		$delete_query = $this->prepare_delete_query( \array_keys( $rows_to_delete ), $global_table_name );
-		if ( false !== $delete_query ) {
-			$deleted = $wpdb->query( $delete_query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery
-			if ( false === $deleted ) {
-				return false;
+			if ( false !== $deleted ) {
+				// Count the deleted rows if they were not included in the migrated
+				// rows because they were too old.
+				return \max( $migrated, $deleted );
 			}
 		}
 
-		// Count the deleted rows if they were not included in the migrated rows
-		// because they were too old.
-		return \max( $migrated, $deleted );
+		return false;
 	}
 
 	/**
