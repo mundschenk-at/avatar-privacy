@@ -63,12 +63,9 @@ class Cron_Command extends Abstract_Command {
 	 *
 	 * @subcommand list
 	 *
-	 * @param  array $args       The positional arguments.
-	 * @param  array $assoc_args The associative arguments.
-	 *
 	 * @return void
 	 */
-	public function list_( /* @scrutinizer ignore-unused */ array $args, /* @scrutinizer ignore-unused */ array $assoc_args ) {
+	public function list_() {
 		$job  = Image_Proxy::CRON_JOB_ACTION;
 		$next = \wp_next_scheduled( $job );
 
@@ -91,12 +88,9 @@ class Cron_Command extends Abstract_Command {
 	 *    $ wp avatar-privacy cron delete
 	 *    Success: Cron job avatar_privacy_daily was unscheduled on this site (1 event).
 	 *
-	 * @param  array $args       The positional arguments.
-	 * @param  array $assoc_args The associative arguments.
-	 *
 	 * @return void
 	 */
-	public function delete( /* @scrutinizer ignore-unused */ array $args, /* @scrutinizer ignore-unused */ array $assoc_args ) {
+	public function delete() {
 		$job    = Image_Proxy::CRON_JOB_ACTION;
 		$events = \wp_unschedule_hook( $job );
 

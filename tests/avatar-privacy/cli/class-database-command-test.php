@@ -133,9 +133,6 @@ class Database_Command_Test extends TestCase {
 	 * @covers ::show
 	 */
 	public function test_show() {
-		$args       = [];
-		$assoc_args = [];
-
 		// Intermediary data.
 		$table   = 'fake_table';
 		$version = '6.6.6';
@@ -160,7 +157,7 @@ class Database_Command_Test extends TestCase {
 
 		$this->wp_cli->shouldReceive( 'line' )->atLeast()->once()->with( m::type( 'string' ) );
 
-		$this->assertNull( $this->sut->show( $args, $assoc_args ) );
+		$this->assertNull( $this->sut->show() );
 	}
 
 	/**
@@ -169,9 +166,6 @@ class Database_Command_Test extends TestCase {
 	 * @covers ::show
 	 */
 	public function test_show_multisite() {
-		$args       = [];
-		$assoc_args = [];
-
 		// Intermediary data.
 		$table   = 'fake_table';
 		$version = '6.6.6';
@@ -198,7 +192,7 @@ class Database_Command_Test extends TestCase {
 
 		$this->wp_cli->shouldReceive( 'line' )->atLeast()->once()->with( m::type( 'string' ) );
 
-		$this->assertNull( $this->sut->show( $args, $assoc_args ) );
+		$this->assertNull( $this->sut->show() );
 	}
 
 	/**
@@ -207,9 +201,6 @@ class Database_Command_Test extends TestCase {
 	 * @covers ::show
 	 */
 	public function test_show_multisite_global_table() {
-		$args       = [];
-		$assoc_args = [];
-
 		// Intermediary data.
 		$table   = 'fake_table';
 		$version = '6.6.6';
@@ -236,7 +227,7 @@ class Database_Command_Test extends TestCase {
 
 		$this->wp_cli->shouldReceive( 'line' )->atLeast()->once()->with( m::type( 'string' ) );
 
-		$this->assertNull( $this->sut->show( $args, $assoc_args ) );
+		$this->assertNull( $this->sut->show() );
 	}
 
 	/**
