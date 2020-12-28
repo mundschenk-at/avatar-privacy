@@ -234,99 +234,19 @@ class Factory extends Dice {
 			User_Form::class                                        => self::SHARED,
 			self::USERFORM_PROFILE_INSTANCE                         => [
 				'instanceOf'      => User_Form::class,
-				'constructParams' => [
-					[
-						'nonce'   => 'avatar_privacy_use_gravatar_nonce_',
-						'action'  => 'avatar_privacy_edit_use_gravatar',
-						'field'   => 'avatar-privacy-use-gravatar',
-						'partial' => 'admin/partials/profile/use-gravatar.php',
-					],
-					[
-						'nonce'   => 'avatar_privacy_allow_anonymous_nonce_',
-						'action'  => 'avatar_privacy_edit_allow_anonymous',
-						'field'   => 'avatar-privacy-allow-anonymous',
-						'partial' => 'admin/partials/profile/allow-anonymous.php',
-					],
-					[
-						'nonce'   => 'avatar_privacy_upload_avatar_nonce_',
-						'action'  => 'avatar_privacy_upload_avatar',
-						'field'   => 'avatar-privacy-user-avatar-upload',
-						'erase'   => 'avatar-privacy-user-avatar-erase',
-						'partial' => 'admin/partials/profile/user-avatar-upload.php',
-					],
-				],
+				'constructParams' => $this->get_user_form_parameters( self::USERFORM_PROFILE_INSTANCE ),
 			],
 			self::USERFORM_BBPRESS_PROFILE_INSTANCE                 => [
 				'instanceOf'      => User_Form::class,
-				'constructParams' => [
-					[
-						'nonce'   => 'avatar_privacy_bbpress_use_gravatar_nonce_',
-						'action'  => 'avatar_privacy_bbpress_edit_use_gravatar',
-						'field'   => 'avatar-privacy-bbpress-use-gravatar',
-						'partial' => 'public/partials/bbpress/profile/use-gravatar.php',
-					],
-					[
-						'nonce'   => 'avatar_privacy_bbpress_allow_anonymous_nonce_',
-						'action'  => 'avatar_privacy_bbpress_edit_allow_anonymous',
-						'field'   => 'avatar-privacy-bbpress-allow-anonymous',
-						'partial' => 'public/partials/bbpress/profile/allow-anonymous.php',
-					],
-					[
-						'nonce'   => 'avatar_privacy_bbpress_upload_avatar_nonce_',
-						'action'  => 'avatar_privacy_bbpress_upload_avatar',
-						'field'   => 'avatar-privacy-bbpress-user-avatar-upload',
-						'erase'   => 'avatar-privacy-bbpress-user-avatar-erase',
-						'partial' => 'public/partials/bbpress/profile/user-avatar-upload.php',
-					],
-				],
+				'constructParams' => $this->get_user_form_parameters( self::USERFORM_BBPRESS_PROFILE_INSTANCE ),
 			],
 			self::USERFORM_FRONTEND_INSTANCE                        => [
 				'instanceOf'      => User_Form::class,
-				'constructParams' => [
-					[
-						'nonce'   => 'avatar_privacy_frontend_use_gravatar_nonce_',
-						'action'  => 'avatar_privacy_frontend_edit_use_gravatar',
-						'field'   => 'avatar-privacy-frontend-use-gravatar',
-						'partial' => 'public/partials/profile/use-gravatar.php',
-					],
-					[
-						'nonce'   => 'avatar_privacy_frontend_allow_anonymous_nonce_',
-						'action'  => 'avatar_privacy_frontend_edit_allow_anonymous',
-						'field'   => 'avatar_privacy-frontend-allow_anonymous',
-						'partial' => 'public/partials/profile/allow-anonymous.php',
-					],
-					[
-						'nonce'   => 'avatar_privacy_frontend_upload_avatar_nonce_',
-						'action'  => 'avatar_privacy_frontend_upload_avatar',
-						'field'   => 'avatar-privacy-frontend-user-avatar-upload',
-						'erase'   => 'avatar-privacy-frontend-user-avatar-erase',
-						'partial' => 'public/partials/profile/user-avatar-upload.php',
-					],
-				],
+				'constructParams' => $this->get_user_form_parameters( self::USERFORM_FRONTEND_INSTANCE ),
 			],
 			self::USERFORM_THEME_MY_LOGIN_PROFILES_INSTANCE         => [
 				'instanceOf'      => User_Form::class,
-				'constructParams' => [
-					[
-						'nonce'   => 'avatar_privacy_tml_profiles_use_gravatar_nonce_',
-						'action'  => 'avatar_privacy_tml_profiles_edit_use_gravatar',
-						'field'   => 'avatar-privacy-tml-profiles-use-gravatar',
-						'partial' => 'public/partials/tml-profiles/use-gravatar.php',
-					],
-					[
-						'nonce'   => 'avatar_privacy_tml_profiles_allow_anonymous_nonce_',
-						'action'  => 'avatar_privacy_tml_profiles_edit_allow_anonymous',
-						'field'   => 'avatar_privacy-tml-profiles-allow_anonymous',
-						'partial' => 'public/partials/tml-profiles/allow-anonymous.php',
-					],
-					[
-						'nonce'   => 'avatar_privacy_tml_profiles_upload_avatar_nonce_',
-						'action'  => 'avatar_privacy_tml_profiles_upload_avatar',
-						'field'   => 'avatar-privacy-tml-profiles-user-avatar-upload',
-						'erase'   => 'avatar-privacy-tml-profiles-user-avatar-erase',
-						'partial' => 'public/partials/tml-profiles/user-avatar-upload.php',
-					],
-				],
+				'constructParams' => $this->get_user_form_parameters( self::USERFORM_THEME_MY_LOGIN_PROFILES_INSTANCE ),
 			],
 
 			// Plugin integrations.
@@ -527,5 +447,114 @@ class Factory extends Dice {
 			'avatar_privacy_default_icon_url'     => [ 'instance' => Default_Icons_Handler::class ],
 			'avatar_privacy_legacy_icon_url'      => [ 'instance' => Legacy_Icon_Handler::class ],
 		];
+	}
+
+	/**
+	 * Retrieves the constructor parameters for configuring named user form instances.
+	 *
+	 * @since  2.4.0
+	 *
+	 * @param  string $instance The named instance.
+	 *
+	 * @return array            The constructor parameter array for the named instance.
+	 *
+	 * @throws \InvalidArgumentException An exception is raised when $instance is
+	 *                                   not one of the expected constants.
+	 */
+	protected function get_user_form_parameters( $instance ) {
+		switch ( $instance ) {
+			case self::USERFORM_PROFILE_INSTANCE:
+				$use_gravatar    = [
+					'nonce'   => 'avatar_privacy_use_gravatar_nonce_',
+					'action'  => 'avatar_privacy_edit_use_gravatar',
+					'field'   => 'avatar-privacy-use-gravatar',
+					'partial' => 'admin/partials/profile/use-gravatar.php',
+				];
+				$allow_anonymous = [
+					'nonce'   => 'avatar_privacy_allow_anonymous_nonce_',
+					'action'  => 'avatar_privacy_edit_allow_anonymous',
+					'field'   => 'avatar-privacy-allow-anonymous',
+					'partial' => 'admin/partials/profile/allow-anonymous.php',
+				];
+				$user_avatar     = [
+					'nonce'   => 'avatar_privacy_upload_avatar_nonce_',
+					'action'  => 'avatar_privacy_upload_avatar',
+					'field'   => 'avatar-privacy-user-avatar-upload',
+					'erase'   => 'avatar-privacy-user-avatar-erase',
+					'partial' => 'admin/partials/profile/user-avatar-upload.php',
+				];
+				break;
+
+			case self::USERFORM_BBPRESS_PROFILE_INSTANCE:
+				$use_gravatar    = [
+					'nonce'   => 'avatar_privacy_bbpress_use_gravatar_nonce_',
+					'action'  => 'avatar_privacy_bbpress_edit_use_gravatar',
+					'field'   => 'avatar-privacy-bbpress-use-gravatar',
+					'partial' => 'public/partials/bbpress/profile/use-gravatar.php',
+				];
+				$allow_anonymous = [
+					'nonce'   => 'avatar_privacy_bbpress_allow_anonymous_nonce_',
+					'action'  => 'avatar_privacy_bbpress_edit_allow_anonymous',
+					'field'   => 'avatar-privacy-bbpress-allow-anonymous',
+					'partial' => 'public/partials/bbpress/profile/allow-anonymous.php',
+				];
+				$user_avatar     = [
+					'nonce'   => 'avatar_privacy_bbpress_upload_avatar_nonce_',
+					'action'  => 'avatar_privacy_bbpress_upload_avatar',
+					'field'   => 'avatar-privacy-bbpress-user-avatar-upload',
+					'erase'   => 'avatar-privacy-bbpress-user-avatar-erase',
+					'partial' => 'public/partials/bbpress/profile/user-avatar-upload.php',
+				];
+				break;
+
+			case self::USERFORM_FRONTEND_INSTANCE:
+				$use_gravatar    = [
+					'nonce'   => 'avatar_privacy_frontend_use_gravatar_nonce_',
+					'action'  => 'avatar_privacy_frontend_edit_use_gravatar',
+					'field'   => 'avatar-privacy-frontend-use-gravatar',
+					'partial' => 'public/partials/profile/use-gravatar.php',
+				];
+				$allow_anonymous = [
+					'nonce'   => 'avatar_privacy_frontend_allow_anonymous_nonce_',
+					'action'  => 'avatar_privacy_frontend_edit_allow_anonymous',
+					'field'   => 'avatar_privacy-frontend-allow_anonymous',
+					'partial' => 'public/partials/profile/allow-anonymous.php',
+				];
+				$user_avatar     = [
+					'nonce'   => 'avatar_privacy_frontend_upload_avatar_nonce_',
+					'action'  => 'avatar_privacy_frontend_upload_avatar',
+					'field'   => 'avatar-privacy-frontend-user-avatar-upload',
+					'erase'   => 'avatar-privacy-frontend-user-avatar-erase',
+					'partial' => 'public/partials/profile/user-avatar-upload.php',
+				];
+				break;
+
+			case self::USERFORM_THEME_MY_LOGIN_PROFILES_INSTANCE:
+				$use_gravatar    = [
+					'nonce'   => 'avatar_privacy_tml_profiles_use_gravatar_nonce_',
+					'action'  => 'avatar_privacy_tml_profiles_edit_use_gravatar',
+					'field'   => 'avatar-privacy-tml-profiles-use-gravatar',
+					'partial' => 'public/partials/tml-profiles/use-gravatar.php',
+				];
+				$allow_anonymous = [
+					'nonce'   => 'avatar_privacy_tml_profiles_allow_anonymous_nonce_',
+					'action'  => 'avatar_privacy_tml_profiles_edit_allow_anonymous',
+					'field'   => 'avatar_privacy-tml-profiles-allow_anonymous',
+					'partial' => 'public/partials/tml-profiles/allow-anonymous.php',
+				];
+				$user_avatar     = [
+					'nonce'   => 'avatar_privacy_tml_profiles_upload_avatar_nonce_',
+					'action'  => 'avatar_privacy_tml_profiles_upload_avatar',
+					'field'   => 'avatar-privacy-tml-profiles-user-avatar-upload',
+					'erase'   => 'avatar-privacy-tml-profiles-user-avatar-erase',
+					'partial' => 'public/partials/tml-profiles/user-avatar-upload.php',
+				];
+				break;
+
+			default:
+				throw new \InvalidArgumentException( "Invalid named instance {$instance}." );
+		}
+
+		return [ $use_gravatar, $allow_anonymous, $user_avatar ];
 	}
 }
