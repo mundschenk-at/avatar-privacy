@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019 Peter Putzer.
+ * Copyright 2019-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,12 +26,15 @@
 
 namespace Avatar_Privacy\Tools\Images;
 
+use Avatar_Privacy\Exceptions\PNG_Image_Exception;
+
 use function Scriptura\Color\Helpers\HSLtoRGB;
 
 /**
  * A utility class providing some methods for dealing with PNG images.
  *
  * @since 2.3.0
+ * @since 2.4.0 The class now uses `PNG_Image_Exception` instead of plain `RuntimeException`.
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
@@ -46,14 +49,14 @@ class PNG {
 	 * @return resource
 	 *
 	 * @throws \InvalidArgumentException Called with an incorrect type.
-	 * @throws \RuntimeException         The image could not be created.
+	 * @throws PNG_Image_Exception       The image could not be created.
 	 */
 	public function create( $type, $width, $height ) {
 		$image = \imageCreateTrueColor( $width, $height );
 
 		// Something went wrong, badly.
 		if ( ! \is_resource( $image ) ) {
-			throw new \RuntimeException( "The image of type {$type} ($width x $height) could not be created." );  // @codeCoverageIgnore
+			throw new PNG_Image_Exception( "The image of type {$type} ($width x $height) could not be created." );  // @codeCoverageIgnore
 		}
 
 		// Don't do alpha blending for the initial fill operation.
@@ -80,9 +83,9 @@ class PNG {
 			}
 
 			if ( false === $color || ! \imageFilledRectangle( $image, 0, 0, $width, $height, $color ) ) {
-				throw new \RuntimeException( "Error filling image of type $type." ); // @codeCoverageIgnore
+				throw new PNG_Image_Exception( "Error filling image of type $type." ); // @codeCoverageIgnore
 			}
-		} catch ( \RuntimeException $e ) {
+		} catch ( PNG_Image_Exception $e ) {
 			// Clean up and re-throw exception.
 			\imageDestroy( $image ); // @codeCoverageIgnoreStart
 			throw $e;                // @codeCoverageIgnoreEnd
@@ -101,14 +104,14 @@ class PNG {
 	 *
 	 * @return resource
 	 *
-	 * @throws \RuntimeException The image could not be read.
+	 * @throws PNG_Image_Exception The image could not be read.
 	 */
 	public function create_from_file( $file ) {
 		$image = @\imageCreateFromPNG( $file );
 
 		// Something went wrong, badly.
 		if ( ! \is_resource( $image ) ) {
-			throw new \RuntimeException( "The PNG image {$file} could not be read." );
+			throw new PNG_Image_Exception( "The PNG image {$file} could not be read." );
 		}
 
 		// Fix transparent background.
@@ -130,7 +133,7 @@ class PNG {
 	 * @return void
 	 *
 	 * @throws \InvalidArgumentException One of the first two parameters was not a valid image resource.
-	 * @throws \RuntimeException         The image could not be copied.
+	 * @throws PNG_Image_Exception       The image could not be copied.
 	 */
 	public function combine( $base, $image, $width, $height ) {
 
@@ -147,7 +150,7 @@ class PNG {
 
 		// Return copy success status.
 		if ( ! $result ) {
-			throw new \RuntimeException( 'Error while copying image.' ); // @codeCoverageIgnore
+			throw new PNG_Image_Exception( 'Error while copying image.' ); // @codeCoverageIgnore
 		}
 	}
 
@@ -164,7 +167,7 @@ class PNG {
 	 * @return void
 	 *
 	 * @throws \InvalidArgumentException Not a valid image resource.
-	 * @throws \RuntimeException         The image could not be filled.
+	 * @throws PNG_Image_Exception       The image could not be filled.
 	 */
 	public function fill_hsl( $image, $hue, $saturation, $lightness, $x, $y ) {
 		// Abort if $image is not a valid resource.
@@ -176,7 +179,7 @@ class PNG {
 		$color                      = \imageColorAllocate( $image, $red, $green, $blue );
 
 		if ( false === $color || ! \imageFill( $image, $x, $y, $color ) ) {
-			throw new \RuntimeException( "Error filling image with HSL ({$hue}, {$saturation}, {$lightness})." ); // @codeCoverageIgnore
+			throw new PNG_Image_Exception( "Error filling image with HSL ({$hue}, {$saturation}, {$lightness})." ); // @codeCoverageIgnore
 		}
 	}
 }
