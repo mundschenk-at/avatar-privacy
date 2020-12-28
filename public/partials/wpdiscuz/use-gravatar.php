@@ -39,7 +39,6 @@ if ( isset( $_POST[ Comments::CHECKBOX_FIELD_NAME ] ) ) { // phpcs:ignore WordPr
 	$is_checked = \filter_input( \INPUT_COOKIE, $cookie_name, \FILTER_VALIDATE_BOOLEAN );
 }
 ?>
-<!-- div class="comment-form-use-gravatar wpdiscuz-item wpd-field-group wpd-field-checkbox wpd-field-single wpd-has-desc" -->
 <div class="comment-form-use-gravatar wpdiscuz-item wpd-field-group wpd-field-checkbox wpd-field-single wpd-has-desc">
 	<div class="wpd-field-group-title">
 		<div class="wpd-item">
