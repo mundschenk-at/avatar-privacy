@@ -139,7 +139,6 @@ class Factory extends Dice {
 			API::class                                              => self::SHARED,
 			Core::class                                             => self::SHARED,
 			Settings::class                                         => [
-				'shared'          => true,
 				'constructParams' => [ $this->get_plugin_version( \AVATAR_PRIVACY_PLUGIN_FILE ) ],
 			],
 
