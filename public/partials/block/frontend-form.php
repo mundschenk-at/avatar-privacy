@@ -43,6 +43,7 @@ use Avatar_Privacy\Tools\HTML\User_Form;
 <form class="<?php echo \esc_attr( \trim( "avatar-privacy-frontend avatar-privacy-block {$attributes['className']}" ) ); ?>" method="post" enctype="multipart/form-data">
 <?php if ( ! empty( $attributes['preview'] ) ) : ?>
 	<fieldset disabled="disabled">
+		<legend class="screen-reader-text"><?php \esc_html_e( 'Avatar Privacy Form Preview', 'avatar-privacy' ); ?></legend>
 <?php endif; ?>
 	<?php $form->avatar_uploader( $user_id, $attributes ); ?>
 	<?php $form->use_gravatar_checkbox( $user_id, $attributes ); ?>
