@@ -195,12 +195,12 @@ class Setup implements Component {
 	 */
 	public function update_check() {
 		// Force reading the settings from the DB, but do not cache the result.
-		$settings = $this->settings->get_all_settings( true );
+		$current_settings = $this->settings->get_all_settings( true );
 
 		// We can ignore errors here, just carry on as if for a new installation.
-		if ( ! empty( $settings[ Options::INSTALLED_VERSION ] ) ) {
-			$installed_version = $settings[ Options::INSTALLED_VERSION ];
-		} elseif ( ! empty( $settings ) && ! isset( $settings[ Options::INSTALLED_VERSION ] ) ) {
+		if ( ! empty( $current_settings[ Options::INSTALLED_VERSION ] ) ) {
+			$installed_version = $current_settings[ Options::INSTALLED_VERSION ];
+		} elseif ( ! empty( $current_settings ) && ! isset( $current_settings[ Options::INSTALLED_VERSION ] ) ) {
 			// Plugin releases before 1.0 did not store the installed version.
 			$installed_version = '0.4-or-earlier';
 		} else {
@@ -216,7 +216,7 @@ class Setup implements Component {
 		if ( $update_needed ) {
 			if ( ! $new_install ) {
 				// Update plugin settings if necessary.
-				$settings = $this->update_settings( $installed_version, $settings );
+				$current_settings = $this->update_settings( $installed_version, $current_settings );
 
 				// Preserve previous multisite behavior.
 				// This needs to happen before the database tables are set up.
@@ -247,8 +247,8 @@ class Setup implements Component {
 		}
 
 		// Update installed version.
-		$settings[ Options::INSTALLED_VERSION ] = $version;
-		$this->options->set( Settings::OPTION_NAME, $settings );
+		$current_settings[ Options::INSTALLED_VERSION ] = $version;
+		$this->options->set( Settings::OPTION_NAME, $current_settings );
 	}
 
 	/**
