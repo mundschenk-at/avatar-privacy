@@ -330,8 +330,6 @@ class Setup implements Component {
 					\wp_unschedule_hook( Image_Proxy::CRON_JOB_ACTION );
 				}
 			);
-
-			return;
 		}
 	}
 
