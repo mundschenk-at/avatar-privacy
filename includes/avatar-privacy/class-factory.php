@@ -150,6 +150,11 @@ class Factory extends Dice {
 
 			// Components.
 			Component::class                                        => self::SHARED,
+			Components\Block_Editor::class                          => [
+				'substitutions' => [
+					User_Form::class => [ 'instance' => self::USERFORM_FRONTEND_INSTANCE ],
+				],
+			],
 			Components\Command_Line_Interface::class                => [
 				'constructParams' => [ $this->get_cli_commands() ],
 			],
@@ -161,6 +166,16 @@ class Factory extends Dice {
 			],
 			Components\Setup::class                                 => [
 				'constructParams' => [ $this->get_database_tables() ],
+			],
+			Components\Shortcodes::class                            => [
+				'substitutions' => [
+					User_Form::class => [ 'instance' => self::USERFORM_FRONTEND_INSTANCE ],
+				],
+			],
+			Components\User_Profile::class                          => [
+				'substitutions' => [
+					User_Form::class => [ 'instance' => self::USERFORM_PROFILE_INSTANCE ],
+				],
 			],
 
 			// Default icon providers.
@@ -312,22 +327,6 @@ class Factory extends Dice {
 						'erase'   => 'avatar-privacy-tml-profiles-user-avatar-erase',
 						'partial' => 'public/partials/tml-profiles/user-avatar-upload.php',
 					],
-				],
-			],
-
-			Components\Block_Editor::class                          => [
-				'substitutions' => [
-					User_Form::class => [ 'instance' => self::USERFORM_FRONTEND_INSTANCE ],
-				],
-			],
-			Components\Shortcodes::class                            => [
-				'substitutions' => [
-					User_Form::class => [ 'instance' => self::USERFORM_FRONTEND_INSTANCE ],
-				],
-			],
-			Components\User_Profile::class                          => [
-				'substitutions' => [
-					User_Form::class => [ 'instance' => self::USERFORM_PROFILE_INSTANCE ],
 				],
 			],
 
