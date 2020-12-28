@@ -26,14 +26,12 @@
 
 namespace Avatar_Privacy\Exceptions;
 
-use Avatar_Privacy\Exceptions\Filesystem_Exception;
-
 /**
- * An exception indicating that a file could not be deleted.
+ * An exception indicating that a filesystem operation failed.
  *
  * @since 2.4.0
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-class File_Deletion_Exception extends Filesystem_Exception {
+class Filesystem_Exception extends \RuntimeException {
 }
