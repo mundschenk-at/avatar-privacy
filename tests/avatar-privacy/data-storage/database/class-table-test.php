@@ -36,6 +36,8 @@ use org\bovigo\vfs\vfsStream;
 
 use Avatar_Privacy\Data_Storage\Database\Table;
 
+use Avatar_Privacy\Exceptions\Database_Exception;
+
 /**
  * Avatar_Privacy\Data_Storage\Database\Table unit test.
  *
@@ -466,7 +468,7 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 		$expected = [ '%s', '%d', '%s' ];
 
-		$this->expectException( \RuntimeException::class );
+		$this->expectException( Database_Exception::class );
 
 		$this->assertSame( $expected, $this->sut->get_format( $columns ) );
 	}
@@ -516,7 +518,7 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$wpdb = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		$this->sut->shouldReceive( 'get_table_name' )->once()->with( $site_id )->andReturn( $table_name );
-		$this->sut->shouldReceive( 'get_format' )->once()->with( $data )->andThrow( \RuntimeException::class );
+		$this->sut->shouldReceive( 'get_format' )->once()->with( $data )->andThrow( Database_Exception::class );
 		$wpdb->shouldReceive( 'insert' )->never();
 
 		$this->assertFalse( $this->sut->insert( $data, $site_id ) );
@@ -567,7 +569,7 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$wpdb = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		$this->sut->shouldReceive( 'get_table_name' )->once()->with( $site_id )->andReturn( $table_name );
-		$this->sut->shouldReceive( 'get_format' )->once()->with( $data )->andThrow( \RuntimeException::class );
+		$this->sut->shouldReceive( 'get_format' )->once()->with( $data )->andThrow( Database_Exception::class );
 		$wpdb->shouldReceive( 'replace' )->never();
 
 		$this->assertFalse( $this->sut->replace( $data, $site_id ) );
@@ -627,7 +629,7 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'get_table_name' )->once()->with( $site_id )->andReturn( $table_name );
 		$this->sut->shouldReceive( 'get_format' )->once()->with( $data )->andReturn( $formats );
-		$this->sut->shouldReceive( 'get_format' )->once()->with( $where )->andThrow( \RuntimeException::class );
+		$this->sut->shouldReceive( 'get_format' )->once()->with( $where )->andThrow( Database_Exception::class );
 		$wpdb->shouldReceive( 'update' )->never();
 
 		$this->assertFalse( $this->sut->update( $data, $where, $site_id ) );
@@ -673,7 +675,7 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$wpdb = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		$this->sut->shouldReceive( 'get_table_name' )->once()->with( $site_id )->andReturn( $table_name );
-		$this->sut->shouldReceive( 'get_format' )->once()->with( $where )->andThrow( \RuntimeException::class );
+		$this->sut->shouldReceive( 'get_format' )->once()->with( $where )->andThrow( Database_Exception::class );
 		$wpdb->shouldReceive( 'delete' )->never();
 
 		$this->assertFalse( $this->sut->delete( $where, $site_id ) );
@@ -888,7 +890,7 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 			],
 		];
 
-		$this->sut->shouldReceive( 'get_format' )->once()->andThrow( \RuntimeException::class );
+		$this->sut->shouldReceive( 'get_format' )->once()->andThrow( Database_Exception::class );
 		$this->sut->shouldReceive( 'get_table_name' )->never();
 
 		$wpdb->shouldReceive( 'prepare' )->never();
