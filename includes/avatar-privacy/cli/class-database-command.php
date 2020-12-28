@@ -102,12 +102,9 @@ class Database_Command extends Abstract_Command {
 	 *
 	 * @global \wpdb $wpdb       The WordPress database.
 	 *
-	 * @param  array $args       The positional arguments.
-	 * @param  array $assoc_args The associative arguments.
-	 *
 	 * @return void
 	 */
-	public function show( /* @scrutinizer ignore-unused */ array $args, /* @scrutinizer ignore-unused */ array $assoc_args ) {
+	public function show() {
 		global $wpdb;
 
 		// Query data.

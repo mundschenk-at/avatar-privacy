@@ -87,15 +87,12 @@ class Cron_Command_Test extends TestCase {
 	 * @covers ::list_
 	 */
 	public function test_list_() {
-		$args       = [];
-		$assoc_args = [];
-
 		Functions\expect( 'wp_next_scheduled' )->once()->with( Image_Proxy::CRON_JOB_ACTION )->andReturn( \time() );
 
 		$this->wp_cli->shouldReceive( 'colorize' )->zeroOrMoreTimes();
 		$this->expect_wp_cli_success();
 
-		$this->assertNull( $this->sut->list_( $args, $assoc_args ) );
+		$this->assertNull( $this->sut->list_() );
 	}
 
 	/**
@@ -104,15 +101,12 @@ class Cron_Command_Test extends TestCase {
 	 * @covers ::list_
 	 */
 	public function test_list_not_scheduled() {
-		$args       = [];
-		$assoc_args = [];
-
 		Functions\expect( 'wp_next_scheduled' )->once()->with( Image_Proxy::CRON_JOB_ACTION )->andReturn( false );
 
 		$this->wp_cli->shouldReceive( 'colorize' )->zeroOrMoreTimes();
 		$this->expect_wp_cli_success();
 
-		$this->assertNull( $this->sut->list_( $args, $assoc_args ) );
+		$this->assertNull( $this->sut->list_() );
 	}
 
 	/**
@@ -121,15 +115,12 @@ class Cron_Command_Test extends TestCase {
 	 * @covers ::delete
 	 */
 	public function test_delete() {
-		$args       = [];
-		$assoc_args = [];
-
 		Functions\expect( 'wp_unschedule_hook' )->once()->with( Image_Proxy::CRON_JOB_ACTION )->andReturn( 1 );
 
 		$this->wp_cli->shouldReceive( 'colorize' )->zeroOrMoreTimes();
 		$this->expect_wp_cli_success();
 
-		$this->assertNull( $this->sut->delete( $args, $assoc_args ) );
+		$this->assertNull( $this->sut->delete() );
 	}
 
 	/**
@@ -138,14 +129,11 @@ class Cron_Command_Test extends TestCase {
 	 * @covers ::delete
 	 */
 	public function test_delete_no_events() {
-		$args       = [];
-		$assoc_args = [];
-
 		Functions\expect( 'wp_unschedule_hook' )->once()->with( Image_Proxy::CRON_JOB_ACTION )->andReturn( false );
 
 		$this->wp_cli->shouldReceive( 'colorize' )->zeroOrMoreTimes();
 		$this->expect_wp_cli_error();
 
-		$this->assertNull( $this->sut->delete( $args, $assoc_args ) );
+		$this->assertNull( $this->sut->delete() );
 	}
 }
