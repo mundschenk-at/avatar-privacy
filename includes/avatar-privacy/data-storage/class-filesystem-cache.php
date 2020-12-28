@@ -74,8 +74,7 @@ class Filesystem_Cache {
 	 */
 	public function get_base_dir() {
 		if ( empty( $this->base_dir ) ) {
-			$upload_dir     = $this->get_upload_dir();
-			$this->base_dir = "{$upload_dir['basedir']}/" . self::CACHE_DIR;
+			$this->base_dir = "{$this->get_upload_dir()['basedir']}/" . self::CACHE_DIR;
 
 			if ( ! \wp_mkdir_p( $this->base_dir ) ) {
 				throw new \RuntimeException( "The cache directory {$this->base_dir} could not be created." );
@@ -92,8 +91,7 @@ class Filesystem_Cache {
 	 */
 	public function get_base_url() {
 		if ( empty( $this->base_url ) ) {
-			$upload_dir     = $this->get_upload_dir();
-			$this->base_url = "{$upload_dir['baseurl']}/" . self::CACHE_DIR;
+			$this->base_url = "{$this->get_upload_dir()['baseurl']}/" . self::CACHE_DIR;
 		}
 
 		return $this->base_url;
