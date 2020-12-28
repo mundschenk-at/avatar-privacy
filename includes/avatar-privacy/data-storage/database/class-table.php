@@ -26,6 +26,8 @@
 
 namespace Avatar_Privacy\Data_Storage\Database;
 
+use Avatar_Privacy\Exceptions\Database_Exception;
+
 /**
  * A plugin-specific database handler.
  *
@@ -311,7 +313,7 @@ abstract class Table {
 	 *
 	 * @return string[]
 	 *
-	 * @throws \RuntimeException A \RuntimeException is raised when invalid column names are used.
+	 * @throws Database_Exception An exception is raised when invalid column names are used.
 	 */
 	protected function get_format( array $columns ) {
 		$format_strings = [];
@@ -320,7 +322,7 @@ abstract class Table {
 			if ( ! empty( $this->column_formats[ $key ] ) ) {
 				$format_strings[] = null === $value ? 'NULL' : $this->column_formats[ $key ];
 			} else {
-				throw new \RuntimeException( "Invalid column name '{$key}'." );
+				throw new Database_Exception( "Invalid column name '{$key}'." );
 			}
 		}
 
