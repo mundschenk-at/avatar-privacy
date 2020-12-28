@@ -300,17 +300,17 @@ class Settings implements API {
 	 */
 	public function get_defaults() {
 		if ( empty( $this->defaults ) ) {
-			$defaults = [];
+			$_defaults = [];
 			foreach ( $this->get_fields() as $index => $field ) {
 				if ( isset( $field['default'] ) ) {
-					$defaults[ $index ] = $field['default'];
+					$_defaults[ $index ] = $field['default'];
 				}
 			}
 
 			// Allow detection of new installations.
-			$defaults[ Options::INSTALLED_VERSION ] = '';
+			$_defaults[ Options::INSTALLED_VERSION ] = '';
 
-			$this->defaults = $defaults;
+			$this->defaults = $_defaults;
 		}
 
 		return $this->defaults;

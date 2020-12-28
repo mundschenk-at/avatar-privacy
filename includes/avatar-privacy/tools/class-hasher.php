@@ -78,22 +78,22 @@ class Hasher {
 			 *
 			 * @param string $salt Default ''.
 			 */
-			$salt = \apply_filters( 'avatar_privacy_salt', '' );
+			$_salt = \apply_filters( 'avatar_privacy_salt', '' );
 
-			if ( empty( $salt ) ) {
+			if ( empty( $_salt ) ) {
 				// Let's try the network option next.
-				$salt = $this->network_options->get( Network_Options::SALT );
+				$_salt = $this->network_options->get( Network_Options::SALT );
 
-				if ( empty( $salt ) ) {
+				if ( empty( $_salt ) ) {
 					// Still nothing? Generate a random value.
-					$salt = \wp_rand();
+					$_salt = \wp_rand();
 
 					// Save the generated salt.
-					$this->network_options->set( Network_Options::SALT, $salt );
+					$this->network_options->set( Network_Options::SALT, $_salt );
 				}
 			}
 
-			$this->salt = $salt;
+			$this->salt = $_salt;
 		}
 
 		return $this->salt;

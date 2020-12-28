@@ -82,33 +82,33 @@ class Theme_My_Login_Profiles_Integration implements Plugin_Integration {
 	 * @return void
 	 */
 	public function integrate_with_theme_my_login() {
-		$form = /* @scrutinizer ignore-call */ \tml_get_form( 'profile' );
-		if ( ! $form instanceof Theme_My_Login_Form ) {
+		$tml_form = /* @scrutinizer ignore-call */ \tml_get_form( 'profile' );
+		if ( ! $tml_form instanceof Theme_My_Login_Form ) {
 			// Profiles extension not set up.
 			return;
 		}
 
-		$avatar_field = $form->get_field( 'avatar' );
+		$avatar_field = $tml_form->get_field( 'avatar' );
 		if ( ! $avatar_field instanceof Theme_My_Login_Form_Field ) {
 			// Avatars seem to be disabled.
 			return;
 		}
 
 		// Add proper encoding for uploading.
-		$form->add_attribute( 'enctype', 'multipart/form-data' );
+		$tml_form->add_attribute( 'enctype', 'multipart/form-data' );
 
 		// Change render callback for avatar field.
 		$avatar_field->set_content( [ $this, 'render_avatar_field' ] );
 
 		// Add additional fields.
 		/* @scrutinizer ignore-call */
-		\tml_add_form_field( $form, 'avatar_privacy_use_gravatar', [
+		\tml_add_form_field( $tml_form, 'avatar_privacy_use_gravatar', [
 			'type'       => 'custom',
 			'content'    => [ $this, 'render_use_gravatar_checkbox' ],
 			'priority'   => 86,
 		] );
 		/* @scrutinizer ignore-call */
-		\tml_add_form_field( $form, 'avatar_privacy_allow_anonymous', [
+		\tml_add_form_field( $tml_form, 'avatar_privacy_allow_anonymous', [
 			'type'       => 'custom',
 			'content'    => [ $this, 'render_allow_anonymous_checkbox' ],
 			'priority'   => 86,

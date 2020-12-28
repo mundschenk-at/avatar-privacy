@@ -175,10 +175,10 @@ class Image_Stream {
 	 */
 	public function stream_read( $bytes ) {
 		if ( $this->read ) {
-			$read            = \substr( $this->data, $this->position, $bytes );
-			$this->position += \strlen( $read );
+			$read_bytes      = \substr( $this->data, $this->position, $bytes );
+			$this->position += \strlen( $read_bytes );
 
-			return $read;
+			return $read_bytes;
 		}
 
 		return false;
