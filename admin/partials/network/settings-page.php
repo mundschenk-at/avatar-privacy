@@ -24,14 +24,14 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-use Avatar_Privacy\Data_Storage\Network_Options;
+use Avatar_Privacy\Components\Network_Settings_Page;
 
 ?><div class='wrap'>
 	<h1><?php \esc_html_e( 'Avatar Privacy Network Settings', 'avatar-privacy' ); ?></h1>
 
-	<form method="post" action="<?php echo \esc_url( 'edit.php?action=' . self::ACTION ); ?>">
-		<?php \settings_fields( self::OPTION_GROUP ); ?>
-		<?php \do_settings_sections( self::OPTION_GROUP ); ?>
+	<form method="post" action="<?php echo \esc_url( 'edit.php?action=' . Network_Settings_Page::ACTION ); ?>">
+		<?php \settings_fields( Network_Settings_Page::OPTION_GROUP ); ?>
+		<?php \do_settings_sections( Network_Settings_Page::OPTION_GROUP ); ?>
 
 		<p class="submit">
 			<?php \submit_button( \__( 'Save Changes', 'avatar-privacy' ), 'primary', 'save_changes', false, [ 'tabindex' => 1 ] ); ?>
