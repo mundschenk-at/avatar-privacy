@@ -35,6 +35,7 @@ use Mockery as m;
 use org\bovigo\vfs\vfsStream;
 
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
+use Avatar_Privacy\Exceptions\Filesystem_Exception;
 
 /**
  * Avatar_Privacy\Data_Storage\Filesystem_Cache unit test.
@@ -122,7 +123,7 @@ class Filesystem_Cache_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'get_upload_dir' )->once()->andReturn( [ 'basedir' => $basedir ] );
 		Functions\expect( 'wp_mkdir_p' )->once()->with( m::type( 'string' ) )->andReturn( false );
 
-		$this->expectException( \RuntimeException::class );
+		$this->expectException( Filesystem_Exception::class );
 
 		$this->assertSame( $cachedir, $this->sut->get_base_dir() );
 	}

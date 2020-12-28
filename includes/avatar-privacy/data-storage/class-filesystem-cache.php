@@ -26,6 +26,8 @@
 
 namespace Avatar_Privacy\Data_Storage;
 
+use Avatar_Privacy\Exceptions\Filesystem_Exception;
+
 /**
  * A filesystem caching handler.
  *
@@ -68,7 +70,10 @@ class Filesystem_Cache {
 	/**
 	 * Retrieves the base directory for caching files.
 	 *
-	 * @throws \RuntimeException A RuntimeException is thrown if the cache directory does not exist and can't be created.
+	 * @since  2.4.0 A Filesystem_Exception is thrown instead of a generic \RuntimeException.
+	 *
+	 * @throws Filesystem_Exception An exception is thrown if the cache directory
+	 *                              does not exist and can't be created.
 	 *
 	 * @return string
 	 */
@@ -77,7 +82,7 @@ class Filesystem_Cache {
 			$this->base_dir = "{$this->get_upload_dir()['basedir']}/" . self::CACHE_DIR;
 
 			if ( ! \wp_mkdir_p( $this->base_dir ) ) {
-				throw new \RuntimeException( "The cache directory {$this->base_dir} could not be created." );
+				throw new Filesystem_Exception( "The cache directory {$this->base_dir} could not be created." );
 			}
 		}
 
