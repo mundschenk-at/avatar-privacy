@@ -42,7 +42,7 @@ class Gravatar_Service {
 	/**
 	 * A cache for the results of the validate method.
 	 *
-	 * @var array
+	 * @var string[]
 	 */
 	private $validation_cache = [];
 
@@ -164,7 +164,7 @@ class Gravatar_Service {
 
 		// Try to find something in the cache.
 		if ( isset( $this->validation_cache[ $hash ] ) ) {
-			return $this->validation_cache[ $hash ] ?: '';
+			return $this->validation_cache[ $hash ];
 		}
 
 		// Try to find it via transient cache. On multisite, we use site transients.
@@ -174,18 +174,16 @@ class Gravatar_Service {
 		if ( false !== $result ) {
 			// Warm 1st level cache.
 			$this->validation_cache[ $hash ] = $result;
-			return $result ?: '';
+			return $result;
 		}
 
 		// Ask gravatar.com.
 		$result = $this->ping_gravatar( $email );
-		if ( false === $result ) {
-			return ''; // Do not cache this result.
+		if ( false !== $result ) {
+			// Cache result.
+			$transients->set( $transient_key, $result, $this->calculate_caching_duration( $result, $age ) );
+			$this->validation_cache[ $hash ] = $result;
 		}
-
-		// Cache result.
-		$transients->set( $transient_key, $result, $this->calculate_caching_duration( $result, $age ) );
-		$this->validation_cache[ $hash ] = $result;
 
 		return $result ?: '';
 	}
