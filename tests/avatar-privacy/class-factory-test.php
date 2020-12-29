@@ -114,25 +114,25 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_rules() {
 		$version         = '6.6.6';
 		$components      = [
-			[ 'instance' => \Avatar_Privacy\Components\Setup::class ],
-			[ 'instance' => \Avatar_Privacy\Components\Avatar_Handling::class ],
+			[ Factory::INSTANCE => \Avatar_Privacy\Components\Setup::class ],
+			[ Factory::INSTANCE => \Avatar_Privacy\Components\Avatar_Handling::class ],
 		];
 		$integrations    = [
-			[ 'instance' => \Avatar_Privacy\Integrations\BBPress_Integration::class ],
+			[ Factory::INSTANCE => \Avatar_Privacy\Integrations\BBPress_Integration::class ],
 		];
 		$default_icons   = [
-			[ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons\Mystery_Icon_Provider::class ],
-			[ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons\Identicon_Icon_Provider::class ],
-			[ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons\Wavatar_Icon_Provider::class ],
+			[ Factory::INSTANCE => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons\Mystery_Icon_Provider::class ],
+			[ Factory::INSTANCE => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons\Identicon_Icon_Provider::class ],
+			[ Factory::INSTANCE => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons\Wavatar_Icon_Provider::class ],
 		];
 		$cli_commands    = [
-			[ 'instance' => \Avatar_Privacy\CLI\Database_Command::class ],
+			[ Factory::INSTANCE => \Avatar_Privacy\CLI\Database_Command::class ],
 		];
 		$tables          = [
-			[ 'instance' => \Avatar_Privacy\Data_Storage\Database\Table::class ],
+			[ Factory::INSTANCE => \Avatar_Privacy\Data_Storage\Database\Table::class ],
 		];
 		$avatar_handlers = [
-			'some_hook' => [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Avatar_Handler::class ],
+			'some_hook' => [ Factory::INSTANCE => \Avatar_Privacy\Avatar_Handlers\Avatar_Handler::class ],
 		];
 		$user_form_args  = [
 			[
@@ -227,11 +227,11 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assert_is_array( $result );
 
 		// Check some exemplary components.
-		$this->assert_contains( [ 'instance' => \Avatar_Privacy\Components\Avatar_Handling::class ], $result, 'Component missing.' );
-		$this->assert_contains( [ 'instance' => \Avatar_Privacy\Components\Setup::class ], $result, 'Component missing.' );
+		$this->assert_contains( [ Factory::INSTANCE => \Avatar_Privacy\Components\Avatar_Handling::class ], $result, 'Component missing.' );
+		$this->assert_contains( [ Factory::INSTANCE => \Avatar_Privacy\Components\Setup::class ], $result, 'Component missing.' );
 
 		// Uninstallation must not (!) be included.
-		$this->assert_not_contains( [ 'instance' => \Avatar_Privacy\Components\Uninstallation::class ], $result, 'Uninstallation component should not be included.' );
+		$this->assert_not_contains( [ Factory::INSTANCE => \Avatar_Privacy\Components\Uninstallation::class ], $result, 'Uninstallation component should not be included.' );
 	}
 
 	/**
@@ -243,11 +243,11 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 		$result = $this->sut->get_default_icons();
 
 		$this->assert_is_array( $result );
-		$this->assert_contains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons\Mystery_Icon_Provider::class ], $result, 'Default icon missing.' );
-		$this->assert_contains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons\Identicon_Icon_Provider::class ], $result, 'Default icon missing.' );
-		$this->assert_contains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons\Speech_Bubble_Icon_Provider::class ], $result, 'Default icon missing.' );
-		$this->assert_contains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons\Bowling_Pin_Icon_Provider::class ], $result, 'Default icon missing.' );
-		$this->assert_contains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Custom_Icon_Provider::class ], $result, 'Default icon missing.' );
+		$this->assert_contains( [ Factory::INSTANCE => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons\Mystery_Icon_Provider::class ], $result, 'Default icon missing.' );
+		$this->assert_contains( [ Factory::INSTANCE => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons\Identicon_Icon_Provider::class ], $result, 'Default icon missing.' );
+		$this->assert_contains( [ Factory::INSTANCE => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons\Speech_Bubble_Icon_Provider::class ], $result, 'Default icon missing.' );
+		$this->assert_contains( [ Factory::INSTANCE => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons\Bowling_Pin_Icon_Provider::class ], $result, 'Default icon missing.' );
+		$this->assert_contains( [ Factory::INSTANCE => \Avatar_Privacy\Avatar_Handlers\Default_Icons\Custom_Icon_Provider::class ], $result, 'Default icon missing.' );
 	}
 
 	/**
@@ -259,7 +259,7 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 		$result = $this->sut->get_plugin_integrations();
 
 		$this->assert_is_array( $result );
-		$this->assert_contains( [ 'instance' => \Avatar_Privacy\Integrations\BBPress_Integration::class ], $result, 'Default icon missing.' );
+		$this->assert_contains( [ Factory::INSTANCE => \Avatar_Privacy\Integrations\BBPress_Integration::class ], $result, 'Default icon missing.' );
 	}
 
 	/**
@@ -271,8 +271,8 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 		$result = $this->sut->get_cli_commands();
 
 		$this->assert_is_array( $result );
-		$this->assert_contains( [ 'instance' => \Avatar_Privacy\CLI\Database_Command::class ], $result, 'Command missing.' );
-		$this->assert_contains( [ 'instance' => \Avatar_Privacy\CLI\Default_Command::class ], $result, 'Command missing.' );
+		$this->assert_contains( [ Factory::INSTANCE => \Avatar_Privacy\CLI\Database_Command::class ], $result, 'Command missing.' );
+		$this->assert_contains( [ Factory::INSTANCE => \Avatar_Privacy\CLI\Default_Command::class ], $result, 'Command missing.' );
 	}
 
 	/**
@@ -284,7 +284,7 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 		$result = $this->sut->get_database_tables();
 
 		$this->assert_is_array( $result );
-		$this->assert_contains( [ 'instance' => \Avatar_Privacy\Data_Storage\Database\Comment_Author_Table::class ], $result, 'Table missing.' );
+		$this->assert_contains( [ Factory::INSTANCE => \Avatar_Privacy\Data_Storage\Database\Comment_Author_Table::class ], $result, 'Table missing.' );
 	}
 
 	/**
@@ -296,7 +296,7 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 		$result = $this->sut->get_avatar_handlers();
 
 		$this->assert_is_array( $result );
-		$this->assert_contains( [ 'instance' => \Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler::class ], $result, 'Avatar Handler missing.' );
+		$this->assert_contains( [ Factory::INSTANCE => \Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler::class ], $result, 'Avatar Handler missing.' );
 		$this->assertArrayHasKey( 'avatar_privacy_user_avatar_icon_url', $result );
 	}
 
