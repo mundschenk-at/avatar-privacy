@@ -60,7 +60,8 @@
         "classloader-suffix": "AvatarPrivacy",
         "autoloader-suffix": "AvatarPrivacy",
         "process-timeout": 0,
-        "vendor-dir": "vendor"
+        "vendor-dir": "vendor",
+        "platform-check": false
     },
 
     "minimum-stability": "dev",

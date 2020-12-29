@@ -15,11 +15,15 @@ module.exports = function(grunt) {
 			autoloader: [
 				"build/tests",
 				"build/composer.*",
-				"build/vendor-scoped/scoper-autoload.php",
 				"build/vendor-scoped/composer/*.json",
+				"build/vendor-scoped/composer/autoload_psr4.php",
+				"build/vendor-scoped/composer/InstalledVersions.php",
+				"build/vendor-scoped/composer/installed.php",
+				"build/vendor-scoped/scoper-autoload.php",
 				"build/vendor-scoped/dangoodman"
 			],
 			vendor: [
+				"build/vendor-scoped/bin",
 				"build/vendor-scoped/{jdenticon,mistic100,scripturadesign,splitbrain}/*/*",
 				"!build/vendor-scoped/**/src",
 				"!build/vendor-scoped/**/partials",
@@ -51,19 +55,21 @@ module.exports = function(grunt) {
 		"string-replace": {
 			autoloader: {
 				files: {
-					"build/": "build/vendor/composer/autoload_{classmap,psr4,static}.php",
+					"build/": "build/vendor-scoped/composer/autoload_{classmap,psr4,static}.php",
 				},
 				options: {
-					replacements: [{
-						pattern: /\s+'Dangoodman\\\\ComposerForWordpress\\\\' =>\s+array\s*\([^,]+,\s*\),/g,
-						replacement: ''
-					}, {
-						pattern: /\s+'Dangoodman\\\\ComposerForWordpress\\\\.*,(?=\n)/g,
-						replacement: ''
-					}, {
-						pattern: 'Dangoodman',
-						replacement: 'FOOBAR'
-					}]
+					replacements: [
+						{
+							pattern: /\s+'Dangoodman\\\\ComposerForWordpress\\\\' =>\s+array\s*\([^,]+,\s*\),/,
+							replacement: ''
+						}, {
+							pattern: /\s+'Dangoodman\\\\ComposerForWordpress\\\\.*,(?=\n)/g,
+							replacement: ''
+						}, {
+							pattern: /\s+'Composer\\\\InstalledVersions.*,(?=\n)/g,
+							replacement: ''
+						}
+					]
 				}
 			},
 			namespaces: {
@@ -142,6 +148,8 @@ module.exports = function(grunt) {
 						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain,scripturadesign,yzalis}/**/CREDITS*',
 						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain,scripturadesign,yzalis}/**/COPYING*',
 						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain,scripturadesign,yzalis}/**/CHANGE*',
+						'!vendor/mundschenk-at/phpunit-cross-version/**',
+						'!vendor/composer/package-versions-deprecated/**',
 					],
 					dest: 'build/',
 					rename: function(dest, src) {
