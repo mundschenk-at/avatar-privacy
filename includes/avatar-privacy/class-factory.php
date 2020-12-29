@@ -94,10 +94,7 @@ class Factory extends Dice {
 	 * Creates a new instance.
 	 */
 	final protected function __construct() {
-		// Add rules.
-		foreach ( $this->get_rules() as $classname => $rule ) {
-			$this->addRule( $classname, $rule );
-		}
+		$this->addRules( $this->get_rules() );
 	}
 
 	/**
@@ -151,7 +148,7 @@ class Factory extends Dice {
 			Component::class                                        => self::SHARED,
 			Components\Block_Editor::class                          => [
 				'substitutions' => [
-					User_Form::class => [ 'instance' => self::USERFORM_FRONTEND_INSTANCE ],
+					User_Form::class => [ self::INSTANCE => self::USERFORM_FRONTEND_INSTANCE ],
 				],
 			],
 			Components\Command_Line_Interface::class                => [
@@ -168,12 +165,12 @@ class Factory extends Dice {
 			],
 			Components\Shortcodes::class                            => [
 				'substitutions' => [
-					User_Form::class => [ 'instance' => self::USERFORM_FRONTEND_INSTANCE ],
+					User_Form::class => [ self::INSTANCE => self::USERFORM_FRONTEND_INSTANCE ],
 				],
 			],
 			Components\User_Profile::class                          => [
 				'substitutions' => [
-					User_Form::class => [ 'instance' => self::USERFORM_PROFILE_INSTANCE ],
+					User_Form::class => [ self::INSTANCE => self::USERFORM_PROFILE_INSTANCE ],
 				],
 			],
 
@@ -193,12 +190,12 @@ class Factory extends Dice {
 			Default_Icons\Generator::class                          => self::SHARED,
 			Default_Icons\Generators\Jdenticon::class               => [
 				'substitutions' => [
-					\Jdenticon\Identicon::class => [ 'instance' => self::JDENTICON_INSTANCE ],
+					\Jdenticon\Identicon::class => [ self::INSTANCE => self::JDENTICON_INSTANCE ],
 				],
 			],
 			Default_Icons\Generators\Retro::class                   => [
 				'substitutions' => [
-					\Identicon\Identicon::class => [ 'instance' => self::RETRO_IDENTICON_INSTANCE ],
+					\Identicon\Identicon::class => [ self::INSTANCE => self::RETRO_IDENTICON_INSTANCE ],
 				],
 			],
 			Default_Icons\Generators\Rings::class                   => [
@@ -223,7 +220,7 @@ class Factory extends Dice {
 				'instanceOf'      => \Identicon\Identicon::class,
 				'constructParams' => [
 					// The constructor argument is not type-hinted.
-					[ 'instance' => \Identicon\Generator\SvgGenerator::class ],
+					[ self::INSTANCE => \Identicon\Generator\SvgGenerator::class ],
 				],
 			],
 
@@ -253,12 +250,12 @@ class Factory extends Dice {
 			Integrations\Plugin_Integration::class                  => self::SHARED,
 			Integrations\BBPress_Integration::class                 => [
 				'substitutions' => [
-					User_Form::class => [ 'instance' => self::USERFORM_BBPRESS_PROFILE_INSTANCE ],
+					User_Form::class => [ self::INSTANCE => self::USERFORM_BBPRESS_PROFILE_INSTANCE ],
 				],
 			],
 			Integrations\Theme_My_Login_Profiles_Integration::class => [
 				'substitutions' => [
-					User_Form::class => [ 'instance' => self::USERFORM_THEME_MY_LOGIN_PROFILES_INSTANCE ],
+					User_Form::class => [ self::INSTANCE => self::USERFORM_THEME_MY_LOGIN_PROFILES_INSTANCE ],
 				],
 			],
 
@@ -304,19 +301,19 @@ class Factory extends Dice {
 	 */
 	protected function get_components() {
 		return [
-			[ 'instance' => Components\Setup::class ],
-			[ 'instance' => Components\Image_Proxy::class ],
-			[ 'instance' => Components\Avatar_Handling::class ],
-			[ 'instance' => Components\Comments::class ],
-			[ 'instance' => Components\User_Profile::class ],
-			[ 'instance' => Components\Settings_Page::class ],
-			[ 'instance' => Components\Network_Settings_Page::class ],
-			[ 'instance' => Components\Privacy_Tools::class ],
-			[ 'instance' => Components\REST_API::class ],
-			[ 'instance' => Components\Integrations::class ],
-			[ 'instance' => Components\Shortcodes::class ],
-			[ 'instance' => Components\Block_Editor::class ],
-			[ 'instance' => Components\Command_Line_Interface::class ],
+			[ self::INSTANCE => Components\Setup::class ],
+			[ self::INSTANCE => Components\Image_Proxy::class ],
+			[ self::INSTANCE => Components\Avatar_Handling::class ],
+			[ self::INSTANCE => Components\Comments::class ],
+			[ self::INSTANCE => Components\User_Profile::class ],
+			[ self::INSTANCE => Components\Settings_Page::class ],
+			[ self::INSTANCE => Components\Network_Settings_Page::class ],
+			[ self::INSTANCE => Components\Privacy_Tools::class ],
+			[ self::INSTANCE => Components\REST_API::class ],
+			[ self::INSTANCE => Components\Integrations::class ],
+			[ self::INSTANCE => Components\Shortcodes::class ],
+			[ self::INSTANCE => Components\Block_Editor::class ],
+			[ self::INSTANCE => Components\Command_Line_Interface::class ],
 		];
 	}
 
@@ -336,19 +333,19 @@ class Factory extends Dice {
 	protected function get_default_icons() {
 		return [
 			// These are sorted as the should appear for selection in the discussion settings.
-			[ 'instance' => Static_Icons\Mystery_Icon_Provider::class ],
-			[ 'instance' => Generated_Icons\Identicon_Icon_Provider::class ],
-			[ 'instance' => Generated_Icons\Wavatar_Icon_Provider::class ],
-			[ 'instance' => Generated_Icons\Monster_ID_Icon_Provider::class ],
-			[ 'instance' => Generated_Icons\Retro_Icon_Provider::class ],
-			[ 'instance' => Generated_Icons\Rings_Icon_Provider::class ],
-			[ 'instance' => Generated_Icons\Bird_Avatar_Icon_Provider::class ],
-			[ 'instance' => Generated_Icons\Cat_Avatar_Icon_Provider::class ],
-			[ 'instance' => Generated_Icons\Robohash_Icon_Provider::class ],
-			[ 'instance' => Static_Icons\Speech_Bubble_Icon_Provider::class ],
-			[ 'instance' => Static_Icons\Bowling_Pin_Icon_Provider::class ],
-			[ 'instance' => Static_Icons\Silhouette_Icon_Provider::class ],
-			[ 'instance' => Default_Icons\Custom_Icon_Provider::class ],
+			[ self::INSTANCE => Static_Icons\Mystery_Icon_Provider::class ],
+			[ self::INSTANCE => Generated_Icons\Identicon_Icon_Provider::class ],
+			[ self::INSTANCE => Generated_Icons\Wavatar_Icon_Provider::class ],
+			[ self::INSTANCE => Generated_Icons\Monster_ID_Icon_Provider::class ],
+			[ self::INSTANCE => Generated_Icons\Retro_Icon_Provider::class ],
+			[ self::INSTANCE => Generated_Icons\Rings_Icon_Provider::class ],
+			[ self::INSTANCE => Generated_Icons\Bird_Avatar_Icon_Provider::class ],
+			[ self::INSTANCE => Generated_Icons\Cat_Avatar_Icon_Provider::class ],
+			[ self::INSTANCE => Generated_Icons\Robohash_Icon_Provider::class ],
+			[ self::INSTANCE => Static_Icons\Speech_Bubble_Icon_Provider::class ],
+			[ self::INSTANCE => Static_Icons\Bowling_Pin_Icon_Provider::class ],
+			[ self::INSTANCE => Static_Icons\Silhouette_Icon_Provider::class ],
+			[ self::INSTANCE => Default_Icons\Custom_Icon_Provider::class ],
 		];
 	}
 
@@ -367,12 +364,12 @@ class Factory extends Dice {
 	 */
 	protected function get_plugin_integrations() {
 		return [
-			[ 'instance' => Integrations\BBPress_Integration::class ],
-			[ 'instance' => Integrations\BuddyPress_Integration::class ],
-			[ 'instance' => Integrations\Theme_My_Login_Profiles_Integration::class ],
-			[ 'instance' => Integrations\Ultimate_Member_Integration::class ],
-			[ 'instance' => Integrations\WPDiscuz_Integration::class ],
-			[ 'instance' => Integrations\WP_User_Manager_Integration::class ],
+			[ self::INSTANCE => Integrations\BBPress_Integration::class ],
+			[ self::INSTANCE => Integrations\BuddyPress_Integration::class ],
+			[ self::INSTANCE => Integrations\Theme_My_Login_Profiles_Integration::class ],
+			[ self::INSTANCE => Integrations\Ultimate_Member_Integration::class ],
+			[ self::INSTANCE => Integrations\WPDiscuz_Integration::class ],
+			[ self::INSTANCE => Integrations\WP_User_Manager_Integration::class ],
 		];
 	}
 
@@ -391,11 +388,11 @@ class Factory extends Dice {
 	 */
 	protected function get_cli_commands() {
 		return [
-			[ 'instance' => CLI\Cron_Command::class ],
-			[ 'instance' => CLI\Database_Command::class ],
-			[ 'instance' => CLI\Default_Command::class ],
-			[ 'instance' => CLI\Uninstall_Command::class ],
-			[ 'instance' => CLI\User_Command::class ],
+			[ self::INSTANCE => CLI\Cron_Command::class ],
+			[ self::INSTANCE => CLI\Database_Command::class ],
+			[ self::INSTANCE => CLI\Default_Command::class ],
+			[ self::INSTANCE => CLI\Uninstall_Command::class ],
+			[ self::INSTANCE => CLI\User_Command::class ],
 		];
 	}
 
@@ -420,7 +417,7 @@ class Factory extends Dice {
 		$tables  = [];
 
 		foreach ( $classes as $table_class ) {
-			$tables[ $table_class::TABLE_BASENAME ] = [ 'instance' => $table_class ];
+			$tables[ $table_class::TABLE_BASENAME ] = [ self::INSTANCE => $table_class ];
 		}
 
 		return $tables;
@@ -442,10 +439,10 @@ class Factory extends Dice {
 	 */
 	protected function get_avatar_handlers() {
 		return [
-			'avatar_privacy_user_avatar_icon_url' => [ 'instance' => User_Avatar_Handler::class ],
-			'avatar_privacy_gravatar_icon_url'    => [ 'instance' => Gravatar_Cache_Handler::class ],
-			'avatar_privacy_default_icon_url'     => [ 'instance' => Default_Icons_Handler::class ],
-			'avatar_privacy_legacy_icon_url'      => [ 'instance' => Legacy_Icon_Handler::class ],
+			'avatar_privacy_user_avatar_icon_url' => [ self::INSTANCE => User_Avatar_Handler::class ],
+			'avatar_privacy_gravatar_icon_url'    => [ self::INSTANCE => Gravatar_Cache_Handler::class ],
+			'avatar_privacy_default_icon_url'     => [ self::INSTANCE => Default_Icons_Handler::class ],
+			'avatar_privacy_legacy_icon_url'      => [ self::INSTANCE => Legacy_Icon_Handler::class ],
 		];
 	}
 
