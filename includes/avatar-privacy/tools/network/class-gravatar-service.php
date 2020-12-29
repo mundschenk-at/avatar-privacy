@@ -169,8 +169,8 @@ class Gravatar_Service {
 
 		// Try to find it via transient cache. On multisite, we use site transients.
 		$transient_key = "check_{$hash}";
-		$transients    = \is_multisite() ? $this->site_transients : $this->transients;
-		$result        = $transients->get( $transient_key );
+		$_transients   = \is_multisite() ? $this->site_transients : $this->transients;
+		$result        = $_transients->get( $transient_key );
 		if ( false !== $result ) {
 			// Warm 1st level cache.
 			$this->validation_cache[ $hash ] = $result;
@@ -181,7 +181,7 @@ class Gravatar_Service {
 		$result = $this->ping_gravatar( $email );
 		if ( false !== $result ) {
 			// Cache result.
-			$transients->set( $transient_key, $result, $this->calculate_caching_duration( $result, $age ) );
+			$_transients->set( $transient_key, $result, $this->calculate_caching_duration( $result, $age ) );
 			$this->validation_cache[ $hash ] = $result;
 		}
 
