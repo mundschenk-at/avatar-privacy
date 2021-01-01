@@ -323,6 +323,7 @@ class User_Form {
 
 		// Set up variables used by the included partial.
 		$partial_args = [
+			'template'         => $this->template,
 			'nonce'            => $nonce,
 			'action'           => $action,
 			'field_name'       => $field_name,

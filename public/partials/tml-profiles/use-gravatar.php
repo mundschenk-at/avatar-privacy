@@ -31,6 +31,7 @@ use Avatar_Privacy\Tools\Template as T;
  *
  * Required template variables:
  *
+ * @var T      $template         The templating helper.
  * @var string $nonce            The nonce itself.
  * @var string $action           The nonce action.
  * @var string $field_name       The name of the checkbox `<input>` element.
@@ -47,7 +48,7 @@ use Avatar_Privacy\Tools\Template as T;
 	value="true"
 	<?php \checked( $value ); ?>
 />
-<label class="tml-label" for="<?php echo \esc_attr( $field_name ); ?>"><?php echo \wp_kses( sprintf( /* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */ \__( 'Display a <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a> image for my e-mail address.', 'avatar-privacy' ), \__( 'https://en.gravatar.com/', 'avatar-privacy' ), T::get_gravatar_link_rel(), T::get_gravatar_link_target() ), T::ALLOWED_HTML_LABEL ); ?></label><br />
+<label class="tml-label" for="<?php echo \esc_attr( $field_name ); ?>"><?php echo \wp_kses( $template->get_use_gravatar_label(), T::ALLOWED_HTML_LABEL ); ?></label><br />
 <?php if ( ! empty( $show_description ) ) : ?>
 	<p class="tml-description">
 		<?php \esc_html_e( "Uncheck this box if you don't want to display the gravatar for your e-mail address (or don't have an account on Gravatar.com).", 'avatar-privacy' ); ?>
