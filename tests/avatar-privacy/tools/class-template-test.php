@@ -85,6 +85,8 @@ class Template_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::get_gravatar_link_rel
 	 */
 	public function test_get_gravatar_link_rel() {
+		Functions\expect( '_deprecated_function' )->once()->with( m::type( 'string' ), '2.4.0', m::type( 'string' ) );
+
 		Functions\expect( 'esc_attr' )->once()->with( m::type( 'string' ) )->andReturn( 'foo' );
 		Filters\expectApplied( 'avatar_privacy_gravatar_link_rel' )->once()->with( 'noopener nofollow' )->andReturn( 'bar' );
 
@@ -97,6 +99,8 @@ class Template_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::get_gravatar_link_target
 	 */
 	public function test_get_gravatar_link_target() {
+		Functions\expect( '_deprecated_function' )->once()->with( m::type( 'string' ), '2.4.0', m::type( 'string' ) );
+
 		Functions\expect( 'esc_attr' )->once()->with( m::type( 'string' ) )->andReturn( 'foo' );
 		Filters\expectApplied( 'avatar_privacy_gravatar_link_target' )->once()->with( '_self' )->andReturn( 'bar' );
 
@@ -134,6 +138,7 @@ class Template_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_uploader_description( $can_upload, $has_local_avatar, $result ) {
 		Functions\expect( '__' )->zeroOrMoreTimes()->with( m::type( 'string' ), 'avatar-privacy' )->andReturnFirstArg();
 		Functions\expect( 'esc_attr' )->zeroOrMoreTimes()->with( m::type( 'string' ) )->andReturnFirstArg();
+		Functions\expect( '_deprecated_function' )->zeroOrMoreTimes()->with( m::type( 'string' ), 'Avatar Privacy 2.4.0' );
 
 		$this->assertSame( $result, $this->sut->get_uploader_description( $can_upload, $has_local_avatar ) );
 	}
