@@ -91,6 +91,50 @@ class Template {
 	}
 
 	/**
+	 * Retrieves the uploader description depending on whether the user is allowed
+	 * upload images and whether a local avatar has already been set.
+	 *
+	 * @param  bool $can_upload       Optional. Whether the current user can upload images. Default false.
+	 * @param  bool $has_local_avatar Optional. Whether the user currently has a local avatar set. Default false.
+	 *
+	 * @return string
+	 */
+	public function get_uploader_description( $can_upload = false, $has_local_avatar = false ) {
+		$link_needed = false;
+
+		if ( $can_upload ) {
+			if ( ! $has_local_avatar ) {
+				/* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */
+				$description = \__( 'No local profile picture is set. Use the upload field to add a local profile picture or change your profile picture on <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a>.', 'avatar-privacy' );
+				$link_needed = true;
+			} else {
+				/* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */
+				$description = \__( 'Replace the local profile picture by uploading a new avatar, or erase it (falling back on <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a>) by checking the delete option.', 'avatar-privacy' );
+				$link_needed = true;
+			}
+		} else {
+			if ( ! $has_local_avatar ) {
+				/* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */
+				$description = \__( 'No local profile picture is set. Change your profile picture on <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a>.', 'avatar-privacy' );
+				$link_needed = true;
+			} else {
+				$description = \__( 'You do not have media management permissions. To change your local profile picture, contact the site administrator.', 'avatar-privacy' );
+			}
+		}
+
+		if ( $link_needed ) {
+			$description = \sprintf(
+				$description,
+				self::get_gravatar_link_url(),
+				self::get_gravatar_link_rel(),
+				self::get_gravatar_link_target()
+			);
+		}
+
+		return $description;
+	}
+
+	/**
 	 * Parses and echoes a partial template.
 	 *
 	 * @since 2.4.0
