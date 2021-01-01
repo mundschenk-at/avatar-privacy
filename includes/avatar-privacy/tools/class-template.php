@@ -54,9 +54,13 @@ class Template {
 	/**
 	 * Retrieves and filters the `rel` attribute for links to gravatar.com.
 	 *
+	 * @deprecated 2.4.0
+	 *
 	 * @return string The result is safe for output.
 	 */
 	public static function get_gravatar_link_rel() {
+		\_deprecated_function( __METHOD__, '2.4.0', 'Please use ' . __CLASS__ . '::get_uploader_description() instead.' );
+
 		/**
 		 * Filters the `rel` attribute for user-visible links to gravatar.com.
 		 *
@@ -68,9 +72,13 @@ class Template {
 	/**
 	 * Retrieves and filters the `target` attribute for links to gravatar.com.
 	 *
+	 * @deprecated 2.4.0
+	 *
 	 * @return string The result is safe for output.
 	 */
 	public static function get_gravatar_link_target() {
+		\_deprecated_function( __METHOD__, '2.4.0', 'Please use ' . __CLASS__ . '::get_uploader_description() instead.' );
+
 		/**
 		 * Filters the `target` attribute for user-visible links to gravatar.com.
 		 *
