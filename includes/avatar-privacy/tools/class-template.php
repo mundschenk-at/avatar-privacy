@@ -64,6 +64,8 @@ class Template {
 		/**
 		 * Filters the `rel` attribute for user-visible links to gravatar.com.
 		 *
+		 * @since 2.0.0
+		 *
 		 * @param string $rel Default 'noopener nofollow'.
 		 */
 		return \esc_attr( \apply_filters( 'avatar_privacy_gravatar_link_rel', 'noopener nofollow' ) );
@@ -81,6 +83,8 @@ class Template {
 
 		/**
 		 * Filters the `target` attribute for user-visible links to gravatar.com.
+		 *
+		 * @since 2.0.0
 		 *
 		 * @param string $target Default '_self'.
 		 */
