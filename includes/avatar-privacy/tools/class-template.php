@@ -52,17 +52,6 @@ class Template {
 	];
 
 	/**
-	 * Retrieves and translates the URL for linking to Gravatar.com (for explanations).
-	 *
-	 * @since 2.4.0
-	 *
-	 * @return string
-	 */
-	public static function get_gravatar_link_url() {
-		return \__( 'https://en.gravatar.com/', 'avatar-privacy' );
-	}
-
-	/**
 	 * Retrieves and filters the `rel` attribute for links to gravatar.com.
 	 *
 	 * @return string The result is safe for output.
@@ -125,7 +114,7 @@ class Template {
 		if ( $link_needed ) {
 			$description = \sprintf(
 				$description,
-				self::get_gravatar_link_url(),
+				\__( 'https://en.gravatar.com/', 'avatar-privacy' ),
 				self::get_gravatar_link_rel(),
 				self::get_gravatar_link_target()
 			);
