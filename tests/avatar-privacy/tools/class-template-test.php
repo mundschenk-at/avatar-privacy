@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018 Peter Putzer.
+ * Copyright 2018-2020 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -126,9 +126,6 @@ class Template_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @covers ::get_uploader_description
 	 *
-	 * @uses ::get_gravatar_link_rel
-	 * @uses ::get_gravatar_link_target
-	 *
 	 * @dataProvider provide_get_uploader_description_data
 	 *
 	 * @param  bool   $can_upload       Whether the user can upload files.
@@ -136,11 +133,68 @@ class Template_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param  string $result           The expected result.
 	 */
 	public function test_get_uploader_description( $can_upload, $has_local_avatar, $result ) {
-		Functions\expect( '__' )->zeroOrMoreTimes()->with( m::type( 'string' ), 'avatar-privacy' )->andReturnFirstArg();
-		Functions\expect( 'esc_attr' )->zeroOrMoreTimes()->with( m::type( 'string' ) )->andReturnFirstArg();
-		Functions\expect( '_deprecated_function' )->zeroOrMoreTimes()->with( m::type( 'string' ), 'Avatar Privacy 2.4.0' );
+		Functions\expect( '__' )->once()->with( m::type( 'string' ), 'avatar-privacy' )->andReturnFirstArg();
+
+		$this->sut->shouldReceive( 'fill_in_gravatar_url' )->atMost()->once()->with( m::type( 'string' ) )->andReturnUsing( function( $message ) {
+			return \sprintf( $message, 'https://en.gravatar.com/', 'noopener nofollow', '_self' );
+		} );
 
 		$this->assertSame( $result, $this->sut->get_uploader_description( $can_upload, $has_local_avatar ) );
+	}
+
+	/**
+	 * Tests ::get_use_gravatar_label.
+	 *
+	 * @covers ::get_use_gravatar_label
+	 */
+	public function test_get_use_gravatar_label() {
+		$result = 'Label with link';
+
+		Functions\expect( '__' )->once()->with( m::type( 'string' ), 'avatar-privacy' )->andReturnFirstArg();
+
+		$this->sut->shouldReceive( 'fill_in_gravatar_url' )->atMost()->once()->with( m::type( 'string' ) )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->get_use_gravatar_label() );
+	}
+
+	/**
+	 * Tests ::fill_in_gravatar_url.
+	 *
+	 * @covers ::fill_in_gravatar_url
+	 */
+	public function test_fill_in_gravatar_url() {
+		$message = 'My test: <a href="%1$s" rel="%2$s" target="%3$s">Foo</a> bar.';
+		$result  = 'My test: <a href="https://en.gravatar.com/" rel="nofollow" target="_blank">Foo</a> bar.';
+
+		Functions\expect( '__' )->once()->with( m::type( 'string' ), 'avatar-privacy' )->andReturnFirstArg();
+		$this->sut->shouldReceive( 'get_gravatar_link_rel_attribute' )->once()->andReturn( 'nofollow' );
+		$this->sut->shouldReceive( 'get_gravatar_link_target_attribute' )->once()->andReturn( '_blank' );
+
+		$this->assertSame( $result, $this->sut->fill_in_gravatar_url( $message ) );
+	}
+
+	/**
+	 * Tests ::get_gravatar_link_rel_attribute.
+	 *
+	 * @covers ::get_gravatar_link_rel_attribute
+	 */
+	public function test_get_gravatar_link_rel_attribute() {
+		Functions\expect( 'esc_attr' )->once()->with( m::type( 'string' ) )->andReturn( 'foo' );
+		Filters\expectApplied( 'avatar_privacy_gravatar_link_rel' )->once()->with( 'noopener nofollow' )->andReturn( 'bar' );
+
+		$this->assertSame( 'foo', $this->sut->get_gravatar_link_rel_attribute() );
+	}
+
+	/**
+	 * Tests ::get_gravatar_link_target_attribute.
+	 *
+	 * @covers ::get_gravatar_link_target_attribute
+	 */
+	public function test_get_gravatar_link_target_attribute() {
+		Functions\expect( 'esc_attr' )->once()->with( m::type( 'string' ) )->andReturn( 'foo' );
+		Filters\expectApplied( 'avatar_privacy_gravatar_link_target' )->once()->with( '_self' )->andReturn( 'bar' );
+
+		$this->assertSame( 'foo', $this->sut->get_gravatar_link_target_attribute() );
 	}
 
 	/**

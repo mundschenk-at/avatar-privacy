@@ -59,7 +59,7 @@ class Template {
 	 * @return string The result is safe for output.
 	 */
 	public static function get_gravatar_link_rel() {
-		\_deprecated_function( __METHOD__, '2.4.0', 'Please use ' . __CLASS__ . '::get_uploader_description() instead.' );
+		\_deprecated_function( __METHOD__, '2.4.0', 'Please use ' . __CLASS__ . '::get_uploader_description() or ::get_use_gravatar_label() instead.' );
 
 		/**
 		 * Filters the `rel` attribute for user-visible links to gravatar.com.
@@ -79,7 +79,7 @@ class Template {
 	 * @return string The result is safe for output.
 	 */
 	public static function get_gravatar_link_target() {
-		\_deprecated_function( __METHOD__, '2.4.0', 'Please use ' . __CLASS__ . '::get_uploader_description() instead.' );
+		\_deprecated_function( __METHOD__, '2.4.0', 'Please use ' . __CLASS__ . '::get_uploader_description() or ::get_use_gravatar_label() instead.' );
 
 		/**
 		 * Filters the `target` attribute for user-visible links to gravatar.com.
@@ -124,15 +124,81 @@ class Template {
 		}
 
 		if ( $link_needed ) {
-			$description = \sprintf(
-				$description,
-				\__( 'https://en.gravatar.com/', 'avatar-privacy' ),
-				self::get_gravatar_link_rel(),
-				self::get_gravatar_link_target()
-			);
+			$description = $this->fill_in_gravatar_url( $description );
 		}
 
 		return $description;
+	}
+
+	/**
+	 * Retrieves the label for the "Use gravatar" checkbox.
+	 *
+	 * @since  2.4.0
+	 *
+	 * @return string
+	 */
+	public function get_use_gravatar_label() {
+		return $this->fill_in_gravatar_url(
+			/* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */
+			\__( 'Display a <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a> image for my e-mail address.', 'avatar-privacy' )
+		);
+	}
+
+	/**
+	 * Fills in the (translated) Gravatar.com URL and the link `rel` and `target`
+	 * attributes.
+	 *
+	 * @since  2.4.0
+	 *
+	 * @param  string $message The message to fill in. It needs to contain placeholders
+	 *                         in this order:
+	 *                         1. URL (default 'https://en.gravatar.com'),
+	 *                         2. `rel` attribute (default 'noopener nofollow'), and
+	 *                         3. `target` attribute (default '_self').
+	 * @return string
+	 */
+	protected function fill_in_gravatar_url( $message ) {
+		return \sprintf(
+			$message,
+			\__( 'https://en.gravatar.com/', 'avatar-privacy' ),
+			$this->get_gravatar_link_rel_attribute(),
+			$this->get_gravatar_link_target_attribute()
+		);
+	}
+	/**
+	 * Retrieves and filters the `rel` attribute for links to gravatar.com.
+	 *
+	 * @since  2.4.0
+	 *
+	 * @return string The result is safe for output.
+	 */
+	protected function get_gravatar_link_rel_attribute() {
+		/**
+		 * Filters the `rel` attribute for user-visible links to gravatar.com.
+		 *
+		 * @since 2.0.0
+		 *
+		 * @param string $rel Default 'noopener nofollow'.
+		 */
+		return \esc_attr( \apply_filters( 'avatar_privacy_gravatar_link_rel', 'noopener nofollow' ) );
+	}
+
+	/**
+	 * Retrieves and filters the `target` attribute for links to gravatar.com.
+	 *
+	 * @since  2.4.0
+	 *
+	 * @return string The result is safe for output.
+	 */
+	protected function get_gravatar_link_target_attribute() {
+		/**
+		 * Filters the `target` attribute for user-visible links to gravatar.com.
+		 *
+		 * @since 2.0.0
+		 *
+		 * @param string $target Default '_self'.
+		 */
+		return \esc_attr( \apply_filters( 'avatar_privacy_gravatar_link_target', '_self' ) );
 	}
 
 	/**
