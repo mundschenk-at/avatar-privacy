@@ -27,56 +27,20 @@
 use Avatar_Privacy\Tools\Template as T;
 
 /**
- * Frontend profile form user avatar uploader.
- *
  * Required template variables:
  *
+ * @var int    $user_id          The ID of the edited user.
+ * @var T      $template         The templating helper.
  * @var string $nonce            The nonce itself.
  * @var string $action           The nonce action.
  * @var string $upload_field     The name of the uploader `<input>` element.
  * @var string $erase_field      The name of the erase checkbox `<input>` element.
- * @var int    $user_id          The ID of the edited user.
- * @var string $current_avatar   The previously set user avatar.
- * @var bool   $can_upload       Whether the currently active user can upload files.
  * @var bool   $uploads_disabled Whether the uploads system has been disabled completely..
+ * @var bool   $can_upload       Whether the currently active user can upload files.
+ * @var bool   $has_local_avatar Whether a local avatar has been uploaded.
  * @var int    $size             The width/height of the avatar preview image (in pixels).
- * @var string $show_description True if the long description should be displayed.
+ * @var bool   $show_description Whether the field description should be shown.
  */
-
-if ( $uploads_disabled ) {
-	// We integrate with some other plugin, so skip the description.
-	$description = '';
-} elseif ( $can_upload ) {
-	if ( empty( $current_avatar ) ) {
-		$description = \sprintf(
-			/* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */
-			\__( 'No local profile picture is set. Use the upload field to add a local profile picture or change your profile picture on <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a>.', 'avatar-privacy' ),
-			T::get_gravatar_link_url(),
-			T::get_gravatar_link_rel(),
-			T::get_gravatar_link_target()
-		);
-	} else {
-		$description = \sprintf(
-			/* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */
-			\__( 'Replace the local profile picture by uploading a new avatar, or erase it (falling back on <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a>) by checking the delete option.', 'avatar-privacy' ),
-			T::get_gravatar_link_url(),
-			T::get_gravatar_link_rel(),
-			T::get_gravatar_link_target()
-		);
-	}
-} else {
-	if ( empty( $current_avatar ) ) {
-		$description = \sprintf(
-			/* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */
-			\__( 'No local profile picture is set. Change your profile picture on <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a>.', 'avatar-privacy' ),
-			T::get_gravatar_link_url(),
-			T::get_gravatar_link_rel(),
-			T::get_gravatar_link_target()
-		);
-	} else {
-		$description = \__( 'You do not have media management permissions. To change your local profile picture, contact the site administrator.', 'avatar-privacy' );
-	}
-}
 
 ?>
 <?php echo /* @scrutinizer ignore-type */ \get_avatar( $user_id, $size ); ?>
@@ -85,15 +49,15 @@ if ( $uploads_disabled ) {
 	<p class="avatar-privacy-upload-fields">
 		<?php \wp_nonce_field( $action, $nonce ); ?>
 		<input type="file" id="<?php echo \esc_attr( $upload_field ); ?>" name="<?php echo \esc_attr( $upload_field ); ?>" accept="image/*" class="tml-field" />
-		<?php if ( ! empty( $current_avatar ) ) : ?>
+		<?php if ( $has_local_avatar ) : ?>
 			<input type="checkbox" id="<?php echo \esc_attr( $erase_field ); ?>" name="<?php echo \esc_attr( $erase_field ); ?>" class="tml-checkbox" value="true" />
 			<label class="tml-label" for="<?php echo \esc_attr( $erase_field ); ?>"><?php \esc_html_e( 'Delete local avatar picture.', 'avatar-privacy' ); ?></label><br />
 		<?php endif; ?>
 	</p>
 <?php endif; ?>
-<?php if ( ! empty( $show_description ) ) : ?>
+<?php if ( ! $uploads_disabled && $show_description ) : ?>
 	<p class="tml-description">
-		<?php echo \wp_kses( $description, T::ALLOWED_HTML_LABEL ); ?>
+		<?php echo \wp_kses( $template->get_uploader_description( $can_upload, $has_local_avatar ), T::ALLOWED_HTML_LABEL ); ?>
 	</p>
 <?php endif; ?>
 <?php

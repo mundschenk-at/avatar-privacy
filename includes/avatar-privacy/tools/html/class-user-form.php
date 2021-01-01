@@ -260,13 +260,14 @@ class User_Form {
 		// Set up variables used by the included partial.
 		$partial_args = [
 			'user_id'          => $user_id,
+			'template'         => $this->template,
 			'nonce'            => "{$this->user_avatar['nonce']}{$user_id}",
 			'action'           => $this->user_avatar['action'],
 			'upload_field'     => $this->user_avatar['field'],
 			'erase_field'      => $this->user_avatar['erase'],
-			'current_avatar'   => $this->registered_user->get_local_avatar( $user_id ),
 			'uploads_disabled' => $uploads_disabled,
 			'can_upload'       => empty( $uploads_disabled ) && \current_user_can( 'upload_files' ),
+			'has_local_avatar' => ! empty( $this->registered_user->get_local_avatar( $user_id ) ),
 			'size'             => $args['avatar_size'],
 			'show_description' => $args['show_descriptions'],
 		];

@@ -117,6 +117,42 @@ class Template_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Provides data for testing ::get_uploader_description.
+	 *
+	 * @return array
+	 */
+	public function provide_get_uploader_description_data() {
+		return [
+			[ true, false, 'No local profile picture is set. Use the upload field to add a local profile picture or change your profile picture on <a href="https://en.gravatar.com/" rel="noopener nofollow" target="_self">Gravatar</a>.' ],
+			[ true, true, 'Replace the local profile picture by uploading a new avatar, or erase it (falling back on <a href="https://en.gravatar.com/" rel="noopener nofollow" target="_self">Gravatar</a>) by checking the delete option.' ],
+			[ false, false, 'No local profile picture is set. Change your profile picture on <a href="https://en.gravatar.com/" rel="noopener nofollow" target="_self">Gravatar</a>.' ],
+			[ false, true, 'You do not have media management permissions. To change your local profile picture, contact the site administrator.' ],
+		];
+	}
+
+	/**
+	 * Tests ::get_uploader_description.
+	 *
+	 * @covers ::get_uploader_description
+	 *
+	 * @uses ::get_gravatar_link_rel
+	 * @uses ::get_gravatar_link_target
+	 * @uses ::get_gravatar_link_url
+	 *
+	 * @dataProvider provide_get_uploader_description_data
+	 *
+	 * @param  bool   $can_upload       Whether the user can upload files.
+	 * @param  bool   $has_local_avatar Whether a local avatar has been set previously.
+	 * @param  string $result           The expected result.
+	 */
+	public function test_get_uploader_description( $can_upload, $has_local_avatar, $result ) {
+		Functions\expect( '__' )->zeroOrMoreTimes()->with( m::type( 'string' ), 'avatar-privacy' )->andReturnFirstArg();
+		Functions\expect( 'esc_attr' )->zeroOrMoreTimes()->with( m::type( 'string' ) )->andReturnFirstArg();
+
+		$this->assertSame( $result, $this->sut->get_uploader_description( $can_upload, $has_local_avatar ) );
+	}
+
+	/**
 	 * Tests ::print_partial.
 	 *
 	 * @covers ::print_partial
