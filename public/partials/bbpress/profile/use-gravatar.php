@@ -50,7 +50,7 @@ use Avatar_Privacy\Tools\Template as T;
 			value="true"
 			<?php \checked( $value ); ?>
 		/>
-		<?php echo \wp_kses( $template->get_use_gravatar_label(), T::ALLOWED_HTML_LABEL ); ?>
+		<?php echo \wp_kses( $template->get_use_gravatar_label( 'user' ), T::ALLOWED_HTML_LABEL ); ?>
 	</label>
 	<span class="description indicator-hint" style="width:100%;margin-left:0;">
 		<?php \esc_html_e( 'An uploaded profile picture takes precedence over your gravatar.', 'avatar-privacy' ); ?>
