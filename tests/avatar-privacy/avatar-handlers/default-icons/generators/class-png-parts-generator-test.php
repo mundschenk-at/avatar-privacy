@@ -400,6 +400,7 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::get_parts_dimensions.
 	 *
 	 * @covers ::get_parts_dimensions
+	 * @covers ::get_image_bounds
 	 */
 	public function test_get_parts_dimensions() {
 		// Input data.
@@ -452,6 +453,7 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::get_parts_dimensions_as_text
 	 *
 	 * @uses ::get_parts_dimensions
+	 * @uses ::get_image_bounds
 	 */
 	public function test_get_parts_dimensions_as_text() {
 		// Input data.

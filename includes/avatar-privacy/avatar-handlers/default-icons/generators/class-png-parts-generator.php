@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  * Copyright 2007-2014 Scott Sherrill-Mix.
  *
  * This program is free software; you can redistribute it and/or
@@ -261,32 +261,54 @@ abstract class PNG_Parts_Generator extends Parts_Generator {
 					continue;
 				}
 
-				$imgw    = \imageSX( $im );
-				$imgh    = \imageSY( $im );
-				$xbounds = [ 999999, 0 ];
-				$ybounds = [ 999999, 0 ];
-				for ( $i = 0;$i < $imgw;$i++ ) {
-					for ( $j = 0;$j < $imgh;$j++ ) {
-						$rgb       = \imageColorAt( $im, $i, $j );
-						$r         = ( $rgb >> 16 ) & 0xFF;
-						$g         = ( $rgb >> 8 ) & 0xFF;
-						$b         = $rgb & 0xFF;
-						$alpha     = ( $rgb & 0x7F000000 ) >> 24;
-						$lightness = ( $r + $g + $b ) / 3 / 255 * self::PERCENT;
-						if ( $lightness > 10 && $lightness < 99 && $alpha < 115 ) {
-							$xbounds[0] = \min( $xbounds[0],$i );
-							$xbounds[1] = \max( $xbounds[1],$i );
-							$ybounds[0] = \min( $ybounds[0],$j );
-							$ybounds[1] = \max( $ybounds[1],$j );
-						}
-					}
-				}
-
-				$bounds[ $file ] = [ $xbounds, $ybounds ];
+				$bounds[ $file ] = $this->get_image_bounds( $im );
 			}
 		}
 
 		return $bounds;
+	}
+
+	/**
+	 * Determines exact dimensions for an image (i.e. not including very light or
+	 * transparent pixels).
+	 *
+	 * @since  2.4.0 Extracted from ::get_parts_dimensions.
+	 *
+	 * @author Peter Putzer
+	 * @author Scott Sherrill-Mix
+	 *
+	 * @param  resource $im The image resource.
+	 *
+	 * @return array {
+	 *     The boundary coordinates for the image.
+	 *
+	 *     @type int[] $xbounds The low and high boundary on the X axis.
+	 *     @type int[] $ybounds The low and high boundary on the Y axis.
+	 * }
+	 */
+	protected function get_image_bounds( $im ) {
+		$imgw    = \imageSX( $im );
+		$imgh    = \imageSY( $im );
+		$xbounds = [ 999999, 0 ];
+		$ybounds = [ 999999, 0 ];
+		for ( $i = 0;$i < $imgw;$i++ ) {
+			for ( $j = 0;$j < $imgh;$j++ ) {
+				$rgb       = \imageColorAt( $im, $i, $j );
+				$r         = ( $rgb >> 16 ) & 0xFF;
+				$g         = ( $rgb >> 8 ) & 0xFF;
+				$b         = $rgb & 0xFF;
+				$alpha     = ( $rgb & 0x7F000000 ) >> 24;
+				$lightness = ( $r + $g + $b ) / 3 / 255 * self::PERCENT;
+				if ( $lightness > 10 && $lightness < 99 && $alpha < 115 ) {
+					$xbounds[0] = \min( $xbounds[0],$i );
+					$xbounds[1] = \max( $xbounds[1],$i );
+					$ybounds[0] = \min( $ybounds[0],$j );
+					$ybounds[1] = \max( $ybounds[1],$j );
+				}
+			}
+		}
+
+		return [ $xbounds, $ybounds ];
 	}
 
 	/**
