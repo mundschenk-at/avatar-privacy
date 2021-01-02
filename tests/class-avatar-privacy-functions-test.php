@@ -30,9 +30,13 @@ use Brain\Monkey\Actions;
 use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 
-use org\bovigo\vfs\vfsStream;
-
 use Avatar_Privacy\Tests\TestCase;
+
+use Mockery as m;
+
+use Avatar_Privacy\Factory;
+use Avatar_Privacy\Components\Comments;
+
 
 /**
  * Unit tests for Avatar Privacy functions.
@@ -40,44 +44,27 @@ use Avatar_Privacy\Tests\TestCase;
 class Avatar_Privacy_Functions_Test extends TestCase {
 
 	/**
-	 * Sets up the fixture, for example, opens a network connection.
-	 * This method is called before a test is executed.
-	 *
-	 * @since 2.3.3 Renamed to `set_up`.
-	 */
-	protected function set_up() {
-		parent::set_up();
-
-		$filesystem = [
-			'plugin' => [
-				'public' => [
-					'partials' => [
-						'comments' => [
-							'use-gravatar.php' => 'USE_GRAVATAR',
-						],
-					],
-				],
-			],
-		];
-
-		// Set up virtual filesystem.
-		vfsStream::setup( 'root', null, $filesystem );
-		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
-	}
-
-	/**
 	 * Tests run method.
 	 *
 	 * @covers ::avapr_get_avatar_checkbox
 	 *
-	 * @uses \Avatar_Privacy\get_gravatar_checkbox
-	 * @uses \Avatar_Privacy\Components\Comments::get_gravatar_checkbox
+	 * @uses Avatar_Privacy\get_gravatar_checkbox
+	 * @uses Avatar_Privacy\Factory::get
+	 * @uses Avatar_Privacy\Components\Comments::get_gravatar_checkbox
 	 */
 	public function test_avapr_get_avatar_checkbox() {
+		$result   = 'USE_GRAVATAR_MARKUP';
+		$factory  = m::mock( Factory::class );
+		$comments = m::mock( Comments::class );
+		$this->set_static_value( Factory::class, 'factory', $factory );
+
 		Functions\expect( '_deprecated_function' )->once()->with( 'avapr_get_avatar_checkbox', '2.3.0', 'Avatar_Privacy\get_gravatar_checkbox' );
 		Functions\expect( 'is_user_logged_in' )->once()->andReturn( false );
 
-		$this->assertSame( 'USE_GRAVATAR', \avapr_get_avatar_checkbox() );
+		$factory->shouldReceive( 'create' )->once()->with( Comments::class )->andReturn( $comments );
+		$comments->shouldReceive( 'get_gravatar_checkbox_markup' )->once()->andReturn( $result );
+
+		$this->assertSame( $result, \avapr_get_avatar_checkbox() );
 	}
 
 	/**
@@ -85,7 +72,7 @@ class Avatar_Privacy_Functions_Test extends TestCase {
 	 *
 	 * @covers ::avapr_get_avatar_checkbox
 	 *
-	 * @uses \Avatar_Privacy\get_gravatar_checkbox
+	 * @uses Avatar_Privacy\get_gravatar_checkbox
 	 */
 	public function test_avapr_get_avatar_checkbox_user_is_logged_in() {
 		Functions\expect( '_deprecated_function' )->once()->with( 'avapr_get_avatar_checkbox', '2.3.0', 'Avatar_Privacy\get_gravatar_checkbox' );

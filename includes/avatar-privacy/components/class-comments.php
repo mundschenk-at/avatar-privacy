@@ -28,7 +28,9 @@
 namespace Avatar_Privacy\Components;
 
 use Avatar_Privacy\Component;
+use Avatar_Privacy\Factory;
 use Avatar_Privacy\Core\Comment_Author_Fields;
+use Avatar_Privacy\Tools\Template;
 
 /**
  * Handles comment posting in WordPress.
@@ -61,15 +63,26 @@ class Comments implements Component {
 	private $comment_author;
 
 	/**
+	 * The templating handler.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @var Template
+	 */
+	private $template;
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
 	 * @since 2.4.0 Parameter $core removed, $comment_author added.
 	 *
 	 * @param Comment_Author_Fields $comment_author The comment author fields API.
+	 * @param Template              $template       The templating handler.
 	 */
-	public function __construct( Comment_Author_Fields $comment_author ) {
+	public function __construct( Comment_Author_Fields $comment_author, Template $template ) {
 		$this->comment_author = $comment_author;
+		$this->template       = $template;
 	}
 
 	/**
@@ -114,7 +127,7 @@ class Comments implements Component {
 		}
 
 		// Define the new checkbox field.
-		$new_field = self::get_gravatar_checkbox();
+		$new_field = $this->get_gravatar_checkbox_markup();
 
 		/**
 		 * Filters the insert position for the `use_gravatar` checkbox.
@@ -198,14 +211,27 @@ class Comments implements Component {
 	 * @return string
 	 */
 	public static function get_gravatar_checkbox() {
-		// Start output buffering.
-		\ob_start();
+		/**
+		 * The share Comments component.
+		 *
+		 * @var Comments
+		 */
+		$comments = Factory::get()->create( self::class );
 
-		// Include the partial.
-		require \AVATAR_PRIVACY_PLUGIN_PATH . '/public/partials/comments/use-gravatar.php';
+		return $comments->get_gravatar_checkbox_markup();
+	}
 
-		// Return included markup.
-		return (string) \ob_get_clean();
+	/**
+	 * Retrieves the markup for the use_gravatar checkbox for the comment form.
+	 *
+	 * @since  2.4.0
+	 *
+	 * @param  string $partial Optional. The partial to use. Default 'public/partials/comments/use-gravatar.php'.
+	 *
+	 * @return string
+	 */
+	public function get_gravatar_checkbox_markup( $partial = 'public/partials/comments/use-gravatar.php' ) {
+		return $this->template->get_partial( $partial, [ 'template' => $this->template ] );
 	}
 
 	/**
