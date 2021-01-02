@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -117,8 +117,8 @@ class WPDiscuz_Integration implements Plugin_Integration {
 	 * @return void
 	 */
 	public function print_gravatar_checkbox() {
-		// Include the partial.
-		require \AVATAR_PRIVACY_PLUGIN_PATH . '/public/partials/wpdiscuz/use-gravatar.php';
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- echoing a partial.
+		echo $this->comments->get_gravatar_checkbox_markup( 'public/partials/wpdiscuz/use-gravatar.php' );
 	}
 
 	/**

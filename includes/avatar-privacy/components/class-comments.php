@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -231,7 +231,38 @@ class Comments implements Component {
 	 * @return string
 	 */
 	public function get_gravatar_checkbox_markup( $partial = 'public/partials/comments/use-gravatar.php' ) {
-		return $this->template->get_partial( $partial, [ 'template' => $this->template ] );
+		// Determine if the checkbox should be checked.
+		$args = [
+			'template'   => $this->template,
+			'is_checked' => $this->is_gravatar_prechecked(),
+		];
+
+		return $this->template->get_partial( $partial, $args );
+	}
+
+	/**
+	 * Verifies whether the Use Gravatar checkbox should be pre-checked.
+	 *
+	 * @since  2.4.0
+	 *
+	 * @global array $_POST    Post request superglobal.
+	 * @global array $_COOKIE Cookie superglobal.
+	 *
+	 * @return bool
+	 */
+	protected function is_gravatar_prechecked() {
+		// Default is unchecked.
+		$is_checked = false;
+
+		if ( isset( $_POST[ self::CHECKBOX_FIELD_NAME ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- frontend form.
+			// Re-displaying the comment form with validation errors.
+			$is_checked = ! empty( $_POST[ self::CHECKBOX_FIELD_NAME ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- frontend form.
+		} elseif ( isset( $_COOKIE[ self::COOKIE_PREFIX . \COOKIEHASH ] ) ) {
+			// Read the value from the cookie, saved with previous comment.
+			$is_checked = ! empty( $_COOKIE[ self::COOKIE_PREFIX . \COOKIEHASH ] );
+		}
+
+		return $is_checked;
 	}
 
 	/**

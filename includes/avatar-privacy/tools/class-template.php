@@ -135,13 +135,24 @@ class Template {
 	 *
 	 * @since  2.4.0
 	 *
+	 * @param  string $context Optional. The context for the label (valid: 'user',
+	 *                         'comment'). Default 'user'.
+	 *
 	 * @return string
 	 */
-	public function get_use_gravatar_label() {
-		return $this->fill_in_gravatar_url(
+	public function get_use_gravatar_label( $context = 'user' ) {
+		if ( 'user' === $context ) {
 			/* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */
-			\__( 'Display a <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a> image for my e-mail address.', 'avatar-privacy' )
-		);
+			$label = \__( 'Display a <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a> image for my e-mail address.', 'avatar-privacy' );
+		} elseif ( 'comment' === $context ) {
+			/* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */
+			$label = \__( 'Display a <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a> image next to my comments.', 'avatar-privacy' );
+		} else {
+			\_doing_it_wrong( __METHOD__, \esc_html( "Invalid context $context" ), '2.4.0' );
+			return '';
+		}
+
+		return $this->fill_in_gravatar_url( $label );
 	}
 
 	/**
