@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -29,23 +29,19 @@ use Avatar_Privacy\Components\Comments;
 use Avatar_Privacy\Tools\Template as T;
 
 /**
+ * Required template variables:
+ *
+ * @var T    $template   The templating helper.
+ * @var bool $is_checked Whether the checkbox should be pre-checked.
+ */
+
+/**
  * Filters whether `style="display:inline;"` should be added to the label of the
  * `use_gravatar` checkbox in the comments form.
  *
  * @param bool $disable Default false.
  */
 $disable_style = \apply_filters( 'avatar_privacy_comment_checkbox_disable_inline_style', false );
-
-// Determine if the checkbox should be checked.
-$cookie_name = Comments::COOKIE_PREFIX . \COOKIEHASH;
-$is_checked  = false;
-if ( isset( $_POST[ Comments::CHECKBOX_FIELD_NAME ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- frontend form.
-	// Re-displaying the comment form with validation errors.
-	$is_checked = ! empty( $_POST[ Comments::CHECKBOX_FIELD_NAME ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- frontend form.
-} elseif ( isset( $_COOKIE[ $cookie_name ] ) ) { // Input var okay.
-	// Read the value from the cookie, saved with previous comment.
-	$is_checked = ! empty( $_COOKIE[ $cookie_name ] ); // Input var okay.
-}
 ?>
 <p class="comment-form-use-gravatar">
 	<input id="<?php echo \esc_attr( Comments::CHECKBOX_FIELD_NAME ); ?>" name="<?php echo \esc_attr( Comments::CHECKBOX_FIELD_NAME ); ?>" type="checkbox" value="true" <?php \checked( $is_checked, true ); ?>
@@ -57,6 +53,6 @@ if ( isset( $_POST[ Comments::CHECKBOX_FIELD_NAME ] ) ) { // phpcs:ignore WordPr
 		style="display:inline;"
 	<?php endif; ?>
 		for="<?php echo \esc_attr( Comments::CHECKBOX_FIELD_NAME ); ?>"
-	><?php echo \wp_kses( \sprintf( /* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */ \__( 'Display a <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a> image next to my comments.', 'avatar-privacy' ), \__( 'https://en.gravatar.com/', 'avatar-privacy' ), T::get_gravatar_link_rel(), T::get_gravatar_link_target() ), T::ALLOWED_HTML_LABEL ); ?></label>
+	><?php echo \wp_kses( $template->get_use_gravatar_label( 'comment' ), T::ALLOWED_HTML_LABEL ); ?></label>
 </p>
 <?php

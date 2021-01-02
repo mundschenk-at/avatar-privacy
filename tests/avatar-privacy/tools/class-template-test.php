@@ -143,18 +143,42 @@ class Template_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Provides data for testing ::get_use_gravatar_label.
+	 *
+	 * @return array
+	 */
+	public function provide_get_use_gravatar_label_data() {
+		return [
+			[ 'user', true ],
+			[ 'comment', true ],
+			[ 'foobar', false ],
+		];
+	}
+
+	/**
 	 * Tests ::get_use_gravatar_label.
 	 *
 	 * @covers ::get_use_gravatar_label
+	 *
+	 * @dataProvider provide_get_use_gravatar_label_data
+	 *
+	 * @param  string $context The context.
+	 * @param  bool   $success Whether the call is epxected to be successful.
 	 */
-	public function test_get_use_gravatar_label() {
-		$result = 'Label with link';
+	public function test_get_use_gravatar_label( $context, $success ) {
+		$result = $success ? 'Label with link' : '';
 
-		Functions\expect( '__' )->once()->with( m::type( 'string' ), 'avatar-privacy' )->andReturnFirstArg();
+		if ( $success ) {
+			Functions\expect( '__' )->once()->with( m::type( 'string' ), 'avatar-privacy' )->andReturnFirstArg();
+			$this->sut->shouldReceive( 'fill_in_gravatar_url' )->once()->with( m::type( 'string' ) )->andReturn( $result );
+		} else {
+			Functions\expect( '__' )->never();
+			$this->sut->shouldReceive( 'fill_in_gravatar_url' )->never();
+			Functions\expect( 'esc_html' )->once()->with( m::type( 'string' ) )->andReturnFirstArg();
+			Functions\expect( '_doing_it_wrong' )->once()->with( m::type( 'string' ), "Invalid context $context", '2.4.0' );
+		}
 
-		$this->sut->shouldReceive( 'fill_in_gravatar_url' )->atMost()->once()->with( m::type( 'string' ) )->andReturn( $result );
-
-		$this->assertSame( $result, $this->sut->get_use_gravatar_label() );
+		$this->assertSame( $result, $this->sut->get_use_gravatar_label( $context ) );
 	}
 
 	/**

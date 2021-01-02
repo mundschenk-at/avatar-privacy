@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -205,7 +205,12 @@ class WPDiscuz_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::print_gravatar_checkbox
 	 */
 	public function test_print_gravatar_checkbox() {
-		$this->expectOutputString( 'USE_GRAVATAR_MARKUP' );
+		$output = 'USE_GRAVATAR_MARKUP';
+
+		$this->expectOutputString( $output );
+
+		$this->comments->shouldReceive( 'get_gravatar_checkbox_markup' )->once()->andReturn( $output );
+
 		$this->assertNull( $this->sut->print_gravatar_checkbox() );
 	}
 

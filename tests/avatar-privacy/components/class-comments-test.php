@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -326,12 +326,68 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::get_gravatar_checkbox_markup
 	 */
 	public function test_get_gravatar_checkbox_markup() {
+		// Parameters.
 		$partial = '/a/fake/partial.php';
-		$result  = 'USE_GRAVBATAR_MARKUP';
 
-		$this->template->shouldReceive( 'get_partial' )->once()->with( $partial, [ 'template' => $this->template ] )->andReturn( $result );
+		// Intermediate and result data.
+		$is_checked = 'fake value'; // In reality, either true or false.
+		$result     = 'USE_GRAVBATAR_MARKUP';
+
+		$this->sut->shouldReceive( 'is_gravatar_prechecked' )->once()->andReturn( $is_checked );
+
+		$this->template->shouldReceive( 'get_partial' )->once()->with( $partial, m::on( function( $args ) use ( $is_checked ) {
+			return (
+				! empty( $args['template'] ) && $args['template'] === $this->template &&
+				! empty( $args['is_checked'] ) && $args['is_checked'] === $is_checked
+			);
+		} ) )->andReturn( $result );
 
 		$this->assertSame( $result, $this->sut->get_gravatar_checkbox_markup( $partial ) );
+	}
+
+	/**
+	 * Provides data for testing is_gravatar_prechecked.
+	 *
+	 * @return bool
+	 */
+	public function provide_is_gravatar_prechecked_data() {
+		return [
+			[ 'true', '0', true ],
+			[ '', '0', false ],
+			[ null, '0', false ],
+			[ null, null, false ],
+			[ null, '1', true ],
+		];
+	}
+
+	/**
+	 * Tests ::is_gravatar_prechecked.
+	 *
+	 * @covers ::is_gravatar_prechecked
+	 *
+	 * @dataProvider provide_is_gravatar_prechecked_data
+	 *
+	 * @param  mixed|null $field  The checkbox form field value (or null if it
+	 *                            should not be set).
+	 * @param  mixed|null $cookie The cookie value (or null if it should not be set).
+	 * @param  bool       $result The expected result.
+	 */
+	public function test_is_gravatar_prechecked( $field, $cookie, $result ) {
+		// Set up request data.
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( null === $field ) {
+			$_POST = [];
+		} else {
+			$_POST = [ Comments::CHECKBOX_FIELD_NAME => $field ];
+		}
+		global $_COOKIE;
+		if ( null === $cookie ) {
+			$_COOKIE = [];
+		} else {
+			$_COOKIE = [ Comments::COOKIE_PREFIX . \COOKIEHASH => $cookie ];
+		}
+
+		$this->assertSame( $result, $this->sut->is_gravatar_prechecked() );
 	}
 
 	/**
