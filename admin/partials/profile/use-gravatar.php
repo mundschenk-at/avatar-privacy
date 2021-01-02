@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -48,7 +48,7 @@ use Avatar_Privacy\Tools\Template as T;
 			value="true"
 			<?php \checked( $value ); ?>
 		/>
-		<label for="<?php echo \esc_attr( $field_name ); ?>"><?php echo \wp_kses( $template->get_use_gravatar_label(), T::ALLOWED_HTML_LABEL ); ?></label><br />
+		<label for="<?php echo \esc_attr( $field_name ); ?>"><?php echo \wp_kses( $template->get_use_gravatar_label( 'user' ), T::ALLOWED_HTML_LABEL ); ?></label><br />
 		<p class="description">
 			<?php \esc_html_e( "Uncheck this box if you don't want to display the gravatar for your e-mail address (or don't have an account on Gravatar.com).", 'avatar-privacy' ); ?>
 			<?php \esc_html_e( 'This setting will only take effect if you have not uploaded a local profile picture.', 'avatar-privacy' ); ?>
