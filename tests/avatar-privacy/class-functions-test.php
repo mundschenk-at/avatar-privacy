@@ -30,12 +30,29 @@ use Brain\Monkey\Actions;
 use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 
-use org\bovigo\vfs\vfsStream;
+use Mockery as m;
+
+use Avatar_Privacy\Factory;
+use Avatar_Privacy\Components\Comments;
 
 /**
  * Unit tests for Avatar Privacy functions.
  */
 class Functions_Test extends \Avatar_Privacy\Tests\TestCase {
+
+	/**
+	 * The factory mock.
+	 *
+	 * @var Factory
+	 */
+	private $factory;
+
+	/**
+	 * The comments component mock.
+	 *
+	 * @var Comments
+	 */
+	private $comments;
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -46,46 +63,39 @@ class Functions_Test extends \Avatar_Privacy\Tests\TestCase {
 	protected function set_up() {
 		parent::set_up();
 
-		$filesystem = [
-			'plugin' => [
-				'public' => [
-					'partials' => [
-						'comments' => [
-							'use-gravatar.php' => 'USE_GRAVATAR',
-						],
-					],
-				],
-			],
-		];
-
-		// Set up virtual filesystem.
-		vfsStream::setup( 'root', null, $filesystem );
-		\set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
+		$this->factory  = m::mock( Factory::class );
+		$this->comments = m::mock( Comments::class );
+		$this->set_static_value( Factory::class, 'factory', $this->factory );
 	}
 
 	/**
 	 * Tests run method.
 	 *
-	 * @covers \Avatar_Privacy\get_gravatar_checkbox
+	 * @covers Avatar_Privacy\get_gravatar_checkbox
 	 *
-	 * @uses \Avatar_Privacy\get_gravatar_checkbox
-	 * @uses \Avatar_Privacy\Components\Comments::get_gravatar_checkbox
+	 * @uses Avatar_Privacy\Factory::get
+	 * @uses Avatar_Privacy\Components\Comments::get_gravatar_checkbox
 	 */
 	public function test_get_gravatar_checkbox() {
-		Functions\expect( 'is_user_logged_in' )->once()->andReturn( false );
+		$result = 'USE_GRAVATAR_MARKUP';
 
-		$this->assertSame( 'USE_GRAVATAR', \Avatar_Privacy\get_gravatar_checkbox() );
+		Functions\expect( 'is_user_logged_in' )->once()->andReturn( false );
+		$this->factory->shouldReceive( 'create' )->once()->with( Comments::class )->andReturn( $this->comments );
+		$this->comments->shouldReceive( 'get_gravatar_checkbox_markup' )->once()->andReturn( $result );
+
+		$this->assertSame( $result, \Avatar_Privacy\get_gravatar_checkbox() );
 	}
 
 	/**
 	 * Tests run method.
 	 *
 	 * @covers \Avatar_Privacy\get_gravatar_checkbox
-	 *
-	 * @uses \Avatar_Privacy\get_gravatar_checkbox
 	 */
 	public function test_get_gravatar_checkbox_user_is_logged_in() {
 		Functions\expect( 'is_user_logged_in' )->once()->andReturn( true );
+
+		$this->factory->shouldReceive( 'create' )->never();
+		$this->comments->shouldReceive( 'get_gravatar_checkbox_markup' )->never();
 
 		$this->assertSame( '', \Avatar_Privacy\get_gravatar_checkbox() );
 	}
@@ -95,13 +105,18 @@ class Functions_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @covers \Avatar_Privacy\gravatar_checkbox
 	 *
-	 * @uses \Avatar_Privacy\get_gravatar_checkbox
-	 * @uses \Avatar_Privacy\Components\Comments::get_gravatar_checkbox
+	 * @uses Avatar_Privacy\get_gravatar_checkbox
+	 * @uses Avatar_Privacy\Factory::get
+	 * @uses Avatar_Privacy\Components\Comments::get_gravatar_checkbox
 	 */
 	public function test_gravatar_checkbox() {
-		Functions\expect( 'is_user_logged_in' )->once()->andReturn( false );
+		$result = 'USE_GRAVATAR_MARKUP';
 
-		$this->expectOutputString( 'USE_GRAVATAR' );
+		Functions\expect( 'is_user_logged_in' )->once()->andReturn( false );
+		$this->factory->shouldReceive( 'create' )->once()->with( Comments::class )->andReturn( $this->comments );
+		$this->comments->shouldReceive( 'get_gravatar_checkbox_markup' )->once()->andReturn( $result );
+
+		$this->expectOutputString( $result );
 		$this->assertNull( \Avatar_Privacy\gravatar_checkbox() );
 	}
 }

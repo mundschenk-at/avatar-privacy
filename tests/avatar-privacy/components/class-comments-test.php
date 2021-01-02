@@ -32,11 +32,11 @@ use Brain\Monkey\Functions;
 
 use Mockery as m;
 
-use org\bovigo\vfs\vfsStream;
-
 use Avatar_Privacy\Components\Comments;
 
+use Avatar_Privacy\Factory;
 use Avatar_Privacy\Core\Comment_Author_Fields;
+use Avatar_Privacy\Tools\Template;
 
 use COOKIEPATH;
 use COOKIE_DOMAIN;
@@ -66,6 +66,13 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 	private $comment_author;
 
 	/**
+	 * The Template alias mock.
+	 *
+	 * @var Template;
+	 */
+	private $template;
+
+	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 *
@@ -74,32 +81,11 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 	protected function set_up() {
 		parent::set_up();
 
-		$filesystem = [
-			'plugin'    => [
-				'public' => [
-					'partials' => [
-						'comments' => [
-							'use-gravatar.php' => 'USE_GRAVATAR',
-						],
-					],
-				],
-			],
-			'uploads'   => [
-				'some.png'   => '',
-				'some_1.png' => '',
-				'some_2.png' => '',
-				'some.gif'   => '',
-			],
-		];
-
-		// Set up virtual filesystem.
-		vfsStream::setup( 'root', null, $filesystem );
-		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
-
 		// Mock required helpers.
 		$this->comment_author = m::mock( Comment_Author_Fields::class );
+		$this->template       = m::mock( Template::class );
 
-		$this->sut = m::mock( Comments::class, [ $this->comment_author ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Comments::class, [ $this->comment_author, $this->template ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -110,9 +96,10 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$mock = m::mock( Comments::class )->makePartial();
 
-		$mock->__construct( $this->comment_author );
+		$mock->__construct( $this->comment_author, $this->template );
 
 		$this->assert_attribute_same( $this->comment_author, 'comment_author', $mock );
+		$this->assert_attribute_same( $this->template, 'template', $mock );
 	}
 
 	/**
@@ -145,8 +132,6 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::comment_form_fields.
 	 *
 	 * @covers ::comment_form_fields
-	 *
-	 * @uses ::get_gravatar_checkbox
 	 */
 	public function test_comment_form_fields() {
 		// Input parameters.
@@ -161,6 +146,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'is_user_logged_in' )->times( 3 )->andReturn( false );
 
+		$this->sut->shouldReceive( 'get_gravatar_checkbox_markup' )->times( 3 )->andReturn( 'USE_GRAVATAR_MARKUP' );
 		$this->sut->shouldReceive( 'get_position' )->times( 3 )->with( $fields )->andReturn( [ 'before', 'email' ], [ 'after', 'name' ], [ 'before', 'name' ] );
 
 		Filters\expectApplied( 'avatar_privacy_use_gravatar_position' )->times( 3 )->with( m::type( 'array' ) );
@@ -194,6 +180,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'is_user_logged_in' )->once()->andReturn( true );
 
+		$this->sut->shouldReceive( 'get_gravatar_checkbox_markup' )->never();
 		$this->sut->shouldReceive( 'get_position' )->never();
 
 		Filters\expectApplied( 'avatar_privacy_use_gravatar_position' )->never();
@@ -218,6 +205,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'is_user_logged_in' )->once()->andReturn( false );
 
+		$this->sut->shouldReceive( 'get_gravatar_checkbox_markup' )->never();
 		$this->sut->shouldReceive( 'get_position' )->never();
 
 		Filters\expectApplied( 'avatar_privacy_use_gravatar_position' )->never();
@@ -244,6 +232,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'is_user_logged_in' )->once()->andReturn( false );
 
+		$this->sut->shouldReceive( 'get_gravatar_checkbox_markup' )->once()->andReturn( 'USE_GRAVATAR_MARKUP' );
 		$this->sut->shouldReceive( 'get_position' )->once()->with( $fields )->andReturn( [ 'before', 'foobar' ] );
 
 		Filters\expectApplied( 'avatar_privacy_use_gravatar_position' )->once()->with( m::type( 'array' ) );
@@ -316,9 +305,33 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::get_gravatar_checkbox.
 	 *
 	 * @covers ::get_gravatar_checkbox
+	 *
+	 * @uses Avatar_Privacy\Factory::get
 	 */
 	public function test_get_gravatar_checkbox() {
-		$this->assertSame( 'USE_GRAVATAR', Comments::get_gravatar_checkbox() );
+		$result  = 'USE_GRAVATAR_MARKUP';
+		$factory = m::mock( Factory::class );
+
+		$this->set_static_value( Factory::class, 'factory', $factory );
+
+		$factory->shouldReceive( 'create' )->once()->with( Comments::class )->andReturn( $this->sut );
+		$this->sut->shouldReceive( 'get_gravatar_checkbox_markup' )->once()->andReturn( $result );
+
+		$this->assertSame( $result, Comments::get_gravatar_checkbox() );
+	}
+
+	/**
+	 * Tests ::get_gravatar_checkbox_markup.
+	 *
+	 * @covers ::get_gravatar_checkbox_markup
+	 */
+	public function test_get_gravatar_checkbox_markup() {
+		$partial = '/a/fake/partial.php';
+		$result  = 'USE_GRAVBATAR_MARKUP';
+
+		$this->template->shouldReceive( 'get_partial' )->once()->with( $partial, [ 'template' => $this->template ] )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->get_gravatar_checkbox_markup( $partial ) );
 	}
 
 	/**
