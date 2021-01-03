@@ -98,8 +98,9 @@ class Image_Stream {
 	 *
 	 * @return bool
 	 */
-	public function stream_open( $path, $mode, $options, /* @scrutinizer ignore-unused */ &$opened_path ) {
-		$this->data    = &static::get_data_reference( static::get_handle_from_url( $path ) );
+	public function stream_open( $path, $mode, $options, &$opened_path ) {
+		$real_path     = static::get_handle_from_url( $path );
+		$this->data    = &static::get_data_reference( $real_path );
 		$this->options = $options;
 
 		// Strip binary/text flags from mode for comparison.
@@ -153,6 +154,7 @@ class Image_Stream {
 				break;
 
 			default:
+				// Signal error.
 				if ( $this->options & \STREAM_REPORT_ERRORS ) {
 					\trigger_error( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 						'Invalid mode specified (mode specified makes no sense for this stream implementation)',
@@ -161,6 +163,11 @@ class Image_Stream {
 				} else {
 					return false;
 				}
+		}
+
+		// Set the opened path if requested.
+		if ( $this->options & \STREAM_USE_PATH ) {
+			$opened_path = $real_path;
 		}
 
 		return true;
