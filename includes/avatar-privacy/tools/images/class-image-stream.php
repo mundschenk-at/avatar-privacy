@@ -387,6 +387,24 @@ class Image_Stream {
 	}
 
 	/**
+	 * Triggers an error if the trigger condition is fulfilled.
+	 *
+	 * @since  2.4.0
+	 *
+	 * @param  bool   $condition   Whether the error should be triggered.
+	 * @param  string $message     The error message.
+	 * @param  int    $error_level Optional. Only the E_USER_* constants are valid. Default E_USER_ERROR.
+	 *
+	 * @return void
+	 */
+	protected function maybe_trigger_error( $condition, $message, $error_level = \E_USER_ERROR ) {
+		if ( $condition ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+			\trigger_error( \esc_html( $message ), $error_level );
+		}
+	}
+
+	/**
 	 * Retrieves a reference to the handle and creates it if necessary.
 	 *
 	 * @since 2.1.0 Visibility changed to protected and renamed to get_data_reference.
