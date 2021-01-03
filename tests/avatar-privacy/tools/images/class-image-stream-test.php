@@ -136,6 +136,12 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 			$this->sut->shouldReceive( 'stream_truncate' )->once()->with( 0 );
 		}
 
+		if ( $result ) {
+			$this->sut->shouldReceive( 'maybe_trigger_error' )->never();
+		} else {
+			$this->sut->shouldReceive( 'maybe_trigger_error' )->once()->with( false, m::type( 'string' ) );
+		}
+
 		$this->assertSame( $result, $this->sut->stream_open( $path, $mode, $options, $opened_path ) );
 
 		if ( $result ) {
@@ -174,6 +180,11 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 			$this->sut->shouldReceive( 'stream_truncate' )->once()->with( 0 );
 		}
 
+		if ( $result ) {
+			$this->sut->shouldReceive( 'maybe_trigger_error' )->never();
+		} else {
+			$this->sut->shouldReceive( 'maybe_trigger_error' )->once()->with( false, m::type( 'string' ) );
+		}
 		$this->assertSame( $result, $this->sut->stream_open( $path, $mode, $options, $opened_path ) );
 		if ( $result ) {
 			$this->assert_attribute_same( $read, 'read', $this->sut, "Incorrect read mode (should be $read)" );
@@ -190,8 +201,6 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::stream_open.
 	 *
 	 * @covers ::stream_open
-	 *
-	 * @expectedExceptionMessage Invalid mode specified (mode specified makes no sense for this stream implementation)
 	 */
 	public function test_stream_open_with_error() {
 		$path        = 'scheme://some/path/or/other';
@@ -207,12 +216,7 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'stream_truncate' )->never();
 
-		// PHP < 7.0 raises an error instead of throwing an "exception".
-		if ( version_compare( phpversion(), '7.0.0', '<' ) ) {
-			$this->expect_error( \PHPUnit_Framework_Error::class );
-		} else {
-			$this->expect_error( \PHPUnit\Framework\Error\Error::class );
-		}
+		$this->sut->shouldReceive( 'maybe_trigger_error' )->once()->with( true, m::type( 'string' ) );
 
 		$this->assertSame( false, $this->sut->stream_open( $path, $mode, $options, $opened_path ) );
 	}
@@ -607,6 +611,25 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'get_handle_from_url' )->once()->with( $path )->andReturn( 'handle' );
 		$this->sut->shouldReceive( 'handle_exists' )->once()->with( 'handle' )->andReturn( true );
+
+		$this->sut->shouldReceive( 'maybe_trigger_error' )->once()->with( true, m::type( 'string' ) );
+
+		$this->assertFalse( $this->sut->url_stat( $path, $flags ) );
+	}
+
+	/**
+	 * Tests ::url_stat.
+	 *
+	 * @covers ::url_stat
+	 */
+	public function test_url_stat_error_quiet() {
+		$path  = vfsStream::url( 'root/invalid/folder/filename.txt' );
+		$flags = \STREAM_URL_STAT_QUIET;
+
+		$this->sut->shouldReceive( 'get_handle_from_url' )->once()->with( $path )->andReturn( 'handle' );
+		$this->sut->shouldReceive( 'handle_exists' )->once()->with( 'handle' )->andReturn( true );
+
+		$this->sut->shouldReceive( 'maybe_trigger_error' )->once()->with( false, m::type( 'string' ) );
 
 		$this->assertFalse( $this->sut->url_stat( $path, $flags ) );
 	}
