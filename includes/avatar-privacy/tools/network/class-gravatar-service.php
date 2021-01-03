@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -30,6 +30,8 @@ namespace Avatar_Privacy\Tools\Network;
 use Avatar_Privacy\Data_Storage\Transients;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Tools\Images\Editor;
+
+use Mundschenk\Data_Storage\Transients as Transients_Helper;
 
 /**
  * A class for accessing the Gravatar service.
@@ -168,9 +170,27 @@ class Gravatar_Service {
 		}
 
 		// Try to find it via transient cache. On multisite, we use site transients.
+		return $this->validate_and_cache( \is_multisite() ? $this->site_transients : $this->transients, $email, $hash, $age );
+	}
+
+	/**
+	 * Checks if a gravatar exists for the given e-mail address and cachces the
+	 * result.
+	 *
+	 * @since  2.4.0 Extracted from ::validate
+	 *
+	 * @param  Transients_Helper $transients The transients API helper to use.
+	 * @param  string            $email      The e-mail address to check.
+	 * @param  string            $hash       The hashed e-mail address.
+	 * @param  int               $age        The age of the object associated with
+	 *                                       the e-mail address.
+	 *
+	 * @return string                        Returns the image MIME type if successful,
+	 *                                       or the empty string otherwise.
+	 */
+	protected function validate_and_cache( Transients_Helper $transients, $email, $hash, $age ) {
 		$transient_key = "check_{$hash}";
-		$_transients   = \is_multisite() ? $this->site_transients : $this->transients;
-		$result        = $_transients->get( $transient_key );
+		$result        = $transients->get( $transient_key );
 		if ( false !== $result ) {
 			// Warm 1st level cache.
 			$this->validation_cache[ $hash ] = $result;
@@ -181,7 +201,7 @@ class Gravatar_Service {
 		$result = $this->ping_gravatar( $email );
 		if ( false !== $result ) {
 			// Cache result.
-			$_transients->set( $transient_key, $result, $this->calculate_caching_duration( $result, $age ) );
+			$transients->set( $transient_key, $result, $this->calculate_caching_duration( $result, $age ) );
 			$this->validation_cache[ $hash ] = $result;
 		}
 

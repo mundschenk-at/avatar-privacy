@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -199,7 +199,7 @@ class Gravatar_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::validate in single site, no previous caching.
+	 * Tests ::validate in multisite site, no previous caching.
 	 *
 	 * @covers ::validate
 	 *
@@ -210,28 +210,26 @@ class Gravatar_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param  string $result The expected result.
 	 */
 	public function test_validate( $email, $age, $result ) {
-		$final_result = empty( $result ) ? '' : $result;
-		$duration     = 666;
+		$hash = 'FAKEHASH';
 
 		if ( ! empty( $email ) ) {
-			$this->sut->shouldReceive( 'get_hash' )->twice()->with( $email )->andReturn( 'HASH' );
+			$this->sut->shouldReceive( 'get_hash' )->twice()->with( $email )->andReturn( $hash );
 
 			Functions\expect( 'is_multisite' )->once()->andReturn( false );
-			$this->transients->shouldReceive( 'get' )->once()->with( 'check_HASH' )->andReturn( false );
 
-			$this->sut->shouldReceive( 'ping_gravatar' )->once()->with( $email )->andReturn( $result );
-
-			if ( false !== $result ) {
-				$this->sut->shouldReceive( 'calculate_caching_duration' )->once()->with( $result, $age )->andReturn( $duration );
-				$this->transients->shouldReceive( 'set' )->once()->with( 'check_HASH', $result, $duration )->andReturn( false );
-			}
+			$this->sut->shouldReceive( 'validate_and_cache' )->once()->with( $this->transients, $email, $hash, $age )->andReturn( $result );
 		}
 
 		// Validate once.
-		$this->assertSame( $final_result, $this->sut->validate( $email, $age ) );
+		$this->assertSame( $result, $this->sut->validate( $email, $age ) );
+
+		// Simulate cache warming.
+		$validation_cache          = $this->get_value( $this->sut, 'validation_cache' );
+		$validation_cache[ $hash ] = $result;
+		$this->set_value( $this->sut, 'validation_cache', $validation_cache );
 
 		// Validate twice.
-		$this->assertSame( $final_result, $this->sut->validate( $email, $age ) );
+		$this->assertSame( $result, $this->sut->validate( $email, $age ) );
 	}
 
 	/**
@@ -246,78 +244,95 @@ class Gravatar_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param  string $result The expected result.
 	 */
 	public function test_validate_multisite( $email, $age, $result ) {
-		$final_result = empty( $result ) ? '' : $result;
-		$duration     = 666;
+		$hash = 'OTHERHASH';
 
 		if ( ! empty( $email ) ) {
-			$this->sut->shouldReceive( 'get_hash' )->twice()->with( $email )->andReturn( 'HASH' );
+			$this->sut->shouldReceive( 'get_hash' )->twice()->with( $email )->andReturn( $hash );
 
 			Functions\expect( 'is_multisite' )->once()->andReturn( true );
-			$this->site_transients->shouldReceive( 'get' )->once()->with( 'check_HASH' )->andReturn( false );
 
-			$this->sut->shouldReceive( 'ping_gravatar' )->once()->with( $email )->andReturn( $result );
-
-			if ( false !== $result ) {
-				$this->sut->shouldReceive( 'calculate_caching_duration' )->once()->with( $result, $age )->andReturn( $duration );
-				$this->site_transients->shouldReceive( 'set' )->once()->with( 'check_HASH', $result, $duration )->andReturn( false );
-			}
-		}
-
-		// Validate once.
-		$this->assertSame( $final_result, $this->sut->validate( $email, $age ) );
-
-		// Validate twice.
-		$this->assertSame( $final_result, $this->sut->validate( $email, $age ) );
-	}
-
-	/**
-	 * Tests ::validate in single site, with previous caching.
-	 *
-	 * @covers ::validate
-	 */
-	public function test_validate_cached_empty() {
-		$email        = 'foobar@example.org';
-		$age          = 77;
-		$result       = false;
-		$final_result = '';
-
-		if ( ! empty( $email ) ) {
-			$this->sut->shouldReceive( 'get_hash' )->twice()->with( $email )->andReturn( 'HASH' );
-
-			Functions\expect( 'is_multisite' )->twice()->andReturn( false );
-			$this->transients->shouldReceive( 'get' )->twice()->with( 'check_HASH' )->andReturn( $result );
-			$this->sut->shouldReceive( 'ping_gravatar' )->twice()->with( $email )->andReturn( $result );
-		}
-
-		// Validate once.
-		$this->assertSame( $final_result, $this->sut->validate( $email, $age ) );
-
-		// Validate twice.
-		$this->assertSame( $final_result, $this->sut->validate( $email, $age ) );
-	}
-
-	/**
-	 * Tests ::validate in single site, with previous caching.
-	 *
-	 * @covers ::validate
-	 */
-	public function test_validate_cached() {
-		$email  = 'foobar@example.org';
-		$age    = 77;
-		$result = 'image/png';
-
-		if ( ! empty( $email ) ) {
-			$this->sut->shouldReceive( 'get_hash' )->twice()->with( $email )->andReturn( 'HASH' );
-
-			Functions\expect( 'is_multisite' )->once()->andReturn( false );
-			$this->transients->shouldReceive( 'get' )->once()->with( 'check_HASH' )->andReturn( $result );
+			$this->sut->shouldReceive( 'validate_and_cache' )->once()->with( $this->site_transients, $email, $hash, $age )->andReturn( $result );
 		}
 
 		// Validate once.
 		$this->assertSame( $result, $this->sut->validate( $email, $age ) );
 
+		// Simulate cache warming.
+		$validation_cache          = $this->get_value( $this->sut, 'validation_cache' );
+		$validation_cache[ $hash ] = $result;
+		$this->set_value( $this->sut, 'validation_cache', $validation_cache );
+
 		// Validate twice.
 		$this->assertSame( $result, $this->sut->validate( $email, $age ) );
+	}
+
+	/**
+	 * Tests ::validate_and_cache with successful caching.
+	 *
+	 * @covers ::validate_and_cache
+	 */
+	public function test_validate_and_cache_success() {
+		// Parameters.
+		$transients = m::mock( Transients::class );
+		$email      = 'foobar@example.org';
+		$hash       = '<HASH>';
+		$age        = 77;
+
+		// Intermediary data.
+		$duration = 666;
+		$result   = 'image/jpeg';
+
+		$transients->shouldReceive( 'get' )->twice()->with( m::type( 'string' ) )->andReturn( false, $result );
+		$this->sut->shouldReceive( 'ping_gravatar' )->once()->with( $email )->andReturn( $result );
+		$this->sut->shouldReceive( 'calculate_caching_duration' )->once()->with( $result, $age )->andReturn( $duration );
+		$transients->shouldReceive( 'set' )->once()->with( m::type( 'string' ), $result, $duration );
+
+		// Validate once.
+		$this->assertSame( $result, $this->sut->validate_and_cache( $transients, $email, $hash, $age ) );
+
+		// Validate twice.
+		$this->assertSame( $result, $this->sut->validate_and_cache( $transients, $email, $hash, $age ) );
+	}
+
+	/**
+	 * Tests ::validate_and_cache without caching (due to a ping error).
+	 *
+	 * @covers ::validate_and_cache
+	 */
+	public function test_validate_and_cache_with_empty_result() {
+		$transients = m::mock( Transients::class );
+		$email      = 'foobar@example.org';
+		$hash       = '<HASH>';
+		$age        = 77;
+
+		$transients->shouldReceive( 'get' )->twice()->with( m::type( 'string' ) )->andReturn( false );
+		$transients->shouldReceive( 'set' )->never();
+		$this->sut->shouldReceive( 'ping_gravatar' )->twice()->with( $email )->andReturn( false );
+
+		// Validate once.
+		$this->assertSame( '', $this->sut->validate_and_cache( $transients, $email, $hash, $age ) );
+
+		// Validate twice.
+		$this->assertSame( '', $this->sut->validate_and_cache( $transients, $email, $hash, $age ) );
+	}
+
+	/**
+	 * Tests ::validate_and_cache with previous caching.
+	 *
+	 * @covers ::validate_and_cache
+	 */
+	public function test_validate_and_cache_with_cached_result() {
+		$transients = m::mock( Transients::class );
+		$email      = 'foobar@example.org';
+		$hash       = '<HASH>';
+		$age        = 77;
+		$result     = 'image/png';
+
+		$transients->shouldReceive( 'get' )->once()->with( m::type( 'string' ) )->andReturn( $result );
+		$transients->shouldReceive( 'set' )->never();
+		$this->sut->shouldReceive( 'ping_gravatar' )->never();
+
+		$this->assertSame( $result, $this->sut->validate_and_cache( $transients, $email, $hash, $age ) );
 	}
 
 	/**
