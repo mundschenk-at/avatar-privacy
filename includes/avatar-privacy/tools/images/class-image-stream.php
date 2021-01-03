@@ -39,6 +39,27 @@ namespace Avatar_Privacy\Tools\Images;
 class Image_Stream {
 	const PROTOCOL = 'avprimg';
 
+	const READ_MODE  = [
+		'r'  => true,
+		'r+' => true,
+		'w'  => false,
+		'w+' => true,
+		'a'  => false,
+		'a+' => true,
+		'c'  => false,
+		'c+' => true,
+	];
+	const WRITE_MODE = [
+		'r'  => false,
+		'r+' => true,
+		'w'  => true,
+		'w+' => true,
+		'a'  => true,
+		'a+' => true,
+		'c'  => true,
+		'c+' => true,
+	];
+
 	/**
 	 * The persistent handles for existing streams.
 	 *
@@ -108,49 +129,24 @@ class Image_Stream {
 
 		switch ( $mode ) {
 
-			case 'r':
-				$this->read     = true;
-				$this->write    = false;
-				$this->position = 0;
-				break;
-
-			case 'r+':
-			case 'c+':
-				$this->read     = true;
-				$this->write    = true;
-				$this->position = 0;
-				break;
-
 			case 'w':
-				$this->read     = false;
-				$this->write    = true;
-				$this->position = 0;
-				$this->stream_truncate( 0 );
-				break;
-
 			case 'w+':
-				$this->read     = true;
-				$this->write    = true;
-				$this->position = 0;
 				$this->stream_truncate( 0 );
+				// fall through.
+			case 'r':
+			case 'r+':
+			case 'c':
+			case 'c+':
+				$this->read     = self::READ_MODE[ $mode ];
+				$this->write    = self::WRITE_MODE[ $mode ];
+				$this->position = 0;
 				break;
 
 			case 'a':
-				$this->read     = false;
-				$this->write    = true;
-				$this->position = \strlen( $this->data );
-				break;
-
 			case 'a+':
-				$this->read     = true;
-				$this->write    = true;
+				$this->read     = self::READ_MODE[ $mode ];
+				$this->write    = self::WRITE_MODE[ $mode ];
 				$this->position = \strlen( $this->data );
-				break;
-
-			case 'c':
-				$this->read     = false;
-				$this->write    = true;
-				$this->position = 0;
 				break;
 
 			default:
