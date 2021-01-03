@@ -151,14 +151,9 @@ class Image_Stream {
 
 			default:
 				// Signal error.
-				if ( $this->options & \STREAM_REPORT_ERRORS ) {
-					\trigger_error( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-						'Invalid mode specified (mode specified makes no sense for this stream implementation)',
-						\E_USER_ERROR
-					);
-				} else {
-					return false;
-				}
+				$this->maybe_trigger_error( ! empty( $this->options & \STREAM_REPORT_ERRORS ), 'Invalid mode specified (mode specified makes no sense for this stream implementation)' );
+
+				return false;
 		}
 
 		// Set the opened path if requested.
@@ -324,19 +319,24 @@ class Image_Stream {
 	 *
 	 * @return array|false
 	 */
-	public function url_stat( $path, /* @scrutinizer ignore-unused */ $flags ) {
-		if ( static::handle_exists( static::get_handle_from_url( $path ) ) ) {
+	public function url_stat( $path, $flags ) {
+		$handle = static::get_handle_from_url( $path );
+
+		if ( static::handle_exists( $handle ) ) {
 			$h = @\fopen( $path, 'r' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
 
 			// If fopen() failed, we are in trouble.
 			if ( ! \is_resource( $h ) ) {
+				$this->maybe_trigger_error( ! ( $flags & \STREAM_URL_STAT_QUIET ), 'Error opening stream handle for stat call' );
+
 				return false;
 			}
 
 			return \fstat( $h );
 		}
 
-		// Since we don't really have folders, treat every call as if STREAM_URL_STAT_QUIET was set.
+		// Since we don't really have folders, treat every other call as if
+		// STREAM_URL_STAT_QUIET was set.
 		return [
 			'dev'     => 0,
 			'ino'     => 0,
