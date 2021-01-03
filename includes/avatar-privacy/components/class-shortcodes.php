@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -93,16 +93,17 @@ class Shortcodes implements Component {
 	 *
 	 * Usage: `[avatar-privacy-form]`
 	 *
-	 * @param  array  $atts {
+	 * @since  2.4.0 Unused parameter $content removed.
+	 *
+	 * @param  array $atts {
 	 *     An array of shortcode attributes.
 	 *
 	 *     @type int $avatar_size Optional. The width/height of the avatar preview image (in pixels). Default 96.
 	 * }
-	 * @param  string $content Optional. Shortcode content. Default null.
 	 *
 	 * @return string          The HTML markup for the upload form.
 	 */
-	public function render_frontend_form_shortcode( $atts, /* @scrutinizer ignore-unused */ $content = null ) {
+	public function render_frontend_form_shortcode( $atts ) {
 		$user_id = \get_current_user_id();
 
 		// User not logged in.
