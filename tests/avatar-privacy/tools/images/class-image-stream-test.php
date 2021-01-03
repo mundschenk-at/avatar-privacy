@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -137,6 +137,39 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		}
 
 		$this->assertSame( $result, $this->sut->stream_open( $path, $mode, $options, $opened_path ) );
+	}
+
+	/**
+	 * Tests ::stream_open.
+	 *
+	 * @covers ::stream_open
+	 *
+	 * @dataProvider provide_stream_open_data
+	 *
+	 * @param  string $mode     The open mode (input).
+	 * @param  bool   $result   The expected result.
+	 * @param  bool   $read     Flag indicating that the stream should be readable.
+	 * @param  bool   $write    Flag indicating that the stream should be writable.
+	 * @param  int    $position The new stream position.
+	 * @param  bool   $truncate Flag indicating the the stream should be truncated.
+	 * @param  string $data     Existing data in the stream.
+	 */
+	public function test_stream_open_use_path( $mode, $result, $read, $write, $position, $truncate, $data ) {
+		$path        = 'scheme://some/path/or/other';
+		$opened_path = '';
+		$options     = \STREAM_USE_PATH;
+
+		$handle = 'some/path/or/other';
+
+		$this->sut->shouldReceive( 'get_handle_from_url' )->once()->with( $path )->andReturn( $handle );
+		$this->sut->shouldReceive( 'get_data_reference' )->once()->with( $handle )->andReturn( $data );
+
+		if ( $truncate ) {
+			$this->sut->shouldReceive( 'stream_truncate' )->once()->with( 0 );
+		}
+
+		$this->assertSame( $result, $this->sut->stream_open( $path, $mode, $options, $opened_path ) );
+		$this->assertSame( $result ? 'some/path/or/other' : '', $opened_path );
 	}
 
 	/**
