@@ -137,6 +137,12 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		}
 
 		$this->assertSame( $result, $this->sut->stream_open( $path, $mode, $options, $opened_path ) );
+
+		if ( $result ) {
+			$this->assert_attribute_same( $read, 'read', $this->sut, "Incorrect read mode (should be $read)" );
+			$this->assert_attribute_same( $write, 'write', $this->sut, "Incorrect write mode (should be $write)" );
+			$this->assert_attribute_same( $position, 'position', $this->sut, "Incorrect position (should be $position)" );
+		}
 	}
 
 	/**
@@ -169,7 +175,15 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		}
 
 		$this->assertSame( $result, $this->sut->stream_open( $path, $mode, $options, $opened_path ) );
-		$this->assertSame( $result ? 'some/path/or/other' : '', $opened_path );
+		if ( $result ) {
+			$this->assert_attribute_same( $read, 'read', $this->sut, "Incorrect read mode (should be $read)" );
+			$this->assert_attribute_same( $write, 'write', $this->sut, "Incorrect write mode (should be $write)" );
+			$this->assert_attribute_same( $position, 'position', $this->sut, "Incorrect position (should be $position)" );
+
+			$this->assertSame( 'some/path/or/other', $opened_path );
+		} else {
+			$this->assertSame( '', $opened_path );
+		}
 	}
 
 	/**
