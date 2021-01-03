@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -235,22 +235,28 @@ class Image_Stream {
 		switch ( $whence ) {
 			case \SEEK_SET:
 				$this->position = $offset;
-				$this->truncate_after_seek();
-				return true;
+				$truncate       = true;
+				break;
 
 			case \SEEK_CUR:
 				$this->position += $offset;
-				$this->truncate_after_seek();
-				return true;
+				$truncate        = true;
+				break;
 
 			case \SEEK_END:
 				$this->position = \strlen( $this->data ) + $offset;
-				$this->truncate_after_seek();
-				return true;
+				$truncate       = true;
+				break;
 
 			default:
-				return false;
+				$truncate = false;
 		}
+
+		if ( $truncate ) {
+			$this->truncate_after_seek();
+		}
+
+		return $truncate;
 	}
 
 	/**
