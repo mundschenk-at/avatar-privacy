@@ -640,12 +640,64 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::stream_metadata
 	 */
 	public function test_stream_metadata() {
-		$path   = vfsStream::url( 'root/folder/filename.txt' );
+		$path   = 'scheme://root/folder/filename.txt';
 		$option = 666;
 		$args   = [ 'foobar' ];
 
+		$handle = 'root/folder/filename.txt';
+
+		$this->sut->shouldReceive( 'get_handle_from_url' )->once()->with( $path )->andReturn( $handle );
+		$this->sut->shouldReceive( 'handle_exists' )->once()->with( $handle )->andReturn( false );
+		$this->sut->shouldReceive( 'get_data_reference' )->never();
+
 		$this->assertTrue( $this->sut->stream_metadata( $path, $option, $args ) );
 
+	}
+
+	/**
+	 * Tests ::stream_metadata.
+	 *
+	 * @covers ::stream_metadata
+	 */
+	public function test_stream_metadata_touch() {
+		$path   = vfsStream::url( 'root/folder/filename.txt' );
+		$option = \STREAM_META_TOUCH;
+		$args   = [ 'foobar' ];
+
+		$handle = 'root/folder/filename.txt';
+		$data   = 'something';
+
+		$this->sut->shouldReceive( 'get_handle_from_url' )->once()->with( $path )->andReturn( $handle );
+		$this->sut->shouldReceive( 'handle_exists' )->once()->with( $handle )->andReturn( false );
+		$this->sut->shouldReceive( 'get_data_reference' )->once()->with( $handle )->andReturn( $data );
+
+		$this->assertTrue( $this->sut->stream_metadata( $path, $option, $args ) );
+
+		// Check data reference.
+		$this->assert_attribute_same( $data, 'data', $this->sut );
+		$this->assert_attribute_same( 0, 'position', $this->sut );
+	}
+
+	/**
+	 * Tests ::stream_metadata.
+	 *
+	 * @covers ::stream_metadata
+	 *
+	 * @uses ::get_handle_from_url
+	 * @uses ::handle_exists
+	 */
+	public function test_stream_metadata_touch_handle_exists() {
+		$path   = vfsStream::url( 'root/folder/filename.txt' );
+		$option = \STREAM_META_TOUCH;
+		$args   = [ 'foobar' ];
+
+		$handle = 'root/folder/filename.txt';
+
+		$this->sut->shouldReceive( 'get_handle_from_url' )->once()->with( $path )->andReturn( $handle );
+		$this->sut->shouldReceive( 'handle_exists' )->once()->with( $handle )->andReturn( true );
+		$this->sut->shouldReceive( 'get_data_reference' )->never();
+
+		$this->assertTrue( $this->sut->stream_metadata( $path, $option, $args ) );
 	}
 
 	/**

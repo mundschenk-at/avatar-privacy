@@ -363,7 +363,14 @@ class Image_Stream {
 	 *
 	 * @return bool
 	 */
-	public function stream_metadata( /* @scrutinizer ignore-unused */ $path, /* @scrutinizer ignore-unused */ $option, /* @scrutinizer ignore-unused */ $value ) {
+	public function stream_metadata( $path, $option, /* @scrutinizer ignore-unused */ $value ) {
+		$handle = static::get_handle_from_url( $path );
+
+		if ( ! static::handle_exists( $handle ) && \STREAM_META_TOUCH === $option ) {
+			$this->data     = &static::get_data_reference( $handle );
+			$this->position = 0;
+		}
+
 		// Ignore metadata changing functions, but simulate success.
 		return true;
 	}
