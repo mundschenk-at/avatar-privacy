@@ -259,12 +259,18 @@ class Gravatar_Service {
 	 * @return int
 	 */
 	protected function calculate_caching_duration( $result, $age ) {
-		// Cache the result across all blogs (a YES for 1 week, a NO for 10 minutes or longer,
-		// depending on the age of the object (comment, post), since a YES basically shouldn't
-		// change, but a NO might change when the user signs up with gravatar.com).
-		$duration = \WEEK_IN_SECONDS;
-		if ( empty( $result ) ) {
-			$duration = $age < \HOUR_IN_SECONDS ? 10 * \MINUTE_IN_SECONDS : ( $age < \DAY_IN_SECONDS ? \HOUR_IN_SECONDS : ( $age < \WEEK_IN_SECONDS ? \DAY_IN_SECONDS : $duration ) );
+		// Cache the result across all blogs (a YES for 1 week, a NO for 10 minutes
+		// or longer, depending on the age of the object (comment, post), since a
+		// YES basically shouldn't change, but a NO might change when the user
+		// signs up with gravatar.com).
+		if ( ! empty( $result ) || $age > \WEEK_IN_SECONDS ) {
+			$duration = \WEEK_IN_SECONDS;
+		} elseif ( $age > \DAY_IN_SECONDS ) {
+			$duration = \DAY_IN_SECONDS;
+		} elseif ( $age > \HOUR_IN_SECONDS ) {
+			$duration = \HOUR_IN_SECONDS;
+		} else {
+			$duration = 10 * \MINUTE_IN_SECONDS;
 		}
 
 		/**
