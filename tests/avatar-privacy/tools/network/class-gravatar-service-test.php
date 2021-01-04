@@ -417,10 +417,10 @@ class Gravatar_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 			[ 'image/png', 99, \WEEK_IN_SECONDS ],
 			[ 'image/png', 5 * \WEEK_IN_SECONDS, \WEEK_IN_SECONDS ],
 			[ false, \DAY_IN_SECONDS + 1, \DAY_IN_SECONDS ],
-			[ false, \DAY_IN_SECONDS - 1, \HOUR_IN_SECONDS ],
+			[ false, \DAY_IN_SECONDS, \HOUR_IN_SECONDS ],
 			[ '', 5 * \WEEK_IN_SECONDS, \WEEK_IN_SECONDS ],
 			[ '', 0, 10 * \MINUTE_IN_SECONDS ],
-			[ '', \HOUR_IN_SECONDS - 1, 10 * \MINUTE_IN_SECONDS ],
+			[ '', \HOUR_IN_SECONDS, 10 * \MINUTE_IN_SECONDS ],
 			[ '', \HOUR_IN_SECONDS + 1, \HOUR_IN_SECONDS ],
 			[ '', 0, 10 * \MINUTE_IN_SECONDS ],
 		];
