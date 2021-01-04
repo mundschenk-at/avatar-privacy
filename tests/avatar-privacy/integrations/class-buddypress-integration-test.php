@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -148,15 +148,7 @@ class BuddyPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 			'type' => $type,
 		];
 
-		Filters\expectAdded( 'bp_core_default_avatar_user' )->once()->with( '__return_empty_string' );
-		Functions\expect( 'bp_core_fetch_avatar' )->once()->with(  [
-			'item_id' => $user_id,
-			'object'  => 'user',
-			'type'    => 'full',
-			'html'    => false,
-			'no_grav' => true,
-		] )->andReturn( $url );
-		Filters\expectRemoved( 'bp_core_default_avatar_user' )->once()->with( '__return_empty_string' );
+		$this->sut->shouldReceive( 'get_buddypress_avatar' )->once()->with( $user_id )->andReturn( $url );
 
 		Functions\expect( 'wp_make_link_relative' )->once()->with( $url )->andReturn( $file );
 		Functions\expect( 'wp_check_filetype' )->once()->with( $absfile )->andReturn( [ 'type' => $type ] );
@@ -173,15 +165,7 @@ class BuddyPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Input.
 		$user_id = 42;
 
-		Filters\expectAdded( 'bp_core_default_avatar_user' )->once()->with( '__return_empty_string' );
-		Functions\expect( 'bp_core_fetch_avatar' )->once()->with(  [
-			'item_id' => $user_id,
-			'object'  => 'user',
-			'type'    => 'full',
-			'html'    => false,
-			'no_grav' => true,
-		] )->andReturn( '' );
-		Filters\expectRemoved( 'bp_core_default_avatar_user' )->once()->with( '__return_empty_string' );
+		$this->sut->shouldReceive( 'get_buddypress_avatar' )->once()->with( $user_id )->andReturn( '' );
 
 		Functions\expect( 'wp_make_link_relative' )->never();
 		Functions\expect( 'wp_check_filetype' )->never();
@@ -227,5 +211,30 @@ class BuddyPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->user_fields->shouldReceive( 'invalidate_local_avatar_cache' )->never();
 
 		$this->assertNull( $this->sut->invalidate_cache_after_avatar_upload( $item_id, $type, $args ) );
+	}
+
+	/**
+	 * Tests ::get_buddypress_avatar.
+	 *
+	 * @covers ::get_buddypress_avatar
+	 */
+	public function test_get_buddypress_avatar() {
+		// Input.
+		$user_id = 42;
+
+		// Result.
+		$url = 'https://foobar/some/path/image.png';
+
+		Filters\expectAdded( 'bp_core_default_avatar_user' )->once()->with( '__return_empty_string' );
+		Functions\expect( 'bp_core_fetch_avatar' )->once()->with(  [
+			'item_id' => $user_id,
+			'object'  => 'user',
+			'type'    => 'full',
+			'html'    => false,
+			'no_grav' => true,
+		] )->andReturn( $url );
+		Filters\expectRemoved( 'bp_core_default_avatar_user' )->once()->with( '__return_empty_string' );
+
+		$this->assertSame( $url, $this->sut->get_buddypress_avatar( $user_id ) );
 	}
 }
