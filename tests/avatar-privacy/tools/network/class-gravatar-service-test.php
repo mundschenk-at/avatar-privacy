@@ -413,10 +413,16 @@ class Gravatar_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function provide_calculate_caching_duration_data() {
 		return [
-			[ 'image/png', 0, 100 ],
-			[ 'image/png', 99, 100 ],
-			[ '', 0, 80 ],
-			[ '', 100, 80 ],
+			[ 'image/png', 0, \WEEK_IN_SECONDS ],
+			[ 'image/png', 99, \WEEK_IN_SECONDS ],
+			[ 'image/png', 5 * \WEEK_IN_SECONDS, \WEEK_IN_SECONDS ],
+			[ false, \DAY_IN_SECONDS + 1, \DAY_IN_SECONDS ],
+			[ false, \DAY_IN_SECONDS - 1, \HOUR_IN_SECONDS ],
+			[ '', 5 * \WEEK_IN_SECONDS, \WEEK_IN_SECONDS ],
+			[ '', 0, 10 * \MINUTE_IN_SECONDS ],
+			[ '', \HOUR_IN_SECONDS - 1, 10 * \MINUTE_IN_SECONDS ],
+			[ '', \HOUR_IN_SECONDS + 1, \HOUR_IN_SECONDS ],
+			[ '', 0, 10 * \MINUTE_IN_SECONDS ],
 		];
 	}
 
@@ -427,13 +433,13 @@ class Gravatar_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @dataProvider provide_calculate_caching_duration_data
 	 *
-	 * @param  string $result       The input result string.
-	 * @param  int    $age          The input age.
-	 * @param  int    $filter_value The filtered validation interval.
+	 * @param  string $ping_result     The input result string.
+	 * @param  int    $age             The input age.
+	 * @param  int    $expected_result The expected duration.
 	 */
-	public function test_calculate_caching_duration( $result, $age, $filter_value ) {
-		Filters\expectApplied( 'avatar_privacy_validate_gravatar_interval' )->once()->with( m::type( 'int' ), ! empty( $result ), $age )->andReturn( $filter_value );
+	public function test_calculate_caching_duration( $ping_result, $age, $expected_result ) {
+		Filters\expectApplied( 'avatar_privacy_validate_gravatar_interval' )->once()->with( m::type( 'int' ), ! empty( $ping_result ), $age )->andReturnFirstArg();
 
-		$this->assertSame( $filter_value, $this->sut->calculate_caching_duration( $result, $age ) );
+		$this->assertSame( $expected_result, $this->sut->calculate_caching_duration( $ping_result, $age ) );
 	}
 }
