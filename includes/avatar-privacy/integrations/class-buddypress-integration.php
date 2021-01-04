@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -110,17 +110,9 @@ class BuddyPress_Integration implements Plugin_Integration {
 	 * }
 	 */
 	public function enable_buddypress_user_avatars( array $avatar = null, $user_id ) {
-		// Retrieve BuddyPress user data.
-		\add_filter( 'bp_core_default_avatar_user', '__return_empty_string' );
-		$avatar = /* @scrutinizer ignore-call */ \bp_core_fetch_avatar( [
-			'item_id' => $user_id,
-			'object'  => 'user',
-			'type'    => 'full',
-			'html'    => false,
-			'no_grav' => true,
-		] );
-		\remove_filter( 'bp_core_default_avatar_user', '__return_empty_string' );
 
+		// Retrieve BuddyPress user data.
+		$avatar = $this->get_buddypress_avatar( $user_id );
 		if ( empty( $avatar ) ) {
 			return null;
 		}
@@ -147,5 +139,28 @@ class BuddyPress_Integration implements Plugin_Integration {
 		if ( ! empty( $args['object'] ) && 'user' === $args['object'] && ! empty( $args['item_id'] ) ) {
 			$this->user_fields->invalidate_local_avatar_cache( $args['item_id'] );
 		}
+	}
+
+	/**
+	 * Retrieves the user avatar uploaded in BuddyPress (if any).
+	 *
+	 * @since  2.4.0
+	 *
+	 * @param  int $user_id The user ID.
+	 *
+	 * @return string
+	 */
+	protected function get_buddypress_avatar( $user_id ) {
+		\add_filter( 'bp_core_default_avatar_user', '__return_empty_string' );
+		$avatar = \bp_core_fetch_avatar( [
+			'item_id' => $user_id,
+			'object'  => 'user',
+			'type'    => 'full',
+			'html'    => false,
+			'no_grav' => true,
+		] );
+		\remove_filter( 'bp_core_default_avatar_user', '__return_empty_string' );
+
+		return $avatar;
 	}
 }
