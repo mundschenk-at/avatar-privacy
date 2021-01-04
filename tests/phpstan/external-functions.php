@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020 Peter Putzer.
+ * Copyright 2020-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -67,6 +67,13 @@ function bp_core_fetch_avatar( array $args ) {}
  * @return string
  */
 function bp_core_get_avatar_data_url_filter( $retval, $id_or_email, array $args ) {}
+
+/**
+ * Stub for BuddyPress
+ *
+ * @return string
+ */
+function bp_get_version() {}
 
 // WP User Manager stubs.
 

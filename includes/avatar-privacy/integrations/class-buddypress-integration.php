@@ -83,8 +83,23 @@ class BuddyPress_Integration implements Plugin_Integration {
 	 * @return void
 	 */
 	public function integrate_with_buddypress_avatars() {
+		if ( ! \function_exists( 'bp_get_version' ) ) {
+			return;
+		}
+
+		// Set version dependent hooks.
+		$version = \bp_get_version();
+		if ( \version_compare( $version, '6.0.0', '<' ) ) {
+			$avatar_uploaded_hook = 'xprofile_avatar_uploaded';
+		} else {
+			$avatar_uploaded_hook = 'bp_members_avatar_uploaded';
+		}
+
 		// Remove BuddyPress avatar filter.
 		\remove_filter( 'get_avatar_url', 'bp_core_get_avatar_data_url_filter', 10 );
+
+		// Disable BuddyPress Gravatar usage.
+		\add_filter( 'bp_core_fetch_avatar_no_grav', '__return_true', 10, 0 );
 
 		// Disable profile image uploading.
 		\add_filter( 'avatar_privacy_profile_picture_upload_disabled', '__return_true', 10, 0 );
@@ -92,8 +107,14 @@ class BuddyPress_Integration implements Plugin_Integration {
 		// Serve BuddyPress profile pictures via the filesystem cache.
 		\add_filter( 'avatar_privacy_pre_get_user_avatar', [ $this, 'enable_buddypress_user_avatars' ], 10, 2 );
 
-		// Invalidate cache when a new image is uploaded.
-		\add_action( 'xprofile_avatar_uploaded', [ $this, 'invalidate_cache_after_avatar_upload' ], 10, 3 );
+		// Add our own default avatars instead (for users).
+		\add_filter( 'bp_core_default_avatar_user', [ $this, 'add_default_avatars_to_buddypress' ], 10, 2 );
+		\add_filter( 'bp_get_user_has_avatar', [ $this, 'has_buddypress_avatar' ], 10, 2 );
+
+		// Invalidate cache when a new image is uploaded or deleted.
+		\add_action( $avatar_uploaded_hook, [ $this, 'invalidate_cache_after_avatar_upload' ], 10, 3 );
+		\add_action( 'bp_core_delete_existing_avatar', [ $this, 'invalidate_cache_after_avatar_deletion' ], 10, 1 );
+
 	}
 
 	/**
@@ -110,6 +131,10 @@ class BuddyPress_Integration implements Plugin_Integration {
 	 * }
 	 */
 	public function enable_buddypress_user_avatars( array $avatar = null, $user_id ) {
+		// Prevent loops.
+		if ( \doing_filter( 'bp_core_default_avatar_user' ) ) {
+			return $avatar;
+		}
 
 		// Retrieve BuddyPress user data.
 		$avatar = $this->get_buddypress_avatar( $user_id );
@@ -136,9 +161,57 @@ class BuddyPress_Integration implements Plugin_Integration {
 	 * @return void
 	 */
 	public function invalidate_cache_after_avatar_upload( $item_id, $type, array $args ) {
-		if ( ! empty( $args['object'] ) && 'user' === $args['object'] && ! empty( $args['item_id'] ) ) {
-			$this->user_fields->invalidate_local_avatar_cache( $args['item_id'] );
+		if ( ! empty( $args['object'] ) && 'user' === $args['object'] && ! empty( $item_id ) ) {
+			$this->user_fields->invalidate_local_avatar_cache( $item_id );
 		}
+	}
+
+	/**
+	 * Invalidates the file cache after a new BuddyPress avatar has been deleted.
+	 *
+	 * @since  2.4.0
+	 *
+	 * @param  array $args Array of arguments used for avatar deletion.
+	 *
+	 * @return void
+	 */
+	public function invalidate_cache_after_avatar_deletion( array $args ) {
+		$this->invalidate_cache_after_avatar_upload( $args['item_id'], 'delete', $args );
+	}
+
+	/**
+	 * Adds Avatar Privacy's default avatars to BuddyPress.
+	 *
+	 * @since  2.4.0
+	 *
+	 * @param  string $default Default avatar for non-gravatar requests.
+	 * @param  array  $params  Array of parameters for the avatar request.
+	 *
+	 * @return string
+	 */
+	public function add_default_avatars_to_buddypress( $default, array $params ) {
+		// Retrieve default avatar URL (Gravatar or local default avatar).
+		$args           = [
+			'rating' => $params['rating'],
+			'size'   => $params['width'],
+		];
+		$default_avatar = \get_avatar_url( $params['item_id'], $args );
+
+		return $default_avatar ?: $default;
+	}
+
+	/**
+	 * Determines whether a user has an avatar that has been uploaded in BuddyPress.
+	 *
+	 * @since  2.4.0
+	 *
+	 * @param  bool $retval  The return value calculated by BuddyPress (ignored).
+	 * @param  int  $user_id The user ID.
+	 *
+	 * @return bool
+	 */
+	public function has_buddypress_avatar( $retval, $user_id ) {
+		return ! empty( $this->get_buddypress_avatar( $user_id ) );
 	}
 
 	/**
