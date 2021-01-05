@@ -353,7 +353,7 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('default', [
 		'newer:eslint',
-		'newer:phpcs',
+		'newer:composer:dev:phpcs',
 		'newer:sass:dev',
 		'newer:postcss:dev'
 	]);
