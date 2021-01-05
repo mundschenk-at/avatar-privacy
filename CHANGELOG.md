@@ -4,13 +4,15 @@
 *   _Feature_: Legacy (default) avatars are now properly cached and resized.
 *   _Feature_: There are now API methods to get and set a user's (local) avatar
                (and their Gravatar and anonymous commenting policies).
-*   _Change_: Requires at least PHP 7.0.
+*   _Feature_: New WP-CLI commands relating to local avatars added.
+*   _Change_: Requires at least WordPress 5.2 and PHP 7.0.
 *   _Change_: The `yzalis/identicon` package has been updated to version 2.0.
 *   _Change_: Some unused files have been removed from the `vendor-scoped` directory.
 *   _Change_: A new per-site database table for fast hash lookup has been introduced
               (base name `avatar_privacy_hashes`).
 *   _Change_: An ETag header is added to proxied images for better browser caching
               in the Profile screen.
+*   _Change_: General code clean-up and removal of PHP 5.6 workarounds.
 *   _Bugfix_: Gravatars will be properly regenerated for comment authors that have
               not set a policy (when the site-admin has switched the default to
               "opt-out").
