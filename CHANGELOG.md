@@ -10,8 +10,6 @@
 *   _Change_: Some unused files have been removed from the `vendor-scoped` directory.
 *   _Change_: A new per-site database table for fast hash lookup has been introduced
               (base name `avatar_privacy_hashes`).
-*   _Change_: An ETag header is added to proxied images for better browser caching
-              in the Profile screen.
 *   _Change_: General code clean-up and removal of PHP 5.6 workarounds.
 *   _Bugfix_: Gravatars will be properly regenerated for comment authors that have
               not set a policy (when the site-admin has switched the default to

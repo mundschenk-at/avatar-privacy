@@ -222,7 +222,6 @@ class Image_Proxy implements Component {
 			\header( "Content-Length: {$length}" );
 			\header( 'Last-Modified: ' . \gmdate( 'D, d M Y H:i:s \G\M\T', $last_modified ) );
 			\header( 'Expires: ' . \gmdate( 'D, d M Y H:i:s \G\M\T', \time() + $cache_time ) );
-			\header( 'ETag: ' . \md5( $image ) );
 
 			// Here comes the content.
 			echo $image; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
