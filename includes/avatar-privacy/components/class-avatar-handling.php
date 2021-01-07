@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -198,7 +198,7 @@ class Avatar_Handling implements Component {
 		if ( empty( $args['force_default'] ) ) {
 			if ( ! empty( $user_id ) ) {
 				// Uploaded avatars take precedence.
-				$url = $this->get_local_avatar_url( $user_id, $hash, $args['size'] );
+				$url = $this->get_local_avatar_url( $user_id, $hash, $args['size'], ! empty( $args['upload_timestamp'] ) );
 			}
 
 			if ( empty( $url ) ) {
@@ -429,15 +429,18 @@ class Avatar_Handling implements Component {
 	/**
 	 * Retrieves a URL pointing to the local avatar image of the appropriate size.
 	 *
-	 * @since 2.1.0 Visibility changed to protected.
+	 * @since  2.1.0  Visibility changed to protected.
+	 * @since  2.4.0  Parameter $timestamp added.
 	 *
-	 * @param  int    $user_id The user ID.
-	 * @param  string $hash    The hashed mail address.
-	 * @param  int    $size    The requested avatar size in pixels.
+	 * @param  int    $user_id   The user ID.
+	 * @param  string $hash      The hashed mail address.
+	 * @param  int    $size      The requested avatar size in pixels.
+	 * @param  bool   $timestamp Optional. Whether a timestampe (`ts`) parameter
+	 *                           should be added to the URL (for cache busting).
 	 *
 	 * @return string          The URL, or '' if no local avatar has been set.
 	 */
-	protected function get_local_avatar_url( $user_id, $hash, $size ) {
+	protected function get_local_avatar_url( $user_id, $hash, $size, $timestamp = false ) {
 		// Bail if we haven't got a valid user ID.
 		if ( empty( $user_id ) ) {
 			return '';
@@ -449,13 +452,16 @@ class Avatar_Handling implements Component {
 		if ( ! empty( $local_avatar['file'] ) && ! empty( $local_avatar['type'] ) ) {
 			// Prepare filter arguments.
 			$args = [
-				'user_id'  => $user_id,
-				'avatar'   => $local_avatar['file'],
-				'mimetype' => $local_avatar['type'],
+				'user_id'   => $user_id,
+				'avatar'    => $local_avatar['file'],
+				'mimetype'  => $local_avatar['type'],
+				'timestamp' => $timestamp,
 			];
 
 			/**
 			 * Filters the uploaded avatar URL for the given user.
+			 *
+			 * @since  2.4.0  Optional 'timestamp' argument added.
 			 *
 			 * @param  string $url   The URL. Default empty.
 			 * @param  string $hash  The hashed mail address.
@@ -463,9 +469,12 @@ class Avatar_Handling implements Component {
 			 * @param  array  $args {
 			 *     An array of arguments.
 			 *
-			 *     @type int    $user_id  A WordPress user ID.
-			 *     @type string $avatar   The full-size avatar image path.
-			 *     @type string $mimetype The expected MIME type of the avatar image.
+			 *     @type int    $user_id   A WordPress user ID.
+			 *     @type string $avatar    The full-size avatar image path.
+			 *     @type string $mimetype  The expected MIME type of the avatar image.
+			 *     @type bool   $timestamp Whether a timestamp (`ts`) parameter
+			 *                             should be added to the URL (for cache
+			 *                             busting).
 			 * }
 			 */
 			$url = \apply_filters( 'avatar_privacy_user_avatar_icon_url', '', $hash, $size, $args );

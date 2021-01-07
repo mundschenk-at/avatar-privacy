@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -278,7 +278,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		if ( ! $force_default ) {
 			if ( ! empty( $user_id ) ) {
-				$this->sut->shouldReceive( 'get_local_avatar_url' )->once()->with( $user_id, $hash, $size )->andReturn( $local_url );
+				$this->sut->shouldReceive( 'get_local_avatar_url' )->once()->with( $user_id, $hash, $size, m::type( 'bool' ) )->andReturn( $local_url );
 			} else {
 				$this->sut->shouldReceive( 'get_local_avatar_url' )->never();
 			}

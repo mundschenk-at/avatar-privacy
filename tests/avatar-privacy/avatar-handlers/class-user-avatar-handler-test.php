@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -146,10 +146,11 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$size        = 42;
 		$subdir      = 'a/b';
 		$args        = [
-			'type'     => 'ignored',
-			'avatar'   => '/image/path',
-			'mimetype' => 'image/jpeg',
-			'force'    => $force,
+			'type'      => 'ignored',
+			'avatar'    => '/image/path',
+			'mimetype'  => 'image/jpeg',
+			'force'     => $force,
+			'timestamp' => true,
 		];
 
 		// Expected result.
@@ -158,8 +159,9 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->file_cache->shouldReceive( 'get_base_dir' )->once()->andReturn( $basedir );
 
-		Functions\expect( 'wp_parse_args' )->once()->with( $args, m::type( 'array' ) )->andReturn( $args );
-
+		Functions\expect( 'wp_parse_args' )->once()->with( $args, m::type( 'array' ) )->andReturnUsing( function( $args, $defaults ) {
+			return \array_merge( $defaults, $args );
+		} );
 		$this->sut->shouldReceive( 'get_sub_dir' )->once()->with( $hash )->andReturn( $subdir );
 
 		$this->images->shouldReceive( 'get_image_editor' )->once()->with( $args['avatar'] )->andReturn( m::mock( \WP_Image_Editor::class ) );
@@ -168,9 +170,12 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->file_cache->shouldReceive( 'set' )->once()->with( m::type( 'string' ), $image, $force )->andReturn( true );
 		$this->file_cache->shouldReceive( 'get_url' )->once()->with( m::type( 'string' ) )->andReturn( $url );
 
+		Functions\expect( 'rawurlencode_deep' )->once()->with( m::type( 'array' ) )->andReturnFirstArg();
+		// Normally, the `ts` parameter should contain the modification time, but since the file does not really exist ...
+		Functions\expect( 'add_query_arg' )->once()->with( m::type( 'array' ), $url )->andReturn( $url );
+
 		$this->assertSame( $url, $this->sut->get_url( $default_url, $hash, $size, $args ) );
 	}
-
 
 	/**
 	 * Tests ::get_url.
@@ -205,6 +210,9 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->file_cache->shouldReceive( 'set' )->once()->with( m::type( 'string' ), $image, $force )->andReturn( false );
 		$this->file_cache->shouldReceive( 'get_url' )->never();
+
+		Functions\expect( 'rawurlencode_deep' )->never();
+		Functions\expect( 'add_query_arg' )->never();
 
 		$this->assertSame( $default_url, $this->sut->get_url( $default_url, $hash, $size, $args ) );
 	}
