@@ -16,6 +16,8 @@
               "opt-out").
 *   _Bugfix_: When a user requests deletion of their personal data, this now includes
               the uploaded avatar image files.
+*   _Bugfix_: A timestamp is added to uploaded avatar images for better browser
+              caching in the Profile screen.
 
 ## 2.3.4 (2020-03-22)
 *   _Bugfix_: Allow plain URLs as default avatars. Use the filter hook

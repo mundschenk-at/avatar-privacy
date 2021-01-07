@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -111,16 +111,18 @@ class User_Avatar_Handler implements Avatar_Handler {
 
 		// Default arguments.
 		$defaults = [
-			'avatar'   => '',
-			'mimetype' => Image_File::PNG_IMAGE,
-			'force'    => false,
+			'avatar'    => '',
+			'mimetype'  => Image_File::PNG_IMAGE,
+			'force'     => false,
+			'timestamp' => false,
 		];
 
 		$args      = \wp_parse_args( $args, $defaults );
 		$extension = Image_File::FILE_EXTENSION[ $args['mimetype'] ];
 		$filename  = "user/{$this->get_sub_dir( $hash )}/{$hash}-{$size}.{$extension}";
+		$abspath   = "{$this->base_dir}{$filename}";
 
-		if ( $args['force'] || ! \file_exists( "{$this->base_dir}{$filename}" ) ) {
+		if ( $args['force'] || ! \file_exists( $abspath ) ) {
 			$data = $this->images->get_resized_image_data(
 				$this->images->get_image_editor( $args['avatar'] ), $size, $size, $args['mimetype']
 			);
@@ -132,7 +134,15 @@ class User_Avatar_Handler implements Avatar_Handler {
 			}
 		}
 
-		return $this->file_cache->get_url( $filename );
+		// Optinally add file modification time as `ts` query argument to bust caches.
+		$query_args = [
+			'ts' => $args['timestamp'] ? @\filemtime( $abspath ) : false,
+		];
+
+		return \add_query_arg(
+			\rawurlencode_deep( \array_filter( $query_args ) ),
+			$this->file_cache->get_url( $filename )
+		);
 	}
 
 	/**
