@@ -313,7 +313,12 @@ module.exports = function(grunt) {
 			dist: {
 				expand: true,
 				//dest: 'build/',
-				files: grunt.file.expandMapping(['admin/js/**/*.js', '!admin/js/**/*min.js', 'public/js/**/*.js', '!public/js/**/*min.js'], 'build/', {
+				files: grunt.file.expandMapping([
+						'admin/js/**/*.js',
+						'public/js/**/*.js',
+						'!**/src/*.js',
+						'!**/*min.js',
+					], 'build/', {
 					rename: function(destBase, destPath) {
 						return destBase + destPath.replace('.js', '.min.js');
 					}
