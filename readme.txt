@@ -39,11 +39,14 @@ Avatar Privacy includes the following [WP-CLI](https://wp-cli.org) commands:
 * `wp avatar-privacy db list`: List entries in the custom database table(s).
 * `wp avatar-privacy db create`: Create the custom database table.
 * `wp avatar-privacy db upgrade`: Upgrade the structure of the custom database table.
-* `wp avatar-privacy uninstall`: Remove data added by Avatar Privacy.
+* `wp avatar-privacy default get-custom-default-avatar`: Show information about the custom default avatar for the site.
+* `wp avatar-privacy default set-custom-default-avatar`: Set a custom default avatar for the site.
+* `wp avatar-privacy default delete-custom-default-avatar`: Delete the custom default avatar for the site.
 * `wp avatar-privacy cron list`: List active cron jobs created by the plugin.
 * `wp avatar-privacy cron delete`: Delete cron jobs created by the plugin.
-* `wp avatar-privacy user set-local-avatar`: Sets a local avatar image for a user.
-* `wp avatar-privacy user delete-local-avatar`: Deletes the local avatar image for a user.
+* `wp avatar-privacy user set-local-avatar`: Set a local avatar image for a user.
+* `wp avatar-privacy user delete-local-avatar`: Delete the local avatar image for a user.
+* `wp avatar-privacy uninstall`: Remove data added by Avatar Privacy.
 
 
 = Feedback =
