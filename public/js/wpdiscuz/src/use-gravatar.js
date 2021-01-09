@@ -29,22 +29,22 @@
  *
  * @author Peter Putzer <github@mundschenk.at>
  */
-jQuery(function ($) {
-  'use strict';
+jQuery( function ( $ ) {
+	'use strict';
 
-  var $useGravatarCheckbox = $('#' + avatarPrivacy.checkbox);
+	const $useGravatarCheckbox = $( '#' + avatarPrivacy.checkbox );
 
-  function resetUseGravatar() {
-    var useGravatar =
-    Cookies.get(avatarPrivacy.cookie) !== undefined &&
-    '' !== Cookies.get(avatarPrivacy.cookie) ?
-    'checked' :
-    '';
+	function resetUseGravatar() {
+		const useGravatar =
+			Cookies.get( avatarPrivacy.cookie ) !== undefined &&
+			'' !== Cookies.get( avatarPrivacy.cookie )
+				? 'checked'
+				: '';
 
-    $useGravatarCheckbox.prop('checked', useGravatar);
-  }
+		$useGravatarCheckbox.prop( 'checked', useGravatar );
+	}
 
-  $(document).bind('ajaxComplete', function () {
-    resetUseGravatar();
-  });
-});
+	$( document ).bind( 'ajaxComplete', function () {
+		resetUseGravatar();
+	} );
+} );
