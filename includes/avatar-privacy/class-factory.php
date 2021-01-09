@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -366,6 +366,7 @@ class Factory extends Dice {
 		return [
 			[ self::INSTANCE => Integrations\BBPress_Integration::class ],
 			[ self::INSTANCE => Integrations\BuddyPress_Integration::class ],
+			[ self::INSTANCE => Integrations\Simple_Author_Box_Integration::class ],
 			[ self::INSTANCE => Integrations\Theme_My_Login_Profiles_Integration::class ],
 			[ self::INSTANCE => Integrations\Ultimate_Member_Integration::class ],
 			[ self::INSTANCE => Integrations\WPDiscuz_Integration::class ],
