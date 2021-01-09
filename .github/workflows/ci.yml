@@ -1,6 +1,11 @@
 name: CI
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   unit-tests:
@@ -15,6 +20,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          # Disabling shallow clone is recommended for improving relevancy of reporting
+          fetch-depth: 0
       - name: Setup PHP, with Composer and extensions
         uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
         with:
@@ -42,17 +50,17 @@ jobs:
         if: ${{ matrix.php-versions == env.COVERAGE_PHP }}
         run: |
           mkdir -p build/logs
-          composer test -- --coverage-clover build/logs/clover.xml
-
-      # For code coverage report we are uploading our code coverage report to scrutinizer
-      - name: Downloading scrutinizer ocular.phar
+          composer test -- --coverage-clover build/logs/phpunit.coverage.xml --log-junit=build/logs/phpunit.test-report.xml
+      - name: Fix code coverage paths for SonarCloud
         if: ${{ matrix.php-versions == env.COVERAGE_PHP }}
-        run: wget https://scrutinizer-ci.com/ocular.phar
-      - name: Upload coverage data to Scrutinizer-CI
+        working-directory: ./build/logs/
+        run: sed -i 's/\/home\/runner\/work\/avatar-privacy\/avatar-privacy\//\/github\/workspace\//g' phpunit.coverage.xml
+      - name: SonarCloud Scan
         if: ${{ matrix.php-versions == env.COVERAGE_PHP }}
-        run: |
-          php ocular.phar code-coverage:upload --format=php-clover build/logs/clover.xml
-
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   phpcs:
     name: PHPCS (PHP ${{ matrix.php-versions }})
