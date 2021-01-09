@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020 Peter Putzer.
+ * Copyright 2020-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -104,4 +104,33 @@ namespace wpdFormAttr {
 
 namespace wpdFormAttr\Field {
 	class CookiesConsent {}
+}
+
+// Simple Author Box.
+namespace {
+	class Simple_Author_Box {
+		/**
+		 * Stub for Simple Author Box.
+		 *
+		 * @return Simple_Author_Box
+		 */
+		public static function get_instance() {}
+
+		/**
+		 * Stub for Simple Author Box.
+		 *
+		 * @param string $avatar      HTML for the user's avatar.
+		 * @param mixed  $id_or_email The avatar to retrieve. Accepts a user_id, Gravatar MD5 hash,
+		 *                            user email, WP_User object, WP_Post object, or WP_Comment object.
+		 * @param int    $size        Square avatar width and height in pixels to retrieve.
+		 * @param string $default     URL for the default image or a default type. Accepts '404', 'retro', 'monsterid',
+		 *                            'wavatar', 'indenticon', 'mystery', 'mm', 'mysteryman', 'blank', or 'gravatar_default'.
+		 *                            Default is the value of the 'avatar_default' option, with a fallback of 'mystery'.
+		 * @param string $alt         Alternative text to use in the avatar image tag. Default empty.
+		 * @param array  $args        Arguments passed to get_avatar_data(), after processing.
+		 *
+		 * @return string|false
+		 */
+		public function replace_gravatar_image( $avatar, $id_or_email, $size, $default, $alt, $args = [] ) {}
+	}
 }

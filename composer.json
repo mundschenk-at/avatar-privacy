@@ -52,7 +52,8 @@
         "files": ["includes/avatar-privacy-functions.php", "includes/avatar-privacy/functions.php"]
     },
     "autoload-dev": {
-        "classmap": ["tests/"]
+        "classmap": ["tests/"],
+        "exclude-from-classmap": ["tests/phpstan/"]
     },
 
     "config": {
