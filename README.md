@@ -2,8 +2,11 @@
 
 [![Build Status](https://travis-ci.org/mundschenk-at/avatar-privacy.svg?branch=master)](https://travis-ci.org/mundschenk-at/avatar-privacy)
 [![Latest Stable Version](https://poser.pugx.org/mundschenk-at/avatar-privacy/v/stable)](https://packagist.org/packages/mundschenk-at/avatar-privacy)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/mundschenk-at/avatar-privacy/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/mundschenk-at/avatar-privacy/?branch=master)
-[![Code Coverage](https://scrutinizer-ci.com/g/mundschenk-at/avatar-privacy/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/mundschenk-at/avatar-privacy/?branch=master)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=mundschenk-at_avatar-privacy&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=mundschenk-at_avatar-privacy)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=mundschenk-at_avatar-privacy&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=mundschenk-at_avatar-privacy)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=mundschenk-at_avatar-privacy&metric=security_rating)](https://sonarcloud.io/dashboard?id=mundschenk-at_avatar-privacy)
+[![Code Coverage](https://sonarcloud.io/api/project_badges/measure?project=mundschenk-at_avatar-privacy&metric=coverage)](https://sonarcloud.io/dashboard?id=mundschenk-at_avatar-privacy)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=mundschenk-at_avatar-privacy&metric=ncloc)](https://sonarcloud.io/dashboard?id=mundschenk-at_avatar-privacy)
 [![License](https://poser.pugx.org/mundschenk-at/avatar-privacy/license)](https://packagist.org/packages/mundschenk-at/avatar-privacy)
 
 Avatars from Gravatar.com are great, but they come with certain privacy implications. You as site admin may already know this, but your visitors and users probably don't. Avatar Privacy can help to improve the privacy situation by making some subtle changes to the way avatars are displayed on your site.
