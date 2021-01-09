@@ -10,11 +10,18 @@
     "wp": true,
     "wpApiSettings": true,
     "window": true,
-    "document": true
+    "document": true,
+    "jQuery": true,
+    "avatarPrivacy": true,
+    "Cookies": true
   },
   "settings": {
     "react": {
       "pragma": "wp"
     }
-  }
+  },
+  "ignorePatterns": [
+    "**/*.js",
+    "!**/src/**/*.js"
+  ]
 }
