@@ -131,6 +131,7 @@ These plugins have been tested successfully in conjunction with Avatar Privacy:
 * [BuddyPress](https://wordpress.org/plugins/buddypress/)
 * [Comments – wpDiscuz](https://wordpress.org/plugins/wpdiscuz/)
 * [EWWW Image Optimizer](https://wordpress.org/plugins/ewww-image-optimizer/)
+* [Simple Author Box](https://wordpress.org/plugins/simple-author-box/)
 * [Theme My Login](https://wordpress.org/plugins/theme-my-login/)
 * [Ultimate Member](https://wordpress.org/plugins/ultimate-member/)
 * [Webmention](https://wordpress.org/plugins/webmention/)
