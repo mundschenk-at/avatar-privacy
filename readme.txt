@@ -168,6 +168,20 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 == Changelog ==
 
+= 2.4.0 (2021-01-10) =
+* _Feature_: Legacy (default) avatars are now properly cached and resized.
+* _Feature_: There are now API methods to get and set a user's (local) avatar (and their Gravatar and anonymous commenting policies).
+* _Feature_: New WP-CLI commands relating to local avatars added.
+* _Feature_: Integration for the [Simple Author Box](https://wordpress.org/plugins/simple-author-box/) plugin has been added.
+* _Change_: Requires at least WordPress 5.2 and PHP 7.0.
+* _Change_: The `yzalis/identicon` package has been updated to version 2.0.
+* _Change_: Some unused files have been removed from the `vendor-scoped` directory.
+* _Change_: A new per-site database table for fast hash lookup has been introduced (base name `avatar_privacy_hashes`).
+* _Change_: General code clean-up and removal of PHP 5.6 workarounds.
+* _Bugfix_: Gravatars will be properly regenerated for comment authors that have not set a policy (when the site-admin has switched the default to "opt-out").
+* _Bugfix_: When a user requests deletion of their personal data, this now includes the uploaded avatar image files.
+* _Bugfix_: A timestamp is added to uploaded avatar images for better browser caching in the Profile screen.
+
 = 2.3.4 (2020-03-22) =
 * _Bugfix_: Allow plain URLs as default avatars. Use the filter hook `avatar_privacy_allow_remote_default_icon_url` to allow third-party domains and `avatar_privacy_validate_default_icon_url` if you want to implement your own image URL validation.
 * _Bugfix_: Properly handle trackback/linkback avatars. This includes a workaround for avatars provided by the [Webmention](https://wordpress.org/plugins/webmention/) plugin. You can use `avatar_privacy_allow_remote_avatar_url` to prohibit third-party domains (the default is to allow them for webmentions) and `avatar_privacy_validate_avatar_url` if you want to implement your own image URL validation.
