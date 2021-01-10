@@ -1,6 +1,5 @@
 # Avatar Privacy
 
-[![Build Status](https://travis-ci.org/mundschenk-at/avatar-privacy.svg?branch=master)](https://travis-ci.org/mundschenk-at/avatar-privacy)
 [![Latest Stable Version](https://poser.pugx.org/mundschenk-at/avatar-privacy/v/stable)](https://packagist.org/packages/mundschenk-at/avatar-privacy)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=mundschenk-at_avatar-privacy&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=mundschenk-at_avatar-privacy)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=mundschenk-at_avatar-privacy&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=mundschenk-at_avatar-privacy)
