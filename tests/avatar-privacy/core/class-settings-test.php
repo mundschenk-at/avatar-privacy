@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -75,7 +75,9 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->options = m::mock( Options::class );
 
-		$this->sut = m::mock( Settings::class, [ self::VERSION, $this->options ] )->makePartial();
+		$this->sut = m::mock( Settings::class, [ self::VERSION, $this->options ] )
+			->makePartial()
+			->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -116,20 +118,10 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 			'foo'                      => 'bar',
 			Options::INSTALLED_VERSION => self::VERSION,
 		];
-		$defaults = [
-			'foo' => 'bar',
-		];
 
 		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
 
-		$this->options->shouldReceive( 'get' )
-			->once()
-			->with( Settings::OPTION_NAME, m::type( 'array' ) )
-			->andReturn( $settings );
-
-		$this->sut->shouldReceive( 'get_defaults' )
-			->once()
-			->andReturn( $defaults );
+		$this->sut->shouldReceive( 'load_settings' )->once()->andReturn( $settings );
 
 		$this->assertSame( $settings, $this->sut->get_all_settings() );
 	}
@@ -151,10 +143,7 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
 
-		$this->options->shouldReceive( 'get' )
-			->never();
-		$this->sut->shouldReceive( 'get_defaults' )
-			->never();
+		$this->sut->shouldReceive( 'load_settings' )->never();
 
 		$this->assertSame( $original, $this->sut->get_all_settings() );
 	}
@@ -174,23 +163,13 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 			'foo'                      => 'barfoo',
 			Options::INSTALLED_VERSION => self::VERSION,
 		];
-		$defaults = [
-			'foo' => 'bar',
-		];
 
 		// Prepare state - settings have alreaddy been loaded.
 		$this->set_value( $this->sut, 'settings', [ $site_id => $original ] );
 
 		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
 
-		$this->options->shouldReceive( 'get' )
-			->once()
-			->with( Settings::OPTION_NAME, m::type( 'array' ) )
-			->andReturn( $settings );
-
-		$this->sut->shouldReceive( 'get_defaults' )
-			->once()
-			->andReturn( $defaults );
+		$this->sut->shouldReceive( 'load_settings' )->once()->andReturn( $settings );
 
 		$this->assertSame( $settings, $this->sut->get_all_settings( true ) );
 	}
@@ -209,23 +188,13 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 			'foo'                      => 'barfoo',
 			Options::INSTALLED_VERSION => self::VERSION,
 		];
-		$defaults = [
-			'foo' => 'bar',
-		];
 
 		// Prepare state - settings have alreaddy been loaded.
 		$this->set_value( $this->sut, 'settings', [ $site_id => $original ] );
 
 		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
 
-		$this->options->shouldReceive( 'get' )
-			->once()
-			->with( Settings::OPTION_NAME, m::type( 'array' ) )
-			->andReturn( $settings );
-
-		$this->sut->shouldReceive( 'get_defaults' )
-			->once()
-			->andReturn( $defaults );
+		$this->sut->shouldReceive( 'load_settings' )->once()->andReturn( $settings );
 
 		$this->assertSame( $settings, $this->sut->get_all_settings() );
 	}
@@ -245,25 +214,111 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 			'foo'                      => 'barfoo',
 			Options::INSTALLED_VERSION => self::VERSION,
 		];
-		$defaults = [
-			'foo' => 'bar',
-		];
 
 		// Prepare state - settings have alreaddy been loaded.
 		$this->set_value( $this->sut, 'settings', [ $site_id => $original ] );
 
 		Functions\expect( 'get_current_blog_id' )->once()->andReturn( $site_id );
 
+		$this->sut->shouldReceive( 'load_settings' )->once()->andReturn( $settings );
+
+		$this->assertSame( $settings, $this->sut->get_all_settings() );
+	}
+
+	/**
+	 * Tests ::load_settings.
+	 *
+	 * @covers ::load_settings
+	 */
+	public function test_load_settings() {
+		$setting1 = 'foo';
+		$setting2 = 'baz';
+		$settings = [
+			$setting1                  => 'barfoo',
+			Options::INSTALLED_VERSION => '1.2.3',
+		];
+		$defaults = [
+			$setting1 => 'bar',
+			$setting2 => 'foobar',
+		];
+
 		$this->options->shouldReceive( 'get' )
 			->once()
-			->with( Settings::OPTION_NAME, m::type( 'array' ) )
+			->with( Settings::OPTION_NAME )
 			->andReturn( $settings );
 
 		$this->sut->shouldReceive( 'get_defaults' )
 			->once()
 			->andReturn( $defaults );
 
-		$this->assertSame( $settings, $this->sut->get_all_settings() );
+		$this->options->shouldReceive( 'set' )
+			->once()
+			->with( Settings::OPTION_NAME, m::type( 'array' ) );
+
+		$result = $this->sut->load_settings();
+
+		$this->assert_is_array( $result );
+		$this->assertArrayHasKey( $setting1, $result );
+		$this->assertSame( 'barfoo', $result[ $setting1 ] );
+		$this->assertArrayHasKey( $setting2, $result );
+		$this->assertSame( 'foobar', $result[ $setting2 ] );
+		$this->assertArrayHasKey( Options::INSTALLED_VERSION, $result );
+	}
+
+	/**
+	 * Tests ::load_settings.
+	 *
+	 * @covers ::load_settings
+	 */
+	public function test_load_settings_invalid_result() {
+		$defaults = [
+			'foo' => 'bar',
+			'baz' => 'foobar',
+		];
+
+		$this->options->shouldReceive( 'get' )
+			->once()
+			->with( Settings::OPTION_NAME )
+			->andReturn( false );
+
+		$this->sut->shouldReceive( 'get_defaults' )
+			->once()
+			->andReturn( $defaults );
+
+		$this->options->shouldReceive( 'set' )
+			->once()
+			->with( Settings::OPTION_NAME, m::type( 'array' ) );
+
+		$this->assertSame( $defaults, $this->sut->load_settings() );
+	}
+
+	/**
+	 * Tests ::load_settings.
+	 *
+	 * @covers ::load_settings
+	 */
+	public function test_load_settings_everything_in_order() {
+		$settings = [
+			'foo' => 'barfoo',
+			'baz' => 'foo',
+		];
+		$defaults = [
+			'foo' => 'bar',
+			'baz' => 'foobar',
+		];
+
+		$this->options->shouldReceive( 'get' )
+			->once()
+			->with( Settings::OPTION_NAME )
+			->andReturn( $settings );
+
+		$this->sut->shouldReceive( 'get_defaults' )
+			->once()
+			->andReturn( $defaults );
+
+		$this->options->shouldReceive( 'set' )->never();
+
+		$this->assertSame( $settings, $this->sut->load_settings() );
 	}
 
 	/**
