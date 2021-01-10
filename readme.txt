@@ -6,7 +6,7 @@ Author URI: https://code.mundschenk.at/
 Tags: gravatar, avatar, privacy, caching, bbpress, buddypress
 Requires at least: 5.2
 Requires PHP: 7.0
-Tested up to: 5.4
+Tested up to: 5.6
 Stable tag: 2.4.0
 License: GPLv2 or later
 
