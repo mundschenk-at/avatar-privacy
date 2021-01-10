@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020 Peter Putzer.
+ * Copyright 2020-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -98,10 +98,12 @@ class Hashes_Table extends Table {
 	 * @return string
 	 */
 	protected function get_table_definition( $table_name ) {
+		// TODO: The identifier length should be increased to at least 200 (or
+		// better 256 as in 2.4.0) in one of the next versions.
 		return "CREATE TABLE {$table_name} (
-				identifier varchar(256) NOT NULL,
-				hash char(64) NOT NULL,
-				type varchar(20) NOT NULL,
+				identifier varchar(175) NOT NULL,
+				hash char(64) CHARACTER SET ascii NOT NULL,
+				type varchar(20) CHARACTER SET ascii NOT NULL,
 				last_updated datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
 				PRIMARY KEY (hash, type),
 				UNIQUE KEY identifier (identifier, type)
