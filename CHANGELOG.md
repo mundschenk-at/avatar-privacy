@@ -1,12 +1,11 @@
 # Changelog
 
-## 2.4.0 (unreleased)
+## 2.4.0 (2021-01-10)
 *   _Feature_: Legacy (default) avatars are now properly cached and resized.
 *   _Feature_: There are now API methods to get and set a user's (local) avatar
                (and their Gravatar and anonymous commenting policies).
 *   _Feature_: New WP-CLI commands relating to local avatars added.
-*   _Feature_: Integration for the following plugins had been added:
-    -   [Simple Author Box](https://wordpress.org/plugins/simple-author-box/)
+*   _Feature_: Integration for the [Simple Author Box](https://wordpress.org/plugins/simple-author-box/) plugin has been added.
 *   _Change_: Requires at least WordPress 5.2 and PHP 7.0.
 *   _Change_: The `yzalis/identicon` package has been updated to version 2.0.
 *   _Change_: Some unused files have been removed from the `vendor-scoped` directory.
