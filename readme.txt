@@ -7,7 +7,7 @@ Tags: gravatar, avatar, privacy, caching, bbpress, buddypress
 Requires at least: 5.2
 Requires PHP: 7.0
 Tested up to: 5.6
-Stable tag: 2.4.0
+Stable tag: 2.4.1
 License: GPLv2 or later
 
 Enhances the privacy of your users and visitors with gravatar opt-in and local avatars.
@@ -167,6 +167,10 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 
 == Changelog ==
+
+= 2.4.1 (2021-01-10) =
+*   _Bugfix_: Don't break the site when the options value in the DB has become corrupted.
+*   _Bugfix_: Workaround for maximum database key length when using MySQL < 5.7.7 or MariaDB < 10.2.2.
 
 = 2.4.0 (2021-01-10) =
 * _Feature_: Legacy (default) avatars are now properly cached and resized.
