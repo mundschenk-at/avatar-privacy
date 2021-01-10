@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.4.1 (unreleased)
+*   _Bugfix_: Don't break the site when the options value in the DB has become corrupted.
+
 ## 2.4.0 (2021-01-10)
 *   _Feature_: Legacy (default) avatars are now properly cached and resized.
 *   _Feature_: There are now API methods to get and set a user's (local) avatar
