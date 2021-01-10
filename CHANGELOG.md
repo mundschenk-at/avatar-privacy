@@ -2,6 +2,8 @@
 
 ## 2.4.1 (unreleased)
 *   _Bugfix_: Don't break the site when the options value in the DB has become corrupted.
+*   _Bugfix_: Workaround for maximum database key length when using MySQL < 5.7.7 or
+              MariaDB < 10.2.2.
 
 ## 2.4.0 (2021-01-10)
 *   _Feature_: Legacy (default) avatars are now properly cached and resized.
