@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -177,10 +177,41 @@ class Settings implements API {
 			$this->version !== $this->settings[ $site_id ][ Options::INSTALLED_VERSION ] ||
 			$force
 		) {
-			$this->settings[ $site_id ] = (array) $this->options->get( self::OPTION_NAME, $this->get_defaults() );
+			$this->settings[ $site_id ] = $this->load_settings();
 		}
 
 		return $this->settings[ $site_id ];
+	}
+
+	/**
+	 * Load settings from the database and set defaults if necessary.
+	 *
+	 * @since 2.4.1
+	 *
+	 * @return array
+	 */
+	protected function load_settings() {
+		$_settings = $this->options->get( self::OPTION_NAME );
+		$_defaults = $this->get_defaults();
+		$modified  = false;
+
+		if ( \is_array( $_settings ) ) {
+			foreach ( $_defaults as $name => $default_value ) {
+				if ( ! isset( $_settings[ $name ] ) ) {
+					$_settings[ $name ] = $default_value;
+					$modified           = true;
+				}
+			}
+		} else {
+			$_settings = $_defaults;
+			$modified  = true;
+		}
+
+		if ( $modified ) {
+			$this->options->set( self::OPTION_NAME, $_settings );
+		}
+
+		return $_settings;
 	}
 
 	/**
