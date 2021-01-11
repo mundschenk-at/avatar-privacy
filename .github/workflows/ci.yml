@@ -9,14 +9,24 @@ on:
 
 jobs:
   unit-tests:
-    name: Unit tests (PHP ${{ matrix.php-versions }})
+    name: Unit tests (PHP ${{ matrix.php-versions }} with ${{ matrix.coverage }} coverage - ${{ matrix.experimental }})
     runs-on: ubuntu-18.04
+    continue-on-error: ${{ matrix.experimental }}
     env:
       COVERAGE_PHP: '7.4'
     strategy:
       fail-fast: false
       matrix:
-        php-versions: ['7.0', '7.1', '7.2', '7.3', '7.4']
+        php-versions: ['7.0', '7.1', '7.2', '7.3']
+        experimental: [false]
+        coverage: [none]
+        include:
+          - php-versions: '8.0'
+            experimental: true
+            coverage: none
+          - php-versions: '7.4'
+            experimental: false
+            coverage: xdebug
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -27,6 +37,7 @@ jobs:
         uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
         with:
           php-version: ${{ matrix.php-versions }}
+          coverage: ${{ matrix.coverage }}
           extensions: gd
       - name: Setup problem matchers for PHPUnit
         run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
@@ -76,6 +87,7 @@ jobs:
         uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
         with:
           php-version: ${{ matrix.php-versions }}
+          coverage: none
           extensions: gd
           tools: cs2pr
       - name: Remove unused Composer dependencies
