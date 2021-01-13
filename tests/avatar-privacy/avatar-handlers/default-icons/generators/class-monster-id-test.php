@@ -123,7 +123,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Helper mocks.
 		$editor                 = m::mock( Editor::class );
-		$this->png              = m::mock( PNG::class );
+		$this->png              = m::mock( PNG::class )->makePartial();
 		$this->number_generator = m::mock( Number_Generator::class );
 		$transients             = m::mock( Site_Transients::class );
 
@@ -217,6 +217,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::colorize_image
 	 *
 	 * @uses Scriptura\Color\Helpers\HSLtoRGB
+	 * @uses Avatar_Privacy\Tools\Images\PNG::hsl_to_rgb
 	 */
 	public function test_colorize_image() {
 		// Input.
@@ -241,6 +242,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::colorize_image
 	 *
 	 * @uses Scriptura\Color\Helpers\HSLtoRGB
+	 * @uses Avatar_Privacy\Tools\Images\PNG::hsl_to_rgb
 	 */
 	public function test_colorize_image_no_optimization() {
 		// Input.

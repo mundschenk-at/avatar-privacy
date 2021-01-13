@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  * Copyright 2007-2014 Scott Sherrill-Mix.
  *
  * This program is free software; you can redistribute it and/or
@@ -31,8 +31,6 @@ use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Parts_Generator;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Tools\Number_Generator;
-
-use function Scriptura\Color\Helpers\HSLtoRGB;
 
 /**
  * A monster generator based on the WordPress implementation by Scott Sherrill-Mix
@@ -340,7 +338,7 @@ class Monster_ID extends PNG_Parts_Generator {
 				$lightness = (int) ( ( $r + $g + $b ) / 3 / 255 * self::PERCENT );
 				if ( $lightness > 10 && $lightness < 99 && $alpha < 115 ) {
 					// Convert HSL color to RGB.
-					list( $r, $g, $b ) = HSLtoRGB( $hue, $saturation, $lightness );
+					list( $r, $g, $b ) = $this->png->hsl_to_rgb( $hue, $saturation, $lightness );
 
 					// Change color of pixel.
 					$color = \imageColorAllocateAlpha( $image, $r, $g, $b, $alpha );

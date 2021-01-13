@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -175,11 +175,32 @@ class PNG {
 			throw new \InvalidArgumentException( 'Invalid image resource.' );
 		}
 
-		list( $red, $green, $blue ) = HSLtoRGB( $hue, $saturation, $lightness );
+		list( $red, $green, $blue ) = $this->hsl_to_rgb( $hue, $saturation, $lightness );
 		$color                      = \imageColorAllocate( $image, $red, $green, $blue );
 
 		if ( false === $color || ! \imageFill( $image, $x, $y, $color ) ) {
 			throw new PNG_Image_Exception( "Error filling image with HSL ({$hue}, {$saturation}, {$lightness})." ); // @codeCoverageIgnore
 		}
+	}
+
+	/**
+	 * Converts a color specified using HSL to its RGB representation.
+	 *
+	 * @since 2.5.0
+	 *
+	 * @param  int $hue        The hue (0-360°).
+	 * @param  int $saturation The staturation (0-100).
+	 * @param  int $lightness  The lightness/luminosity (0-100).
+	 *
+	 * @return array {
+	 *     The RGB color as a tuple.
+	 *
+	 *     @type int $red   The red component (0-255).
+	 *     @type int $green The green component (0-255).
+	 *     @type int $blue  The blue component (0-255).
+	 * }
+	 */
+	public function hsl_to_rgb( $hue, $saturation, $lightness ) {
+		return HSLtoRGB( $hue, $saturation, $lightness );
 	}
 }
