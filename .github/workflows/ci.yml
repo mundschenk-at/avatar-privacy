@@ -89,7 +89,6 @@ jobs:
           mkdir -p build/logs
           composer test -- --coverage-clover build/logs/phpunit.coverage.xml --log-junit=build/logs/phpunit.test-report.xml
       - name: Fix code coverage paths for SonarCloud
-        if: ${{ matrix.php-versions == env.COVERAGE_PHP }}
         working-directory: ./build/logs/
         run: sed -i 's/\/home\/runner\/work\/avatar-privacy\/avatar-privacy\//\/github\/workspace\//g' phpunit.coverage.xml
       - name: SonarCloud Scan
