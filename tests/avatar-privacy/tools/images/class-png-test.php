@@ -38,8 +38,6 @@ use Avatar_Privacy\Tools\Images\PNG;
 
 use Avatar_Privacy\Exceptions\PNG_Image_Exception;
 
-use function Scriptura\Color\Helpers\HSLtoRGB;
-
 /**
  * Avatar_Privacy\Tools\Images\PNG unit test.
  *
@@ -403,19 +401,7 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @return array
 	 */
 	public function provide_hsl_to_rgb_data() {
-		$data = [];
-
-		for ( $i = 0; $i < 100; ++ $i ) {
-			// phpcs:disable WordPress.WP.AlternativeFunctions.rand_mt_rand
-			$hue        = \mt_rand( 0, 360 );
-			$saturation = \mt_rand( 0, 100 );
-			$lightness  = \mt_rand( 0, 100 );
-			// phpcs:enable
-
-			$data[] = [ HSLtoRGB( $hue, $saturation, $lightness ), $hue, $saturation, $lightness ];
-		}
-
-		return $data;
+		return \json_decode( \file_get_contents( __DIR__ . '/hsl_to_rgb.json' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 	}
 
 	/**

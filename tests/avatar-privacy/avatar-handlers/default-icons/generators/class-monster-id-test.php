@@ -216,7 +216,6 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @covers ::colorize_image
 	 *
-	 * @uses Scriptura\Color\Helpers\HSLtoRGB
 	 * @uses Avatar_Privacy\Tools\Images\PNG::hsl_to_rgb
 	 */
 	public function test_colorize_image() {
@@ -241,7 +240,6 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @covers ::colorize_image
 	 *
-	 * @uses Scriptura\Color\Helpers\HSLtoRGB
 	 * @uses Avatar_Privacy\Tools\Images\PNG::hsl_to_rgb
 	 */
 	public function test_colorize_image_no_optimization() {
