@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -37,6 +37,8 @@ use org\bovigo\vfs\vfsStream;
 use Avatar_Privacy\Tools\Images\PNG;
 
 use Avatar_Privacy\Exceptions\PNG_Image_Exception;
+
+use function Scriptura\Color\Helpers\HSLtoRGB;
 
 /**
  * Avatar_Privacy\Tools\Images\PNG unit test.
@@ -315,6 +317,8 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::fill_hsl.
 	 *
 	 * @covers ::fill_hsl
+	 *
+	 * @uses ::hsl_to_rgb
 	 */
 	public function test_fill_hsl() {
 		// Input.
@@ -339,6 +343,8 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::fill_hsl.
 	 *
 	 * @covers ::fill_hsl
+	 *
+	 * @uses ::hsl_to_rgb
 	 */
 	public function test_fill_hsl_not_an_image() {
 		// Input.
@@ -361,6 +367,8 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::fill_hsl.
 	 *
 	 * @covers ::fill_hsl
+	 *
+	 * @uses ::hsl_to_rgb
 	 */
 	public function test_fill_hsl_error() {
 		// Input.
@@ -387,5 +395,42 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Clean up.
 		\imageDestroy( $resource );
+	}
+
+	/**
+	 * Provides data for testing ::hsl_to_rgb.
+	 *
+	 * @return array
+	 */
+	public function provide_hsl_to_rgb_data() {
+		$data = [];
+
+		for ( $i = 0; $i < 100; ++ $i ) {
+			// phpcs:disable WordPress.WP.AlternativeFunctions.rand_mt_rand
+			$hue        = \mt_rand( 0, 360 );
+			$saturation = \mt_rand( 0, 100 );
+			$lightness  = \mt_rand( 0, 100 );
+			// phpcs:enable
+
+			$data[] = [ HSLtoRGB( $hue, $saturation, $lightness ), $hue, $saturation, $lightness ];
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Tests ::hsl_to_rgb.
+	 *
+	 * @covers ::hsl_to_rgb
+	 *
+	 * @dataProvider provide_hsl_to_rgb_data
+	 *
+	 * @param  array $result     The expected RGB array.
+	 * @param  int   $hue        The hue (0-360°).
+	 * @param  int   $saturation The saturatoin (0-100).
+	 * @param  int   $lightness  The lightness (0-100).
+	 */
+	public function test_hsl_to_rgb( $result, $hue, $saturation, $lightness ) {
+		$this->assertSame( $result, $this->sut->hsl_to_rgb( $hue, $saturation, $lightness ) );
 	}
 }
