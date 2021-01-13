@@ -28,8 +28,6 @@ namespace Avatar_Privacy\Tools\Images;
 
 use Avatar_Privacy\Exceptions\PNG_Image_Exception;
 
-use function Scriptura\Color\Helpers\HSLtoRGB;
-
 /**
  * A utility class providing some methods for dealing with PNG images.
  *
@@ -188,9 +186,9 @@ class PNG {
 	 *
 	 * @since 2.5.0
 	 *
-	 * @param  int $hue        The hue (0-360°).
-	 * @param  int $saturation The staturation (0-100).
-	 * @param  int $lightness  The lightness/luminosity (0-100).
+	 * @param  int $hue        The hue (in degrees, i.e. 0-360).
+	 * @param  int $saturation The saturation (in percent, i.e. 0-100).
+	 * @param  int $lightness  The lightness (in percent, i.e. 0-100).
 	 *
 	 * @return array {
 	 *     The RGB color as a tuple.
@@ -201,6 +199,23 @@ class PNG {
 	 * }
 	 */
 	public function hsl_to_rgb( $hue, $saturation, $lightness ) {
-		return HSLtoRGB( $hue, $saturation, $lightness );
+		// Adjust scale.
+		$saturation = $saturation / 100;
+		$lightness  = $lightness / 100;
+
+		// Conversion function.
+		$f = function( $n ) use ( $hue, $saturation, $lightness ) {
+			$k = \fmod( $n + $hue / 30, 12 );
+			$a = $saturation * \min( $lightness, 1 - $lightness );
+			return $lightness - $a * \max( -1, \min( $k - 3, 9 - $k, 1 ) );
+		};
+
+		// Calculate components.
+		$red   = (int) \round( $f( 0 ) * 255 );
+		$green = (int) \round( $f( 8 ) * 255 );
+		$blue  = (int) \round( $f( 4 ) * 255 );
+
+		// Return result array.
+		return [ $red, $green, $blue ];
 	}
 }
