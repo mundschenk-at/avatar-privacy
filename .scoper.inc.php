@@ -115,12 +115,6 @@ return [
             ->ignoreVCS(true)
             ->notName( '/' . AVATAR_PRIVACY_EXCLUDED_FILES . '/' )
             ->exclude( AVATAR_PRIVACY_EXCLUDED_DIRS )
-            ->in('vendor/scripturadesign'),
-        Finder::create()
-            ->files()
-            ->ignoreVCS(true)
-            ->notName( '/' . AVATAR_PRIVACY_EXCLUDED_FILES . '/' )
-            ->exclude( AVATAR_PRIVACY_EXCLUDED_DIRS )
             ->in('vendor/yzalis'),
         Finder::create()->append([
             'composer.json',

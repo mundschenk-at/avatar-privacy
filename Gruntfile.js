@@ -24,12 +24,9 @@ module.exports = function(grunt) {
 			],
 			vendor: [
 				"build/vendor-scoped/bin",
-				"build/vendor-scoped/{jdenticon,mistic100,scripturadesign,splitbrain}/*/*",
+				"build/vendor-scoped/{jdenticon,mistic100,splitbrain}/*/*",
 				"!build/vendor-scoped/**/src",
 				"!build/vendor-scoped/**/partials",
-				// Prune Scriptura Color classes - we only need the helper functions.
-				"build/vendor-scoped/scripturadesign/color/src/**/*",
-				"!build/vendor-scoped/scripturadesign/color/src/functions.php",
 				// Prune PNG-based RingIcon.
 				"build/vendor-scoped/splitbrain/php-ringicon/src/RingIcon.php",
 				// Prune PNG-based Identicon generators.
@@ -143,11 +140,11 @@ module.exports = function(grunt) {
 					expand: true,
 					nonull: false,
 					src: [
-						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain,scripturadesign,yzalis}/**/LICENSE*',
-						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain,scripturadesign,yzalis}/**/README*',
-						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain,scripturadesign,yzalis}/**/CREDITS*',
-						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain,scripturadesign,yzalis}/**/COPYING*',
-						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain,scripturadesign,yzalis}/**/CHANGE*',
+						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain,yzalis}/**/LICENSE*',
+						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain,yzalis}/**/README*',
+						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain,yzalis}/**/CREDITS*',
+						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain,yzalis}/**/COPYING*',
+						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain,yzalis}/**/CHANGE*',
 						'!vendor/mundschenk-at/phpunit-cross-version/**',
 						'!vendor/composer/package-versions-deprecated/**',
 					],
