@@ -168,9 +168,12 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 == Changelog ==
 
+= 2.4.2 (2021-01-15) =
+* _Bugfix_: An unfortunate oversight in the build process led to crashes instead of the intended graceful failure when the installation requirements were not met.
+
 = 2.4.1 (2021-01-10) =
-*   _Bugfix_: Don't break the site when the options value in the DB has become corrupted.
-*   _Bugfix_: Workaround for maximum database key length when using MySQL < 5.7.7 or MariaDB < 10.2.2.
+* _Bugfix_: Don't break the site when the options value in the DB has become corrupted.
+* _Bugfix_: Workaround for maximum database key length when using MySQL < 5.7.7 or MariaDB < 10.2.2.
 
 = 2.4.0 (2021-01-10) =
 * _Feature_: Legacy (default) avatars are now properly cached and resized.
