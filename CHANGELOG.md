@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.4.3 (2021-01-15)
+*   _Bugfix_: Don't break stuff (another build process fix, for real this time).
+
 ## 2.4.2 (2021-01-15)
 *   _Bugfix_: An unfortunate oversight in the build process led to crashes instead
               of the intended graceful failure when the installation requirements
