@@ -168,6 +168,9 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 == Changelog ==
 
+= 2.4.3 (2021-01-15) =
+* _Bugfix_: Don't break stuff (another build process fix, for real this time).
+
 = 2.4.2 (2021-01-15) =
 * _Bugfix_: An unfortunate oversight in the build process led to crashes instead of the intended graceful failure when the installation requirements were not met.
 
