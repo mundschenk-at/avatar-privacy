@@ -132,7 +132,7 @@ return [
     // a file untouched.
     // Paths are relative to the configuration file unless if they are already absolute
     'files-whitelist' => [
-        'vendor/mundschenk-at/check-wp-requirements/class-mundschenk-wp-requirements.php',
+        'vendor/mundschenk-at/check-wp-requirements/class-wp-requirements.php',
     ],
 
     // When scoping PHP files, there will be scenarios where some of the code being scoped indirectly references the
