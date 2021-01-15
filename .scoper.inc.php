@@ -42,6 +42,7 @@ const AVATAR_PRIVACY_WORDPRESS_FUNCTIONS = [
 
     // Multisite.
     'get_current_network_id',
+    'get_bloginfo',
 
     // Escaping and sanitization.
     'esc_attr',
@@ -51,6 +52,11 @@ const AVATAR_PRIVACY_WORDPRESS_FUNCTIONS = [
     'wp_kses',
     'wp_kses_allowed_html',
 
+    // Translation,
+    '__',
+    '_e',
+    'load_plugin_textdomain',
+
     // Settings API.
     'add_settings_field',
 
@@ -58,9 +64,20 @@ const AVATAR_PRIVACY_WORDPRESS_FUNCTIONS = [
     'checked',
     'selected',
 
+    // Hooks.
+    'add_action',
+    'add_filter',
+    'remove_action',
+    'remove_filter',
+
+    // Plugins.
+    'plugin_basename',
+    'deactivate_plugins',
+
     // Utility functions.
     'wp_list_pluck',
     'wp_parse_args',
+    'is_admin',
 ];
 
 return [
@@ -125,9 +142,7 @@ return [
     // Whitelists a list of files. Unlike the other whitelist related features, this one is about completely leaving
     // a file untouched.
     // Paths are relative to the configuration file unless if they are already absolute
-    'files-whitelist' => [
-        'vendor/mundschenk-at/check-wp-requirements/class-wp-requirements.php',
-    ],
+    'files-whitelist' => [],
 
     // When scoping PHP files, there will be scenarios where some of the code being scoped indirectly references the
     // original namespace. These will include, for example, strings or string manipulations. PHP-Scoper has limited
