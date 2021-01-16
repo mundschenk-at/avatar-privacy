@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -139,7 +139,7 @@ class Ultimate_Member_Integration implements Plugin_Integration {
 	public function enable_ultimate_member_user_avatars( array $avatar = null, $user_id ) {
 		// Retrieve Ultimate Member user data.
 		\add_filter( 'um_filter_avatar_cache_time', '__return_null' );
-		$um_profile = /* @scrutinizer ignore-call */ \um_get_user_avatar_data( $user_id, 'original' );
+		$um_profile = \um_get_user_avatar_data( $user_id, 'original' );
 		\remove_filter( 'um_filter_avatar_cache_time', '__return_null' );
 
 		if ( empty( $um_profile['type'] ) || 'upload' !== $um_profile['type'] || empty( $um_profile['url'] ) ) {

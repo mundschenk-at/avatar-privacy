@@ -97,7 +97,6 @@ class Gravatar_Service {
 	 */
 	public function get_image( $email, $size, $rating ) {
 		$image = \wp_remote_retrieve_body(
-			/* @scrutinizer ignore-type */
 			\wp_remote_get( $this->get_url( $email, $size, $rating ) )
 		);
 

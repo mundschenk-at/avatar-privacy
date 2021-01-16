@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -82,7 +82,7 @@ class Theme_My_Login_Profiles_Integration implements Plugin_Integration {
 	 * @return void
 	 */
 	public function integrate_with_theme_my_login() {
-		$tml_form = /* @scrutinizer ignore-call */ \tml_get_form( 'profile' );
+		$tml_form = \tml_get_form( 'profile' );
 		if ( ! $tml_form instanceof Theme_My_Login_Form ) {
 			// Profiles extension not set up.
 			return;
@@ -101,13 +101,11 @@ class Theme_My_Login_Profiles_Integration implements Plugin_Integration {
 		$avatar_field->set_content( [ $this, 'render_avatar_field' ] );
 
 		// Add additional fields.
-		/* @scrutinizer ignore-call */
 		\tml_add_form_field( $tml_form, 'avatar_privacy_use_gravatar', [
 			'type'       => 'custom',
 			'content'    => [ $this, 'render_use_gravatar_checkbox' ],
 			'priority'   => 86,
 		] );
-		/* @scrutinizer ignore-call */
 		\tml_add_form_field( $tml_form, 'avatar_privacy_allow_anonymous', [
 			'type'       => 'custom',
 			'content'    => [ $this, 'render_allow_anonymous_checkbox' ],

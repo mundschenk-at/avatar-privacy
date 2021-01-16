@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020 Peter Putzer.
+ * Copyright 2020-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -108,7 +108,6 @@ class Remote_Image_Service {
 	public function get_image( $url, $size, $mimetype ) {
 		// Retrieve remote image.
 		$image = \wp_remote_retrieve_body(
-			/* @scrutinizer ignore-type */
 			\wp_remote_get( $url )
 		);
 

@@ -363,7 +363,7 @@ class Image_Stream {
 	 *
 	 * @return bool
 	 */
-	public function stream_metadata( $path, $option, /* @scrutinizer ignore-unused */ $value ) {
+	public function stream_metadata( $path, $option, $value ) {
 		$handle = static::get_handle_from_url( $path );
 
 		if ( ! static::handle_exists( $handle ) && \STREAM_META_TOUCH === $option ) {

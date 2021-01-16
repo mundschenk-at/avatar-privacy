@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -49,7 +49,7 @@ class Rings extends RingIconSVG implements Generator {
 	 *
 	 * @return string|false
 	 */
-	public function build( $seed, /* @scrutinizer-ignore */ $size ) {
+	public function build( $seed, $size ) {
 		return $this->generateSVGImage( $seed, true );
 	}
 }

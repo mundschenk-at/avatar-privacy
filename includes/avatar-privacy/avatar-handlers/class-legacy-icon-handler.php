@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020 Peter Putzer.
+ * Copyright 2020-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -116,11 +116,7 @@ class Legacy_Icon_Handler implements Avatar_Handler {
 	 */
 	protected function get_target_mime_type( $url ) {
 		$mimetype  = Image_File::PNG_IMAGE;
-		$extension = \pathinfo(
-			/* @scrutinizer ignore-type */
-			\wp_parse_url( $url, \PHP_URL_PATH ),
-			\PATHINFO_EXTENSION
-		);
+		$extension = \pathinfo( \wp_parse_url( $url, \PHP_URL_PATH ), \PATHINFO_EXTENSION );
 
 		// Determine MIME type based on the file extension.
 		if ( isset( Image_File::CONTENT_TYPE[ $extension ] ) ) {
