@@ -47,7 +47,7 @@ use Avatar_Privacy\Tools\Template as T;
 <tr class="avatar-privacy-user-avatar-upload">
 	<th scope="row"><?php \esc_html_e( 'Profile Picture', 'avatar-privacy' ); ?></th>
 	<td>
-		<?php echo /* @scrutinizer ignore-type */ \get_avatar( $user_id, $size, '', '', [ 'upload_timestamp' => true ] ); ?>
+		<?php echo \get_avatar( $user_id, $size, '', '', [ 'upload_timestamp' => true ] ); ?>
 
 		<?php if ( $can_upload ) : ?>
 			<p class="avatar-privacy-upload-fields">

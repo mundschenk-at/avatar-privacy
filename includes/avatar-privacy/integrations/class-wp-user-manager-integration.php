@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -107,7 +107,7 @@ class WP_User_Manager_Integration implements Plugin_Integration {
 	 * }
 	 */
 	public function enable_wpusermanager_user_avatars( array $avatar = null, $user_id ) {
-		$file = /* @scrutinizer ignore-call */ \carbon_get_user_meta( $user_id, self::WP_USER_MANAGER_META_KEY );
+		$file = \carbon_get_user_meta( $user_id, self::WP_USER_MANAGER_META_KEY );
 		$type = \wp_check_filetype( $file )['type'];
 
 		return [

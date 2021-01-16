@@ -196,7 +196,7 @@ abstract class Parts_Generator implements Generator {
 	 *
 	 * @return int
 	 */
-	protected function get_random_part_index( /* @scrutinizer ignore-unused */ $type, $count ) {
+	protected function get_random_part_index( $type, $count ) {
 		return $this->number_generator->get( 0, $count - 1 );
 	}
 

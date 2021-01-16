@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -188,7 +188,7 @@ class Database_Command extends Abstract_Command {
 	 *
 	 * @return void
 	 */
-	public function list_( /* @scrutinizer ignore-unused */ array $args, array $assoc_args ) {
+	public function list_( array $args, array $assoc_args ) {
 		$assoc_args = \wp_parse_args( $assoc_args, [
 			'fields' => [ 'id', 'email', 'use_gravatar', 'last_updated' ],
 			'format' => 'table',
@@ -217,7 +217,7 @@ class Database_Command extends Abstract_Command {
 
 		// Display everything in a nice way.
 		$formatter = new Formatter( $assoc_args, null );
-		$formatter->display_items( /* @scrutinizer ignore-type */ $items );
+		$formatter->display_items( $items );
 	}
 
 	/**
@@ -239,7 +239,7 @@ class Database_Command extends Abstract_Command {
 	 *
 	 * @return void
 	 */
-	public function create( /* @scrutinizer ignore-unused */ array $args, array $assoc_args ) {
+	public function create( array $args, array $assoc_args ) {
 		$global    = get_flag_value( $assoc_args, 'global', false );
 		$multisite = \is_multisite();
 		if ( $global ) {
@@ -284,7 +284,7 @@ class Database_Command extends Abstract_Command {
 	 *
 	 * @return void
 	 */
-	public function upgrade( /* @scrutinizer ignore-unused */ array $args, array $assoc_args ) {
+	public function upgrade( array $args, array $assoc_args ) {
 		$global    = get_flag_value( $assoc_args, 'global', false );
 		$multisite = \is_multisite();
 		if ( $global ) {

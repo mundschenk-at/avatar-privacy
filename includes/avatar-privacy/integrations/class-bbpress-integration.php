@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -113,7 +113,7 @@ class BBPress_Integration implements Plugin_Integration {
 	public function parse_id_or_email( $data ) {
 		list( $user_id, $email, $age ) = $data;
 
-		if ( /* @scrutinizer ignore-call */ \is_bbpress() && false === $user_id ) {
+		if ( \is_bbpress() && false === $user_id ) {
 			$user = \get_user_by( 'email', $email );
 
 			if ( ! empty( $user ) ) {
@@ -131,7 +131,7 @@ class BBPress_Integration implements Plugin_Integration {
 	 */
 	public function add_user_profile_fields() {
 		// Get user ID from bbPress.
-		$user_id = /* @scrutinizer ignore-call */ \bbp_get_user_id( 0, true, false );
+		$user_id = \bbp_get_user_id( 0, true, false );
 		if ( empty( $user_id ) ) {
 			return;
 		}

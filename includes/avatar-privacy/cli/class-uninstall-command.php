@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -130,7 +130,7 @@ class Uninstall_Command extends Abstract_Command {
 	 *
 	 * @return void
 	 */
-	public function uninstall( /* @scrutinizer ignore-unused */ array $args, array $assoc_args ) {
+	public function uninstall( array $args, array $assoc_args ) {
 		$live          = get_flag_value( $assoc_args, 'live', false );
 		$remove_global = get_flag_value( $assoc_args, 'global', false );
 		$multisite     = \is_multisite();

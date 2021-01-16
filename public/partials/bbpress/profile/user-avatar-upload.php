@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -44,7 +44,7 @@ use Avatar_Privacy\Tools\Template as T;
 
 ?>
 <div class="avatar-pricacy-profile-picture-upload">
-	<?php echo /* @scrutinizer ignore-type */ \get_avatar( $user_id ); ?>
+	<?php echo \get_avatar( $user_id ); ?>
 
 	<?php if ( $can_upload ) : ?>
 		<?php \wp_nonce_field( $action, $nonce ); ?>

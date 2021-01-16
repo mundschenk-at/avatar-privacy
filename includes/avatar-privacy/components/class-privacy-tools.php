@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -168,7 +168,7 @@ class Privacy_Tools implements Component {
 	 *     @type bool  $done True if there is no more data to export, false otherwise.
 	 * }
 	 */
-	public function export_user_data( $email, /* @scrutinizer ignore-unused */ $page = 1 ) {
+	public function export_user_data( $email, $page = 1 ) {
 		$user = \get_user_by( 'email', $email );
 		if ( empty( $user ) ) {
 			return [
@@ -236,7 +236,7 @@ class Privacy_Tools implements Component {
 	 *     @type bool  $done True if there is no more data to export, false otherwise.
 	 * }
 	 */
-	public function export_comment_author_data( $email, /* @scrutinizer ignore-unused */ $page = 1 ) {
+	public function export_comment_author_data( $email, $page = 1 ) {
 		// Load raw data.
 		$raw_data = $this->comment_author->load( $email );
 		if ( empty( $raw_data ) ) {
@@ -310,7 +310,7 @@ class Privacy_Tools implements Component {
 	 *     @type bool  $done           True if there is no more data to erase, false otherwise.
 	 * }
 	 */
-	public function erase_data( $email, /* @scrutinizer ignore-unused */ $page = 1 ) {
+	public function erase_data( $email, $page = 1 ) {
 		$items_removed  = 0;
 		$items_retained = 0; // We currently don't track this information.
 		$messages       = [];

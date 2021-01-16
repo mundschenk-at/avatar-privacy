@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -276,7 +276,7 @@ class Core {
 	 *
 	 * @return void
 	 */
-	public function update_comment_author_hash( /* @scrutinizer ignore-unused */ $id, $email ) {
+	public function update_comment_author_hash( $id, $email ) {
 		$this->comment_author_fields->update_hash( $email );
 	}
 
