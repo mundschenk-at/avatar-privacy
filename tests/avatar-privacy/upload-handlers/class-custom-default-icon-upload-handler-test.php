@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -303,6 +303,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 		return [
 			[ 'Sorry, this file type is not permitted for security reasons.', Custom_Default_Icon_Upload_Handler::ERROR_INVALID_IMAGE ],
 			[ 'Something else.', Custom_Default_Icon_Upload_Handler::ERROR_OTHER ],
+			[ null, Custom_Default_Icon_Upload_Handler::ERROR_UNKNOWN ],
 		];
 	}
 
@@ -313,8 +314,8 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	 *
 	 * @dataProvider provide_handle_upload_errors_data
 	 *
-	 * @param  string $error_string Original error message.
-	 * @param  string $error_type   Resulting error type.
+	 * @param  string|null $error_string Original error message.
+	 * @param  string      $error_type   Resulting error type.
 	 */
 	public function test_handle_upload_errors( $error_string, $error_type ) {
 		$upload_result = [ 'error' => $error_string ];
@@ -323,7 +324,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 			'site_id'      => 42,
 		];
 
-		Functions\expect( 'esc_attr' )->atMost()->once()->andReturn( 'escaped_string' );
+		Functions\expect( 'esc_attr' )->atMost()->once()->with( m::type( 'string' ) )->andReturnFirstArg();
 
 		$this->sut->shouldReceive( 'raise_settings_error' )->once()->with( $error_type, m::type( 'string' ) );
 
@@ -509,7 +510,7 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 		$this->default_avatars->shouldReceive( 'get_custom_default_avatar' )->once()->andReturn( $icon );
 
 		Functions\expect( 'esc_attr' )->atMost()->once()->andReturn( 'escaped_string' );
-		
+
 		$this->sut->shouldReceive( 'raise_settings_error' )->once()->with( Custom_Default_Icon_Upload_Handler::ERROR_FILE, m::type( 'string' ) );
 
 		$this->assertNull( $this->sut->handle_file_delete_error() );

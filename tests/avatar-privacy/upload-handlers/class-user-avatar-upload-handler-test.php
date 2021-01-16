@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -246,6 +246,26 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$args          = [
 			'foo' => 'bar',
 		];
+
+		Functions\expect( 'esc_attr' )->atMost()->once()->with( m::type( 'string' ) )->andReturnFirstArg();
+
+		Actions\expectAdded( 'user_profile_update_errors' )->once()->with( m::type( 'Closure' ) );
+
+		$this->assertNull( $this->sut->handle_upload_errors( $upload_result, $args ) );
+	}
+
+	/**
+	 * Tests ::handle_upload_errors.
+	 *
+	 * @covers ::handle_upload_errors
+	 */
+	public function test_handle_upload_errors_no_error_message() {
+		$upload_result = [];
+		$args          = [
+			'foo' => 'bar',
+		];
+
+		Functions\expect( 'esc_attr' )->never();
 
 		Actions\expectAdded( 'user_profile_update_errors' )->once()->with( m::type( 'Closure' ) );
 

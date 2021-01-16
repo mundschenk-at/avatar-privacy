@@ -62,6 +62,8 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	const ERROR_FILE          = 'default_avatar_file_error';
 	const ERROR_INVALID_IMAGE = 'default_avatar_invalid_image_type';
 	const ERROR_OTHER         = 'default_avatar_other_error';
+	const ERROR_UNKNOWN       = 'default_avatar_unknown_error';
+
 	/**
 	 * The default avatars API.
 	 *
@@ -155,15 +157,15 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	 * @param  array $args          Arguments passed from ::maybe_save_data().
 	 */
 	protected function handle_upload_errors( array $upload_result, array $args ) {
-		switch ( $upload_result['error'] ) {
-			case 'Sorry, this file type is not permitted for security reasons.':
-				$id      = self::ERROR_INVALID_IMAGE;
-				$message = \__( 'Please upload a valid PNG, GIF or JPEG image for the avatar.', 'avatar-privacy' );
-				break;
-
-			default:
-				$id      = self::ERROR_OTHER;
-				$message = \sprintf( '<strong>%s</strong> %s', \__( 'There was an error uploading the avatar: ', 'avatar-privacy' ), \esc_attr( $upload_result['error'] ) );
+		if ( empty( $upload_result['error'] ) ) {
+			$id      = self::ERROR_UNKNOWN;
+			$message = \__( 'An unknown error occured while uploading the avatar', 'avatar-privacy' );
+		} elseif ( 'Sorry, this file type is not permitted for security reasons.' === $upload_result['error'] ) {
+			$id      = self::ERROR_INVALID_IMAGE;
+			$message = \__( 'Please upload a valid PNG, GIF or JPEG image for the avatar.', 'avatar-privacy' );
+		} else {
+			$id      = self::ERROR_OTHER;
+			$message = \sprintf( '<strong>%s</strong> %s', \__( 'There was an error uploading the avatar:', 'avatar-privacy' ), \esc_attr( $upload_result['error'] ) );
 		}
 
 		$this->raise_settings_error( $id, $message );
