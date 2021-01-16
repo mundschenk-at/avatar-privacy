@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -147,18 +147,17 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 * @return void
 	 */
 	protected function handle_upload_errors( array $upload_result, array $args ) {
-		switch ( $upload_result['error'] ) {
-			case 'Sorry, this file type is not permitted for security reasons.':
-				\add_action( 'user_profile_update_errors', function( \WP_Error $errors ) { // phpcs:ignore PEAR.Functions.FunctionCallSignature.MultipleArguments,PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket
-					$errors->add( 'avatar_error', \__( 'Please upload a valid PNG, GIF or JPEG image for the avatar.', 'avatar-privacy' ) ); // @codeCoverageIgnore
-				} ); // phpcs:ignore PEAR.Functions.FunctionCallSignature.CloseBracketLine
-				break;
-
-			default:
-				\add_action( 'user_profile_update_errors', function( \WP_Error $errors ) use ( $upload_result ) { // phpcs:ignore PEAR.Functions.FunctionCallSignature.MultipleArguments,PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket
-					$errors->add( 'avatar_error', \sprintf( '<strong>%s</strong> %s', \__( 'There was an error uploading the avatar: ', 'avatar-privacy' ), \esc_attr( $upload_result['error'] ) ) ); // @codeCoverageIgnore
-				} ); // phpcs:ignore PEAR.Functions.FunctionCallSignature.CloseBracketLine
+		if ( empty( $upload_result['error'] ) ) {
+			$error_message = \__( 'An unknown error occured while uploading the avatar', 'avatar-privacy' );
+		} elseif ( 'Sorry, this file type is not permitted for security reasons.' === $upload_result['error'] ) {
+			$error_message = \__( 'Please upload a valid PNG, GIF or JPEG image for the avatar.', 'avatar-privacy' );
+		} else {
+			$error_message = \sprintf( '<strong>%s</strong> %s', \__( 'There was an error uploading the avatar:', 'avatar-privacy' ), \esc_attr( $upload_result['error'] ) );
 		}
+
+		\add_action( 'user_profile_update_errors', function( \WP_Error $errors ) use ( $error_message ) {
+			$errors->add( 'avatar_error', $error_message ); // @codeCoverageIgnore
+		} );
 	}
 
 	/**
