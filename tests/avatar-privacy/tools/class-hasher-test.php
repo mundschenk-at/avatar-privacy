@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -35,7 +35,7 @@ use Mockery as m;
 use Avatar_Privacy\Data_Storage\Network_Options;
 
 /**
- * Avatar_Privacy_Factory unit test.
+ * Avatar_Privacy\Tools\Hasher unit test.
  *
  * @coversDefaultClass \Avatar_Privacy\Tools\Hasher
  * @usesDefaultClass \Avatar_Privacy\Tools\Hasher

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -41,7 +41,7 @@ use Avatar_Privacy\Data_Storage\Database\Hashes_Table;
 use Avatar_Privacy\Tools\Hasher;
 
 /**
- * Avatar_Privacy_Factory unit test.
+ * Comment_Author_Fields unit test.
  *
  * @coversDefaultClass \Avatar_Privacy\Core\Comment_Author_Fields
  * @usesDefaultClass \Avatar_Privacy\Core\Comment_Author_Fields

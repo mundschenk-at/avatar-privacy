@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -40,7 +40,7 @@ use Avatar_Privacy\Tools\Hasher;
 use Avatar_Privacy\Tools\Images\Image_File;
 
 /**
- * Avatar_Privacy_Factory unit test.
+ * User_Fields unit test.
  *
  * @coversDefaultClass \Avatar_Privacy\Core\User_Fields
  * @usesDefaultClass \Avatar_Privacy\Core\User_Fields
