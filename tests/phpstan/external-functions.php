@@ -85,9 +85,7 @@ function bp_get_version() {}
  *
  * @return mixed
  */
-function wpum_get_option( $key = '', $default = false ) {
-	return $default; // Return something, for Scrutinizer-CI.
-}
+function wpum_get_option( $key = '', $default = false ) {}
 /**
  * Stub for WP User Manager (Carbon Fields).
  *
@@ -97,9 +95,7 @@ function wpum_get_option( $key = '', $default = false ) {
  *
  * @return mixed
  */
-function carbon_get_user_meta( $id, $name, $container_id = '' ) {
-	return ''; // Return something, for Scrutinizer-CI.
-}
+function carbon_get_user_meta( $id, $name, $container_id = '' ) {}
 
 // Theme My Login stubs.
 
