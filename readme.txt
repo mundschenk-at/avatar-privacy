@@ -140,8 +140,7 @@ These plugins have been tested successfully in conjunction with Avatar Privacy:
 * [Webmention](https://wordpress.org/plugins/webmention/)
 * [WP User Manager – User Profile Builder & Membership](https://wordpress.org/plugins/wp-user-manager/)
 
-Please note that several [Jetpack by WordPress.com modules](https://wordpress.org/plugins/jetpack/) do not work well with
-Avatar Privacy because they generate their HTML markup on the WordPress.com servers.
+Please note that several [Jetpack by WordPress.com modules](https://wordpress.org/plugins/jetpack/) do not work well with Avatar Privacy because they generate their HTML markup on the WordPress.com servers.
 
 If you find any problems with particular plugins, please tell me!
 
