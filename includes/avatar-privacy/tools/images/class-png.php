@@ -28,6 +28,8 @@ namespace Avatar_Privacy\Tools\Images;
 
 use Avatar_Privacy\Exceptions\PNG_Image_Exception;
 
+use GdImage; // phpcs:ignore ImportDetection.Imports -- PHP 8.0 compatibility.
+
 /**
  * A utility class providing some methods for dealing with PNG images.
  *
@@ -40,11 +42,13 @@ class PNG {
 	/**
 	 * Creates an image resource of the chosen type.
 	 *
+	 * @since  2.5.0 Returns a resource or GdImage instance, depending on the PHP version.
+	 *
 	 * @param  string $type   The type of background to create. Valid: 'white', 'black', 'transparent'.
 	 * @param  int    $width  Image width in pixels.
 	 * @param  int    $height Image height in pixels.
 	 *
-	 * @return resource
+	 * @return resource|GdImage
 	 *
 	 * @throws \InvalidArgumentException Called with an incorrect type.
 	 * @throws PNG_Image_Exception       The image could not be created.
@@ -53,7 +57,7 @@ class PNG {
 		$image = \imageCreateTrueColor( $width, $height );
 
 		// Something went wrong, badly.
-		if ( ! \is_resource( $image ) ) {
+		if ( ! \is_gd_image( $image ) ) {
 			throw new PNG_Image_Exception( "The image of type {$type} ($width x $height) could not be created." );  // @codeCoverageIgnore
 		}
 
@@ -98,9 +102,11 @@ class PNG {
 	/**
 	 * Creates an image resource from the given file.
 	 *
+	 * @since  2.5.0 Returns a resource or GdImage instance, depending on the PHP version.
+	 *
 	 * @param  string $file The absolute path to a PNG image file.
 	 *
-	 * @return resource
+	 * @return resource|GdImage
 	 *
 	 * @throws PNG_Image_Exception The image could not be read.
 	 */
@@ -108,7 +114,7 @@ class PNG {
 		$image = @\imageCreateFromPNG( $file );
 
 		// Something went wrong, badly.
-		if ( ! \is_resource( $image ) ) {
+		if ( ! \is_gd_image( $image ) ) {
 			throw new PNG_Image_Exception( "The PNG image {$file} could not be read." );
 		}
 
@@ -123,10 +129,12 @@ class PNG {
 	 * Copies an image onto an existing base image. The image resource is freed
 	 * after copying.
 	 *
-	 * @param  resource $base   The avatar image resource.
-	 * @param  resource $image  The image to be copied onto the base.
-	 * @param  int      $width  Image width in pixels.
-	 * @param  int      $height Image height in pixels.
+	 * @since  2.5.0 Parameters $base and $image can now also be instances of GdImage.
+	 *
+	 * @param  resource|GdImage $base   The avatar image resource.
+	 * @param  resource|GdImage $image  The image to be copied onto the base.
+	 * @param  int              $width  Image width in pixels.
+	 * @param  int              $height Image height in pixels.
 	 *
 	 * @return void
 	 *
@@ -136,7 +144,7 @@ class PNG {
 	public function combine( $base, $image, $width, $height ) {
 
 		// Abort if $image is not a valid resource.
-		if ( ! \is_resource( $base ) || ! \is_resource( $image ) ) {
+		if ( ! \is_gd_image( $base ) || ! \is_gd_image( $image ) ) {
 			throw new \InvalidArgumentException( 'Invalid image resource.' );
 		}
 
@@ -155,12 +163,14 @@ class PNG {
 	/**
 	 * Fills the given image with a HSL color.
 	 *
-	 * @param  resource $image      The image.
-	 * @param  int      $hue        The hue (0-360).
-	 * @param  int      $saturation The saturation (0-100).
-	 * @param  int      $lightness  The lightness/Luminosity (0-100).
-	 * @param  int      $x          The horizontal coordinate.
-	 * @param  int      $y          The vertical coordinate.
+	 * @since  2.5.0 Parameter $image can now also be a GdImage.
+	 *
+	 * @param  resource|GdImage $image      The image.
+	 * @param  int              $hue        The hue (0-360).
+	 * @param  int              $saturation The saturation (0-100).
+	 * @param  int              $lightness  The lightness/Luminosity (0-100).
+	 * @param  int              $x          The horizontal coordinate.
+	 * @param  int              $y          The vertical coordinate.
 	 *
 	 * @return void
 	 *
@@ -169,7 +179,7 @@ class PNG {
 	 */
 	public function fill_hsl( $image, $hue, $saturation, $lightness, $x, $y ) {
 		// Abort if $image is not a valid resource.
-		if ( ! \is_resource( $image ) ) {
+		if ( ! \is_gd_image( $image ) ) {
 			throw new \InvalidArgumentException( 'Invalid image resource.' );
 		}
 

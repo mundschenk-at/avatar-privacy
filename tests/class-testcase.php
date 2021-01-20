@@ -31,4 +31,18 @@ namespace Avatar_Privacy\Tests;
  *
  * @since 2.4.0 Refactored to use \Mundschenk\PHPUnit_Cross_Version\TestCase.
  */
-abstract class TestCase extends \Mundschenk\PHPUnit_Cross_Version\TestCase {}
+abstract class TestCase extends \Mundschenk\PHPUnit_Cross_Version\TestCase {
+
+	/**
+	 * Asserts the the argument is a valid GD image.
+	 *
+	 * @since  2.5.0
+	 *
+	 * @param  mixed $image The variable to assert.
+	 *
+	 * @return bool
+	 */
+	public function assert_is_gd_image( $image ) {
+		return $this->assertTrue( \is_gd_image( $image ) );
+	}
+}

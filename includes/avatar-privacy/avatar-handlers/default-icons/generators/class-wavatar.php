@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  * Copyright 2007-2008 Shamus Young.
  *
  * This program is free software; you can redistribute it and/or
@@ -31,6 +31,8 @@ use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Parts_Generator;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Tools\Number_Generator;
+
+use GdImage; // phpcs:ignore ImportDetection.Imports -- PHP 8.0 compatibility.
 
 /**
  * A Wavatar generator, based on the original WordPress plugin by Shamus Young.
@@ -128,10 +130,12 @@ class Wavatar extends PNG_Parts_Generator {
 	/**
 	 * Renders the avatar from its parts, using any of the given additional arguments.
 	 *
+	 * @since  2.5.0 Returns a resource or GdImage instance, depending on the PHP version.
+	 *
 	 * @param  array $parts The (randomized) avatar parts.
 	 * @param  array $args  Any additional arguments defined by the subclass.
 	 *
-	 * @return resource
+	 * @return resource|GdImage
 	 */
 	protected function render_avatar( array $parts, array $args ) {
 		// Create background.

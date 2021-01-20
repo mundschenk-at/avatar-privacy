@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -167,6 +167,8 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::render_avatar.
 	 *
 	 * @covers ::render_avatar
+	 *
+	 * @uses is_gd_image
 	 */
 	public function test_render_avatar() {
 		// Input.
@@ -186,7 +188,7 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'create_image' )->once()->with( 'white' )->andReturn( $background );
 		$this->png->shouldReceive( 'fill_hsl' )->once()->with( $background, $args['background_hue'], m::type( 'int' ), m::type( 'int' ), 1, 1 );
 
-		$this->sut->shouldReceive( 'combine_images' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'string' ) );
+		$this->sut->shouldReceive( 'combine_images' )->times( $parts_number )->with( m::on( 'is_gd_image' ), m::type( 'string' ) );
 		$this->png->shouldReceive( 'fill_hsl' )->once()->with( $background, $args['wavatar_hue'], m::type( 'int' ), m::type( 'int' ), m::type( 'int' ), m::type( 'int' ) );
 
 		$this->assertSame( $background, $this->sut->render_avatar( $parts, $args ) );

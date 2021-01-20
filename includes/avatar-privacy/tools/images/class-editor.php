@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -28,6 +28,8 @@ namespace Avatar_Privacy\Tools\Images;
 
 use Avatar_Privacy\Tools\Images\Image_File;
 use Avatar_Privacy\Tools\Images\Image_Stream;
+
+use GdImage; // phpcs:ignore ImportDetection.Imports -- PHP 8.0 compatibility.
 
 /**
  * A utility class providing in-memory \WP_Image_Editor support.
@@ -140,15 +142,16 @@ class Editor {
 	}
 
 	/**
-	 * Creates a \WP_Image_Editor from a PHP image resource. The resource is
-	 * destroyed on success.
+	 * Creates a \WP_Image_Editor from a GD image. The image is destroyed on success.
 	 *
-	 * @param  resource $image Image data.
+	 * @since  2.5.0 Parameter $image can now also be a GdImage.
+	 *
+	 * @param  resource|GdImage $image Image data.
 	 *
 	 * @return \WP_Image_Editor|\WP_Error
 	 */
 	public function create_from_image_resource( $image ) {
-		if ( \is_resource( $image ) && \imagePNG( $image, $this->stream_url ) ) {
+		if ( \is_gd_image( $image ) && \imagePNG( $image, $this->stream_url ) ) {
 			// Clean up resource.
 			\imageDestroy( $image );
 

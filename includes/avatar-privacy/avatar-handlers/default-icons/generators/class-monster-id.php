@@ -32,6 +32,8 @@ use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Tools\Number_Generator;
 
+use GdImage; // phpcs:ignore ImportDetection.Imports -- PHP 8.0 compatibility.
+
 /**
  * A monster generator based on the WordPress implementation by Scott Sherrill-Mix
  * and the original algorithm designed by Andreas Gohr, based on an idea by Don Park.
@@ -256,10 +258,12 @@ class Monster_ID extends PNG_Parts_Generator {
 	/**
 	 * Renders the avatar from its parts, using any of the given additional arguments.
 	 *
+	 * @since  2.5.0 Returns a resource or GdImage instance, depending on the PHP version.
+	 *
 	 * @param  array $parts The (randomized) avatar parts.
 	 * @param  array $args  Any additional arguments defined by the subclass.
 	 *
-	 * @return resource
+	 * @return resource|GdImage
 	 */
 	protected function render_avatar( array $parts, array $args ) {
 		// Create background.
@@ -301,15 +305,17 @@ class Monster_ID extends PNG_Parts_Generator {
 	/**
 	 * Adds color to the given image.
 	 *
-	 * @since 2.1.0 Visibility changed to protected.
-	 * @since 2.3.0 Name changed to colorize_image() for consistency.
+	 * @since  2.1.0 Visibility changed to protected.
+	 * @since  2.3.0 Name changed to colorize_image() for consistency.
+	 * @since  2.5.0 Parameter $image can now also be a GdImage. Returns a resource
+	 *               or GdImage instance, depending on the PHP version.
 	 *
-	 * @param  resource $image      The image.
-	 * @param  int      $hue        The hue (0-360).
-	 * @param  int      $saturation The saturation (0-100).
-	 * @param  string   $part       The part name.
+	 * @param  resource|GdImage $image      The image.
+	 * @param  int              $hue        The hue (0-360).
+	 * @param  int              $saturation The saturation (0-100).
+	 * @param  string           $part       The part name.
 	 *
-	 * @return resource             The image, for chaining.
+	 * @return resource|GdImage             The image, for chaining.
 	 */
 	protected function colorize_image( $image, $hue = 360, $saturation = 100, $part = '' ) {
 		// Ensure non-negative hue.
