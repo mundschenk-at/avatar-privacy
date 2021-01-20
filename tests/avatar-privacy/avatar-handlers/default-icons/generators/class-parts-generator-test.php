@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019 Peter Putzer.
+ * Copyright 2019-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -326,7 +326,7 @@ class Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = 666;
 
-		$this->number_generator->shouldReceive( 'get' )->once()->with( $type, $count - 1 )->andReturn( $result );
+		$this->number_generator->shouldReceive( 'get' )->once()->with( 0, $count - 1 )->andReturn( $result );
 
 		$this->assertSame( $result, $this->sut->get_random_part_index( $type, $count ) );
 	}
