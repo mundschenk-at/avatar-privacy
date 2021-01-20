@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -30,6 +30,8 @@ use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Parts_Generator;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Tools\Number_Generator;
+
+use GdImage; // phpcs:ignore ImportDetection.Imports -- PHP 8.0 compatibility.
 
 /**
  * A cat avatar generator for the images created by David Revoy.
@@ -70,10 +72,12 @@ class Cat_Avatar extends PNG_Parts_Generator {
 	/**
 	 * Renders the avatar from its parts, using any of the given additional arguments.
 	 *
+	 * @since  2.5.0 Returns a resource or GdImage instance, depending on the PHP version.
+	 *
 	 * @param  array $parts The (randomized) avatar parts.
 	 * @param  array $args  Any additional arguments defined by the subclass.
 	 *
-	 * @return resource
+	 * @return resource|GdImage
 	 */
 	protected function render_avatar( array $parts, array $args ) {
 		// Create background.

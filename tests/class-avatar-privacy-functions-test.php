@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -44,9 +44,9 @@ use Avatar_Privacy\Components\Comments;
 class Avatar_Privacy_Functions_Test extends TestCase {
 
 	/**
-	 * Tests run method.
+	 * Tests avapr_get_avatar_checkbox function.
 	 *
-	 * @covers ::avapr_get_avatar_checkbox
+	 * @covers avapr_get_avatar_checkbox
 	 *
 	 * @uses Avatar_Privacy\get_gravatar_checkbox
 	 * @uses Avatar_Privacy\Factory::get
@@ -68,9 +68,9 @@ class Avatar_Privacy_Functions_Test extends TestCase {
 	}
 
 	/**
-	 * Tests run method.
+	 * Tests avapr_get_avatar_checkbox function.
 	 *
-	 * @covers ::avapr_get_avatar_checkbox
+	 * @covers avapr_get_avatar_checkbox
 	 *
 	 * @uses Avatar_Privacy\get_gravatar_checkbox
 	 */
@@ -79,5 +79,27 @@ class Avatar_Privacy_Functions_Test extends TestCase {
 		Functions\expect( 'is_user_logged_in' )->once()->andReturn( true );
 
 		$this->assertSame( '', \avapr_get_avatar_checkbox() );
+	}
+
+	/**
+	 * Tests is_gd_image function.
+	 *
+	 * @covers is_gd_image
+	 */
+	public function test_is_gd_image_ok() {
+		$resource = \imageCreate( 10, 10 );
+
+		$this->assertTrue( \is_gd_image( $resource ) );
+
+		\imageDestroy( $resource );
+	}
+
+	/**
+	 * Tests is_gd_image function.
+	 *
+	 * @covers is_gd_image
+	 */
+	public function test_is_gd_image_not_ok() {
+		$this->assertFalse( \is_gd_image( false ) );
 	}
 }

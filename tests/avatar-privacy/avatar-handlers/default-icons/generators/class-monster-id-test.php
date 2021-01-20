@@ -183,6 +183,8 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::render_avatar.
 	 *
 	 * @covers ::render_avatar
+	 *
+	 * @uses is_gd_image
 	 */
 	public function test_render_avatar() {
 		// Input.
@@ -205,8 +207,8 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->png->shouldReceive( 'create_from_file' )->once()->with( m::pattern( '/\bback\.png$/' ) )->andReturn( $background );
 		$this->png->shouldReceive( 'create_from_file' )->times( $parts_number )->with( m::type( 'string' ) )->andReturn( $fake_image );
 
-		$this->sut->shouldReceive( 'colorize_image' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'numeric' ), m::type( 'numeric' ), m::type( 'string' ) );
-		$this->sut->shouldReceive( 'combine_images' )->times( $parts_number )->with( m::type( 'resource' ), m::type( 'resource' ) );
+		$this->sut->shouldReceive( 'colorize_image' )->times( $parts_number )->with( m::on( 'is_gd_image' ), m::type( 'numeric' ), m::type( 'numeric' ), m::type( 'string' ) );
+		$this->sut->shouldReceive( 'combine_images' )->times( $parts_number )->with( m::on( 'is_gd_image' ), m::on( 'is_gd_image' ) );
 
 		$this->assertSame( $background, $this->sut->render_avatar( $parts, $args ) );
 	}
@@ -216,6 +218,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @covers ::colorize_image
 	 *
+	 * @uses is_gd_image
 	 * @uses Avatar_Privacy\Tools\Images\PNG::hsl_to_rgb
 	 */
 	public function test_colorize_image() {
@@ -229,7 +232,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->colorize_image( $resource, $hue, $saturation, $part );
 
-		$this->assert_is_resource( $result );
+		$this->assert_is_gd_image( $result );
 
 		// Clean up.
 		\imageDestroy( $resource );
@@ -240,6 +243,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @covers ::colorize_image
 	 *
+	 * @uses is_gd_image
 	 * @uses Avatar_Privacy\Tools\Images\PNG::hsl_to_rgb
 	 */
 	public function test_colorize_image_no_optimization() {
@@ -254,7 +258,7 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->colorize_image( $resource, $hue, $saturation, $part );
 
-		$this->assert_is_resource( $result );
+		$this->assert_is_gd_image( $result );
 
 		// Clean up.
 		\imageDestroy( $resource );

@@ -32,6 +32,8 @@ use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Tools\Images;
 use Avatar_Privacy\Tools\Number_Generator;
 
+use GdImage; // phpcs:ignore ImportDetection.Imports -- PHP 8.0 compatibility.
+
 /**
  * A base class for parts-based PNG icon generators.
  *
@@ -128,8 +130,10 @@ abstract class PNG_Parts_Generator extends Parts_Generator {
 	/**
 	 * Resizes the image and returns the raw data.
 	 *
-	 * @param  resource $image The image resource.
-	 * @param  int      $size  The size in pixels.
+	 * @since  2.5.0 Parameter $image can now also be a GdImage.
+	 *
+	 * @param  resource|GdImage $image The image resource.
+	 * @param  int              $size  The size in pixels.
 	 *
 	 * @return string          The image data (or the empty string on error).
 	 */
@@ -185,14 +189,15 @@ abstract class PNG_Parts_Generator extends Parts_Generator {
 	}
 
 	/**
-	 * Creates an image resource of the chosen type with the set avatar size for
-	 * width and height.
+	 * Creates a GD image of the chosen type with the set avatar size for width
+	 * and height.
 	 *
-	 * @since 2.3.0
+	 * @since  2.3.0
+	 * @since  2.5.0 Returns a resource or GdImage instance, depending on the PHP version.
 	 *
 	 * @param  string $type The type of background to create. Valid: 'white', 'black', 'transparent'.
 	 *
-	 * @return resource
+	 * @return resource|GdImage
 	 *
 	 * @throws \RuntimeException The image could not be copied.
 	 */
@@ -205,13 +210,15 @@ abstract class PNG_Parts_Generator extends Parts_Generator {
 	 * the parts directory if a filename is given, assuming the avatar size for
 	 * width and height.
 	 *
-	 * The image resource is freed after copying.
+	 * The GD image (resource) is freed after copying.
 	 *
-	 * @param  resource        $base   The avatar image resource.
-	 * @param  string|resource $image  The image to be copied onto the base. Can
-	 *                                 be either the name of the image file
-	 *                                 relative to the parts directory, or an
-	 *                                 existing image resource.
+	 * @since  2.5.0 Parameters $base and $image can now also be GdImage instances.
+	 *
+	 * @param  resource|GdImage        $base  The avatar image resource.
+	 * @param  string|resource|GdImage $image The image to be copied onto the base. Can
+	 *                                        be either the name of the image file
+	 *                                        relative to the parts directory, or an
+	 *                                        existing image resource.
 	 *
 	 * @return void
 	 *
@@ -273,11 +280,12 @@ abstract class PNG_Parts_Generator extends Parts_Generator {
 	 * transparent pixels).
 	 *
 	 * @since  2.4.0 Extracted from ::get_parts_dimensions.
+	 * @since  2.5.0 Parameter $im can now also be a GdImage.
 	 *
 	 * @author Peter Putzer
 	 * @author Scott Sherrill-Mix
 	 *
-	 * @param  resource $im The image resource.
+	 * @param  resource|GdImage $im The image resource.
 	 *
 	 * @return array {
 	 *     The boundary coordinates for the image.

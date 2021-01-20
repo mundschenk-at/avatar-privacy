@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -176,6 +176,8 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::create_from_image_resource.
 	 *
 	 * @covers ::create_from_image_resource
+	 *
+	 * @uses is_gd_image
 	 */
 	public function test_create_from_image_resource() {
 		$resource = \imageCreateTrueColor( 20, 20 );
@@ -189,6 +191,8 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::create_from_image_resource.
 	 *
 	 * @covers ::create_from_image_resource
+	 *
+	 * @uses is_gd_image
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
