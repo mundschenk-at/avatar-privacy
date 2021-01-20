@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2017-2020 Peter Putzer.
+ * Copyright 2017-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,8 +27,8 @@
 namespace Avatar_Privacy\Tests;
 
 /**
- * Abstract base class for \PHP_Typography\* unit tests.
+ * Abstract base class for Avatar Privacy unit tests.
  *
- * @since 3.0.0 Refactored to use \Mundschenk\PHPUnit_Cross_Version\TestCase.
+ * @since 2.4.0 Refactored to use \Mundschenk\PHPUnit_Cross_Version\TestCase.
  */
 abstract class TestCase extends \Mundschenk\PHPUnit_Cross_Version\TestCase {}
