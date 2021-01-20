@@ -41,11 +41,7 @@ use Avatar_Privacy\Components\Comments;
  */
 function get_gravatar_checkbox() {
 	// The checkbox is meaningless for logged-in users.
-	if ( \is_user_logged_in() ) {
-		return '';
-	}
-
-	return Comments::get_gravatar_checkbox();
+	return \is_user_logged_in() ? '' : Comments::get_gravatar_checkbox();
 }
 
 /**
