@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Procedural part of Avatar Privacy.
  *
