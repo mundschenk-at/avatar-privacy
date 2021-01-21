@@ -6,7 +6,7 @@
  * @package mundschenk-at/avatar-privacy
  * @author Peter Putzer <github@mundschenk.at>
  * @copyright 2018-2020 Peter Putzer
- * @license GPL-2.0-or-later http://www.gnu.org/licenses/gpl-2.0.txt
+ * @license GPL-2.0-or-later https://github.com/mundschenk-at/avatar-privacy/blob/master/LICENSE.md
  * @link https://code.mundschenk.at/avatar-privacy/
  */
 
