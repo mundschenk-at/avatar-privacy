@@ -59,7 +59,7 @@ if ( ! \function_exists( 'is_gd_image' ) ) {
 	 *
 	 * @since 2.5.0
 	 *
-	 * @param  resource/GdImage/false $image A value to check the type for.
+	 * @param  resource|GdImage|false $image A value to check the type for.
 	 *
 	 * @return bool                          True if $image is either a GD image
 	 *                                       resource or GdImage instance, false
