@@ -26,8 +26,14 @@
 
 // phpcs:disable WordPress.NamingConventions, Squiz.Commenting.ClassComment.Missing, Generic.Files.OneObjectStructurePerFile.MultipleFound, Squiz.Commenting.FunctionComment.InvalidNoReturn
 
-// WP User Manager stubs.
+// PHP 8.0 internal classes.
+namespace {
+	if ( \version_compare( \PHP_VERSION, '8.0.0', '<' ) ) {
+		class GdImage {}
+	}
+}
 
+// WP User Manager stubs.
 namespace Carbon_Fields\Field {
 	class Field {
 		/**
@@ -108,6 +114,7 @@ namespace wpdFormAttr\Field {
 
 // Simple Author Box.
 namespace {
+
 	class Simple_Author_Box {
 		/**
 		 * Stub for Simple Author Box.
