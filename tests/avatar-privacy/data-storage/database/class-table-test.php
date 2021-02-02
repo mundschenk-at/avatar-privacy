@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -275,6 +275,7 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 			$this->sut->shouldReceive( 'get_table_definition' )->never();
 			$this->sut->shouldReceive( 'db_delta' )->never();
 			$this->sut->shouldReceive( 'register_table' )->never();
+			$this->sut->shouldReceive( 'maybe_upgrade_charset_and_collation' )->never();
 		} else {
 			$this->sut->shouldReceive( 'get_table_name' )->once()->andReturn( $table_name );
 
@@ -295,6 +296,7 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 			}
 
 			$this->sut->shouldReceive( 'register_table' )->once()->with( $wpdb, $table_name );
+			$this->sut->shouldReceive( 'maybe_upgrade_charset_and_collation' )->once()->with( $table_name )->andReturn( false );
 		}
 
 		$this->assertSame( $result, $this->sut->maybe_create_table( $previous ) );
@@ -323,6 +325,7 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'db_delta' )->once()->with( m::type( 'string' ) );
 
 		$this->sut->shouldReceive( 'register_table' )->never();
+		$this->sut->shouldReceive( 'maybe_upgrade_charset_and_collation' )->never();
 
 		// This should never happen in the real world.
 		$this->assertFalse( $this->sut->maybe_create_table( $previous ) );
@@ -396,6 +399,111 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assert_attribute_not_contains( self::TABLE_BASENAME, 'tables', $db );
 		$this->assert_attribute_contains( self::TABLE_BASENAME, 'ms_global_tables', $db );
 		$this->assert_attribute_same( $table_name, self::TABLE_BASENAME, $db );
+	}
+
+	/**
+	 * Tests ::maybe_upgrade_charset_and_collation.
+	 *
+	 * @covers ::maybe_upgrade_charset_and_collation
+	 */
+	public function test_maybe_upgrade_charset_and_collation() {
+		global $wpdb;
+		$wpdb = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		// Input.
+		$table_name = 'my_table_name';
+
+		// Intermediary results.
+		$new_charset   = 'fakecharset';
+		$new_collation = "{$new_charset}_foobar_ci";
+		$old_charset   = 'oldcharset';
+		$old_collation = "{$old_charset}_barfoo_ci";
+		$columns       = [
+			[
+				'name'     => 'column1',
+				'charset'  => $old_charset,
+				'collate'  => $old_collation,
+				'type'     => 'varchar(42)',
+				'nullable' => 'NO',
+				'default'  => '',
+			],
+			[
+				'name'     => 'col2',
+				'charset'  => $old_charset,
+				'collate'  => $old_collation,
+				'type'     => 'varchar(2)',
+				'nullable' => 'NO',
+				'default'  => 'foobar',
+			],
+			[
+				'name'     => 'column 4',
+				'charset'  => $old_charset,
+				'collate'  => $old_collation,
+				'type'     => 'varchar(4711)',
+				'nullable' => 'YES',
+				'default'  => null,
+			],
+		];
+
+		// Make sure the $wpdb properties exist for the test.
+		$wpdb->charset = $new_charset;
+		$wpdb->collate = $new_collation;
+
+		// Fake SQL queries.
+		$prepared_collation_query   = 'PREPARED COLLATION QUERY';
+		$prepared_colummns_query    = 'PREPARED COLUMNS QUERY';
+		$prepared_alter_table_query = 'PREPARED ALTER TABLE QUERY';
+
+		$wpdb->shouldReceive( 'prepare' )->once()->with( m::pattern( '/^SELECT table_collation FROM.*$/' ), $table_name )->andReturn( $prepared_collation_query );
+		$wpdb->shouldReceive( 'get_var' )->once()->with( $prepared_collation_query )->andReturn( $old_collation );
+
+		$wpdb->shouldReceive( 'prepare' )->once()->with( m::pattern( '/^SELECT column_name AS.*$/' ), $table_name, $old_collation )->andReturn( $prepared_colummns_query );
+		$wpdb->shouldReceive( 'get_results' )->once()->with( $prepared_colummns_query, \ARRAY_A )->andReturn( $columns );
+
+		$wpdb->shouldReceive( 'prepare' )->once()->with( m::pattern( '/^ALTER TABLE.*$/' ), m::on( function( $param ) {
+			// 1 for the table name, 2 for the number of columns with defined default values.
+			return \is_array( $param ) && \count( $param ) === 3;
+		} ) )->andReturn( $prepared_alter_table_query );
+		$wpdb->shouldReceive( 'query' )->once()->with( $prepared_alter_table_query )->andReturn( \count( $columns ) );
+
+		// Run test.
+		$this->assertTrue( $this->sut->maybe_upgrade_charset_and_collation( $table_name ) );
+	}
+
+	/**
+	 * Tests ::maybe_upgrade_charset_and_collation.
+	 *
+	 * @covers ::maybe_upgrade_charset_and_collation
+	 */
+	public function test_maybe_upgrade_charset_and_collation_not_needed() {
+		global $wpdb;
+		$wpdb = m::mock( 'wpdb' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		// Input.
+		$table_name = 'my_table_name';
+
+		// Intermediary results.
+		$new_charset   = 'fakecharset';
+		$new_collation = "{$new_charset}_foobar_ci";
+
+		// Make sure the $wpdb properties exist for the test.
+		$wpdb->charset = $new_charset;
+		$wpdb->collate = $new_collation;
+
+		// Fake SQL queries.
+		$prepared_collation_query = 'PREPARED COLLATION QUERY';
+
+		$wpdb->shouldReceive( 'prepare' )->once()->with( m::pattern( '/^SELECT table_collation FROM.*$/' ), $table_name )->andReturn( $prepared_collation_query );
+		$wpdb->shouldReceive( 'get_var' )->once()->with( $prepared_collation_query )->andReturn( $new_collation );
+
+		$wpdb->shouldReceive( 'prepare' )->never()->with( m::pattern( '/^SELECT column_name AS.*$/' ), $table_name, m::type( 'string' ) );
+		$wpdb->shouldReceive( 'get_results' )->never()->with( m::type( 'string' ), \ARRAY_A );
+
+		$wpdb->shouldReceive( 'prepare' )->never()->with( m::pattern( '/^ALTER TABLE.*$/' ), m::type( 'array' ) );
+		$wpdb->shouldReceive( 'query' )->never()->with( m::type( 'string' ) );
+
+		// Run test.
+		$this->assertFalse( $this->sut->maybe_upgrade_charset_and_collation( $table_name ) );
 	}
 
 	/**
