@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -185,8 +185,9 @@ abstract class Table {
 			return false;
 		}
 
-		// Set up table name.
+		// Set up table name and result status.
 		$table_name = $this->get_table_name();
+		$updated    = false;
 
 		// Just fix $wpdb object if table already exists, unless we need an update.
 		if ( ! $db_needs_update && $this->table_exists( $table_name ) ) {
@@ -195,13 +196,18 @@ abstract class Table {
 			// Create/update the table.
 			$this->db_delta( $this->get_table_definition( $table_name ) . " {$wpdb->get_charset_collate()};" );
 
-			if ( $this->table_exists( $table_name ) ) {
-				$this->register_table( $wpdb, $table_name );
-				return true;
+			if ( ! $this->table_exists( $table_name ) ) {
+				// There was an error creating the table.
+				// TODO: Signal catastrophic error to the adminstrator.
+				return false;
 			}
+
+			$this->register_table( $wpdb, $table_name );
+			$updated = true;
 		}
 
-		return false;
+		// We may need to update the charset/collation.
+		return $this->maybe_upgrade_charset_and_collation( $table_name ) || $updated;
 	}
 
 	/**
@@ -267,6 +273,55 @@ abstract class Table {
 
 		// Also register the "shortcut" property.
 		$db->$basename = $table_name;
+	}
+
+	/**
+	 * Fixes the table's charset and/or collation if the WordPress default has
+	 * changed since the table was created (to prevent "Illegal mix of collations"
+	 * errors in joins). Unfortunately, `dbDelta()` does not do that for us (viz.
+	 * [Trac ticket #45697](https://core.trac.wordpress.org/ticket/45697)).
+	 *
+	 * The table itself is already guaranteed to exist.
+	 *
+	 * @since 2.4.4
+	 *
+	 * @global \wpdb  $wpdb       The WordPress Database Access Abstraction.
+	 *
+	 * @param  string $table_name The table name (with prefix).
+	 *
+	 * @return bool               True if the collation was modified, false otherwise.
+	 */
+	protected function maybe_upgrade_charset_and_collation( $table_name ) {
+		global $wpdb;
+
+		// Check if the charset and collation set for the table are the same as
+		// WordPress' default.
+		$collation = $wpdb->get_var( $wpdb->prepare( 'SELECT table_collation FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = DATABASE() AND table_name = %s', $table_name ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		if ( $wpdb->collate === $collation ) {
+			return false;
+		}
+
+		$columns_clause = '';
+		$query_args     = [ $table_name ];
+
+		// Update existing columns first.
+		$columns = $wpdb->get_results( $wpdb->prepare( "SELECT column_name AS 'name', character_set_name AS 'charset', collation_name AS 'collate', column_type AS 'type', is_nullable AS 'nullable', column_default AS 'default' FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = DATABASE() AND table_name = %s AND collation_name = %s", $table_name, $collation ), \ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQLPlaceholders
+		if ( ! empty( $columns ) ) {
+			$alter_table = [];
+			foreach ( $columns as $c ) {
+				$default = 'YES' !== $c['nullable'] ? 'NOT NULL ' : '';
+				if ( isset( $c['default'] ) ) {
+					$default     .= 'DEFAULT %s';
+					$query_args[] = $c['default'];
+				}
+				$alter_table[] = "MODIFY `{$c['name']}` {$c['type']} CHARACTER SET {$wpdb->charset} COLLATE {$wpdb->collate} {$default}";
+			}
+
+			$columns_clause = ', ' . \join( ', ', $alter_table );
+		}
+
+		// Then set the default charset and collation for the table.
+		return (bool) $wpdb->query( $wpdb->prepare( "ALTER TABLE `%1s` CHARSET {$wpdb->charset} COLLATE {$wpdb->collate}" . $columns_clause, $query_args ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL, WordPress.DB.PreparedSQLPlaceholders
 	}
 
 	/**
