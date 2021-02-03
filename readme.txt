@@ -168,7 +168,7 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 == Changelog ==
 
-= 2.4.4 (unreleased) =
+= 2.4.4 (2021-02-03) =
 * _Bugfix_: Gracefully handle changes to WordPress' default DB collation (no more `Illegal mix of collations` errors).
 
 = 2.4.3 (2021-01-15) =
