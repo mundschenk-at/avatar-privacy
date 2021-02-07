@@ -2,7 +2,7 @@
 
 ## 2.4.4 (2021-02-03)
 *   _Bugfix_: Gracefully handle changes to WordPress' default DB collation (no
-    more `Illegal mix of collations` errors).
+              more `Illegal mix of collations` errors).
 
 ## 2.4.3 (2021-01-15)
 *   _Bugfix_: Don't break stuff (another build process fix, for real this time).
