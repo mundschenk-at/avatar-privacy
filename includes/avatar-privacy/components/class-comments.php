@@ -281,7 +281,11 @@ class Comments implements Component {
 			return;
 		}
 		$comment = \get_comment( $comment_id );
-		if ( ! $comment instanceof \WP_Comment || ( '' !== $comment->comment_type ) || ( '' === $comment->comment_author_email ) ) {
+		if (
+			! $comment instanceof \WP_Comment ||
+			( '' !== $comment->comment_type && 'comment' !== $comment->comment_type ) ||
+			( '' === $comment->comment_author_email )
+		) {
 			return;
 		}
 
