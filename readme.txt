@@ -167,6 +167,9 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 == Changelog ==
 
+=  2.4.5 (2021-02-07) =
+* _Bugfix_: Gravatar opt-ins by anonymous commenters are now properly saved on WordPress 5.5 and later.
+
 = 2.4.4 (2021-02-03) =
 * _Bugfix_: Gracefully handle changes to WordPress' default DB collation (no more `Illegal mix of collations` errors).
 
