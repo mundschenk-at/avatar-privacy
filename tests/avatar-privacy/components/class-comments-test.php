@@ -403,6 +403,34 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Calculated.
 		$email                         = 'foo@bar.org';
 		$comment                       = m::mock( 'WP_Comment' );
+		$comment->comment_type         = 'comment';
+		$comment->comment_author_email = $email;
+
+		// Set up request data.
+		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$_POST = [ Comments::CHECKBOX_FIELD_NAME => 'true' ];
+
+		Functions\expect( 'get_comment' )->once()->with( $comment_id )->andReturn( $comment );
+		Functions\expect( 'get_user_by' )->once()->with( 'email', $email )->andReturn( false );
+
+		$this->comment_author->shouldReceive( 'update_gravatar_use' )->once()->with( $email, $comment_id, true );
+
+		$this->assertNull( $this->sut->comment_post( $comment_id, $comment_approved ) );
+	}
+
+	/**
+	 * Tests ::comment_post with the default comment_type as the empty string.
+	 *
+	 * @covers ::comment_post
+	 */
+	public function test_comment_post_pre_wp55() {
+		// Input parameters.
+		$comment_id       = 777;
+		$comment_approved = 1;
+
+		// Calculated.
+		$email                         = 'foo@bar.org';
+		$comment                       = m::mock( 'WP_Comment' );
 		$comment->comment_type         = '';
 		$comment->comment_author_email = $email;
 
