@@ -168,6 +168,9 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 == Changelog ==
 
+= 2.4.6 (2021-02-21) =
+* _Bugfix_: Unchecking the Gravatar opt-in and anonymous commenting checkboxes in a user's profile screen works again.
+
 =  2.4.5 (2021-02-07) =
 * _Bugfix_: Gravatar opt-ins by anonymous commenters are now properly saved on WordPress 5.5 and later.
 
