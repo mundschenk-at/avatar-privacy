@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -395,12 +395,12 @@ class User_Form {
 	 *                                        cannot be verified.
 	 */
 	protected function get_submitted_checkbox_value( $nonce, $action, $field_name ) {
-		if ( ! isset( $_POST[ $field_name ] ) ) {
+		if ( ! isset( $_POST[ $nonce ] ) && ! isset( $_POST[ $field_name ] ) ) {
 			throw new Form_Field_Not_Found_Exception( "Form field '{$field_name}' not found." );
 		}
 
 		if ( isset( $_POST[ $nonce ] ) && \wp_verify_nonce( \sanitize_key( $_POST[ $nonce ] ), $action ) ) {
-			return 'true' === $_POST[ $field_name ];
+			return isset( $_POST[ $field_name ] ) && 'true' === $_POST[ $field_name ];
 		}
 
 		throw new Invalid_Nonce_Exception( 'Could not verify checkbox nonce.' );
