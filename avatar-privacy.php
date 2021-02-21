@@ -29,7 +29,7 @@
  * Description: Adds options to enhance the privacy when using avatars.
  * Author: Peter Putzer
  * Author URI: https://code.mundschenk.at
- * Version: 2.4.5
+ * Version: 2.4.6
  * Requires at least: 5.2
  * Requires PHP: 7.0
  * License: GNU General Public License v2 or later
