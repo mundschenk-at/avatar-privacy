@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -86,7 +86,7 @@ class Hasher {
 
 				if ( empty( $_salt ) ) {
 					// Still nothing? Generate a random value.
-					$_salt = \wp_rand();
+					$_salt = $this->generate_salt();
 
 					// Save the generated salt.
 					$this->network_options->set( Network_Options::SALT, $_salt );
@@ -97,6 +97,17 @@ class Hasher {
 		}
 
 		return $this->salt;
+	}
+
+	/**
+	 * Generates a new salt.
+	 *
+	 * @since  2.5.0
+	 *
+	 * @return string
+	 */
+	protected function generate_salt() {
+		return \wp_generate_password( 64, true, true );
 	}
 
 	/**
