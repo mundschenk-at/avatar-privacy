@@ -30,5 +30,7 @@ export const settings = {
 	},
 
 	edit,
-	save: () => {},
+	save: () => {
+		// Intentionally empty because this is a dynamic block
+	},
 };
