@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.0 (unreleased)
+*   _Feature_: The plugin is now compatible with PHP 8.0.
+*   _Change_: The library `scripturadesign/color` has been removed as a dependency.
+
 ## 2.4.6 (2021-02-21)
 *   _Bugfix_: Unchecking the Gravatar opt-in and anonymous commenting checkboxes
               in a user's profile screen works again.
