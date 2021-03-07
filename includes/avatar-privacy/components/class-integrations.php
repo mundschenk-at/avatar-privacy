@@ -83,6 +83,6 @@ class Integrations implements Component {
 	 * @return void
 	 */
 	public function run() {
-		\add_action( 'plugins_loaded', [ $this, 'activate' ] );
+		\add_action( 'plugins_loaded', [ $this, 'activate' ], 1 );
 	}
 }

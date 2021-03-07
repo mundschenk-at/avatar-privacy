@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -34,7 +34,6 @@ use Mockery as m;
 
 use Avatar_Privacy\Components\Integrations;
 
-use Avatar_Privacy\Core;
 use Avatar_Privacy\Integrations\Plugin_Integration;
 
 /**
@@ -53,13 +52,6 @@ class Integrations_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var Integrations
 	 */
 	private $sut;
-
-	/**
-	 * Required helper object.
-	 *
-	 * @var Core
-	 */
-	private $core;
 
 	/**
 	 * An array of mocked integrations.
@@ -106,7 +98,7 @@ class Integrations_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::run
 	 */
 	public function test_run() {
-		Actions\expectAdded( 'plugins_loaded' )->once()->with( [ $this->sut, 'activate' ] );
+		Actions\expectAdded( 'plugins_loaded' )->once()->with( [ $this->sut, 'activate' ], 1 );
 
 		$this->assertNull( $this->sut->run() );
 	}
