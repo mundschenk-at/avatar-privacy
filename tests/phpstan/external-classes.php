@@ -141,3 +141,14 @@ namespace {
 		public function replace_gravatar_image( $avatar, $id_or_email, $size, $default, $alt, $args = [] ) {}
 	}
 }
+
+// Simple User Avatar.
+namespace {
+
+	class SimpleUserAvatar_Public {
+		/**
+		 * Stub for Simple Author Box.
+		 */
+		public static function init() {}
+	}
+}

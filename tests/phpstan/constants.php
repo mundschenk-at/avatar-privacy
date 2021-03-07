@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020 Peter Putzer.
+ * Copyright 2020-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,6 +24,8 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
+
 // Avatar Privacy constants.
 define( 'AVATAR_PRIVACY_PLUGIN_FILE', '/some/path/file' );
 define( 'AVATAR_PRIVACY_PLUGIN_PATH', '/some/path' );
@@ -32,3 +34,6 @@ define( 'AVATAR_PRIVACY_PLUGIN_PATH', '/some/path' );
 define( 'COOKIE_DOMAIN', 'example.org' );
 define( 'COOKIEHASH', 'b7d8d5a26884619e3b3b4481ba778642' );
 define( 'COOKIEPATH', '/some/path' );
+
+// Plugin constants.
+define( 'SUA_USER_META_KEY', 'mm_sua_attachment_id' );
