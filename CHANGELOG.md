@@ -3,6 +3,7 @@
 ## 2.5.0 (unreleased)
 *   _Feature_: Avatar Privacy is now compatible with PHP 8.0.
 *   _Feature_: Integration for the following plugins had been added:
+    -   [Simple Local Avatars](https://wordpress.org/plugins/simple-local-avatars/)
     -   [Simple User Avatar](https://wordpress.org/plugins/simple-user-avatar/)
 *   _Change_: The library `scripturadesign/color` has been removed as a dependency.
 
