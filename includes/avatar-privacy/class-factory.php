@@ -367,6 +367,7 @@ class Factory extends Dice {
 			[ self::INSTANCE => Integrations\BBPress_Integration::class ],
 			[ self::INSTANCE => Integrations\BuddyPress_Integration::class ],
 			[ self::INSTANCE => Integrations\Simple_Author_Box_Integration::class ],
+			[ self::INSTANCE => Integrations\Simple_Local_Avatars_Integration::class ],
 			[ self::INSTANCE => Integrations\Simple_User_Avatar_Integration::class ],
 			[ self::INSTANCE => Integrations\Theme_My_Login_Profiles_Integration::class ],
 			[ self::INSTANCE => Integrations\Ultimate_Member_Integration::class ],
