@@ -169,6 +169,14 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 == Changelog ==
 
+= 2.5.0 (2021-03-11) =
+* _Feature_: Avatar Privacy is now compatible with PHP 8.0.
+* _Feature_: Integration for the following plugins had been added:
+  - [Simple Local Avatars](https://wordpress.org/plugins/simple-local-avatars/)
+  - [Simple User Avatar](https://wordpress.org/plugins/simple-user-avatar/)
+* _Change_: The library `scripturadesign/color` has been removed as a dependency.
+* _Change_: Additional hardening.
+
 = 2.4.6 (2021-02-21) =
 * _Bugfix_: Unchecking the Gravatar opt-in and anonymous commenting checkboxes in a user's profile screen works again.
 
