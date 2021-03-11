@@ -135,6 +135,8 @@ These plugins have been tested successfully in conjunction with Avatar Privacy:
 * [Comments – wpDiscuz](https://wordpress.org/plugins/wpdiscuz/)
 * [EWWW Image Optimizer](https://wordpress.org/plugins/ewww-image-optimizer/)
 * [Simple Author Box](https://wordpress.org/plugins/simple-author-box/)
+* [Simple Local Avatars](https://wordpress.org/plugins/simple-local-avatars/)
+* [Simple User Avatar](https://wordpress.org/plugins/simple-user-avatar/)
 * [Theme My Login](https://wordpress.org/plugins/theme-my-login/)
 * [Ultimate Member](https://wordpress.org/plugins/ultimate-member/)
 * [Webmention](https://wordpress.org/plugins/webmention/)
