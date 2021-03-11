@@ -6,6 +6,7 @@
     -   [Simple Local Avatars](https://wordpress.org/plugins/simple-local-avatars/)
     -   [Simple User Avatar](https://wordpress.org/plugins/simple-user-avatar/)
 *   _Change_: The library `scripturadesign/color` has been removed as a dependency.
+*   _Change_: Additional hardening.
 
 ## 2.4.6 (2021-02-21)
 *   _Bugfix_: Unchecking the Gravatar opt-in and anonymous commenting checkboxes
