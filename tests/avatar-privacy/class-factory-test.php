@@ -188,7 +188,7 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Test ::get. Should be run after tet_get_plugin_version.
+	 * Test ::get. Should be run after test_get_plugin_version.
 	 *
 	 * @covers ::get
 	 *
