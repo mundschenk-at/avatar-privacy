@@ -46,6 +46,9 @@ use Avatar_Privacy\Avatar_Handlers\Gravatar_Cache_Handler;
 use Avatar_Privacy\Avatar_Handlers\Legacy_Icon_Handler;
 use Avatar_Privacy\Avatar_Handlers\User_Avatar_Handler;
 
+use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons;
+use Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons;
+
 use Avatar_Privacy\Data_Storage\Cache;
 use Avatar_Privacy\Data_Storage\Database;
 use Avatar_Privacy\Data_Storage\Filesystem_Cache;
@@ -54,13 +57,13 @@ use Avatar_Privacy\Data_Storage\Network_Options;
 use Avatar_Privacy\Data_Storage\Transients;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 
-use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generated_Icons;
-use Avatar_Privacy\Avatar_Handlers\Default_Icons\Static_Icons;
+use Avatar_Privacy\Exceptions\Object_Factory_Exception;
 
 use Avatar_Privacy\Integrations;
 
 use Avatar_Privacy\Tools;
 use Avatar_Privacy\Tools\HTML\User_Form;
+
 
 /**
  * A factory for creating Avatar_Privacy instances via dependency injection.
@@ -94,21 +97,31 @@ class Factory extends Dice {
 	 * Creates a new instance.
 	 */
 	final protected function __construct() {
-		$this->addRules( $this->get_rules() );
 	}
 
 	/**
 	 * Retrieves a factory set up for creating Avatar_Privacy instances.
 	 *
 	 * @since 2.1.0 Parameter $full_plugin_path replaced with AVATAR_PRIVACY_PLUGIN_FILE constant.
+	 * @since 2.5.1 Now throws an Object_Factory_Exception in case of error.
 	 *
 	 * @return Factory
+	 *
+	 * @throws Object_Factory_Exception An exception is thrown if the factory cannot
+	 *                                  be created.
 	 */
 	public static function get() {
 		if ( ! isset( self::$factory ) ) {
 
 			// Create factory.
-			self::$factory = new static();
+			$factory = new static();
+			$factory = $factory->addRules( $factory->get_rules() );
+
+			if ( $factory instanceof Factory ) {
+				self::$factory = $factory;
+			} else {
+				throw new Object_Factory_Exception( 'Could not create object factory.' ); // @codeCoverageIgnore
+			}
 		}
 
 		return self::$factory;
