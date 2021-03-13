@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.1 (2021-03-13)
+*   _Bugfix_: Fixes PHP 8.0 deprecation warning in the `level-2/dice` package.
+
 ## 2.5.0 (2021-03-11)
 *   _Feature_: Avatar Privacy is now compatible with PHP 8.0.
 *   _Feature_: Integration for the following plugins had been added:
