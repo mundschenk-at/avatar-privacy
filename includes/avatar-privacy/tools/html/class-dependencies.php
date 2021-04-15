@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020 Peter Putzer.
+ * Copyright 2020-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -220,7 +220,7 @@ class Dependencies {
 	 * @return string|bool|null
 	 */
 	protected function maybe_add_file_modification_version( $version, $src ) {
-		if ( false === $version && ! empty( $src ) ) {
+		if ( false === $version && ! empty( $src ) && \file_exists( $src ) ) {
 			$version = (string) @\filemtime( $src );
 			$version = empty( $version ) ? false : $version;
 		}
