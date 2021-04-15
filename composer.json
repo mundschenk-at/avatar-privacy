@@ -83,7 +83,7 @@
             "phpunit --testsuite AvatarPrivacy"
         ],
         "coverage": [
-            "phpunit --testsuite AvatarPrivacy --coverage-html tests/coverage"
+            "XDEBUG_MODE=coverage phpunit --testsuite AvatarPrivacy --coverage-html tests/coverage"
         ],
         "phpstan": [
             "phpstan analyze"
