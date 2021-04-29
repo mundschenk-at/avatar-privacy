@@ -169,6 +169,9 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 == Changelog ==
 
+= 2.5.2 (unreleased) =
+* _Bugfix_: When a user is deleted, their local avatar image is removed as well.
+
 = 2.5.1 (2021-03-13) =
 * _Bugfix_: Fixes PHP 8.0 deprecation warning in the `level-2/dice` package.
 
