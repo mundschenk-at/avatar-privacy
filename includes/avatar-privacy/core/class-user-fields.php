@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -440,5 +440,40 @@ class User_Fields implements API {
 		$count += (int) $this->delete_local_avatar( $user_id );
 
 		return $count;
+	}
+
+	/**
+	 * Removes local avatar files "orphaned" by the deletion of the referencing
+	 * user meta data (e.g. when a user is deleted).
+	 *
+	 * @internal
+	 *
+	 * @since  2.5.2
+	 *
+	 * @param  string[] $meta_ids   An array of metadata entry IDs to delete.
+	 * @param  int      $object_id  ID of the object metadata is for.
+	 * @param  string   $meta_key   Metadata key.
+	 * @param  mixed    $meta_value Metadata value.
+	 *
+	 * @return void
+	 */
+	public function remove_orphaned_local_avatar( array $meta_ids, $object_id, $meta_key, $meta_value ) {
+		if ( self::USER_AVATAR_META_KEY !== $meta_key ) {
+			return;
+		}
+
+		/**
+		 * The filter provides inconsistent data depending on whether it is called
+		 * by `delete_metadata` or `delete_metadata_by_mid` (@see https://core.trac.wordpress.org/ticket/53102).
+		 * When run through `delete_metadata`, `$meta_value` is equal to the optional
+		 * argument of the same name, not the actual metadata value.
+		 *
+		 * Fortunately, both `wp_delete_user` and `wpmu_delete_user` use `delete_metadata_by_mid`,
+		 * so we can use `$meta_value`. Contrary to the documentation, non-scalar
+		 * values are not serialized.
+		 */
+		if ( ! empty( $meta_value ) && ! empty( $meta_value['file'] ) && \file_exists( $meta_value['file'] ) ) {
+			\unlink( $meta_value['file'] );
+		}
 	}
 }
