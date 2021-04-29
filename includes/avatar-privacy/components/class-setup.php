@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -186,6 +186,9 @@ class Setup implements Component {
 
 		// Update settings and database if necessary.
 		\add_action( 'plugins_loaded', [ $this, 'update_check' ] );
+
+		// Clean up uploaded files after deleting the refering metadata.
+		\add_action( 'deleted_user_meta', [ $this->registered_user, 'remove_orphaned_local_avatar' ], 10, 4 );
 	}
 
 	/**
