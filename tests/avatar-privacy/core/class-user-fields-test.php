@@ -783,4 +783,81 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertSame( $result, $this->sut->delete( $user_id ) );
 	}
+
+	/**
+	 * Tests ::remove_orphaned_local_avatar.
+	 *
+	 * @covers ::remove_orphaned_local_avatar
+	 */
+	public function test_remove_orphaned_local_avatar() {
+		$file       = vfsStream::url( 'root/uploads/some.png' );
+		$meta_ids   = [ '47', '11' ];
+		$meta_key   = User_Fields::USER_AVATAR_META_KEY;
+		$object_id  = 42;
+		$meta_value = [
+			'type' => 'image/png',
+			'file' => $file,
+		];
+
+		$this->assertNull( $this->sut->remove_orphaned_local_avatar( $meta_ids, $object_id, $meta_key, $meta_value ) );
+
+		$this->assertFalse( \file_exists( $file ) );
+	}
+
+	/**
+	 * Tests ::remove_orphaned_local_avatar.
+	 *
+	 * @covers ::remove_orphaned_local_avatar
+	 */
+	public function test_remove_orphaned_local_avatar_invalid_file() {
+		$file       = vfsStream::url( 'root/uploads/some.png' );
+		$meta_ids   = [ '47', '11' ];
+		$meta_key   = User_Fields::USER_AVATAR_META_KEY;
+		$object_id  = 42;
+		$meta_value = [
+			'type' => 'image/png',
+			'file' => vfsStream::url( 'root/uploads/invalid_file.png' ),
+		];
+
+		$this->assertNull( $this->sut->remove_orphaned_local_avatar( $meta_ids, $object_id, $meta_key, $meta_value ) );
+
+		$this->assertTrue( \file_exists( $file ) );
+	}
+
+	/**
+	 * Tests ::remove_orphaned_local_avatar.
+	 *
+	 * @covers ::remove_orphaned_local_avatar
+	 */
+	public function test_remove_orphaned_local_avatar_invalid_meta_value() {
+		$file       = vfsStream::url( 'root/uploads/some.png' );
+		$meta_ids   = [ '47', '11' ];
+		$meta_key   = User_Fields::USER_AVATAR_META_KEY;
+		$object_id  = 42;
+		$meta_value = $file;
+
+		$this->assertNull( $this->sut->remove_orphaned_local_avatar( $meta_ids, $object_id, $meta_key, $meta_value ) );
+
+		$this->assertTrue( \file_exists( $file ) );
+	}
+
+	/**
+	 * Tests ::remove_orphaned_local_avatar.
+	 *
+	 * @covers ::remove_orphaned_local_avatar
+	 */
+	public function test_remove_orphaned_local_avatar_invalid_meta_key() {
+		$file       = vfsStream::url( 'root/uploads/some.png' );
+		$meta_ids   = [ '47', '11' ];
+		$meta_key   = 'foobar';
+		$object_id  = 42;
+		$meta_value = [
+			'type' => 'image/png',
+			'file' => vfsStream::url( 'root/uploads/invalid_file.png' ),
+		];
+
+		$this->assertNull( $this->sut->remove_orphaned_local_avatar( $meta_ids, $object_id, $meta_key, $meta_value ) );
+
+		$this->assertTrue( \file_exists( $file ) );
+	}
 }
