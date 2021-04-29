@@ -45,7 +45,7 @@ use Avatar_Privacy\Tools\HTML\Dependencies;
 class Dependencies_Test extends \Avatar_Privacy\Tests\TestCase {
 
 	const PLUGIN_BASE_URL     = 'https://plugin/base/url';
-	const PLUGIN_BASE_PATH    = '/plugin/base/path';
+	const PLUGIN_BASE_PATH    = 'vfs://root/plugin/base/path';
 	const MINIFICATION_SUFFIX = '.suffix';
 
 	/**
@@ -60,7 +60,7 @@ class Dependencies_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @var string
 	 */
-	private $valid_file = 'vfs://root/plugin/some/fake/source.js';
+	private $valid_file = self::PLUGIN_BASE_PATH . '/some/fake/source.js';
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -73,10 +73,14 @@ class Dependencies_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$filesystem = [
 			'plugin'    => [
-				'some' => [
-					'fake' => [
-						'partial.php'    => 'MY_PARTIAL',
-						'source.js'      => 'NOT_REALLY_JAVASCRIPT',
+				'base' => [
+					'path' => [
+						'some' => [
+							'fake' => [
+								'partial.php'    => 'MY_PARTIAL',
+								'source.js'      => 'NOT_REALLY_JAVASCRIPT',
+							],
+						],
 					],
 				],
 			],
@@ -94,6 +98,7 @@ class Dependencies_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Fake constructor actions.
 		$this->set_value( $this->sut, 'suffix', self::MINIFICATION_SUFFIX );
 		$this->set_value( $this->sut, 'url', self::PLUGIN_BASE_URL );
+		$this->set_value( $this->sut, 'path', self::PLUGIN_BASE_PATH );
 	}
 
 	/**
@@ -113,6 +118,7 @@ class Dependencies_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assert_attribute_same( '.min', 'suffix', $mock );
 		$this->assert_attribute_same( $plugin_base_url, 'url', $mock );
+		$this->assert_attribute_same( \AVATAR_PRIVACY_PLUGIN_PATH, 'path', $mock );
 
 		// With SCRIPT_DEBUG.
 		define( 'SCRIPT_DEBUG', true );
@@ -120,6 +126,7 @@ class Dependencies_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assert_attribute_same( '', 'suffix', $mock );
 		$this->assert_attribute_same( "{$plugin_base_url}2", 'url', $mock );
+		$this->assert_attribute_same( \AVATAR_PRIVACY_PLUGIN_PATH, 'path', $mock );
 	}
 
 	/**
@@ -138,9 +145,13 @@ class Dependencies_Test extends \Avatar_Privacy\Tests\TestCase {
 		$asset   = '<?php return [ "dependencies" => ' . \var_export( $deps, true ) . ', "version" => ' . \var_export( $version, true ) . ' ]; ?>'; // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
 		vfsStream::create( [
 			'plugin' => [
-				'some' => [
-					'fake' => [
-						'source.asset.php' => $asset,
+				'base' => [
+					'path' => [
+						'some' => [
+							'fake' => [
+								'source.asset.php' => $asset,
+							],
+						],
 					],
 				],
 			],
@@ -281,13 +292,14 @@ class Dependencies_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @return array
 	 */
 	public function provide_maybe_add_file_modification_version_data() {
+		$relative_file = \strpos( $this->valid_file, self::PLUGIN_BASE_PATH ) === 0 ? \substr( $this->valid_file, \strlen( self::PLUGIN_BASE_PATH ) ) : $this->valid_file;
 		return [
 			[ '2.3.0', 'foo/bar', '2.3.0' ],
 			[ null, 'foo/bar', null ],
 			[ false, 'foo/bar', false ],
-			[ '2.3.0', $this->valid_file, '2.3.0' ],
-			[ null, $this->valid_file, null ],
-			[ false, $this->valid_file, '1595068083' ],
+			[ '2.3.0', $relative_file, '2.3.0' ],
+			[ null, $relative_file, null ],
+			[ false, $relative_file, '1595068083' ],
 		];
 	}
 
