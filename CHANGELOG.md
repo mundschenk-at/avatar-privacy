@@ -1,7 +1,10 @@
 # Changelog
 
-## 2.5.2 (unreleased)
+## 2.5.2 (2021-04-30)
 *   _Bugfix_: When a user is deleted, their local avatar image is removed as well.
+*   _Bugfix_: The dependency version for JS and CSS files is properly calculated.
+              (This also fixes the apparently empty PHP warning when `WP_DEBUG`
+              is enabled.)
 
 ## 2.5.1 (2021-03-13)
 *   _Bugfix_: Fixes PHP 8.0 deprecation warning in the `level-2/dice` package.
