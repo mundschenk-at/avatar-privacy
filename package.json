@@ -65,5 +65,13 @@
     "start": "wp-scripts start admin/blocks/src/blocks.js --output-path=admin/blocks/js",
     "test:e2e": "wp-scripts test-e2e",
     "test:unit": "wp-scripts test-unit-js"
+  },
+  "dependencies": {
+    "@wordpress/blocks": "^10.0.0",
+    "@wordpress/components": "^14.2.0",
+    "@wordpress/data": "^5.2.0",
+    "@wordpress/editor": "^10.2.0",
+    "@wordpress/element": "^3.2.0",
+    "@wordpress/i18n": "^4.2.0"
   }
 }
