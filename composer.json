@@ -49,7 +49,7 @@
         "mundschenk-at/phpunit-cross-version": "dev-master",
         "sirbrillig/phpcs-variable-analysis": "^2.8",
         "sirbrillig/phpcs-import-detection": "^1.2",
-        "php-stubs/wp-cli-stubs": "^2.4",
+        "php-stubs/wp-cli-stubs": "^2.5",
         "php-stubs/wordpress-stubs": "5.5",
         "szepeviktor/phpstan-wordpress": "^0.7.1"
     },
