@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.0 (unreleased)
+*   _Change_: Support for Internet Explorer (all extant versions, i.e. 9, 10, and 11)
+    has been dropped.
+
 ## 2.5.2 (2021-04-30)
 *   _Bugfix_: When a user is deleted, their local avatar image is removed as well.
 *   _Bugfix_: The dependency version for JS and CSS files is properly calculated.
