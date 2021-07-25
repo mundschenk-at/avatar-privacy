@@ -217,7 +217,7 @@ class Database_Command extends Abstract_Command {
 
 		// Display everything in a nice way.
 		$formatter = new Formatter( $assoc_args, null );
-		$formatter->display_items( $items );
+		$formatter->display_items( $items ); // @phpstan-ignore-line -- https://github.com/php-stubs/wp-cli-stubs/issues/7
 	}
 
 	/**
