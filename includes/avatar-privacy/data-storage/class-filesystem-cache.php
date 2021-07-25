@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -238,7 +238,7 @@ class Filesystem_Cache {
 	 * @param  string $subdir Optional. Limit invalidation to the given subdirectory. Default ''.
 	 * @param  string $regex  Optional. Limit invalidation to files matching the given regular expression. Default ''.
 	 *
-	 * @return \OuterIterator
+	 * @return \OuterIterator<string,\SplFileInfo>
 	 */
 	protected function get_recursive_file_iterator( $subdir = '', $regex = '' ) {
 		$files = new \RecursiveIteratorIterator(
