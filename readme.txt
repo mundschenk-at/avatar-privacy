@@ -1,14 +1,10 @@
 === Avatar Privacy ===
 Contributors: pputzer, Ammaletu
-Plugin Name: Avatar Privacy
-Plugin URI: https://code.mundschenk.at/avatar-privacy/
-Author URI: https://code.mundschenk.at/
 Tags: gravatar, avatar, privacy, caching, bbpress, buddypress
-Requires at least: 5.2
-Requires PHP: 7.0
 Tested up to: 5.7
 Stable tag: 2.5.2
 License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Enhances the privacy of your users and visitors with gravatar opt-in and local avatars.
 
