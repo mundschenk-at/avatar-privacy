@@ -3,6 +3,9 @@
 	"title": "Avatar",
 	"category": "common",
 	"icon": "admin-users",
+	"description": "Displays a user's avatar.",
+	"keywords": [ "avatar", "user", "icon" ],
+	"textdomain": "avatar-privacy",
 	"attributes": {
 		"avatar_size": {
 			"type": "integer",
