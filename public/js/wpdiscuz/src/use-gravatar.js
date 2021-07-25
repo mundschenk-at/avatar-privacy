@@ -27,7 +27,5 @@ jQuery( function ( $ ) {
 		$useGravatarCheckbox.prop( 'checked', useGravatar );
 	}
 
-	$( document ).bind( 'ajaxComplete', function () {
-		resetUseGravatar();
-	} );
+	$( document ).on( 'ajaxComplete', resetUseGravatar );
 } );
