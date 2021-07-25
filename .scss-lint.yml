@@ -1,0 +1,10 @@
+scss_files: "**/scss/*.scss"
+
+linters:
+  Indentation:
+    character: tab
+    width: 1
+  LeadingZero:
+    style: include_zero
+  QualifyingElement:
+    allow_element_with_attribute: true
