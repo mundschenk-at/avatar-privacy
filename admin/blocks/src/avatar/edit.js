@@ -1,10 +1,15 @@
-'use strict';
-
 /**
- * Avatar Privacy Avatar Block edit method
+ * Avatar block for the WordPress block editor.
  *
- * The block is rendered server-side to be current (avatars can change frequently).
+ * This file is part of Avatar Privacy.
+ *
+ * @file    This file provides the edit method for the Avatar block.
+ * @author  Peter Putzer <github@mundschenk.at>
+ * @license	GPL-2.0-or-later
+ * @since   2.2.0
  */
+
+'use strict';
 
 /**
  * WordPress dependencies
@@ -21,15 +26,11 @@ import { Fragment } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
 /**
- * Edits the block attributes.
+ * Renders the markup for editing the block attributes of the Avatar block.
  *
- * Makes the markup for the editor interface.
- *
- * @param {Object} props {
- *     attributes    - The block attributes.
- *     setAttributes - The attribute setter function.
- * }
- *
+ * @param {Object} props               The block properties.
+ * @param {Object} props.attributes    The block attributes.
+ * @param {Object} props.setAttributes The attribute setter function.
  * @return {Object} ECMAScript JSX Markup for the editor
  */
 export default withSelect(
