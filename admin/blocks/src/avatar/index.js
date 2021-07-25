@@ -1,10 +1,15 @@
-'use strict';
-
 /**
- * Avatar Privacy Avatar Block
+ * Avatar block for the WordPress block editor.
  *
- * The block is rendered server-side to be current (avatars can change frequently).
+ * This file is part of Avatar Privacy.
+ *
+ * @file    This file provides the Avatar block.
+ * @author  Peter Putzer <github@mundschenk.at>
+ * @license	GPL-2.0-or-later
+ * @since   2.3.0
  */
+
+'use strict';
 
 /**
  * WordPress dependencies
@@ -21,6 +26,11 @@ const { name } = metadata;
 
 export { metadata, name };
 
+/**
+ * The Avatar block.
+ *
+ * The block is rendered server-side to be current (avatars can change frequently).
+ */
 export const settings = {
 	title: __( 'Avatar', 'avatar-privacy' ),
 
