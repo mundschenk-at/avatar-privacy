@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -282,7 +282,7 @@ class Comment_Author_Table extends Table {
 			if ( ! empty( $rows_to_migrate[ $global_row_id ] ) ) {
 				$global_row = $rows_to_migrate[ $global_row_id ];
 
-				if ( \strtotime( $row->last_updated ) >= \strtotime( $global_row->last_updated ) ) {
+				if ( (int) \strtotime( $row->last_updated ) >= (int) \strtotime( $global_row->last_updated ) ) {
 					unset( $rows_to_migrate[ $global_row_id ] );
 
 					// Just delete this row.
