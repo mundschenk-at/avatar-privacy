@@ -1,3 +1,4 @@
-.components-panel__row .components-range-control .components-base-control__label {
-	max-width: 100%
+// stylelint-disable selector-class-pattern
+.components-panel__row .components-range-control .components-base-control__label { // scss-lint:disable SelectorFormat
+	max-width: 100%;
 }
