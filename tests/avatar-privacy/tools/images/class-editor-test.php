@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2021 Peter Putzer.
+ * Copyright 2019-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -176,11 +176,12 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::create_from_image_resource.
 	 *
 	 * @covers ::create_from_image_resource
-	 *
-	 * @uses is_gd_image
 	 */
 	public function test_create_from_image_resource() {
 		$resource = \imageCreateTrueColor( 20, 20 );
+
+		// No problem with the image.
+		Functions\expect( 'is_gd_image' )->once()->andReturn( true );
 
 		$this->sut->shouldReceive( 'create_from_stream' )->once()->with( $this->stream_url )->andReturn( m::mock( \WP_Image_Editor::class ) );
 
@@ -192,8 +193,6 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @covers ::create_from_image_resource
 	 *
-	 * @uses is_gd_image
-	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
@@ -202,6 +201,9 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$errors = m::mock( 'overload:' . \WP_Error::class );
 		$errors->shouldReceive( '__construct' )->once()->with( 'invalid_image', m::type( 'string' ) );
+
+		// Not an image.
+		Functions\expect( 'is_gd_image' )->once()->andReturn( false );
 
 		Functions\expect( '__' )->once()->with( m::type( 'string' ), 'avatar-privacy' )->andReturn( 'An error.' );
 
