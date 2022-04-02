@@ -50,8 +50,7 @@
         "sirbrillig/phpcs-variable-analysis": "^2.8",
         "sirbrillig/phpcs-import-detection": "^1.2",
         "php-stubs/wp-cli-stubs": "^2.5",
-        "php-stubs/wordpress-stubs": "5.5",
-        "szepeviktor/phpstan-wordpress": "^0.7.1"
+        "szepeviktor/phpstan-wordpress": "^1.0"
     },
 
     "autoload": {
@@ -86,10 +85,10 @@
             "XDEBUG_MODE=coverage phpunit --testsuite AvatarPrivacy --coverage-html tests/coverage"
         ],
         "phpstan": [
-            "phpstan analyze"
+            "phpstan analyze --memory-limit 1G"
         ],
         "phpstan-clean": [
-            "phpstan clear-result-cache && phpstan analyze"
+            "phpstan clear-result-cache && phpstan analyze --memory-limit 1G"
         ],
         "scope-dependencies": [
             "@php vendor/bin/php-scoper add-prefix --config=.scoper.inc.php --force --quiet"
