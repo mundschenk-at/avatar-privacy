@@ -31,7 +31,7 @@
  * Author URI: https://code.mundschenk.at
  * Version: 2.6.0-alpha.1
  * Requires at least: 5.2
- * Requires PHP: 7.0
+ * Requires PHP: 7.2
  * License: GNU General Public License v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: avatar-privacy
