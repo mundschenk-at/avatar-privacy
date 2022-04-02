@@ -68,7 +68,10 @@
         "autoloader-suffix": "AvatarPrivacy",
         "process-timeout": 0,
         "vendor-dir": "vendor",
-        "platform-check": false
+        "platform-check": false,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     },
 
     "minimum-stability": "dev",
