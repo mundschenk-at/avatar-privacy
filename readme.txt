@@ -70,7 +70,7 @@ Avatar Privacy is based on the original plugin by [Johannes Freudendahl](http://
 
 Avatar Privacy has the following additional requirements beyond those of WordPress itself:
 
-* Your server must run PHP 7.0.0 or later, and
+* Your server must run PHP 7.2.0 or later, and
 * the PHP installation must include the GD extension (most do).
 
 == Screenshots ==
