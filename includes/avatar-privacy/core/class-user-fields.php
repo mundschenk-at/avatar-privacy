@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -116,13 +116,14 @@ class User_Fields implements API {
 	public function get_hash( $user_id ) {
 		$hash = \get_user_meta( $user_id, self::EMAIL_HASH_META_KEY, true );
 
-		if ( empty( $hash ) ) {
+		if ( ! \is_string( $hash ) || empty( $hash ) ) {
 			$user = \get_user_by( 'ID', $user_id );
-
-			if ( ! empty( $user->user_email ) ) {
-				$hash = $this->hasher->get_hash( $user->user_email );
-				\update_user_meta( $user_id, self::EMAIL_HASH_META_KEY, $hash );
+			if ( empty( $user->user_email ) ) {
+				return false;
 			}
+
+			$hash = $this->hasher->get_hash( $user->user_email );
+			\update_user_meta( $user_id, self::EMAIL_HASH_META_KEY, $hash );
 		}
 
 		return $hash;
@@ -185,7 +186,7 @@ class User_Fields implements API {
 		}
 
 		$avatar = \get_user_meta( $user_id, self::USER_AVATAR_META_KEY, true );
-		if ( empty( $avatar ) ) {
+		if ( ! \is_array( $avatar ) ) {
 			$avatar = [];
 		}
 
@@ -296,7 +297,7 @@ class User_Fields implements API {
 
 		// Delete original upload.
 		$avatar = \get_user_meta( $user_id, self::USER_AVATAR_META_KEY, true );
-		if ( ! empty( $avatar['file'] ) && \file_exists( $avatar['file'] ) && \unlink( $avatar['file'] ) ) {
+		if ( \is_array( $avatar ) && ! empty( $avatar['file'] ) && \file_exists( $avatar['file'] ) && \unlink( $avatar['file'] ) ) {
 			return \delete_user_meta( $user_id, self::USER_AVATAR_META_KEY );
 		}
 
@@ -472,7 +473,7 @@ class User_Fields implements API {
 		 * so we can use `$meta_value`. Contrary to the documentation, non-scalar
 		 * values are not serialized.
 		 */
-		if ( ! empty( $meta_value ) && ! empty( $meta_value['file'] ) && \file_exists( $meta_value['file'] ) ) {
+		if ( \is_array( $meta_value ) && ! empty( $meta_value['file'] ) && \file_exists( $meta_value['file'] ) ) {
 			\unlink( $meta_value['file'] );
 		}
 	}

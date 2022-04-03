@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2022 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -190,7 +190,7 @@ class Gravatar_Service {
 	protected function validate_and_cache( Transients_Helper $transients, $email, $hash, $age ) {
 		$transient_key = "check_{$hash}";
 		$result        = $transients->get( $transient_key );
-		if ( false !== $result ) {
+		if ( \is_string( $result ) ) {
 			// Warm 1st level cache.
 			$this->validation_cache[ $hash ] = $result;
 			return $result;
@@ -230,6 +230,9 @@ class Gravatar_Service {
 			case 200:
 				// Valid image found.
 				$result = \wp_remote_retrieve_header( $response, 'content-type' );
+				if ( \is_array( $result ) ) {
+					$result = $result[0];
+				}
 				break;
 
 			case 404:

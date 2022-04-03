@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -84,7 +84,7 @@ class Hasher {
 				// Let's try the network option next.
 				$_salt = $this->network_options->get( Network_Options::SALT );
 
-				if ( empty( $_salt ) ) {
+				if ( ! \is_string( $_salt ) || empty( $_salt ) ) {
 					// Still nothing? Generate a random value.
 					$_salt = $this->generate_salt();
 
