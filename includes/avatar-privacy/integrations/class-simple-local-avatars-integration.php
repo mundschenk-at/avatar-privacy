@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2021 Peter Putzer.
+ * Copyright 2021-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -89,7 +89,7 @@ class Simple_Local_Avatars_Integration implements Plugin_Integration {
 		\add_filter( 'avatar_privacy_profile_picture_upload_disabled', '__return_true', 10, 0 );
 
 		// Disable Simple Local Avatars' avatar integration.
-		\remove_filter( 'pre_get_avatar_data', [ $simple_local_avatars, 'get_avatar_data' ], 10 ); // @phpstan-ignore-line
+		\remove_filter( 'pre_get_avatar_data', [ $simple_local_avatars, 'get_avatar_data' ], 10 );
 
 		// Serve Simple Local Avatars profile pictures via the filesystem cache.
 		\add_filter( 'avatar_privacy_pre_get_user_avatar', [ $this, 'enable_user_avatars' ], 10, 2 );
