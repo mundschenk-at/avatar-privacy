@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -130,8 +130,10 @@ class Filesystem_Cache {
 	/**
 	 * Stores data in the filesystem cache.
 	 *
+	 * @since  2.6.0 The type of the `$data` parameter has been corrected to `string`.
+	 *
 	 * @param  string $filename The filename (including any sub directory).
-	 * @param  mixed  $data     The data. Will not be cached if empty.
+	 * @param  string $data     The (possibly binary) data. Will not be cached if empty.
 	 * @param  bool   $force    Optional. The cached file will only be overwritten if set to true. Default false.
 	 *
 	 * @return bool             True if the file was successfully stored in the cache, false otherwise.

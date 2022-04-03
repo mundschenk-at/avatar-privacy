@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -50,7 +50,7 @@ class Editor {
 	 *
 	 * @since 2.4.0
 	 *
-	 * @var string[]
+	 * @var array<string, bool>
 	 */
 	const ALLOWED_IMAGE_FORMATS = [
 		Image_File::JPEG_IMAGE => true,
