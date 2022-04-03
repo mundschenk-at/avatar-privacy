@@ -3,6 +3,7 @@
 ## 2.6.0 (unreleased)
 *   _Change_: Support for Internet Explorer (all extant versions, i.e. 9, 10, and 11)
     has been dropped.
+*   _Change_: Requires at least WordPress 5.6 and PHP 7.2.
 
 ## 2.5.2 (2021-04-30)
 *   _Bugfix_: When a user is deleted, their local avatar image is removed as well.
