@@ -18,9 +18,9 @@ import {
 	PanelBody,
 	PanelRow,
 	RangeControl,
-	ServerSideRender,
 	ToggleControl,
 } from '@wordpress/components';
+import ServerSideRender from '@wordpress/server-side-render';
 import { InspectorControls } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
