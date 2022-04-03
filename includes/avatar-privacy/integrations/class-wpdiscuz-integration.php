@@ -150,7 +150,7 @@ class WPDiscuz_Integration implements Plugin_Integration {
 	 */
 	public function set_comment_cookies( \WP_Comment $comment ) {
 		$user           = \wp_get_current_user();
-		$cookie_consent = $this->filter_input( \INPUT_POST, $this->cookie_consent_name, \FILTER_VALIDATE_BOOLEAN );
+		$cookie_consent = $this->filter_bool( \INPUT_POST, $this->cookie_consent_name );
 
 		$this->comments->set_comment_cookies( $comment, $user, $cookie_consent );
 	}
@@ -173,15 +173,17 @@ class WPDiscuz_Integration implements Plugin_Integration {
 	}
 
 	/**
-	 * Filters one of the input super globals to allow for unit testing.
+	 * Filters boolean values in one of the input super globals to allow for
+	 * unit testing.
+	 *
+	 * @since  2.6.0 Renamed to `filter_bool` and made more specific.
 	 *
 	 * @param  int    $type          One of INPUT_GET, INPUT_POST, INPUT_COOKIE, INPUT_SERVER, or INPUT_ENV.
 	 * @param  string $variable_name Name of a variable to get.
-	 * @param  int    $filter        The ID of the filter to apply.
 	 *
-	 * @return mixed
+	 * @return bool
 	 */
-	protected function filter_input( $type, $variable_name, $filter ) {
-		return \filter_input( $type, $variable_name, $filter ); // @codeCoverageIgnore
+	protected function filter_bool( $type, $variable_name ) {
+		return true === \filter_input( $type, $variable_name, \FILTER_VALIDATE_BOOLEAN ); // @codeCoverageIgnore
 	}
 }

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2021 Peter Putzer.
+ * Copyright 2019-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -245,7 +245,7 @@ class WPDiscuz_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'wp_get_current_user' )->once()->andReturn( $user );
 
-		$this->sut->shouldReceive( 'filter_input' )->once()->andReturn( $consent )->with( INPUT_POST, $checkbox, FILTER_VALIDATE_BOOLEAN )->andReturn( $consent );
+		$this->sut->shouldReceive( 'filter_bool' )->once()->andReturn( $consent )->with( INPUT_POST, $checkbox )->andReturn( $consent );
 
 		$this->comments->shouldReceive( 'set_comment_cookies' )->once()->with( $comment, $user, $consent );
 
