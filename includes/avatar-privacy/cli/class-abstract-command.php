@@ -52,7 +52,7 @@ abstract class Abstract_Command implements Command {
 		// Clean up saved queries.
 		$wpdb->queries = [];
 
-		// FIXME: Check if any of these are at least somewhat universal.
+		// TODO: Check if any of these are at least somewhat universal.
 		if ( \is_object( $wp_object_cache ) ) {
 			if ( \property_exists( $wp_object_cache, 'group_ops' ) ) {
 				$wp_object_cache->group_ops = [];
