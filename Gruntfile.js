@@ -34,19 +34,14 @@ module.exports = function(grunt) {
 			],
 		},
 
-		composer: {
-			build: {
-				options: {
-					flags: ['quiet'],
-					cwd: 'build',
-				},
+		exec: {
+			composer_build: {
+				command: "composer --quiet <%= grunt.task.current.args[0] %>",
+				cwd: 'build'
 			},
-			dev: {
-				options: {
-					flags: [],
-					cwd: '.',
-				},
-			},
+			composer_dev: {
+				command: "composer <%= grunt.task.current.args[0] %>",
+			}
 		},
 
 		"string-replace": {
@@ -355,7 +350,7 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('default', [
 		'newer:eslint',
-		'newer:composer:dev:phpcs',
+		'newer:exec:composer_dev:phpcs',
 		'newer:sass:dev',
 		'newer:postcss:dev'
 	]);
@@ -364,7 +359,7 @@ module.exports = function(grunt) {
 		// Clean house
 		'clean:build',
 		// Scope dependencies
-		'composer:dev:scope-dependencies',
+		'exec:composer_dev:scope-dependencies',
 		// Rename vendor directory
 		'string-replace:composer-vendor-dir',
 		'rename:vendor',
@@ -375,7 +370,7 @@ module.exports = function(grunt) {
 		'build-js',
 		// Copy other files
 		'copy:main',
-		'composer:build:build-wordpress',
+		'exec:composer_build:build-wordpress',
 		// Use scoped dependencies
 		'string-replace:namespaces',
 		// Clean up unused packages
@@ -420,14 +415,14 @@ module.exports = function(grunt) {
 	});
 
 	grunt.registerTask('deploy', [
-		'composer:dev:phpcs',
+		'exec:composer_dev:phpcs',
 		'eslint',
 		'build',
 		'wp_deploy:release'
 	]);
 
 	grunt.registerTask('trunk', [
-		'composer:dev:phpcs',
+		'exec:composer_dev:phpcs',
 		'eslint',
 		'build',
 		'wp_deploy:trunk'
