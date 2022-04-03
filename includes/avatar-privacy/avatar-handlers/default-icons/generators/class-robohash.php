@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -169,7 +169,12 @@ class Robohash extends Parts_Generator {
 			\RecursiveIteratorIterator::CHILD_FIRST
 		);
 
-		// Iterate over the files in the parts directory.
+		/**
+		 * Iterate over the files in the parts directory.
+		 *
+		 * @var string       $file
+		 * @var \SplFileInfo $info
+		 */
 		foreach ( $dir as $file => $info ) {
 			if ( ! $info->isFile() ) {
 				continue;
