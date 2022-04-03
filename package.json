@@ -64,11 +64,12 @@
     "test:unit": "wp-scripts test-unit-js"
   },
   "dependencies": {
-    "@wordpress/blocks": "^10.0.0",
-    "@wordpress/components": "^14.2.0",
-    "@wordpress/data": "^5.2.0",
-    "@wordpress/editor": "^10.2.0",
-    "@wordpress/element": "^3.2.0",
-    "@wordpress/i18n": "^4.2.0"
+    "@wordpress/blocks": "^11.4.0",
+    "@wordpress/components": "^19.7.0",
+    "@wordpress/data": "^6.5.0",
+    "@wordpress/editor": "^12.4.0",
+    "@wordpress/element": "^4.3.0",
+    "@wordpress/i18n": "^4.2.0",
+    "@wordpress/server-side-render": "^3.3.0"
   }
 }
