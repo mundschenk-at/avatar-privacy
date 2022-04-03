@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2021 Peter Putzer.
+ * Copyright 2021-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -195,6 +195,20 @@ class Simple_Author_Box_Integration_Test extends \Avatar_Privacy\Tests\TestCase 
 		Functions\expect( 'get_user_meta' )->once()->with( $user_id, Simple_Author_Box_Integration::USER_META_KEY, true )->andReturn( $url );
 
 		$this->assertSame( $url, $this->sut->get_simple_author_box_avatar( $user_id ) );
+	}
+
+	/**
+	 * Tests ::get_simple_author_box_avatar.
+	 *
+	 * @covers ::get_simple_author_box_avatar
+	 */
+	public function test_get_simple_author_box_avatar_no_user_meta() {
+		// Input.
+		$user_id = 42;
+
+		Functions\expect( 'get_user_meta' )->once()->with( $user_id, Simple_Author_Box_Integration::USER_META_KEY, true )->andReturn( false );
+
+		$this->assertSame( '', $this->sut->get_simple_author_box_avatar( $user_id ) );
 	}
 
 	/**

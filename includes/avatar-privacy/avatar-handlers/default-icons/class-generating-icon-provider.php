@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -84,7 +84,7 @@ abstract class Generating_Icon_Provider extends Abstract_Icon_Provider {
 
 		// Only generate a new icon if necessary.
 		if ( ! \file_exists( "{$this->file_cache->get_base_dir()}{$filename}" ) ) {
-			$this->file_cache->set( $filename, $this->generator->build( $identity, $size ) );
+			$this->file_cache->set( $filename, (string) $this->generator->build( $identity, $size ) );
 		}
 
 		return $this->file_cache->get_url( $filename );

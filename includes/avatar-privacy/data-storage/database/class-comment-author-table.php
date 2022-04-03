@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -116,7 +116,7 @@ class Comment_Author_Table extends Table {
 	 * @return bool
 	 */
 	public function use_global_table() {
-		$global_table = $this->network_options->get( Network_Options::USE_GLOBAL_TABLE, false );
+		$global_table = (bool) $this->network_options->get( Network_Options::USE_GLOBAL_TABLE, false );
 
 		/**
 		 * Filters whether a global table should be enabled for multisite installations.
@@ -208,7 +208,7 @@ class Comment_Author_Table extends Table {
 		$site_id = \get_current_blog_id();
 		$queue   = $this->network_options->get( Network_Options::GLOBAL_TABLE_MIGRATION, [] );
 
-		if ( ! empty( $queue[ $site_id ] ) ) {
+		if ( \is_array( $queue ) && ! empty( $queue[ $site_id ] ) ) {
 			// Migrate the data.
 			$this->migrate_from_global_table( $site_id );
 

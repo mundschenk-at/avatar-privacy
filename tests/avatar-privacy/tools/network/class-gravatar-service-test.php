@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -352,6 +352,30 @@ class Gravatar_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'wp_remote_retrieve_header' )->once()->with( $response, 'content-type' )->andReturn( 'CONTENT_TYPE' );
 
 		$this->assertSame( 'CONTENT_TYPE', $this->sut->ping_gravatar( $email ) );
+	}
+
+	/**
+	 * Tests ::ping_gravatar
+	 *
+	 * @covers ::ping_gravatar
+	 */
+	public function test_ping_gravatar_multiple_content_type_headers() {
+		$email     = 'foobar@example.org';
+		$response  = (object) [ 'the_response' ];
+		$http_code = 200;
+
+		$content_type = [
+			'CONTENT_TYPE_1',
+			'CONTENT_TYPE_2',
+		];
+
+		$this->sut->shouldReceive( 'get_url' )->once()->with( $email )->andReturn( 'URL' );
+
+		Functions\expect( 'wp_remote_head' )->once()->with( 'URL' )->andReturn( $response );
+		Functions\expect( 'wp_remote_retrieve_response_code' )->once()->with( $response )->andReturn( $http_code );
+		Functions\expect( 'wp_remote_retrieve_header' )->once()->with( $response, 'content-type' )->andReturn( $content_type );
+
+		$this->assertSame( $content_type[0], $this->sut->ping_gravatar( $email ) );
 	}
 
 	/**

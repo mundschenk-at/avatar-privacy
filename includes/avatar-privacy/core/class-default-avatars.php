@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020-2021 Peter Putzer.
+ * Copyright 2020-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -121,7 +121,7 @@ class Default_Avatars implements API {
 	 */
 	public function get_custom_default_avatar() {
 		$avatar = $this->settings->get( Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR );
-		if ( empty( $avatar['file'] ) ) {
+		if ( ! \is_array( $avatar ) || empty( $avatar['file'] ) ) {
 			$avatar = [];
 		}
 
@@ -252,11 +252,13 @@ class Default_Avatars implements API {
 	 */
 	public function get_custom_default_avatar_filename( $filename ) {
 		$extension = \pathinfo( $filename, \PATHINFO_EXTENSION );
+		$filename  = 'custom-default-icon';
 
-		return \sanitize_file_name(
-			\htmlspecialchars_decode(
-				$this->options->get( 'blogname', 'custom-default-icon', true )
-			) . ".{$extension}"
-		);
+		$blogname = $this->options->get( 'blogname', '', true );
+		if ( \is_string( $blogname ) && ! empty( $blogname ) ) {
+			$filename = \htmlspecialchars_decode( $blogname );
+		}
+
+		return \sanitize_file_name( "{$filename}.{$extension}" );
 	}
 }

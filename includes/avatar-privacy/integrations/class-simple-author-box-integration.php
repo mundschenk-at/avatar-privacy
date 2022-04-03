@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2021 Peter Putzer.
+ * Copyright 2021-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -135,7 +135,12 @@ class Simple_Author_Box_Integration implements Plugin_Integration {
 	 * @return string
 	 */
 	protected function get_simple_author_box_avatar( $user_id ) {
-		return \get_user_meta( $user_id, self::USER_META_KEY, true );
+		$avatar = \get_user_meta( $user_id, self::USER_META_KEY, true );
+		if ( \is_string( $avatar ) ) {
+			return $avatar;
+		}
+
+		return '';
 	}
 
 	/**

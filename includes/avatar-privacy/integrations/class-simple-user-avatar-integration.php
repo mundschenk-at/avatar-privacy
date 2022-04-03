@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2021 Peter Putzer.
+ * Copyright 2021-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -128,8 +128,8 @@ class Simple_User_Avatar_Integration implements Plugin_Integration {
 	 */
 	protected function get_simple_user_avatar_avatar( $user_id ) {
 		$attachment_id = \get_user_meta( $user_id, \SUA_USER_META_KEY, true );
-		if ( ! empty( $attachment_id ) ) {
-			return (string) \get_attached_file( $attachment_id );
+		if ( \is_numeric( $attachment_id ) ) {
+			return (string) \get_attached_file( (int) $attachment_id );
 		}
 
 		return '';

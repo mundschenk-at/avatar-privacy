@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -118,7 +118,6 @@ class WP_User_Manager_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assertNull( $this->sut->run() );
 	}
 
-
 	/**
 	 * Tests ::enable_wpusermanager_user_avatars.
 	 *
@@ -137,6 +136,35 @@ class WP_User_Manager_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'wp_check_filetype' )->once()->with( $file )->andReturn( [ 'type' => $type ] );
 
 		$this->assertSame( $result, $this->sut->enable_wpusermanager_user_avatars( null, $user_id ) );
+	}
+
+	/**
+	 * Tests ::enable_wpusermanager_user_avatars.
+	 *
+	 * @covers ::enable_wpusermanager_user_avatars
+	 */
+	public function test_enable_wpusermanager_user_avatars_no_meta() {
+		$user_id = 42;
+
+		Functions\expect( 'carbon_get_user_meta' )->once()->with( $user_id, WP_User_Manager_Integration::WP_USER_MANAGER_META_KEY )->andReturn( false );
+		Functions\expect( 'wp_check_filetype' )->never();
+
+		$this->assertNull( $this->sut->enable_wpusermanager_user_avatars( null, $user_id ) );
+	}
+
+	/**
+	 * Tests ::enable_wpusermanager_user_avatars.
+	 *
+	 * @covers ::enable_wpusermanager_user_avatars
+	 */
+	public function test_enable_wpusermanager_user_avatars_invalid_filetype() {
+		$user_id = 42;
+		$file    = '/some/file';
+
+		Functions\expect( 'carbon_get_user_meta' )->once()->with( $user_id, WP_User_Manager_Integration::WP_USER_MANAGER_META_KEY )->andReturn( $file );
+		Functions\expect( 'wp_check_filetype' )->once()->with( $file )->andReturn( [ 'type' => false ] );
+
+		$this->assertNull( $this->sut->enable_wpusermanager_user_avatars( null, $user_id ) );
 	}
 
 	/**
