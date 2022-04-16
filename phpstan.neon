@@ -12,7 +12,7 @@ parameters:
     inferPrivatePropertyTypeFromConstructor: true
     treatPhpDocTypesAsCertain: false
     checkMissingIterableValueType: false
-    reportUnmatchedIgnoredErrors: true
+    reportUnmatchedIgnoredErrors: false
     bootstrapFiles:
         # Missing constants, function and class stubs
         - tests/phpstan/constants.php
@@ -32,6 +32,8 @@ parameters:
         # Uses func_get_args()
         - '#^Function apply_filters(_ref_array)? invoked with [34567] parameters, 2 required\.$#'
         # PHPStan does not know GdImage
+        - '#^Parameter \#[1-9] \$[a-z_]+ of function [a-z_]+ expects resource, GdImage\|resource given\.$#'
+        - '#^Parameter \#[1-9] \$[a-z_]+ of function [a-z_]+ expects resource, resource\|false given\.$#'
         - '#^Parameter \#[1-9] \$[a-z_]+ of function image[a-z_]+ expects GdImage, GdImage\|resource given\.$#'
         - '#^Parameter \#[1-9] \$[a-z_]+ of function image[a-z_]+ expects GdImage, GdImage\|false given\.$#'
         - '#^Method Avatar_Privacy\\Tools\\Images\\PNG::create[a-z_]*\(\) should return GdImage\|resource but returns GdImage\|false\.$#'
