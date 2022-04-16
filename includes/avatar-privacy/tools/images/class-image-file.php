@@ -106,10 +106,8 @@ class Image_File {
 		\add_filter( 'upload_dir', $upload_dir_filter );
 
 		// Move uploaded file.
-		$result = \wp_handle_upload(
-			$this->validate_image_size( $file ),
-			$this->prepare_overrides( $overrides )
-		);
+		$file   = $this->validate_image_size( $file );
+		$result = \wp_handle_upload( $file, $this->prepare_overrides( $overrides ) );
 
 		// Restore standard upload directory.
 		\remove_filter( 'upload_dir', $upload_dir_filter );
