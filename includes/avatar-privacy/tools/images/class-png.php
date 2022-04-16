@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2021 Peter Putzer.
+ * Copyright 2019-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -54,6 +54,11 @@ class PNG {
 	 * @throws PNG_Image_Exception       The image could not be created.
 	 */
 	public function create( $type, $width, $height ) {
+		/**
+		 * A bitmap image (class or resource).
+		 *
+		 * @var resource|GdImage $image The created GD image.
+		 */
 		$image = \imageCreateTrueColor( $width, $height );
 
 		// Something went wrong, badly.
@@ -111,6 +116,11 @@ class PNG {
 	 * @throws PNG_Image_Exception The image could not be read.
 	 */
 	public function create_from_file( $file ) {
+		/**
+		 * A bitmap image (class or resource).
+		 *
+		 * @var resource|GdImage $image The created GD image.
+		 */
 		$image = @\imageCreateFromPNG( $file );
 
 		// Something went wrong, badly.
