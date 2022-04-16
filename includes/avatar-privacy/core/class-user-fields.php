@@ -297,7 +297,7 @@ class User_Fields implements API {
 
 		// Delete original upload.
 		$avatar = \get_user_meta( $user_id, self::USER_AVATAR_META_KEY, true );
-		if ( \is_array( $avatar ) && ! empty( $avatar['file'] ) && \file_exists( $avatar['file'] ) && \unlink( $avatar['file'] ) ) {
+		if ( \is_array( $avatar ) && ! empty( $avatar['file'] ) && \is_string( $avatar['file'] ) && \file_exists( $avatar['file'] ) && \unlink( $avatar['file'] ) ) {
 			return \delete_user_meta( $user_id, self::USER_AVATAR_META_KEY );
 		}
 
@@ -473,7 +473,7 @@ class User_Fields implements API {
 		 * so we can use `$meta_value`. Contrary to the documentation, non-scalar
 		 * values are not serialized.
 		 */
-		if ( \is_array( $meta_value ) && ! empty( $meta_value['file'] ) && \file_exists( $meta_value['file'] ) ) {
+		if ( \is_array( $meta_value ) && ! empty( $meta_value['file'] ) && \is_string( $meta_value['file'] ) && \file_exists( $meta_value['file'] ) ) {
 			\unlink( $meta_value['file'] );
 		}
 	}
