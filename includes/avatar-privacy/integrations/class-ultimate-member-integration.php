@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2021 Peter Putzer.
+ * Copyright 2019-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -109,6 +109,11 @@ class Ultimate_Member_Integration implements Plugin_Integration {
 			isset( $settings_structure['']['sections']['users']['fields'] ) &&
 			\is_array( $settings_structure['']['sections']['users']['fields'] )
 		) {
+			/**
+			 * Iterate over the fields.
+			 *
+			 * @var array $field An Ultimate Member field.
+			 */
 			foreach ( $settings_structure['']['sections']['users']['fields'] as &$field ) {
 				if ( 'use_gravatars' === $field['id'] ) {
 					// Make conditional on non-existing setting (hiding it).
