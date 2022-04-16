@@ -45,10 +45,3 @@ if ( ! \function_exists( 'avapr_get_avatar_checkbox' ) ) {
 		return get_gravatar_checkbox();
 	}
 }
-
-/**
- * PHP 5.2 compatibility layer.
- *
- * Will be removed once the minimum requireemnt is WordPress 5.2.
- */
-class_alias( \Avatar_Privacy\Factory::class, \Avatar_Privacy_Factory::class );
