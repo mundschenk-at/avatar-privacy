@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -46,13 +46,6 @@ class Integrations implements Component {
 	private $integrations = [];
 
 	/**
-	 * An array of activated plugin integrations.
-	 *
-	 * @var Plugin_Integration[]
-	 */
-	private $active_integrations = [];
-
-	/**
 	 * Creates a new instance.
 	 *
 	 * @since 2.2.0 Parameter $core removed.
@@ -71,7 +64,6 @@ class Integrations implements Component {
 	public function activate() {
 		foreach ( $this->integrations as $integration ) {
 			if ( $integration->check() ) {
-				$this->active_integrations[] = $integration;
 				$integration->run();
 			}
 		}
