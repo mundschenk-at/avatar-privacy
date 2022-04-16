@@ -137,7 +137,7 @@ class Simple_Local_Avatars_Integration implements Plugin_Integration {
 		global $simple_local_avatars;
 
 		$local_avatar = $simple_local_avatars->get_avatar_rest( [ 'id' => $user_id ] );
-		if ( ! \is_array( $local_avatar ) || empty( $local_avatar['full'] ) ) {
+		if ( ! \is_array( $local_avatar ) || empty( $local_avatar['full'] ) || ! \is_string( $local_avatar['full'] ) ) {
 			return '';
 		}
 
