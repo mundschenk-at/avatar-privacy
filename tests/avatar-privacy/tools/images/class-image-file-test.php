@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020 Peter Putzer.
+ * Copyright 2020-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -111,6 +111,7 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'restore_current_blog' )->never();
 
 		Filters\expectAdded( 'upload_dir' )->once()->with( m::type( 'Closure' ) );
+		$this->sut->shouldReceive( 'validate_image_size' )->once()->with( $file )->andReturn( $file );
 		$this->sut->shouldReceive( 'prepare_overrides' )->once()->with( $overrides )->andReturn( $prep_overrides );
 		Functions\expect( 'wp_handle_upload' )->once()->with( $file, $prep_overrides )->andReturn( $result );
 		Functions\expect( 'wp_normalize_path' )->once()->with( $result['file'] )->andReturn( $normalized_result['file'] );
@@ -144,6 +145,7 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'restore_current_blog' )->never();
 
 		Filters\expectAdded( 'upload_dir' )->once()->with( m::type( 'Closure' ) );
+		$this->sut->shouldReceive( 'validate_image_size' )->once()->with( $file )->andReturn( $file );
 		$this->sut->shouldReceive( 'prepare_overrides' )->once()->with( $overrides )->andReturn( $prep_overrides );
 		Functions\expect( 'wp_handle_upload' )->once()->with( $file, $prep_overrides )->andReturn( $result );
 		Functions\expect( 'wp_normalize_path' )->never();
@@ -182,6 +184,7 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'restore_current_blog' )->once();
 
 		Filters\expectAdded( 'upload_dir' )->once()->with( m::type( 'Closure' ) );
+		$this->sut->shouldReceive( 'validate_image_size' )->once()->with( $file )->andReturn( $file );
 		$this->sut->shouldReceive( 'prepare_overrides' )->once()->with( $overrides )->andReturn( $prep_overrides );
 		Functions\expect( 'wp_handle_upload' )->once()->with( $file, $prep_overrides )->andReturn( $result );
 		Functions\expect( 'wp_normalize_path' )->once()->with( $result['file'] )->andReturn( $normalized_result['file'] );
@@ -382,5 +385,144 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assertArrayHasKey( 'mimes', $result );
 		$this->assertArrayHasKey( 'action', $result );
 		$this->assertArrayHasKey( 'test_form', $result );
+	}
+
+	/**
+	 * Tests ::validate_image_size.
+	 *
+	 * @covers ::validate_image_size
+	 */
+	public function test_validate_image_size_ok() {
+		$file = [
+			'name'     => 'some_nice_filename',
+			'type'     => Image_File::PNG_IMAGE,
+			'tmp_name' => vfsStream::url( 'root/other/valid_image.png' ),
+			'size'     => 666,
+		];
+
+		Functions\when( '__' )->returnArg();
+
+		Filters\expectApplied( 'avatar_privacy_upload_min_width' )->once()->with( 0 );
+		Filters\expectApplied( 'avatar_privacy_upload_min_height' )->once()->with( 0 );
+		Filters\expectApplied( 'avatar_privacy_upload_max_width' )->once()->with( 2000 );
+		Filters\expectApplied( 'avatar_privacy_upload_max_height' )->once()->with( 2000 );
+
+		$result = $this->sut->validate_image_size( $file );
+
+		$this->assertArrayHasKey( 'name', $result );
+		$this->assertSame( $file['name'], $result['name'] );
+		$this->assertArrayHasKey( 'type', $result );
+		$this->assertSame( $file['type'], $result['type'] );
+		$this->assertArrayHasKey( 'tmp_name', $result );
+		$this->assertSame( $file['tmp_name'], $result['tmp_name'] );
+		$this->assertArrayHasKey( 'size', $result );
+		$this->assertSame( $file['size'], $result['size'] );
+
+		$this->assertArrayNotHasKey( 'error', $result );
+	}
+
+	/**
+	 * Tests ::validate_image_size.
+	 *
+	 * @covers ::validate_image_size
+	 */
+	public function test_validate_image_size_invalid_size() {
+		$file = [
+			'name'     => 'some_nice_filename',
+			'type'     => Image_File::PNG_IMAGE,
+			'tmp_name' => vfsStream::url( 'root/other/invalid_image.gif' ),
+			'size'     => 666,
+		];
+
+		Functions\when( '__' )->returnArg();
+
+		Filters\expectApplied( 'avatar_privacy_upload_min_width' )->never();
+		Filters\expectApplied( 'avatar_privacy_upload_min_height' )->never();
+		Filters\expectApplied( 'avatar_privacy_upload_max_width' )->never();
+		Filters\expectApplied( 'avatar_privacy_upload_max_height' )->never();
+
+		$result = $this->sut->validate_image_size( $file );
+
+		$this->assertArrayHasKey( 'name', $result );
+		$this->assertSame( $file['name'], $result['name'] );
+		$this->assertArrayHasKey( 'type', $result );
+		$this->assertSame( $file['type'], $result['type'] );
+		$this->assertArrayHasKey( 'tmp_name', $result );
+		$this->assertSame( $file['tmp_name'], $result['tmp_name'] );
+		$this->assertArrayHasKey( 'size', $result );
+		$this->assertSame( $file['size'], $result['size'] );
+
+		$this->assertArrayHasKey( 'error', $result );
+		$this->assertStringStartsWith( 'Error reading dimensions of image file', $result['error'] );
+	}
+
+	/**
+	 * Tests ::validate_image_size.
+	 *
+	 * @covers ::validate_image_size
+	 */
+	public function test_validate_image_size_too_small() {
+		$file = [
+			'name'     => 'some_nice_filename',
+			'type'     => Image_File::PNG_IMAGE,
+			'tmp_name' => vfsStream::url( 'root/other/valid_image.png' ),
+			'size'     => 666,
+		];
+
+		Functions\when( '__' )->returnArg();
+
+		Filters\expectApplied( 'avatar_privacy_upload_min_width' )->once()->with( 0 )->andReturn( 999 );
+		Filters\expectApplied( 'avatar_privacy_upload_min_height' )->once()->with( 0 )->andReturn( 999 );
+		Filters\expectApplied( 'avatar_privacy_upload_max_width' )->once()->with( 2000 );
+		Filters\expectApplied( 'avatar_privacy_upload_max_height' )->once()->with( 2000 );
+
+		$result = $this->sut->validate_image_size( $file );
+
+		$this->assertArrayHasKey( 'name', $result );
+		$this->assertSame( $file['name'], $result['name'] );
+		$this->assertArrayHasKey( 'type', $result );
+		$this->assertSame( $file['type'], $result['type'] );
+		$this->assertArrayHasKey( 'tmp_name', $result );
+		$this->assertSame( $file['tmp_name'], $result['tmp_name'] );
+		$this->assertArrayHasKey( 'size', $result );
+		$this->assertSame( $file['size'], $result['size'] );
+
+		$this->assertArrayHasKey( 'error', $result );
+		$this->assertStringStartsWith( 'Image dimensions are too small.', $result['error'] );
+	}
+
+	/**
+	 * Tests ::validate_image_size.
+	 *
+	 * @covers ::validate_image_size
+	 */
+	public function test_validate_image_size_too_large() {
+		$file = [
+			'name'     => 'some_nice_filename',
+			'type'     => Image_File::PNG_IMAGE,
+			'tmp_name' => vfsStream::url( 'root/other/valid_image.png' ),
+			'size'     => 666,
+		];
+
+		Functions\when( '__' )->returnArg();
+
+		Filters\expectApplied( 'avatar_privacy_upload_min_width' )->once()->with( 0 );
+		Filters\expectApplied( 'avatar_privacy_upload_min_height' )->once()->with( 0 );
+		Filters\expectApplied( 'avatar_privacy_upload_max_width' )->once()->with( 2000 )->andReturn( 1 );
+		Filters\expectApplied( 'avatar_privacy_upload_max_height' )->once()->with( 2000 )->andReturn( 1 );
+
+		$result = $this->sut->validate_image_size( $file );
+
+		$this->assertArrayHasKey( 'name', $result );
+		$this->assertSame( $file['name'], $result['name'] );
+		$this->assertArrayHasKey( 'type', $result );
+		$this->assertSame( $file['type'], $result['type'] );
+		$this->assertArrayHasKey( 'tmp_name', $result );
+		$this->assertSame( $file['tmp_name'], $result['tmp_name'] );
+		$this->assertArrayHasKey( 'size', $result );
+		$this->assertSame( $file['size'], $result['size'] );
+
+		$this->assertArrayHasKey( 'error', $result );
+		$this->assertStringStartsWith( 'Image dimensions are too large.', $result['error'] );
 	}
 }
