@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020-2021 Peter Putzer.
+ * Copyright 2020-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -482,7 +482,7 @@ class Default_Avatars_Test extends \Avatar_Privacy\Tests\TestCase {
 			}
 		);
 
-		$this->options->shouldReceive( 'get' )->once()->with( 'blogname', 'custom-default-icon', true )->andReturn( $blogname );
+		$this->options->shouldReceive( 'get' )->once()->with( 'blogname', '', true )->andReturn( $blogname );
 
 		$this->assertSame( $result, $this->sut->get_custom_default_avatar_filename( $filename ) );
 	}

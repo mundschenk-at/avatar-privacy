@@ -1,5 +1,39 @@
 # Changelog
 
+## 2.6.0 (unreleased)
+*   _Change_: Support for Internet Explorer (all extant versions, i.e. 9, 10, and 11)
+    has been dropped.
+*   _Change_: Requires at least WordPress 5.6 and PHP 7.2.
+
+## 2.5.2 (2021-04-30)
+*   _Bugfix_: When a user is deleted, their local avatar image is removed as well.
+*   _Bugfix_: The dependency version for JS and CSS files is properly calculated.
+              (This also fixes the apparently empty PHP warning when `WP_DEBUG`
+              is enabled.)
+
+## 2.5.1 (2021-03-13)
+*   _Bugfix_: Fixes PHP 8.0 deprecation warning in the `level-2/dice` package.
+
+## 2.5.0 (2021-03-11)
+*   _Feature_: Avatar Privacy is now compatible with PHP 8.0.
+*   _Feature_: Integration for the following plugins had been added:
+    -   [Simple Local Avatars](https://wordpress.org/plugins/simple-local-avatars/)
+    -   [Simple User Avatar](https://wordpress.org/plugins/simple-user-avatar/)
+*   _Change_: The library `scripturadesign/color` has been removed as a dependency.
+*   _Change_: Additional hardening.
+
+## 2.4.6 (2021-02-21)
+*   _Bugfix_: Unchecking the Gravatar opt-in and anonymous commenting checkboxes
+              in a user's profile screen works again.
+
+## 2.4.5 (2021-02-07)
+*   _Bugfix_: Gravatar opt-ins by anonymous commenters are now properly saved on
+              WordPress 5.5 and later.
+
+## 2.4.4 (2021-02-03)
+*   _Bugfix_: Gracefully handle changes to WordPress' default DB collation (no
+              more `Illegal mix of collations` errors).
+
 ## 2.4.3 (2021-01-15)
 *   _Bugfix_: Don't break stuff (another build process fix, for real this time).
 

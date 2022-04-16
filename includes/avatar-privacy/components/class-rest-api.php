@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -55,7 +55,7 @@ class REST_API implements Component {
 	 */
 	public function fix_rest_user_avatars( \WP_REST_Response $response, \WP_User $user ) {
 
-		if ( ! empty( $response->data['avatar_urls'] ) ) {
+		if ( \is_array( $response->data ) && ! empty( $response->data['avatar_urls'] ) ) {
 			$response->data['avatar_urls'] = $this->rest_get_avatar_urls( $user );
 		}
 
@@ -72,7 +72,7 @@ class REST_API implements Component {
 	 */
 	public function fix_rest_comment_author_avatars( \WP_REST_Response $response, \WP_Comment $comment ) {
 
-		if ( ! empty( $response->data['author_avatar_urls'] ) ) {
+		if ( \is_array( $response->data ) && ! empty( $response->data['author_avatar_urls'] ) ) {
 			$response->data['author_avatar_urls'] = $this->rest_get_avatar_urls( $comment );
 		}
 

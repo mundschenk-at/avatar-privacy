@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2022 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -271,12 +271,19 @@ class Core {
 	/**
 	 * Updates the hash using the ID and email.
 	 *
-	 * @param  int    $id    The database key. Deprecated.
-	 * @param  string $email The email.
+	 * @since  2.4.0 The parameter `$id` has been deprecated.
+	 * @since  2.6.0 A warning is emitted if the deprecated argument `$id` is used.
+	 *
+	 * @param  int|null $id    Deprecated.
+	 * @param  string   $email The email.
 	 *
 	 * @return void
 	 */
 	public function update_comment_author_hash( $id, $email ) {
+		if ( ! empty( $id ) ) {
+			\_deprecated_argument( __FUNCTION__, '2.4.0', 'Please pass null to prevent this warning.' );
+		}
+
 		$this->comment_author_fields->update_hash( $email );
 	}
 

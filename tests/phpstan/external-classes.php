@@ -141,3 +141,29 @@ namespace {
 		public function replace_gravatar_image( $avatar, $id_or_email, $size, $default, $alt, $args = [] ) {}
 	}
 }
+
+// Simple Local Avatars.
+namespace {
+
+	class Simple_Local_Avatars {
+		/**
+		 * Stub for Simple Local Avatars.
+		 *
+		 * @param array $args        Arguments passed to get_avatar_data(), after processing.
+		 * @param mixed $id_or_email The Gravatar to retrieve. Accepts a user ID, Gravatar MD5 hash,
+		 *                           user email, WP_User object, WP_Post object, or WP_Comment object.
+		 */
+		public static function get_avatar_data( $args, $id_or_email ) {}
+	}
+}
+
+// Simple User Avatar.
+namespace {
+
+	class SimpleUserAvatar_Public {
+		/**
+		 * Stub for Simple Author Box.
+		 */
+		public static function init() {}
+	}
+}

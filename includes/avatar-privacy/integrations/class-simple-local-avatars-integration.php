@@ -29,17 +29,17 @@ namespace Avatar_Privacy\Integrations;
 use Avatar_Privacy\Integrations\Plugin_Integration;
 use Avatar_Privacy\Core\User_Fields;
 
-use Simple_Author_Box;
+use Simple_Local_Avatars;
 
 /**
- * An integration for Simple Author Box.
+ * An integration for Simple Local Avatars.
  *
- * @since      2.4.0
+ * @since      2.5.0
  * @author     Peter Putzer <github@mundschenk.at>
  */
-class Simple_Author_Box_Integration implements Plugin_Integration {
+class Simple_Local_Avatars_Integration implements Plugin_Integration {
 
-	const USER_META_KEY = 'sabox-profile-image';
+	const USER_META_KEY = 'simple_local_avatar';
 
 	/**
 	 * The user data helper.
@@ -63,7 +63,7 @@ class Simple_Author_Box_Integration implements Plugin_Integration {
 	 * @return bool
 	 */
 	public function check() {
-		return \class_exists( Simple_Author_Box::class );
+		return \class_exists( Simple_Local_Avatars::class ) && \method_exists( Simple_Local_Avatars::class, 'get_avatar_rest' );
 	}
 
 	/**
@@ -78,18 +78,20 @@ class Simple_Author_Box_Integration implements Plugin_Integration {
 	/**
 	 * Init action handler.
 	 *
+	 * @global Simple_Local_Avatars $simple_local_avatars The Simple Local Avatars singleton.
+	 *
 	 * @return void
 	 */
 	public function init() {
-		$simple_author_box = Simple_Author_Box::get_instance();
+		global $simple_local_avatars;
 
 		// Disable profile image uploading.
 		\add_filter( 'avatar_privacy_profile_picture_upload_disabled', '__return_true', 10, 0 );
 
-		// Disable Simple Author Box' avatar integration.
-		\remove_filter( 'get_avatar', [ $simple_author_box, 'replace_gravatar_image' ], 10 );
+		// Disable Simple Local Avatars' avatar integration.
+		\remove_filter( 'pre_get_avatar_data', [ $simple_local_avatars, 'get_avatar_data' ], 10 );
 
-		// Serve Simple Author Box profile pictures via the filesystem cache.
+		// Serve Simple Local Avatars profile pictures via the filesystem cache.
 		\add_filter( 'avatar_privacy_pre_get_user_avatar', [ $this, 'enable_user_avatars' ], 10, 2 );
 
 		// Invalidate cache when a new image is uploaded or deleted.
@@ -99,7 +101,7 @@ class Simple_Author_Box_Integration implements Plugin_Integration {
 	}
 
 	/**
-	 * Retrieves the user avatar from Simple Author Box.
+	 * Retrieves the user avatar from Simple Local Avatars.
 	 *
 	 * @param  array|null $avatar  Optional. The user avatar information. Default null.
 	 * @param  int        $user_id The user ID.
@@ -112,49 +114,48 @@ class Simple_Author_Box_Integration implements Plugin_Integration {
 	 * }
 	 */
 	public function enable_user_avatars( array $avatar = null, $user_id ) {
-		// Retrieve Simple Author Box image.
-		$local_avatar = $this->get_simple_author_box_avatar( $user_id );
+		// Retrieve Simple Local Avatars image.
+		$local_avatar = $this->get_simple_local_avatars_avatar( $user_id );
 		if ( empty( $local_avatar ) ) {
 			return $avatar;
 		}
 
-		$file = \ABSPATH . \wp_make_link_relative( $local_avatar );
-		$type = \wp_check_filetype( $file )['type'];
-
 		return [
-			'file' => $file,
-			'type' => $type,
+			'file' => $local_avatar,
+			'type' => \wp_check_filetype( $local_avatar )['type'],
 		];
 	}
 
 	/**
-	 * Retrieves the user avatar uploaded in Simple Author Box (if any).
+	 * Retrieves the user avatar uploaded in Simple Local Avatars (if any).
 	 *
 	 * @param  int $user_id The user ID.
 	 *
 	 * @return string
 	 */
-	protected function get_simple_author_box_avatar( $user_id ) {
-		$avatar = \get_user_meta( $user_id, self::USER_META_KEY, true );
-		if ( \is_string( $avatar ) ) {
-			return $avatar;
+	protected function get_simple_local_avatars_avatar( $user_id ) {
+		global $simple_local_avatars;
+
+		$local_avatar = $simple_local_avatars->get_avatar_rest( [ 'id' => $user_id ] );
+		if ( ! \is_array( $local_avatar ) || empty( $local_avatar['full'] ) || ! \is_string( $local_avatar['full'] ) ) {
+			return '';
 		}
 
-		return '';
+		return $local_avatar['full'];
 	}
 
 	/**
-	 * Invalidates the file cache after a new Simple Author Box avatar has been
+	 * Invalidates the file cache after a new Simple Local Avatars avatar has been
 	 * uploaded or deleted.
 	 *
-	 * @param  int    $meta_id  ID of updated metadata entry.
-	 * @param  int    $user_id  The user ID.
-	 * @param  string $meta_key Metadata key.
+	 * @param  int|string[] $meta_id  The ID(s) of the modified metadata entries.
+	 * @param  int          $user_id  The user ID.
+	 * @param  string       $meta_key The metadata key.
 	 *
 	 * @return void
 	 */
 	public function invalidate_cache_after_avatar_change( $meta_id, $user_id, $meta_key ) {
-		if ( self::USER_META_KEY !== $meta_key ) {
+		if ( self::USER_META_KEY !== $meta_key || empty( $meta_id ) ) {
 			return;
 		}
 

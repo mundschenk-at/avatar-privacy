@@ -106,7 +106,7 @@ class Hasher_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::SALT )->andReturn( '' );
 
-		Functions\expect( 'wp_rand' )->once()->andReturn( $expected_salt );
+		$this->sut->shouldReceive( 'generate_salt' )->once()->andReturn( $expected_salt );
 
 		$this->network_options->shouldReceive( 'set' )->once()->with( Network_Options::SALT, $expected_salt );
 
@@ -124,7 +124,7 @@ class Hasher_Test extends \Avatar_Privacy\Tests\TestCase {
 		Filters\expectApplied( 'avatar_privacy_salt' )->once()->with( '' )->andReturn( $expected_salt );
 
 		$this->network_options->shouldReceive( 'get' )->never();
-		Functions\expect( 'wp_rand' )->never();
+		$this->sut->shouldReceive( 'generate_salt' )->never();
 		$this->network_options->shouldReceive( 'set' )->never();
 
 		$this->assertSame( $expected_salt, $this->sut->get_salt() );
@@ -142,10 +142,23 @@ class Hasher_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->network_options->shouldReceive( 'get' )->once()->with( Network_Options::SALT )->andReturn( $expected_salt );
 
-		Functions\expect( 'wp_rand' )->never();
+		$this->sut->shouldReceive( 'generate_salt' )->never();
 		$this->network_options->shouldReceive( 'set' )->never();
 
 		$this->assertSame( $expected_salt, $this->sut->get_salt() );
+	}
+
+	/**
+	 * Tests ::generate_salt.
+	 *
+	 * @covers ::generate_salt
+	 */
+	public function test_generate_salt() {
+		$expected_salt = 'random salt';
+
+		Functions\expect( 'wp_generate_password' )->once()->with( 64, true, true )->andReturn( $expected_salt );
+
+		$this->assertSame( $expected_salt, $this->sut->generate_salt() );
 	}
 
 	/**

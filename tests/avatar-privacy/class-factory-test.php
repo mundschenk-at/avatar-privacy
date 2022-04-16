@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -86,24 +86,14 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::__construct
 	 */
 	public function test_constructor() {
-		$rules = [
-			'Fake_Class_A' => [
-				'shared'          => true,
-				'constructParams' => [ 'A', 'B' ],
-			],
-			'Fake_Class_B' => [
-				'constructParams' => [ 'C' ],
-			],
-		];
-
-		$this->sut->shouldReceive( 'get_rules' )->once()->andReturn( $rules );
+		$this->sut->shouldReceive( 'get_rules' )->never();
 
 		// Manually call constructor.
 		$this->sut->__construct();
 
 		$resulting_rules = $this->get_value( $this->sut, 'rules' );
 		$this->assert_is_array( $resulting_rules );
-		$this->assertCount( \count( $rules ), $resulting_rules );
+		$this->assertCount( 0, $resulting_rules );
 	}
 
 	/**
@@ -188,7 +178,7 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Test ::get. Should be run after tet_get_plugin_version.
+	 * Test ::get. Should be run after test_get_plugin_version.
 	 *
 	 * @covers ::get
 	 *

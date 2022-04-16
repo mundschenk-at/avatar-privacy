@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2021 Peter Putzer.
+ * Copyright 2019-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -43,8 +43,6 @@ use Avatar_Privacy\Exceptions\PNG_Image_Exception;
  *
  * @coversDefaultClass \Avatar_Privacy\Tools\Images\PNG
  * @usesDefaultClass \Avatar_Privacy\Tools\Images\PNG
- *
- * @uses is_gd_image
  */
 class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 
@@ -108,6 +106,9 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 		$width  = 200;
 		$height = 100;
 
+		// No problem with the image.
+		Functions\expect( 'is_gd_image' )->once()->andReturn( true );
+
 		$image = $this->sut->create( 'white', $width, $height );
 
 		$this->assert_is_gd_image( $image );
@@ -136,6 +137,9 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 		// The base image.
 		$width  = 200;
 		$height = 100;
+
+		// No problem with the image.
+		Functions\expect( 'is_gd_image' )->once()->andReturn( true );
 
 		$image = $this->sut->create( 'black', $width, $height );
 
@@ -166,6 +170,9 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 		$width  = 200;
 		$height = 100;
 
+		// No problem with the image.
+		Functions\expect( 'is_gd_image' )->once()->andReturn( true );
+
 		$image = $this->sut->create( 'transparent', $width, $height );
 
 		$this->assert_is_gd_image( $image );
@@ -195,6 +202,9 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 		$width  = 200;
 		$height = 18;
 
+		// No problem with the image.
+		Functions\expect( 'is_gd_image' )->once()->andReturn( true );
+
 		// Expect failure.
 		$this->expectException( \InvalidArgumentException::class );
 
@@ -214,6 +224,9 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 		$width  = 28;
 		$height = 18;
 
+		// No problem with the image.
+		Functions\expect( 'is_gd_image' )->once()->andReturn( true );
+
 		$image = $this->sut->create_from_file( vfsStream::url( 'root/plugin/my_parts_dir/somefile.png' ) );
 
 		$this->assert_is_gd_image( $image );
@@ -230,6 +243,8 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::create_from_file
 	 */
 	public function test_create_from_file_invalid() {
+		// We know this is not a GD image.
+		Functions\expect( 'is_gd_image' )->once()->andReturn( false );
 
 		$this->expectException( PNG_Image_Exception::class );
 
@@ -257,6 +272,9 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 		\ob_start();
 		\imagePNG( $base );
 		$orig_base_data = ob_get_clean();
+
+		// Everything is fine here.
+		Functions\expect( 'is_gd_image' )->twice()->andReturn( true );
 
 		// Run the test.
 		$this->assertNull( $this->sut->combine( $base, $image, $width, $height ) );
@@ -294,6 +312,10 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 		\ob_start();
 		\imagePNG( $base );
 		$orig_base_data = ob_get_clean();
+
+		// We know the base is OK, but the second image is not a GD image.
+		Functions\expect( 'is_gd_image' )->with( $base )->once()->andReturn( true );
+		Functions\expect( 'is_gd_image' )->with( $image )->once()->andReturn( false );
 
 		// Expect failure.
 		$this->expectException( \InvalidArgumentException::class );
@@ -333,6 +355,9 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 		$height   = 100;
 		$resource = \imageCreate( $width, $height );
 
+		// No problem with the image.
+		Functions\expect( 'is_gd_image' )->with( $resource )->once()->andReturn( true );
+
 		$this->assertNull( $this->sut->fill_hsl( $resource, $hue, $saturation, $lightness, $x, $y ) );
 
 		// Clean up.
@@ -356,6 +381,9 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// The image.
 		$resource = 'foo';
+
+		// We know this is not a GD image.
+		Functions\expect( 'is_gd_image' )->with( $resource )->once()->andReturn( false );
 
 		// Expect failure.
 		$this->expectException( \InvalidArgumentException::class );
@@ -387,6 +415,9 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 		for ( $i = 0; $i < 256; ++$i ) {
 			\imageColorAllocate( $resource, 0, 0, 0 );
 		}
+
+		// We know this is a GD image.
+		Functions\expect( 'is_gd_image' )->with( $resource )->once()->andReturn( true );
 
 		// Expect failure.
 		$this->expectException( PNG_Image_Exception::class );

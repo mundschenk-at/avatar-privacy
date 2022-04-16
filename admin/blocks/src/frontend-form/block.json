@@ -3,6 +3,9 @@
 	"title": "Avatar Privacy Form",
 	"category": "common",
 	"icon": "id-alt",
+	"description": "Inserts a form to upload a local avatar and manage related settings.",
+	"keywords": [ "avatar", "upload", "frontend" ],
+	"textdomain": "avatar-privacy",
 	"attributes": {
 		"avatar_size": {
 			"type": "integer",

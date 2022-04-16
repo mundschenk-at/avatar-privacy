@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2022 Peter Putzer.
  * Copyright 2007-2008 Shamus Young.
  *
  * This program is free software; you can redistribute it and/or
@@ -54,7 +54,7 @@ class Wavatar extends PNG_Parts_Generator {
 	 *
 	 * @since 2.3.0
 	 *
-	 * @var int[string]
+	 * @var array<string, int>
 	 */
 	const SEED_INDEX = [
 		// Mask and shine form the face, so they use the same random element.

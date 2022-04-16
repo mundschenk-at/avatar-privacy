@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -343,6 +343,24 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_update_comment_author_hash() {
 		$id    = 666;
 		$email = 'foo@bar.com';
+
+		Functions\expect( '_deprecated_argument' )->once();
+
+		$this->comment_author_fields->shouldReceive( 'update_hash' )->once()->with( $email );
+
+		$this->assertNull( $this->sut->update_comment_author_hash( $id, $email ) );
+	}
+
+	/**
+	 * Tests ::update_comment_author_hash.
+	 *
+	 * @covers ::update_comment_author_hash
+	 */
+	public function test_update_comment_author_hash_no_deprecation_warning() {
+		$id    = null;
+		$email = 'foo@bar.com';
+
+		Functions\expect( '_deprecated_argument' )->never();
 
 		$this->comment_author_fields->shouldReceive( 'update_hash' )->once()->with( $email );
 

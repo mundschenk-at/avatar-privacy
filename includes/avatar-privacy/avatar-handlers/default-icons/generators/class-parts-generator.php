@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -218,9 +218,11 @@ abstract class Parts_Generator implements Generator {
 			$basename = \basename( $this->parts_dir );
 			$key      = "avatar_privacy_{$basename}_parts";
 
-			// Check existence of transient.
-			$this->all_parts = $this->site_transients->get( $key );
-			if ( empty( $this->all_parts ) ) {
+			// Check existence of transient first.
+			$cached_parts = $this->site_transients->get( $key );
+			if ( \is_array( $cached_parts ) && ! empty( $cached_parts ) ) {
+				$this->all_parts = $cached_parts;
+			} else {
 				// Look at the actual filesystem.
 				$this->all_parts = $this->build_parts_array();
 

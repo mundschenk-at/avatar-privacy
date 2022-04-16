@@ -1,10 +1,15 @@
-'use strict';
-
 /**
- * Avatar Privacy Frontend Form Block edit method
+ * Frontend Form block for the WordPress block editor.
  *
- * The block is rendered server-side for consistency with the classic editor shortcode.
+ * This file is part of Avatar Privacy.
+ *
+ * @file    This file provides the edit method for the Avatar block.
+ * @author  Peter Putzer <github@mundschenk.at>
+ * @license	GPL-2.0-or-later
+ * @since   2.3.0
  */
+
+'use strict';
 
 /**
  * WordPress dependencies
@@ -13,13 +18,22 @@ import {
 	PanelBody,
 	PanelRow,
 	RangeControl,
-	ServerSideRender,
 	ToggleControl,
 } from '@wordpress/components';
+import ServerSideRender from '@wordpress/server-side-render';
 import { InspectorControls } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
+/**
+ * Renders the markup for editing the block attributes of the Avatar block.
+ *
+ * @param {Object} props               The block properties.
+ * @param {Object} props.attributes    The block attributes.
+ * @param {string} props.className     The CSS class to use.
+ * @param {Object} props.setAttributes The attribute setter function.
+ * @return {Object} ECMAScript JSX Markup for the editor
+ */
 export default ( { attributes, className, setAttributes } ) => {
 	return (
 		<Fragment>

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -237,7 +237,7 @@ class Network_Settings_Page implements Component {
 		}
 
 		$settings_errors = \get_settings_errors();
-		if ( empty( $settings_errors ) ) {
+		if ( empty( $settings_errors ) ) { // @phpstan-ignore-line - $settings_errors array can be empty.
 			\add_settings_error( self::OPTION_GROUP, 'settings_updated', \__( 'Settings saved.', 'avatar-privacy' ), 'updated' );
 		}
 

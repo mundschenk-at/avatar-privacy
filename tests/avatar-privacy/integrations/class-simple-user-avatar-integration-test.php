@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2021-2022 Peter Putzer.
+ * Copyright 2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,25 +32,23 @@ use Brain\Monkey\Functions;
 
 use Mockery as m;
 
-use Avatar_Privacy\Integrations\Simple_Author_Box_Integration;
+use Avatar_Privacy\Integrations\Simple_User_Avatar_Integration;
 use Avatar_Privacy\Core\User_Fields;
 
-use Simple_Author_Box;
-
 /**
- * Avatar_Privacy\Integrations\Simple_Author_Box_Integration unit test.
+ * Avatar_Privacy\Integrations\Simple_User_Avatar_Integration unit test.
  *
- * @coversDefaultClass \Avatar_Privacy\Integrations\Simple_Author_Box_Integration
- * @usesDefaultClass \Avatar_Privacy\Integrations\Simple_Author_Box_Integration
+ * @coversDefaultClass \Avatar_Privacy\Integrations\Simple_User_Avatar_Integration
+ * @usesDefaultClass \Avatar_Privacy\Integrations\Simple_User_Avatar_Integration
  *
  * @uses ::__construct
  */
-class Simple_Author_Box_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
+class Simple_User_Avatar_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Simple_Author_Box_Integration
+	 * @var Simple_User_Avatar_Integration
 	 */
 	private $sut;
 
@@ -62,13 +60,6 @@ class Simple_Author_Box_Integration_Test extends \Avatar_Privacy\Tests\TestCase 
 	private $user_fields;
 
 	/**
-	 * Mocked helper object.
-	 *
-	 * @var Simple_Author_Box
-	 */
-	private $simple_author_box;
-
-	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 *
@@ -77,10 +68,9 @@ class Simple_Author_Box_Integration_Test extends \Avatar_Privacy\Tests\TestCase 
 	protected function set_up() {
 		parent::set_up();
 
-		$this->user_fields       = m::mock( User_Fields::class );
-		$this->simple_author_box = m::mock( 'alias:' . Simple_Author_Box::class );
+		$this->user_fields = m::mock( User_Fields::class );
 
-		$this->sut = m::mock( Simple_Author_Box_Integration::class, [ $this->user_fields ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Simple_User_Avatar_Integration::class, [ $this->user_fields ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -89,7 +79,7 @@ class Simple_Author_Box_Integration_Test extends \Avatar_Privacy\Tests\TestCase 
 	 * @covers ::__construct
 	 */
 	public function test_constructor() {
-		$mock = m::mock( Simple_Author_Box_Integration::class )->makePartial();
+		$mock = m::mock( Simple_User_Avatar_Integration::class )->makePartial();
 
 		$mock->__construct( $this->user_fields );
 
@@ -102,6 +92,13 @@ class Simple_Author_Box_Integration_Test extends \Avatar_Privacy\Tests\TestCase 
 	 * @covers ::check
 	 */
 	public function test_check() {
+		// First check fails.
+		$this->assertFalse( $this->sut->check() );
+
+		// Ensure class exists.
+		m::mock( \SimpleUserAvatar_Public::class );
+
+		// Now the check succeeds.
 		$this->assertTrue( $this->sut->check() );
 	}
 
@@ -111,6 +108,7 @@ class Simple_Author_Box_Integration_Test extends \Avatar_Privacy\Tests\TestCase 
 	 * @covers ::run
 	 */
 	public function test_run() {
+		Actions\expectRemoved( 'plugins_loaded' )->once()->with( [ 'SimpleUserAvatar_Public', 'init' ] );
 		Actions\expectAdded( 'init' )->once()->with( [ $this->sut, 'init' ] );
 
 		$this->assertNull( $this->sut->run() );
@@ -122,13 +120,8 @@ class Simple_Author_Box_Integration_Test extends \Avatar_Privacy\Tests\TestCase 
 	 * @covers ::init
 	 */
 	public function test_init() {
-		$this->simple_author_box->shouldReceive( 'get_instance' )->once()->andReturn( $this->simple_author_box );
-
 		Filters\expectAdded( 'avatar_privacy_profile_picture_upload_disabled' )->once()->with( '__return_true', 10, 0 );
-		Filters\expectRemoved( 'get_avatar' )->once()->with( [ $this->simple_author_box, 'replace_gravatar_image' ], 10 );
 		Filters\expectAdded( 'avatar_privacy_pre_get_user_avatar' )->once()->with( [ $this->sut, 'enable_user_avatars' ], 10, 2 );
-		Actions\expectAdded( 'added_user_meta' )->once()->with( [ $this->sut, 'invalidate_cache_after_avatar_change' ], 10, 3 );
-		Actions\expectAdded( 'updated_user_meta' )->once()->with( [ $this->sut, 'invalidate_cache_after_avatar_change' ], 10, 3 );
 		Actions\expectAdded( 'deleted_user_meta' )->once()->with( [ $this->sut, 'invalidate_cache_after_avatar_change' ], 10, 3 );
 
 		$this->assertNull( $this->sut->init() );
@@ -144,21 +137,18 @@ class Simple_Author_Box_Integration_Test extends \Avatar_Privacy\Tests\TestCase 
 		$user_id = 42;
 
 		// Intermediary.
-		$file    = 'some/file';
-		$url     = "https://foobar/{$file}";
-		$type    = 'mime/type';
-		$absfile = \ABSPATH . $file;
+		$file = \ABSPATH . 'some/file';
+		$type = 'mime/type';
 
 		// Expected result.
 		$result = [
-			'file' => $absfile,
+			'file' => $file,
 			'type' => $type,
 		];
 
-		$this->sut->shouldReceive( 'get_simple_author_box_avatar' )->once()->with( $user_id )->andReturn( $url );
+		$this->sut->shouldReceive( 'get_simple_user_avatar_avatar' )->once()->with( $user_id )->andReturn( $file );
 
-		Functions\expect( 'wp_make_link_relative' )->once()->with( $url )->andReturn( $file );
-		Functions\expect( 'wp_check_filetype' )->once()->with( $absfile )->andReturn( [ 'type' => $type ] );
+		Functions\expect( 'wp_check_filetype' )->once()->with( $file )->andReturn( [ 'type' => $type ] );
 
 		$this->assertSame( $result, $this->sut->enable_user_avatars( null, $user_id ) );
 	}
@@ -172,43 +162,45 @@ class Simple_Author_Box_Integration_Test extends \Avatar_Privacy\Tests\TestCase 
 		// Input.
 		$user_id = 42;
 
-		$this->sut->shouldReceive( 'get_simple_author_box_avatar' )->once()->with( $user_id )->andReturn( '' );
+		$this->sut->shouldReceive( 'get_simple_user_avatar_avatar' )->once()->with( $user_id )->andReturn( '' );
 
-		Functions\expect( 'wp_make_link_relative' )->never();
 		Functions\expect( 'wp_check_filetype' )->never();
 
 		$this->assertNull( $this->sut->enable_user_avatars( null, $user_id ) );
 	}
 
 	/**
-	 * Tests ::get_simple_author_box_avatar.
+	 * Tests ::get_simple_user_avatar_avatar.
 	 *
-	 * @covers ::get_simple_author_box_avatar
+	 * @covers ::get_simple_user_avatar_avatar
 	 */
-	public function test_get_simple_author_box_avatar() {
+	public function test_get_simple_user_avatar_avatar() {
 		// Input.
 		$user_id = 42;
 
 		// Result.
-		$url = 'https://foobar/some/path/image.png';
+		$attachment_id = 4711;
+		$file          = '/foobar/some/path/image.png';
 
-		Functions\expect( 'get_user_meta' )->once()->with( $user_id, Simple_Author_Box_Integration::USER_META_KEY, true )->andReturn( $url );
+		Functions\expect( 'get_user_meta' )->once()->with( $user_id, \SUA_USER_META_KEY, true )->andReturn( $attachment_id );
+		Functions\expect( 'get_attached_file' )->once()->with( $attachment_id )->andReturn( $file );
 
-		$this->assertSame( $url, $this->sut->get_simple_author_box_avatar( $user_id ) );
+		$this->assertSame( $file, $this->sut->get_simple_user_avatar_avatar( $user_id ) );
 	}
 
 	/**
-	 * Tests ::get_simple_author_box_avatar.
+	 * Tests ::get_simple_user_avatar_avatar.
 	 *
-	 * @covers ::get_simple_author_box_avatar
+	 * @covers ::get_simple_user_avatar_avatar
 	 */
-	public function test_get_simple_author_box_avatar_no_user_meta() {
+	public function test_get_simple_user_avatar_avatar_none_set() {
 		// Input.
 		$user_id = 42;
 
-		Functions\expect( 'get_user_meta' )->once()->with( $user_id, Simple_Author_Box_Integration::USER_META_KEY, true )->andReturn( false );
+		Functions\expect( 'get_user_meta' )->once()->with( $user_id, \SUA_USER_META_KEY, true )->andReturn( false );
+		Functions\expect( 'get_attached_file' )->never();
 
-		$this->assertSame( '', $this->sut->get_simple_author_box_avatar( $user_id ) );
+		$this->assertSame( '', $this->sut->get_simple_user_avatar_avatar( $user_id ) );
 	}
 
 	/**
@@ -220,9 +212,9 @@ class Simple_Author_Box_Integration_Test extends \Avatar_Privacy\Tests\TestCase 
 		// Input.
 		$meta_id  = 4711;
 		$user_id  = 42;
-		$meta_key = 'foobar';
+		$meta_key = \SUA_USER_META_KEY;
 
-		$this->user_fields->shouldReceive( 'invalidate_local_avatar_cache' )->never();
+		$this->user_fields->shouldReceive( 'invalidate_local_avatar_cache' )->once()->with( $user_id );
 
 		$this->assertNull( $this->sut->invalidate_cache_after_avatar_change( $meta_id, $user_id, $meta_key ) );
 	}
@@ -236,9 +228,9 @@ class Simple_Author_Box_Integration_Test extends \Avatar_Privacy\Tests\TestCase 
 		// Input.
 		$meta_id  = 4711;
 		$user_id  = 42;
-		$meta_key = Simple_Author_Box_Integration::USER_META_KEY;
+		$meta_key = 'foobar';
 
-		$this->user_fields->shouldReceive( 'invalidate_local_avatar_cache' )->once()->with( $user_id );
+		$this->user_fields->shouldReceive( 'invalidate_local_avatar_cache' )->never();
 
 		$this->assertNull( $this->sut->invalidate_cache_after_avatar_change( $meta_id, $user_id, $meta_key ) );
 	}

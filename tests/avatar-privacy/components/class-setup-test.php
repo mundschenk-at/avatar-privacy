@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -218,6 +218,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'register_deactivation_hook' )->once()->with( \AVATAR_PRIVACY_PLUGIN_FILE, [ $this->sut, 'deactivate' ] );
 
 		Actions\expectAdded( 'plugins_loaded' )->once()->with( [ $this->sut, 'update_check' ] );
+		Actions\expectAdded( 'deleted_user_meta' )->once()->with( [ $this->registered_user, 'remove_orphaned_local_avatar' ], 10, 4 );
 
 		$this->assertNull( $this->sut->run() );
 	}

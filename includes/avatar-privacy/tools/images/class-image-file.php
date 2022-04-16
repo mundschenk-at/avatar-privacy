@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020-2021 Peter Putzer.
+ * Copyright 2020-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -106,6 +106,7 @@ class Image_File {
 		\add_filter( 'upload_dir', $upload_dir_filter );
 
 		// Move uploaded file.
+		$file   = $this->validate_image_size( $file );
 		$result = \wp_handle_upload( $file, $this->prepare_overrides( $overrides ) );
 
 		// Restore standard upload directory.
@@ -214,5 +215,93 @@ class Image_File {
 		];
 
 		return \wp_parse_args( $overrides, $defaults );
+	}
+
+	/**
+	 * Validates the image dimensions before uploading the file.
+	 *
+	 * @since 2.6.0
+	 *
+	 * @param  array $file {
+	 *     Reference to a single element from $_FILES.
+	 *
+	 *     @type string $name     The original name of the file on the client machine.
+	 *     @type string $type     The MIME type of the file, if the browser provided this information.
+	 *     @type string $tmp_name The temporary filename of the file in which the uploaded file was stored on the server.
+	 *     @type int    $size     The size, in bytes, of the uploaded file.
+	 *     @type int    $error    The error code associated with this file upload.
+	 * }
+	 *
+	 * @return array The filtered $file array. The `error` key will be set to a
+	 *               string containing the error message if the image dimensions
+	 *               don't match the set limits.
+	 */
+	public function validate_image_size( array $file ) {
+		$image_size = @\getimagesize( $file['tmp_name'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors -- prevent additional errors if the file cannot be read.
+		if ( ! $image_size || empty( $image_size[0] ) || empty( $image_size[1] ) ) {
+			/* translators: uploaded image file name */
+			$file['error'] = \sprintf( \__( 'Error reading dimensions of image file %s.', 'avatar-privacy' ), $file['tmp_name'] );
+		} else {
+			$image_width  = $image_size[0];
+			$image_height = $image_size[1];
+
+			/**
+			 * Filters the minimum width for uploaded images.
+			 *
+			 * @since 2.6.0
+			 *
+			 * @param int $min_width The minimum width in pixels. Default 0.
+			 */
+			$min_width = \apply_filters( 'avatar_privacy_upload_min_width', 0 );
+
+			/**
+			 * Filters the minimum height for uploaded images.
+			 *
+			 * @since 2.6.0
+			 *
+			 * @param int $min_height The minimum width in pixels. Default 0.
+			 */
+			$min_height = \apply_filters( 'avatar_privacy_upload_min_height', 0 );
+
+			/**
+			 * Filters the maximum width for uploaded images.
+			 *
+			 * @since 2.6.0
+			 *
+			 * @param int $max_width The maximum width in pixels. Default 2000.
+			 */
+			$max_width = \apply_filters( 'avatar_privacy_upload_max_width', 2000 );
+
+			/**
+			 * Filters the maximum height for uploaded images.
+			 *
+			 * @since 2.6.0
+			 *
+			 * @param int $max_height The maximum height in pixels. Default 2000.
+			 */
+			$max_height = \apply_filters( 'avatar_privacy_upload_max_height', 2000 );
+
+			if ( $image_width < $min_width || $image_height < $min_height ) {
+				$file['error'] = \sprintf(
+					/* translators: 1: minimum upload width, 2: minimum upload height, 3: actual image width, 4: actual image height */
+					\__( 'Image dimensions are too small. Minimum size is %1$d×%2$d pixels. Uploaded image is %3$d×%4$d pixels.', 'avatar-privacy' ),
+					$min_width,
+					$min_height,
+					$image_width,
+					$image_height
+				);
+			} elseif ( $image_width > $max_width || $image_height > $max_height ) {
+				$file['error'] = \sprintf(
+					/* translators: 1: maximum upload width, 2: maximum upload height, 3: actual image width, 4: actual image height */
+					\__( 'Image dimensions are too large. Maximum size is %1$d×%2$d pixels. Uploaded image is %3$d×%4$d pixels.', 'avatar-privacy' ),
+					$max_width,
+					$max_height,
+					$image_width,
+					$image_height
+				);
+			}
+		}
+
+		return $file;
 	}
 }

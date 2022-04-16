@@ -1,14 +1,10 @@
 === Avatar Privacy ===
 Contributors: pputzer, Ammaletu
-Plugin Name: Avatar Privacy
-Plugin URI: https://code.mundschenk.at/avatar-privacy/
-Author URI: https://code.mundschenk.at/
 Tags: gravatar, avatar, privacy, caching, bbpress, buddypress
-Requires at least: 5.2
-Requires PHP: 7.0
-Tested up to: 5.6
-Stable tag: 2.4.3
+Tested up to: 5.8
+Stable tag: 2.5.2
 License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Enhances the privacy of your users and visitors with gravatar opt-in and local avatars.
 
@@ -63,8 +59,9 @@ Avatar Privacy is based on the original plugin by [Johannes Freudendahl](http://
 * Andreas Gohr (the original [MonsterID](https://www.splitbrain.org/blog/2007-01/20_monsterid_as_gravatar_fallback) and [RingIcon](https://github.com/splitbrain/php-ringicon)),
 * Scott Sherrill-Mix & Katherine Garner (the [hand-drawn monster update](http://scott.sherrillmix.com/blog/blogger/wp_monsterid-update-hand-drawn-monsters/))
 * Benjamin Laugueux ([Identicon](https://github.com/yzalis/Identicon)),
-* David Revoy ([Bird](https://www.davidrevoy.com/article720/bird-avatar-generator) and [Cat Avatars](https://www.davidrevoy.com/article591/cat-avatar-generator)), and
-* Zikri Kader, Colin Davis & Nimiq ([RoboHash](https://robohash.org)).
+* David Revoy ([Bird](https://www.davidrevoy.com/article720/bird-avatar-generator) and [Cat Avatars](https://www.davidrevoy.com/article591/cat-avatar-generator)),
+* Zikri Kader, Colin Davis & Nimiq ([RoboHash](https://robohash.org)), and
+* Johanna Amann (the Avatar Privacy icon).
 
 
 == Installation ==
@@ -73,7 +70,7 @@ Avatar Privacy is based on the original plugin by [Johannes Freudendahl](http://
 
 Avatar Privacy has the following additional requirements beyond those of WordPress itself:
 
-* Your server must run PHP 7.0.0 or later (but it has not been yet tested with PHP 8.0), and
+* Your server must run PHP 7.2.0 or later, and
 * the PHP installation must include the GD extension (most do).
 
 == Screenshots ==
@@ -135,6 +132,8 @@ These plugins have been tested successfully in conjunction with Avatar Privacy:
 * [Comments – wpDiscuz](https://wordpress.org/plugins/wpdiscuz/)
 * [EWWW Image Optimizer](https://wordpress.org/plugins/ewww-image-optimizer/)
 * [Simple Author Box](https://wordpress.org/plugins/simple-author-box/)
+* [Simple Local Avatars](https://wordpress.org/plugins/simple-local-avatars/)
+* [Simple User Avatar](https://wordpress.org/plugins/simple-user-avatar/)
 * [Theme My Login](https://wordpress.org/plugins/theme-my-login/)
 * [Ultimate Member](https://wordpress.org/plugins/ultimate-member/)
 * [Webmention](https://wordpress.org/plugins/webmention/)
@@ -166,6 +165,30 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 
 == Changelog ==
+
+= 2.5.2 (2021-04-30) =
+* _Bugfix_: When a user is deleted, their local avatar image is removed as well.
+* _Bugfix_: The dependency version for JS and CSS files is properly calculated. (This also fixes the apparently empty PHP warning when `WP_DEBUG` is enabled.)
+
+= 2.5.1 (2021-03-13) =
+* _Bugfix_: Fixes PHP 8.0 deprecation warning in the `level-2/dice` package.
+
+= 2.5.0 (2021-03-11) =
+* _Feature_: Avatar Privacy is now compatible with PHP 8.0.
+* _Feature_: Integration for the following plugins had been added:
+  - [Simple Local Avatars](https://wordpress.org/plugins/simple-local-avatars/)
+  - [Simple User Avatar](https://wordpress.org/plugins/simple-user-avatar/)
+* _Change_: The library `scripturadesign/color` has been removed as a dependency.
+* _Change_: Additional hardening.
+
+= 2.4.6 (2021-02-21) =
+* _Bugfix_: Unchecking the Gravatar opt-in and anonymous commenting checkboxes in a user's profile screen works again.
+
+=  2.4.5 (2021-02-07) =
+* _Bugfix_: Gravatar opt-ins by anonymous commenters are now properly saved on WordPress 5.5 and later.
+
+= 2.4.4 (2021-02-03) =
+* _Bugfix_: Gracefully handle changes to WordPress' default DB collation (no more `Illegal mix of collations` errors).
 
 = 2.4.3 (2021-01-15) =
 * _Bugfix_: Don't break stuff (another build process fix, for real this time).

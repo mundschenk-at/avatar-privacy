@@ -160,15 +160,16 @@ class Privacy_Tools implements Component {
 	/**
 	 * Exports the data associated with a user account.
 	 *
+	 * @since  2.5.0 Unused parameter $page removed.
+	 *
 	 * @param  string $email The email address.
-	 * @param  int    $page  Optional. Default 1.
 	 *
 	 * @return array {
 	 *     @type mixed $data The exported data.
 	 *     @type bool  $done True if there is no more data to export, false otherwise.
 	 * }
 	 */
-	public function export_user_data( $email, $page = 1 ) {
+	public function export_user_data( $email ) {
 		$user = \get_user_by( 'email', $email );
 		if ( empty( $user ) ) {
 			return [
@@ -228,15 +229,16 @@ class Privacy_Tools implements Component {
 	/**
 	 * Exports the data associated with a comment author email address.
 	 *
+	 * @since  2.5.0 Unused parameter $page removed.
+	 *
 	 * @param  string $email The email address.
-	 * @param  int    $page  Optional. Default 1.
 	 *
 	 * @return array {
 	 *     @type mixed $data The exported data.
 	 *     @type bool  $done True if there is no more data to export, false otherwise.
 	 * }
 	 */
-	public function export_comment_author_data( $email, $page = 1 ) {
+	public function export_comment_author_data( $email ) {
 		// Load raw data.
 		$raw_data = $this->comment_author->load( $email );
 		if ( empty( $raw_data ) ) {
@@ -300,8 +302,9 @@ class Privacy_Tools implements Component {
 	/**
 	 * Erases the data collected by this plugin.
 	 *
+	 * @since  2.5.0 Unused parameter $page removed.
+	 *
 	 * @param  string $email The email address.
-	 * @param  int    $page  Optional. Default 1.
 	 *
 	 * @return array {
 	 *     @type int   $items_removed  The number of removed items.
@@ -310,7 +313,7 @@ class Privacy_Tools implements Component {
 	 *     @type bool  $done           True if there is no more data to erase, false otherwise.
 	 * }
 	 */
-	public function erase_data( $email, $page = 1 ) {
+	public function erase_data( $email ) {
 		$items_removed  = 0;
 		$items_retained = 0; // We currently don't track this information.
 		$messages       = [];

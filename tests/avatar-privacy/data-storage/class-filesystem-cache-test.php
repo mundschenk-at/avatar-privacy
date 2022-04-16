@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -252,7 +252,7 @@ class Filesystem_Cache_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_set_invalid() {
 		$basedir  = vfsStream::url( 'root/put' );
 		$filename = 'a/file';
-		$data     = null;
+		$data     = '';
 
 		$this->sut->shouldReceive( 'get_base_dir' )->times( 3 )->andReturn( "$basedir/" );
 

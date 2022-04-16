@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020 Peter Putzer.
+ * Copyright 2020-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -50,11 +50,21 @@ class Dependencies {
 	private $url;
 
 	/**
+	 * The plugin base path for scripts and styles.
+	 *
+	 * @since 2.5.2
+	 *
+	 * @var string
+	 */
+	private $path;
+
+	/**
 	 * Creates a new instance.
 	 */
 	public function __construct() {
 		$this->suffix = ( defined( 'SCRIPT_DEBUG' ) && \SCRIPT_DEBUG ) ? '' : '.min';
 		$this->url    = \plugins_url( '', \AVATAR_PRIVACY_PLUGIN_FILE );
+		$this->path   = \AVATAR_PRIVACY_PLUGIN_PATH;
 	}
 
 	/**
@@ -69,7 +79,7 @@ class Dependencies {
 	 */
 	public function register_block_script( $handle, $block ) {
 		// Load meta information.
-		$asset = include \AVATAR_PRIVACY_PLUGIN_PATH . "/{$block}.asset.php";
+		$asset = include "{$this->path}/{$block}.asset.php";
 
 		// Register script.
 		return \wp_register_script( $handle, "{$this->url}/{$block}.js", $asset['dependencies'], $asset['version'], false );
@@ -200,7 +210,7 @@ class Dependencies {
 	protected function maybe_add_minification_suffix( $src ) {
 		if ( ! empty( $this->suffix ) && ! empty( $src ) ) {
 			$i   = \pathinfo( $src );
-			$ext = ! empty( $i['extension'] ) ? ".{$i['extension']}" : ''; // @phpstan-ignore-line -- https://github.com/phpstan/phpstan/issues/3297
+			$ext = ! empty( $i['extension'] ) ? ".{$i['extension']}" : '';
 			$src = "{$i['dirname']}/{$i['filename']}{$this->suffix}{$ext}";
 		}
 
@@ -220,8 +230,10 @@ class Dependencies {
 	 * @return string|bool|null
 	 */
 	protected function maybe_add_file_modification_version( $version, $src ) {
-		if ( false === $version && ! empty( $src ) ) {
-			$version = (string) @\filemtime( $src );
+		$full_src_path = "{$this->path}/{$src}";
+
+		if ( false === $version && ! empty( $src ) && \file_exists( $full_src_path ) ) {
+			$version = (string) @\filemtime( $full_src_path );
 			$version = empty( $version ) ? false : $version;
 		}
 

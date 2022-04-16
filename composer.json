@@ -18,10 +18,17 @@
         }
     ],
 
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/mundschenk-at/Dice/"
+        }
+    ],
+
     "require": {
-        "php": ">=7.0.0",
+        "php": ">=7.2.0",
         "ext-gd": "*",
-        "level-2/dice": "^3.0",
+        "level-2/dice": "dev-php8 as 4.0.2",
         "mundschenk-at/check-wp-requirements": "^2.0",
         "mundschenk-at/wp-data-storage": "^1.0",
         "mundschenk-at/wp-settings-ui": "^1.0",
@@ -38,13 +45,13 @@
         "phpunit/phpunit": "< 9.3",
         "mikey179/vfsstream": "~1",
         "roave/security-advisories": "dev-master",
-        "humbug/php-scoper": "^0.14",
+        "humbug/php-scoper": "^0.17",
         "mundschenk-at/phpunit-cross-version": "dev-master",
         "sirbrillig/phpcs-variable-analysis": "^2.8",
         "sirbrillig/phpcs-import-detection": "^1.2",
-        "php-stubs/wp-cli-stubs": "^2.4",
-        "php-stubs/wordpress-stubs": "5.5",
-        "szepeviktor/phpstan-wordpress": "^0.7.1"
+        "php-stubs/wp-cli-stubs": "^2.5",
+        "szepeviktor/phpstan-wordpress": "^1.0",
+        "sniccowp/php-scoper-wordpress-excludes": "^5.9"
     },
 
     "autoload": {
@@ -62,7 +69,10 @@
         "autoloader-suffix": "AvatarPrivacy",
         "process-timeout": 0,
         "vendor-dir": "vendor",
-        "platform-check": false
+        "platform-check": false,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     },
 
     "minimum-stability": "dev",
@@ -76,13 +86,13 @@
             "phpunit --testsuite AvatarPrivacy"
         ],
         "coverage": [
-            "phpunit --testsuite AvatarPrivacy --coverage-html tests/coverage"
+            "XDEBUG_MODE=coverage phpunit --testsuite AvatarPrivacy --coverage-html tests/coverage"
         ],
         "phpstan": [
-            "phpstan analyze"
+            "phpstan analyze --memory-limit 1G"
         ],
         "phpstan-clean": [
-            "phpstan clear-result-cache && phpstan analyze"
+            "phpstan clear-result-cache && phpstan analyze --memory-limit 1G"
         ],
         "scope-dependencies": [
             "@php vendor/bin/php-scoper add-prefix --config=.scoper.inc.php --force --quiet"

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -498,10 +498,10 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 			[ true, 'true', true ],
 			[ false, 'true', null ],
 			[ null, 'true', null ],
-			[ true, 'false', false ],
+			[ true, 'false', false ], // Theoretical, PHP does not set empty checkboxes.
 			[ true, 0, false ],
 			[ true, 1, false ],
-			[ true, null, null ],
+			[ true, null, false ], // That's what PHP uses for unchecked checkboxes.
 			[ false, null, null ],
 			[ null, null, null ],
 		];
@@ -537,7 +537,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 		}
 
 		// Great Expectations.
-		if ( isset( $checkbox ) && ! empty( $nonce_value ) ) {
+		if ( ! empty( $nonce_value ) ) {
 			Functions\expect( 'sanitize_key' )->once()->with( $nonce_value )->andReturn( 'sanitized_nonce' );
 			Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', $action )->andReturn( $verify );
 		} else {
@@ -545,7 +545,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 			Functions\expect( 'wp_verify_nonce' )->never();
 		}
 
-		if ( null === $checkbox ) {
+		if ( null === $verify && null === $checkbox ) {
 			$this->expect_exception( Form_Field_Not_Found_Exception::class );
 		} elseif ( ! $verify ) {
 			$this->expect_exception( Invalid_Nonce_Exception::class );

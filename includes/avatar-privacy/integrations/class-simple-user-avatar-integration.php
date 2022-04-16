@@ -29,17 +29,15 @@ namespace Avatar_Privacy\Integrations;
 use Avatar_Privacy\Integrations\Plugin_Integration;
 use Avatar_Privacy\Core\User_Fields;
 
-use Simple_Author_Box;
+use SimpleUserAvatar_Public;
 
 /**
- * An integration for Simple Author Box.
+ * An integration for the Simple User Avatar plugin.
  *
- * @since      2.4.0
+ * @since      2.5.0
  * @author     Peter Putzer <github@mundschenk.at>
  */
-class Simple_Author_Box_Integration implements Plugin_Integration {
-
-	const USER_META_KEY = 'sabox-profile-image';
+class Simple_User_Avatar_Integration implements Plugin_Integration {
 
 	/**
 	 * The user data helper.
@@ -63,7 +61,7 @@ class Simple_Author_Box_Integration implements Plugin_Integration {
 	 * @return bool
 	 */
 	public function check() {
-		return \class_exists( Simple_Author_Box::class );
+		return \defined( 'SUA_USER_META_KEY' ) && \class_exists( SimpleUserAvatar_Public::class );
 	}
 
 	/**
@@ -72,6 +70,10 @@ class Simple_Author_Box_Integration implements Plugin_Integration {
 	 * @return void
 	 */
 	public function run() {
+		// Remove "hardcoded" Simple User Avatar frontend integration.
+		\remove_action( 'plugins_loaded', [ 'SimpleUserAvatar_Public', 'init' ] );
+
+		// Add our own stuff.
 		\add_action( 'init', [ $this, 'init' ] );
 	}
 
@@ -81,20 +83,13 @@ class Simple_Author_Box_Integration implements Plugin_Integration {
 	 * @return void
 	 */
 	public function init() {
-		$simple_author_box = Simple_Author_Box::get_instance();
-
 		// Disable profile image uploading.
 		\add_filter( 'avatar_privacy_profile_picture_upload_disabled', '__return_true', 10, 0 );
 
-		// Disable Simple Author Box' avatar integration.
-		\remove_filter( 'get_avatar', [ $simple_author_box, 'replace_gravatar_image' ], 10 );
-
-		// Serve Simple Author Box profile pictures via the filesystem cache.
+		// Serve Simple User Avatar profile pictures via the filesystem cache.
 		\add_filter( 'avatar_privacy_pre_get_user_avatar', [ $this, 'enable_user_avatars' ], 10, 2 );
 
 		// Invalidate cache when a new image is uploaded or deleted.
-		\add_action( 'added_user_meta', [ $this, 'invalidate_cache_after_avatar_change' ], 10, 3 );
-		\add_action( 'updated_user_meta', [ $this, 'invalidate_cache_after_avatar_change' ], 10, 3 );
 		\add_action( 'deleted_user_meta', [ $this, 'invalidate_cache_after_avatar_change' ], 10, 3 );
 	}
 
@@ -113,31 +108,28 @@ class Simple_Author_Box_Integration implements Plugin_Integration {
 	 */
 	public function enable_user_avatars( array $avatar = null, $user_id ) {
 		// Retrieve Simple Author Box image.
-		$local_avatar = $this->get_simple_author_box_avatar( $user_id );
+		$local_avatar = $this->get_simple_user_avatar_avatar( $user_id );
 		if ( empty( $local_avatar ) ) {
 			return $avatar;
 		}
 
-		$file = \ABSPATH . \wp_make_link_relative( $local_avatar );
-		$type = \wp_check_filetype( $file )['type'];
-
 		return [
-			'file' => $file,
-			'type' => $type,
+			'file' => $local_avatar,
+			'type' => \wp_check_filetype( $local_avatar )['type'],
 		];
 	}
 
 	/**
-	 * Retrieves the user avatar uploaded in Simple Author Box (if any).
+	 * Retrieves the user avatar uploaded in Simple User Avatar (if any).
 	 *
 	 * @param  int $user_id The user ID.
 	 *
 	 * @return string
 	 */
-	protected function get_simple_author_box_avatar( $user_id ) {
-		$avatar = \get_user_meta( $user_id, self::USER_META_KEY, true );
-		if ( \is_string( $avatar ) ) {
-			return $avatar;
+	protected function get_simple_user_avatar_avatar( $user_id ) {
+		$attachment_id = \get_user_meta( $user_id, \SUA_USER_META_KEY, true );
+		if ( \is_numeric( $attachment_id ) ) {
+			return (string) \get_attached_file( (int) $attachment_id );
 		}
 
 		return '';
@@ -147,14 +139,14 @@ class Simple_Author_Box_Integration implements Plugin_Integration {
 	 * Invalidates the file cache after a new Simple Author Box avatar has been
 	 * uploaded or deleted.
 	 *
-	 * @param  int    $meta_id  ID of updated metadata entry.
-	 * @param  int    $user_id  The user ID.
-	 * @param  string $meta_key Metadata key.
+	 * @param  string[] $meta_ids IDs of updated metadata entry.
+	 * @param  int      $user_id  The user ID.
+	 * @param  string   $meta_key Metadata key.
 	 *
 	 * @return void
 	 */
-	public function invalidate_cache_after_avatar_change( $meta_id, $user_id, $meta_key ) {
-		if ( self::USER_META_KEY !== $meta_key ) {
+	public function invalidate_cache_after_avatar_change( $meta_ids, $user_id, $meta_key ) {
+		if ( \SUA_USER_META_KEY !== $meta_key || empty( $meta_ids ) ) {
 			return;
 		}
 

@@ -43,6 +43,19 @@ abstract class TestCase extends \Mundschenk\PHPUnit_Cross_Version\TestCase {
 	 * @return bool
 	 */
 	public function assert_is_gd_image( $image ) {
-		return $this->assertTrue( \is_gd_image( $image ) );
+		return $this->assertTrue( $this->is_gd_image( $image ) );
+	}
+
+	/**
+	 * Tests whether the parameter is a GD image (resource or object).
+	 *
+	 * @since 2.6.0
+	 *
+	 * @param  mixed $image The variable to check.
+	 * @return bool
+	 */
+	public function is_gd_image( $image ) {
+		return \is_resource( $image ) && 'gd' === \get_resource_type( $image ) ||
+			\is_object( $image ) && $image instanceof \GdImage;
 	}
 }

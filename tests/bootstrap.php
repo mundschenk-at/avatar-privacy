@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2021 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -82,4 +82,9 @@ if ( ! defined( 'AVATAR_PRIVACY_PLUGIN_FILE' ) ) {
 }
 if ( ! defined( 'AVATAR_PRIVACY_PLUGIN_PATH' ) ) {
 	define( 'AVATAR_PRIVACY_PLUGIN_PATH', 'plugin' );
+}
+
+// Other plugin constants.
+if ( ! defined( 'SUA_USER_META_KEY' ) ) {
+	define( 'SUA_USER_META_KEY', 'mm_sua_attachment_id' );
 }
