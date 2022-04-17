@@ -1015,6 +1015,26 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Tests ::insert_or_update_row.
+	 *
+	 * @covers ::insert_or_update_row
+	 */
+	public function test_insert_or_update_row() {
+		$site_id = 3;
+		$data    = [
+			'id'           => 1,
+			'email'        => 'foo@bar.org',
+			'hash'         => 'hash',
+			'use_gravatar' => 1,
+		];
+		$result  = 1;
+
+		$this->sut->shouldReceive( 'insert_or_update' )->once()->with( \array_keys( $data ), [ $data ], $site_id )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->insert_or_update_row( $data, $site_id ) );
+	}
+
+	/**
 	 * Provides data for testing get_update_clause.
 	 *
 	 * @return array
