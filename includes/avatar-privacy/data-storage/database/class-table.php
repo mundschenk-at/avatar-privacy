@@ -565,6 +565,27 @@ abstract class Table {
 	}
 
 	/**
+	 * Inserts or updates a single row, as required.
+	 *
+	 * @since 2.6.0
+	 *
+	 * @param  array    $data    The data to insert (in column => value pairs).
+	 *                           Both $data columns and $data values should be
+	 *                           "raw" (neither should be SQL escaped). Sending
+	 *                           a null value will cause the column to be set to
+	 *                           NULL - the corresponding format is ignored in
+	 *                           this case.
+	 * @param  int|null $site_id Optional. The site ID. Null means the current
+	 *                           $blog_id. Default null.
+	 *
+	 * @return int|false         The number of rows inserted or updated, or false
+	 *                           on error.
+	 */
+	public function insert_or_update_row( array $data, $site_id = null ) {
+		return $this->insert_or_update( \array_keys( $data ), [ $data ], $site_id );
+	}
+
+	/**
 	 * Retrieves the update clause based on the updated fields.
 	 *
 	 * @since 2.3.0
