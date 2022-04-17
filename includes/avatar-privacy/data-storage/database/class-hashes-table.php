@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020-2021 Peter Putzer.
+ * Copyright 2020-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -66,10 +66,21 @@ class Hashes_Table extends Table {
 	];
 
 	/**
+	 * A list auto-update columns (e.g. date-/timestamps).
+	 *
+	 * @since 2.6.0
+	 *
+	 * @var string[]
+	 */
+	const AUTO_UPDATE_COLS = [
+		'last_updated',
+	];
+
+	/**
 	 * Creates a new instance.
 	 */
 	public function __construct() {
-		parent::__construct( self::TABLE_BASENAME, self::LAST_UPDATED, self::COLUMN_FORMATS );
+		parent::__construct( self::TABLE_BASENAME, self::LAST_UPDATED, self::COLUMN_FORMATS, self::AUTO_UPDATE_COLS );
 	}
 
 	/**

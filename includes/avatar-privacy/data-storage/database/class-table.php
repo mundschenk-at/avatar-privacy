@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -67,20 +67,33 @@ abstract class Table {
 	private $column_formats;
 
 	/**
+	 * A list auto-update columns (e.g. date-/timestamps), stored in reverse format
+	 * for fast read access (i.e as array<column,int>).
+	 *
+	 * @since 2.6.0
+	 *
+	 * @var array<string,int>
+	 */
+	private $auto_update_cols;
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @since 2.3.0 Parameter $core added.
 	 * @since 2.4.0 Parameters replaced with $table_basename, $update_threshold,
 	 *              and $column_formats.
+	 * @since 2.6.0 Parameter $auto_update_cols added.
 	 *
 	 * @param string   $table_basename   The basename (without site prefix) of the table.
 	 * @param string   $update_threshold The minimum version number for which the table does not need to be updated.
 	 * @param string[] $column_formats   A mapping from column to placeholder characters.
+	 * @param string[] $auto_update_cols A list of auto-update columns.
 	 */
-	public function __construct( $table_basename, $update_threshold, $column_formats ) {
+	public function __construct( $table_basename, $update_threshold, array $column_formats, array $auto_update_cols ) {
 		$this->table_basename   = $table_basename;
 		$this->update_threshold = $update_threshold;
 		$this->column_formats   = $column_formats;
+		$this->auto_update_cols = \array_flip( $auto_update_cols );
 	}
 
 	/**
@@ -568,7 +581,7 @@ abstract class Table {
 		foreach ( \array_keys( $this->column_formats ) as $field ) {
 			if ( isset( $updated_fields[ $field ] ) ) {
 				$update_clause_parts[] = "{$field} = VALUES({$field})";
-			} else {
+			} elseif ( ! isset( $this->auto_update_cols[ $field ] ) ) {
 				$update_clause_parts[] = "{$field} = {$field}";
 			}
 		}
