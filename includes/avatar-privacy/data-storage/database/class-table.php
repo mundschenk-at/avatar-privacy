@@ -532,7 +532,8 @@ abstract class Table {
 	 * @param  int|null $site_id Optional. The site ID. Null means the current
 	 *                           $blog_id. Default null.
 	 *
-	 * @return int|false         The number of rows updated, or false on error.
+	 * @return int|false         The number of rows inserted or updated, or false
+	 *                           on error.
 	 */
 	public function insert_or_update( array $fields, array $rows, $site_id = null ) {
 		try {
