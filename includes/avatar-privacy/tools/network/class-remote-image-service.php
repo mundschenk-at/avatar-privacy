@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020-2021 Peter Putzer.
+ * Copyright 2020-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -186,7 +186,7 @@ class Remote_Image_Service {
 				'hash'       => $hash,
 				'type'       => self::IDENTIFIER_TYPE,
 			];
-			$this->table->replace( $data );
+			$this->table->insert_or_update_row( $data );
 
 			// Also prime the URL cache, just in case.
 			$this->cache->set( $key, $url, self::URL_CACHE_DURATION );
