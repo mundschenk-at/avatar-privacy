@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -67,6 +67,9 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		'last_updated' => '%s',
 		'log_message'  => '%s',
 	];
+	const AUTO_UPDATE_COLS = [
+		'last_updated',
+	];
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -94,7 +97,7 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		set_include_path( 'vfs://root/' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
 		// Partially mock system under test.
-		$this->sut = m::mock( Table::class, [ self::TABLE_BASENAME, self::UPDATE_THRESHOLD, self::COLUMN_FORMATS ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Table::class, [ self::TABLE_BASENAME, self::UPDATE_THRESHOLD, self::COLUMN_FORMATS, self::AUTO_UPDATE_COLS ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -109,13 +112,17 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 			'foobar' => '%s',
 			'foobaz' => '%d',
 		];
+		$auto_update_cols = [
+			'foobaz',
+		];
 
 		$mock = m::mock( Table::class )->makePartial();
-		$mock->__construct( $table_basename, $update_threshold, $column_formats );
+		$mock->__construct( $table_basename, $update_threshold, $column_formats, $auto_update_cols );
 
 		$this->assert_attribute_same( $table_basename, 'table_basename', $mock );
 		$this->assert_attribute_same( $update_threshold, 'update_threshold', $mock );
 		$this->assert_attribute_same( $column_formats, 'column_formats', $mock );
+		$this->assert_attribute_same( \array_flip( $auto_update_cols ), 'auto_update_cols', $mock );
 	}
 
 	/**
@@ -1016,11 +1023,11 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		return [
 			[
 				[ 'email', 'hash', 'use_gravatar' ],
-				"id = id,\nemail = VALUES(email),\nhash = VALUES(hash),\nuse_gravatar = VALUES(use_gravatar),\nlast_updated = last_updated,\nlog_message = log_message",
+				"id = id,\nemail = VALUES(email),\nhash = VALUES(hash),\nuse_gravatar = VALUES(use_gravatar),\nlog_message = log_message",
 			],
 			[
 				[ 'log_message' ],
-				"id = id,\nemail = email,\nhash = hash,\nuse_gravatar = use_gravatar,\nlast_updated = last_updated,\nlog_message = VALUES(log_message)",
+				"id = id,\nemail = email,\nhash = hash,\nuse_gravatar = use_gravatar,\nlog_message = VALUES(log_message)",
 			],
 			[
 				[ 'email', 'hash', 'use_gravatar', 'last_updated', 'log_message' ],

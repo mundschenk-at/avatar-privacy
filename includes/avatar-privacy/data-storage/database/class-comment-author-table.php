@@ -68,6 +68,17 @@ class Comment_Author_Table extends Table {
 	];
 
 	/**
+	 * A list auto-update columns (e.g. date-/timestamps).
+	 *
+	 * @since 2.6.0
+	 *
+	 * @var string[]
+	 */
+	const AUTO_UPDATE_COLS = [
+		'last_updated',
+	];
+
+	/**
 	 * The options handler.
 	 *
 	 * @var Network_Options
@@ -83,7 +94,7 @@ class Comment_Author_Table extends Table {
 	 * @param Network_Options $network_options The network options handler.
 	 */
 	public function __construct( Network_Options $network_options ) {
-		parent::__construct( self::TABLE_BASENAME, self::LAST_UPDATED, self::COLUMN_FORMATS );
+		parent::__construct( self::TABLE_BASENAME, self::LAST_UPDATED, self::COLUMN_FORMATS, self::AUTO_UPDATE_COLS );
 
 		$this->network_options = $network_options;
 	}
