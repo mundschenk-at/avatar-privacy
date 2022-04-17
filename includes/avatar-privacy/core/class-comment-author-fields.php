@@ -304,7 +304,7 @@ class Comment_Author_Fields implements API {
 		];
 
 		// Update database.
-		$result = $this->hashes_table->replace( $data );
+		$result = $this->hashes_table->insert_or_update_row( $data );
 
 		// Check whether we need to clear the cache.
 		if ( $clear_cache || ! empty( $result ) ) {

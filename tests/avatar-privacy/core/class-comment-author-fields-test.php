@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -492,7 +492,7 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 		$hash  = 'hashedemail123';
 
 		$this->sut->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
-		$this->hashes_table->shouldReceive( 'replace' )->once()->with(
+		$this->hashes_table->shouldReceive( 'insert_or_update_row' )->once()->with(
 			[
 				'identifier' => $email,
 				'hash'       => $hash,

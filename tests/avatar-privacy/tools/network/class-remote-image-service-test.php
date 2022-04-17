@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020 Peter Putzer.
+ * Copyright 2020-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -310,7 +310,7 @@ class Remote_Image_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->hasher->shouldReceive( 'get_hash' )->once()->with( $url )->andReturn( $hash );
 		$this->cache->shouldReceive( 'get' )->once()->with( $key )->andReturn( false );
 
-		$this->table->shouldReceive( 'replace' )->once()->with(
+		$this->table->shouldReceive( 'insert_or_update_row' )->once()->with(
 			[
 				'identifier' => $url,
 				'hash'       => $hash,
@@ -336,7 +336,7 @@ class Remote_Image_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->hasher->shouldReceive( 'get_hash' )->once()->with( $url )->andReturn( $hash );
 		$this->cache->shouldReceive( 'get' )->once()->with( $key )->andReturn( $url );
 
-		$this->table->shouldReceive( 'replace' )->never();
+		$this->table->shouldReceive( 'insert_or_update_row' )->never();
 		$this->cache->shouldReceive( 'set' )->never();
 
 		$this->assertSame( $hash, $this->sut->get_hash( $url ) );
