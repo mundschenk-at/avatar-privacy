@@ -1,10 +1,19 @@
 # Changelog
 
-## 2.6.0 (unreleased)
+## 2.6.0 (2022-04-18)
+*   _Feature_: The size of uploaded images is now checked to make sure processing
+    does not overload the server. By default, all uploaded images have to be smaller
+    than 2000×2000 pixels. The constraints can be adjusted with these new filter
+    hooks:
+    -   `avatar_privacy_upload_min_width`
+    -   `avatar_privacy_upload_min_height`
+    -   `avatar_privacy_upload_max_width`
+    -   `avatar_privacy_upload_max_height`
+*   _Feature_: Improved caching to reduce the number of database queries.
 *   _Change_: Requires at least WordPress 5.6 and PHP 7.2.
 *   _Change_: Support for Internet Explorer (all extant versions, i.e. 9, 10, and 11)
     has been dropped.
-*   _Change_: Improved caching to reduce the number of database queries.
+*   _Change_: A fabulous new plugin icon designed by [Johanna Amann](https://www.instagram.com/_jo_am/).
 
 ## 2.5.2 (2021-04-30)
 *   _Bugfix_: When a user is deleted, their local avatar image is removed as well.
