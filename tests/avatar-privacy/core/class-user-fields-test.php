@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2022 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -202,6 +202,41 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'get_users' )->once()->with( m::type( 'array' ) )->andReturn( $users );
 
 		$this->assertNull( $this->sut->get_user_by_hash( $hash ) );
+	}
+
+	/**
+	 * Tests ::get_user_by_email.
+	 *
+	 * @covers ::get_user_by_email
+	 */
+	public function test_get_user_by_email() {
+		$email = 'email@example.org';
+		$user  = m::mock( 'WP_User' );
+
+		Functions\expect( 'get_user_by' )->once()->with( 'email', $email )->andReturn( $user );
+
+		// The first time queries get_user_by.
+		$this->assertSame( $user, $this->sut->get_user_by_email( $email ) );
+
+		// The second time just returns the cached value.
+		$this->assertSame( $user, $this->sut->get_user_by_email( $email ) );
+	}
+
+	/**
+	 * Tests ::get_user_by_email.
+	 *
+	 * @covers ::get_user_by_email
+	 */
+	public function test_get_user_by_email_does_not_exist() {
+		$email = 'email@example.org';
+
+		Functions\expect( 'get_user_by' )->once()->with( 'email', $email )->andReturn( false );
+
+		// The first time queries get_user_by.
+		$this->assertNull( $this->sut->get_user_by_email( $email ) );
+
+		// The second time just returns the cached value.
+		$this->assertNull( $this->sut->get_user_by_email( $email ) );
 	}
 
 	/**
