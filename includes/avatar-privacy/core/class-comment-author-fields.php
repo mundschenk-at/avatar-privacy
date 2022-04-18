@@ -80,6 +80,15 @@ class Comment_Author_Fields implements API {
 	private $hashes_table;
 
 	/**
+	 * A cache to prevent multiple hash updates.
+	 *
+	 * @since 2.6.0
+	 *
+	 * @var array<string,string>
+	 */
+	private $updated_hashes = [];
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param Cache                $cache                Required.
@@ -293,18 +302,26 @@ class Comment_Author_Fields implements API {
 	 * @param  string $email       The email.
 	 * @param  bool   $clear_cache Optional. Force the cache to be cleared. Default false.
 	 *
-	 * @return int|false     The number of rows updated, or false on error.
+	 * @return int|false           The number of rows updated, or false on error.
 	 */
 	public function update_hash( $email, $clear_cache = false ) {
-		$hash = $this->get_hash( $email );
-		$data = [
-			'identifier' => $email,
-			'hash'       => $hash,
-			'type'       => 'comment',
-		];
+		$result = 0;
+		$hash   = $this->get_hash( $email );
 
-		// Update database.
-		$result = $this->hashes_table->insert_or_update_row( $data );
+		// Let's check the update cache first.
+		if ( ! isset( $this->updated_hashes[ $email ] ) || $hash !== $this->updated_hashes[ $email ] ) {
+			$data = [
+				'identifier' => $email,
+				'hash'       => $hash,
+				'type'       => 'comment',
+			];
+
+			// Actually update database.
+			$result = $this->hashes_table->insert_or_update_row( $data );
+
+			// Mark hash as updated.
+			$this->updated_hashes[ $email ] = $hash;
+		}
 
 		// Check whether we need to clear the cache.
 		if ( $clear_cache || ! empty( $result ) ) {

@@ -508,6 +508,42 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Tests ::update_hash twice.
+	 *
+	 * @covers ::update_hash
+	 *
+	 * @dataProvider provide_update_hash_data
+	 *
+	 * @param bool     $clear_cache   The $clear_cache flag.
+	 * @param int|bool $update_result The result of the 'replace' call.
+	 * @param bool     $cleared       Whether the cache is expected to be cleared.
+	 */
+	public function test_update_hash_caching( $clear_cache, $update_result, $cleared ) {
+		$email = 'foo@bar.com';
+		$hash  = 'hashedemail123';
+
+		$this->sut->shouldReceive( 'get_hash' )->twice()->with( $email )->andReturn( $hash );
+		$this->hashes_table->shouldReceive( 'insert_or_update_row' )->once()->with(
+			[
+				'identifier' => $email,
+				'hash'       => $hash,
+				'type'       => 'comment',
+			]
+		)->andReturn( $update_result );
+
+		if ( $cleared ) {
+			if ( $clear_cache ) {
+				$this->sut->shouldReceive( 'clear_cache' )->twice()->with( $hash, 'hash' );
+			} else {
+				$this->sut->shouldReceive( 'clear_cache' )->once()->with( $hash, 'hash' );
+			}
+		}
+
+		$this->assertSame( $update_result, $this->sut->update_hash( $email, $clear_cache ) );
+		$this->assertSame( 0, $this->sut->update_hash( $email, $clear_cache ) );
+	}
+
+	/**
 	 * Tests ::get_log_message.
 	 *
 	 * @covers ::get_log_message
