@@ -521,6 +521,9 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 				} else {
 					$user = false;
 				}
+
+				Functions\expect( 'get_user_by' )->once()->with( 'ID', $query )->andReturn( $user );
+
 			} elseif ( 'email' === $get_user_by ) {
 				$query = $email;
 
@@ -530,9 +533,9 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 				} else {
 					$user = false;
 				}
-			}
 
-			Functions\expect( 'get_user_by' )->once()->with( $get_user_by, $query )->andReturn( $user );
+				$this->registered_user->shouldReceive( 'get_user_by_email' )->once()->with( $query )->andReturn( $user );
+			}
 		}
 
 		// The filter should always run.

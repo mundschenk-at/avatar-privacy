@@ -93,6 +93,13 @@ class User_Fields implements API {
 	private $image_file;
 
 	/**
+	 * A request-level cache for user lookups.
+	 *
+	 * @var array<string,\WP_User|null>
+	 */
+	private $user_by_email = [];
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param Hasher           $hasher     The hashing helper..
@@ -151,6 +158,34 @@ class User_Fields implements API {
 		}
 
 		return $users[0];
+	}
+
+	/**
+	 * Retrieves a user by email.
+	 *
+	 * This method differs from `get_user_by` in that it caches the result even
+	 * if no user is found for the duration of the request.
+	 *
+	 * @since 2.6.0
+	 *
+	 * @param string $email The email to query.
+	 *
+	 * @return \WP_User|null
+	 */
+	public function get_user_by_email( $email ) {
+		if ( isset( $this->user_by_email[ $email ] ) || \array_key_exists( $email, $this->user_by_email ) ) {
+			return $this->user_by_email[ $email ];
+		}
+
+		$user = \get_user_by( 'email', $email );
+		if ( empty( $user ) ) {
+			$user = null;
+		}
+
+		// Cache lookup result.
+		$this->user_by_email[ $email ] = $user;
+
+		return $user;
 	}
 
 	/**

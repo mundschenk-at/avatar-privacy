@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2022 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -298,7 +298,7 @@ class Avatar_Handling implements Component {
 			}
 		} elseif ( empty( $user_id ) && ! empty( $email ) ) {
 			// Check if anonymous comments "as user" are allowed.
-			$user = \get_user_by( 'email', $email );
+			$user = $this->registered_user->get_user_by_email( $email );
 			if ( ! empty( $user ) && $this->registered_user->allows_anonymous_commenting( $user->ID ) ) {
 				$user_id = $user->ID;
 			}
