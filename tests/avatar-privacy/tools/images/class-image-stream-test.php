@@ -733,48 +733,55 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::maybe_trigger_error.
+	 * Provides data for testing maybe_trigger_error.
 	 *
-	 * @covers ::maybe_trigger_error
+	 * @return mixed[]
 	 */
-	public function test_maybe_trigger_error() {
-		$condition   = true;
-		$message     = 'My error message';
-		$error_level = \E_USER_ERROR;
-
-		Functions\expect( 'esc_html' )->once()->with( $message )->andReturnFirstArg();
-		$this->expect_error( \PHPUnit\Framework\Error\Error::class );
-
-		$this->assertNull( $this->sut->maybe_trigger_error( $condition, $message, $error_level ) );
+	public function provide_maybe_trigger_error_data() {
+		return [
+			[
+				true,
+				'My user error',
+				\E_USER_ERROR,
+			],
+			[
+				true,
+				'My user warning',
+				\E_USER_WARNING,
+			],
+			[
+				false,
+				'My user warning is never triggered',
+				\E_USER_WARNING,
+			],
+		];
 	}
 
 	/**
 	 * Tests ::maybe_trigger_error.
 	 *
 	 * @covers ::maybe_trigger_error
-	 */
-	public function test_maybe_trigger_error_warning() {
-		$condition   = true;
-		$message     = 'My error message';
-		$error_level = \E_USER_WARNING;
-
-		Functions\expect( 'esc_html' )->once()->with( $message )->andReturnFirstArg();
-		$this->expect_error( \PHPUnit\Framework\Error\Warning::class );
-
-		$this->assertNull( $this->sut->maybe_trigger_error( $condition, $message, $error_level ) );
-	}
-
-	/**
-	 * Tests ::maybe_trigger_error.
 	 *
-	 * @covers ::maybe_trigger_error
+	 * @dataProvider provide_maybe_trigger_error_data
 	 */
-	public function test_maybe_trigger_error_but_do_not() {
-		$condition   = false;
-		$message     = 'My error message';
-		$error_level = \E_USER_ERROR;
+	public function test_maybe_trigger_error( $condition, $message, $error_level ) {
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
+		\set_error_handler(
+			function ( $errno, $errstr ) {
+				\restore_error_handler();
+				throw new \RuntimeException( $errstr, $errno );
+			},
+			\E_ALL
+		);
 
-		Functions\expect( 'esc_html' )->never();
+		if ( $condition ) {
+			Functions\expect( 'esc_html' )->once()->with( $message )->andReturnFirstArg();
+			$this->expectException( \RuntimeException::class );
+			$this->expectExceptionMessage( $message );
+			$this->expectExceptionCode( $error_level );
+		} else {
+			Functions\expect( 'esc_html' )->never();
+		}
 
 		$this->assertNull( $this->sut->maybe_trigger_error( $condition, $message, $error_level ) );
 	}
