@@ -29,7 +29,7 @@
     "@babel/preset-env": "^7.14.8",
     "@babel/preset-modules": "^0.1.4",
     "@lodder/grunt-postcss": "^3.1",
-    "@wordpress/scripts": "^22.3.0",
+    "@wordpress/scripts": "^26",
     "autoprefixer": "^10.4",
     "coffeescript": "^2.6",
     "grunt": "^1.4.0",
@@ -64,12 +64,12 @@
     "test:unit": "wp-scripts test-unit-js"
   },
   "dependencies": {
-    "@wordpress/blocks": "^11.4.0",
-    "@wordpress/components": "^19.7.0",
-    "@wordpress/data": "^6.5.0",
-    "@wordpress/editor": "^12.4.0",
-    "@wordpress/element": "^4.3.0",
+    "@wordpress/blocks": "^12",
+    "@wordpress/components": "^23",
+    "@wordpress/data": "^9",
+    "@wordpress/editor": "^13",
+    "@wordpress/element": "^5",
     "@wordpress/i18n": "^4.2.0",
-    "@wordpress/server-side-render": "^3.3.0"
+    "@wordpress/server-side-render": "^4"
   }
 }
