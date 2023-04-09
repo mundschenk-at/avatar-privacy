@@ -33,6 +33,7 @@ use Avatar_Privacy\Data_Storage\Database\Comment_Author_Table;
 use WP_CLI;
 use WP_CLI\Formatter;
 use WP_CLI\Iterators\Table as Table_Iterator;
+use WP_CLI\Iterator;
 
 use function WP_CLI\Utils\format_items;
 use function WP_CLI\Utils\get_flag_value;
@@ -216,7 +217,7 @@ class Database_Command extends Abstract_Command {
 		// Optionally load only IDs.
 		$items = $iterator;
 		if ( 'ids' === $assoc_args['format'] ) {
-			$items = \wp_list_pluck( $this->iterator_to_array( $iterator ), 'id' );
+			$items = \wp_list_pluck( \iterator_to_array( $iterator ), 'id' );
 		}
 
 		// Display everything in a nice way.

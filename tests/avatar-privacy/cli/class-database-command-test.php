@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -303,9 +303,14 @@ class Database_Command_Test extends TestCase {
 			]
 		);
 
-		$this->sut->shouldReceive( 'iterator_to_array' )->once()->with( m::type( \WP_CLI\Iterators\Table::class ) )->andReturn( [ 'iterator' => 'array' ] );
-		Functions\expect( 'wp_list_pluck' )->once()->with( m::type( 'array' ), 'id' )->andReturn( [ 'id' => 'fake' ] );
+		// Return expected result [ 'iterator' => 'array' ] from native iterator_to_array.
+		$table_iterator->shouldReceive( 'rewind' )->once();
+		$table_iterator->shouldReceive( 'valid' )->twice()->andReturn( true, false );
+		$table_iterator->shouldReceive( 'current' )->once()->andReturn( 'array' );
+		$table_iterator->shouldReceive( 'key' )->once()->andReturn( 'iterator' );
+		$table_iterator->shouldReceive( 'next' )->once();
 
+		Functions\expect( 'wp_list_pluck' )->once()->with( m::type( 'array' ), 'id' )->andReturn( [ 'id' => 'fake' ] );
 		$formatter->shouldReceive( '__construct' )->once()->with( $assoc_args, null );
 		$formatter->shouldReceive( 'display_items' )->once()->with( m::type( 'array' ) );
 
