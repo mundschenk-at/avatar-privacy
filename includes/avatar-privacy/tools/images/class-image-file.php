@@ -181,8 +181,11 @@ class Image_File {
 
 		// Prepare file data.
 		$file_data = [
-			'tmp_name' => $temp_file,
 			'name'     => $image_url,
+			'type'     => '', // No need to determine the MIME type here as it is untrusted anyway.
+			'tmp_name' => $temp_file,
+			'error'    => \UPLOAD_ERR_OK,
+			'size'     => (int) @\filesize( $temp_file ),
 		];
 
 		// Optionally override target filename.
