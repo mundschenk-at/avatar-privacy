@@ -205,7 +205,9 @@ class BuddyPress_Integration implements Plugin_Integration {
 	 * @phpstan-param BuddyPressAvatarParams $args
 	 */
 	public function invalidate_cache_after_avatar_deletion( array $args ) {
+		if ( ! empty( $args['item_id'] ) ) {
 		$this->invalidate_cache_after_avatar_upload( $args['item_id'], 'delete', $args );
+		}
 	}
 
 	/**

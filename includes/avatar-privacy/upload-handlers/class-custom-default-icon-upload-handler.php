@@ -294,6 +294,7 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	 */
 	protected function handle_file_delete_error() {
 		$icon = $this->default_avatars->get_custom_default_avatar();
-		$this->raise_settings_error( self::ERROR_FILE, \sprintf( '<strong>%s</strong> %s', \__( 'Could not delete avatar image file:', 'avatar-privacy' ), \esc_attr( $icon['file'] ) ) );
+		$file = ! empty( $icon['file'] ) ? $icon['file'] : \__( 'No filename given.', 'avatar-privacy' );
+		$this->raise_settings_error( self::ERROR_FILE, \sprintf( '<strong>%s</strong> %s', \__( 'Could not delete avatar image file:', 'avatar-privacy' ), \esc_attr( $file ) ) );
 	}
 }
