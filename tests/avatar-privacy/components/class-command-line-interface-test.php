@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -52,6 +52,13 @@ class Command_Line_Interface_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var Command_Line_Interface
 	 */
 	private $sut;
+
+	/**
+	 * The mocked CLI API.
+	 *
+	 * @var \WP_CLI
+	 */
+	private \WP_CLI $wp_cli;
 
 	/**
 	 * A mocked CLI command.

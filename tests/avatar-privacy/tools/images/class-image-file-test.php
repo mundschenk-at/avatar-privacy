@@ -33,6 +33,7 @@ use Brain\Monkey\Functions;
 use Mockery as m;
 
 use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
 
 use Avatar_Privacy\Tools\Images\Image_File;
 
@@ -52,6 +53,13 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var Image_File
 	 */
 	private $sut;
+
+	/**
+	 * The mocked filesystem.
+	 *
+	 * @var vfsStreamDirectory
+	 */
+	private vfsStreamDirectory $root;
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.

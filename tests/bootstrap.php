@@ -24,10 +24,17 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
+namespace Avatar_Privacy\Tests;
+
+use Avatar_Privacy\Tests\TestCase;
+
 /**
  * Autoload everything using Composer.
  */
 require_once dirname( __DIR__ ) . '/vendor/autoload.php';
+
+// Allow setting dynamic properties on missing WordPress classes.
+TestCase::makeDoublesForUnavailableClasses( [ 'WP_Post', 'WP_Comment', 'WP_User', 'WP_Object_Cache', 'wpdb', 'WP' ] );
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
 
