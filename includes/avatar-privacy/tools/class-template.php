@@ -115,14 +115,12 @@ class Template {
 				$description = \__( 'Replace the local profile picture by uploading a new avatar, or erase it (falling back on <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a>) by checking the delete option.', 'avatar-privacy' );
 				$link_needed = true;
 			}
+		} elseif ( ! $has_local_avatar ) {
+			/* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */
+			$description = \__( 'No local profile picture is set. Change your profile picture on <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a>.', 'avatar-privacy' );
+			$link_needed = true;
 		} else {
-			if ( ! $has_local_avatar ) {
-				/* translators: 1: gravatar.com URL, 2: rel attribute, 3: target attribute */
-				$description = \__( 'No local profile picture is set. Change your profile picture on <a href="%1$s" rel="%2$s" target="%3$s">Gravatar</a>.', 'avatar-privacy' );
-				$link_needed = true;
-			} else {
-				$description = \__( 'You do not have media management permissions. To change your local profile picture, contact the site administrator.', 'avatar-privacy' );
-			}
+			$description = \__( 'You do not have media management permissions. To change your local profile picture, contact the site administrator.', 'avatar-privacy' );
 		}
 
 		if ( $link_needed ) {
