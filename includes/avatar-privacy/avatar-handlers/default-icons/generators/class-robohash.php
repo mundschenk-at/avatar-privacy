@@ -124,7 +124,7 @@ class Robohash extends Parts_Generator {
 	public function __construct( Number_Generator $number_generator, Site_Transients $site_transients, Template $template ) {
 		parent::__construct(
 			\dirname( \AVATAR_PRIVACY_PLUGIN_FILE ) . '/public/images/robohash',
-			[ 'body', 'face', 'eyes', 'mouth', 'accessory' ],
+			self::PARTS,
 			$number_generator,
 			$site_transients
 		);
@@ -147,12 +147,10 @@ class Robohash extends Parts_Generator {
 	 * @phpstan-return AdditionalArguments
 	 */
 	protected function get_additional_arguments( $seed, $size, array $parts ) {
-		$color    = self::COLORS[ $this->number_generator->get( 0, \count( self::COLORS ) - 1 ) ];
-		$bg_color = self::BG_COLORS[ $this->number_generator->get( 0, \count( self::BG_COLORS ) - 1 ) ];
-
+		// Randomize colors.
 		return [
-			'color'    => $color,
-			'bg_color' => $bg_color,
+			'color'    => self::COLORS[ $this->number_generator->get( 0, \count( self::COLORS ) - 1 ) ],
+			'bg_color' => self::BG_COLORS[ $this->number_generator->get( 0, \count( self::BG_COLORS ) - 1 ) ],
 		];
 	}
 
@@ -172,11 +170,11 @@ class Robohash extends Parts_Generator {
 	protected function get_avatar( $size, array $parts, array $args ) {
 
 		// Add robot parts to arguments.
-		$args['body']      = $parts['body'];
-		$args['face']      = $parts['face'];
-		$args['eyes']      = $parts['eyes'];
-		$args['mouth']     = $parts['mouth'];
-		$args['accessory'] = $parts['accessory'];
+		$args[ self::PART_BODY ]      = $parts[ self::PART_BODY ];
+		$args[ self::PART_FACE ]      = $parts[ self::PART_FACE ];
+		$args[ self::PART_EYES ]      = $parts[ self::PART_EYES ];
+		$args[ self::PART_MOUTH ]     = $parts[ self::PART_MOUTH ];
+		$args[ self::PART_ACCESSORY ] = $parts[ self::PART_ACCESSORY ];
 
 		return $this->template->get_partial( 'public/partials/robohash/svg.php', $args );
 	}

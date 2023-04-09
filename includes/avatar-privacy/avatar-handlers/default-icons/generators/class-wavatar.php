@@ -55,6 +55,34 @@ use GdImage; // phpcs:ignore ImportDetection.Imports -- PHP 8.0 compatibility.
  */
 class Wavatar extends PNG_Parts_Generator {
 
+	// Wavatar parts.
+	private const PART_MASK   = 'mask';
+	private const PART_SHINE  = 'shine';
+	private const PART_FADE   = 'fade';
+	private const PART_BROW   = 'brow';
+	private const PART_EYES   = 'eyes';
+	private const PART_PUPILS = 'pupils';
+	private const PART_MOUTH  = 'mouth';
+
+	/**
+	 * All Wavatar parts in their natural order.
+	 *
+	 * @since 2.7.0
+	 */
+	private const PARTS = [
+		self::PART_FADE,
+		self::PART_MASK,
+		self::PART_SHINE,
+		self::PART_BROW,
+		self::PART_EYES,
+		self::PART_PUPILS,
+		self::PART_MOUTH,
+	];
+
+	// Hues.
+	private const HUE_BACKGROUND = 'background_hue';
+	private const HUE_WAVATAR    = 'wavatar_hue';
+
 	/**
 	 * A mapping from part types to the seed positions to take their values from.
 	 *
@@ -64,15 +92,15 @@ class Wavatar extends PNG_Parts_Generator {
 	 */
 	const SEED_INDEX = [
 		// Mask and shine form the face, so they use the same random element.
-		'mask'           => 1,
-		'shine'          => 1,
-		'background_hue' => 3, // Not a part type, but part of the sequence.
-		'fade'           => 5,
-		'wavatar_hue'    => 7, // Not a part type, but part of the sequence.
-		'brow'           => 9,
-		'eyes'           => 11,
-		'pupils'         => 13,
-		'mouth'          => 15,
+		self::PART_MASK      => 1,
+		self::PART_SHINE     => 1,
+		self::HUE_BACKGROUND => 3, // Not a part type, but part of the sequence.
+		self::PART_FADE      => 5,
+		self::HUE_WAVATAR    => 7, // Not a part type, but part of the sequence.
+		self::PART_BROW      => 9,
+		self::PART_EYES      => 11,
+		self::PART_PUPILS    => 13,
+		self::PART_MOUTH     => 15,
 	];
 
 	/**
@@ -104,7 +132,7 @@ class Wavatar extends PNG_Parts_Generator {
 	) {
 		parent::__construct(
 			\AVATAR_PRIVACY_PLUGIN_PATH . '/public/images/wavatars',
-			[ 'fade', 'mask', 'shine', 'brow', 'eyes', 'pupils', 'mouth' ],
+			self::PARTS,
 			80,
 			$editor,
 			$png,
@@ -131,8 +159,8 @@ class Wavatar extends PNG_Parts_Generator {
 		$wavatar_hue    = $this->seed( $seed, self::SEED_INDEX['wavatar_hue'], 2, 240 ) / 255 * self::DEGREE;
 
 		return [
-			'background_hue' => $background_hue,
-			'wavatar_hue'    => $wavatar_hue,
+			self::HUE_BACKGROUND => $background_hue,
+			self::HUE_WAVATAR    => $wavatar_hue,
 		];
 	}
 
@@ -154,14 +182,14 @@ class Wavatar extends PNG_Parts_Generator {
 		$avatar = $this->create_image( 'white' );
 
 		// Fill in the background color.
-		$this->png->fill_hsl( $avatar, $args['background_hue'], 94, 20, 1, 1 );
+		$this->png->fill_hsl( $avatar, $args[ self::HUE_BACKGROUND ], 94, 20, 1, 1 );
 
 		// Now add the various layers onto the image.
 		foreach ( $parts as $type => $file ) {
 			$this->combine_images( $avatar, $file );
 
-			if ( 'mask' === $type ) {
-				$this->png->fill_hsl( $avatar, $args['wavatar_hue'], 94, 66, (int) ( $this->size / 2 ), (int) ( $this->size / 2 ) );
+			if ( self::PART_MASK === $type ) {
+				$this->png->fill_hsl( $avatar, $args[ self::HUE_WAVATAR ], 94, 66, (int) ( $this->size / 2 ), (int) ( $this->size / 2 ) );
 			}
 		}
 
