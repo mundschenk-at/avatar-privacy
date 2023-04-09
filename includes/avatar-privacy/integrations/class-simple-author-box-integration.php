@@ -119,17 +119,19 @@ class Simple_Author_Box_Integration implements Plugin_Integration {
 	public function enable_user_avatars( array $avatar = null, $user_id ) {
 		// Retrieve Simple Author Box image.
 		$local_avatar = $this->get_simple_author_box_avatar( $user_id );
-		if ( empty( $local_avatar ) ) {
-			return $avatar;
+
+		if ( ! empty( $local_avatar ) ) {
+			$file = \ABSPATH . \wp_make_link_relative( $local_avatar );
+			$type = \wp_check_filetype( $file )['type'];
+			if ( ! empty( $type ) ) {
+				return [
+					'file' => $file,
+					'type' => $type,
+				];
+			}
 		}
 
-		$file = \ABSPATH . \wp_make_link_relative( $local_avatar );
-		$type = \wp_check_filetype( $file )['type'];
-
-		return [
-			'file' => $file,
-			'type' => $type,
-		];
+		return $avatar;
 	}
 
 	/**

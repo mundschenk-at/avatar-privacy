@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2021 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -296,6 +296,24 @@ class BuddyPress_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		$this->sut->shouldReceive( 'invalidate_cache_after_avatar_upload' )->once()->with( $item_id, 'delete', $args );
+
+		$this->assertNull( $this->sut->invalidate_cache_after_avatar_deletion( $args ) );
+	}
+
+	/**
+	 * Tests ::invalidate_cache_after_avatar_deletion with an invalid $item_id.
+	 *
+	 * @covers ::invalidate_cache_after_avatar_deletion
+	 */
+	public function test_invalidate_cache_after_avatar_deletion_invalid_item_id() {
+		// Input.
+		$args = [
+			'foo'     => 'bar',
+			'object'  => 'user',
+			'item_id' => false,
+		];
+
+		$this->sut->shouldReceive( 'invalidate_cache_after_avatar_upload' )->never();
 
 		$this->assertNull( $this->sut->invalidate_cache_after_avatar_deletion( $args ) );
 	}

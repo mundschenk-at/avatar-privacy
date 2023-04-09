@@ -165,9 +165,13 @@ class Ultimate_Member_Integration implements Plugin_Integration {
 		$file = \ABSPATH . \wp_make_link_relative( $um_profile['url'] );
 		$type = \wp_check_filetype( $file )['type'];
 
-		return [
-			'file' => $file,
-			'type' => $type,
-		];
+		if ( ! empty( $type ) ) {
+			return [
+				'file' => $file,
+				'type' => $type,
+			];
+		}
+
+		return null;
 	}
 }
