@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2022 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -463,7 +463,7 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 		$user_id = 42;
 
 		Functions\expect( 'get_users' )->once()->with( [
-			'include' => $user_id,
+			'include' => [ $user_id ],
 			'fields'  => 'ID',
 		] )->andReturn( [ $user_id ] );
 
@@ -479,7 +479,7 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 		$user_id = 42;
 
 		Functions\expect( 'get_users' )->once()->with( [
-			'include' => $user_id,
+			'include' => [ $user_id ],
 			'fields'  => 'ID',
 		] )->andReturn( [] );
 
