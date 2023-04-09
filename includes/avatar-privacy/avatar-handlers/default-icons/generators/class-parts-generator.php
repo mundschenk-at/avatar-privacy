@@ -198,13 +198,14 @@ abstract class Parts_Generator implements Generator {
 	 * @phpstan-return RandomizedParts
 	 */
 	protected function randomize_parts( array $parts ) {
+		$randomized_parts = [];
 
 		// Throw the dice for every part type.
 		foreach ( $parts as $type => $list ) {
-			$parts[ $type ] = $list[ $this->get_random_part_index( $type, \count( $list ) ) ];
+			$randomized_parts[ $type ] = $list[ $this->get_random_part_index( $type, \count( $list ) ) ];
 		}
 
-		return $parts;
+		return $randomized_parts;
 	}
 
 	/**
