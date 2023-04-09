@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2022 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -105,7 +105,6 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 		parent::set_up();
 
 		// Mock required helpers.
-		$this->options               = m::mock( Options::class );
 		$this->settings              = m::mock( Settings::class );
 		$this->hasher                = m::mock( Hasher::class );
 		$this->user_fields           = m::mock( User_Fields::class );
