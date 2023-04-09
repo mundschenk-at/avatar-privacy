@@ -328,7 +328,6 @@ class Factory extends Dice {
 			[ self::INSTANCE => Components\Settings_Page::class ],
 			[ self::INSTANCE => Components\Network_Settings_Page::class ],
 			[ self::INSTANCE => Components\Privacy_Tools::class ],
-			[ self::INSTANCE => Components\REST_API::class ],
 			[ self::INSTANCE => Components\Integrations::class ],
 			[ self::INSTANCE => Components\Shortcodes::class ],
 			[ self::INSTANCE => Components\Block_Editor::class ],
