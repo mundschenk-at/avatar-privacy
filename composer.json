@@ -43,8 +43,8 @@
         "sirbrillig/phpcs-variable-analysis": "^2.8",
         "sirbrillig/phpcs-import-detection": "^1.2",
         "php-stubs/wp-cli-stubs": "^2.5",
-        "szepeviktor/phpstan-wordpress": "^1.0",
-        "sniccowp/php-scoper-wordpress-excludes": "^5.9"
+        "szepeviktor/phpstan-wordpress": "^1.1",
+        "sniccowp/php-scoper-wordpress-excludes": "^6"
     },
 
     "autoload": {

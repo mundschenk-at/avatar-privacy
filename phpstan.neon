@@ -13,6 +13,10 @@ parameters:
     treatPhpDocTypesAsCertain: false
     checkMissingIterableValueType: false
     reportUnmatchedIgnoredErrors: false
+    earlyTerminatingMethodCalls:
+        WP_CLI:
+            - error
+            - halt
     bootstrapFiles:
         # Missing constants, function and class stubs
         - tests/phpstan/constants.php
@@ -29,7 +33,9 @@ parameters:
     ignoreErrors:
         # Uses func_get_args()
         - '#^Function apply_filters(_ref_array)? invoked with [34567] parameters, 2 required\.$#'
-        # PHPStan does not know GdImage
+        # PHPStan does not know GdImage (or vice-versa resources)
+        - '#^PHPDoc tag @var with type GdImage\|resource is not subtype of native type resource\|false\.$#'
+        - '#^PHPDoc tag @var with type GdImage\|resource is not subtype of native type GdImage\|false\.$#'
         - '#^Parameter \#[1-9] \$[a-z_]+ of function [a-z_]+ expects resource, GdImage\|resource given\.$#'
         - '#^Parameter \#[1-9] \$[a-z_]+ of function [a-z_]+ expects resource, resource\|false given\.$#'
         - '#^Parameter \#[1-9] \$[a-z_]+ of function image[a-z_]+ expects GdImage, GdImage\|resource given\.$#'
