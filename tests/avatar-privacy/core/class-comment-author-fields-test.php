@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2022 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -70,6 +70,20 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var Hasher
 	 */
 	private $hasher;
+
+	/**
+	 * Required helper object.
+	 *
+	 * @var Comment_Author_Table
+	 */
+	private Comment_Author_Table $comment_author_table;
+
+	/**
+	 * Required helper object.
+	 *
+	 * @var Hashes_Table
+	 */
+	private Hashes_Table $hashes_table;
 
 	// Mock version.
 	const VERSION = '1.0.0';
