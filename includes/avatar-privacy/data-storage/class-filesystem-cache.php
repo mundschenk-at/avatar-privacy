@@ -130,7 +130,8 @@ class Filesystem_Cache {
 				\switch_to_blog( \get_main_site_id() );
 			}
 
-			$this->upload_dir = \wp_get_upload_dir();
+			// We only need the basedir, so don't create the monthly sub-directory.
+			$this->upload_dir = \wp_upload_dir( null, false );
 
 			if ( $multisite ) {
 				\restore_current_blog();
