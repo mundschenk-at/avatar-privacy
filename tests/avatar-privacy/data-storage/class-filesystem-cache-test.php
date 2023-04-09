@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2022 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -162,12 +162,12 @@ class Filesystem_Cache_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// First invocation.
 		Functions\expect( 'is_multisite' )->once()->andReturn( false );
-		Functions\expect( 'wp_get_upload_dir' )->once()->andReturn( $result );
+		Functions\expect( 'wp_upload_dir' )->once()->with( null, false )->andReturn( $result );
 		$this->assertSame( $result, $this->sut->get_upload_dir() );
 
 		// Second invocation.
 		Functions\expect( 'is_multisite' )->never();
-		Functions\expect( 'wp_get_upload_dir' )->never();
+		Functions\expect( 'wp_upload_dir' )->never();
 		$this->assertSame( $result, $this->sut->get_upload_dir() );
 	}
 
@@ -186,7 +186,7 @@ class Filesystem_Cache_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'is_multisite' )->once()->andReturn( true );
 		Functions\expect( 'switch_to_blog' )->once()->with( m::type( 'int' ) );
 		Functions\expect( 'get_main_site_id' )->once()->andReturn( 5 );
-		Functions\expect( 'wp_get_upload_dir' )->once()->andReturn( $result );
+		Functions\expect( 'wp_upload_dir' )->once()->with( null, false )->andReturn( $result );
 		Functions\expect( 'restore_current_blog' )->once();
 		$this->assertSame( $result, $this->sut->get_upload_dir() );
 
@@ -194,7 +194,7 @@ class Filesystem_Cache_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'is_multisite' )->never();
 		Functions\expect( 'switch_to_blog' )->never();
 		Functions\expect( 'get_main_site_id' )->never();
-		Functions\expect( 'wp_get_upload_dir' )->never();
+		Functions\expect( 'wp_upload_dir' )->never();
 		Functions\expect( 'restore_current_blog' )->never();
 		$this->assertSame( $result, $this->sut->get_upload_dir() );
 	}
