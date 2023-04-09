@@ -163,17 +163,20 @@ class BuddyPress_Integration implements Plugin_Integration {
 
 		// Retrieve BuddyPress user data.
 		$avatar = $this->get_buddypress_avatar( $user_id );
-		if ( empty( $avatar ) ) {
-			return null;
-		}
 
+		if ( ! empty( $avatar ) ) {
 		$file = \ABSPATH . \wp_make_link_relative( $avatar );
 		$type = \wp_check_filetype( $file )['type'];
 
+			if ( ! empty( $type ) ) {
 		return [
 			'file' => $file,
 			'type' => $type,
 		];
+			}
+		}
+
+		return null;
 	}
 
 	/**

@@ -121,14 +121,18 @@ class Simple_Local_Avatars_Integration implements Plugin_Integration {
 	public function enable_user_avatars( array $avatar = null, $user_id ) {
 		// Retrieve Simple Local Avatars image.
 		$local_avatar = $this->get_simple_local_avatars_avatar( $user_id );
-		if ( empty( $local_avatar ) ) {
-			return $avatar;
+
+		if ( ! empty( $local_avatar ) ) {
+			$type = \wp_check_filetype( $local_avatar )['type'];
+			if ( ! empty( $type ) ) {
+				return [
+					'file' => $local_avatar,
+					'type' => $type,
+				];
+			}
 		}
 
-		return [
-			'file' => $local_avatar,
-			'type' => \wp_check_filetype( $local_avatar )['type'],
-		];
+		return $avatar;
 	}
 
 	/**

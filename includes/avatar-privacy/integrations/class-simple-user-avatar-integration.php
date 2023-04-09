@@ -114,14 +114,18 @@ class Simple_User_Avatar_Integration implements Plugin_Integration {
 	public function enable_user_avatars( array $avatar = null, $user_id ) {
 		// Retrieve Simple Author Box image.
 		$local_avatar = $this->get_simple_user_avatar_avatar( $user_id );
-		if ( empty( $local_avatar ) ) {
-			return $avatar;
+
+		if ( ! empty( $local_avatar ) ) {
+			$type = \wp_check_filetype( $local_avatar )['type'];
+			if ( ! empty( $type ) ) {
+				return [
+					'file' => $local_avatar,
+					'type' => $type,
+				];
+			}
 		}
 
-		return [
-			'file' => $local_avatar,
-			'type' => \wp_check_filetype( $local_avatar )['type'],
-		];
+		return $avatar;
 	}
 
 	/**

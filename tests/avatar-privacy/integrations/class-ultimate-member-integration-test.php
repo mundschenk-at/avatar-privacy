@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -219,6 +219,35 @@ class Ultimate_Member_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'wp_make_link_relative' )->never();
 		Functions\expect( 'wp_check_filetype' )->never();
+
+		$this->assertNull( $this->sut->enable_ultimate_member_user_avatars( null, $user_id ) );
+	}
+
+		/**
+	 * Tests ::enable_ultimate_member_user_avatars.
+	 *
+	 * @covers ::enable_ultimate_member_user_avatars
+	 */
+	public function test_enable_ultimate_member_user_avatars_failed_mimetype_check() {
+		// Input.
+		$user_id = 42;
+
+		// Intermediary.
+		$file      = 'some/file';
+		$url       = "https://foobar/{$file}";
+		$type      = 'mime/type';
+		$um_avatar = [
+			'url'  => $url,
+			'type' => 'upload',
+		];
+		$absfile   = \ABSPATH . $file;
+
+		Filters\expectAdded( 'um_filter_avatar_cache_time' )->once()->with( '__return_null' );
+		Functions\expect( 'um_get_user_avatar_data' )->once()->with( $user_id, 'original' )->andReturn( $um_avatar );
+		Filters\expectRemoved( 'um_filter_avatar_cache_time' )->once()->with( '__return_null' );
+
+		Functions\expect( 'wp_make_link_relative' )->once()->with( $url )->andReturn( $file );
+		Functions\expect( 'wp_check_filetype' )->once()->with( $absfile )->andReturn( [ 'type' => false ] );
 
 		$this->assertNull( $this->sut->enable_ultimate_member_user_avatars( null, $user_id ) );
 	}
