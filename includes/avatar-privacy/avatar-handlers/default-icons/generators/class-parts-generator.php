@@ -144,7 +144,7 @@ abstract class Parts_Generator implements Generator {
 	/**
 	 * Retrieves the "randomized" parts for the avatar being built.
 	 *
-	 * @return array A simple array of files, indexe by part.
+	 * @return array A simple array of files, indexed by part.
 	 *
 	 * @throws Part_Files_Not_Found_Exception The part files could not be found.
 	 *

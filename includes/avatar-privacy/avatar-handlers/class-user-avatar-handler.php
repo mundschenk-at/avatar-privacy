@@ -144,7 +144,7 @@ class User_Avatar_Handler implements Avatar_Handler {
 			}
 		}
 
-		// Optinally add file modification time as `ts` query argument to bust caches.
+		// Optionally add file modification time as `ts` query argument to bust caches.
 		$query_args = [
 			'ts' => $args['timestamp'] ? @\filemtime( $abspath ) : false,
 		];
