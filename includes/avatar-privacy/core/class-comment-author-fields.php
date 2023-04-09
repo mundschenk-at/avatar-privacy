@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -56,28 +56,28 @@ class Comment_Author_Fields implements API {
 	 *
 	 * @var Cache
 	 */
-	private $cache;
+	private Cache $cache;
 
 	/**
 	 * The hashing helper.
 	 *
 	 * @var Hasher
 	 */
-	private $hasher;
+	private Hasher $hasher;
 
 	/**
 	 * The comment author table handler.
 	 *
 	 * @var Comment_Author_Table
 	 */
-	private $comment_author_table;
+	private Comment_Author_Table $comment_author_table;
 
 	/**
 	 * The comment author table handler.
 	 *
 	 * @var Hashes_Table
 	 */
-	private $hashes_table;
+	private Hashes_Table $hashes_table;
 
 	/**
 	 * A cache to prevent multiple hash updates.
@@ -86,7 +86,7 @@ class Comment_Author_Fields implements API {
 	 *
 	 * @var array<string,string>
 	 */
-	private $updated_hashes = [];
+	private array $updated_hashes = [];
 
 	/**
 	 * Creates a new instance.

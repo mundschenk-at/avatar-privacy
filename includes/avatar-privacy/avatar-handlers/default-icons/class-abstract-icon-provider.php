@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -41,16 +41,16 @@ abstract class Abstract_Icon_Provider implements Icon_Provider {
 	/**
 	 * An array containing valid types as indexes.
 	 *
-	 * @var array
+	 * @var string[]
 	 */
-	private $valid_types;
+	private array $valid_types;
 
 	/**
 	 * The primary type (option value).
 	 *
 	 * @var string
 	 */
-	private $primary_type;
+	private string $primary_type;
 
 	/**
 	 * Creates a new instance.

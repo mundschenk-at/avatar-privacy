@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2022 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -59,42 +59,42 @@ class Network_Settings_Page implements Component {
 	 *
 	 * @var Network_Options
 	 */
-	private $network_options;
+	private Network_Options $network_options;
 
 	/**
 	 * The (standard) transietns handler.
 	 *
 	 * @var Transients
 	 */
-	private $transients;
+	private Transients $transients;
 
 	/**
 	 * The default settings.
 	 *
 	 * @var Settings
 	 */
-	private $settings;
+	private Settings $settings;
 
 	/**
 	 * The multisite tools.
 	 *
 	 * @var Multisite
 	 */
-	private $multisite;
+	private Multisite $multisite;
 
 	/**
 	 * The UI controls for the settings.
 	 *
 	 * @var Control[]
 	 */
-	private $controls;
+	private array $controls;
 
 	/**
 	 * An array to keep track of triggered admin notices.
 	 *
 	 * @var bool[]
 	 */
-	private $triggered_notice = [];
+	private array $triggered_notice = [];
 
 	/**
 	 * The script & style registration helper.
@@ -103,7 +103,7 @@ class Network_Settings_Page implements Component {
 	 *
 	 * @var Dependencies
 	 */
-	private $dependencies;
+	private Dependencies $dependencies;
 
 	/**
 	 * The templating handler.
@@ -112,7 +112,7 @@ class Network_Settings_Page implements Component {
 	 *
 	 * @var Template
 	 */
-	private $template;
+	private Template $template;
 
 	/**
 	 * Creates a new instance.

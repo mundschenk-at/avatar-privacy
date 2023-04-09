@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2022 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -50,7 +50,7 @@ class Core {
 	 *
 	 * @var Settings
 	 */
-	private $settings;
+	private Settings $settings;
 
 	/**
 	 * The hashing helper.
@@ -59,7 +59,7 @@ class Core {
 	 *
 	 * @var Hasher
 	 */
-	private $hasher;
+	private Hasher $hasher;
 
 	/**
 	 * The user data helper.
@@ -68,7 +68,7 @@ class Core {
 	 *
 	 * @var User_Fields
 	 */
-	private $user_fields;
+	private User_Fields $user_fields;
 
 	/**
 	 * The comment author data helper.
@@ -77,7 +77,7 @@ class Core {
 	 *
 	 * @var Comment_Author_Fields
 	 */
-	private $comment_author_fields;
+	private Comment_Author_Fields $comment_author_fields;
 
 	/**
 	 * The default avatars API.
@@ -86,7 +86,7 @@ class Core {
 	 *
 	 * @var Default_Avatars
 	 */
-	private $default_avatars;
+	private Default_Avatars $default_avatars;
 
 	/**
 	 * The singleton instance.

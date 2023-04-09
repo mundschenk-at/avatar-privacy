@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2022 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -49,14 +49,14 @@ abstract class Parts_Generator implements Generator {
 	 *
 	 * @var string
 	 */
-	protected $parts_dir;
+	protected string $parts_dir;
 
 	/**
 	 * An array of part types.
 	 *
 	 * @var string[]
 	 */
-	protected $part_types;
+	protected array $part_types;
 
 	/**
 	 * Lists of files, indexed by part types.
@@ -67,21 +67,21 @@ abstract class Parts_Generator implements Generator {
 	 *     @type string[] $type An array of files.
 	 * }
 	 */
-	private $all_parts;
+	private array $all_parts;
 
 	/**
 	 * The random number generator.
 	 *
 	 * @var Number_Generator
 	 */
-	protected $number_generator;
+	protected Number_Generator $number_generator;
 
 	/**
 	 * The site transients handler.
 	 *
 	 * @var Site_Transients
 	 */
-	private $site_transients;
+	private Site_Transients $site_transients;
 
 	/**
 	 * Creates a new generator.

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020 Peter Putzer.
+ * Copyright 2020-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -47,7 +47,7 @@ class Default_Command extends Abstract_Command {
 	 *
 	 * @var Default_Avatars
 	 */
-	private $default_avatars;
+	private Default_Avatars $default_avatars;
 
 	/**
 	 * Creates a new command instance.

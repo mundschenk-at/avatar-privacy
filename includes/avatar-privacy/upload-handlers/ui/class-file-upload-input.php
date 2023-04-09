@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -44,21 +44,21 @@ class File_Upload_Input extends Controls\Input {
 	 *
 	 * @var string
 	 */
-	private $erase_checkbox_id;
+	private string $erase_checkbox_id;
 
 	/**
 	 * The nonce prefix for the upload.
 	 *
 	 * @var string
 	 */
-	private $nonce;
+	private string $nonce;
 
 	/**
 	 * The action ID for the upload.
 	 *
 	 * @var string
 	 */
-	private $action;
+	private string $action;
 
 	/**
 	 * Create a new input control object.

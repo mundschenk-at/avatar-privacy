@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -57,21 +57,21 @@ class Image_Proxy implements Component {
 	 *
 	 * @var Site_Transients
 	 */
-	private $site_transients;
+	private Site_Transients $site_transients;
 
 	/**
 	 * The file system caching handler.
 	 *
 	 * @var Filesystem_Cache
 	 */
-	private $file_cache;
+	private Filesystem_Cache $file_cache;
 
 	/**
 	 * The available avatar handlers.
 	 *
 	 * @var Avatar_Handler[]
 	 */
-	private $handlers = [];
+	private array $handlers = [];
 
 	/**
 	 * A mapping from filter hook to avatar handler.
@@ -80,14 +80,14 @@ class Image_Proxy implements Component {
 	 *     @type Avatar_Handler $hook The handler instance.
 	 * }
 	 */
-	private $handler_hooks;
+	private array $handler_hooks;
 
 	/**
 	 * The default icons handler.
 	 *
 	 * @var Default_Icons_Handler
 	 */
-	private $default_icons;
+	private Default_Icons_Handler $default_icons;
 
 	/**
 	 * Creates a new instance.

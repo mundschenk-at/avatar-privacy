@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -82,42 +82,42 @@ class Setup implements Component {
 	 *
 	 * @var Options
 	 */
-	private $options;
+	private Options $options;
 
 	/**
 	 * The options handler.
 	 *
 	 * @var Network_Options
 	 */
-	private $network_options;
+	private Network_Options $network_options;
 
 	/**
 	 * The transients handler.
 	 *
 	 * @var Transients
 	 */
-	private $transients;
+	private Transients $transients;
 
 	/**
 	 * The site transients handler.
 	 *
 	 * @var Site_Transients
 	 */
-	private $site_transients;
+	private Site_Transients $site_transients;
 
 	/**
 	 * The database table handlers.
 	 *
 	 * @var Table[]
 	 */
-	private $tables;
+	private array $tables;
 
 	/**
 	 * The multisite tools.
 	 *
 	 * @var Multisite
 	 */
-	private $multisite;
+	private Multisite $multisite;
 
 	/**
 	 * The settings API.
@@ -126,7 +126,7 @@ class Setup implements Component {
 	 *
 	 * @var Settings
 	 */
-	private $settings;
+	private Settings $settings;
 
 	/**
 	 * The user fields API.
@@ -135,7 +135,7 @@ class Setup implements Component {
 	 *
 	 * @var User_Fields
 	 */
-	private $registered_user;
+	private User_Fields $registered_user;
 
 	/**
 	 * The comment author fields API.
@@ -144,7 +144,7 @@ class Setup implements Component {
 	 *
 	 * @var Comment_Author_Fields
 	 */
-	private $comment_author;
+	private Comment_Author_Fields $comment_author;
 
 	/**
 	 * Creates a new Setup instance.

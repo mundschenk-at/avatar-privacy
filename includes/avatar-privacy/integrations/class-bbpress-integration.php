@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -42,7 +42,7 @@ class BBPress_Integration implements Plugin_Integration {
 	 *
 	 * @var User_Form
 	 */
-	private $form;
+	private User_Form $form;
 
 	/**
 	 * Creates a new instance.

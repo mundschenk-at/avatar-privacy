@@ -61,49 +61,49 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @var Uninstallation
 	 */
-	private $sut;
+	private Uninstallation $sut;
 
 	/**
 	 * The options handler.
 	 *
 	 * @var Options
 	 */
-	private $options;
+	private Options $options;
 
 	/**
 	 * The options handler.
 	 *
 	 * @var Network_Options
 	 */
-	private $network_options;
+	private Network_Options $network_options;
 
 	/**
 	 * The transients handler.
 	 *
 	 * @var Transients
 	 */
-	private $transients;
+	private Transients $transients;
 
 	/**
 	 * The site transients handler.
 	 *
 	 * @var Site_Transients
 	 */
-	private $site_transients;
+	private Site_Transients $site_transients;
 
 	/**
 	 * The database handler.
 	 *
 	 * @var Database
 	 */
-	private $database;
+	private Database $database;
 
 	/**
 	 * The filesystem cache handler.
 	 *
 	 * @var Filesystem_Cache
 	 */
-	private $file_cache;
+	private Filesystem_Cache $file_cache;
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.

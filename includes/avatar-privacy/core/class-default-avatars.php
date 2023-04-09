@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020-2022 Peter Putzer.
+ * Copyright 2020-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -51,35 +51,35 @@ class Default_Avatars implements API {
 	 *
 	 * @var Settings
 	 */
-	private $settings;
+	private Settings $settings;
 
 	/**
 	 * The options handler.
 	 *
 	 * @var Options
 	 */
-	private $options;
+	private Options $options;
 
 	/**
 	 * The hashing helper.
 	 *
 	 * @var Hasher
 	 */
-	private $hasher;
+	private Hasher $hasher;
 
 	/**
 	 * The filesystem cache handler.
 	 *
 	 * @var Filesystem_Cache
 	 */
-	private $file_cache;
+	private Filesystem_Cache $file_cache;
 
 	/**
 	 * The image file handler.
 	 *
 	 * @var Image_File
 	 */
-	private $image_file;
+	private Image_File $image_file;
 
 	/**
 	 * Creates a new instance.

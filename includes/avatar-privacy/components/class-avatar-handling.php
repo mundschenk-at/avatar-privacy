@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2022 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -53,7 +53,7 @@ class Avatar_Handling implements Component {
 	 *
 	 * @var Settings
 	 */
-	private $settings;
+	private Settings $settings;
 
 	/**
 	 * The user data helper.
@@ -62,7 +62,7 @@ class Avatar_Handling implements Component {
 	 *
 	 * @var User_Fields
 	 */
-	private $registered_user;
+	private User_Fields $registered_user;
 
 	/**
 	 * The comment author data helper.
@@ -71,21 +71,21 @@ class Avatar_Handling implements Component {
 	 *
 	 * @var Comment_Author_Fields
 	 */
-	private $comment_author;
+	private Comment_Author_Fields $comment_author;
 
 	/**
 	 * The Gravatar network service.
 	 *
 	 * @var Gravatar_Service
 	 */
-	private $gravatar;
+	private Gravatar_Service $gravatar;
 
 	/**
 	 * The remote image network service.
 	 *
 	 * @var Remote_Image_Service
 	 */
-	private $remote_images;
+	private Remote_Image_Service $remote_images;
 
 	/**
 	 * Creates a new instance.

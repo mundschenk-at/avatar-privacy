@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -71,14 +71,14 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	 *
 	 * @var Default_Avatars
 	 */
-	private $default_avatars;
+	private Default_Avatars $default_avatars;
 
 	/**
 	 * The options handler.
 	 *
 	 * @var Options
 	 */
-	private $options;
+	private Options $options;
 
 	/**
 	 * Creates a new instance.

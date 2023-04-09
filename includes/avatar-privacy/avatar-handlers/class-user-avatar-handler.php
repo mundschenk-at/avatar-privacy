@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -48,28 +48,28 @@ class User_Avatar_Handler implements Avatar_Handler {
 	 *
 	 * @var User_Fields
 	 */
-	private $user_fields;
+	private User_Fields $user_fields;
 
 	/**
 	 * The filesystem cache handler.
 	 *
 	 * @var Filesystem_Cache
 	 */
-	private $file_cache;
+	private Filesystem_Cache $file_cache;
 
 	/**
 	 * The uploads base directory.
 	 *
 	 * @var string
 	 */
-	private $base_dir;
+	private string $base_dir;
 
 	/**
 	 * The image editor support class.
 	 *
 	 * @var Images\Editor
 	 */
-	private $images;
+	private Images\Editor $images;
 
 	/**
 	 * Creates a new instance.

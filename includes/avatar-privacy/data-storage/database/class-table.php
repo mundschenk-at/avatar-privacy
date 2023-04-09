@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2022 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -46,7 +46,7 @@ abstract class Table {
 	 *
 	 * @var string
 	 */
-	private $table_basename;
+	private string $table_basename;
 
 	/**
 	 * The minimum version number for which the table does not need to be updated.
@@ -55,7 +55,7 @@ abstract class Table {
 	 *
 	 * @var string
 	 */
-	private $update_threshold;
+	private string $update_threshold;
 
 	/**
 	 * A column/field to placeholder mapping.
@@ -64,7 +64,7 @@ abstract class Table {
 	 *
 	 * @var string[]
 	 */
-	private $column_formats;
+	private array $column_formats;
 
 	/**
 	 * A list auto-update columns (e.g. date-/timestamps), stored in reverse format
@@ -74,7 +74,7 @@ abstract class Table {
 	 *
 	 * @var array<string,int>
 	 */
-	private $auto_update_cols;
+	private array $auto_update_cols;
 
 	/**
 	 * Creates a new instance.

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2022 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -45,6 +45,9 @@ use Avatar_Privacy\Tools\Images\PNG;
 /**
  * Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Wavatar unit test.
  *
+ * @uses ::__construct
+ * @uses \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\PNG_Parts_Generator::__construct
+ * @uses \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Parts_Generator::__construct
  * @coversDefaultClass \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Wavatar
  * @usesDefaultClass \Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Wavatar
  */
@@ -109,15 +112,13 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 		vfsStream::setup( 'root', null, $filesystem );
 
 		// Mocked helpers.
+		$editor                 = m::mock( Editor::class );
 		$this->png              = m::mock( PNG::class );
 		$this->number_generator = m::mock( Number_Generator::class );
+		$transients             = m::mock( Site_Transients::class );
 
 		// Partially mock system under test.
-		$this->sut = m::mock( Wavatar::class )->makePartial()->shouldAllowMockingProtectedMethods();
-
-		// Override necessary properties as the constructor is never invoked.
-		$this->set_value( $this->sut, 'png', $this->png );
-		$this->set_value( $this->sut, 'number_generator', $this->number_generator );
+		$this->sut = m::mock( Wavatar::class, [ $editor, $this->png, $this->number_generator, $transients ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**

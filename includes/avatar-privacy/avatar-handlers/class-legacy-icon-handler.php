@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020-2022 Peter Putzer.
+ * Copyright 2020-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -47,14 +47,14 @@ class Legacy_Icon_Handler implements Avatar_Handler {
 	 *
 	 * @var Filesystem_Cache
 	 */
-	private $file_cache;
+	private Filesystem_Cache $file_cache;
 
 	/**
 	 * The remote image service.
 	 *
 	 * @var Remote_Image_Service
 	 */
-	private $remote_images;
+	private Remote_Image_Service $remote_images;
 
 	/**
 	 * Creates a new instance.
