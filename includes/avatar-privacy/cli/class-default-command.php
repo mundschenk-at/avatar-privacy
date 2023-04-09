@@ -112,8 +112,8 @@ class Default_Command extends Abstract_Command {
 	 *    Currently set custom default avatar: /path/old-image.jpg
 	 *    Success: Custom default avatar http://example.org/image.jpg has been set.
 	 *
-	 * @param  array $args       The positional arguments.
-	 * @param  array $assoc_args The associative arguments.
+	 * @param  string[] $args       The positional arguments.
+	 * @param  string[] $assoc_args The associative arguments.
 	 *
 	 * @return void
 	 */
@@ -170,8 +170,8 @@ class Default_Command extends Abstract_Command {
 	 *    Currently set custom default avatar: /path/image.jpg
 	 *    Success: The custom default avatar for this site has been deleted.
 	 *
-	 * @param  array $args       The positional arguments.
-	 * @param  array $assoc_args The associative arguments.
+	 * @param  string[] $args       The positional arguments.
+	 * @param  string[] $assoc_args The associative arguments.
 	 *
 	 * @return void
 	 */

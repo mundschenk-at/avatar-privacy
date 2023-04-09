@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2022 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  * Copyright 2007-2008 Shamus Young.
  *
  * This program is free software; you can redistribute it and/or
@@ -46,6 +46,12 @@ use GdImage; // phpcs:ignore ImportDetection.Imports -- PHP 8.0 compatibility.
  *
  * @author Peter Putzer <github@mundschenk.at>
  * @author Shamus Young <shamus@shamusyoung.com>
+ *
+ * @phpstan-type PartType value-of<self::PARTS>
+ * @phpstan-type PartsTemplate array<PartType, array{}>
+ * @phpstan-type AllPossibleParts array<PartType, string[]>
+ * @phpstan-type RandomizedParts array<PartType, string>
+ * @phpstan-type AdditionalArguments array<self::HUE_*, int<0,360>>
  */
 class Wavatar extends PNG_Parts_Generator {
 
@@ -115,6 +121,9 @@ class Wavatar extends PNG_Parts_Generator {
 	 * @param  array  $parts The (randomized) avatar parts.
 	 *
 	 * @return array
+	 *
+	 * @phpstan-param  RandomizedParts $parts
+	 * @phpstan-return AdditionalArguments
 	 */
 	protected function get_additional_arguments( $seed, $size, array $parts ) {
 		// Also randomize the colors.
@@ -136,6 +145,9 @@ class Wavatar extends PNG_Parts_Generator {
 	 * @param  array $args  Any additional arguments defined by the subclass.
 	 *
 	 * @return resource|GdImage
+	 *
+	 * @phpstan-param RandomizedParts     $parts
+	 * @phpstan-param AdditionalArguments $args
 	 */
 	protected function render_avatar( array $parts, array $args ) {
 		// Create background.

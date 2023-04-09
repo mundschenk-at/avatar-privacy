@@ -37,6 +37,9 @@ use Avatar_Privacy\Tools\HTML\User_Form;
  * @since 2.3.0
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-type FormBlockAttributes array{ avatar_size: int, className: string }
+ * @phpstan-type AvatarBlockAttributes array{ user_id: int, avatar_size: int, className: string }
  */
 class Block_Editor implements Component {
 
@@ -182,6 +185,8 @@ class Block_Editor implements Component {
 	 * }
 	 *
 	 * @return string
+	 *
+	 * @phpstan-param FormBlockAttributes $attributes
 	 */
 	public function render_frontend_form( array $attributes ) {
 		$user_id = \get_current_user_id();
@@ -218,6 +223,8 @@ class Block_Editor implements Component {
 	 * }
 	 *
 	 * @return string
+	 *
+	 * @phpstan-param AvatarBlockAttributes $attributes
 	 */
 	public function render_avatar( array $attributes ) {
 		// Attempt to retrieve user.

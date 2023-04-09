@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020-2022 Peter Putzer.
+ * Copyright 2020-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -36,6 +36,11 @@ use Avatar_Privacy\Exceptions\Upload_Handling_Exception;
  * @since 2.4.0
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-type HandleUploadOverrides array{ upload_dir: string, upload_error_handler?: callable, unique_filename_callback?: callable, upload_error_strings?: string[], test_form?: bool, test_size?: bool, test_type?: bool, mimes?: string[]}
+ * @phpstan-type HandleUploadSuccess array{ file: string, url: string, type: string }
+ * @phpstan-type HandleUploadError array{ error: string }
+ * @phpstan-type FileSlice array{ name: string, type: string, tmp_name: string, error: int|string, size: int }
  */
 class Image_File {
 	const JPEG_IMAGE = 'image/jpeg';
@@ -72,14 +77,20 @@ class Image_File {
 	/**
 	 * Handles the file upload by optionally switching to the primary site of the network.
 	 *
-	 * @param  string[] $file      A slice of the $_FILES superglobal.
-	 * @param  array    $overrides An associative array of names => values to override
-	 *                             default variables. See `wp_handle_uploads` documentation
-	 *                             for the full list of available overrides.
+	 * @since  4.4.0 Default value for parameter `$overrides` removed (as it would be invalid).
 	 *
-	 * @return string[]            Information about the uploaded file.
+	 * @param  array $file      A slice of the $_FILES superglobal.
+	 * @param  array $overrides An associative array of names => values to override
+	 *                          default variables. See `wp_handle_uploads` documentation
+	 *                          for the full list of available overrides.
+	 *
+	 * @return string[]         Information about the uploaded file.
+	 *
+	 * @phpstan-param  FileSlice      $file
+	 * @phpstan-param  HandleUploadOverrides $overrides
+	 * @phpstan-return HandleUploadSuccess|HandleUploadError
 	 */
-	public function handle_upload( array $file, array $overrides = [] ) {
+	public function handle_upload( array $file, array $overrides ) {
 		// Enable front end support.
 		if ( ! function_exists( 'wp_handle_upload' ) ) {
 			require_once \ABSPATH . 'wp-admin/includes/file.php'; // @codeCoverageIgnore
@@ -106,7 +117,19 @@ class Image_File {
 		\add_filter( 'upload_dir', $upload_dir_filter );
 
 		// Move uploaded file.
-		$file   = $this->validate_image_size( $file );
+
+		/**
+		 * Check if the image size falls within the allowed minimum and maximum dimensions.
+		 *
+		 * @phpstan-var FileSlice
+		 */
+		$file = $this->validate_image_size( $file );
+
+		/**
+		 * Let WordPress handle the upload natively.
+		 *
+		 * @phpstan-var HandleUploadSuccess|HandleUploadError
+		 */
 		$result = \wp_handle_upload( $file, $this->prepare_overrides( $overrides ) );
 
 		// Restore standard upload directory.
@@ -128,6 +151,8 @@ class Image_File {
 	/**
 	 * Handles the file upload by optionally switching to the primary site of the network.
 	 *
+	 * @since  4.4.0 Default value for parameter `$overrides` removed (as it would be invalid).
+	 *
 	 * @param  string $image_url The image file to sideload.
 	 * @param  array  $overrides An associative array of names => values to override
 	 *                           default variables. See `wp_handle_uploads` documentation
@@ -138,8 +163,11 @@ class Image_File {
 	 * @throws Upload_Handling_Exception The method throws a `RuntimeException`
 	 *                                   when an error is returned by `::handle_upload()`
 	 *                                   or the image file could not be copied.
+	 *
+	 * @phpstan-param  HandleUploadOverrides $overrides
+	 * @phpstan-return HandleUploadSuccess|HandleUploadError
 	 */
-	public function handle_sideload( $image_url, array $overrides = [] ) {
+	public function handle_sideload( $image_url, array $overrides ) {
 		// Enable front end support.
 		if ( ! function_exists( 'wp_tempnam' ) ) {
 			require_once \ABSPATH . 'wp-admin/includes/file.php'; // @codeCoverageIgnore
@@ -184,7 +212,7 @@ class Image_File {
 	/**
 	 * Determines if the upload should use the global upload directory.
 	 *
-	 * @param  string[] $overrides {
+	 * @param  array $overrides {
 	 *     An associative array of names => values to override default variables.
 	 *     See `wp_handle_uploads` documentation for the full list of available
 	 *     overrides.
@@ -193,6 +221,8 @@ class Image_File {
 	 * }
 	 *
 	 * @return bool
+	 *
+	 * @phpstan-param array{ global_upload?: bool } $overrides
 	 */
 	protected function is_global_upload( $overrides ) {
 		return ( ! empty( $overrides['global_upload'] ) && \is_multisite() );
@@ -201,11 +231,11 @@ class Image_File {
 	/**
 	 * Prepares the overrides array for `wp_handle_upload()`.
 	 *
-	 * @param  string[] $overrides An associative array of names => values to override
-	 *                             default variables. See `wp_handle_uploads` documentation
-	 *                             for the full list of available overrides.
+	 * @param  mixed[] $overrides An associative array of names => values to override
+	 *                            default variables. See `wp_handle_uploads` documentation
+	 *                            for the full list of available overrides.
 	 *
-	 * @return string[]
+	 * @return array{ mimes: array<string,string>, action: string, test_form: bool }
 	 */
 	protected function prepare_overrides( array $overrides ) {
 		$defaults = [
@@ -214,6 +244,11 @@ class Image_File {
 			'test_form' => false,
 		];
 
+		/**
+		 * Ensure that all necessary overrides have a default value.
+		 *
+		 * @phpstan-var array{ mimes: array<string,string>, action: string, test_form: bool }
+		 */
 		return \wp_parse_args( $overrides, $defaults );
 	}
 
@@ -235,6 +270,9 @@ class Image_File {
 	 * @return array The filtered $file array. The `error` key will be set to a
 	 *               string containing the error message if the image dimensions
 	 *               don't match the set limits.
+	 *
+	 * @phpstan-param  FileSlice $file
+	 * @phpstan-return FileSlice
 	 */
 	public function validate_image_size( array $file ) {
 		$image_size = @\getimagesize( $file['tmp_name'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors -- prevent additional errors if the file cannot be read.

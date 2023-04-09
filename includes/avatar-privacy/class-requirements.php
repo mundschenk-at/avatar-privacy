@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2022 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -58,12 +58,14 @@ class Requirements extends \Mundschenk\WP_Requirements {
 	 * Retrieves an array of requirement specifications.
 	 *
 	 * @return array {
-	 *         An array of requirements checks.
+	 *     An array of requirements checks.
 	 *
-	 *   @type string   $enable_key An index in the $install_requirements array to switch the check on and off.
-	 *   @type callable $check      A function returning true if the check was successful, false otherwise.
-	 *   @type callable $notice     A function displaying an appropriate error notice.
+	 *     @type string   $enable_key An index in the $install_requirements array to switch the check on and off.
+	 *     @type callable $check      A function returning true if the check was successful, false otherwise.
+	 *     @type callable $notice     A function displaying an appropriate error notice.
 	 * }
+	 *
+	 * @phpstan-return array<int, array{ enable_key: string, check: callable, notice: callable }>
 	 */
 	protected function get_requirements() {
 		$requirements   = parent::get_requirements();

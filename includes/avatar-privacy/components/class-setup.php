@@ -50,6 +50,10 @@ use Avatar_Privacy\Tools\Multisite;
  * @since 1.0.0
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-import-type SettingsFields from \Avatar_Privacy\Core\Settings
+ *
+ * @phpstan-type ObsoleteSettingsFields array<self::OBSOLETE_SETTINGS_FILES, mixed>
  */
 class Setup implements Component {
 
@@ -265,6 +269,9 @@ class Setup implements Component {
 	 * @param  array  $settings         The settings array.
 	 *
 	 * @return array                    The updated settings array.
+	 *
+	 * @phpstan-param ObsoleteSettingsFields $settings
+	 * @phpstan-return mixed[]
 	 */
 	protected function update_settings( $previous_version, array $settings ) {
 		// Upgrade from version 0.4 or lower.

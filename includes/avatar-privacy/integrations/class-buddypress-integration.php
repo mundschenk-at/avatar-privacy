@@ -34,6 +34,28 @@ use Avatar_Privacy\Core\User_Fields;
  *
  * @since      2.3.0
  * @author     Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-import-type AvatarDefinition from User_Fields
+ *
+ * @phpstan-type BuddyPressAvatarParams array{
+ *    item_id: int|false,
+ *    object: string,
+ *    type: string,
+ *    avatar_dir: string|false,
+ *    width: int|false,
+ *    height: int|false,
+ *    class: string,
+ *    css_id: string|false,
+ *    title: string,
+ *    alt: string,
+ *    email: string|false,
+ *    no_grav: bool,
+ *    html: bool,
+ *    extra_attr: string,
+ *    scheme: string,
+ *    rating: string,
+ *    force_default: bool
+ * }
  */
 class BuddyPress_Integration implements Plugin_Integration {
 
@@ -129,6 +151,9 @@ class BuddyPress_Integration implements Plugin_Integration {
 	 *     @type string $file The local filename.
 	 *     @type string $type The MIME type.
 	 * }
+	 *
+	 * @phpstan-param  AvatarDefinition|null $avatar
+	 * @phpstan-return AvatarDefinition|null
 	 */
 	public function enable_buddypress_user_avatars( array $avatar = null, $user_id ) {
 		// Prevent loops.
@@ -159,6 +184,8 @@ class BuddyPress_Integration implements Plugin_Integration {
 	 * @param  array  $args    Arguments for the avatar function.
 	 *
 	 * @return void
+	 *
+	 * @phpstan-param BuddyPressAvatarParams $args
 	 */
 	public function invalidate_cache_after_avatar_upload( $item_id, $type, array $args ) {
 		if ( ! empty( $args['object'] ) && 'user' === $args['object'] && ! empty( $item_id ) ) {
@@ -174,6 +201,8 @@ class BuddyPress_Integration implements Plugin_Integration {
 	 * @param  array $args Array of arguments used for avatar deletion.
 	 *
 	 * @return void
+	 *
+	 * @phpstan-param BuddyPressAvatarParams $args
 	 */
 	public function invalidate_cache_after_avatar_deletion( array $args ) {
 		$this->invalidate_cache_after_avatar_upload( $args['item_id'], 'delete', $args );
@@ -188,12 +217,14 @@ class BuddyPress_Integration implements Plugin_Integration {
 	 * @param  array  $params  Array of parameters for the avatar request.
 	 *
 	 * @return string
+	 *
+	 * @phpstan-param BuddyPressAvatarParams $params
 	 */
 	public function add_default_avatars_to_buddypress( $default, array $params ) {
 		// Retrieve default avatar URL (Gravatar or local default avatar).
 		$args           = [
 			'rating' => $params['rating'],
-			'size'   => $params['width'],
+			'size'   => (int) $params['width'],
 		];
 		$default_avatar = \get_avatar_url( $params['item_id'], $args );
 

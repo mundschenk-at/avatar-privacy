@@ -44,6 +44,8 @@ use Avatar_Privacy\Tools\Images\Image_File;
  * @since 2.0.0 Renamed to Image_Proxy.
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-type HandlerHooks array<string, Avatar_Handler>
  */
 class Image_Proxy implements Component {
 
@@ -79,6 +81,8 @@ class Image_Proxy implements Component {
 	 * @var array {
 	 *     @type Avatar_Handler $hook The handler instance.
 	 * }
+	 *
+	 * @phpstan-var HandlerHooks
 	 */
 	private array $handler_hooks;
 
@@ -101,6 +105,8 @@ class Image_Proxy implements Component {
 	 *                                               by their filter hook (including
 	 *                                               the $default_icons handler).
 	 * @param Default_Icons_Handler $default_icons   The default icons handler.
+	 *
+	 * @phpstan-param HandlerHooks $handlers
 	 */
 	public function __construct( Site_Transients $site_transients, Filesystem_Cache $file_cache, array $handlers, Default_Icons_Handler $default_icons ) {
 		$this->site_transients = $site_transients;
@@ -179,7 +185,7 @@ class Image_Proxy implements Component {
 
 		if ( ! \file_exists( $file ) ) {
 			// Default size (for SVGs mainly, which ignore it).
-			$size = $size ?: 100;
+			$size = (int) $size ?: 100;
 
 			if ( isset( $this->handlers[ $type ] ) ) {
 				$success = $this->handlers[ $type ]->cache_image( $type, $hash, $size, $subdir, $extension );

@@ -39,6 +39,8 @@ use Carbon_Fields\Field\Field;
  * @since  2.4.0 The $upload property has been replaced by the new user data API ($user_fields).
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-import-type AvatarDefinition from User_Fields
  */
 class WP_User_Manager_Integration implements Plugin_Integration {
 
@@ -105,6 +107,9 @@ class WP_User_Manager_Integration implements Plugin_Integration {
 	 *     @type string $file The local filename.
 	 *     @type string $type The MIME type.
 	 * }
+	 *
+	 * @phpstan-param  AvatarDefinition|null $avatar
+	 * @phpstan-return AvatarDefinition|null
 	 */
 	public function enable_wpusermanager_user_avatars( array $avatar = null, $user_id ) {
 		$file = \carbon_get_user_meta( $user_id, self::WP_USER_MANAGER_META_KEY );

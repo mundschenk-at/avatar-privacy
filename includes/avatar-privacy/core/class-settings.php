@@ -44,6 +44,38 @@ use Mundschenk\UI\Controls;
  * @since 2.4.0 Moved to Avatar_Privacy\Core.
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-import-type AvatarDefinition from User_Fields
+ *
+ * @phpstan-type SettingsFieldMeta array{
+ *     ui: class-string<\Mundschenk\UI\Control>,
+ *     tab_id: string,
+ *     section: string,
+ *     help_no_file?: string,
+ *     help_no_upload?: string,
+ *     help_text?: string,
+ *     short?: string,
+ *     label?: string,
+ *     erase_checkbox?: string,
+ *     action?: string,
+ *     nonce?: string,
+ *     default?: mixed,
+ *     attributes?: mixed[],
+ *     settings_args?: mixed[],
+ *     elements?: mixed[],
+ *     grouped_with?: string,
+ *     outer_attributes?: mixed[],
+ * }
+ * @phpstan-type SettingsFieldDefinitions array{
+ *     custom_default_avatar: SettingsFieldMeta,
+ *     display: SettingsFieldMeta,
+ *     gravatar_use_default: SettingsFieldMeta,
+ * }
+ * @phpstan-type SettingsFields array{
+ *     custom_default_avatar: AvatarDefinition|array{},
+ *     gravatar_use_default: bool,
+ *     installed_version: string
+ * }
  */
 class Settings implements API {
 
@@ -81,6 +113,8 @@ class Settings implements API {
 	 * The defaults array.
 	 *
 	 * @var array
+	 *
+	 * @phpstan-var SettingsFields
 	 */
 	private array $defaults;
 
@@ -88,6 +122,8 @@ class Settings implements API {
 	 * The fields definition array.
 	 *
 	 * @var array
+	 *
+	 * @phpstan-var SettingsFieldDefinitions
 	 */
 	private array $fields;
 
@@ -95,6 +131,8 @@ class Settings implements API {
 	 * The fields definition array for the network settings.
 	 *
 	 * @var array
+	 *
+	 * @phpstan-var array<SettingsFieldMeta>
 	 */
 	private array $network_fields;
 
@@ -122,6 +160,8 @@ class Settings implements API {
 	 * @var array {
 	 *     @type array $site_settings The plugin settings for the site.
 	 * }
+	 *
+	 * @phpstan-var array<int, SettingsFields>
 	 */
 	private array $settings = [];
 
@@ -167,6 +207,8 @@ class Settings implements API {
 	 * @param  bool $force Optional. Forces retrieval of settings from database. Default false.
 	 *
 	 * @return array
+	 *
+	 * @phpstan-return SettingsFields
 	 */
 	public function get_all_settings( $force = false ) {
 		$site_id = \get_current_blog_id();
@@ -189,6 +231,8 @@ class Settings implements API {
 	 * @since 2.4.1
 	 *
 	 * @return array
+	 *
+	 * @phpstan-return SettingsFields
 	 */
 	protected function load_settings() {
 		$_settings = $this->options->get( self::OPTION_NAME );
@@ -202,6 +246,12 @@ class Settings implements API {
 					$modified           = true;
 				}
 			}
+
+			/**
+			 * PHPStan type.
+			 *
+			 * @phpstan-var SettingsFields $_settings
+			 */
 		} else {
 			$_settings = $_defaults;
 			$modified  = true;
@@ -219,12 +269,16 @@ class Settings implements API {
 	 *
 	 * @since  2.4.0
 	 *
-	 * @param  string $setting The setting name (index).
-	 * @param  bool   $force   Optional. Forces retrieval of settings from database. Default false.
+	 * @param  string $setting       The setting name (index).
+	 * @param  bool   $force         Optional. Forces retrieval of settings from
+	 *                               database. Default false.
 	 *
-	 * @return mixed           The requested setting value.
+	 * @return string|int|bool|array The requested setting value.
 	 *
 	 * @throws \UnexpectedValueException Thrown when the setting name is invalid.
+	 *
+	 * @phpstan-param key-of<SettingsFields> $setting
+	 * @phpstan-return value-of<SettingsFields>
 	 */
 	public function get( $setting, $force = false ) {
 		$all_settings = $this->get_all_settings( $force );
@@ -243,12 +297,15 @@ class Settings implements API {
 	 *
 	 * @internal
 	 *
-	 * @param  string $setting The setting name (index).
-	 * @param  mixed  $value   The setting value.
+	 * @param  string                $setting The setting name (index).
+	 * @param  string|int|bool|array $value   The setting value.
 	 *
 	 * @return bool
 	 *
 	 * @throws \UnexpectedValueException Thrown when the setting name is invalid.
+	 *
+	 * @phpstan-param key-of<SettingsFields> $setting
+	 * @phpstan-param value-of<SettingsFields> $value
 	 */
 	public function set( $setting, $value ) {
 		$site_id      = \get_current_blog_id();
@@ -264,6 +321,11 @@ class Settings implements API {
 
 		// Update cached settings only if DB the DB write was successful.
 		if ( $result ) {
+			/**
+			 * PHPStan type.
+			 *
+			 * @phpstan-var SettingsFields $all_settings
+			 */
 			$this->settings[ $site_id ] = $all_settings;
 		}
 
@@ -276,6 +338,8 @@ class Settings implements API {
 	 * @param string $information_header Optional. The HTML markup for the informational header in the settings. Default ''.
 	 *
 	 * @return array
+	 *
+	 * @phpstan-return SettingsFieldDefinitions
 	 */
 	public function get_fields( $information_header = '' ) {
 		if ( ! isset( $this->fields ) ) {
@@ -329,6 +393,8 @@ class Settings implements API {
 	 * Retrieves the default settings.
 	 *
 	 * @return array
+	 *
+	 * @phpstan-return SettingsFields
 	 */
 	public function get_defaults() {
 		if ( ! isset( $this->defaults ) ) {
@@ -342,6 +408,11 @@ class Settings implements API {
 			// Allow detection of new installations.
 			$_defaults[ Options::INSTALLED_VERSION ] = '';
 
+			/**
+			 * PHPStan type.
+			 *
+			 * @phpstan-var SettingsFields $_defaults
+			 */
 			$this->defaults = $_defaults;
 		}
 
@@ -354,6 +425,8 @@ class Settings implements API {
 	 * @since 2.1.0
 	 *
 	 * @return array
+	 *
+	 * @phpstan-return array<SettingsFieldMeta>
 	 */
 	public function get_network_fields() {
 		if ( ! isset( $this->network_fields ) ) {

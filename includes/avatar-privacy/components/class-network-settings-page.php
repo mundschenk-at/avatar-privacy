@@ -47,6 +47,8 @@ use Mundschenk\UI\Control_Factory;
  * @since 2.1.0
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-type SettingsSectionInfo array{ id: string, title: string, callback: callable }
  */
 class Network_Settings_Page implements Component {
 
@@ -265,6 +267,8 @@ class Network_Settings_Page implements Component {
 	 * @param array $section The section information.
 	 *
 	 * @return void
+	 *
+	 * @phpstan-param SettingsSectionInfo $section
 	 */
 	public function print_settings_section( $section ) {
 		// Set up variables used by the included partial.

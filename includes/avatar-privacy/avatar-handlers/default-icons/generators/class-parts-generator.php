@@ -41,6 +41,12 @@ use Avatar_Privacy\Tools\Number_Generator;
  * @since 2.3.0
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-type PartType string
+ * @phpstan-type PartsTemplate array<PartType, array{}>
+ * @phpstan-type AllPossibleParts array<PartType, string[]>
+ * @phpstan-type RandomizedParts array<PartType, string>
+ * @phpstan-type AdditionalArguments array<string, mixed>
  */
 abstract class Parts_Generator implements Generator {
 
@@ -66,6 +72,8 @@ abstract class Parts_Generator implements Generator {
 	 * @var array {
 	 *     @type string[] $type An array of files.
 	 * }
+	 *
+	 * @phpstan-var array<string, string[]>
 	 */
 	private array $all_parts;
 
@@ -139,6 +147,8 @@ abstract class Parts_Generator implements Generator {
 	 * @return array A simple array of files, indexe by part.
 	 *
 	 * @throws Part_Files_Not_Found_Exception The part files could not be found.
+	 *
+	 * @phpstan-return RandomizedParts
 	 */
 	protected function get_randomized_parts() {
 		return $this->randomize_parts( $this->get_parts() );
@@ -154,6 +164,9 @@ abstract class Parts_Generator implements Generator {
 	 * @param  array  $parts The (randomized) avatar parts.
 	 *
 	 * @return array
+	 *
+	 * @phpstan-param  RandomizedParts $parts
+	 * @phpstan-return AdditionalArguments
 	 */
 	protected function get_additional_arguments( $seed, $size, array $parts ) {
 		return [];
@@ -168,6 +181,9 @@ abstract class Parts_Generator implements Generator {
 	 * @param  array $args  Any additional arguments defined by the subclass.
 	 *
 	 * @return string       The image data (bytes).
+	 *
+	 * @phpstan-param RandomizedParts     $parts
+	 * @phpstan-param AdditionalArguments $args
 	 */
 	abstract protected function get_avatar( $size, array $parts, array $args );
 
@@ -177,6 +193,9 @@ abstract class Parts_Generator implements Generator {
 	 * @param  array $parts An array of arrays containing all parts definitions.
 	 *
 	 * @return array        A simple array of part definitions, indexed by type.
+	 *
+	 * @phpstan-param  AllPossibleParts $parts
+	 * @phpstan-return RandomizedParts
 	 */
 	protected function randomize_parts( array $parts ) {
 
@@ -211,6 +230,8 @@ abstract class Parts_Generator implements Generator {
 	 * }
 	 *
 	 * @throws Part_Files_Not_Found_Exception The part files could not be found.
+	 *
+	 * @phpstan-return AllPossibleParts
 	 */
 	protected function get_parts() {
 		if ( empty( $this->all_parts ) ) {
@@ -221,6 +242,11 @@ abstract class Parts_Generator implements Generator {
 			// Check existence of transient first.
 			$cached_parts = $this->site_transients->get( $key );
 			if ( \is_array( $cached_parts ) && ! empty( $cached_parts ) ) {
+				/**
+				 * The cached parts look good, let's use those.
+				 *
+				 * @phpstan-var AllPossibleParts $cached_parts
+				 */
 				$this->all_parts = $cached_parts;
 			} else {
 				// Look at the actual filesystem.
@@ -246,6 +272,8 @@ abstract class Parts_Generator implements Generator {
 	 * }
 	 *
 	 * @throws Part_Files_Not_Found_Exception The part files could not be found.
+	 *
+	 * @phpstan-return AllPossibleParts
 	 */
 	protected function build_parts_array() {
 		// Make sure the keys are in the correct order.
@@ -268,6 +296,9 @@ abstract class Parts_Generator implements Generator {
 	 * @param  array $parts An array of empty arrays indexed by part type.
 	 *
 	 * @return array        The same array, but now containing the part type definitions.
+	 *
+	 * @phpstan-param  array<PartType, array{}> $parts
+	 * @phpstan-return AllPossibleParts
 	 */
 	abstract protected function read_parts_from_filesystem( array $parts );
 
@@ -281,6 +312,9 @@ abstract class Parts_Generator implements Generator {
 	 * }
 	 *
 	 * @return array
+	 *
+	 * @phpstan-param  AllPossibleParts $parts
+	 * @phpstan-return AllPossibleParts
 	 */
 	abstract protected function sort_parts( array $parts );
 }

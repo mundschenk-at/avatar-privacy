@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -36,6 +36,8 @@ use Avatar_Privacy\Tools\HTML\User_Form;
  *
  *     @type int $avatar_size The width/height of the avatar preview image (in pixels).
  * }
+ *
+ * @phpstan-var array{ avatar_size: int } $atts
  */
 ?>
 <form class="avatar-privacy-frontend avatar-privacy-shortcode" method="post" enctype="multipart/form-data">

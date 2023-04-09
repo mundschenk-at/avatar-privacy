@@ -40,6 +40,14 @@ use Avatar_Privacy\Tools\Images\Image_File;
  * @since 2.0.0
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-type AvatarArguments array{
+ *     type: string,
+ *     force?: bool,
+ *     avatar?: string,
+ *     mimetype?: string,
+ *     timestamp?: bool
+ * }
  */
 class User_Avatar_Handler implements Avatar_Handler {
 
@@ -102,6 +110,8 @@ class User_Avatar_Handler implements Avatar_Handler {
 	 * }
 	 *
 	 * @return string
+	 *
+	 * @phpstan-param AvatarArguments $args
 	 */
 	public function get_url( $url, $hash, $size, array $args ) {
 		// Cache base directory.

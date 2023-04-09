@@ -43,6 +43,8 @@ use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler as Upload_
  * @since 2.4.0
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-import-type AvatarDefinition from User_Fields
  */
 class Default_Avatars implements API {
 
@@ -118,6 +120,8 @@ class Default_Avatars implements API {
 	 *     @type string $file The local filename.
 	 *     @type string $type The MIME type.
 	 * }
+	 *
+	 * @phpstan-return AvatarDefinition|array{}
 	 */
 	public function get_custom_default_avatar() {
 		$avatar = $this->settings->get( Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR );

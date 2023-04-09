@@ -83,6 +83,8 @@ class File_Upload_Input extends Controls\Input {
 	 * }
 	 *
 	 * @throws \InvalidArgumentException Missing argument.
+	 *
+	 * @phpstan-param array{ tab_id: string, section: string, default: string|int, short?: ?string, label?: ?string, help_text?: ?string, inline_help?: bool, attributes?: mixed[], outer_attributes?: mixed[], settings_args?: mixed[], erase_checkbox?: string } $args
 	 */
 	public function __construct( Options $options, $options_key, $id, array $args ) {
 		$args               = $this->prepare_args( $args, [ 'erase_checkbox', 'action', 'nonce', 'help_no_file', 'help_no_upload' ] );

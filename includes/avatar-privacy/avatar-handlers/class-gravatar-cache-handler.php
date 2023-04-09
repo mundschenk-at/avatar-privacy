@@ -44,6 +44,8 @@ use Avatar_Privacy\Tools\Network\Gravatar_Service;
  * @since 2.4.0 Internal constants and property $type_mapping removed.
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-import-type AvatarArguments from Avatar_Handler
  */
 class Gravatar_Cache_Handler implements Avatar_Handler {
 
@@ -108,6 +110,8 @@ class Gravatar_Cache_Handler implements Avatar_Handler {
 	 * }
 	 *
 	 * @return string
+	 *
+	 * @phpstan-param AvatarArguments $args
 	 */
 	public function get_url( $url, $hash, $size, array $args ) {
 		$defaults = [

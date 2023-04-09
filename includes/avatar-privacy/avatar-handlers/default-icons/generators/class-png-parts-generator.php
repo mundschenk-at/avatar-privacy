@@ -44,6 +44,13 @@ use GdImage; // phpcs:ignore ImportDetection.Imports -- PHP 8.0 compatibility.
  *
  * @author Peter Putzer <github@mundschenk.at>
  * @author Scott Sherrill-Mix
+ *
+ * @phpstan-import-type PartsTemplate from Parts_Generator
+ * @phpstan-import-type AllPossibleParts from Parts_Generator
+ * @phpstan-import-type RandomizedParts from Parts_Generator
+ * @phpstan-import-type AdditionalArguments from Parts_Generator
+ *
+ * @phpstan-type BoundsTuple array{ 0: int, 1: int }
  */
 abstract class PNG_Parts_Generator extends Parts_Generator {
 
@@ -108,6 +115,9 @@ abstract class PNG_Parts_Generator extends Parts_Generator {
 	 * @param  array $args  Any additional arguments defined by the subclass.
 	 *
 	 * @return string       The image data (bytes).
+	 *
+	 * @phpstan-param RandomizedParts     $parts
+	 * @phpstan-param AdditionalArguments $args
 	 */
 	protected function get_avatar( $size, array $parts, array $args ) {
 		// Build the avatar image in its native size.
@@ -120,10 +130,15 @@ abstract class PNG_Parts_Generator extends Parts_Generator {
 	/**
 	 * Renders the avatar from its parts, using any of the given additional arguments.
 	 *
+	 * @since  2.7.0 Return type amended to include `GdImage` on PHP 8.x
+	 *
 	 * @param  array $parts The (randomized) avatar parts.
 	 * @param  array $args  Any additional arguments defined by the subclass.
 	 *
-	 * @return resource
+	 * @return resource|GdImage
+	 *
+	 * @phpstan-param RandomizedParts     $parts
+	 * @phpstan-param AdditionalArguments $args
 	 */
 	abstract protected function render_avatar( array $parts, array $args );
 
@@ -149,6 +164,9 @@ abstract class PNG_Parts_Generator extends Parts_Generator {
 	 * @param  array $parts An array of empty arrays indexed by part type.
 	 *
 	 * @return array        The same array, but now containing the part type definitions.
+	 *
+	 * @phpstan-param  PartsTemplate $parts
+	 * @phpstan-return AllPossibleParts
 	 */
 	protected function read_parts_from_filesystem( array $parts ) {
 		// Iterate over the files in the parts directory.
@@ -179,6 +197,9 @@ abstract class PNG_Parts_Generator extends Parts_Generator {
 	 * }
 	 *
 	 * @return array
+	 *
+	 * @phpstan-param  AllPossibleParts $parts
+	 * @phpstan-return AllPossibleParts
 	 */
 	protected function sort_parts( array $parts ) {
 		foreach ( $parts as $key => $value ) {
@@ -255,8 +276,15 @@ abstract class PNG_Parts_Generator extends Parts_Generator {
 	 *         @type int[] $ybounds The low and high boundary on the Y axis.
 	 *     }
 	 * }
+	 *
+	 * @phpstan-return array<string, array{ 0: BoundsTuple, 1: BoundsTuple }>
 	 */
 	protected function get_parts_dimensions() {
+		/**
+		 * An array of boundary coordinates indexed by filename.
+		 *
+		 * @phpstan-var array<string, array{ 0: BoundsTuple, 1: BoundsTuple }> $bounds
+		 */
 		$bounds = [];
 
 		foreach ( $this->get_parts() as $file_list ) {
@@ -293,6 +321,8 @@ abstract class PNG_Parts_Generator extends Parts_Generator {
 	 *     @type int[] $xbounds The low and high boundary on the X axis.
 	 *     @type int[] $ybounds The low and high boundary on the Y axis.
 	 * }
+	 *
+	 * @phpstan-return array{ 0: BoundsTuple, 1: BoundsTuple }
 	 */
 	protected function get_image_bounds( $im ) {
 		$imgw    = \imageSX( $im );

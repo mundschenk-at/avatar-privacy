@@ -43,6 +43,8 @@ use const MINUTE_IN_SECONDS;
  *
  * @author Peter Putzer <github@mundschenk.at>
  * @author Johannes Freudendahl <wordpress@freudendahl.net>
+ *
+ * @phpstan-import-type ColumnValueTuples from \Avatar_Privacy\Data_Storage\Database\Table
  */
 class Comment_Author_Fields implements API {
 
@@ -225,6 +227,8 @@ class Comment_Author_Fields implements API {
 	 *
 	 * @throws \RuntimeException A \RuntimeException is raised when invalid
 	 *                           column names are used.
+	 *
+	 * @phpstan-param ColumnValueTuples $columns
 	 */
 	protected function update( $id, $email, array $columns ) {
 		$result = $this->comment_author_table->update( $columns, [ 'id' => $id ] );

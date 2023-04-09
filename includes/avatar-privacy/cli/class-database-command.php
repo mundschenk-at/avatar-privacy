@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2021 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -183,8 +183,8 @@ class Database_Command extends Abstract_Command {
 	 *
 	 * @subcommand list
 	 *
-	 * @param  array $args       The positional arguments.
-	 * @param  array $assoc_args The associative arguments.
+	 * @param  string[] $args       The positional arguments.
+	 * @param  string[] $assoc_args The associative arguments.
 	 *
 	 * @return void
 	 */
@@ -203,7 +203,11 @@ class Database_Command extends Abstract_Command {
 			}
 		}
 
-		// Load table data.
+		/**
+		 * Load table data.
+		 *
+		 * @phpstan-var \Iterator<string,object> $iterator
+		 */
 		$iterator = new Table_Iterator( [
 			'table'  => $this->comment_author_table->get_table_name(),
 			'where'  => $where,
@@ -234,8 +238,8 @@ class Database_Command extends Abstract_Command {
 	 *    $ wp avatar-privacy db create
 	 *    Success: Table wp_avatar_privacy created/updated successfully.
 	 *
-	 * @param  array $args       The positional arguments.
-	 * @param  array $assoc_args The associative arguments.
+	 * @param  string[] $args       The positional arguments.
+	 * @param  string[] $assoc_args The associative arguments.
 	 *
 	 * @return void
 	 */
@@ -279,8 +283,8 @@ class Database_Command extends Abstract_Command {
 	 *    $ wp avatar-privacy db upgrade
 	 *    Success: Table wp_avatar_privacy upgraded successfully.
 	 *
-	 * @param  array $args       The positional arguments.
-	 * @param  array $assoc_args The associative arguments.
+	 * @param  string[] $args       The positional arguments.
+	 * @param  string[] $assoc_args The associative arguments.
 	 *
 	 * @return void
 	 */

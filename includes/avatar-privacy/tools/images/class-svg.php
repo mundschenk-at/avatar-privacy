@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -133,7 +133,7 @@ abstract class SVG {
 	 *
 	 * @link https://core.trac.wordpress.org/ticket/24251
 	 *
-	 * @var array
+	 * @var array<string, array<string, bool>>
 	 */
 	const ALLOWED_ELEMENTS = [
 		'a'              => [

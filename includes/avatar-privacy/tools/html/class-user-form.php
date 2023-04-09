@@ -39,6 +39,11 @@ use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler as Upload;
  * @since 2.3.0
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-import-type PartialArguments from Template
+ *
+ * @phpstan-type ConfigData array{ nonce: string, action: string, field: string, erase?: string, partial: string }
+ * @phpstan-type AdditionArguments array{ avatar_size?: int, show_description?: bool }
  */
 class User_Form {
 
@@ -78,6 +83,8 @@ class User_Form {
 	 *     @type string $partial The path to the partial template file (relative
 	 *                           to the plugin path).
 	 * }
+	 *
+	 * @phpstan-var ConfigData
 	 */
 	protected array $use_gravatar;
 
@@ -92,6 +99,8 @@ class User_Form {
 	 *     @type string $partial The path to the partial template file (relative
 	 *                           to the plugin path).
 	 * }
+	 *
+	 * @phpstan-var ConfigData
 	 */
 	protected array $allow_anonymous;
 
@@ -107,6 +116,8 @@ class User_Form {
 	 *     @type string $partial The path to the partial template file (relative
 	 *                           to the plugin path).
 	 * }
+	 *
+	 * @phpstan-var ConfigData&array{ erase: string }
 	 */
 	protected array $user_avatar;
 
@@ -149,6 +160,10 @@ class User_Form {
 	 *     @type string $partial The path to the partial template file (relative
 	 *                           to the plugin path).
 	 * }
+	 *
+	 * @phpstan-param ConfigData                        $use_gravatar
+	 * @phpstan-param ConfigData                        $allow_anonymous
+	 * @phpstan-param ConfigData&array{ erase: string } $user_avatar
 	 */
 	public function __construct( Upload $upload, User_Fields $registered_user, Template $template, array $use_gravatar, array $allow_anonymous, array $user_avatar ) {
 		$this->upload          = $upload;
@@ -170,6 +185,8 @@ class User_Form {
 	 * }
 	 *
 	 * @return void
+	 *
+	 * @phpstan-param AdditionArguments $args
 	 */
 	public function use_gravatar_checkbox( $user_id, array $args = [] ) {
 		$this->checkbox( $this->registered_user->allows_gravatar_use( $user_id ), "{$this->use_gravatar['nonce']}{$user_id}", $this->use_gravatar['action'], $this->use_gravatar['field'], $this->use_gravatar['partial'], $args );
@@ -186,6 +203,8 @@ class User_Form {
 	 * }
 	 *
 	 * @return string
+	 *
+	 * @phpstan-param AdditionArguments $args
 	 */
 	public function get_use_gravatar_checkbox( $user_id, array $args = [] ) {
 		\ob_start();
@@ -204,6 +223,8 @@ class User_Form {
 	 * }
 	 *
 	 * @return void
+	 *
+	 * @phpstan-param AdditionArguments $args
 	 */
 	public function allow_anonymous_checkbox( $user_id, array $args = [] ) {
 		$this->checkbox( $this->registered_user->allows_anonymous_commenting( $user_id ), "{$this->allow_anonymous['nonce']}{$user_id}", $this->allow_anonymous['action'], $this->allow_anonymous['field'], $this->allow_anonymous['partial'], $args );
@@ -220,6 +241,8 @@ class User_Form {
 	 * }
 	 *
 	 * @return string
+	 *
+	 * @phpstan-param AdditionArguments $args
 	 */
 	public function get_allow_anonymous_checkbox( $user_id, array $args = [] ) {
 		\ob_start();
@@ -239,6 +262,8 @@ class User_Form {
 	 * }
 	 *
 	 * @return void
+	 *
+	 * @phpstan-param AdditionArguments $args
 	 */
 	public function avatar_uploader( $user_id, array $args = [] ) {
 		// Merge default arguments.
@@ -288,6 +313,8 @@ class User_Form {
 	 * }
 	 *
 	 * @return string
+	 *
+	 * @phpstan-param AdditionArguments $args
 	 */
 	public function get_avatar_uploader( $user_id, array $args = [] ) {
 		\ob_start();
@@ -314,6 +341,8 @@ class User_Form {
 	 * }
 	 *
 	 * @return void
+	 *
+	 * @phpstan-param AdditionArguments $args
 	 */
 	protected function checkbox( $value, $nonce, $action, $field_name, $partial, array $args = [] ) {
 		// Merge default arguments.
@@ -399,6 +428,7 @@ class User_Form {
 			throw new Form_Field_Not_Found_Exception( "Form field '{$field_name}' not found." );
 		}
 
+		// @phpstan-ignore-next-line -- super globals are all array<string,mixed>.
 		if ( isset( $_POST[ $nonce ] ) && \wp_verify_nonce( \sanitize_key( $_POST[ $nonce ] ), $action ) ) {
 			return isset( $_POST[ $field_name ] ) && 'true' === $_POST[ $field_name ];
 		}
@@ -494,6 +524,8 @@ class User_Form {
 	 *                         allowed and the keys must be valid variable names.
 	 *
 	 * @return void
+	 *
+	 * @phpstan-param PartialArguments $args
 	 */
 	public function print_form( $partial, $user_id, array $args = [] ) {
 		$this->template->print_partial( $partial, $this->get_partial_arguments( $user_id, $args ) );
@@ -511,6 +543,8 @@ class User_Form {
 	 *                         allowed and the keys must be valid variable names.
 	 *
 	 * @return string
+	 *
+	 * @phpstan-param PartialArguments $args
 	 */
 	public function get_form( $partial, $user_id, array $args = [] ) {
 		return $this->template->get_partial( $partial, $this->get_partial_arguments( $user_id, $args ) );
@@ -527,6 +561,9 @@ class User_Form {
 	 *                        allowed and the keys must be valid variable names.
 	 *
 	 * @return array
+	 *
+	 * @phpstan-param  PartialArguments $args
+	 * @phpstan-return PartialArguments
 	 */
 	protected function get_partial_arguments( $user_id, array $args ) {
 		$args['form']    = $this;

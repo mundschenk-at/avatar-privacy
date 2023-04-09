@@ -36,6 +36,12 @@ use Avatar_Privacy\Tools\Network\Remote_Image_Service;
  * @since 2.0.0
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-type AvatarArguments array{
+ *     type: string,
+ *     force?: bool,
+ *     default?: string,
+ * }
  */
 class Default_Icons_Handler implements Avatar_Handler {
 
@@ -109,6 +115,10 @@ class Default_Icons_Handler implements Avatar_Handler {
 	 * }
 	 *
 	 * @return string
+	 *
+	 * FIXME: Handle standard parameters.
+	 *
+	 * @phpstan-param AvatarArguments $args
 	 */
 	public function get_url( $url, $hash, $size, array $args ) {
 		$args = \wp_parse_args( $args, [ 'default' => '' ] );

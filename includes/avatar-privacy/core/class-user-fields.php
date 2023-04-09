@@ -40,6 +40,8 @@ use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
  * @since 2.4.0
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-type AvatarDefinition array{ file: string, type: string }
  */
 class User_Fields implements API {
 
@@ -199,6 +201,8 @@ class User_Fields implements API {
 	 *     @type string $file The local filename.
 	 *     @type string $type The MIME type.
 	 * }
+	 *
+	 * @phpstan-return AvatarDefinition|array{}
 	 */
 	public function get_local_avatar( $user_id ) {
 		/**

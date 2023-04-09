@@ -42,6 +42,9 @@ use Avatar_Privacy\Exceptions\Upload_Handling_Exception;  // phpcs:ignore Import
  *
  * @author Peter Putzer <github@mundschenk.at>
  * @author Johannes Freudendahl <wordpress@freudendahl.net>
+ *
+ * @phpstan-import-type AvatarDefinition from Default_Avatars
+ * @phpstan-import-type SettingsFields from Settings
  */
 class Core {
 
@@ -192,6 +195,8 @@ class Core {
 	 * @param bool $force Optional. Forces retrieval of settings from database. Default false.
 	 *
 	 * @return array
+	 *
+	 * @phpstan-return SettingsFields
 	 */
 	public function get_settings( $force = false ) {
 		return $this->settings->get_all_settings( $force );
@@ -339,6 +344,8 @@ class Core {
 	 *     @type string $file The local filename.
 	 *     @type string $type The MIME type.
 	 * }
+	 *
+	 * @phpstan-return AvatarDefinition|array{}
 	 */
 	public function get_user_avatar( $user_id ) {
 		return $this->user_fields->get_local_avatar( $user_id );
@@ -446,6 +453,8 @@ class Core {
 	 *     @type string $file The local filename.
 	 *     @type string $type The MIME type.
 	 * }
+	 *
+	 * @phpstan-return AvatarDefinition|array{}
 	 */
 	public function get_custom_default_avatar() {
 		return $this->default_avatars->get_custom_default_avatar();

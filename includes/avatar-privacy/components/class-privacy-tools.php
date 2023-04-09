@@ -37,6 +37,12 @@ use Avatar_Privacy\Core\User_Fields;
  * @since 1.1.0
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-type PrivacyExportResult array{ data: mixed[], done: bool }
+ * @phpstan-type PrivacyEraseResult array{ items_removed: int, items_retained: int, messages: string[], done: bool }
+ *
+ * @phpstan-type PrivacyExporter array{ exporter_friendly_name: string, callback: callable }
+ * @phpstan-type PrivacyEraser array{ eraser_friendly_name: string, callback: callable }
  */
 class Privacy_Tools implements Component {
 
@@ -127,6 +133,9 @@ class Privacy_Tools implements Component {
 	 * @param  array $exporters The registered exporter callbacks.
 	 *
 	 * @return array
+	 *
+	 * @phpstan-param  PrivacyExporter[] $exporters
+	 * @phpstan-return PrivacyExporter[]
 	 */
 	public function register_personal_data_exporter( array $exporters ) {
 		$exporters['avatar-privacy-user']           = [
@@ -147,6 +156,9 @@ class Privacy_Tools implements Component {
 	 * @param  array $erasers The registered eraser callbacks.
 	 *
 	 * @return array
+	 *
+	 * @phpstan-param  PrivacyEraser[] $erasers
+	 * @phpstan-return PrivacyEraser[]
 	 */
 	public function register_personal_data_eraser( array $erasers ) {
 		$erasers['avatar-privacy'] = [
@@ -168,6 +180,8 @@ class Privacy_Tools implements Component {
 	 *     @type mixed $data The exported data.
 	 *     @type bool  $done True if there is no more data to export, false otherwise.
 	 * }
+	 *
+	 * @phpstan-return PrivacyExportResult
 	 */
 	public function export_user_data( $email ) {
 		$user = \get_user_by( 'email', $email );
@@ -237,6 +251,8 @@ class Privacy_Tools implements Component {
 	 *     @type mixed $data The exported data.
 	 *     @type bool  $done True if there is no more data to export, false otherwise.
 	 * }
+	 *
+	 * @phpstan-return PrivacyExportResult
 	 */
 	public function export_comment_author_data( $email ) {
 		// Load raw data.
@@ -312,6 +328,8 @@ class Privacy_Tools implements Component {
 	 *     @type array $messages       Any additional information for the admin associated with the removal request.
 	 *     @type bool  $done           True if there is no more data to erase, false otherwise.
 	 * }
+	 *
+	 * @phpstan-return PrivacyEraseResult
 	 */
 	public function erase_data( $email ) {
 		$items_removed  = 0;

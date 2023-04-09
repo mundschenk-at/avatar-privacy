@@ -41,6 +41,13 @@ use Avatar_Privacy\Upload_Handlers\Upload_Handler;
  * @since 2.0.0
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-import-type UploadArgs from Upload_Handler
+ * @phpstan-import-type FileSlice from Image_File
+ * @phpstan-import-type HandleUploadSuccess from Image_File
+ * @phpstan-import-type HandleUploadError from Image_File
+ *
+ * @phpstan-type UploadArgsWithSiteID UploadArgs&array{site_id:int}
  */
 class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 
@@ -131,11 +138,16 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	 * @param  array $args Arguments passed from ::maybe_save_data().
 	 *
 	 * @return array       A slice of the $_FILES array.
+	 *
+	 * @phpstan-param  UploadArgs $args
+	 * @phpstan-return FileSlice|array{}
 	 */
 	protected function get_file_slice( array $args ) {
 		$upload_index = $this->options->get_name( Settings::OPTION_NAME );
 
+		// @phpstan-ignore-next-line -- super globals are all array<string,mixed>.
 		if ( ! empty( $_FILES[ $upload_index ]['name'] ) ) {
+			// @phpstan-ignore-next-line -- super globals are all array<string,mixed>.
 			$normalized_files = $this->normalize_files_array( $_FILES[ $upload_index ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- $_FILES does not need wp_unslash.
 
 			if ( ! empty( $normalized_files[ $args['upload_field'] ] ) ) {
@@ -155,6 +167,9 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	 *
 	 * @param  array $upload_result The result of ::handle_upload().
 	 * @param  array $args          Arguments passed from ::maybe_save_data().
+	 *
+	 * @phpstan-param HandleUploadSuccess|HandleUploadError $upload_result
+	 * @phpstan-param UploadArgsWithSiteID                  $args
 	 */
 	protected function handle_upload_errors( array $upload_result, array $args ) {
 		if ( empty( $upload_result['error'] ) ) {
@@ -178,6 +193,9 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	 *
 	 * @param  array $upload_result The result of ::handle_upload().
 	 * @param  array $args          Arguments passed from ::maybe_save_data().
+	 *
+	 * @phpstan-param HandleUploadSuccess|HandleUploadError $upload_result
+	 * @phpstan-param UploadArgsWithSiteID                  $args
 	 */
 	protected function store_file_data( array $upload_result, array $args ) {
 		// Delete previous image and thumbnails.
@@ -196,6 +214,8 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	 * @since  2.4.0
 	 *
 	 * @param  array $args Arguments passed from ::maybe_save_data().
+	 *
+	 * @phpstan-param UploadArgsWithSiteID $args
 	 */
 	protected function delete_file_data( array $args ) {
 		// Delete previous image and thumbnails.
@@ -217,6 +237,8 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	 * @param  array  $args     Arguments passed from ::maybe_save_data().
 	 *
 	 * @return string
+	 *
+	 * @phpstan-param UploadArgsWithSiteID $args
 	 */
 	protected function get_filename( $filename, array $args ) {
 		return $this->default_avatars->get_custom_default_avatar_filename( $filename );

@@ -125,8 +125,8 @@ class Uninstall_Command extends Abstract_Command {
 	 *
 	 * @global \wpdb $wpdb       The WordPress database.
 	 *
-	 * @param  array $args       The positional arguments.
-	 * @param  array $assoc_args The associative arguments.
+	 * @param  string[] $args       The positional arguments.
+	 * @param  string[] $assoc_args The associative arguments.
 	 *
 	 * @return void
 	 */

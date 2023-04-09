@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -34,10 +34,13 @@ use Avatar_Privacy\Tools\HTML\User_Form;
  * @var array     $attributes {
  *     The block attributes.
  *
- *     @type int  $avatar_size       The width/height of the avatar preview image (in pixels).
- *     @type bool $show_descriptions True if the long description should be displayed.
- *     @type bool $preview           True if this is only a preview for the block editor.
+ *     @type string $className         The CSS class for the block.
+ *     @type int    $avatar_size       The width/height of the avatar preview image (in pixels).
+ *     @type bool   $show_descriptions True if the long description should be displayed.
+ *     @type bool   $preview           True if this is only a preview for the block editor.
  * }
+ *
+ * @phpstan-var array{ className: string, avatar_size: int, show_descriptions: bool, preview: bool } $attributes
  */
 ?>
 <form class="<?php echo \esc_attr( \trim( "avatar-privacy-frontend avatar-privacy-block {$attributes['className']}" ) ); ?>" method="post" enctype="multipart/form-data">

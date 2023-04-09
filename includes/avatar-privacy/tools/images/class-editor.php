@@ -246,6 +246,8 @@ class Editor {
 	 *     @type int $width  The width of the crop.
 	 *     @type int $height The height of the crop.
 	 * }
+	 *
+	 * @phpstan-return array{ x: int, y: int, width: int, height: int }
 	 */
 	protected function get_crop_dimensions( $orig_w, $orig_h, $dest_w, $dest_h ) {
 		// We crop to the largest rectangle fitting inside the original image
@@ -272,8 +274,8 @@ class Editor {
 	 * Returns a `\WP_Image_Editor` instance and loads file into it. Preference is
 	 * given to stream-capable editor classes (i.e. GD-based ones).
 	 *
-	 * @param  string $path Path to the file to load.
-	 * @param  array  $args Optional. Additional arguments for retrieving the image editor. Default [].
+	 * @param  string  $path Path to the file to load.
+	 * @param  mixed[] $args Optional. Additional arguments for retrieving the image editor. Default [].
 	 *
 	 * @return \WP_Image_Editor|\WP_Error
 	 */

@@ -35,13 +35,15 @@ use Avatar_Privacy\Tools\HTML\User_Form;
  * @since 2.3.0
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-type FrontendFormAttributes array{ avatar_size?: int }
  */
 class Shortcodes implements Component {
 
 	/**
 	 * The shortcode attributes for `[avatar-privacy-form]`.
 	 *
-	 * @var array
+	 * @var array<string, int>
 	 */
 	const FRONTEND_FORM_ATTRIBUTES = [
 		'avatar_size' => 96,
@@ -102,6 +104,8 @@ class Shortcodes implements Component {
 	 * }
 	 *
 	 * @return string          The HTML markup for the upload form.
+	 *
+	 * @phpstan-param FrontendFormAttributes $atts
 	 */
 	public function render_frontend_form_shortcode( $atts ) {
 		$user_id = \get_current_user_id();
@@ -131,6 +135,9 @@ class Shortcodes implements Component {
 	 * }
 	 *
 	 * @return array
+	 *
+	 * @phpstan-param FrontendFormAttributes $atts
+	 * @phpstan-return FrontendFormAttributes
 	 */
 	protected function sanitize_frontend_form_attributes( array $atts ) {
 		// Merge default shortcode attributes.
