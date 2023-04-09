@@ -118,7 +118,7 @@ abstract class Upload_Handler {
 
 		while ( \file_exists( "$directory/{$filename}{$extension}" ) ) {
 			$filename = "{$basename}_{$number}";
-			$number++;
+			++$number;
 		}
 
 		return "{$filename}{$extension}";
