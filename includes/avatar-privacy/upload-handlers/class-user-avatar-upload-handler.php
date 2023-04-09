@@ -42,6 +42,13 @@ use Avatar_Privacy\Upload_Handlers\Upload_Handler;
  * @since 2.3.0 Obsolete class constants removed.
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-import-type UploadArgs from Upload_Handler
+ * @phpstan-import-type FileSlice from Image_File
+ * @phpstan-import-type HandleUploadSuccess from Image_File
+ * @phpstan-import-type HandleUploadError from Image_File
+ *
+ * @phpstan-type UploadArgsWithUserID UploadArgs&array{user_id:int}
  */
 class User_Avatar_Upload_Handler extends Upload_Handler {
 
@@ -122,13 +129,18 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 *
 	 * @since 2.4.0
 	 *
+	 * @global array $_FILES Uploaded files superglobal.
+	 *
 	 * @param  array $args Arguments passed from ::maybe_save_data().
 	 *
 	 * @return array       A slice of the $_FILES array.
+	 *
+	 * @phpstan-param  UploadArgs $args
+	 * @phpstan-return FileSlice|array{}
 	 */
 	protected function get_file_slice( array $args ) {
 		if ( ! empty( $_FILES[ $args['upload_field'] ] ) ) {
-			return $_FILES[ $args['upload_field'] ]; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- $_FILES does not need wp_unslash.
+			return (array) $_FILES[ $args['upload_field'] ]; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- $_FILES does not need wp_unslash.
 		}
 
 		return [];
@@ -141,10 +153,12 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 * @since 2.4.0 Renamed to handle_upload_errors, parameter $result renamed
 	 *              to $upload_result. Parameter $args added.
 	 *
-	 * @param  array $upload_result The result of ::upload().
-	 * @param  array $args          Arguments passed from ::maybe_save_data().
+	 * @param  array   $upload_result The result of ::upload().
+	 * @param  mixed[] $args          Arguments passed from ::maybe_save_data().
 	 *
 	 * @return void
+	 *
+	 * @phpstan-param array{ error?: string } $upload_result
 	 */
 	protected function handle_upload_errors( array $upload_result, array $args ) {
 		if ( empty( $upload_result['error'] ) ) {
@@ -165,10 +179,13 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 *
 	 * @since 2.4.0
 	 *
-	 * @param  array $upload_result The result of ::upload().
-	 * @param  array $args          Arguments passed from ::maybe_save_data().
+	 * @param  mixed[] $upload_result The result of ::upload().
+	 * @param  mixed[] $args          Arguments passed from ::maybe_save_data().
 	 *
 	 * @return void
+	 *
+	 * @phpstan-param HandleUploadSuccess|HandleUploadError $upload_result
+	 * @phpstan-param UploadArgsWithUserID                  $args
 	 */
 	protected function store_file_data( array $upload_result, array $args ) {
 		$this->registered_user->set_uploaded_local_avatar( $args['user_id'], $upload_result );
@@ -179,9 +196,11 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 *
 	 * @since 2.4.0
 	 *
-	 * @param  array $args Arguments passed from ::maybe_save_data().
+	 * @param  mixed[] $args Arguments passed from ::maybe_save_data().
 	 *
 	 * @return void
+	 *
+	 * @phpstan-param UploadArgsWithUserID $args
 	 */
 	protected function delete_file_data( array $args ) {
 		$this->registered_user->delete_local_avatar( $args['user_id'] );
@@ -196,6 +215,8 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 * @param  array  $args     Arguments passed from ::maybe_save_data().
 	 *
 	 * @return string
+	 *
+	 * @phpstan-param UploadArgsWithUserID $args
 	 */
 	protected function get_filename( $filename, array $args ) {
 		return $this->registered_user->get_local_avatar_filename( $args['user_id'], $filename );

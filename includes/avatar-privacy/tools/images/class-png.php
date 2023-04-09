@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2022 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -37,6 +37,8 @@ use GdImage; // phpcs:ignore ImportDetection.Imports -- PHP 8.0 compatibility.
  * @since 2.4.0 The class now uses `PNG_Image_Exception` instead of plain `RuntimeException`.
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-type RGBValue int<0,255>
  */
 class PNG {
 	/**
@@ -176,9 +178,9 @@ class PNG {
 	 * @since  2.5.0 Parameter $image can now also be a GdImage.
 	 *
 	 * @param  resource|GdImage $image      The image.
-	 * @param  int              $hue        The hue (0-360).
-	 * @param  int              $saturation The saturation (0-100).
-	 * @param  int              $lightness  The lightness/Luminosity (0-100).
+	 * @param  int<0,360>       $hue        The hue (0-360).
+	 * @param  int<0,100>       $saturation The saturation (0-100).
+	 * @param  int<0,100>       $lightness  The lightness/Luminosity (0-100).
 	 * @param  int              $x          The horizontal coordinate.
 	 * @param  int              $y          The vertical coordinate.
 	 *
@@ -206,34 +208,56 @@ class PNG {
 	 *
 	 * @since 2.5.0
 	 *
-	 * @param  int $hue        The hue (in degrees, i.e. 0-360).
-	 * @param  int $saturation The saturation (in percent, i.e. 0-100).
-	 * @param  int $lightness  The lightness (in percent, i.e. 0-100).
+	 * @param  int<0,360> $hue        The hue (in degrees, i.e. 0-360).
+	 * @param  int<0,100> $saturation The saturation (in percent, i.e. 0-100).
+	 * @param  int<0,100> $lightness  The lightness (in percent, i.e. 0-100).
 	 *
-	 * @return array {
+	 * @return int[] {
 	 *     The RGB color as a tuple.
 	 *
 	 *     @type int $red   The red component (0-255).
 	 *     @type int $green The green component (0-255).
 	 *     @type int $blue  The blue component (0-255).
 	 * }
+	 *
+	 * @phpstan-return array{ 0: RGBValue, 1: RGBValue, 2: RGBValue }
 	 */
 	public function hsl_to_rgb( $hue, $saturation, $lightness ) {
 		// Adjust scale.
 		$saturation = $saturation / 100;
 		$lightness  = $lightness / 100;
 
-		// Conversion function.
+		/**
+		 * Conversion function.
+		 *
+		 * @param  int $n Conversion factor.
+		 *
+		 * @return float  A floating point number between 0.0 and 1.0.
+		 */
 		$f = function( $n ) use ( $hue, $saturation, $lightness ) {
 			$k = \fmod( $n + $hue / 30, 12 );
 			$a = $saturation * \min( $lightness, 1 - $lightness );
 			return $lightness - $a * \max( -1, \min( $k - 3, 9 - $k, 1 ) );
 		};
 
-		// Calculate components.
-		$red   = (int) \round( $f( 0 ) * 255 );
+		/**
+		 * The red component.
+		 *
+		 * @phpstan-var RGBValue
+		 */
+		$red = (int) \round( $f( 0 ) * 255 );
+		/**
+		 * The green component.
+		 *
+		 * @phpstan-var RGBValue
+		 */
 		$green = (int) \round( $f( 8 ) * 255 );
-		$blue  = (int) \round( $f( 4 ) * 255 );
+		/**
+		 * The blue component.
+		 *
+		 * @phpstan-var RGBValue
+		 */
+		$blue = (int) \round( $f( 4 ) * 255 );
 
 		// Return result array.
 		return [ $red, $green, $blue ];

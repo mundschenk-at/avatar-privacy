@@ -34,6 +34,15 @@ use Avatar_Privacy\Exceptions\Filesystem_Exception;
  * @since 1.0.0
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-type UploadDir array{
+ *     path: string,
+ *     url: string,
+ *     subdir: string,
+ *     basedir: string,
+ *     baseurl: string,
+ *     error: string|false
+ * }
  */
 class Filesystem_Cache {
 
@@ -57,6 +66,8 @@ class Filesystem_Cache {
 	 * Information about the uploads directory.
 	 *
 	 * @var array
+	 *
+	 * @phpstan-var UploadDir
 	 */
 	private array $upload_dir;
 
@@ -108,6 +119,8 @@ class Filesystem_Cache {
 	 * @since 2.1.0 Visibility changed to protected.
 	 *
 	 * @return array
+	 *
+	 * @phpstan-return UploadDir
 	 */
 	protected function get_upload_dir() {
 		if ( ! isset( $this->upload_dir ) ) {
@@ -249,6 +262,11 @@ class Filesystem_Cache {
 		);
 
 		if ( ! empty( $regex ) ) {
+			/**
+			 * Further filter the collected files using the given regular expression.
+			 *
+			 * @phpstan-var \RegexIterator<string,\SplFileInfo,\RecursiveIteratorIterator<\RecursiveDirectoryIterator<string,\SplFileInfo>>> $files
+			 */
 			$files = new \RegexIterator( $files, $regex, \RecursiveRegexIterator::MATCH );
 		}
 

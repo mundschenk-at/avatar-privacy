@@ -36,6 +36,8 @@ use Simple_Local_Avatars;
  *
  * @since      2.5.0
  * @author     Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-import-type AvatarDefinition from User_Fields
  */
 class Simple_Local_Avatars_Integration implements Plugin_Integration {
 
@@ -112,6 +114,9 @@ class Simple_Local_Avatars_Integration implements Plugin_Integration {
 	 *     @type string $file The local filename.
 	 *     @type string $type The MIME type.
 	 * }
+	 *
+	 * @phpstan-param  AvatarDefinition|null $avatar
+	 * @phpstan-return AvatarDefinition|null
 	 */
 	public function enable_user_avatars( array $avatar = null, $user_id ) {
 		// Retrieve Simple Local Avatars image.

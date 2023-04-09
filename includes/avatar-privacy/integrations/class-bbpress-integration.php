@@ -109,6 +109,9 @@ class BBPress_Integration implements Plugin_Integration {
 	 *     @type string    $email   The email address.
 	 *     @type int       $age     The seconds since the post or comment was first created, or 0 if $id_or_email was not one of these object types.
 	 * }
+	 *
+	 * @phpstan-param array{0: int|false, 1: string, 2: int} $data
+	 * @phpstan-return array{0: int|false, 1: string, 2: int}
 	 */
 	public function parse_id_or_email( $data ) {
 		list( $user_id, $email, $age ) = $data;

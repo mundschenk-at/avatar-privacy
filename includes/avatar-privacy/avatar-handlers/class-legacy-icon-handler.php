@@ -39,6 +39,8 @@ use Avatar_Privacy\Tools\Network\Remote_Image_Service;
  * @since 2.4.0
  *
  * @author Peter Putzer <giGrthub@mundschenk.at>
+ *
+ * @phpstan-import-type AvatarArguments from Avatar_Handler
  */
 class Legacy_Icon_Handler implements Avatar_Handler {
 
@@ -81,6 +83,8 @@ class Legacy_Icon_Handler implements Avatar_Handler {
 	 * }
 	 *
 	 * @return string
+	 *
+	 * @phpstan-param AvatarArguments $args
 	 */
 	public function get_url( $url, $hash, $size, array $args ) {
 		$defaults = [

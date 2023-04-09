@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -74,6 +74,8 @@ use Avatar_Privacy\Tools\HTML\User_Form;
  * @since 2.4.0 Named instances converted to use class constants.
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-import-type ConfigData from User_Form
  */
 class Factory extends Dice {
 	const SHARED = [ 'shared' => true ];
@@ -133,6 +135,8 @@ class Factory extends Dice {
 	 * @since 2.1.0
 	 *
 	 * @return array
+	 *
+	 * @phpstan-return array<class-string|string,mixed[]>
 	 */
 	protected function get_rules() {
 		return [
@@ -311,6 +315,8 @@ class Factory extends Dice {
 	 *         @type string $instance The classname.
 	 *     }
 	 * }
+	 *
+	 * @phpstan-return array<int, array<string, class-string<Component>>>
 	 */
 	protected function get_components() {
 		return [
@@ -342,6 +348,8 @@ class Factory extends Dice {
 	 *         @type string $instance The classname.
 	 *     }
 	 * }
+	 *
+	 * @phpstan-return array<array<self::INSTANCE, class-string<Default_Icons\Icon_Provider>>>
 	 */
 	protected function get_default_icons() {
 		return [
@@ -374,6 +382,8 @@ class Factory extends Dice {
 	 *         @type string $instance The classname.
 	 *     }
 	 * }
+	 *
+	 * @phpstan-return array<array<self::INSTANCE, class-string<Integrations\Plugin_Integration>>>
 	 */
 	protected function get_plugin_integrations() {
 		return [
@@ -401,6 +411,8 @@ class Factory extends Dice {
 	 *         @type string $instance The classname.
 	 *     }
 	 * }
+	 *
+	 * @phpstan-return array<array<self::INSTANCE, class-string<CLI\Command>>>
 	 */
 	protected function get_cli_commands() {
 		return [
@@ -424,6 +436,8 @@ class Factory extends Dice {
 	 *         @type string $instance The classname.
 	 *     }
 	 * }
+	 *
+	 * @phpstan-return array<array<self::INSTANCE, class-string<Database\Table>>>
 	 */
 	protected function get_database_tables() {
 		$classes = [
@@ -452,6 +466,8 @@ class Factory extends Dice {
 	 *         @type array $hook The instance definition.
 	 *     }
 	 * }
+	 *
+	 * @phpstan-return array<array<self::INSTANCE, class-string<Avatar_Handler>>>
 	 */
 	protected function get_avatar_handlers() {
 		return [
@@ -473,6 +489,8 @@ class Factory extends Dice {
 	 *
 	 * @throws \InvalidArgumentException An exception is raised when $instance is
 	 *                                   not one of the expected constants.
+	 *
+	 * @phpstan-return array{ 0: ConfigData, 1: ConfigData, 2: ConfigData }
 	 */
 	protected function get_user_form_parameters( $instance ) {
 		switch ( $instance ) {

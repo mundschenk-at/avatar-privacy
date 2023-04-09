@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2021 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -41,8 +41,21 @@ use GdImage; // phpcs:ignore ImportDetection.Imports -- PHP 8.0 compatibility.
  * @since 2.3.0
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-type PartType value-of<self::PARTS>
+ * @phpstan-type PartsTemplate array<PartType, array{}>
+ * @phpstan-type AllPossibleParts array<PartType, string[]>
+ * @phpstan-type RandomizedParts array<PartType, string>
+ * @phpstan-type AdditionalArguments array{}
  */
 class Bird_Avatar extends PNG_Parts_Generator {
+
+	/**
+	 * All Bird parts in their natural order.
+	 *
+	 * @since 2.7.0
+	 */
+	private const PARTS = [ 'tail', 'hoop', 'body', 'wing', 'eyes', 'beak', 'accessoire' ];
 
 	/**
 	 * Creates a new instance.
@@ -60,7 +73,7 @@ class Bird_Avatar extends PNG_Parts_Generator {
 	) {
 		parent::__construct(
 			\AVATAR_PRIVACY_PLUGIN_PATH . '/public/images/birds',
-			[ 'tail', 'hoop', 'body', 'wing', 'eyes', 'beak', 'accessoire' ],
+			self::PARTS,
 			512,
 			$editor,
 			$png,
@@ -78,6 +91,9 @@ class Bird_Avatar extends PNG_Parts_Generator {
 	 * @param  array $args  Any additional arguments defined by the subclass.
 	 *
 	 * @return resource|GdImage
+	 *
+	 * @phpstan-param RandomizedParts     $parts
+	 * @phpstan-param AdditionalArguments $args
 	 */
 	protected function render_avatar( array $parts, array $args ) {
 		// Create background.

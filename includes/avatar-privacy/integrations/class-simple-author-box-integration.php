@@ -36,6 +36,8 @@ use Simple_Author_Box;
  *
  * @since      2.4.0
  * @author     Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-import-type AvatarDefinition from User_Fields
  */
 class Simple_Author_Box_Integration implements Plugin_Integration {
 
@@ -110,6 +112,9 @@ class Simple_Author_Box_Integration implements Plugin_Integration {
 	 *     @type string $file The local filename.
 	 *     @type string $type The MIME type.
 	 * }
+	 *
+	 * @phpstan-param  AvatarDefinition|null $avatar
+	 * @phpstan-return AvatarDefinition|null
 	 */
 	public function enable_user_avatars( array $avatar = null, $user_id ) {
 		// Retrieve Simple Author Box image.

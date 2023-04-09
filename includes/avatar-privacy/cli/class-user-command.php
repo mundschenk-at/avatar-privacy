@@ -93,8 +93,8 @@ class User_Command extends Abstract_Command {
 	 *    $ wp avatar-privacy user set-local-avatar 1 http://example.org/image.jpg --live --yes
 	 *    Success: Local avatar http://example.org/image.jpg set for user 'example_user' (ID: 1) has been set.
 	 *
-	 * @param  array $args       The positional arguments.
-	 * @param  array $assoc_args The associative arguments.
+	 * @param  string[] $args       The positional arguments.
+	 * @param  string[] $assoc_args The associative arguments.
 	 *
 	 * @return void
 	 */
@@ -160,8 +160,8 @@ class User_Command extends Abstract_Command {
 	 *    $ wp avatar-privacy user delete-local-avatar 1 --live --yes
 	 *    Success: The local avatar for user 'example_user' (ID: 1) has been deleted.
 	 *
-	 * @param  array $args       The positional arguments.
-	 * @param  array $assoc_args The associative arguments.
+	 * @param  string[] $args       The positional arguments.
+	 * @param  string[] $assoc_args The associative arguments.
 	 *
 	 * @return void
 	 */

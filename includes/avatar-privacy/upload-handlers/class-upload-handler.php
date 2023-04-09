@@ -35,6 +35,14 @@ use Avatar_Privacy\Tools\Images\Image_File;
  * @since 2.4.0 Properties $core, and $file_cache removed.
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-import-type UploadDir from \Avatar_Privacy\Data_Storage\Filesystem_Cache
+ * @phpstan-import-type FileSlice from Image_File
+ * @phpstan-import-type HandleUploadSuccess from Image_File
+ * @phpstan-import-type HandleUploadError from Image_File
+ *
+ * @phpstan-type UploadArgs array{ nonce: string, action: string, upload_field: string, erase_field: string, user_id?: int, site_id?: int }
+ * @phpstan-type FileSliceMulti array{ name: string[], type: string[], tmp_name: string[], error: int[], size: int[] }
  */
 abstract class Upload_Handler {
 
@@ -134,6 +142,8 @@ abstract class Upload_Handler {
 	 * }
 	 *
 	 * @return void
+	 *
+	 * @phpstan-param UploadArgs $args
 	 */
 	protected function maybe_save_data( array $args ) {
 		// Check arguments.
@@ -143,6 +153,7 @@ abstract class Upload_Handler {
 		}
 
 		// Verify nonce.
+		// @phpstan-ignore-next-line -- super globals are all array<string,mixed>.
 		if ( ! isset( $_POST[ $args['nonce'] ] ) || ! \wp_verify_nonce( \sanitize_key( $_POST[ $args['nonce'] ] ), $args['action'] ) ) {
 			return;
 		}
@@ -178,6 +189,9 @@ abstract class Upload_Handler {
 	 * @param  array $args   Arguments passed from ::maybe_save_data().
 	 *
 	 * @return array         A slice of the $_FILES array.
+	 *
+	 * @phpstan-param  UploadArgs $args
+	 * @phpstan-return FileSlice|array{}
 	 */
 	abstract protected function get_file_slice( array $args );
 
@@ -190,6 +204,9 @@ abstract class Upload_Handler {
 	 * @param  array $args          Arguments passed from ::maybe_save_data().
 	 *
 	 * @return void
+	 *
+	 * @phpstan-param HandleUploadSuccess|HandleUploadError $upload_result
+	 * @phpstan-param UploadArgs                            $args
 	 */
 	abstract protected function handle_upload_errors( array $upload_result, array $args );
 
@@ -202,6 +219,9 @@ abstract class Upload_Handler {
 	 * @param  array $args          Arguments passed from ::maybe_save_data().
 	 *
 	 * @return void
+	 *
+	 * @phpstan-param HandleUploadSuccess|HandleUploadError $upload_result
+	 * @phpstan-param UploadArgs                            $args
 	 */
 	abstract protected function store_file_data( array $upload_result, array $args );
 
@@ -213,6 +233,8 @@ abstract class Upload_Handler {
 	 * @param  array $args Arguments passed from ::maybe_save_data().
 	 *
 	 * @return void
+	 *
+	 * @phpstan-param UploadArgs $args
 	 */
 	abstract protected function delete_file_data( array $args );
 
@@ -225,6 +247,8 @@ abstract class Upload_Handler {
 	 * @param  array  $args     Arguments passed from ::maybe_save_data().
 	 *
 	 * @return string
+	 *
+	 * @phpstan-param UploadArgs $args
 	 */
 	protected function get_filename( $filename, array $args ) {
 		return $filename;
@@ -239,6 +263,10 @@ abstract class Upload_Handler {
 	 * @param  array $args  Arguments passed from ::maybe_save_data().
 	 *
 	 * @return string[]     Information about the uploaded file.
+	 *
+	 * @phpstan-param  FileSlice  $file
+	 * @phpstan-param  UploadArgs $args
+	 * @phpstan-return HandleUploadSuccess|HandleUploadError
 	 */
 	protected function upload( array $file, $args ) {
 		// Prepare arguments.
@@ -261,6 +289,9 @@ abstract class Upload_Handler {
 	 * @param  array $uploads The uploads data.
 	 *
 	 * @return array
+	 *
+	 * @phpstan-param  UploadDir $uploads
+	 * @phpstan-return UploadDir
 	 */
 	public function custom_upload_dir( array $uploads ) {
 		\_deprecated_function( __METHOD__, 'Avatar Privacy 2.4.0' );
@@ -274,6 +305,11 @@ abstract class Upload_Handler {
 
 	/**
 	 * Normalizes the sliced $_FILES to be an array indexed by file handle/number.
+	 *
+	 * This functions assumes a single file or at most a two-dimensional array of files.
+	 * Higher dimensional arrays are not supported.
+	 *
+	 * @since  4.4.0 Input assumptions/limitations documented.
 	 *
 	 * @param  array $files_slice  A slice of the $_FILES superglobal.
 	 * @return array {
@@ -289,22 +325,42 @@ abstract class Upload_Handler {
 	 *         @type int    $size    The file size in bytes.
 	 *     }
 	 * }
+	 *
+	 * @phpstan-param  FileSlice|FileSliceMulti $files_slice
+	 * @phpstan-return array<FileSlice>
 	 */
 	protected function normalize_files_array( array $files_slice ) {
 		if ( ! \is_array( $files_slice['name'] ) ) {
 			return [ $files_slice ];
 		}
 
-		$new   = [];
+		/**
+		 * The file properties.
+		 *
+		 * @var string[] $props
+		 */
 		$props = \array_keys( $files_slice );
+
+		/**
+		 * The file numbers.
+		 *
+		 * @var int[] $files
+		 */
 		$files = \array_keys( $files_slice['name'] );
 
+		// Assemble the properties into a normalized slize per file.
+		$normalized_slice = [];
 		foreach ( $files as $file ) {
 			foreach ( $props as $property ) {
-				$new[ $file ][ $property ] = $files_slice[ $property ][ $file ];
+				$normalized_slice[ $file ][ $property ] = $files_slice[ $property ][ $file ];
 			}
 		}
 
-		return $new;
+		/**
+		 * The normalized $_FILES array.
+		 *
+		 * @phpstan-var array<FileSlice>
+		 */
+		return $normalized_slice;
 	}
 }

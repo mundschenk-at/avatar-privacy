@@ -45,6 +45,18 @@ use Avatar_Privacy\Tools\Network\Remote_Image_Service;
  * @since 1.0.0
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-type AvatarData array{
+ *     size: int, height: int, width: int,
+ *     default: string, force_default: bool,
+ *     rating: string,
+ *     scheme: ?string,
+ *     processed_args: ?mixed[],
+ *     extra_attr: string,
+ *     url?: string|false,
+ *     found_avatar: bool
+ * }
+ * @phpstan-type IdentityTuple array{ 0: int|false, 1: string, 2: int }
  */
 class Avatar_Handling implements Component {
 
@@ -171,6 +183,9 @@ class Avatar_Handling implements Component {
 	 * @param  int|string|object $id_or_email The Gravatar to retrieve. Accepts a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
 	 *
 	 * @return array
+	 *
+	 * @phpstan-param  AvatarData $args
+	 * @phpstan-return AvatarData
 	 */
 	public function get_avatar_data( $args, $id_or_email ) {
 		// Process the user identifier.
@@ -283,6 +298,8 @@ class Avatar_Handling implements Component {
 	 *     `Avatar_Comment_Type_Exception` if `$id_or_email` is an instance of
 	 *     `WP_Comment` but its comment type is not one of the allowed avatar
 	 *     comment types.
+	 *
+	 * @phpstan-return IdentityTuple
 	 */
 	protected function parse_id_or_email( $id_or_email ) {
 		list( $user_id, $email, $age ) = $this->parse_id_or_email_unfiltered( $id_or_email );
@@ -316,6 +333,8 @@ class Avatar_Handling implements Component {
 		 *                              or 0 if `$id_or_email was` not one of these object types.
 		 * }
 		 * @param int|string|object $id_or_email The Gravatar to retrieve. Accepts a user_id, user email, WP_User object, WP_Post object, or WP_Comment object.
+		 *
+		 * @phpstan-var IdentityTuple
 		 */
 		return \apply_filters( 'avatar_privacy_parse_id_or_email', [ $user_id, $email, $age ], $id_or_email );
 	}
@@ -346,6 +365,8 @@ class Avatar_Handling implements Component {
 	 *     `Avatar_Comment_Type_Exception` if `$id_or_email` is an instance of
 	 *     `WP_Comment` but its comment type is not one of the allowed avatar
 	 *     comment types.
+	 *
+	 * @phpstan-return IdentityTuple
 	 */
 	protected function parse_id_or_email_unfiltered( $id_or_email ) {
 		$user_id = false;
@@ -391,6 +412,8 @@ class Avatar_Handling implements Component {
 	 * @throws Avatar_Comment_Type_Exception The function throws an
 	 *     `Avatar_Comment_Type_Exception` if the comment type of `$comment` is
 	 *     not one of the allowed avatar comment types.
+	 *
+	 * @phpstan-return IdentityTuple
 	 */
 	protected function parse_comment( \WP_Comment $comment ) {
 		/** This filter is documented in wp-includes/pluggable.php */

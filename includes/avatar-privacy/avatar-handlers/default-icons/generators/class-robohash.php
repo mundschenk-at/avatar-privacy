@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2022 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -44,8 +44,33 @@ use Avatar_Privacy\Tools\Template;
  * @since 2.4.0 Internal method render_svg removed.
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-type PartType value-of<self::PARTS>
+ * @phpstan-type PartsTemplate array<PartType, array{}>
+ * @phpstan-type AllPossibleParts array<PartType, string[]>
+ * @phpstan-type RandomizedParts array<PartType, string>
+ * @phpstan-type AdditionalArguments array{ color: value-of<self::COLORS>, bg_color: value-of<self::BG_COLORS> }
  */
 class Robohash extends Parts_Generator {
+	// Robot parts.
+	private const PART_BODY      = 'body';
+	private const PART_FACE      = 'face';
+	private const PART_EYES      = 'eyes';
+	private const PART_MOUTH     = 'mouth';
+	private const PART_ACCESSORY = 'accessory';
+
+	/**
+	 * All Robot parts in their natural order.
+	 *
+	 * @since 2.7.0
+	 */
+	private const PARTS = [
+		self::PART_BODY,
+		self::PART_FACE,
+		self::PART_EYES,
+		self::PART_MOUTH,
+		self::PART_ACCESSORY,
+	];
 
 	const COLORS = [
 		'#ff9800', // orange-500.
@@ -117,6 +142,9 @@ class Robohash extends Parts_Generator {
 	 * @param  array  $parts The (randomized) avatar parts.
 	 *
 	 * @return array
+	 *
+	 * @phpstan-param  RandomizedParts $parts
+	 * @phpstan-return AdditionalArguments
 	 */
 	protected function get_additional_arguments( $seed, $size, array $parts ) {
 		$color    = self::COLORS[ $this->number_generator->get( 0, \count( self::COLORS ) - 1 ) ];
@@ -137,6 +165,9 @@ class Robohash extends Parts_Generator {
 	 * @param  array $args  Any additional arguments defined by the subclass.
 	 *
 	 * @return string       The image data (bytes).
+	 *
+	 * @phpstan-param RandomizedParts     $parts
+	 * @phpstan-param AdditionalArguments $args
 	 */
 	protected function get_avatar( $size, array $parts, array $args ) {
 
@@ -156,6 +187,9 @@ class Robohash extends Parts_Generator {
 	 * @param  array $parts An array of empty arrays indexed by part type.
 	 *
 	 * @return array        The same array, but now containing the part type definitions.
+	 *
+	 * @phpstan-param  PartsTemplate $parts
+	 * @phpstan-return AllPossibleParts
 	 */
 	protected function read_parts_from_filesystem( array $parts ) {
 		// Get a recursive depth-first iterator over the part type directories.
@@ -180,6 +214,11 @@ class Robohash extends Parts_Generator {
 				continue;
 			}
 
+			/**
+			 * Extract the part from the filename.
+			 *
+			 * @phpstan-var PartType $partname
+			 */
 			list( $partname, ) = \explode( '-', $file );
 			if ( isset( $parts[ $partname ] ) ) {
 				$parts[ $partname ][ $file ] = $this->prepare_svg_part(
@@ -201,6 +240,9 @@ class Robohash extends Parts_Generator {
 	 * }
 	 *
 	 * @return array
+	 *
+	 * @phpstan-param  AllPossibleParts $parts
+	 * @phpstan-return AllPossibleParts
 	 */
 	protected function sort_parts( array $parts ) {
 		foreach ( $parts as $key => $list ) {

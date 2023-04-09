@@ -46,6 +46,8 @@ use Mundschenk\UI\Controls;
  * @since 1.0.0
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-import-type SettingsFields from Settings
  */
 class Settings_Page implements Component {
 
@@ -200,6 +202,9 @@ class Settings_Page implements Component {
 	 * @param  array $input The plugin settings.
 	 *
 	 * @return array The sanitized plugin settings.
+	 *
+	 * @phpstan-param  array<key-of<SettingsFields>, mixed> $input
+	 * @phpstan-return SettingsFields
 	 */
 	public function sanitize_settings( $input ) {
 		foreach ( $this->settings->get_fields() as $key => $info ) {
@@ -214,6 +219,11 @@ class Settings_Page implements Component {
 
 		$this->upload->save_uploaded_default_icon( \get_current_blog_id(), $input[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] );
 
+		/**
+		 * PHPStan type.
+		 *
+		 * @phpstan-var SettingsFields $input
+		 */
 		return $input;
 	}
 }

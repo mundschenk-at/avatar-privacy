@@ -34,6 +34,11 @@ use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
  *
  * @since      2.3.0
  * @author     Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-import-type AvatarDefinition from \Avatar_Privacy\Core\User_Fields
+ *
+ * @phpstan-type UltimateMemberSettingsField array{ id: string, conditional: array{ 0: string, 1: string, 2: int } }
+ * @phpstan-type UltimateMemberSettingsStructure array{ '': array{ sections: array{ users: array{ fields: UltimateMemberSettingsField[] } } } }
  */
 class Ultimate_Member_Integration implements Plugin_Integration {
 
@@ -103,6 +108,9 @@ class Ultimate_Member_Integration implements Plugin_Integration {
 	 * @param  array $settings_structure The settings page definition.
 	 *
 	 * @return array
+	 *
+	 * @phpstan-param  UltimateMemberSettingsStructure $settings_structure
+	 * @phpstan-return UltimateMemberSettingsStructure
 	 */
 	public function remove_ultimate_member_gravatar_settings( array $settings_structure ) {
 		if (
@@ -112,7 +120,7 @@ class Ultimate_Member_Integration implements Plugin_Integration {
 			/**
 			 * Iterate over the fields.
 			 *
-			 * @var array $field An Ultimate Member field.
+			 * @phpstan-var UltimateMemberSettingsField $field
 			 */
 			foreach ( $settings_structure['']['sections']['users']['fields'] as &$field ) {
 				if ( 'use_gravatars' === $field['id'] ) {
@@ -140,6 +148,9 @@ class Ultimate_Member_Integration implements Plugin_Integration {
 	 *     @type string $file The local filename.
 	 *     @type string $type The MIME type.
 	 * }
+	 *
+	 * @phpstan-param  AvatarDefinition|null $avatar
+	 * @phpstan-return AvatarDefinition|null
 	 */
 	public function enable_ultimate_member_user_avatars( array $avatar = null, $user_id ) {
 		// Retrieve Ultimate Member user data.

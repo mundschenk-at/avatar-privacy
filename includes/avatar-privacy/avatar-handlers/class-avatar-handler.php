@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -33,6 +33,8 @@ namespace Avatar_Privacy\Avatar_Handlers;
  * @since 2.4.0 Internal constants removed.
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-type AvatarArguments array{ type: string, force?: bool }
  */
 interface Avatar_Handler {
 
@@ -50,6 +52,8 @@ interface Avatar_Handler {
 	 * }
 	 *
 	 * @return string
+	 *
+	 * @phpstan-param AvatarArguments $args
 	 */
 	public function get_url( $url, $hash, $size, array $args );
 

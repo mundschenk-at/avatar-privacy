@@ -36,6 +36,10 @@ use Avatar_Privacy\Exceptions\Database_Exception;
  *              refactored as abstract base class.
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-type SQLValue int|string|null
+ * @phpstan-type ColumnValueTuples array<string,SQLValue>
+ * @phpstan-type ColumnFormats array<string,string>
  */
 abstract class Table {
 
@@ -63,6 +67,8 @@ abstract class Table {
 	 * @since 2.3.0
 	 *
 	 * @var string[]
+	 *
+	 * @phpstan-var ColumnFormats
 	 */
 	private array $column_formats;
 
@@ -86,8 +92,10 @@ abstract class Table {
 	 *
 	 * @param string   $table_basename   The basename (without site prefix) of the table.
 	 * @param string   $update_threshold The minimum version number for which the table does not need to be updated.
-	 * @param string[] $column_formats   A mapping from column to placeholder characters.
+	 * @param array    $column_formats   A mapping from column to placeholder characters.
 	 * @param string[] $auto_update_cols A list of auto-update columns.
+	 *
+	 * @phpstan-param ColumnFormats     $column_formats
 	 */
 	public function __construct( $table_basename, $update_threshold, array $column_formats, array $auto_update_cols ) {
 		$this->table_basename   = $table_basename;
@@ -380,6 +388,8 @@ abstract class Table {
 	 * @return string[]
 	 *
 	 * @throws Database_Exception An exception is raised when invalid column names are used.
+	 *
+	 * @phpstan-param ColumnValueTuples $columns
 	 */
 	protected function get_format( array $columns ) {
 		$format_strings = [];
@@ -412,6 +422,8 @@ abstract class Table {
 	 *                           $blog_id. Default null.
 	 *
 	 * @return int|false         The number of rows inserted, or false on error.
+	 *
+	 * @phpstan-param ColumnValueTuples $data
 	 */
 	public function insert( array $data, $site_id = null ) {
 		try {
@@ -442,6 +454,8 @@ abstract class Table {
 	 *                           $blog_id. Default null.
 	 *
 	 * @return int|false         The number of rows updated, or false on error.
+	 *
+	 * @phpstan-param ColumnValueTuples $data
 	 */
 	public function replace( array $data, $site_id = null ) {
 		try {
@@ -477,6 +491,9 @@ abstract class Table {
 	 *                           $blog_id. Default null.
 	 *
 	 * @return int|false         The number of rows updated, or false on error.
+	 *
+	 * @phpstan-param ColumnValueTuples $data
+	 * @phpstan-param ColumnValueTuples $where
 	 */
 	public function update( array $data, array $where, $site_id = null ) {
 		try {
@@ -511,6 +528,8 @@ abstract class Table {
 	 *                           $blog_id. Default null.
 	 *
 	 * @return int|false         The number of rows deleted, or false on error.
+	 *
+	 * @phpstan-param ColumnValueTuples $where
 	 */
 	public function delete( array $where, $site_id = null ) {
 		try {
@@ -534,6 +553,8 @@ abstract class Table {
 	 *
 	 * @return int|false         The number of rows inserted or updated, or false
 	 *                           on error.
+	 *
+	 * @phpstan-param \stdClass[]|ColumnValueTuples[] $rows
 	 */
 	public function insert_or_update( array $fields, array $rows, $site_id = null ) {
 		try {
@@ -581,6 +602,8 @@ abstract class Table {
 	 *
 	 * @return int|false         The number of rows inserted or updated, or false
 	 *                           on error.
+	 *
+	 * @phpstan-param ColumnValueTuples $data
 	 */
 	public function insert_or_update_row( array $data, $site_id = null ) {
 		return $this->insert_or_update( \array_keys( $data ), [ $data ], $site_id );
@@ -622,6 +645,9 @@ abstract class Table {
 	 * @param  string[] $fields  An array of database columns.
 	 *
 	 * @return array
+	 *
+	 * @phpstan-param  \stdClass[]|ColumnValueTuples[] $rows
+	 * @phpstan-return ColumnValueTuples[]
 	 */
 	protected function prepare_rows( array $rows, array $fields ) {
 		$result = [];
@@ -648,6 +674,9 @@ abstract class Table {
 	 * @param  array $prepared_rows An array of arrays containing $field => $value tuples.
 	 *
 	 * @return array                A flat array containing all non-null values.
+	 *
+	 * @phpstan-param  ColumnValueTuples[] $prepared_rows
+	 * @phpstan-return array<int|string>
 	 */
 	protected function prepare_values( array $prepared_rows ) {
 		$values = [];

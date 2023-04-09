@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  * Copyright 2007-2014 Scott Sherrill-Mix.
  *
  * This program is free software; you can redistribute it and/or
@@ -51,8 +51,41 @@ use GdImage; // phpcs:ignore ImportDetection.Imports -- PHP 8.0 compatibility.
  *
  * @author Peter Putzer <github@mundschenk.at>
  * @author Scott Sherrill-Mix
+ *
+ * @phpstan-type PartType value-of<self::PARTS>
+ * @phpstan-type PartsTemplate array<PartType, array{}>
+ * @phpstan-type AllPossibleParts array<PartType, string[]>
+ * @phpstan-type RandomizedParts array<PartType, string>
+ *
+ * @phpstan-type Hue int<-359, 359>
+ * @phpstan-type Saturation int<0, 100>
+ * @phpstan-type AdditionalArguments array{ hue: Hue, saturation: Saturation }
  */
 class Monster_ID extends PNG_Parts_Generator {
+	// Monster ports.
+	private const PART_LEGS  = 'legs';
+	private const PART_HAIR  = 'hair';
+	private const PART_ARMS  = 'arms';
+	private const PART_BODY  = 'body';
+	private const PART_EYES  = 'eyes';
+	private const PART_MOUTH = 'mouth';
+
+	/**
+	 * All Monster parts in their natural order.
+	 *
+	 * @since 2.7.0
+	 */
+	private const PARTS = [
+		self::PART_LEGS,
+		self::PART_HAIR,
+		self::PART_ARMS,
+		self::PART_BODY,
+		self::PART_EYES,
+		self::PART_MOUTH,
+	];
+
+	const COLOR_HUE        = 'hue';
+	const COLOR_SATURATION = 'saturation';
 
 	const SAME_COLOR_PARTS     = [
 		'arms_S8.png'  => true,
@@ -226,7 +259,7 @@ class Monster_ID extends PNG_Parts_Generator {
 	) {
 		parent::__construct(
 			\AVATAR_PRIVACY_PLUGIN_PATH . '/public/images/monster-id',
-			[ 'legs', 'hair', 'arms', 'body', 'eyes', 'mouth' ],
+			self::PARTS,
 			120,
 			$editor,
 			$png,
@@ -243,6 +276,9 @@ class Monster_ID extends PNG_Parts_Generator {
 	 * @param  array  $parts The (randomized) avatar parts.
 	 *
 	 * @return array
+	 *
+	 * @phpstan-param  RandomizedParts $parts
+	 * @phpstan-return AdditionalArguments
 	 */
 	protected function get_additional_arguments( $seed, $size, array $parts ) {
 		// Randomize colors.
@@ -264,6 +300,9 @@ class Monster_ID extends PNG_Parts_Generator {
 	 * @param  array $args  Any additional arguments defined by the subclass.
 	 *
 	 * @return resource|GdImage
+	 *
+	 * @phpstan-param RandomizedParts     $parts
+	 * @phpstan-param AdditionalArguments $args
 	 */
 	protected function render_avatar( array $parts, array $args ) {
 		// Create background.
@@ -274,9 +313,9 @@ class Monster_ID extends PNG_Parts_Generator {
 			$im = $this->png->create_from_file( "{$this->parts_dir}/{$file}" );
 
 			// Randomly color body parts.
-			if ( 'body' === $part || isset( self::SAME_COLOR_PARTS[ $file ] ) ) {
+			if ( self::PART_BODY === $part || isset( self::SAME_COLOR_PARTS[ $file ] ) ) {
 				// Use the main color.
-				$this->colorize_image( $im, $args['hue'], $args['saturation'], $file );
+				$this->colorize_image( $im, $args[ self::COLOR_HUE ], $args[ self::COLOR_SATURATION ], $file );
 			} elseif ( isset( self::RANDOM_COLOR_PARTS[ $file ] ) ) {
 				$this->colorize_image(
 					$im,
@@ -309,24 +348,29 @@ class Monster_ID extends PNG_Parts_Generator {
 	 * @since  2.3.0 Name changed to colorize_image() for consistency.
 	 * @since  2.5.0 Parameter $image can now also be a GdImage. Returns a resource
 	 *               or GdImage instance, depending on the PHP version.
+	 * @since  2.7.0 Default values removed and PHPStan annotation added.
+	 *               Parameter $part renamed to $file.
 	 *
 	 * @param  resource|GdImage $image      The image.
 	 * @param  int              $hue        The hue (0-360).
 	 * @param  int              $saturation The saturation (0-100).
-	 * @param  string           $part       The part name.
+	 * @param  string           $file       The image filename.
 	 *
 	 * @return resource|GdImage             The image, for chaining.
+	 *
+	 * @phpstan-param Hue        $hue
+	 * @phpstan-param Saturation $saturation
 	 */
-	protected function colorize_image( $image, $hue = 360, $saturation = 100, $part = '' ) {
+	protected function colorize_image( $image, $hue, $saturation, $file ) {
 		// Ensure non-negative hue.
 		$hue = $hue < 0 ? self::DEGREE + $hue : $hue;
 
 		\imageAlphaBlending( $image, false );
-		if ( isset( self::PART_OPTIMIZATION[ $part ] ) ) {
-			$xmin = self::PART_OPTIMIZATION[ $part ][0][0];
-			$xmax = self::PART_OPTIMIZATION[ $part ][0][1];
-			$ymin = self::PART_OPTIMIZATION[ $part ][1][0];
-			$ymax = self::PART_OPTIMIZATION[ $part ][1][1];
+		if ( isset( self::PART_OPTIMIZATION[ $file ] ) ) {
+			$xmin = self::PART_OPTIMIZATION[ $file ][0][0];
+			$xmax = self::PART_OPTIMIZATION[ $file ][0][1];
+			$ymin = self::PART_OPTIMIZATION[ $file ][1][0];
+			$ymax = self::PART_OPTIMIZATION[ $file ][1][1];
 		} else {
 			$xmin = 0;
 			$xmax = \imageSX( $image ) - 1;

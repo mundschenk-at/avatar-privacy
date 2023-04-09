@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -83,9 +83,16 @@ abstract class Abstract_Command implements Command {
 	 * This method replaces to the builtin `\iterator_to_array()` to facilitate
 	 * unit testing.
 	 *
-	 * @param  \Iterator $iterator Any iterator.
+	 * @since 2.7.0 Documented as generic method.
 	 *
-	 * @return array
+	 * @template TKey of array-key
+	 * @template TValue
+	 *
+	 * @param  \Iterator $iterator Any iterator (but TKey must be a valid array key).
+	 *
+	 * @return array<TKey,TValue>
+	 *
+	 * @phpstan-param \Iterator<TKey,TValue> $iterator -- workaround for https://github.com/squizlabs/PHP_CodeSniffer/issues/3589
 	 */
 	protected function iterator_to_array( \Iterator $iterator ) {
 		$result = [];

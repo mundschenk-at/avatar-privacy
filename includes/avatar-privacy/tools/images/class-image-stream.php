@@ -35,6 +35,8 @@ namespace Avatar_Privacy\Tools\Images;
  * @since 1.0.0
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-type StreamStat array{ dev: int, ino: int, mode: int, nlink: int, uid: int, gid: int, rdev: int, size: int, atime: int, mtime: int, ctime: int, blksize: int, blocks: int }
  */
 class Image_Stream {
 	const PROTOCOL = 'avprimg';
@@ -291,6 +293,8 @@ class Image_Stream {
 	 * Retrieves information about the stream.
 	 *
 	 * @return array
+	 *
+	 * @phpstan-return StreamStat
 	 */
 	public function stream_stat() {
 		return [
@@ -318,6 +322,8 @@ class Image_Stream {
 	 * @param  int    $flags Additional flags set by the streams API.
 	 *
 	 * @return array|false
+	 *
+	 * @phpstan-return StreamStat|false
 	 */
 	public function url_stat( $path, $flags ) {
 		$handle = static::get_handle_from_url( $path );
@@ -362,6 +368,8 @@ class Image_Stream {
 	 * @param  array|string|int $value  The arguments of the originating function.
 	 *
 	 * @return bool
+	 *
+	 * @phpstan-param array{ mtime: int, atime: int }|string|int $value
 	 */
 	public function stream_metadata( $path, $option, $value ) {
 		$handle = static::get_handle_from_url( $path );
