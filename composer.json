@@ -37,7 +37,7 @@
         "phpunit/phpunit": "9.*||10.*",
         "mikey179/vfsstream": "~1",
         "roave/security-advisories": "dev-master",
-        "humbug/php-scoper": "^0.17",
+        "humbug/php-scoper": "^0.18",
         "mundschenk-at/phpunit-cross-version": "dev-master",
         "sirbrillig/phpcs-variable-analysis": "^2.8",
         "sirbrillig/phpcs-import-detection": "^1.2",
