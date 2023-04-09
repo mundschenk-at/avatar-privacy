@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  * Copyright 2007-2014 Scott Sherrill-Mix.
  *
  * This program is free software; you can redistribute it and/or
@@ -56,21 +56,21 @@ abstract class PNG_Parts_Generator extends Parts_Generator {
 	 *
 	 * @var int
 	 */
-	protected $size;
+	protected int $size;
 
 	/**
 	 * The image editor support class.
 	 *
 	 * @var Images\Editor
 	 */
-	private $editor;
+	private Images\Editor $editor;
 
 	/**
 	 * The PNG image helper.
 	 *
 	 * @var Images\PNG
 	 */
-	protected $png;
+	protected Images\PNG $png;
 
 	/**
 	 * Creates a new generator.

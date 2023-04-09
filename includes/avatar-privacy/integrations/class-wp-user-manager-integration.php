@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2022 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -51,14 +51,14 @@ class WP_User_Manager_Integration implements Plugin_Integration {
 	 *
 	 * @var User_Fields
 	 */
-	private $user_fields;
+	private User_Fields $user_fields;
 
 	/**
 	 * A flag indicating that the user avatar cache should be invalidated soon.
 	 *
 	 * @var bool
 	 */
-	private $flush_cache = false;
+	private bool $flush_cache = false;
 
 	/**
 	 * Creates a new instance.

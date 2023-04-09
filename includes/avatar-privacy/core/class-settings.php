@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -82,28 +82,28 @@ class Settings implements API {
 	 *
 	 * @var array
 	 */
-	private $defaults;
+	private array $defaults;
 
 	/**
 	 * The fields definition array.
 	 *
 	 * @var array
 	 */
-	private $fields;
+	private array $fields;
 
 	/**
 	 * The fields definition array for the network settings.
 	 *
 	 * @var array
 	 */
-	private $network_fields;
+	private array $network_fields;
 
 	/**
 	 * The cached information header markup.
 	 *
 	 * @var string
 	 */
-	private $information_header;
+	private string $information_header;
 
 	/**
 	 * The plugin version.
@@ -112,7 +112,7 @@ class Settings implements API {
 	 *
 	 * @var string
 	 */
-	private $version;
+	private string $version;
 
 	/**
 	 * The user's settings (indexed by site ID to be multisite-safe).
@@ -123,7 +123,7 @@ class Settings implements API {
 	 *     @type array $site_settings The plugin settings for the site.
 	 * }
 	 */
-	private $settings = [];
+	private array $settings = [];
 
 	/**
 	 * The options handler.
@@ -132,7 +132,7 @@ class Settings implements API {
 	 *
 	 * @var Options
 	 */
-	private $options;
+	private Options $options;
 
 	/**
 	 * Creates a new instance.
@@ -278,7 +278,7 @@ class Settings implements API {
 	 * @return array
 	 */
 	public function get_fields( $information_header = '' ) {
-		if ( empty( $this->fields ) ) {
+		if ( ! isset( $this->fields ) ) {
 			$this->fields = [ // @codeCoverageIgnoreStart
 				self::UPLOAD_CUSTOM_DEFAULT_AVATAR => [
 					'ui'             => \Avatar_Privacy\Upload_Handlers\UI\File_Upload_Input::class,
@@ -316,7 +316,8 @@ class Settings implements API {
 		}
 
 		// Allow calls where the information header is not relevant by caching it separately.
-		if ( ! empty( $information_header ) && $information_header !== $this->information_header ) {
+		if ( ! empty( $information_header ) &&
+			( ! isset( $this->information_header ) || $information_header !== $this->information_header ) ) {
 			$this->fields[ self::INFORMATION_HEADER ]['elements'] = [ $information_header ];
 			$this->information_header                             = $information_header;
 		}
@@ -330,7 +331,7 @@ class Settings implements API {
 	 * @return array
 	 */
 	public function get_defaults() {
-		if ( empty( $this->defaults ) ) {
+		if ( ! isset( $this->defaults ) ) {
 			$_defaults = [];
 			foreach ( $this->get_fields() as $index => $field ) {
 				if ( isset( $field['default'] ) ) {
@@ -355,7 +356,7 @@ class Settings implements API {
 	 * @return array
 	 */
 	public function get_network_fields() {
-		if ( empty( $this->network_fields ) ) {
+		if ( ! isset( $this->network_fields ) ) {
 			$this->network_fields = [ // @codeCoverageIgnoreStart
 				Network_Options::USE_GLOBAL_TABLE          => [
 					'ui'               => Controls\Checkbox_Input::class,

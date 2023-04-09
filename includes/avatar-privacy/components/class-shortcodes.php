@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2021 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -52,7 +52,7 @@ class Shortcodes implements Component {
 	 *
 	 * @var User_Form
 	 */
-	private $form;
+	private User_Form $form;
 
 	/**
 	 * Initialize the class and set its properties.

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2021 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -47,7 +47,7 @@ class User_Form {
 	 *
 	 * @var Upload
 	 */
-	protected $upload;
+	protected Upload $upload;
 
 	/**
 	 * The user fields API.
@@ -56,7 +56,7 @@ class User_Form {
 	 *
 	 * @var User_Fields
 	 */
-	protected $registered_user;
+	protected User_Fields $registered_user;
 
 	/**
 	 * The templating handler.
@@ -65,7 +65,7 @@ class User_Form {
 	 *
 	 * @var Template
 	 */
-	private $template;
+	private Template $template;
 
 	/**
 	 * The configuration data for the `use_gravatar` checkbox.
@@ -79,7 +79,7 @@ class User_Form {
 	 *                           to the plugin path).
 	 * }
 	 */
-	protected $use_gravatar;
+	protected array $use_gravatar;
 
 	/**
 	 * The configuration data for the `allow_anonymous` checkbox.
@@ -93,7 +93,7 @@ class User_Form {
 	 *                           to the plugin path).
 	 * }
 	 */
-	protected $allow_anonymous;
+	protected array $allow_anonymous;
 
 	/**
 	 * The configuration data for the user avatar uploader.
@@ -108,7 +108,7 @@ class User_Form {
 	 *                           to the plugin path).
 	 * }
 	 */
-	protected $user_avatar;
+	protected array $user_avatar;
 
 	/**
 	 * Creates a new form helper instance.

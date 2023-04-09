@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2022 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -76,28 +76,28 @@ class User_Fields implements API {
 	 *
 	 * @var Hasher
 	 */
-	private $hasher;
+	private Hasher $hasher;
 
 	/**
 	 * The filesystem cache handler.
 	 *
 	 * @var Filesystem_Cache
 	 */
-	private $file_cache;
+	private Filesystem_Cache $file_cache;
 
 	/**
 	 * The image file handler.
 	 *
 	 * @var Image_File
 	 */
-	private $image_file;
+	private Image_File $image_file;
 
 	/**
 	 * A request-level cache for user lookups.
 	 *
 	 * @var array<string,\WP_User|null>
 	 */
-	private $user_by_email = [];
+	private array $user_by_email = [];
 
 	/**
 	 * Creates a new instance.

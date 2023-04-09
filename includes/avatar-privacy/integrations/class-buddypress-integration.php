@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2021 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -44,7 +44,7 @@ class BuddyPress_Integration implements Plugin_Integration {
 	 *
 	 * @var User_Fields
 	 */
-	private $user_fields;
+	private User_Fields $user_fields;
 
 	/**
 	 * Creates a new instance.

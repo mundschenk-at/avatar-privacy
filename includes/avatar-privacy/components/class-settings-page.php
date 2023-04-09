@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -54,21 +54,21 @@ class Settings_Page implements Component {
 	 *
 	 * @var Options
 	 */
-	private $options;
+	private Options $options;
 
 	/**
 	 * The file upload handler.
 	 *
 	 * @var Upload
 	 */
-	private $upload;
+	private Upload $upload;
 
 	/**
 	 * The settings API.
 	 *
 	 * @var Settings
 	 */
-	private $settings;
+	private Settings $settings;
 
 	/**
 	 * The templating handler.
@@ -77,14 +77,14 @@ class Settings_Page implements Component {
 	 *
 	 * @var Template
 	 */
-	private $template;
+	private Template $template;
 
 	/**
 	 * Indiciates whether the settings page is buffering its output.
 	 *
 	 * @var bool
 	 */
-	private $buffering;
+	private bool $buffering;
 
 	/**
 	 * Creates a new instance.

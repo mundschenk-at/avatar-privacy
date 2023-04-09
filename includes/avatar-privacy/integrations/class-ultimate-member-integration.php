@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2022 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -42,7 +42,7 @@ class Ultimate_Member_Integration implements Plugin_Integration {
 	 *
 	 * @var User_Avatar_Upload_Handler
 	 */
-	private $upload;
+	private User_Avatar_Upload_Handler $upload;
 
 	/**
 	 * Creates a new instance.

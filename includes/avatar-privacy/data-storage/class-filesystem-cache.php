@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2022 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -44,21 +44,21 @@ class Filesystem_Cache {
 	 *
 	 * @var string
 	 */
-	private $base_dir;
+	private string $base_dir;
 
 	/**
 	 * The base URL for accessing cached files.
 	 *
 	 * @var string
 	 */
-	private $base_url;
+	private string $base_url;
 
 	/**
 	 * Information about the uploads directory.
 	 *
 	 * @var array
 	 */
-	private $upload_dir;
+	private array $upload_dir;
 
 	/**
 	 * Creates a new instance.
@@ -110,7 +110,7 @@ class Filesystem_Cache {
 	 * @return array
 	 */
 	protected function get_upload_dir() {
-		if ( empty( $this->upload_dir ) ) {
+		if ( ! isset( $this->upload_dir ) ) {
 			$multisite = \is_multisite();
 
 			if ( $multisite ) {

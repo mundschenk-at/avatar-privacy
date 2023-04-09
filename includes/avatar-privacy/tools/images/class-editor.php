@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2022 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -64,7 +64,7 @@ class Editor {
 	 *
 	 * @var string
 	 */
-	private $stream_url;
+	private string $stream_url;
 
 	/**
 	 * The stream implmentation to use.
@@ -73,14 +73,14 @@ class Editor {
 	 *
 	 * @var string
 	 */
-	private $stream_class;
+	private string $stream_class;
 
 	/**
 	 * The handle (hostname/path) parsed from the stream URL.
 	 *
 	 * @var string
 	 */
-	private $handle;
+	private string $handle;
 
 	/**
 	 * Creates a new image editor helper.

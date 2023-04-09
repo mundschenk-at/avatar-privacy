@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2021 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -49,21 +49,21 @@ class Uninstall_Command extends Abstract_Command {
 	 *
 	 * @var Setup
 	 */
-	private $setup;
+	private Setup $setup;
 
 	/**
 	 * The uninstallation component.
 	 *
 	 * @var Uninstallation
 	 */
-	private $uninstall;
+	private Uninstallation $uninstall;
 
 	/**
 	 * The DB handler.
 	 *
 	 * @var Database
 	 */
-	private $db;
+	private Database $db;
 
 	/**
 	 * Creates a new command instance.

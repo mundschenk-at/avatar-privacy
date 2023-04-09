@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -52,7 +52,7 @@ abstract class Upload_Handler {
 	 *
 	 * @var string
 	 */
-	private $upload_dir;
+	private string $upload_dir;
 
 	/**
 	 * The image file handler.
@@ -61,7 +61,7 @@ abstract class Upload_Handler {
 	 *
 	 * @var Image_File
 	 */
-	private $image_file;
+	private Image_File $image_file;
 
 	/**
 	 * Whether to use the global upload directory.
@@ -70,7 +70,7 @@ abstract class Upload_Handler {
 	 *
 	 * @var bool
 	 */
-	private $global_upload;
+	private bool $global_upload;
 
 	/**
 	 * Creates a new instance.

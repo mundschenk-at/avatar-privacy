@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -49,7 +49,7 @@ class Privacy_Tools implements Component {
 	 *
 	 * @var User_Fields
 	 */
-	private $registered_user;
+	private User_Fields $registered_user;
 
 	/**
 	 * The comment author API.
@@ -58,7 +58,7 @@ class Privacy_Tools implements Component {
 	 *
 	 * @var Comment_Author_Fields
 	 */
-	private $comment_author;
+	private Comment_Author_Fields $comment_author;
 
 	/**
 	 * Creates a new instance.

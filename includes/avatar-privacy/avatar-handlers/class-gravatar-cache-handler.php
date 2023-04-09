@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -52,28 +52,28 @@ class Gravatar_Cache_Handler implements Avatar_Handler {
 	 *
 	 * @var Core
 	 */
-	private $core;
+	private Core $core;
 
 	/**
 	 * The options handler.
 	 *
 	 * @var Options
 	 */
-	private $options;
+	private Options $options;
 
 	/**
 	 * The filesystem cache handler.
 	 *
 	 * @var Filesystem_Cache
 	 */
-	private $file_cache;
+	private Filesystem_Cache $file_cache;
 
 	/**
 	 * The Gravatar network service.
 	 *
 	 * @var Gravatar_Service
 	 */
-	private $gravatar;
+	private Gravatar_Service $gravatar;
 
 	/**
 	 * Creates a new instance.
