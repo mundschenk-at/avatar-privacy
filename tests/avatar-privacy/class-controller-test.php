@@ -35,7 +35,6 @@ use Avatar_Privacy\Components\Image_Proxy;
 use Avatar_Privacy\Components\Integrations;
 use Avatar_Privacy\Components\Network_Settings_Page;
 use Avatar_Privacy\Components\Privacy_Tools;
-use Avatar_Privacy\Components\REST_API;
 use Avatar_Privacy\Components\Setup;
 use Avatar_Privacy\Components\Settings_Page;
 use Avatar_Privacy\Components\Shortcodes;
@@ -75,7 +74,6 @@ class Controller_Test extends \Avatar_Privacy\Tests\TestCase {
 					m::mock( Settings_Page::class ),
 					m::mock( Network_Settings_Page::class ),
 					m::mock( Privacy_Tools::class ),
-					m::mock( REST_API::class ),
 					m::mock( Integrations::class ),
 					m::mock( Shortcodes::class ),
 					m::mock( Block_Editor::class ),
