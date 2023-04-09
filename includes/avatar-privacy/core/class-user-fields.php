@@ -317,7 +317,7 @@ class User_Fields implements API {
 	protected function user_exists( $user_id ) {
 		return (bool) \get_users(
 			[
-				'include' => $user_id,
+				'include' => [ $user_id ],
 				'fields'  => 'ID',
 			]
 		);
