@@ -158,17 +158,15 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::get_additional_arguments
 	 */
 	public function test_get_additional_arguments() {
-		$seed            = 'fake email hash';
-		$size            = 42;
-		$parts           = [
+		$seed  = 'fake email hash';
+		$size  = 42;
+		$parts = [
 			'body'  => 'fake_part.png',
 			'arms'  => 'fake_part.png',
 		];
-		$hues            = [ 123, 200 ];
-		$normalized_hues = [ 122, 199 ]; // Not really what normalization would do, but close enough for testing.
+		$hues  = [ 123, 200 ];
 
-		$this->sut->shouldReceive( 'seed' )->times( 2 )->with( $seed, m::type( 'int' ), 2, 240 )->andReturn( ...$hues );
-		$this->color->shouldReceive( 'normalize_hue' )->times( 2 )->andReturn( ...$normalized_hues );
+		$this->sut->shouldReceive( 'get_hue' )->times( 2 )->with( $seed, m::type( 'string' ) )->andReturn( ...$hues );
 		$result = $this->sut->get_additional_arguments( $seed, $size, $parts );
 
 		$this->assert_is_array( $result );
@@ -243,6 +241,23 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_seed( $seed, $index, $length, $modulo, $result ) {
 		$this->assertSame( $result, $this->sut->seed( $seed, $index, $length, $modulo, $result ) );
+	}
+
+	/**
+	 * Tests ::get_hue.
+	 *
+	 * @covers ::get_hue
+	 */
+	public function test_get_hue() {
+		$seed           = 'fake email hash';
+		$seed_index     = 'wavatar_hue';
+		$hue            = 123;
+		$normalized_hue = 456; // Not really what normalization would do, but close enough for testing.
+
+		$this->sut->shouldReceive( 'seed' )->once()->with( $seed, m::type( 'int' ), 2, 240 )->andReturn( $hue );
+		$this->color->shouldReceive( 'normalize_hue' )->once()->with( m::type( 'int' ) )->andReturn( $normalized_hue );
+
+		$this->assertSame( $normalized_hue, $this->sut->get_hue( $seed, $seed_index ) );
 	}
 
 	/**
