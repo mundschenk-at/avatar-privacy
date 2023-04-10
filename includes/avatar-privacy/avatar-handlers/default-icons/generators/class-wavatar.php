@@ -172,12 +172,9 @@ class Wavatar extends PNG_Parts_Generator {
 	 */
 	protected function get_additional_arguments( $seed, $size, array $parts ) {
 		// Also randomize the colors.
-		$background_hue = $this->seed( $seed, self::SEED_INDEX['background_hue'], 2, 240 ) / 255 * self::DEGREE;
-		$wavatar_hue    = $this->seed( $seed, self::SEED_INDEX['wavatar_hue'], 2, 240 ) / 255 * self::DEGREE;
-
 		return [
-			self::HUE_BACKGROUND => $background_hue,
-			self::HUE_WAVATAR    => $wavatar_hue,
+			self::HUE_BACKGROUND => $this->get_hue( $seed, self::HUE_BACKGROUND ),
+			self::HUE_WAVATAR    => $this->get_hue( $seed, self::HUE_WAVATAR ),
 		];
 	}
 
@@ -239,6 +236,30 @@ class Wavatar extends PNG_Parts_Generator {
 	 */
 	protected function seed( $seed, $index, $length, $modulo ) {
 		return \hexdec( \substr( $seed, $index, $length ) ) % $modulo;
+	}
+
+	/**
+	 * Generate pseudo-random hue from the seed.
+	 *
+	 * @since  2.7.0
+	 *
+	 * @param  string $seed       The seed data (hash).
+	 * @param  string $seed_index The seed index to use for the generated hue.
+	 *
+	 * @return int
+	 *
+	 * @phpstan-param  self::HUE_* $seed_index
+	 * @phpstan-return NormalizedHue
+	 */
+	protected function get_hue( string $seed, string $seed_index ) {
+		/**
+		 * Generate hue from seed.
+		 *
+		 * @phpstan-var HueDegree
+		 */
+		$seeded_hue = (int) ( $this->seed( $seed, self::SEED_INDEX[ $seed_index ], 2, 240 ) / 255 * Images\Color::MAX_DEGREE );
+
+		return $this->color->normalize_hue( $seeded_hue );
 	}
 
 	/**
