@@ -294,13 +294,9 @@ class Monster_ID extends PNG_Parts_Generator {
 	 * @phpstan-return AdditionalArguments
 	 */
 	protected function get_additional_arguments( $seed, $size, array $parts ) {
-		// Randomize colors.
-		$hue        = $this->number_generator->get( 0, self::DEGREE - 1 );
-		$saturation = $this->number_generator->get( 25, self::PERCENT );
-
 		return [
-			'hue'        => $hue,
-			'saturation' => $saturation,
+			self::COLOR_HUE        => $this->get_hue(),
+			self::COLOR_SATURATION => $this->get_saturation( 25, 100 ),
 		];
 	}
 
@@ -332,8 +328,8 @@ class Monster_ID extends PNG_Parts_Generator {
 			} elseif ( isset( self::RANDOM_COLOR_PARTS[ $file ] ) ) {
 				$this->colorize_image(
 					$im,
-					$this->number_generator->get( 0, self::DEGREE - 1 ),
-					$this->number_generator->get( 25, self::PERCENT ),
+					$this->get_hue(),
+					$this->get_saturation( 25, 100 ),
 					$file
 				);
 			} elseif ( isset( self::SPECIFIC_COLOR_PARTS[ $file ] ) ) {
@@ -342,8 +338,8 @@ class Monster_ID extends PNG_Parts_Generator {
 
 				$this->colorize_image(
 					$im,
-					$this->number_generator->get( $low, $high ),
-					$this->number_generator->get( 25, self::PERCENT ),
+					$this->get_hue( $low, $high ),
+					$this->get_saturation( 25, 100 ),
 					$file
 				);
 			}
@@ -414,5 +410,51 @@ class Monster_ID extends PNG_Parts_Generator {
 		\imageAlphaBlending( $image, true );
 
 		return $image;
+	}
+
+	/**
+	 * Generates a random hue.
+	 *
+	 * @param  int $min Optional. The lower bound. Default 0.
+	 * @param  int $max Optional. The upper bound. Default 359.
+	 *
+	 * @return int
+	 *
+	 * @phpstan-param  Hue $min
+	 * @phpstan-param  Hue $max
+	 * @phpstan-return Hue
+	 */
+	protected function get_hue( int $min = 0, int $max = Images\Color::MAX_DEGREE - 1 ) {
+		assert( $min > - Images\Color::MAX_DEGREE && $max < Images\Color::MAX_DEGREE && $min < $max );
+
+		/**
+		 * Return a pseudo-random hue between the lower and the upper bound.
+		 *
+		 * @phpstan-var Hue
+		 */
+		return $this->number_generator->get( $min, $max );
+	}
+
+	/**
+	 * Generates a random saturation level.
+	 *
+	 * @param  int $min Optional. The lower bound. Default 0 percent.
+	 * @param  int $max Optional. The upper bound. Default 100 percent.
+	 *
+	 * @return int
+	 *
+	 * @phpstan-param  Saturation $min
+	 * @phpstan-param  Saturation $max
+	 * @phpstan-return Saturation
+	 */
+	protected function get_saturation( int $min = 0, int $max = Images\Color::MAX_PERCENT ) {
+		assert( $min >= 0 && $max <= Images\Color::MAX_PERCENT && $min < $max );
+
+		/**
+		 * Return a pseudo-random saturation level between the lower and the upper bound.
+		 *
+		 * @phpstan-var Saturation
+		 */
+		return $this->number_generator->get( $min, $max );
 	}
 }

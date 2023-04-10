@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2022 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -180,7 +180,8 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 			'mouth' => 'mouth_6.png', // SPECIFIC_COLOR_PARTS.
 		];
 
-		$this->number_generator->shouldReceive( 'get' )->times( 2 )->with( m::type( 'int' ), m::type( 'int' ) )->andReturn( 8000, 25500 );
+		$this->sut->shouldReceive( 'get_hue' )->once()->withNoArgs()->andReturn( 47 );
+		$this->sut->shouldReceive( 'get_saturation' )->once()->with( 25, 100 )->andReturn( 11 );
 
 		$result = $this->sut->get_additional_arguments( $seed, $size, $parts );
 
@@ -210,10 +211,14 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 		$background   = \imageCreateTrueColor( 50, 50 );
 		$fake_image   = \imageCreateTrueColor( 50, 50 );
 
-		$this->number_generator->shouldReceive( 'get' )->times( 4 )->with( m::type( 'int' ), m::type( 'int' ) )->andReturn( 8008000, 25500, 10000, 606000 );
+		//$this->number_generator->shouldReceive( 'get' )->times( 4 )->with( m::type( 'int' ), m::type( 'int' ) )->andReturn( 8008000, 25500, 10000, 606000 );
 
 		$this->png->shouldReceive( 'create_from_file' )->once()->with( m::pattern( '/\bback\.png$/' ) )->andReturn( $background );
 		$this->png->shouldReceive( 'create_from_file' )->times( $parts_number )->with( m::type( 'string' ) )->andReturn( $fake_image );
+
+		$this->sut->shouldReceive( 'get_saturation' )->twice()->with( 25, 100 )->andReturn( 47, 11 );
+		$this->sut->shouldReceive( 'get_hue' )->once()->with( -18, 18 )->andReturn( 8 );
+		$this->sut->shouldReceive( 'get_hue' )->once()->withNoArgs()->andReturn( 15 );
 
 		$this->sut->shouldReceive( 'colorize_image' )->times( $parts_number )->with( m::on( [ $this, 'is_gd_image' ] ), m::type( 'numeric' ), m::type( 'numeric' ), m::type( 'string' ) );
 		$this->sut->shouldReceive( 'combine_images' )->times( $parts_number )->with( m::on( [ $this, 'is_gd_image' ] ), m::on( [ $this, 'is_gd_image' ] ) );
@@ -226,7 +231,8 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @covers ::colorize_image
 	 *
-	 * @uses Avatar_Privacy\Tools\Images\PNG::hsl_to_rgb
+	 * @uses Avatar_Privacy\Tools\Images\Color::normalize_hue
+	 * @uses Avatar_Privacy\Tools\Images\Color::hsl_to_rgb
 	 */
 	public function test_colorize_image() {
 		// Input.
@@ -250,7 +256,8 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @covers ::colorize_image
 	 *
-	 * @uses Avatar_Privacy\Tools\Images\PNG::hsl_to_rgb
+	 * @uses Avatar_Privacy\Tools\Images\Color::normalize_hue
+	 * @uses Avatar_Privacy\Tools\Images\Color::hsl_to_rgb
 	 */
 	public function test_colorize_image_no_optimization() {
 		// Input.
@@ -268,5 +275,35 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Clean up.
 		\imageDestroy( $resource );
+	}
+
+	/**
+	 * Tests ::get_hue.
+	 *
+	 * @covers ::get_hue
+	 */
+	public function test_get_hue(): void {
+		$min    = -359;
+		$max    = 359;
+		$result = 137;
+
+		$this->number_generator->shouldReceive( 'get' )->once()->with( $min, $max )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->get_hue( $min, $max ) );
+	}
+
+	/**
+	 * Tests ::get_saturation.
+	 *
+	 * @covers ::get_saturation
+	 */
+	public function test_get_saturation(): void {
+		$min    = 0;
+		$max    = 100;
+		$result = 42;
+
+		$this->number_generator->shouldReceive( 'get' )->once()->with( $min, $max )->andReturn( $result );
+
+		$this->assertSame( $result, $this->sut->get_saturation( $min, $max ) );
 	}
 }
