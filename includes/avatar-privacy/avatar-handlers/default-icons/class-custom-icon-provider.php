@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -88,12 +88,15 @@ class Custom_Icon_Provider extends Abstract_Icon_Provider {
 	/**
 	 * Retrieves the default icon.
 	 *
-	 * @param  string $identity The identity (mail address) hash. Ignored.
+	 * @since  2.7.0 Parameter `$force` added.
+	 *
+	 * @param  string $identity The identity (mail address) hash.
 	 * @param  int    $size     The requested size in pixels.
+	 * @param  bool   $force    Whether the icon cache should be invalidated (if applicable).
 	 *
 	 * @return string
 	 */
-	public function get_icon_url( $identity, $size ) {
+	public function get_icon_url( $identity, $size, bool $force = false ) {
 		// Abort if no custom image has been set.
 		$default = \includes_url( 'images/blank.gif' );
 		$icon    = $this->default_avatars->get_custom_default_avatar();
@@ -108,7 +111,7 @@ class Custom_Icon_Provider extends Abstract_Icon_Provider {
 		$filename  = "custom/{$site_id}/{$identity}-{$size}.{$extension}";
 
 		// Only generate a new icon if necessary.
-		if ( ! \file_exists( "{$this->file_cache->get_base_dir()}{$filename}" ) ) {
+		if ( $force || ! \file_exists( "{$this->file_cache->get_base_dir()}{$filename}" ) ) {
 
 			$data = $this->images->get_resized_image_data( $this->images->get_image_editor( $icon['file'] ), $size, $size, $icon['type'] );
 			if ( empty( $data ) ) {

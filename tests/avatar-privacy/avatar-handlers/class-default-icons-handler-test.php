@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -192,7 +192,7 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'get_provider_mapping' )->once()->andReturn( $icon_providers );
 
 		$provider1->shouldReceive( 'get_icon_url' )->never();
-		$provider2->shouldReceive( 'get_icon_url' )->once()->with( $hash, $size )->andReturn( $url );
+		$provider2->shouldReceive( 'get_icon_url' )->once()->with( $hash, $size, $force )->andReturn( $url );
 
 		$this->assertSame( $url, $this->sut->get_url( $default_url, $hash, $size, $args ) );
 	}

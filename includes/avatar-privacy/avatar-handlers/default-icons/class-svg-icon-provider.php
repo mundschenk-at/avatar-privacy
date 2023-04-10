@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -41,12 +41,15 @@ class SVG_Icon_Provider extends Static_Icon_Provider {
 	/**
 	 * Retrieves the default icon.
 	 *
-	 * @param  string $identity The identity (mail address) hash. Ignored.
+	 * @since  2.7.0 Parameter `$force` added.
+	 *
+	 * @param  string $identity The identity (mail address) hash.
 	 * @param  int    $size     The requested size in pixels.
+	 * @param  bool   $force    Whether the icon cache should be invalidated (if applicable).
 	 *
 	 * @return string
 	 */
-	public function get_icon_url( $identity, $size ) {
+	public function get_icon_url( $identity, $size, bool $force = false ) {
 		return \plugins_url( "public/images/{$this->icon_basename}.svg", \AVATAR_PRIVACY_PLUGIN_FILE );
 	}
 }
