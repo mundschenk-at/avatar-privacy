@@ -280,6 +280,7 @@ class Factory extends Dice {
 			Tools\Hasher::class                                     => self::SHARED,
 			Tools\Number_Generator::class                           => self::SHARED,
 			Tools\Multisite::class                                  => self::SHARED,
+			Tools\Images\Color::class                               => self::SHARED,
 			Tools\Images\Editor::class                              => self::SHARED,
 			Tools\Images\PNG::class                                 => self::SHARED,
 			Tools\Network\Gravatar_Service::class                   => self::SHARED,

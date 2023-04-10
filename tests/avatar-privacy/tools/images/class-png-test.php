@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2022 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -36,13 +36,21 @@ use org\bovigo\vfs\vfsStream;
 
 use Avatar_Privacy\Tools\Images\PNG;
 
+use Avatar_Privacy\Tools\Images\Color;
 use Avatar_Privacy\Exceptions\PNG_Image_Exception;
 
 /**
  * Avatar_Privacy\Tools\Images\PNG unit test.
  *
+ * @uses ::__construct
  * @coversDefaultClass \Avatar_Privacy\Tools\Images\PNG
  * @usesDefaultClass \Avatar_Privacy\Tools\Images\PNG
+ *
+ * @phpstan-import-type NormalizedHue from Color
+ * @phpstan-import-type PercentValue from Color
+ * @phpstan-import-type RGBValue from Color
+ *
+ * @phpstan-type RGBTriple array{ 0: RGBValue, 1: RGBValue, 2: RGBValue }
  */
 class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 
@@ -52,6 +60,13 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var PNG
 	 */
 	private $sut;
+
+	/**
+	 * Necessary helper.
+	 *
+	 * @var Color
+	 */
+	private $color;
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -93,7 +108,24 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Set up virtual filesystem.
 		vfsStream::setup( 'root', null, $filesystem );
 
-		$this->sut = m::mock( PNG::class )->makePartial()->shouldAllowMockingProtectedMethods();
+		// Mock helpers.
+		$this->color = m::mock( Color::class )->makePartial();
+
+		$this->sut = m::mock( PNG::class, [ $this->color ] )->makePartial()->shouldAllowMockingProtectedMethods();
+	}
+	/**
+	 * Tests ::__construct.
+	 *
+	 * @covers ::__construct
+	 */
+	public function test_constructor() {
+		$color = m::mock( Color::class );
+		$mock  = m::mock( PNG::class )->makePartial()->shouldAllowMockingProtectedMethods();
+
+		$this->invoke_method( $mock, '__construct', [ $color ] );
+
+		// An attribute of the PNG_Parts_Generator superclass.
+		$this->assert_attribute_same( $color, 'color', $mock );
 	}
 
 	/**
@@ -340,7 +372,7 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @covers ::fill_hsl
 	 *
-	 * @uses ::hsl_to_rgb
+	 * @uses \Avatar_Privacy\Tools\Images\Color::hsl_to_rgb
 	 */
 	public function test_fill_hsl() {
 		// Input.
@@ -351,17 +383,21 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 		$y          = 42;
 
 		// The image.
-		$width    = 200;
-		$height   = 100;
-		$resource = \imageCreate( $width, $height );
+		$width  = 200;
+		$height = 100;
+		$image  = \imageCreate( $width, $height );
+
+		// We need a valid image.
+		$this->assert_is_gd_image( $image );
 
 		// No problem with the image.
-		Functions\expect( 'is_gd_image' )->with( $resource )->once()->andReturn( true );
+		Functions\expect( 'is_gd_image' )->with( $image )->once()->andReturn( true );
 
-		$this->assertNull( $this->sut->fill_hsl( $resource, $hue, $saturation, $lightness, $x, $y ) );
+		// Run the test.
+		$this->sut->fill_hsl( $image, $hue, $saturation, $lightness, $x, $y );
 
 		// Clean up.
-		\imageDestroy( $resource );
+		\imageDestroy( $image );
 	}
 
 	/**
@@ -371,7 +407,7 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @uses ::hsl_to_rgb
 	 */
-	public function test_fill_hsl_not_an_image() {
+	public function test_fill_hsl_not_an_image(): void {
 		// Input.
 		$hue        = 0;
 		$saturation = 99;
@@ -388,6 +424,7 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Expect failure.
 		$this->expectException( \InvalidArgumentException::class );
 
+		// @phpstan-ignore-next-line -- The resource is not a resource on purpose.
 		$this->sut->fill_hsl( $resource, $hue, $saturation, $lightness, $x, $y );
 	}
 
@@ -396,9 +433,9 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @covers ::fill_hsl
 	 *
-	 * @uses ::hsl_to_rgb
+	 * @uses \Avatar_Privacy\Tools\Images\Color::hsl_to_rgb
 	 */
-	public function test_fill_hsl_error() {
+	public function test_fill_hsl_error(): void {
 		// Input.
 		$hue        = 0;
 		$saturation = 99;
@@ -407,49 +444,46 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 		$y          = 42;
 
 		// The image.
-		$width    = 200;
-		$height   = 100;
-		$resource = \imageCreate( $width, $height );
+		$width  = 200;
+		$height = 100;
+		$image  = \imageCreate( $width, $height );
 
 		// Eat up all color slots.
 		for ( $i = 0; $i < 256; ++$i ) {
-			\imageColorAllocate( $resource, 0, 0, 0 );
+			\imageColorAllocate( $image, 0, 0, 0 );
 		}
 
+		// We need a valid image.
+		$this->assert_is_gd_image( $image );
+
 		// We know this is a GD image.
-		Functions\expect( 'is_gd_image' )->with( $resource )->once()->andReturn( true );
+		Functions\expect( 'is_gd_image' )->with( $image )->once()->andReturn( true );
 
 		// Expect failure.
 		$this->expectException( PNG_Image_Exception::class );
 
-		$this->sut->fill_hsl( $resource, $hue, $saturation, $lightness, $x, $y );
+		$this->sut->fill_hsl( $image, $hue, $saturation, $lightness, $x, $y );
 
 		// Clean up.
-		\imageDestroy( $resource );
-	}
-
-	/**
-	 * Provides data for testing ::hsl_to_rgb.
-	 *
-	 * @return array
-	 */
-	public function provide_hsl_to_rgb_data() {
-		return \json_decode( \file_get_contents( __DIR__ . '/hsl_to_rgb.json' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		\imageDestroy( $image );
 	}
 
 	/**
 	 * Tests ::hsl_to_rgb.
 	 *
 	 * @covers ::hsl_to_rgb
-	 *
-	 * @dataProvider provide_hsl_to_rgb_data
-	 *
-	 * @param  array $result     The expected RGB array.
-	 * @param  int   $hue        The hue (0-360°).
-	 * @param  int   $saturation The saturatoin (0-100).
-	 * @param  int   $lightness  The lightness (0-100).
 	 */
-	public function test_hsl_to_rgb( $result, $hue, $saturation, $lightness ) {
+	public function test_hsl_to_rgb(): void {
+		// Testdata.
+		$hue        = 123;
+		$saturation = 75;
+		$lightness  = 23;
+		$result     = [ 47, 11, 254 ]; // Not the real conversion!
+
+		// Set up expectations.
+		Functions\expect( '_deprecated_function' )->once();
+		$this->color->shouldReceive( 'hsl_to_rgb' )->once()->with( $hue, $saturation, $lightness )->andReturn( $result );
+
 		$this->assertSame( $result, $this->sut->hsl_to_rgb( $hue, $saturation, $lightness ) );
 	}
 }

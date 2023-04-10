@@ -38,6 +38,7 @@ use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Monster_ID;
 
 use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Tools\Number_Generator;
+use Avatar_Privacy\Tools\Images\Color;
 use Avatar_Privacy\Tools\Images\Editor;
 use Avatar_Privacy\Tools\Images\PNG;
 
@@ -66,6 +67,13 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var PNG
 	 */
 	private $png;
+
+	/**
+	 * The Images\Color mock.
+	 *
+	 * @var Color
+	 */
+	private $color;
 
 	/**
 	 * The Number_Generator mock.
@@ -124,11 +132,12 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Helper mocks.
 		$editor                 = m::mock( Editor::class );
 		$this->png              = m::mock( PNG::class )->makePartial();
+		$this->color            = m::mock( Color::class )->makePartial();
 		$this->number_generator = m::mock( Number_Generator::class );
 		$transients             = m::mock( Site_Transients::class );
 
 		// Partially mock system under test.
-		$this->sut = m::mock( Monster_ID::class, [ $editor, $this->png, $this->number_generator, $transients ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Monster_ID::class, [ $editor, $this->png, $this->color, $this->number_generator, $transients ] )->makePartial()->shouldAllowMockingProtectedMethods();
 
 		// Override necessary properties.
 		$this->set_value( $this->sut, 'parts_dir', vfsStream::url( 'root/plugin/public/images/monster-id' ) );
@@ -145,11 +154,12 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$editor           = m::mock( Editor::class );
 		$png              = m::mock( PNG::class );
+		$color            = m::mock( Color::class );
 		$number_generator = m::mock( Number_Generator::class );
 		$transients       = m::mock( Site_Transients::class );
 		$mock             = m::mock( Monster_ID::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invoke_method( $mock, '__construct', [ $editor, $png, $number_generator, $transients ] );
+		$this->invoke_method( $mock, '__construct', [ $editor, $png, $color, $number_generator, $transients ] );
 
 		// An attribute of the PNG_Parts_Generator superclass.
 		$this->assert_attribute_same( $editor, 'editor', $mock );

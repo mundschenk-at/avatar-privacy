@@ -38,6 +38,7 @@ use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Wavatar;
 
 use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Tools\Number_Generator;
+use Avatar_Privacy\Tools\Images\Color;
 use Avatar_Privacy\Tools\Images\Editor;
 use Avatar_Privacy\Tools\Images\PNG;
 
@@ -66,6 +67,13 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @var PNG
 	 */
 	private $png;
+
+	/**
+	 * The Images\Color mock.
+	 *
+	 * @var Color
+	 */
+	private $color;
 
 	/**
 	 * The Number_Generator mock.
@@ -114,11 +122,12 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Mocked helpers.
 		$editor                 = m::mock( Editor::class );
 		$this->png              = m::mock( PNG::class );
+		$this->color            = m::mock( Color::class );
 		$this->number_generator = m::mock( Number_Generator::class );
 		$transients             = m::mock( Site_Transients::class );
 
 		// Partially mock system under test.
-		$this->sut = m::mock( Wavatar::class, [ $editor, $this->png, $this->number_generator, $transients ] )->makePartial()->shouldAllowMockingProtectedMethods();
+		$this->sut = m::mock( Wavatar::class, [ $editor, $this->png, $this->color, $this->number_generator, $transients ] )->makePartial()->shouldAllowMockingProtectedMethods();
 	}
 
 	/**
@@ -132,11 +141,12 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_constructor() {
 		$editor           = m::mock( Editor::class );
 		$png              = m::mock( PNG::class );
+		$color            = m::mock( Color::class );
 		$number_generator = m::mock( Number_Generator::class );
 		$transients       = m::mock( Site_Transients::class );
 		$mock             = m::mock( Wavatar::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invoke_method( $mock, '__construct', [ $editor, $png, $number_generator, $transients ] );
+		$this->invoke_method( $mock, '__construct', [ $editor, $png, $color, $number_generator, $transients ] );
 
 		// An attribute of the PNG_Parts_Generator superclass.
 		$this->assert_attribute_same( $editor, 'editor', $mock );
@@ -148,15 +158,17 @@ class Wavatar_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::get_additional_arguments
 	 */
 	public function test_get_additional_arguments() {
-		$seed  = 'fake email hash';
-		$size  = 42;
-		$parts = [
+		$seed            = 'fake email hash';
+		$size            = 42;
+		$parts           = [
 			'body'  => 'fake_part.png',
 			'arms'  => 'fake_part.png',
 		];
+		$hues            = [ 123, 200 ];
+		$normalized_hues = [ 122, 199 ]; // Not really what normalization would do, but close enough for testing.
 
-		$this->sut->shouldReceive( 'seed' )->times( 2 )->with( $seed, m::type( 'int' ), 2, 240 )->andReturn( 123, 200 );
-
+		$this->sut->shouldReceive( 'seed' )->times( 2 )->with( $seed, m::type( 'int' ), 2, 240 )->andReturn( ...$hues );
+		$this->color->shouldReceive( 'normalize_hue' )->times( 2 )->andReturn( ...$normalized_hues );
 		$result = $this->sut->get_additional_arguments( $seed, $size, $parts );
 
 		$this->assert_is_array( $result );

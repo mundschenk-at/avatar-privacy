@@ -27,20 +27,47 @@
 namespace Avatar_Privacy\Tools\Images;
 
 use Avatar_Privacy\Exceptions\PNG_Image_Exception;
+use Avatar_Privacy\Tools\Images\Color;
 
 use GdImage; // phpcs:ignore ImportDetection.Imports -- PHP 8.0 compatibility.
 
 /**
  * A utility class providing some methods for dealing with PNG images.
  *
- * @since 2.3.0
- * @since 2.4.0 The class now uses `PNG_Image_Exception` instead of plain `RuntimeException`.
+ * @since  2.3.0
+ * @since  2.4.0 The class now uses `PNG_Image_Exception` instead of plain `RuntimeException`.
+ * @since  2.7.0 Class marked as internal.
  *
  * @author Peter Putzer <github@mundschenk.at>
  *
- * @phpstan-type RGBValue int<0,255>
+ * @internal
+ *
+ * @phpstan-import-type RGBValue from Color
+ * @phpstan-import-type PercentValue from Color
+ * @phpstan-import-type NormalizedHue from Color
  */
 class PNG {
+
+	/**
+	 * The color helper.
+	 *
+	 * @since 2.7.0
+	 *
+	 * @var Color
+	 */
+	private Color $color;
+
+	/**
+	 * Creates a new PNG helper.
+	 *
+	 * @since 2.7.0
+	 *
+	 * @param Color $color The color helper.
+	 */
+	public function __construct( Color $color ) {
+		$this->color = $color;
+	}
+
 	/**
 	 * Creates an image resource of the chosen type.
 	 *
@@ -178,9 +205,9 @@ class PNG {
 	 * @since  2.5.0 Parameter $image can now also be a GdImage.
 	 *
 	 * @param  resource|GdImage $image      The image.
-	 * @param  int<0,360>       $hue        The hue (0-360).
-	 * @param  int<0,100>       $saturation The saturation (0-100).
-	 * @param  int<0,100>       $lightness  The lightness/Luminosity (0-100).
+	 * @param  int              $hue        The hue (0-359).
+	 * @param  int              $saturation The saturation (0-100).
+	 * @param  int              $lightness  The lightness/Luminosity (0-100).
 	 * @param  int              $x          The horizontal coordinate.
 	 * @param  int              $y          The vertical coordinate.
 	 *
@@ -188,6 +215,10 @@ class PNG {
 	 *
 	 * @throws \InvalidArgumentException Not a valid image resource.
 	 * @throws PNG_Image_Exception       The image could not be filled.
+	 *
+	 * @phpstan-param NormalizedHue $hue
+	 * @phpstan-param PercentValue  $saturation
+	 * @phpstan-param PercentValue  $lightness
 	 */
 	public function fill_hsl( $image, $hue, $saturation, $lightness, $x, $y ) {
 		// Abort if $image is not a valid resource.
@@ -195,7 +226,7 @@ class PNG {
 			throw new \InvalidArgumentException( 'Invalid image resource.' );
 		}
 
-		list( $red, $green, $blue ) = $this->hsl_to_rgb( $hue, $saturation, $lightness );
+		list( $red, $green, $blue ) = $this->color->hsl_to_rgb( $hue, $saturation, $lightness );
 		$color                      = \imageColorAllocate( $image, $red, $green, $blue );
 
 		if ( false === $color || ! \imageFill( $image, $x, $y, $color ) ) {
@@ -208,9 +239,11 @@ class PNG {
 	 *
 	 * @since 2.5.0
 	 *
-	 * @param  int<0,360> $hue        The hue (in degrees, i.e. 0-360).
-	 * @param  int<0,100> $saturation The saturation (in percent, i.e. 0-100).
-	 * @param  int<0,100> $lightness  The lightness (in percent, i.e. 0-100).
+	 * @deprecated 2.7.0 Use Color::hsl_to_rgb instead.
+	 *
+	 * @param  int $hue        The hue (in degrees, i.e. 0-359).
+	 * @param  int $saturation The saturation (in percent, i.e. 0-100).
+	 * @param  int $lightness  The lightness (in percent, i.e. 0-100).
 	 *
 	 * @return int[] {
 	 *     The RGB color as a tuple.
@@ -220,46 +253,14 @@ class PNG {
 	 *     @type int $blue  The blue component (0-255).
 	 * }
 	 *
+	 * @phpstan-param  NormalizedHue $hue
+	 * @phpstan-param  PercentValue  $saturation
+	 * @phpstan-param  PercentValue  $lightness
 	 * @phpstan-return array{ 0: RGBValue, 1: RGBValue, 2: RGBValue }
 	 */
 	public function hsl_to_rgb( $hue, $saturation, $lightness ) {
-		// Adjust scale.
-		$saturation = $saturation / 100;
-		$lightness  = $lightness / 100;
+		\_deprecated_function( __METHOD__, 'Avatar Privacy 2.7.0', 'Avatar_Privacy\Tools\Images\Color::hsl_to_rgb' );
 
-		/**
-		 * Conversion function.
-		 *
-		 * @param  int $n Conversion factor.
-		 *
-		 * @return float  A floating point number between 0.0 and 1.0.
-		 */
-		$f = function( $n ) use ( $hue, $saturation, $lightness ) {
-			$k = \fmod( $n + $hue / 30, 12 );
-			$a = $saturation * \min( $lightness, 1 - $lightness );
-			return $lightness - $a * \max( -1, \min( $k - 3, 9 - $k, 1 ) );
-		};
-
-		/**
-		 * The red component.
-		 *
-		 * @phpstan-var RGBValue
-		 */
-		$red = (int) \round( $f( 0 ) * 255 );
-		/**
-		 * The green component.
-		 *
-		 * @phpstan-var RGBValue
-		 */
-		$green = (int) \round( $f( 8 ) * 255 );
-		/**
-		 * The blue component.
-		 *
-		 * @phpstan-var RGBValue
-		 */
-		$blue = (int) \round( $f( 4 ) * 255 );
-
-		// Return result array.
-		return [ $red, $green, $blue ];
+		return $this->color->hsl_to_rgb( $hue, $saturation, $lightness );
 	}
 }
