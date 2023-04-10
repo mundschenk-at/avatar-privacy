@@ -41,6 +41,8 @@ abstract class TestCase extends \Mundschenk\PHPUnit_Cross_Version\TestCase {
 	 * @param  mixed $image The variable to assert.
 	 *
 	 * @return bool
+	 *
+	 * @phpstan-assert GdImage|resource $image
 	 */
 	public function assert_is_gd_image( $image ) {
 		return $this->assertTrue( $this->is_gd_image( $image ) );
