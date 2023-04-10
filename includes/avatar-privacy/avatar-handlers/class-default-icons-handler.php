@@ -112,6 +112,7 @@ class Default_Icons_Handler implements Avatar_Handler {
 	 *     An array of arguments.
 	 *
 	 *     @type string $default The default icon type.
+	 *     @type bool   $force   Optional. Whether to force the regeneration of the image file. Default false.
 	 * }
 	 *
 	 * @return string
@@ -121,12 +122,17 @@ class Default_Icons_Handler implements Avatar_Handler {
 	 * @phpstan-param AvatarArguments $args
 	 */
 	public function get_url( $url, $hash, $size, array $args ) {
-		$args = \wp_parse_args( $args, [ 'default' => '' ] );
+		$defaults = [
+			'default' => '',
+			'force'   => false,
+		];
+
+		$args = \wp_parse_args( $args, $defaults );
 
 		// Check for named icon providers first.
 		$providers = $this->get_provider_mapping();
 		if ( ! empty( $providers[ $args['default'] ] ) ) {
-			return $providers[ $args['default'] ]->get_icon_url( $hash, $size );
+			return $providers[ $args['default'] ]->get_icon_url( $hash, $size, $args['force'] );
 		}
 
 		// Check if the given default icon type is a valid image URL (a common
@@ -137,7 +143,7 @@ class Default_Icons_Handler implements Avatar_Handler {
 			$hash = $this->remote_images->get_hash( $url );
 
 			/** This filter is documented in avatar-privacy/components/class-avatar-handling.php */
-			return \apply_filters( 'avatar_privacy_legacy_icon_url', $url, $hash, $size, [] );
+			return \apply_filters( 'avatar_privacy_legacy_icon_url', $url, $hash, $size, [ 'force' => $args['force'] ] );
 		}
 
 		// Return the fallback default icon URL.

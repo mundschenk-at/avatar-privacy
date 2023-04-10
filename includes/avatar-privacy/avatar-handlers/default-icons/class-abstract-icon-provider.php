@@ -90,12 +90,15 @@ abstract class Abstract_Icon_Provider implements Icon_Provider {
 	/**
 	 * Retrieves the default icon.
 	 *
+	 * @since  2.7.0 Parameter `$force` added.
+	 *
 	 * @param  string $identity The identity (mail address) hash.
 	 * @param  int    $size     The requested size in pixels.
+	 * @param  bool   $force    Whether the icon cache should be invalidated (if applicable).
 	 *
 	 * @return string
 	 */
-	abstract public function get_icon_url( $identity, $size );
+	abstract public function get_icon_url( $identity, $size, bool $force = false );
 
 	/**
 	 * Retrieves the option value (the primary provided type).
