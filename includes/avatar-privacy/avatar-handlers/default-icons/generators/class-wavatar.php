@@ -47,11 +47,14 @@ use GdImage; // phpcs:ignore ImportDetection.Imports -- PHP 8.0 compatibility.
  * @author Peter Putzer <github@mundschenk.at>
  * @author Shamus Young <shamus@shamusyoung.com>
  *
+ * @phpstan-import-type HueDegree from Images\Color
+ * @phpstan-import-type NormalizedHue from Images\Color
+ *
  * @phpstan-type PartType value-of<self::PARTS>
  * @phpstan-type PartsTemplate array<PartType, array{}>
  * @phpstan-type AllPossibleParts array<PartType, string[]>
  * @phpstan-type RandomizedParts array<PartType, string>
- * @phpstan-type AdditionalArguments array<self::HUE_*, int<0,360>>
+ * @phpstan-type AdditionalArguments array<self::HUE_*, NormalizedHue>
  */
 class Wavatar extends PNG_Parts_Generator {
 
@@ -113,20 +116,32 @@ class Wavatar extends PNG_Parts_Generator {
 	private $current_seed;
 
 	/**
+	 * The color conversion helper.
+	 *
+	 * @since 2.7.0
+	 *
+	 * @var Images\Color
+	 */
+	protected Images\Color $color;
+
+	/**
 	 * Creates a new Wavatars generator.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
 	 * @since 2.3.0 Parameter $images renamed to $editor. Parameters $png and
 	 *              $number_generator added.
+	 * @since 2.7.0 Parameter $color added.
 	 *
 	 * @param Images\Editor    $editor           The image editing handler.
 	 * @param Images\PNG       $png              The PNG image helper.
+	 * @param Images\Color     $color            The color conversion helper.
 	 * @param Number_Generator $number_generator A pseudo-random number generator.
 	 * @param Site_Transients  $site_transients  The site transients handler.
 	 */
 	public function __construct(
 		Images\Editor $editor,
 		Images\PNG $png,
+		Images\Color $color,
 		Number_Generator $number_generator,
 		Site_Transients $site_transients
 	) {
@@ -139,6 +154,8 @@ class Wavatar extends PNG_Parts_Generator {
 			$number_generator,
 			$site_transients
 		);
+
+		$this->color = $color;
 	}
 
 	/**

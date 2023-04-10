@@ -55,8 +55,18 @@ use GdImage; // phpcs:ignore ImportDetection.Imports -- PHP 8.0 compatibility.
 abstract class PNG_Parts_Generator extends Parts_Generator {
 
 	// Units used in HSL colors.
-	const PERCENT = 100;
-	const DEGREE  = 360;
+	/**
+	 * Use Image\Color::MAX_PERCENT instead.
+	 *
+	 * @deprecated 2.7.0
+	 */
+	const PERCENT = Images\Color::MAX_PERCENT;
+	/**
+	 * Use Image\Color::MAX_DEGREE instead.
+	 *
+	 * @deprecated 2.7.0
+	 */
+	const DEGREE = Images\Color::MAX_DEGREE;
 
 	/**
 	 * The base size of the generated avatar.
@@ -336,7 +346,7 @@ abstract class PNG_Parts_Generator extends Parts_Generator {
 				$g         = ( $rgb >> 8 ) & 0xFF;
 				$b         = $rgb & 0xFF;
 				$alpha     = ( $rgb & 0x7F000000 ) >> 24;
-				$lightness = ( $r + $g + $b ) / 3 / 255 * self::PERCENT;
+				$lightness = ( $r + $g + $b ) / 3 / Images\Color::MAX_RGB * Images\Color::MAX_PERCENT;
 				if ( $lightness > 10 && $lightness < 99 && $alpha < 115 ) {
 					$xbounds[0] = \min( $xbounds[0],$i );
 					$xbounds[1] = \max( $xbounds[1],$i );

@@ -242,18 +242,29 @@ class Monster_ID extends PNG_Parts_Generator {
 	];
 
 	/**
+	 * The color conversion helper.
+	 *
+	 * @since 2.7.0
+	 *
+	 * @var Images\Color
+	 */
+	protected Images\Color $color;
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @since 2.1.0 Parameter $plugin_file removed.
 	 *
 	 * @param Images\Editor    $editor           The image editing handler.
 	 * @param Images\PNG       $png              The PNG image helper.
+	 * @param Images\Color     $color            The color conversion helper.
 	 * @param Number_Generator $number_generator A pseudo-random number generator.
 	 * @param Site_Transients  $site_transients  The site transients handler.
 	 */
 	public function __construct(
 		Images\Editor $editor,
 		Images\PNG $png,
+		Images\Color $color,
 		Number_Generator $number_generator,
 		Site_Transients $site_transients
 	) {
@@ -266,6 +277,8 @@ class Monster_ID extends PNG_Parts_Generator {
 			$number_generator,
 			$site_transients
 		);
+
+		$this->color = $color;
 	}
 
 	/**
@@ -363,7 +376,7 @@ class Monster_ID extends PNG_Parts_Generator {
 	 */
 	protected function colorize_image( $image, $hue, $saturation, $file ) {
 		// Ensure non-negative hue.
-		$hue = $hue < 0 ? self::DEGREE + $hue : $hue;
+		$hue = $this->color->normalize_hue( $hue );
 
 		\imageAlphaBlending( $image, false );
 		if ( isset( self::PART_OPTIMIZATION[ $file ] ) ) {
@@ -385,10 +398,10 @@ class Monster_ID extends PNG_Parts_Generator {
 				$g         = ( $rgb >> 8 ) & 0xFF;
 				$b         = $rgb & 0xFF;
 				$alpha     = ( $rgb & 0x7F000000 ) >> 24;
-				$lightness = (int) ( ( $r + $g + $b ) / 3 / 255 * self::PERCENT );
+				$lightness = (int) ( ( $r + $g + $b ) / 3 / 255 * Images\Color::MAX_PERCENT );
 				if ( $lightness > 10 && $lightness < 99 && $alpha < 115 ) {
 					// Convert HSL color to RGB.
-					list( $r, $g, $b ) = $this->png->hsl_to_rgb( $hue, $saturation, $lightness );
+					list( $r, $g, $b ) = $this->color->hsl_to_rgb( $hue, $saturation, $lightness );
 
 					// Change color of pixel.
 					$color = \imageColorAllocateAlpha( $image, $r, $g, $b, $alpha );
