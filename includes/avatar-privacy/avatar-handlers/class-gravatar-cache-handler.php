@@ -45,7 +45,12 @@ use Avatar_Privacy\Tools\Network\Gravatar_Service;
  *
  * @author Peter Putzer <github@mundschenk.at>
  *
- * @phpstan-import-type AvatarArguments from Avatar_Handler
+ * @phpstan-type AvatarArguments array{
+ *     email?: string,
+ *     rating?: key-of<self::GRAVATAR_RATING>,
+ *     mimetype?: string,
+ *     force?: bool
+ * }
  */
 class Gravatar_Cache_Handler implements Avatar_Handler {
 
@@ -118,8 +123,9 @@ class Gravatar_Cache_Handler implements Avatar_Handler {
 	 *     An array of arguments.
 	 *
 	 *     @type string    $email    The mail address used to generate the identity hash.
-	 *     @type string    $rating   The audience rating (e.g. 'g', 'pg', 'r', 'x').
-	 *     @type string    $mimetype The expected MIME type of the Gravatar image.
+	 *     @type string    $rating   Optional. The audience rating (e.g. 'g', 'pg', 'r', 'x'). Default 'g'.
+	 *     @type string    $mimetype Optional. The expected MIME type of the Gravatar image. Default 'image/PNG'.
+	 *     @type bool      $force    Optional. Whether to force re-caching of the image file. Default false.
 	 * }
 	 *
 	 * @return string

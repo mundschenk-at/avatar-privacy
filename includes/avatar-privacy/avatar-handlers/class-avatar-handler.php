@@ -34,12 +34,14 @@ namespace Avatar_Privacy\Avatar_Handlers;
  *
  * @author Peter Putzer <github@mundschenk.at>
  *
- * @phpstan-type AvatarArguments array{ type: string, force?: bool }
+ * @phpstan-type AvatarArguments array{ force?: bool, ... }
  */
 interface Avatar_Handler {
 
 	/**
 	 * Retrieves the URL for the given default icon type.
+	 *
+	 * @since  2.7.0 Removed argument index 'type' as it is not required for all implemntations.
 	 *
 	 * @param  string $url  The fallback image URL.
 	 * @param  string $hash The hashed mail address.
@@ -47,8 +49,7 @@ interface Avatar_Handler {
 	 * @param  array  $args {
 	 *     An array of arguments.
 	 *
-	 *     @type string $type    The avatar/icon type.
-	 *     @type bool   $force   Optional. Whether to force the regeneration of the image file. Default false.
+	 *     @type bool $force Optional. Whether to force the regeneration of the image file. Default false.
 	 * }
 	 *
 	 * @return string

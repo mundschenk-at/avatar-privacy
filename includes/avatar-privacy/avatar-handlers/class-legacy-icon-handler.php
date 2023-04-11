@@ -78,8 +78,8 @@ class Legacy_Icon_Handler implements Avatar_Handler {
 	 * @param  array  $args {
 	 *     An array of arguments.
 	 *
-	 *     @type bool   $force    Whether to force recaching.
-	 *     @type string $mimetype The expected MIME type of the avatar image.
+	 *     @type string $mimetype Optional. The expected MIME type of the avatar image. Default based on the URL file extension.
+	 *     @type bool   $force    Optional. Whether to force re-caching of the image file. Default false.
 	 * }
 	 *
 	 * @return string
@@ -88,8 +88,8 @@ class Legacy_Icon_Handler implements Avatar_Handler {
 	 */
 	public function get_url( $url, $hash, $size, array $args ) {
 		$defaults = [
-			'force'    => false,
 			'mimetype' => $this->get_target_mime_type( $url ),
+			'force'    => false,
 		];
 
 		$args     = \wp_parse_args( $args, $defaults );
