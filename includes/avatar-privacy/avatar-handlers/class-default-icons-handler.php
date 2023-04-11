@@ -38,9 +38,8 @@ use Avatar_Privacy\Tools\Network\Remote_Image_Service;
  * @author Peter Putzer <github@mundschenk.at>
  *
  * @phpstan-type AvatarArguments array{
- *     type: string,
+ *     type?: string,
  *     force?: bool,
- *     default?: string,
  * }
  */
 class Default_Icons_Handler implements Avatar_Handler {
@@ -104,6 +103,7 @@ class Default_Icons_Handler implements Avatar_Handler {
 	 * Retrieves the URL for the given default icon type.
 	 *
 	 * @since 2.3.4 Documentation for optional arguments adapted to follow implementation.
+	 * @since 2.7.0 Argument key 'default' replaced with 'type' for consistency.
 	 *
 	 * @param  string $url  The fallback image URL.
 	 * @param  string $hash The hashed mail address.
@@ -111,35 +111,33 @@ class Default_Icons_Handler implements Avatar_Handler {
 	 * @param  array  $args {
 	 *     An array of arguments.
 	 *
-	 *     @type string $default The default icon type.
+	 *     @type string $type    The default icon type.
 	 *     @type bool   $force   Optional. Whether to force the regeneration of the image file. Default false.
 	 * }
 	 *
 	 * @return string
 	 *
-	 * FIXME: Handle standard parameters.
-	 *
 	 * @phpstan-param AvatarArguments $args
 	 */
 	public function get_url( $url, $hash, $size, array $args ) {
 		$defaults = [
-			'default' => '',
-			'force'   => false,
+			'type'  => '',
+			'force' => false,
 		];
 
 		$args = \wp_parse_args( $args, $defaults );
 
 		// Check for named icon providers first.
 		$providers = $this->get_provider_mapping();
-		if ( ! empty( $providers[ $args['default'] ] ) ) {
-			return $providers[ $args['default'] ]->get_icon_url( $hash, $size, $args['force'] );
+		if ( ! empty( $providers[ $args['type'] ] ) ) {
+			return $providers[ $args['type'] ]->get_icon_url( $hash, $size, $args['force'] );
 		}
 
 		// Check if the given default icon type is a valid image URL (a common
 		// pattern due to how the default WordPress implementation uses Gravatar.com).
-		if ( $this->remote_images->validate_image_url( $args['default'], 'default_icon' ) ) {
+		if ( $this->remote_images->validate_image_url( $args['type'], 'default_icon' ) ) {
 			// Prepare filter arguments.
-			$url  = $args['default'];
+			$url  = $args['type'];
 			$hash = $this->remote_images->get_hash( $url );
 
 			/** This filter is documented in avatar-privacy/components/class-avatar-handling.php */
@@ -162,7 +160,7 @@ class Default_Icons_Handler implements Avatar_Handler {
 	 * @return bool              Returns `true` if successful, `false` otherwise.
 	 */
 	public function cache_image( $type, $hash, $size, $subdir, $extension ) {
-		return ! empty( $this->get_url( '', $hash, $size, [ 'default' => $type ] ) );
+		return ! empty( $this->get_url( '', $hash, $size, [ 'type' => $type ] ) );
 	}
 
 	/**

@@ -766,16 +766,20 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::get_default_icon_url
 	 */
 	public function test_get_default_icon_url() {
-		$hash      = 'some hash';
-		$default   = 'foobar';
-		$size      = 100;
-		$blank_url = 'https://example.org/images/blank.gif';
-		$result    = 'https://example.org/images/default_image.png';
+		$hash        = 'some hash';
+		$type        = 'foobar';
+		$size        = 100;
+		$blank_url   = 'https://example.org/images/blank.gif';
+		$result      = 'https://example.org/images/default_image.png';
+		$filter_args = [
+			'default' => $type,
+			'type'    => $type,
+		];
 
 		Functions\expect( 'includes_url' )->once()->with( 'images/blank.gif' )->andReturn( $blank_url );
-		Filters\expectApplied( 'avatar_privacy_default_icon_url' )->once()->with( $blank_url, $hash, $size, [ 'default' => $default ] )->andReturn( $result );
+		Filters\expectApplied( 'avatar_privacy_default_icon_url' )->once()->with( $blank_url, $hash, $size, $filter_args )->andReturn( $result );
 
-		$this->assertSame( $result, $this->sut->get_default_icon_url( $hash, $default, $size ) );
+		$this->assertSame( $result, $this->sut->get_default_icon_url( $hash, $type, $size ) );
 	}
 
 	/**
