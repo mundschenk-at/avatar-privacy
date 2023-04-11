@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -146,7 +146,6 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$size        = 42;
 		$subdir      = 'a/b';
 		$args        = [
-			'type'      => 'ignored',
 			'avatar'    => '/image/path',
 			'mimetype'  => 'image/jpeg',
 			'force'     => $force,
@@ -190,7 +189,6 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$size        = 42;
 		$subdir      = 'a/b';
 		$args        = [
-			'type'     => 'ignored',
 			'avatar'   => '/image/path',
 			'mimetype' => 'image/jpeg',
 			'force'    => $force,
@@ -269,7 +267,6 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Intermediate data.
 		$args = [
-			'type'      => $type,
 			'avatar'    => $local_avatar['file'],
 			'mimetype'  => $local_avatar['type'],
 			'subdir'    => $subdir,

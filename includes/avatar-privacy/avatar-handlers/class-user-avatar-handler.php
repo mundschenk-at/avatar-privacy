@@ -42,11 +42,10 @@ use Avatar_Privacy\Tools\Images\Image_File;
  * @author Peter Putzer <github@mundschenk.at>
  *
  * @phpstan-type AvatarArguments array{
- *     type: string,
- *     force?: bool,
  *     avatar?: string,
  *     mimetype?: string,
- *     timestamp?: bool
+ *     timestamp?: bool,
+ *     force?: bool
  * }
  */
 class User_Avatar_Handler implements Avatar_Handler {
@@ -97,16 +96,21 @@ class User_Avatar_Handler implements Avatar_Handler {
 	/**
 	 * Retrieves the URL for the given default icon type.
 	 *
+	 * Note: Not all of the arguments provided by the `avatar_privacy_user_avatar_icon_url`
+	 * filter hook are actually required.
+	 *
+	 * @since  2.7.0 Unused arguments key 'type' removed.
+	 *
 	 * @param  string $url  The fallback image URL.
 	 * @param  string $hash The hashed mail address.
 	 * @param  int    $size The size of the avatar image in pixels.
 	 * @param  array  $args {
 	 *     An array of arguments.
 	 *
-	 *     @type string $type     The avatar/icon type.
-	 *     @type string $avatar   The full-size avatar image path.
-	 *     @type string $mimetype The expected MIME type of the avatar image.
-	 *     @type bool   $force    Optional. Whether to force the regeneration of the image file. Default false.
+	 *     @type string $avatar    The full-size avatar image path.
+	 *     @type string $mimetype  Optional. The expected MIME type of the avatar image. Default 'image/png'.
+	 *     @type bool   $timestamp Optional. Whether to add a timestamp for cache busting. Default false.
+	 *     @type bool   $force     Optional. Whether to force the regeneration of the image file. Default false.
 	 * }
 	 *
 	 * @return string
@@ -123,8 +127,8 @@ class User_Avatar_Handler implements Avatar_Handler {
 		$defaults = [
 			'avatar'    => '',
 			'mimetype'  => Image_File::PNG_IMAGE,
-			'force'     => false,
 			'timestamp' => false,
+			'force'     => false,
 		];
 
 		$args      = \wp_parse_args( $args, $defaults );
@@ -194,7 +198,6 @@ class User_Avatar_Handler implements Avatar_Handler {
 
 		// Prepare arguments.
 		$args = [
-			'type'      => $type,
 			'avatar'    => $local_avatar['file'],
 			'mimetype'  => $local_avatar['type'],
 			'subdir'    => $subdir,
