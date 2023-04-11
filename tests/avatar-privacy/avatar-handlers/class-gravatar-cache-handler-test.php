@@ -199,7 +199,6 @@ class Gravatar_Cache_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$size        = 42;
 		$subdir      = 'a/b';
 		$args        = [
-			'user_id'  => false, // Not relevant for this test.
 			'email'    => $email,
 			'rating'   => $rating,
 			'mimetype' => 'image/jpeg',
@@ -269,10 +268,9 @@ class Gravatar_Cache_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Intermediate data.
 		$rating = 'r';
 		$args   = [
-			'user_id'   => false,
-			'email'     => $email,
-			'rating'    => $rating,
-			'mimetype'  => 'image/jpeg',
+			'email'    => $email,
+			'rating'   => $rating,
+			'mimetype' => 'image/jpeg',
 		];
 
 		$this->core->shouldReceive( 'get_user_by_hash' )->once()->with( $hash )->andReturn( null );
@@ -305,10 +303,9 @@ class Gravatar_Cache_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Intermediate data.
 		$rating = 'r';
 		$args   = [
-			'user_id'   => $user->ID,
-			'email'     => $user->user_email,
-			'rating'    => $rating,
-			'mimetype'  => 'image/jpeg',
+			'email'    => $user->user_email,
+			'rating'   => $rating,
+			'mimetype' => 'image/jpeg',
 		];
 
 		$this->core->shouldReceive( 'get_user_by_hash' )->once()->with( $hash )->andReturn( $user );

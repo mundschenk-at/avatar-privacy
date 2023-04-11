@@ -109,13 +109,14 @@ class Gravatar_Cache_Handler implements Avatar_Handler {
 	/**
 	 * Retrieves the default icon.
 	 *
+	 * @since  2.7.0 Unused arguments key 'user_id' removed.
+	 *
 	 * @param  string $url   The fallback default icon URL.
 	 * @param  string $hash  The hashed mail address.
 	 * @param  int    $size  The size of the avatar image in pixels.
 	 * @param  array  $args {
 	 *     An array of arguments.
 	 *
-	 *     @type int|false $user_id  A WordPress user ID (or false).
 	 *     @type string    $email    The mail address used to generate the identity hash.
 	 *     @type string    $rating   The audience rating (e.g. 'g', 'pg', 'r', 'x').
 	 *     @type string    $mimetype The expected MIME type of the Gravatar image.
@@ -127,7 +128,6 @@ class Gravatar_Cache_Handler implements Avatar_Handler {
 	 */
 	public function get_url( $url, $hash, $size, array $args ) {
 		$defaults = [
-			'user_id'  => false,
 			'email'    => '',
 			'rating'   => 'g',
 			'mimetype' => Image_File::PNG_IMAGE,
@@ -182,12 +182,10 @@ class Gravatar_Cache_Handler implements Avatar_Handler {
 	public function cache_image( $type, $hash, $size, $subdir, $extension ) {
 
 		// Lookup user and/or email address.
-		$user_id = false;
-		$user    = $this->core->get_user_by_hash( $hash );
+		$user = $this->core->get_user_by_hash( $hash );
 
 		if ( ! empty( $user ) ) {
-			$user_id = $user->ID;
-			$email   = ! empty( $user->user_email ) ? $user->user_email : '';
+			$email = ! empty( $user->user_email ) ? $user->user_email : '';
 		} else {
 			$email = $this->core->get_comment_author_email( $hash );
 		}
@@ -199,7 +197,6 @@ class Gravatar_Cache_Handler implements Avatar_Handler {
 
 		// Prepare arguments.
 		$args = [
-			'user_id'  => $user_id,
 			'email'    => $email,
 			'rating'   => $this->get_avatar_rating(),
 			'mimetype' => Image_File::CONTENT_TYPE[ $extension ],
