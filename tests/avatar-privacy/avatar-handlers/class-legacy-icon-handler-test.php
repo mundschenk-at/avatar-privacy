@@ -128,17 +128,15 @@ class Legacy_Icon_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_get_url() {
 		// Input data.
-		$default_icon_type = 'foobar';
-		$force             = false;
-		$hash              = 'f0e4c2f76c58916ec258f246851bea091d14d4247a2fc3e18694461b1816e13b';
-		$image_url         = 'https://some/remote/image';
-		$size              = 42;
-		$basedir           = '/basedir';
-		$subdir            = 'a/b';
-		$icon              = 'fake image data';
-		$mimetype          = 'image/jpeg';
+		$force     = false;
+		$hash      = 'f0e4c2f76c58916ec258f246851bea091d14d4247a2fc3e18694461b1816e13b';
+		$image_url = 'https://some/remote/image';
+		$size      = 42;
+		$basedir   = '/basedir';
+		$subdir    = 'a/b';
+		$icon      = 'fake image data';
+		$mimetype  = 'image/jpeg';
 		$args              = [
-			'default'  => $default_icon_type,
 			'mimetype' => $mimetype,
 			'force'    => $force,
 		];
@@ -168,17 +166,15 @@ class Legacy_Icon_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_get_url_caching_error() {
 		// Input data.
-		$default_icon_type = 'foobar';
-		$force             = false;
-		$hash              = 'f0e4c2f76c58916ec258f246851bea091d14d4247a2fc3e18694461b1816e13b';
-		$image_url         = 'https://some/remote/image';
-		$size              = 42;
-		$basedir           = '/basedir';
-		$subdir            = 'a/b';
-		$icon              = 'fake image data';
-		$mimetype          = 'image/jpeg';
-		$args              = [
-			'default'  => $default_icon_type,
+		$force     = false;
+		$hash      = 'f0e4c2f76c58916ec258f246851bea091d14d4247a2fc3e18694461b1816e13b';
+		$image_url = 'https://some/remote/image';
+		$size      = 42;
+		$basedir   = '/basedir';
+		$subdir    = 'a/b';
+		$icon      = 'fake image data';
+		$mimetype  = 'image/jpeg';
+		$args      = [
 			'mimetype' => $mimetype,
 			'force'    => $force,
 		];
