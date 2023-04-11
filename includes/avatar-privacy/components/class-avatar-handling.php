@@ -510,21 +510,25 @@ class Avatar_Handling implements Component {
 	 * Retrieves the default icon URL for the given hash.
 	 *
 	 * @since 2.4.0
+	 * @since 2.7.0 Parameter `$default` renamed to `$type` to prevent conflict with reserved keyword.
 	 *
-	 * @param  string $hash    The hashed mail address.
-	 * @param  string $default The default icon type.
-	 * @param  int    $size    The size of the avatar image in pixels.
+	 * @param  string $hash The hashed mail address.
+	 * @param  string $type The default icon type.
+	 * @param  int    $size The size of the avatar image in pixels.
 	 *
 	 * @return string
 	 */
-	protected function get_default_icon_url( $hash, $default, $size ) {
+	protected function get_default_icon_url( $hash, $type, $size ) {
 		// Prepare filter arguments.
 		$args = [
-			'default' => $default,
+			'default' => $type,
+			'type'    => $type,
 		];
 
 		/**
 		 * Filters the default icon URL for the given e-mail.
+		 *
+		 * @since  2.7.0 The argument key 'default' has been deprecated. Use 'type' instead.
 		 *
 		 * @param  string $url   The fallback icon URL (a blank GIF).
 		 * @param  string $hash  The hashed mail address.
@@ -532,7 +536,8 @@ class Avatar_Handling implements Component {
 		 * @param  array  $args {
 		 *     An array of arguments.
 		 *
-		 *     @type string $default The default icon type.
+		 *     @type string $default Deprecated.
+		 *     @type string $type    The default icon type.
 		 * }
 		 */
 		return \apply_filters( 'avatar_privacy_default_icon_url', \includes_url( 'images/blank.gif' ), $hash, $size, $args );

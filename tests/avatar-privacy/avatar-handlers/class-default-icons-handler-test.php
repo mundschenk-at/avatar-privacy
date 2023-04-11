@@ -170,7 +170,7 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$default_url       = 'https://some/default';
 		$size              = 42;
 		$args              = [
-			'default'  => $default_icon_type,
+			'type'     => $default_icon_type,
 			'mimetype' => 'image/jpeg',
 			'force'    => $force,
 		];
@@ -210,7 +210,7 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$default_url       = 'https://some/default';
 		$size              = 42;
 		$args              = [
-			'default'  => $default_icon_type,
+			'type'     => $default_icon_type,
 			'mimetype' => 'image/jpeg',
 			'force'    => $force,
 		];
@@ -249,7 +249,7 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$default_url       = 'https://some/default';
 		$size              = 42;
 		$args              = [
-			'default'  => $default_icon_type,
+			'type'  => $default_icon_type,
 			'mimetype' => 'image/jpeg',
 			'force'    => $force,
 		];
@@ -293,7 +293,7 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Intermediate data.
 		$args = [
-			'default' => $type,
+			'type' => $type,
 		];
 
 		$this->sut->shouldReceive( 'get_url' )->once()->with( '', $hash, $size, $args )->andReturn( 'https://foobar.org/cached_avatar_url' );
@@ -316,7 +316,7 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Intermediate data.
 		$args = [
-			'default' => $type,
+			'type' => $type,
 		];
 
 		$this->sut->shouldReceive( 'get_url' )->once()->with( '', $hash, $size, $args )->andReturn( '' );
