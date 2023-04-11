@@ -160,7 +160,6 @@ class Gravatar_Cache_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$size        = 42;
 		$subdir      = 'a/b';
 		$args        = [
-			'user_id'  => false, // Not relevant for this test.
 			'email'    => $email,
 			'rating'   => $rating,
 			'mimetype' => 'image/jpeg',
@@ -278,7 +277,7 @@ class Gravatar_Cache_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->core->shouldReceive( 'get_user_by_hash' )->once()->with( $hash )->andReturn( null );
 		$this->core->shouldReceive( 'get_comment_author_email' )->once()->with( $hash )->andReturn( $email );
-		$this->options->shouldReceive( 'get' )->once()->with( 'avatar_rating', 'g', true )->andReturn( $rating );
+		$this->sut->shouldReceive( 'get_avatar_rating' )->once()->withNoArgs()->andReturn( $rating );
 
 		$this->sut->shouldReceive( 'get_url' )->once()->with( '', $hash, $size, $args )->andReturn( 'https://foobar.org/cached_avatar_url' );
 
@@ -315,7 +314,7 @@ class Gravatar_Cache_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->core->shouldReceive( 'get_user_by_hash' )->once()->with( $hash )->andReturn( $user );
 		$this->core->shouldReceive( 'get_comment_author_email' )->never();
 
-		$this->options->shouldReceive( 'get' )->once()->with( 'avatar_rating', 'g', true )->andReturn( $rating );
+		$this->sut->shouldReceive( 'get_avatar_rating' )->once()->withNoArgs()->andReturn( $rating );
 
 		$this->sut->shouldReceive( 'get_url' )->once()->with( '', $hash, $size, $args )->andReturn( 'https://foobar.org/cached_avatar_url' );
 
@@ -383,5 +382,37 @@ class Gravatar_Cache_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_get_type() {
 		$this->assertSame( 'gravatar', $this->sut->get_type() );
+	}
+
+	/**
+	 * Provides data for testing get_avatar_rating.
+	 *
+	 * @return array<array{0: mixed, 1: string}>
+	 */
+	public function provide_get_avatar_rating_data(): array {
+		return [
+			[ 'g', 'g' ],
+			[ 'pg', 'pg' ],
+			[ 'r', 'r' ],
+			[ 'x', 'x' ],
+			[ 'xxx', 'g' ],
+			[ [], 'g' ],
+		];
+	}
+
+	/**
+	 * Tests ::get_avatar_rating.
+	 *
+	 * @covers ::get_avatar_rating
+	 *
+	 * @dataProvider provide_get_avatar_rating_data
+	 *
+	 * @param mixed  $stored_rating The rating stored in the DB.
+	 * @param string $result        The expected result.
+	 */
+	public function test_get_avatar_rating( $stored_rating, string $result ): void {
+		$this->options->shouldReceive( 'get' )->with( 'avatar_rating', 'g', true )->andReturn( $stored_rating );
+
+		$this->assertSame( $result, $this->sut->get_avatar_rating() );
 	}
 }

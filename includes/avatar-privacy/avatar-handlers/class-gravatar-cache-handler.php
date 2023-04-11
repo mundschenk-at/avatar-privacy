@@ -50,6 +50,18 @@ use Avatar_Privacy\Tools\Network\Gravatar_Service;
 class Gravatar_Cache_Handler implements Avatar_Handler {
 
 	/**
+	 * Valid Gravatar image ratings.
+	 *
+	 * @since 2.7.0.
+	 */
+	private const GRAVATAR_RATING = [
+		'g'  => true,
+		'pg' => true,
+		'r'  => true,
+		'x'  => true,
+	];
+
+	/**
 	 * The core API.
 	 *
 	 * @var Core
@@ -189,7 +201,7 @@ class Gravatar_Cache_Handler implements Avatar_Handler {
 		$args = [
 			'user_id'  => $user_id,
 			'email'    => $email,
-			'rating'   => $this->options->get( 'avatar_rating', 'g', true ),
+			'rating'   => $this->get_avatar_rating(),
 			'mimetype' => Image_File::CONTENT_TYPE[ $extension ],
 		];
 
@@ -208,5 +220,24 @@ class Gravatar_Cache_Handler implements Avatar_Handler {
 	 */
 	public function get_type() {
 		return 'gravatar';
+	}
+
+	/**
+	 * Retrieves the allowed avatar image ratings.
+	 *
+	 * @since  2.7.0
+	 *
+	 * @return string
+	 *
+	 * @phpstan-return key-of<self::GRAVATAR_RATING>
+	 */
+	protected function get_avatar_rating() {
+		$rating = $this->options->get( 'avatar_rating', 'g', true );
+
+		if ( ! \is_string( $rating ) || empty( self::GRAVATAR_RATING[ $rating ] ) ) {
+			$rating = 'g';
+		}
+
+		return $rating; // @phpstan-ignore-line -- https://github.com/phpstan/phpstan/issues/8559
 	}
 }
