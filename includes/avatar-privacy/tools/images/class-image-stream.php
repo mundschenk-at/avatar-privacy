@@ -329,7 +329,7 @@ class Image_Stream {
 		$handle = static::get_handle_from_url( $path );
 
 		if ( static::handle_exists( $handle ) ) {
-			$h = @\fopen( $path, 'r' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+			$h = @\fopen( $path, 'r' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
 
 			// If fopen() failed, we are in trouble.
 			if ( ! \is_resource( $h ) ) {

@@ -165,7 +165,7 @@ class Filesystem_Cache {
 			// Make sure that the file path is valid.
 			! \wp_mkdir_p( \dirname( $file ) ) ||
 			// Check if the file has been stored successfully.
-			false === \file_put_contents( $file, $data, \LOCK_EX )  // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+			false === \file_put_contents( $file, $data, \LOCK_EX )  // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		);
 	}
 

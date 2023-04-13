@@ -136,7 +136,7 @@ class Editor {
 	 */
 	public function create_from_string( $data ) {
 		// Copy data to stream implementation.
-		\file_put_contents( $this->stream_url, $data ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+		\file_put_contents( $this->stream_url, $data ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 
 		return $this->create_from_stream( $this->stream_url );
 	}
@@ -323,7 +323,7 @@ class Editor {
 		$stream = $this->stream_url . '/mime/type/check';
 
 		// Copy data to stream implementation.
-		\file_put_contents( $stream, $data ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+		\file_put_contents( $stream, $data ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 
 		// Retrieve MIME type.
 		$mime = \wp_get_image_mime( $stream );

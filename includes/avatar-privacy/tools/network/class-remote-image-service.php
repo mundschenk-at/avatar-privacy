@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020-2022 Peter Putzer.
+ * Copyright 2020-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -215,12 +215,12 @@ class Remote_Image_Service {
 
 		if ( false === $url ) {
 			// Lookup image URL.
-			$url = $wpdb->get_var( $wpdb->prepare(
+			$url = $wpdb->get_var( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.DirectQuery
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT identifier FROM `{$this->table->get_table_name()}` WHERE hash = %s AND type = %s",
 				$hash,
 				self::IDENTIFIER_TYPE
-			) ); // WPCS: db call ok, cache ok.
+			) );
 
 			// Store only positive results.
 			if ( ! empty( $url ) ) {
