@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020-2022 Peter Putzer.
+ * Copyright 2020-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -302,6 +302,8 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::handle_sideload.
 	 *
 	 * @covers ::handle_sideload
+	 *
+	 * @uses Avatar_Privacy\Tools\delete_file
 	 */
 	public function test_handle_sideload_error() {
 		$image_url  = vfsStream::url( 'root/other/valid_image.png' );

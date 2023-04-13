@@ -490,6 +490,8 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::delete_local_avatar.
 	 *
 	 * @covers ::delete_local_avatar
+	 *
+	 * @uses Avatar_Privacy\Tools\delete_file
 	 */
 	public function test_delete_local_avatar() {
 		$user_id = 42;
@@ -823,6 +825,8 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::remove_orphaned_local_avatar.
 	 *
 	 * @covers ::remove_orphaned_local_avatar
+	 *
+	 * @uses Avatar_Privacy\Tools\delete_file
 	 */
 	public function test_remove_orphaned_local_avatar() {
 		$file       = vfsStream::url( 'root/uploads/some.png' );

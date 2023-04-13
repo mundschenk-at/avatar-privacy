@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -202,6 +202,8 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::delete_uploaded_avatars.
 	 *
 	 * @covers ::delete_uploaded_avatars
+	 *
+	 * @uses Avatar_Privacy\Tools\delete_file
 	 */
 	public function test_delete_uploaded_avatars() {
 		$user_avatar        = User_Fields::USER_AVATAR_META_KEY;
@@ -209,14 +211,14 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 			'meta_key'     => $user_avatar,  // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			'meta_compare' => 'EXISTS',
 		];
-		$user               = m::mock( 'WP_User' );
+		$user               = m::mock( \WP_User::class );
 		$user->$user_avatar = [
 			'file' => vfsStream::url( 'root/uploads/avatar-privacy/user-avatars/foo.png' ),
 		];
 
 		Functions\expect( 'get_users' )->once()->with( $query )->andReturn( [ $user ] );
 
-		$this->assertNull( $this->sut->delete_uploaded_avatars() );
+		$this->sut->delete_uploaded_avatars();
 	}
 
 	/**

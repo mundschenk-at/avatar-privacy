@@ -38,6 +38,8 @@ use Avatar_Privacy\Data_Storage\Options;
 use Avatar_Privacy\Data_Storage\Site_Transients;
 use Avatar_Privacy\Data_Storage\Transients;
 
+use function Avatar_Privacy\Tools\delete_file;
+
 /**
  * Handles plugin activation and deactivation.
  *
@@ -209,7 +211,7 @@ class Uninstallation implements Component {
 			$avatar = $user->$user_avatar;
 
 			if ( ! empty( $avatar['file'] ) && \file_exists( $avatar['file'] ) ) {
-				\unlink( $avatar['file'] );
+				delete_file( $avatar['file'] );
 			}
 		}
 	}

@@ -28,6 +28,8 @@ namespace Avatar_Privacy\Data_Storage;
 
 use Avatar_Privacy\Exceptions\Filesystem_Exception;
 
+use function Avatar_Privacy\Tools\delete_file;
+
 /**
  * A filesystem caching handler.
  *
@@ -190,7 +192,7 @@ class Filesystem_Cache {
 	public function delete( $filename ) {
 		$file = $this->get_base_dir() . $filename;
 
-		return \is_writable( $file ) && \unlink( $file );
+		return \is_writable( $file ) && delete_file( $file );
 	}
 
 	/**
@@ -215,7 +217,7 @@ class Filesystem_Cache {
 				if ( $file->isDir() ) {
 					\rmdir( $path );
 				} else {
-					\unlink( $path );
+					delete_file( $path );
 				}
 			}
 		}
@@ -241,7 +243,7 @@ class Filesystem_Cache {
 
 		foreach ( $iterator as $path => $file ) {
 			if ( $file->isWritable() && ! $file->isDir() && $now - $file->getMTime() > $age ) {
-				\unlink( $path );
+				delete_file( $path );
 			}
 		}
 	}

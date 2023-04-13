@@ -280,6 +280,8 @@ class Filesystem_Cache_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::delete.
 	 *
 	 * @covers ::delete
+	 *
+	 * @uses Avatar_Privacy\Tools\delete_file
 	 */
 	public function test_delete_existing_file() {
 		$basedir  = 'root/uploads/';
@@ -308,6 +310,8 @@ class Filesystem_Cache_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::invalidate.
 	 *
 	 * @covers ::invalidate
+	 *
+	 * @uses Avatar_Privacy\Tools\delete_file
 	 */
 	public function test_invalidate() {
 		$subdir = 'delete';
@@ -346,6 +350,8 @@ class Filesystem_Cache_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * Tests ::invalidate_files_older_than.
 	 *
 	 * @covers ::invalidate_files_older_than
+	 *
+	 * @uses Avatar_Privacy\Tools\delete_file
 	 */
 	public function test_invalidate_files_older_than() {
 		$subdir = 'delete';

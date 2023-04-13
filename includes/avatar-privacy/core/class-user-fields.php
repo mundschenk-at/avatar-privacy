@@ -33,6 +33,8 @@ use Avatar_Privacy\Tools\Hasher;
 use Avatar_Privacy\Tools\Images\Image_File;
 use Avatar_Privacy\Upload_Handlers\User_Avatar_Upload_Handler;
 
+use function Avatar_Privacy\Tools\delete_file;
+
 /**
  * The API for handling data attached to registered users as part of the
  * Avatar Privacy Core API.
@@ -336,7 +338,7 @@ class User_Fields implements API {
 
 		// Delete original upload.
 		$avatar = \get_user_meta( $user_id, self::USER_AVATAR_META_KEY, true );
-		if ( \is_array( $avatar ) && ! empty( $avatar['file'] ) && \is_string( $avatar['file'] ) && \file_exists( $avatar['file'] ) && \unlink( $avatar['file'] ) ) {
+		if ( \is_array( $avatar ) && ! empty( $avatar['file'] ) && \is_string( $avatar['file'] ) && \file_exists( $avatar['file'] ) && delete_file( $avatar['file'] ) ) {
 			return \delete_user_meta( $user_id, self::USER_AVATAR_META_KEY );
 		}
 
@@ -513,7 +515,7 @@ class User_Fields implements API {
 		 * values are not serialized.
 		 */
 		if ( \is_array( $meta_value ) && ! empty( $meta_value['file'] ) && \is_string( $meta_value['file'] ) && \file_exists( $meta_value['file'] ) ) {
-			\unlink( $meta_value['file'] );
+			delete_file( $meta_value['file'] );
 		}
 	}
 }
