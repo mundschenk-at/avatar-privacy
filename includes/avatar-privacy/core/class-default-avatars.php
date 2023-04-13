@@ -36,6 +36,8 @@ use Avatar_Privacy\Tools\Hasher;
 use Avatar_Privacy\Tools\Images\Image_File;
 use Avatar_Privacy\Upload_Handlers\Custom_Default_Icon_Upload_Handler as Upload_Handler;
 
+use function Avatar_Privacy\Tools\delete_file;
+
 /**
  * The API for handling data attached to registered users as part of the
  * Avatar Privacy Core API.
@@ -224,7 +226,7 @@ class Default_Avatars implements API {
 	public function delete_custom_default_avatar_image_file() {
 		// Delete original upload if it exists.
 		$icon = $this->get_custom_default_avatar();
-		if ( empty( $icon['file'] ) || \file_exists( $icon['file'] ) && \unlink( $icon['file'] ) ) {
+		if ( empty( $icon['file'] ) || \file_exists( $icon['file'] ) && delete_file( $icon['file'] ) ) {
 			return true;
 		}
 

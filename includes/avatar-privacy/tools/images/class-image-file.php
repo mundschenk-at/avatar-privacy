@@ -28,6 +28,8 @@ namespace Avatar_Privacy\Tools\Images;
 
 use Avatar_Privacy\Exceptions\Upload_Handling_Exception;
 
+use function Avatar_Privacy\Tools\delete_file;
+
 /**
  * A utility class for handling image files.
  *
@@ -203,7 +205,7 @@ class Image_File {
 
 		if ( ! empty( $sideloaded['error'] ) ) {
 			// Delete temporary file.
-			@unlink( $temp_file );
+			delete_file( $temp_file );
 
 			// Signal error.
 			throw new Upload_Handling_Exception( $sideloaded['error'] );

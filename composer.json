@@ -48,7 +48,7 @@
 
     "autoload": {
         "classmap": ["includes/"],
-        "files": ["includes/avatar-privacy-functions.php", "includes/avatar-privacy/functions.php"]
+        "files": ["includes/avatar-privacy-functions.php", "includes/avatar-privacy/functions.php", "includes/avatar-privacy/tools/functions.php" ]
     },
     "autoload-dev": {
         "classmap": ["tests/"],
