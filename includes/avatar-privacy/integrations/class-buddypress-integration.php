@@ -136,7 +136,6 @@ class BuddyPress_Integration implements Plugin_Integration {
 		// Invalidate cache when a new image is uploaded or deleted.
 		\add_action( $avatar_uploaded_hook, [ $this, 'invalidate_cache_after_avatar_upload' ], 10, 3 );
 		\add_action( 'bp_core_delete_existing_avatar', [ $this, 'invalidate_cache_after_avatar_deletion' ], 10, 1 );
-
 	}
 
 	/**
@@ -165,14 +164,14 @@ class BuddyPress_Integration implements Plugin_Integration {
 		$avatar = $this->get_buddypress_avatar( $user_id );
 
 		if ( ! empty( $avatar ) ) {
-		$file = \ABSPATH . \wp_make_link_relative( $avatar );
-		$type = \wp_check_filetype( $file )['type'];
+			$file = \ABSPATH . \wp_make_link_relative( $avatar );
+			$type = \wp_check_filetype( $file )['type'];
 
 			if ( ! empty( $type ) ) {
-		return [
-			'file' => $file,
-			'type' => $type,
-		];
+				return [
+					'file' => $file,
+					'type' => $type,
+				];
 			}
 		}
 
@@ -209,7 +208,7 @@ class BuddyPress_Integration implements Plugin_Integration {
 	 */
 	public function invalidate_cache_after_avatar_deletion( array $args ) {
 		if ( ! empty( $args['item_id'] ) ) {
-		$this->invalidate_cache_after_avatar_upload( $args['item_id'], 'delete', $args );
+			$this->invalidate_cache_after_avatar_upload( $args['item_id'], 'delete', $args );
 		}
 	}
 
