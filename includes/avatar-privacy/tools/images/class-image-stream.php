@@ -371,7 +371,7 @@ class Image_Stream {
 	 *
 	 * @phpstan-param array{ mtime: int, atime: int }|string|int $value
 	 */
-	public function stream_metadata( $path, $option, $value ) {
+	public function stream_metadata( $path, $option, $value ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- FIXME: Add access time handling
 		$handle = static::get_handle_from_url( $path );
 
 		if ( ! static::handle_exists( $handle ) && \STREAM_META_TOUCH === $option ) {
