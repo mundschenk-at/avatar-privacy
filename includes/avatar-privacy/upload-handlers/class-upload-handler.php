@@ -250,7 +250,7 @@ abstract class Upload_Handler {
 	 *
 	 * @phpstan-param UploadArgs $args
 	 */
-	protected function get_filename( $filename, array $args ) {
+	protected function get_filename( $filename, array $args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Argument is used in subclasses.
 		return $filename;
 	}
 
