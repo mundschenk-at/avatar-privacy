@@ -288,6 +288,7 @@ class Filesystem_Cache_Test extends \Avatar_Privacy\Tests\TestCase {
 		$filename = 'delete/existing_file.txt';
 
 		$this->sut->shouldReceive( 'get_base_dir' )->once()->andReturn( vfsStream::url( $basedir ) );
+		Functions\expect( 'wp_is_writable' )->once()->with( m::type( 'string' ) )->andReturn( true );
 
 		$this->assertTrue( $this->sut->delete( $filename ) );
 	}
@@ -302,6 +303,7 @@ class Filesystem_Cache_Test extends \Avatar_Privacy\Tests\TestCase {
 		$filename = 'delete/non_existing_file.txt';
 
 		$this->sut->shouldReceive( 'get_base_dir' )->once()->andReturn( vfsStream::url( $basedir ) );
+		Functions\expect( 'wp_is_writable' )->once()->with( m::type( 'string' ) )->andReturn( false );
 
 		$this->assertFalse( $this->sut->delete( $filename ) );
 	}

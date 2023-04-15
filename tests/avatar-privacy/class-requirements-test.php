@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2022 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -131,6 +131,7 @@ class Requirements_Test extends TestCase {
 		vfsStream::setup( 'uploads' );
 
 		Functions\expect( 'wp_get_upload_dir' )->once()->withNoArgs()->andReturn( [ 'basedir' => vfsStream::url( 'uploads' ) ] );
+		Functions\expect( 'wp_is_writable' )->once()->with( m::type( 'string' ) )->andReturn( true );
 
 		$this->assertTrue( $this->sut->check_uploads_writable() );
 	}
