@@ -216,15 +216,16 @@ class BuddyPress_Integration implements Plugin_Integration {
 	 * Adds Avatar Privacy's default avatars to BuddyPress.
 	 *
 	 * @since  2.4.0
+	 * @since  2.7.0 Parameter `$default` renamed to `$original_default` to prevent conflict with reserved keyword.
 	 *
-	 * @param  string $default Default avatar for non-gravatar requests.
-	 * @param  array  $params  Array of parameters for the avatar request.
+	 * @param  string $original_default Default avatar for non-gravatar requests.
+	 * @param  array  $params           Array of parameters for the avatar request.
 	 *
 	 * @return string
 	 *
 	 * @phpstan-param BuddyPressAvatarParams $params
 	 */
-	public function add_default_avatars_to_buddypress( $default, array $params ) {
+	public function add_default_avatars_to_buddypress( $original_default, array $params ) {
 		// Retrieve default avatar URL (Gravatar or local default avatar).
 		$args           = [
 			'rating' => $params['rating'],
@@ -232,7 +233,7 @@ class BuddyPress_Integration implements Plugin_Integration {
 		];
 		$default_avatar = \get_avatar_url( $params['item_id'], $args );
 
-		return $default_avatar ?: $default;
+		return $default_avatar ?: $original_default;
 	}
 
 	/**
