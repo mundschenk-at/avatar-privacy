@@ -200,8 +200,6 @@ class User_Avatar_Handler implements Avatar_Handler {
 		$args = [
 			'avatar'    => $local_avatar['file'],
 			'mimetype'  => $local_avatar['type'],
-			'subdir'    => $subdir,
-			'extension' => $extension,
 		];
 
 		// Try to cache the icon.

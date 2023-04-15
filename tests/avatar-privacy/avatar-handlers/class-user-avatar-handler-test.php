@@ -269,8 +269,6 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$args = [
 			'avatar'    => $local_avatar['file'],
 			'mimetype'  => $local_avatar['type'],
-			'subdir'    => $subdir,
-			'extension' => $extension,
 		];
 
 		$this->user_fields->shouldReceive( 'get_user_by_hash' )->once()->with( $hash )->andReturn( $user );
