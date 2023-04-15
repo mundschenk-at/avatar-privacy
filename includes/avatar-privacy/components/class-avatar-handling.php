@@ -495,9 +495,7 @@ class Avatar_Handling implements Component {
 			 *     @type int    $user_id   A WordPress user ID.
 			 *     @type string $avatar    The full-size avatar image path.
 			 *     @type string $mimetype  The expected MIME type of the avatar image.
-			 *     @type bool   $timestamp Whether a timestamp (`ts`) parameter
-			 *                             should be added to the URL (for cache
-			 *                             busting).
+			 *     @type bool   $timestamp Whether to add a timestamp for cache busting.
 			 * }
 			 */
 			$url = \apply_filters( 'avatar_privacy_user_avatar_icon_url', '', $hash, $size, $args );
