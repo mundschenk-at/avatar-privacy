@@ -112,7 +112,10 @@ class Gravatar_Cache_Handler implements Avatar_Handler {
 	}
 
 	/**
-	 * Retrieves the default icon.
+	 * Retrieves the Gravatar icon URL.
+	 *
+	 * Note: Not all of the arguments provided by the `avatar_privacy_gravatar_icon_url`
+	 * filter hook are actually required.
 	 *
 	 * @since  2.7.0 Unused arguments key 'user_id' removed.
 	 *
@@ -124,7 +127,7 @@ class Gravatar_Cache_Handler implements Avatar_Handler {
 	 *
 	 *     @type string    $email    The mail address used to generate the identity hash.
 	 *     @type string    $rating   Optional. The audience rating (e.g. 'g', 'pg', 'r', 'x'). Default 'g'.
-	 *     @type string    $mimetype Optional. The expected MIME type of the Gravatar image. Default 'image/PNG'.
+	 *     @type string    $mimetype Optional. The expected MIME type of the Gravatar image. Default 'image/png'.
 	 *     @type bool      $force    Optional. Whether to force re-caching of the image file. Default false.
 	 * }
 	 *

@@ -70,7 +70,7 @@ class Legacy_Icon_Handler implements Avatar_Handler {
 	}
 
 	/**
-	 * Retrieves the default icon.
+	 * Retrieves the legacy icon URL.
 	 *
 	 * @param  string $url   The legacy image URL.
 	 * @param  string $hash  The hashed URL.
