@@ -119,7 +119,7 @@ class Requirements extends \Mundschenk\WP_Requirements {
 	protected function check_uploads_writable() {
 		$uploads = \wp_get_upload_dir();
 
-		return \is_writable( $uploads['basedir'] );
+		return \wp_is_writable( $uploads['basedir'] );
 	}
 
 	/**

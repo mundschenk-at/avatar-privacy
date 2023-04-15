@@ -192,7 +192,7 @@ class Filesystem_Cache {
 	public function delete( $filename ) {
 		$file = $this->get_base_dir() . $filename;
 
-		return \is_writable( $file ) && delete_file( $file );
+		return \wp_is_writable( $file ) && delete_file( $file );
 	}
 
 	/**
