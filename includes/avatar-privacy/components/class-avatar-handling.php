@@ -223,7 +223,7 @@ class Avatar_Handling implements Component {
 				// Maybe display a gravatar.
 				if ( $this->should_show_gravatar( $user_id, $email, $id_or_email, $age, $mimetype ) ) {
 					$url = $this->get_gravatar_url( $user_id, $email, $hash, $args['size'], $args['rating'], $mimetype );
-				} elseif ( ! empty( $args['url'] ) && $this->is_valid_image_url( $args['url'] ) ) {
+				} elseif ( ! empty( $args['url'] ) && $this->remote_images->validate_image_url( $args['url'], 'avatar' ) ) {
 					// Fall back to avatars set by other plugins.
 					$url = $this->get_legacy_icon_url( $args['url'], $args['size'] );
 				}
@@ -638,11 +638,15 @@ class Avatar_Handling implements Component {
 	 *
 	 * @since 2.4.0
 	 *
+	 * @deprecated 2.7.0
+	 *
 	 * @param  string $url The image URL.
 	 *
 	 * @return bool
 	 */
 	protected function is_valid_image_url( $url ) {
+		\_deprecated_function( __METHOD__, '2.7.0', 'Avatar_Privacy\Tools\Network\Remote_Image_Service::validate_image_url' );
+
 		return ( ! \strpos( $url, 'gravatar.com' ) && $this->remote_images->validate_image_url( $url, 'avatar' ) );
 	}
 
