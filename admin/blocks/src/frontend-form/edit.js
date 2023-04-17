@@ -60,7 +60,8 @@ export default ( { attributes, className, setAttributes } ) => {
 							checked={ !! attributes.show_descriptions }
 							onChange={ () =>
 								setAttributes( {
-									show_descriptions: ! attributes.show_descriptions,
+									show_descriptions:
+										! attributes.show_descriptions,
 								} )
 							}
 						/>
