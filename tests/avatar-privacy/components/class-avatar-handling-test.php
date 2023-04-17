@@ -295,7 +295,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 				$this->sut->shouldReceive( 'get_gravatar_url' )->never();
 
 				if ( ! empty( $legacy_url ) ) {
-					$this->sut->shouldReceive( 'is_valid_image_url' )->once()->with( $legacy_url )->andReturn( true );
+					$this->remote_images->shouldReceive( 'validate_image_url' )->once()->with( $legacy_url, 'avatar' )->andReturn( true );
 					$this->sut->shouldReceive( 'get_legacy_icon_url' )->once()->with( $legacy_url, $size )->andReturn( $legacy_url );
 				}
 			}
@@ -353,7 +353,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'get_default_icon_url' )->never();
 		$this->sut->shouldReceive( 'get_gravatar_url' )->never();
-		$this->sut->shouldReceive( 'is_valid_image_url' )->never();
+		$this->remote_images->shouldReceive( 'validate_image_url' )->never();
 		$this->sut->shouldReceive( 'get_legacy_icon_url' )->never();
 
 		$avatar_response = $this->sut->get_avatar_data( $args, $id_or_email );
@@ -392,7 +392,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->comment_author->shouldReceive( 'get_hash' )->once()->with( $email )->andReturn( $hash );
 
 		$this->sut->shouldReceive( 'should_show_gravatar' )->once()->with( $user_id, $email, $id_or_email, $age, m::type( 'string' ) )->andReturn( false );
-		$this->sut->shouldReceive( 'is_valid_image_url' )->once()->with( $remote_url )->andReturn( true );
+		$this->remote_images->shouldReceive( 'validate_image_url' )->once()->with( $remote_url, 'avatar' )->andReturn( true );
 		$this->sut->shouldReceive( 'get_legacy_icon_url' )->once()->with( $remote_url, $size )->andReturn( $remote_url );
 		$this->sut->shouldReceive( 'get_default_icon_url' )->never();
 
@@ -935,6 +935,8 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param  bool   $result The expected result.
 	 */
 	public function test_is_valid_image_url( $url, $result ) {
+		Functions\expect( '_deprecated_function' )->once()->with( m::type( 'string' ), '2.7.0', m::type( 'string' ) );
+
 		$this->remote_images->shouldReceive( 'validate_image_url' )->atMost()->once()->with( $url, 'avatar' )->andReturn( $result );
 
 		$this->assertSame( $result, $this->sut->is_valid_image_url( $url ) );
