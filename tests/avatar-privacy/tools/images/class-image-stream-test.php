@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2021 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -129,8 +129,14 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$handle = 'some/path/or/other';
 
+		$stream_ref = [
+			'data'  => $data,
+			'atime' => 0,
+			'mtime' => 0,
+		];
+
 		$this->sut->shouldReceive( 'get_handle_from_url' )->once()->with( $path )->andReturn( $handle );
-		$this->sut->shouldReceive( 'get_data_reference' )->once()->with( $handle )->andReturn( $data );
+		$this->sut->shouldReceive( 'get_data_reference' )->once()->with( $handle )->andReturn( $stream_ref );
 
 		if ( $truncate ) {
 			$this->sut->shouldReceive( 'stream_truncate' )->once()->with( 0 );
@@ -173,8 +179,14 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$handle = 'some/path/or/other';
 
+		$stream_ref = [
+			'data'  => $data,
+			'atime' => 0,
+			'mtime' => 0,
+		];
+
 		$this->sut->shouldReceive( 'get_handle_from_url' )->once()->with( $path )->andReturn( $handle );
-		$this->sut->shouldReceive( 'get_data_reference' )->once()->with( $handle )->andReturn( $data );
+		$this->sut->shouldReceive( 'get_data_reference' )->once()->with( $handle )->andReturn( $stream_ref );
 
 		if ( $truncate ) {
 			$this->sut->shouldReceive( 'stream_truncate' )->once()->with( 0 );
@@ -211,8 +223,14 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$handle = 'some/path/or/other';
 
+		$stream_ref = [
+			'data'  => $data,
+			'atime' => 0,
+			'mtime' => 0,
+		];
+
 		$this->sut->shouldReceive( 'get_handle_from_url' )->once()->with( $path )->andReturn( $handle );
-		$this->sut->shouldReceive( 'get_data_reference' )->once()->with( $handle )->andReturn( $data );
+		$this->sut->shouldReceive( 'get_data_reference' )->once()->with( $handle )->andReturn( $stream_ref );
 
 		$this->sut->shouldReceive( 'stream_truncate' )->never();
 
@@ -232,6 +250,11 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$writable = false;
 		$data     = 'a long and tedious string that is our stream';
 		$position = 7;
+		$stream   = [
+			'data'  => $data,
+			'atime' => 123,
+			'mtime' => 456,
+		];
 
 		// Input.
 		$bytes_to_read = 3;
@@ -258,6 +281,11 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$writable = false;
 		$data     = 'a long and tedious string that is our stream';
 		$position = 7;
+		$stream   = [
+			'data'  => $data,
+			'atime' => 123,
+			'mtime' => 456,
+		];
 
 		// Input.
 		$bytes_to_read = 3;
@@ -284,6 +312,11 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$writable = true;
 		$data     = 'a long and tedious string that is our stream';
 		$position = 7;
+		$stream   = [
+			'data'  => $data,
+			'atime' => 123,
+			'mtime' => 456,
+		];
 
 		// Input.
 		$new_data = 'xxx';
@@ -314,6 +347,11 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$writable = false;
 		$data     = 'a long and tedious string that is our stream';
 		$position = 7;
+		$stream   = [
+			'data'  => $data,
+			'atime' => 123,
+			'mtime' => 456,
+		];
 
 		// Input.
 		$new_data = 'xxx';
@@ -341,6 +379,11 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$writable = false;
 		$data     = 'a long and tedious string that is our stream';
 		$position = 7;
+		$stream   = [
+			'data'  => $data,
+			'atime' => 123,
+			'mtime' => 456,
+		];
 
 		// Set up stream object.
 		$this->set_value( $this->sut, 'read', $readable );
@@ -426,6 +469,11 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Initial state.
 		$data     = 'a long and tedious string that is our stream';
 		$position = 12;
+		$stream   = [
+			'data'  => $data,
+			'atime' => 123,
+			'mtime' => 456,
+		];
 
 		// Expected results.
 		$new_position = $offset;
@@ -473,6 +521,12 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param  bool   $truncate A flag indicating the stream should be truncated.
 	 */
 	public function test_truncate_after_seek( $position, $data, $truncate ) {
+		$stream   = [
+			'data'  => $data,
+			'atime' => 123,
+			'mtime' => 456,
+		];
+
 		// Set up stream object.
 		$this->set_value( $this->sut, 'data', $data );
 		$this->set_value( $this->sut, 'position', $position );
@@ -510,6 +564,11 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_stream_truncate( $data, $length, $result ) {
 		// Set up stream object.
+		$stream   = [
+			'data'  => $data,
+			'atime' => 123,
+			'mtime' => 456,
+		];
 		$this->set_value( $this->sut, 'data', $data );
 
 		$this->assertTrue( $this->sut->stream_truncate( $length ) );
@@ -524,6 +583,11 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_stream_stat() {
 		// Initial state.
 		$data = 'a long and tedious string that is our stream';
+		$stream   = [
+			'data'  => $data,
+			'atime' => 123,
+			'mtime' => 456,
+		];
 
 		// Set up stream object.
 		$this->set_value( $this->sut, 'data', $data );
@@ -639,15 +703,15 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @covers ::stream_metadata
 	 */
-	public function test_stream_metadata() {
+	public function test_stream_metadata_no_touching() {
 		$path   = 'scheme://root/folder/filename.txt';
 		$option = 666;
 		$args   = [ 'foobar' ];
 
 		$handle = 'root/folder/filename.txt';
 
-		$this->sut->shouldReceive( 'get_handle_from_url' )->once()->with( $path )->andReturn( $handle );
-		$this->sut->shouldReceive( 'handle_exists' )->once()->with( $handle )->andReturn( false );
+		$this->sut->shouldReceive( 'get_handle_from_url' )->never();
+		$this->sut->shouldReceive( 'handle_exists' )->never();
 		$this->sut->shouldReceive( 'get_data_reference' )->never();
 
 		$this->assertTrue( $this->sut->stream_metadata( $path, $option, $args ) );
@@ -657,47 +721,43 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Tests ::stream_metadata.
 	 *
+	 * Since Mockery can't handle return by reference, we have to use the real class here.
+	 *
 	 * @covers ::stream_metadata
+	 *
+	 * @uses ::register
+	 * @uses ::get_data_reference
+	 * @uses ::get_handle_from_url
+	 * @uses ::handle_exists
+	 * @uses ::stream_open
+	 * @uses ::stream_stat
+	 * @uses ::url_stat
+	 *
+	 * @return void
 	 */
-	public function test_stream_metadata_touch() {
-		$path   = vfsStream::url( 'root/folder/filename.txt' );
-		$option = \STREAM_META_TOUCH;
-		$args   = [ 'foobar' ];
+	public function test_stream_metadata_touch(): void {
+		// Make sure the real Image_Stream class is registered.
+		Image_Stream::register( 'imageStream' );
+
+		// Set up test.
+		$path      = 'imageStream://my/never/uses/test/stream';
+		$option    = \STREAM_META_TOUCH;
+		$new_mtime = 123;
 
 		$handle = 'root/folder/filename.txt';
 		$data   = 'something';
 
-		$this->sut->shouldReceive( 'get_handle_from_url' )->once()->with( $path )->andReturn( $handle );
-		$this->sut->shouldReceive( 'handle_exists' )->once()->with( $handle )->andReturn( false );
-		$this->sut->shouldReceive( 'get_data_reference' )->once()->with( $handle )->andReturn( $data );
+		// Check timestamps - the "file" does not exist yet, so the stream wrapper reports 0.
+		$this->assertSame( 0, \fileatime( $path ) );
+		$this->assertSame( 0, \filemtime( $path ) );
 
-		$this->assertTrue( $this->sut->stream_metadata( $path, $option, $args ) );
+		// Run the test.
+		$this->assertTrue( \touch( $path, $new_mtime ) );
 
-		// Check data reference.
-		$this->assert_attribute_same( $data, 'data', $this->sut );
-		$this->assert_attribute_same( 0, 'position', $this->sut );
-	}
-
-	/**
-	 * Tests ::stream_metadata.
-	 *
-	 * @covers ::stream_metadata
-	 *
-	 * @uses ::get_handle_from_url
-	 * @uses ::handle_exists
-	 */
-	public function test_stream_metadata_touch_handle_exists() {
-		$path   = vfsStream::url( 'root/folder/filename.txt' );
-		$option = \STREAM_META_TOUCH;
-		$args   = [ 'foobar' ];
-
-		$handle = 'root/folder/filename.txt';
-
-		$this->sut->shouldReceive( 'get_handle_from_url' )->once()->with( $path )->andReturn( $handle );
-		$this->sut->shouldReceive( 'handle_exists' )->once()->with( $handle )->andReturn( true );
-		$this->sut->shouldReceive( 'get_data_reference' )->never();
-
-		$this->assertTrue( $this->sut->stream_metadata( $path, $option, $args ) );
+		// Check timestamps again.
+		\clearstatcache( false, $path );
+		$this->assertSame( $new_mtime, \fileatime( $path ) );
+		$this->assertSame( $new_mtime, \filemtime( $path ) );
 	}
 
 	/**
@@ -797,7 +857,13 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'handle_exists' )->once()->with( 'foo' );
 
 		$data = $this->invoke_static_method( $classname, 'get_data_reference', [ 'foo' ] );
-		$this->assertSame( '', $data );
+
+		$this->assertArrayHasKey( 'data', $data );
+		$this->assertSame( '', $data['data'] );
+		$this->assertArrayHasKey( 'atime', $data );
+		$this->assertIsInt( $data['atime'] );
+		$this->assertArrayHasKey( 'mtime', $data );
+		$this->assertIsInt( $data['mtime'] );
 	}
 
 	/**
@@ -828,8 +894,14 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$handle = 'something';
 		$result = 'fake data';
 
+		$stream_ref = [
+			'data' => $result,
+			'atime' => 0,
+			'mtime' => 0,
+		];
+
 		$this->sut->shouldReceive( 'handle_exists' )->once()->with( $handle )->andReturn( true );
-		$this->sut->shouldReceive( 'get_data_reference' )->once()->with( $handle )->andReturn( $result );
+		$this->sut->shouldReceive( 'get_data_reference' )->once()->with( $handle )->andReturn( $stream_ref );
 		$this->sut->shouldReceive( 'delete_handle' )->once()->with( $handle )->andReturn( true );
 
 		$this->assertSame( $result, $classname::get_data( $handle, true ) );
@@ -846,8 +918,14 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$handle = 'something';
 		$result = 'fake data';
 
+		$stream_ref = [
+			'data' => $result,
+			'atime' => 0,
+			'mtime' => 0,
+		];
+
 		$this->sut->shouldReceive( 'handle_exists' )->once()->with( $handle )->andReturn( true );
-		$this->sut->shouldReceive( 'get_data_reference' )->once()->with( $handle )->andReturn( $result );
+		$this->sut->shouldReceive( 'get_data_reference' )->once()->with( $handle )->andReturn( $stream_ref );
 		$this->sut->shouldReceive( 'delete_handle' )->never();
 
 		$this->assertSame( $result, $classname::get_data( $handle, false ) );
@@ -941,5 +1019,78 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$classname::register( 'foobar' );
 
 		$this->assertContains( 'foobar', \stream_get_wrappers() );
+	}
+
+	/**
+	 * Integration test for Image_Stream.
+	 *
+	 * @coversNothing
+	 *
+	 * @uses ::stream_open
+	 *
+	 * @return void
+	 */
+	public function test_integration(): void {
+		// Make sure the real Image_Stream class is registered.
+		\stream_wrapper_unregister( 'foobar' );
+		Image_Stream::register( 'foobar' );
+
+		// Set up test.
+		$initial_time = \time();
+		$stream_url   = 'foobar://my/test/stream';
+		$initial_data = 'Some random stream.';
+
+		// Wait a bit.
+		\sleep( 1 ) ;
+
+		// Copy data to stream implementation.
+		\file_put_contents( $stream_url, $initial_data ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+
+		// Check length of stream.
+		$this->assertSame( \strlen( $initial_data ), \filesize( $stream_url ) );
+
+		// Check last access time.
+		$first_access_time = \fileatime( $stream_url );
+		$this->assertGreaterThan( $initial_time, $first_access_time );
+
+		// Check last modification time.
+		$first_mod_time = \filemtime( $stream_url );
+		$this->assertGreaterThan( $initial_time, $first_mod_time );
+
+		// Now let's check the content.
+		$this->assertSame( $initial_data, \file_get_contents( $stream_url ) );
+
+		// Wait a bit.
+		\sleep( 1 ) ;
+
+		// Modify the file.
+		$additional_data = ' With another sentence tacked on.';
+		\file_put_contents( $stream_url, $additional_data, \FILE_APPEND ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+
+		// Check timestamps again.
+		\clearstatcache( false, $stream_url );
+		$second_access_time = \fileatime( $stream_url );
+		$second_mod_time = \filemtime( $stream_url );
+
+		$this->assertSame( $first_access_time, $second_access_time ); // We didn't read the stream.
+		$this->assertGreaterThan( $first_mod_time, $second_mod_time );
+
+		// Now let's check the content again.
+		$this->assertSame( "{$initial_data}{$additional_data}", \file_get_contents( $stream_url ) );
+
+		// Wait a bit.
+		\sleep( 1 );
+
+		// Touch the file and check the times again.
+		\touch( $stream_url );
+		\clearstatcache( false, $stream_url );
+		$this->assertGreaterThan( $second_access_time, \fileatime( $stream_url ) );
+		$this->assertGreaterThan( $second_mod_time, \filemtime( $stream_url ) );
+
+		// Touch the file and check the times yet another time.
+		\touch( $stream_url, 111, 222 );
+		\clearstatcache( false, $stream_url );
+		$this->assertSame( 111, \filemtime( $stream_url ) );
+		$this->assertSame( 222, \fileatime( $stream_url ) );
 	}
 }
