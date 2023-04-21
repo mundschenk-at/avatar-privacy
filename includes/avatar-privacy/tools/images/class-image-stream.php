@@ -37,6 +37,7 @@ namespace Avatar_Privacy\Tools\Images;
  * @author Peter Putzer <github@mundschenk.at>
  *
  * @phpstan-type StreamStat array{ dev: int, ino: int, mode: int, nlink: int, uid: int, gid: int, rdev: int, size: int, atime: int, mtime: int, ctime: int, blksize: int, blocks: int }
+ * @phpstan-type StreamHandle array{ data: string, atime: int, mtime: int }
  */
 class Image_Stream {
 	const PROTOCOL = 'avprimg';
@@ -62,10 +63,17 @@ class Image_Stream {
 		'c+' => true,
 	];
 
+	// The access keys for StreamHandle components.
+	private const DATA              = 'data';
+	private const ACCESS_TIME       = 'atime';
+	private const MODIFICATION_TIME = 'mtime';
+
 	/**
 	 * The persistent handles for existing streams.
 	 *
-	 * @var string[]
+	 * @var array
+	 *
+	 * @phpstan-var array<string, StreamHandle>
 	 */
 	private static array $handles = [];
 
@@ -75,6 +83,24 @@ class Image_Stream {
 	 * @var string
 	 */
 	private string $data;
+
+	/**
+	 * The access time of the stream.
+	 *
+	 * @since 2.7.0
+	 *
+	 * @var int
+	 */
+	private int $atime;
+
+	/**
+	 * The modification time of the stream.
+	 *
+	 * @since 2.7.0
+	 *
+	 * @var int
+	 */
+	private int $mtime;
 
 	/**
 	 * Whether this stream can be read from.
@@ -123,8 +149,13 @@ class Image_Stream {
 	 */
 	public function stream_open( $path, $mode, $options, &$opened_path ) {
 		$real_path     = static::get_handle_from_url( $path );
-		$this->data    = &static::get_data_reference( $real_path );
 		$this->options = $options;
+
+		[
+			self::DATA              => &$this->data,
+			self::ACCESS_TIME       => &$this->atime,
+			self::MODIFICATION_TIME => &$this->mtime,
+		] = static::get_data_reference( $real_path );
 
 		// Strip binary/text flags from mode for comparison.
 		$mode = \str_replace( [ 'b', 't' ], '', $mode );
@@ -178,6 +209,9 @@ class Image_Stream {
 			$read_bytes      = \substr( $this->data, $this->position, $bytes );
 			$this->position += \strlen( $read_bytes );
 
+			// Update access time.
+			$this->atime = \time();
+
 			return $read_bytes;
 		}
 
@@ -198,6 +232,9 @@ class Image_Stream {
 			$right           = \substr( $this->data, $this->position + $data_length );
 			$this->data      = "{$left}{$data}{$right}";
 			$this->position += $data_length;
+
+			// Update modification time.
+			$this->mtime = \time();
 
 			return $data_length;
 		}
@@ -281,9 +318,11 @@ class Image_Stream {
 		$current_length = \strlen( $this->data );
 
 		if ( $current_length > $length ) {
-			$this->data = \substr( $this->data, 0, $length );
+			$this->data  = \substr( $this->data, 0, $length );
+			$this->mtime = \time();
 		} elseif ( $current_length < $length ) {
-			$this->data = \str_pad( $this->data, $length, "\0", \STR_PAD_RIGHT );
+			$this->data  = \str_pad( $this->data, $length, "\0", \STR_PAD_RIGHT );
+			$this->mtime = \time();
 		}
 
 		return true;
@@ -306,9 +345,9 @@ class Image_Stream {
 			'gid'     => 0,
 			'rdev'    => 0,
 			'size'    => \strlen( $this->data ),
-			'atime'   => 0,
-			'mtime'   => 0,
-			'ctime'   => 0,
+			'atime'   => isset( $this->atime ) ? $this->atime : 0,
+			'mtime'   => isset( $this->mtime ) ? $this->mtime : 0,
+			'ctime'   => isset( $this->mtime ) ? $this->mtime : 0, // We don't have an inode.
 			'blksize' => -1,
 			'blocks'  => -1,
 		];
@@ -371,12 +410,12 @@ class Image_Stream {
 	 *
 	 * @phpstan-param array{ mtime: int, atime: int }|string|int $value
 	 */
-	public function stream_metadata( $path, $option, $value ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- FIXME: Add access time handling
-		$handle = static::get_handle_from_url( $path );
+	public function stream_metadata( $path, $option, $value ) {
+		if ( \STREAM_META_TOUCH === $option ) {
+			$stream = &static::get_data_reference( static::get_handle_from_url( $path ) );
 
-		if ( ! static::handle_exists( $handle ) && \STREAM_META_TOUCH === $option ) {
-			$this->data     = &static::get_data_reference( $handle );
-			$this->position = 0;
+			$stream[ self::MODIFICATION_TIME ] = isset( $value[0] ) ? (int) $value[0] : \time();
+			$stream[ self::ACCESS_TIME ]       = isset( $value[1] ) ? (int) $value[1] : $stream[ self::MODIFICATION_TIME ];
 		}
 
 		// Ignore metadata changing functions, but simulate success.
@@ -398,6 +437,12 @@ class Image_Stream {
 		}
 
 		static::delete_handle( $handle );
+
+		// Clean up local references.
+		unset( $this->data );
+		unset( $this->atime );
+		unset( $this->mtime );
+
 		return true;
 	}
 
@@ -426,11 +471,19 @@ class Image_Stream {
 	 *
 	 * @param  string $handle The stream handle.
 	 *
-	 * @return string         A reference to the stream data.
+	 * @return array         A reference to the stream data.
+	 *
+	 * @phpstan-return StreamHandle
 	 */
 	protected static function &get_data_reference( $handle ) { // phpcs:ignore ImportDetection.Imports.RequireImports.Symbol -- false positive.
 		if ( ! static::handle_exists( $handle ) ) {
-			self::$handles[ $handle ] = '';
+			$now = \time();
+
+			self::$handles[ $handle ] = [
+				self::DATA              => '',
+				self::ACCESS_TIME       => $now,
+				self::MODIFICATION_TIME => $now,
+			];
 		}
 
 		return self::$handles[ $handle ];
@@ -463,7 +516,7 @@ class Image_Stream {
 		}
 
 		// Save data.
-		$result = static::get_data_reference( $handle );
+		$result = static::get_data_reference( $handle )[ self::DATA ];
 
 		// Clean up, if requested.
 		if ( $delete ) {
