@@ -92,7 +92,7 @@ jobs:
           sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' phpunit.coverage.xml
           sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' phpunit.test-report.xml
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarcloud-github-action@v1.7
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
