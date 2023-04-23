@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2021 Peter Putzer.
+ * Copyright 2019-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -48,21 +48,21 @@ class WPDiscuz_Integration implements Plugin_Integration {
 	 *
 	 * @var Dependencies
 	 */
-	private $dependencies;
+	private Dependencies $dependencies;
 
 	/**
 	 * The comment handling component.
 	 *
 	 * @var Comments
 	 */
-	private $comments;
+	private Comments $comments;
 
 	/**
 	 * The field name for the cookies consent checkbox.
 	 *
 	 * @var string
 	 */
-	private $cookie_consent_name;
+	private string $cookie_consent_name;
 
 	/**
 	 * Creates a new instance.
@@ -182,6 +182,8 @@ class WPDiscuz_Integration implements Plugin_Integration {
 	 * @param  string $variable_name Name of a variable to get.
 	 *
 	 * @return bool
+	 *
+	 * @phpstan-param \INPUT_GET|\INPUT_POST|\INPUT_COOKIE|\INPUT_SERVER|\INPUT_ENV $type
 	 */
 	protected function filter_bool( $type, $variable_name ) {
 		return true === \filter_input( $type, $variable_name, \FILTER_VALIDATE_BOOLEAN ); // @codeCoverageIgnore
