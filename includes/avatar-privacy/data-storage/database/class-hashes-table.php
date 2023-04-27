@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020-2022 Peter Putzer.
+ * Copyright 2020-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -51,7 +51,7 @@ class Hashes_Table extends Table {
 	 *
 	 * @var string
 	 */
-	const LAST_UPDATED = '2.4';
+	const LAST_UPDATED = '2.7.0';
 
 	/**
 	 * A column/field to placeholder mapping.
@@ -109,16 +109,29 @@ class Hashes_Table extends Table {
 	 * @return string
 	 */
 	protected function get_table_definition( $table_name ) {
-		// TODO: The identifier length should be increased to at least 200 (or
-		// better 256 as in 2.4.0) in one of the next versions.
+		$identifier_length = $this->database_supports_large_index() ? 256 : 175;
+
 		return "CREATE TABLE {$table_name} (
-				identifier varchar(175) NOT NULL,
+				identifier varchar({$identifier_length}) NOT NULL,
 				hash char(64) CHARACTER SET ascii NOT NULL,
 				type varchar(20) CHARACTER SET ascii NOT NULL,
 				last_updated datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
 				PRIMARY KEY (hash, type),
 				UNIQUE KEY identifier (identifier, type)
 			)";
+	}
+
+	/**
+	 * Checks if the database server supports large indices (determined by InnoDB version being at least 5.7.0).
+	 *
+	 * @since 2.7.0
+	 */
+	protected function database_supports_large_index(): bool {
+		global $wpdb;
+
+		$innodb_version = $wpdb->get_var( $wpdb->prepare( 'SHOW VARIABLES LIKE "innodb_version"' ), 1 ) ?? '';  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQLPlaceholders.LikeWildcardsInQuery -- No caching necessary, no actual wildcards used.
+
+		return \version_compare( $innodb_version, '5.7', '>=' );
 	}
 
 	/**

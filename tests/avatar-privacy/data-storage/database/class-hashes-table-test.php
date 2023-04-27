@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020 Peter Putzer.
+ * Copyright 2020-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -86,15 +86,69 @@ class Hashes_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Provides data for testing get_table_definition.
+	 *
+	 * @return mixed[]
+	 */
+	public function provide_get_table_definition_data(): array {
+		return [
+			[ false, 175 ],
+			[ true, 256 ],
+		];
+	}
+
+	/**
 	 * Tests ::get_table_definition.
 	 *
 	 * @covers ::get_table_definition
+	 *
+	 * @dataProvider provide_get_table_definition_data
+	 *
+	 * @param bool $supports_large_index Whether large indices are supported by the DB server.
+	 * @param int  $identifier_length    The expected length of the `identifier` column.
 	 */
-	public function test_get_table_definition() {
+	public function test_get_table_definition( bool $supports_large_index, int $identifier_length ) {
 		$table_name = 'my_table';
 
-		$this->assert_matches_regular_expression( "/^CREATE TABLE {$table_name} \(.*\)\$/sum", $this->sut->get_table_definition( $table_name ) );
+		$this->sut->shouldReceive( 'database_supports_large_index' )->once()->andReturn( $supports_large_index );
+
+		$this->assert_matches_regular_expression( "/^CREATE TABLE {$table_name} \(\s+identifier varchar\({$identifier_length}\).*\)\$/sum", $this->sut->get_table_definition( $table_name ) );
 	}
+
+	/**
+	 * Provides data for testing database_supports_large_index.
+	 *
+	 * @return mixed[]
+	 */
+	public function provide_database_supports_large_index_data(): array {
+		return [
+			[ null, false ],
+			[ '5.6.1', false ],
+			[ '5.7.0', true ],
+			[ '10.6.12', true ],
+		];
+	}
+
+	/**
+	 * Tests ::database_supports_large_index.
+	 *
+	 * @covers ::database_supports_large_index
+	 *
+	 * @dataProvider provide_database_supports_large_index_data
+	 *
+	 * @param null|string $innodb_version The InnoDB storage engine version.
+	 * @param bool        $result         The expected result.
+	 */
+	public function test_database_supports_large_index( ?string $innodb_version, bool $result ): void {
+		global $wpdb;
+		$wpdb = m::mock( \wpdb::class ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SHOW VARIABLES LIKE "innodb_version"',  )->andReturn( 'PREPARED_SQL' );
+		$wpdb->shouldReceive( 'get_var' )->once()->with( 'PREPARED_SQL', 1 )->andReturn( $innodb_version );
+
+		$this->assertSame( $result, $this->sut->database_supports_large_index() );
+	}
+
 
 	/**
 	 * Tests ::maybe_upgrade_schema.
@@ -106,6 +160,7 @@ class Hashes_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->assertFalse( $this->sut->maybe_upgrade_schema( $previous ) );
 	}
+
 	/**
 	 * Tests ::maybe_upgrade_data.
 	 *
