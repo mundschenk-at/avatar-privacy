@@ -5,10 +5,12 @@ namespace Identicon\Generator;
 /**
  * @author Grummfy <grummfy@gmail.com>
  */
-class SvgGenerator extends BaseGenerator implements GeneratorInterface
+class SvgGenerator extends BaseGenerator
 {
     /**
-     * {@inheritdoc}
+     * Return the mime-type of this identicon.
+     *
+     * @return string
      */
     public function getMimeType()
     {
@@ -16,7 +18,12 @@ class SvgGenerator extends BaseGenerator implements GeneratorInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string       $string
+     * @param int          $size
+     * @param array|string $color
+     * @param array|string $backgroundColor
+     *
+     * @return mixed
      */
     public function getImageBinaryData($string, $size = null, $color = null, $backgroundColor = null)
     {
@@ -24,7 +31,12 @@ class SvgGenerator extends BaseGenerator implements GeneratorInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string       $string
+     * @param int          $size
+     * @param array|string $color
+     * @param array|string $backgroundColor
+     *
+     * @return string
      */
     public function getImageResource($string, $size = null, $color = null, $backgroundColor = null)
     {
