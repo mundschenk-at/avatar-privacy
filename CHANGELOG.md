@@ -4,6 +4,8 @@
 *   _Feature_: Avatar Privacy is now compatible with PHP 8.2.
 *   _Feature_: The plugin now honors the `wp_delete_file` filter when deleting files.
 *   _Change_: Requires at least PHP 7.4.
+*   _Change_: Upgrades `identifier` column of `avatar_privacy_hashes` table to
+    256 characters on supported MySQL/MariaDB versions (as it was in 2.4.0).
 *   _Bugfix_: Icons from Webmentions using Gravatar will get cached now.
 
 ## 2.6.0 (2022-04-18)
