@@ -47,14 +47,15 @@
  *  ***
  *
  * @package mundschenk-at/avatar-privacy
+ * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Yzalis;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
 /**
  * @author Grummfy <grummfy@gmail.com>
  */
-class Retro_Generator {
+class Retro {
 
 	private const NUMBER_OF_PIXELS = 5;
 
