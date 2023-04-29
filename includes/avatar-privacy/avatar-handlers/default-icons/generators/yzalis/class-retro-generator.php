@@ -57,11 +57,6 @@ namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Yzalis;
 class Retro_Generator {
 
 	/**
-	 * @var array
-	 */
-	protected array $color;
-
-	/**
 	 * @var string
 	 */
 	private string $hash;
@@ -95,10 +90,6 @@ class Retro_Generator {
 
 			ksort( $this->array_of_square[ $index ] );
 		}
-
-		$this->color = array_map(function ( $data ) {
-			return hexdec( $data ) * 16;
-		}, array_reverse( $chars[1] ));
 
 		return $this;
 	}
@@ -150,12 +141,9 @@ class Retro_Generator {
 	 *
 	 * @return string
 	 */
-	public function get_image_binary_data( string $string, int $size, ?string $color = null, ?string $background_color = null ) {
+	public function get_image_binary_data( string $string, int $size, string $color, string $background_color ) {
 		$this
 			->set_string( $string );
-
-		// Prepare colors.
-		$background_color ??= '#FFF';
 
 		// Prepare image.
 		$svg  = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="' . $size . '" height="' . $size . '" viewBox="0 0 5 5">';
