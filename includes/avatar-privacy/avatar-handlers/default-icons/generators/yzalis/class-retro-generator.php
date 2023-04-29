@@ -54,338 +54,320 @@ namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Yzalis;
 /**
  * @author Grummfy <grummfy@gmail.com>
  */
-class Retro_Generator
-{
-    /**
-     * @var mixed
-     */
-    protected $generated_image;
+class Retro_Generator {
 
-    /**
-     * @var array
-     */
-    protected $color;
+	/**
+	 * @var mixed
+	 */
+	protected $generated_image;
 
-    /**
-     * @var array
-     */
-    protected $background_color;
+	/**
+	 * @var array
+	 */
+	protected array $color;
 
-    /**
-     * @var int
-     */
-    protected $size;
+	/**
+	 * @var array
+	 */
+	protected array $background_color;
 
-    /**
-     * @var int
-     */
-    protected $pixel_ratio;
+	/**
+	 * @var int
+	 */
+	protected int $size;
 
-    /**
-     * @var string
-     */
-    private $hash;
+	/**
+	 * @var int
+	 */
+	protected int $pixel_ratio;
 
-    /**
-     * @var array
-     */
-    private $array_of_square = [];
+	/**
+	 * @var string
+	 */
+	private string $hash;
 
-    /**
-     * Set the image color.
-     *
-     * @param string|array $color The color in hexa (3 or 6 chars) or rgb array
-     *
-     * @return $this
-     */
-    public function set_color( $color )
-    {
-        if (null === $color) {
-            return $this;
-        }
+	/**
+	 * @var array
+	 */
+	private array $array_of_square = [];
 
-        $this->color = $this->convert_color( $color );
+	/**
+	 * Set the image color.
+	 *
+	 * @param string|array $color The color in hexa (3 or 6 chars) or rgb array
+	 *
+	 * @return $this
+	 */
+	public function set_color( $color ): self {
+		if ( null === $color ) {
+			return $this;
+		}
 
-        return $this;
-    }
+		$this->color = $this->convert_color( $color );
 
-    /**
-     * Set the image background color.
-     *
-     * @param string|array $background_color The color in hexa (3 or 6 chars) or rgb array
-     *
-     * @return $this
-     */
-    public function set_background_color( $background_color )
-    {
-        if (null === $background_color) {
-            return $this;
-        }
+		return $this;
+	}
 
-        $this->background_color = $this->convert_color($background_color);
+	/**
+	 * Set the image background color.
+	 *
+	 * @param string|array $background_color The color in hexa (3 or 6 chars) or rgb array
+	 *
+	 * @return $this
+	 */
+	public function set_background_color( $background_color ): self {
+		if ( null === $background_color ) {
+			return $this;
+		}
 
-        return $this;
-    }
+		$this->background_color = $this->convert_color( $background_color );
 
-    /**
-     * @param array|string $color
-     *
-     * @return array
-     */
-    private function convert_color($color)
-    {
-        if (is_array($color)) {
-            return $color;
-        }
+		return $this;
+	}
 
-        if (preg_match('/^#?([a-z\d])([a-z\d])([a-z\d])$/i', $color, $matches)) {
-            $color = $matches[1].$matches[1];
-            $color .= $matches[2].$matches[2];
-            $color .= $matches[3].$matches[3];
-        }
+	/**
+	 * @param array|string $color
+	 *
+	 * @return array
+	 */
+	private function convert_color( $color ): array {
+		if ( is_array( $color ) ) {
+			return $color;
+		}
 
-        preg_match('/#?([a-z\d]{2})([a-z\d]{2})([a-z\d]{2})$/i', $color, $matches);
+		if ( preg_match( '/^#?([a-z\d])([a-z\d])([a-z\d])$/i', $color, $matches ) ) {
+			$color  = $matches[1] . $matches[1];
+			$color .= $matches[2] . $matches[2];
+			$color .= $matches[3] . $matches[3];
+		}
 
-        return array_map(function ($value) {
-            return hexdec($value);
-        }, array_slice($matches, 1, 3));
-    }
+		preg_match( '/#?([a-z\d]{2})([a-z\d]{2})([a-z\d]{2})$/i', $color, $matches );
 
-    /**
-     * Get the color.
-     *
-     * @return array
-     */
-    public function get_color()
-    {
-        return $this->color;
-    }
+		return array_map(function ( $value ) {
+			return hexdec( $value );
+		}, array_slice( $matches, 1, 3 ));
+	}
 
-    /**
-     * Get the background color.
-     *
-     * @return array
-     */
-    public function get_background_color()
-    {
-        return $this->background_color;
-    }
+	/**
+	 * Get the color.
+	 *
+	 * @return array
+	 */
+	public function get_color(): array {
+		return $this->color;
+	}
 
-    /**
-     * Convert the hash into an multidimensional array of boolean.
-     *
-     * @return $this
-     */
-    private function convert_hash_to_array_of_boolean()
-    {
-        preg_match_all('/(\w)(\w)/', $this->hash, $chars);
+	/**
+	 * Get the background color.
+	 *
+	 * @return array
+	 */
+	public function get_background_color(): array {
+		return $this->background_color;
+	}
 
-        foreach ($chars[1] as $i => $char) {
-            $index = (int) ($i / 3);
-            $data = $this->convert_hexa_to_boolean($char);
+	/**
+	 * Convert the hash into an multidimensional array of boolean.
+	 *
+	 * @return $this
+	 */
+	private function convert_hash_to_array_of_boolean(): self {
+		preg_match_all( '/(\w)(\w)/', $this->hash, $chars );
 
-            $items = [
-                0 => [0, 4],
-                1 => [1, 3],
-                2 => [2],
-            ];
+		foreach ( $chars[1] as $i => $char ) {
+			$index = (int) ( $i / 3 );
+			$data  = $this->convert_hexa_to_boolean( $char );
 
-            foreach ($items[$i % 3] as $item) {
-                $this->array_of_square[$index][$item] = $data;
-            }
+			$items = [
+				0 => [ 0, 4 ],
+				1 => [ 1, 3 ],
+				2 => [ 2 ],
+			];
 
-            ksort($this->array_of_square[$index]);
-        }
+			foreach ( $items[ $i % 3 ] as $item ) {
+				$this->array_of_square[ $index ][ $item ] = $data;
+			}
 
-        $this->color = array_map(function ($data) {
-            return hexdec($data) * 16;
-        }, array_reverse($chars[1]));
+			ksort( $this->array_of_square[ $index ] );
+		}
 
-        return $this;
-    }
+		$this->color = array_map(function ( $data ) {
+			return hexdec( $data ) * 16;
+		}, array_reverse( $chars[1] ));
 
-    /**
-     * Convert an hexadecimal number into a boolean.
-     *
-     * @param string $hexa
-     *
-     * @return bool
-     */
-    private function convert_hexa_to_boolean($hexa)
-    {
-        return (bool) round(hexdec($hexa) / 10);
-    }
+		return $this;
+	}
 
-    /**
-     * @return array
-     */
-    public function get_array_of_square()
-    {
-        return $this->array_of_square;
-    }
+	/**
+	 * Convert an hexadecimal number into a boolean.
+	 *
+	 * @param string $hexa
+	 *
+	 * @return bool
+	 */
+	private function convert_hexa_to_boolean( string $hexa ): bool {
+		return (bool) round( hexdec( $hexa ) / 10 );
+	}
 
-    /**
-     * Get the identicon string hash.
-     *
-     * @return string
-     */
-    public function get_hash()
-    {
-        return $this->hash;
-    }
+	/**
+	 * @return array
+	 */
+	public function get_array_of_square(): array {
+		return $this->array_of_square;
+	}
 
-    /**
-     * Generate a hash from the original string.
-     *
-     * @param string $string
-     *
-     * @throws \Exception
-     *
-     * @return $this
-     */
-    public function set_string($string)
-    {
-        if (null === $string) {
-            throw new \Exception('The string cannot be null.');
-        }
+	/**
+	 * Get the identicon string hash.
+	 *
+	 * @return string
+	 */
+	public function get_hash(): string {
+		return $this->hash;
+	}
 
-        $this->hash = md5($string);
+	/**
+	 * Generate a hash from the original string.
+	 *
+	 * @param string $string
+	 *
+	 * @throws \Exception
+	 *
+	 * @return $this
+	 */
+	public function set_string( string $string ): self {
+		if ( null === $string ) {
+			throw new \Exception( 'The string cannot be null.' );
+		}
 
-        $this->convert_hash_to_array_of_boolean();
+		$this->hash = md5( $string );
 
-        return $this;
-    }
+		$this->convert_hash_to_array_of_boolean();
 
-    /**
-     * Set the image size.
-     *
-     * @param int $size
-     *
-     * @return $this
-     */
-    public function set_size($size)
-    {
-        if (null === $size) {
-            return $this;
-        }
+		return $this;
+	}
 
-        $this->size = $size;
-        $this->pixel_ratio = (int) round($size / 5);
+	/**
+	 * Set the image size.
+	 *
+	 * @param int $size
+	 *
+	 * @return $this
+	 */
+	public function set_size( ?int $size ): self {
+		if ( null === $size ) {
+			return $this;
+		}
 
-        return $this;
-    }
+		$this->size        = $size;
+		$this->pixel_ratio = (int) round( $size / 5 );
 
-    /**
-     * Get the image size.
-     *
-     * @return int
-     */
-    public function get_size()
-    {
-        return $this->size;
-    }
+		return $this;
+	}
 
-    /**
-     * Get the pixel ratio.
-     *
-     * @return int
-     */
-    public function get_pixel_ratio()
-    {
-        return $this->pixel_ratio;
-    }
+	/**
+	 * Get the image size.
+	 *
+	 * @return int
+	 */
+	public function get_size(): int {
+		return $this->size;
+	}
 
-    /**
-     * Return the mime-type of this identicon.
-     *
-     * @return string
-     */
-    public function get_mime_type()
-    {
-        return 'image/svg+xml';
-    }
+	/**
+	 * Get the pixel ratio.
+	 *
+	 * @return int
+	 */
+	public function get_pixel_ratio(): int {
+		return $this->pixel_ratio;
+	}
 
-    /**
-     * @param string       $string
-     * @param int          $size
-     * @param array|string $color
-     * @param array|string $backgroundColor
-     *
-     * @return mixed
-     */
-    public function get_image_binary_data($string, $size = null, $color = null, $backgroundColor = null)
-    {
-        return $this->get_image_resource($string, $size, $color, $backgroundColor);
-    }
+	/**
+	 * Return the mime-type of this identicon.
+	 *
+	 * @return string
+	 */
+	public function get_mime_type(): string {
+		return 'image/svg+xml';
+	}
 
-    /**
-     * @param string       $string
-     * @param int          $size
-     * @param array|string $color
-     * @param array|string $backgroundColor
-     *
-     * @return string
-     */
-    public function get_image_resource($string, $size = null, $color = null, $backgroundColor = null)
-    {
-        $this
-            ->set_string($string)
-            ->set_size($size)
-            ->set_color($color)
-            ->set_background_color($backgroundColor)
-            ->_generate_image();
+	/**
+	 * @param string       $string
+	 * @param int          $size
+	 * @param array|string $color
+	 * @param array|string $backgroundColor
+	 *
+	 * @return mixed
+	 */
+	public function get_image_binary_data( string $string, ?int $size = null, $color = null, $backgroundColor = null ) {
+		return $this->get_image_resource( $string, $size, $color, $backgroundColor );
+	}
 
-        return $this->generated_image;
-    }
+	/**
+	 * @param string       $string
+	 * @param int          $size
+	 * @param array|string $color
+	 * @param array|string $backgroundColor
+	 *
+	 * @return string
+	 */
+	public function get_image_resource( string $string, ?int $size = null, $color = null, $backgroundColor = null ): string {
+		$this
+			->set_string( $string )
+			->set_size( $size )
+			->set_color( $color )
+			->set_background_color( $backgroundColor )
+			->_generate_image();
 
-    /**
-     * @return $this
-     */
-    protected function _generate_image()
-    {
-        // prepare image
-        $w = $this->get_pixel_ratio() * 5;
-        $h = $this->get_pixel_ratio() * 5;
-        $svg = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="'.$w.'" height="'.$h.'" viewBox="0 0 5 5">';
+		return $this->generated_image;
+	}
 
-        $backgroundColor = '#FFF';
-        $rgbBackgroundColor = $this->get_background_color();
-        if (!is_null($rgbBackgroundColor)) {
-            $backgroundColor = $this->_to_understandable_color($rgbBackgroundColor);
-        }
+	/**
+	 * @return $this
+	 */
+	protected function _generate_image(): self {
+		// prepare image
+		$w   = $this->get_pixel_ratio() * 5;
+		$h   = $this->get_pixel_ratio() * 5;
+		$svg = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="' . $w . '" height="' . $h . '" viewBox="0 0 5 5">';
 
-        $svg .= '<rect width="5" height="5" fill="'.$backgroundColor.'" stroke-width="0"/>';
+		$backgroundColor    = '#FFF';
+		$rgbBackgroundColor = $this->get_background_color();
+		if ( ! is_null( $rgbBackgroundColor ) ) {
+			$backgroundColor = $this->_to_understandable_color( $rgbBackgroundColor );
+		}
 
-        $rects = [];
-        // draw content
-        foreach ($this->get_array_of_square() as $lineKey => $lineValue) {
-            foreach ($lineValue as $colKey => $colValue) {
-                if (true === $colValue) {
-                    $rects[] = 'M'.$colKey.','.$lineKey.'h1v1h-1v-1';
-                }
-            }
-        }
+		$svg .= '<rect width="5" height="5" fill="' . $backgroundColor . '" stroke-width="0"/>';
 
-        $rgbColor = $this->_to_understandable_color($this->get_color());
-        $svg .= '<path fill="'.$rgbColor.'" stroke-width="0" d="' . implode('', $rects) . '"/>';
-        $svg .= '</svg>';
+		$rects = [];
+		// draw content
+		foreach ( $this->get_array_of_square() as $lineKey => $lineValue ) {
+			foreach ( $lineValue as $colKey => $colValue ) {
+				if ( true === $colValue ) {
+					$rects[] = 'M' . $colKey . ',' . $lineKey . 'h1v1h-1v-1';
+				}
+			}
+		}
 
-        $this->generated_image = $svg;
+		$rgbColor = $this->_to_understandable_color( $this->get_color() );
+		$svg     .= '<path fill="' . $rgbColor . '" stroke-width="0" d="' . implode( '', $rects ) . '"/>';
+		$svg     .= '</svg>';
 
-        return $this;
-    }
+		$this->generated_image = $svg;
 
-    /**
-     * @param array|string $color
-     *
-     * @return string
-     */
-    protected function _to_understandable_color($color)
-    {
-        if (is_array($color)) {
-            return sprintf('#%X%X%X', $color[0], $color[1], $color[2]);
-        }
+		return $this;
+	}
 
-        return $color;
-    }
+	/**
+	 * @param array|string $color
+	 *
+	 * @return string
+	 */
+	protected function _to_understandable_color( $color ): string {
+		if ( is_array( $color ) ) {
+			return sprintf( '#%X%X%X', $color[0], $color[1], $color[2] );
+		}
+
+		return $color;
+	}
 }
