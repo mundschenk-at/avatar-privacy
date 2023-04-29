@@ -217,15 +217,6 @@ class Retro_Generator {
 	}
 
 	/**
-	 * Get the identicon string hash.
-	 *
-	 * @return string
-	 */
-	public function get_hash(): string {
-		return $this->hash;
-	}
-
-	/**
 	 * Generate a hash from the original string.
 	 *
 	 * @param string $string
@@ -265,15 +256,6 @@ class Retro_Generator {
 	}
 
 	/**
-	 * Get the image size.
-	 *
-	 * @return int
-	 */
-	public function get_size(): int {
-		return $this->size;
-	}
-
-	/**
 	 * Get the pixel ratio.
 	 *
 	 * @return int
@@ -283,35 +265,14 @@ class Retro_Generator {
 	}
 
 	/**
-	 * Return the mime-type of this identicon.
-	 *
-	 * @return string
-	 */
-	public function get_mime_type(): string {
-		return 'image/svg+xml';
-	}
-
-	/**
 	 * @param string       $string
 	 * @param int          $size
 	 * @param array|string $color
 	 * @param array|string $backgroundColor
 	 *
-	 * @return mixed
+	 * @return string
 	 */
 	public function get_image_binary_data( string $string, ?int $size = null, $color = null, $backgroundColor = null ) {
-		return $this->get_image_resource( $string, $size, $color, $backgroundColor );
-	}
-
-	/**
-	 * @param string       $string
-	 * @param int          $size
-	 * @param array|string $color
-	 * @param array|string $backgroundColor
-	 *
-	 * @return string
-	 */
-	public function get_image_resource( string $string, ?int $size = null, $color = null, $backgroundColor = null ): string {
 		$this
 			->set_string( $string )
 			->set_size( $size )
