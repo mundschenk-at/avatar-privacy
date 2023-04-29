@@ -27,6 +27,7 @@
 namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generator;
+use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Yzalis\Retro_Generator;
 
 use Avatar_Privacy\Tools\Number_Generator;
 
@@ -45,9 +46,9 @@ class Retro implements Generator {
 	/**
 	 * The identicon instance.
 	 *
-	 * @var \Identicon\Identicon
+	 * @var Retro_Generator
 	 */
-	private $identicon;
+	private Retro_Generator $identicon;
 
 	/**
 	 * The random number generator.
@@ -56,7 +57,7 @@ class Retro implements Generator {
 	 *
 	 * @var Number_Generator
 	 */
-	protected $number_generator;
+	protected Number_Generator $number_generator;
 
 	/**
 	 * Creates a new instance.
@@ -64,10 +65,10 @@ class Retro implements Generator {
 	 * @since 2.1.0 Parameter `$identicon` added.
 	 * @since 2.3.0 Parameter `$number_generator` added.
 	 *
-	 * @param \Identicon\Identicon $identicon        The identicon implementation.
-	 * @param Number_Generator     $number_generator A pseudo-random number generator.
+	 * @param Retro_Generator  $identicon        The identicon implementation.
+	 * @param Number_Generator $number_generator A pseudo-random number generator.
 	 */
-	public function __construct( \Identicon\Identicon $identicon, Number_Generator $number_generator ) {
+	public function __construct( Retro_Generator $identicon, Number_Generator $number_generator ) {
 		$this->identicon        = $identicon;
 		$this->number_generator = $number_generator;
 	}
@@ -85,7 +86,7 @@ class Retro implements Generator {
 		$this->number_generator->seed( $seed );
 
 		// Generate icon.
-		$result = $this->identicon->getImageData(
+		$result = $this->identicon->get_retro_avatar(
 			$seed,
 			$size,
 			RandomColor::one( [ 'luminosity' => 'bright' ] ),
