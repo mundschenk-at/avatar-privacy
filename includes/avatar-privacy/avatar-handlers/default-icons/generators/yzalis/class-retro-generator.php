@@ -56,81 +56,49 @@ namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Yzalis;
  */
 class Retro_Generator {
 
-	/**
-	 * @var string
-	 */
-	private string $hash;
+	private const NUMBER_OF_PIXELS = 5;
+
+	private const DIVIDER = 3;
+
+	private const POSSIBLE_COLUMNS = [
+		0 => [ 0, 4 ],
+		1 => [ 1, 3 ],
+		2 => [ 2 ],
+	];
 
 	/**
-	 * @var array
-	 */
-	private array $array_of_square = [];
-
-	/**
-	 * Convert the hash into an multidimensional array of boolean.
+	 * Converts the hash into an two-dimensional array of boolean.
 	 *
-	 * @return $this
+	 * @param string $hash The MD5 hash.
+	 *
+	 * @return array<int, array<int, bool>>
 	 */
-	private function convert_hash_to_array_of_boolean(): self {
-		preg_match_all( '/(\w)(\w)/', $this->hash, $chars );
+	protected function get_bitmap( string $hash ): array {
+		$bitmap = [];
 
-		foreach ( $chars[1] as $i => $char ) {
-			$index = (int) ( $i / 3 );
-			$data  = $this->convert_hexa_to_boolean( $char );
+		foreach ( \array_slice( \str_split( $hash, 2 ), 0, self::NUMBER_OF_PIXELS * self::DIVIDER ) as $i => $hex_tuple ) {
+			$row   = (int) ( $i / self::DIVIDER );
+			$pixel = $this->get_pixel_value( $hex_tuple[0] );
 
-			$items = [
-				0 => [ 0, 4 ],
-				1 => [ 1, 3 ],
-				2 => [ 2 ],
-			];
-
-			foreach ( $items[ $i % 3 ] as $item ) {
-				$this->array_of_square[ $index ][ $item ] = $data;
+			foreach ( self::POSSIBLE_COLUMNS[ $i % self::DIVIDER ] as $column ) {
+				$bitmap[ $row ][ $column ] = $pixel;
 			}
 
-			ksort( $this->array_of_square[ $index ] );
+			\ksort( $bitmap[ $row ] );
 		}
 
-		return $this;
+		return $bitmap;
 	}
 
 	/**
-	 * Convert an hexadecimal number into a boolean.
+	 * Converts a one-digit hexadecimal number into a boolean value.
 	 *
-	 * @param string $hexa
+	 * @param string $hex_digit A hexadecimal digit.
 	 *
 	 * @return bool
 	 */
-	private function convert_hexa_to_boolean( string $hexa ): bool {
-		return (bool) round( hexdec( $hexa ) / 10 );
-	}
-
-	/**
-	 * @return array
-	 */
-	public function get_array_of_square(): array {
-		return $this->array_of_square;
-	}
-
-	/**
-	 * Generate a hash from the original string.
-	 *
-	 * @param string $string
-	 *
-	 * @throws \Exception
-	 *
-	 * @return $this
-	 */
-	public function set_string( string $string ): self {
-		if ( null === $string ) {
-			throw new \Exception( 'The string cannot be null.' );
-		}
-
-		$this->hash = md5( $string );
-
-		$this->convert_hash_to_array_of_boolean();
-
-		return $this;
+	protected function get_pixel_value( string $hex_digit ): bool {
+		return (bool) \round( \hexdec( $hex_digit ) / 10 );
 	}
 
 	/**
@@ -142,16 +110,13 @@ class Retro_Generator {
 	 * @return string
 	 */
 	public function get_image_binary_data( string $string, int $size, string $color, string $background_color ) {
-		$this
-			->set_string( $string );
-
 		// Prepare image.
 		$svg  = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="' . $size . '" height="' . $size . '" viewBox="0 0 5 5">';
 		$svg .= '<rect width="5" height="5" fill="' . $background_color . '" stroke-width="0"/>';
 
 		// Draw content.
 		$rects = [];
-		foreach ( $this->get_array_of_square() as $line_key => $line_value ) {
+		foreach ( $this->get_bitmap( \md5( $string ) ) as $line_key => $line_value ) {
 			foreach ( $line_value as $col_key => $col_value ) {
 				if ( true === $col_value ) {
 					$rects[] = 'M' . $col_key . ',' . $line_key . 'h1v1h-1v-1';
