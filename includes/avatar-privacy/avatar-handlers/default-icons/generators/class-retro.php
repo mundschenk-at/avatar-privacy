@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2023 Peter Putzer.
+ * Copyright 2018-2023 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -52,10 +52,24 @@
 
 namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 
+use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generator;
+
+use Avatar_Privacy\Tools\Number_Generator;
+
+use Colors\RandomColor;
+
 /**
+ * Generates a "retro" SVG icon based on a hash.
+ *
+ * @since 1.0.0
+ * @since 2.0.0 Moved to Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators
+ * @since 2.7.0 Now directly incorporates the SVG generation code from the
+ *              deprecated package `yzalis/identicon`.
+ *
+ * @author Peter Putzer <github@mundschenk.at>
  * @author Grummfy <grummfy@gmail.com>
  */
-class Retro {
+class Retro implements Generator {
 
 	private const NUMBER_OF_PIXELS = 5;
 
@@ -66,6 +80,53 @@ class Retro {
 		1 => [ 1, 3 ],
 		2 => [ 2 ],
 	];
+
+	/**
+	 * The random number generator.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @var Number_Generator
+	 */
+	protected Number_Generator $number_generator;
+
+	/**
+	 * Creates a new instance.
+	 *
+	 * @since 2.1.0 Parameter `$identicon` added.
+	 * @since 2.3.0 Parameter `$number_generator` added.
+	 *
+	 * @param Number_Generator $number_generator A pseudo-random number generator.
+	 */
+	public function __construct( Number_Generator $number_generator ) {
+		$this->number_generator = $number_generator;
+	}
+
+	/**
+	 * Builds an icon based on the given seed returns the image data.
+	 *
+	 * @param  string $seed The seed data (hash).
+	 * @param  int    $size Optional. The size in pixels. Default 128 (but really ignored).
+	 *
+	 * @return string
+	 */
+	public function build( $seed, $size = 128 ) {
+		// Initialize random number with seed.
+		$this->number_generator->seed( $seed );
+
+		// Generate icon.
+		$result = $this->get_retro_avatar(
+			$seed,
+			$size,
+			RandomColor::one( [ 'luminosity' => 'bright' ] ),
+			RandomColor::one( [ 'luminosity' => 'light' ] )
+		);
+
+		// Restore randomness.
+		$this->number_generator->reset();
+
+		return $result;
+	}
 
 	/**
 	 * Converts the hash into an two-dimensional array of boolean.
