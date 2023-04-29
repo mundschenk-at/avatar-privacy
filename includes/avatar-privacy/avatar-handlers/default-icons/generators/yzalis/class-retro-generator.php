@@ -101,7 +101,11 @@ class Retro_Generator {
 		return (bool) \round( \hexdec( $hex_digit ) / 10 );
 	}
 
+
+
 	/**
+	 * Generates a "retro" avatar.
+	 *
 	 * @param string $string           The seed string.
 	 * @param int    $size             The image size in pixels.
 	 * @param string $color            The pixel color as hexadecimal RGB color string (e.g. '#000000').
@@ -109,14 +113,46 @@ class Retro_Generator {
 	 *
 	 * @return string
 	 */
-	public function get_image_binary_data( string $string, int $size, string $color, string $background_color ) {
-		// Prepare image.
-		$svg  = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="' . $size . '" height="' . $size . '" viewBox="0 0 5 5">';
-		$svg .= '<rect width="5" height="5" fill="' . $background_color . '" stroke-width="0"/>';
+	public function get_retro_avatar( string $string, int $size, string $color, string $background_color ) {
+		return $this->generate_svg( $this->get_bitmap( \md5( $string ) ), $color, $background_color );
+	}
 
-		// Draw content.
+	/**
+	 * Generates an SVG image from the given bitmap.
+	 *
+	 * @param  array  $bitmap           A two-dimensional array of boolean pixel values.
+	 * @param  string $color            The pixel color as hexadecimal RGB color string (e.g. '#000000').
+	 * @param  string $background_color The background color as a hexadecimal RGB color string (e.g. '#FFFFFF').
+	 *
+	 * @return string
+	 *
+	 * @phpstan-param array<int, array<int, bool>> $bitmap
+	 */
+	protected function generate_svg( array $bitmap, string $color, string $background_color ): string {
+		$rows    = \count( $bitmap );
+		$columns = \count( $bitmap[1] );
+
+		// Prepare image.
+		$svg  = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="320" height="320" viewBox="0 0 ' . "{$columns} {$rows}" . '">';
+		$svg .= '<rect width="' . $columns . '" height="' . $rows . '" fill="' . $background_color . '" stroke-width="0"/>';
+		$svg .= '<path fill="' . $color . '" stroke-width="0" d="' . $this->draw_path( $bitmap ) . '"/>';
+		$svg .= '</svg>';
+
+		return $svg;
+	}
+
+	/**
+	 * Draws an SVG path from the given bitmap.
+	 *
+	 * @param  array  $bitmap A two-dimensional array of boolean pixel values.
+	 *
+	 * @return string
+	 *
+	 * @phpstan-param array<int, array<int, bool>> $bitmap
+	 */
+	protected function draw_path( array $bitmap ): string {
 		$rects = [];
-		foreach ( $this->get_bitmap( \md5( $string ) ) as $line_key => $line_value ) {
+		foreach ( $bitmap as $line_key => $line_value ) {
 			foreach ( $line_value as $col_key => $col_value ) {
 				if ( true === $col_value ) {
 					$rects[] = 'M' . $col_key . ',' . $line_key . 'h1v1h-1v-1';
@@ -124,9 +160,6 @@ class Retro_Generator {
 			}
 		}
 
-		$svg .= '<path fill="' . $color . '" stroke-width="0" d="' . \implode( '', $rects ) . '"/>';
-		$svg .= '</svg>';
-
-		return $svg;
+		return \implode( '', $rects );
 	}
 }
