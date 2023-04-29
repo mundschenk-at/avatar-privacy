@@ -49,14 +49,12 @@
  * @package mundschenk-at/avatar-privacy
  */
 
-namespace Identicon\Generator;
-
-use \Exception;
+namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Yzalis;
 
 /**
  * @author Grummfy <grummfy@gmail.com>
  */
-class SvgGenerator
+class Retro_Generator
 {
     /**
      * @var mixed
@@ -248,7 +246,7 @@ class SvgGenerator
     public function setString($string)
     {
         if (null === $string) {
-            throw new Exception('The string cannot be null.');
+            throw new \Exception('The string cannot be null.');
         }
 
         $this->hash = md5($string);
