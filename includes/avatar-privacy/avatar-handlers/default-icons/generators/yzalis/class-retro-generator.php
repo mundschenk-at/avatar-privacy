@@ -59,7 +59,7 @@ class Retro_Generator
     /**
      * @var mixed
      */
-    protected $generatedImage;
+    protected $generated_image;
 
     /**
      * @var array
@@ -69,7 +69,7 @@ class Retro_Generator
     /**
      * @var array
      */
-    protected $backgroundColor;
+    protected $background_color;
 
     /**
      * @var int
@@ -79,7 +79,7 @@ class Retro_Generator
     /**
      * @var int
      */
-    protected $pixelRatio;
+    protected $pixel_ratio;
 
     /**
      * @var string
@@ -89,7 +89,7 @@ class Retro_Generator
     /**
      * @var array
      */
-    private $arrayOfSquare = [];
+    private $array_of_square = [];
 
     /**
      * Set the image color.
@@ -98,13 +98,13 @@ class Retro_Generator
      *
      * @return $this
      */
-    public function setColor($color)
+    public function set_color( $color )
     {
         if (null === $color) {
             return $this;
         }
 
-        $this->color = $this->convertColor($color);
+        $this->color = $this->convert_color( $color );
 
         return $this;
     }
@@ -112,17 +112,17 @@ class Retro_Generator
     /**
      * Set the image background color.
      *
-     * @param string|array $backgroundColor The color in hexa (3 or 6 chars) or rgb array
+     * @param string|array $background_color The color in hexa (3 or 6 chars) or rgb array
      *
      * @return $this
      */
-    public function setBackgroundColor($backgroundColor)
+    public function set_background_color( $background_color )
     {
-        if (null === $backgroundColor) {
+        if (null === $background_color) {
             return $this;
         }
 
-        $this->backgroundColor = $this->convertColor($backgroundColor);
+        $this->background_color = $this->convert_color($background_color);
 
         return $this;
     }
@@ -132,7 +132,7 @@ class Retro_Generator
      *
      * @return array
      */
-    private function convertColor($color)
+    private function convert_color($color)
     {
         if (is_array($color)) {
             return $color;
@@ -156,7 +156,7 @@ class Retro_Generator
      *
      * @return array
      */
-    public function getColor()
+    public function get_color()
     {
         return $this->color;
     }
@@ -166,9 +166,9 @@ class Retro_Generator
      *
      * @return array
      */
-    public function getBackgroundColor()
+    public function get_background_color()
     {
-        return $this->backgroundColor;
+        return $this->background_color;
     }
 
     /**
@@ -176,13 +176,13 @@ class Retro_Generator
      *
      * @return $this
      */
-    private function convertHashToArrayOfBoolean()
+    private function convert_hash_to_array_of_boolean()
     {
         preg_match_all('/(\w)(\w)/', $this->hash, $chars);
 
         foreach ($chars[1] as $i => $char) {
             $index = (int) ($i / 3);
-            $data = $this->convertHexaToBoolean($char);
+            $data = $this->convert_hexa_to_boolean($char);
 
             $items = [
                 0 => [0, 4],
@@ -191,10 +191,10 @@ class Retro_Generator
             ];
 
             foreach ($items[$i % 3] as $item) {
-                $this->arrayOfSquare[$index][$item] = $data;
+                $this->array_of_square[$index][$item] = $data;
             }
 
-            ksort($this->arrayOfSquare[$index]);
+            ksort($this->array_of_square[$index]);
         }
 
         $this->color = array_map(function ($data) {
@@ -211,7 +211,7 @@ class Retro_Generator
      *
      * @return bool
      */
-    private function convertHexaToBoolean($hexa)
+    private function convert_hexa_to_boolean($hexa)
     {
         return (bool) round(hexdec($hexa) / 10);
     }
@@ -219,9 +219,9 @@ class Retro_Generator
     /**
      * @return array
      */
-    public function getArrayOfSquare()
+    public function get_array_of_square()
     {
-        return $this->arrayOfSquare;
+        return $this->array_of_square;
     }
 
     /**
@@ -229,7 +229,7 @@ class Retro_Generator
      *
      * @return string
      */
-    public function getHash()
+    public function get_hash()
     {
         return $this->hash;
     }
@@ -243,7 +243,7 @@ class Retro_Generator
      *
      * @return $this
      */
-    public function setString($string)
+    public function set_string($string)
     {
         if (null === $string) {
             throw new \Exception('The string cannot be null.');
@@ -251,7 +251,7 @@ class Retro_Generator
 
         $this->hash = md5($string);
 
-        $this->convertHashToArrayOfBoolean();
+        $this->convert_hash_to_array_of_boolean();
 
         return $this;
     }
@@ -263,14 +263,14 @@ class Retro_Generator
      *
      * @return $this
      */
-    public function setSize($size)
+    public function set_size($size)
     {
         if (null === $size) {
             return $this;
         }
 
         $this->size = $size;
-        $this->pixelRatio = (int) round($size / 5);
+        $this->pixel_ratio = (int) round($size / 5);
 
         return $this;
     }
@@ -280,7 +280,7 @@ class Retro_Generator
      *
      * @return int
      */
-    public function getSize()
+    public function get_size()
     {
         return $this->size;
     }
@@ -290,9 +290,9 @@ class Retro_Generator
      *
      * @return int
      */
-    public function getPixelRatio()
+    public function get_pixel_ratio()
     {
-        return $this->pixelRatio;
+        return $this->pixel_ratio;
     }
 
     /**
@@ -300,7 +300,7 @@ class Retro_Generator
      *
      * @return string
      */
-    public function getMimeType()
+    public function get_mime_type()
     {
         return 'image/svg+xml';
     }
@@ -313,9 +313,9 @@ class Retro_Generator
      *
      * @return mixed
      */
-    public function getImageBinaryData($string, $size = null, $color = null, $backgroundColor = null)
+    public function get_image_binary_data($string, $size = null, $color = null, $backgroundColor = null)
     {
-        return $this->getImageResource($string, $size, $color, $backgroundColor);
+        return $this->get_image_resource($string, $size, $color, $backgroundColor);
     }
 
     /**
@@ -326,39 +326,39 @@ class Retro_Generator
      *
      * @return string
      */
-    public function getImageResource($string, $size = null, $color = null, $backgroundColor = null)
+    public function get_image_resource($string, $size = null, $color = null, $backgroundColor = null)
     {
         $this
-            ->setString($string)
-            ->setSize($size)
-            ->setColor($color)
-            ->setBackgroundColor($backgroundColor)
-            ->_generateImage();
+            ->set_string($string)
+            ->set_size($size)
+            ->set_color($color)
+            ->set_background_color($backgroundColor)
+            ->_generate_image();
 
-        return $this->generatedImage;
+        return $this->generated_image;
     }
 
     /**
      * @return $this
      */
-    protected function _generateImage()
+    protected function _generate_image()
     {
         // prepare image
-        $w = $this->getPixelRatio() * 5;
-        $h = $this->getPixelRatio() * 5;
+        $w = $this->get_pixel_ratio() * 5;
+        $h = $this->get_pixel_ratio() * 5;
         $svg = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="'.$w.'" height="'.$h.'" viewBox="0 0 5 5">';
 
         $backgroundColor = '#FFF';
-        $rgbBackgroundColor = $this->getBackgroundColor();
+        $rgbBackgroundColor = $this->get_background_color();
         if (!is_null($rgbBackgroundColor)) {
-            $backgroundColor = $this->_toUnderstandableColor($rgbBackgroundColor);
+            $backgroundColor = $this->_to_understandable_color($rgbBackgroundColor);
         }
 
         $svg .= '<rect width="5" height="5" fill="'.$backgroundColor.'" stroke-width="0"/>';
 
         $rects = [];
         // draw content
-        foreach ($this->getArrayOfSquare() as $lineKey => $lineValue) {
+        foreach ($this->get_array_of_square() as $lineKey => $lineValue) {
             foreach ($lineValue as $colKey => $colValue) {
                 if (true === $colValue) {
                     $rects[] = 'M'.$colKey.','.$lineKey.'h1v1h-1v-1';
@@ -366,11 +366,11 @@ class Retro_Generator
             }
         }
 
-        $rgbColor = $this->_toUnderstandableColor($this->getColor());
+        $rgbColor = $this->_to_understandable_color($this->get_color());
         $svg .= '<path fill="'.$rgbColor.'" stroke-width="0" d="' . implode('', $rects) . '"/>';
         $svg .= '</svg>';
 
-        $this->generatedImage = $svg;
+        $this->generated_image = $svg;
 
         return $this;
     }
@@ -380,7 +380,7 @@ class Retro_Generator
      *
      * @return string
      */
-    protected function _toUnderstandableColor($color)
+    protected function _to_understandable_color($color)
     {
         if (is_array($color)) {
             return sprintf('#%X%X%X', $color[0], $color[1], $color[2]);
