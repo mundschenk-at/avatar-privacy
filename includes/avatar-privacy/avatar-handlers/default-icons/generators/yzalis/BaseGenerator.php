@@ -5,7 +5,8 @@
  * This file incorporates work covered by the following copyright and
  * permission notice:
  *
- *     Copyright (c) 2013 Benjamin Laugueux <benjamin@yzalis.com>
+ *     Copyright (c) 2013, 2014, 2016 Benjamin Laugueux <benjamin@yzalis.com>
+ *     Copyright (c) 2016, 2017 Lucas Michot
  *
  *     Permission is hereby granted, free of charge, to any person obtaining a copy
  *     of this software and associated documentation files (the "Software"), to deal
