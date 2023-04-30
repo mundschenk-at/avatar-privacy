@@ -55,6 +55,7 @@ namespace Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generator;
 
 use Avatar_Privacy\Tools\Number_Generator;
+use Avatar_Privacy\Tools\Template;
 
 use Colors\RandomColor;
 
@@ -90,16 +91,30 @@ class Retro implements Generator {
 	 */
 	protected Number_Generator $number_generator;
 
+
+	/**
+	 * The templating handler.
+	 *
+	 * @since 2.7.0
+	 *
+	 * @var Template
+	 */
+	protected Template $template;
+
+
 	/**
 	 * Creates a new instance.
 	 *
 	 * @since 2.1.0 Parameter `$identicon` added.
 	 * @since 2.3.0 Parameter `$number_generator` added.
+	 * @since 2.7.0 Parameter `$template` added.
 	 *
 	 * @param Number_Generator $number_generator A pseudo-random number generator.
+	 * @param Template         $template         The templating handler.
 	 */
-	public function __construct( Number_Generator $number_generator ) {
+	public function __construct( Number_Generator $number_generator, Template $template ) {
 		$this->number_generator = $number_generator;
+		$this->template         = $template;
 	}
 
 	/**
@@ -115,15 +130,15 @@ class Retro implements Generator {
 		$this->number_generator->seed( $seed );
 
 		// Generate icon.
-		$result = $this->generate_svg(
-			// The seed is already hashed, but we want to generate the same
-			// result as earlier versions did using `yzalis/identicon`.
-			$this->get_bitmap( \md5( $seed ) ),
-			// The foreground color should be bright.
-			RandomColor::one( [ 'luminosity' => 'bright' ] ),
-			// The background color should be very light.
-			RandomColor::one( [ 'luminosity' => 'light' ] )
-		);
+		$bitmap = $this->get_bitmap( \md5( $seed ) ); // The seed is already hashed, but we want to generate the same result as earlier versions did using `yzalis/identicon`.
+		$args   = [
+			'rows'     => \count( $bitmap ),
+			'columns'  => \count( $bitmap[1] ),
+			'path'     => $this->draw_path( $bitmap ),
+			'color'    => RandomColor::one( [ 'luminosity' => 'bright' ] ),
+			'bg_color' => RandomColor::one( [ 'luminosity' => 'light' ] ),
+		];
+		$result = $this->template->get_partial( 'public/partials/retro/svg.php', $args );
 
 		// Restore randomness.
 		$this->number_generator->reset();
@@ -168,32 +183,6 @@ class Retro implements Generator {
 	 */
 	protected function get_pixel_value( string $hex_digit ): bool {
 		return (bool) \round( \hexdec( $hex_digit ) / 10 );
-	}
-
-	/**
-	 * Generates an SVG image from the given bitmap.
-	 *
-	 * @since  2.7.0
-	 *
-	 * @param  array  $bitmap           A two-dimensional array of boolean pixel values.
-	 * @param  string $color            The pixel color as hexadecimal RGB color string (e.g. '#000000').
-	 * @param  string $background_color The background color as a hexadecimal RGB color string (e.g. '#FFFFFF').
-	 *
-	 * @return string
-	 *
-	 * @phpstan-param array<int, array<int, bool>> $bitmap
-	 */
-	protected function generate_svg( array $bitmap, string $color, string $background_color ): string {
-		$rows    = \count( $bitmap );
-		$columns = \count( $bitmap[1] );
-
-		// Prepare image.
-		$svg  = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="320" height="320" viewBox="0 0 ' . "{$columns} {$rows}" . '">';
-		$svg .= '<rect width="' . $columns . '" height="' . $rows . '" fill="' . $background_color . '" stroke-width="0"/>';
-		$svg .= '<path fill="' . $color . '" stroke-width="0" d="' . $this->draw_path( $bitmap ) . '"/>';
-		$svg .= '</svg>';
-
-		return $svg;
 	}
 
 	/**

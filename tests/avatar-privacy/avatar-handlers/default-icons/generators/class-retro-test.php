@@ -35,6 +35,9 @@ use Mockery as m;
 use Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Retro;
 
 use Avatar_Privacy\Tools\Number_Generator;
+use Avatar_Privacy\Tools\Template;
+
+use Colors\RandomColor;
 
 /**
  * Avatar_Privacy\Avatar_Handlers\Default_Icons\Generators\Retro unit test.
@@ -58,14 +61,21 @@ class Retro_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @var \Colors\RandomColor
 	 */
-	private $random_color;
+	private RandomColor $random_color;
 
 	/**
 	 * The random number generator.
 	 *
 	 * @var Number_Generator
 	 */
-	protected $number_generator;
+	private Number_Generator $number_generator;
+
+	/**
+	 * The Template alias mock.
+	 *
+	 * @var Template;
+	 */
+	private Template $template;
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -77,8 +87,9 @@ class Retro_Test extends \Avatar_Privacy\Tests\TestCase {
 		parent::set_up();
 
 		// Helper mocks.
-		$this->random_color     = m::mock( 'alias:' . \Colors\RandomColor::class );
+		$this->random_color     = m::mock( 'alias:' . RandomColor::class );
 		$this->number_generator = m::mock( Number_Generator::class );
+		$this->template         = m::mock( Template::class );
 
 		// Partially mock system under test.
 		$this->sut = m::mock( Retro::class )->makePartial()->shouldAllowMockingProtectedMethods();
@@ -86,6 +97,7 @@ class Retro_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Manually invoke the constructor as it is protected.
 		$this->invoke_method( $this->sut, '__construct', [
 			$this->number_generator,
+			$this->template,
 		] );
 	}
 
@@ -96,11 +108,13 @@ class Retro_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_constructor() {
 		$number_generator = m::mock( Number_Generator::class );
+		$template         = m::mock( Template::class );
 		$mock             = m::mock( Retro::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		$this->invoke_method( $mock, '__construct', [ $number_generator ] );
+		$this->invoke_method( $mock, '__construct', [ $number_generator, $template ] );
 
 		$this->assert_attribute_same( $number_generator, 'number_generator', $mock );
+		$this->assert_attribute_same( $template, 'template', $mock );
 	}
 
 	/**
@@ -117,7 +131,14 @@ class Retro_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Intermediate.
 		$bright_color = 'A bright color definition';
 		$light_color  = 'A light color definition';
-		$fake_bitmap  = [ 'not', 'really', 'a', 'bitmap' ]; // A two-dimensional array of booleans.
+		$bitmap       = [
+			[ true, false, false, false, true ],
+			[ false, true, false, true, false ],
+			[ false, true, true, true, false ],
+			[ true, true, false, true, true ],
+			[ true, false, false, false, true ],
+		];
+		$path         = 'a fake SVG path string';
 
 		$this->number_generator->shouldReceive( 'seed' )->once()->with( $seed );
 		$this->number_generator->shouldReceive( 'reset' )->once();
@@ -125,8 +146,16 @@ class Retro_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->random_color->shouldReceive( 'one' )->once()->with( [ 'luminosity' => 'bright' ] )->andReturn( $bright_color );
 		$this->random_color->shouldReceive( 'one' )->once()->with( [ 'luminosity' => 'light' ] )->andReturn( $light_color );
 
-		$this->sut->shouldReceive( 'get_bitmap' )->once()->with( $seed_md5 )->andReturn( $fake_bitmap );
-		$this->sut->shouldReceive( 'generate_svg' )->once()->with( $fake_bitmap, $bright_color, $light_color )->andReturn( $data );
+		$this->sut->shouldReceive( 'get_bitmap' )->once()->with( $seed_md5 )->andReturn( $bitmap );
+		$this->sut->shouldReceive( 'draw_path' )->once()->with( $bitmap )->andReturn( $path );
+
+		$this->template->shouldReceive( 'get_partial' )->once()->with( 'public/partials/retro/svg.php', m::subset( [
+			'rows'     => 5,
+			'columns'  => 5,
+			'path'     => $path,
+			'color'    => $bright_color,
+			'bg_color' => $light_color,
+		] ) )->andReturn( $data );
 
 		$this->assertSame( $data, $this->sut->build( $seed, $size ) );
 	}
