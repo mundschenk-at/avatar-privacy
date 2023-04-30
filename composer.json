@@ -27,7 +27,6 @@
         "mundschenk-at/wp-settings-ui": "^1.0",
         "mistic100/randomcolor": "^1.0",
         "jdenticon/jdenticon": "<1.1",
-        "yzalis/identicon": "^2.0",
         "splitbrain/php-ringicon": "^1.1"
     },
     "require-dev": {

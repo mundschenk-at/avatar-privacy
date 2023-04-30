@@ -86,7 +86,6 @@ class Factory extends Dice {
 	const USERFORM_THEME_MY_LOGIN_PROFILES_INSTANCE = '$ThemeMyLoginProfilesUserForm';
 	const USERFORM_BBPRESS_PROFILE_INSTANCE         = '$bbPressProfileForm';
 	const JDENTICON_INSTANCE                        = '$JdenticonIdenticon';
-	const RETRO_IDENTICON_INSTANCE                  = '$RetroIdenticon';
 
 	/**
 	 * The factory instance.
@@ -210,11 +209,6 @@ class Factory extends Dice {
 					\Jdenticon\Identicon::class => [ self::INSTANCE => self::JDENTICON_INSTANCE ],
 				],
 			],
-			Default_Icons\Generators\Retro::class                   => [
-				'substitutions' => [
-					\Identicon\Identicon::class => [ self::INSTANCE => self::RETRO_IDENTICON_INSTANCE ],
-				],
-			],
 			Default_Icons\Generators\Rings::class                   => [
 				'constructParams' => [
 					512, // The bounding box dimensions.
@@ -231,13 +225,6 @@ class Factory extends Dice {
 				'constructParams' => [
 					// Some extra styling for the Jdenticon instance.
 					[ 'style' => [ 'padding' => 0 ] ],
-				],
-			],
-			self::RETRO_IDENTICON_INSTANCE                          => [
-				'instanceOf'      => \Identicon\Identicon::class,
-				'constructParams' => [
-					// The constructor argument is not type-hinted.
-					[ self::INSTANCE => \Identicon\Generator\SvgGenerator::class ],
 				],
 			],
 

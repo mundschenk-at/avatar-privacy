@@ -6,6 +6,7 @@
 *   _Change_: Requires at least PHP 7.4.
 *   _Change_: Upgrades `identifier` column of `avatar_privacy_hashes` table to
     256 characters on supported MySQL/MariaDB versions (as it was in 2.4.0).
+*   _Change_: The library `yzalis/identicon` has been removed as a dependency.
 *   _Bugfix_: Icons from Webmentions using Gravatar will get cached now.
 
 ## 2.6.0 (2022-04-18)
