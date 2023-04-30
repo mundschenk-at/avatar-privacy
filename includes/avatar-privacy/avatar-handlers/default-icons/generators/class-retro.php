@@ -115,10 +115,13 @@ class Retro implements Generator {
 		$this->number_generator->seed( $seed );
 
 		// Generate icon.
-		$result = $this->get_retro_avatar(
-			$seed,
-			$size,
+		$result = $this->generate_svg(
+			// The seed is already hashed, but we want to generate the same
+			// result as earlier versions did using `yzalis/identicon`.
+			$this->get_bitmap( \md5( $seed ) ),
+			// The foreground color should be bright.
 			RandomColor::one( [ 'luminosity' => 'bright' ] ),
+			// The background color should be very light.
 			RandomColor::one( [ 'luminosity' => 'light' ] )
 		);
 
@@ -163,22 +166,6 @@ class Retro implements Generator {
 		return (bool) \round( \hexdec( $hex_digit ) / 10 );
 	}
 
-
-
-	/**
-	 * Generates a "retro" avatar.
-	 *
-	 * @param string $string           The seed string.
-	 * @param int    $size             The image size in pixels.
-	 * @param string $color            The pixel color as hexadecimal RGB color string (e.g. '#000000').
-	 * @param string $background_color The background color as a hexadecimal RGB color string (e.g. '#FFFFFF').
-	 *
-	 * @return string
-	 */
-	public function get_retro_avatar( string $string, int $size, string $color, string $background_color ) {
-		return $this->generate_svg( $this->get_bitmap( \md5( $string ) ), $color, $background_color );
-	}
-
 	/**
 	 * Generates an SVG image from the given bitmap.
 	 *
@@ -206,7 +193,7 @@ class Retro implements Generator {
 	/**
 	 * Draws an SVG path from the given bitmap.
 	 *
-	 * @param  array  $bitmap A two-dimensional array of boolean pixel values.
+	 * @param  array $bitmap A two-dimensional array of boolean pixel values.
 	 *
 	 * @return string
 	 *
