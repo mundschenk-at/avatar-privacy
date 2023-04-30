@@ -54,7 +54,7 @@ class Retro_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @var Retro
 	 */
-	private $sut;
+	private Retro $sut;
 
 	/**
 	 * Alias mock of Colors\RandomColor.
@@ -158,5 +158,101 @@ class Retro_Test extends \Avatar_Privacy\Tests\TestCase {
 		] ) )->andReturn( $data );
 
 		$this->assertSame( $data, $this->sut->build( $seed, $size ) );
+	}
+
+	/**
+	 * Provides data for testing ::get_bitmap.
+	 *
+	 * @return array<array{ 0: string, 1: mixed[] }>
+	 */
+	public function provide_get_bitmap_data(): array {
+		return [
+			[
+				'9737e3144aeeef544da072c45cbaf536',
+				[
+					[ true, false, true, false, true ],
+					[ false, false, true, false, false ],
+					[ true, true, false, true, true ],
+					[ true, true, true, true, true ],
+					[ true, true, true, true, true ],
+				],
+			],
+			[
+				'546c29d006818aa6d9ff710c2122a6b7',
+				[
+					[ true, true, false, true, true ],
+					[ true, false, true, false, true ],
+					[ true, true, true, true, true ],
+					[ true, true, false, true, true ],
+					[ false, false, true, false, false ],
+				],
+			],
+		];
+	}
+
+	/**
+	 * Tests the ::get_bitmap method.
+	 *
+	 * @covers ::get_bitmap
+	 *
+	 * @dataProvider provide_get_bitmap_data
+	 *
+	 * @param string $hash   The input MD5 hash.
+	 * @param array  $result The expected result.
+	 *
+	 * @return void
+	 *
+	 * @phpstan-param mixed[] $result
+	 */
+	public function test_get_bitmap( string $hash, array $result ): void {
+		$this->assertSame( $result, $this->sut->get_bitmap( $hash ) );
+	}
+
+	/**
+	 * Provides data for testing ::draw_path.
+	 *
+	 * @return array<array{ 0: mixed[], 1: string }>
+	 */
+	public function provide_draw_path_data(): array {
+		return [
+			[
+				[
+					[ true, false, true, false, true ],
+					[ false, false, true, false, false ],
+					[ true, true, false, true, true ],
+					[ true, true, true, true, true ],
+					[ true, true, true, true, true ],
+				],
+				'M0,0h1v1h-1v-1M2,0h1v1h-1v-1M4,0h1v1h-1v-1M2,1h1v1h-1v-1M0,2h1v1h-1v-1M1,2h1v1h-1v-1M3,2h1v1h-1v-1M4,2h1v1h-1v-1M0,3h1v1h-1v-1M1,3h1v1h-1v-1M2,3h1v1h-1v-1M3,3h1v1h-1v-1M4,3h1v1h-1v-1M0,4h1v1h-1v-1M1,4h1v1h-1v-1M2,4h1v1h-1v-1M3,4h1v1h-1v-1M4,4h1v1h-1v-1',
+			],
+			[
+				[
+					[ true, true, false, true, true ],
+					[ true, false, true, false, true ],
+					[ true, true, true, true, true ],
+					[ true, true, false, true, true ],
+					[ false, false, true, false, false ],
+				],
+				'M0,0h1v1h-1v-1M1,0h1v1h-1v-1M3,0h1v1h-1v-1M4,0h1v1h-1v-1M0,1h1v1h-1v-1M2,1h1v1h-1v-1M4,1h1v1h-1v-1M0,2h1v1h-1v-1M1,2h1v1h-1v-1M2,2h1v1h-1v-1M3,2h1v1h-1v-1M4,2h1v1h-1v-1M0,3h1v1h-1v-1M1,3h1v1h-1v-1M3,3h1v1h-1v-1M4,3h1v1h-1v-1M2,4h1v1h-1v-1',
+			],
+		];
+	}
+
+	/**
+	 * Tests the ::draw_path method.
+	 *
+	 * @covers ::draw_path
+	 *
+	 * @dataProvider provide_draw_path_data
+	 *
+	 * @param array  $bitmap The input bitmap.
+	 * @param string $result The expected result.
+	 *
+	 * @return void
+	 *
+	 * @phpstan-param mixed[] $bitmap
+	 */
+	public function test_draw_path( array $bitmap, string $result ): void {
+		$this->assertSame( $result, $this->sut->draw_path( $bitmap ) );
 	}
 }
