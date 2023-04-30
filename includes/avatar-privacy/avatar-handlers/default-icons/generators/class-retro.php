@@ -134,7 +134,9 @@ class Retro implements Generator {
 	/**
 	 * Converts the hash into an two-dimensional array of boolean.
 	 *
-	 * @param string $hash The MD5 hash.
+	 * @since  2.7.0
+	 *
+	 * @param  string $hash The MD5 hash.
 	 *
 	 * @return array<int, array<int, bool>>
 	 */
@@ -158,7 +160,9 @@ class Retro implements Generator {
 	/**
 	 * Converts a one-digit hexadecimal number into a boolean value.
 	 *
-	 * @param string $hex_digit A hexadecimal digit.
+	 * @since  2.7.0
+	 *
+	 * @param  string $hex_digit A hexadecimal digit.
 	 *
 	 * @return bool
 	 */
@@ -168,6 +172,8 @@ class Retro implements Generator {
 
 	/**
 	 * Generates an SVG image from the given bitmap.
+	 *
+	 * @since  2.7.0
 	 *
 	 * @param  array  $bitmap           A two-dimensional array of boolean pixel values.
 	 * @param  string $color            The pixel color as hexadecimal RGB color string (e.g. '#000000').
@@ -192,6 +198,8 @@ class Retro implements Generator {
 
 	/**
 	 * Draws an SVG path from the given bitmap.
+	 *
+	 * @since  2.7.0
 	 *
 	 * @param  array $bitmap A two-dimensional array of boolean pixel values.
 	 *
