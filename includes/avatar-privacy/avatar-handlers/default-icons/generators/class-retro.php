@@ -160,7 +160,7 @@ class Retro implements Generator {
 
 		foreach ( \array_slice( \str_split( $hash, 2 ), 0, self::NUMBER_OF_PIXELS * self::DIVIDER ) as $i => $hex_tuple ) {
 			$row   = (int) ( $i / self::DIVIDER );
-			$pixel = $this->get_pixel_value( $hex_tuple[0] );
+			$pixel = (bool) \round( \hexdec( $hex_tuple[0] ) / 10 );
 
 			foreach ( self::POSSIBLE_COLUMNS[ $i % self::DIVIDER ] as $column ) {
 				$bitmap[ $row ][ $column ] = $pixel;
@@ -170,19 +170,6 @@ class Retro implements Generator {
 		}
 
 		return $bitmap;
-	}
-
-	/**
-	 * Converts a one-digit hexadecimal number into a boolean value.
-	 *
-	 * @since  2.7.0
-	 *
-	 * @param  string $hex_digit A hexadecimal digit.
-	 *
-	 * @return bool
-	 */
-	protected function get_pixel_value( string $hex_digit ): bool {
-		return (bool) \round( \hexdec( $hex_digit ) / 10 );
 	}
 
 	/**
