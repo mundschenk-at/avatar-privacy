@@ -91,8 +91,14 @@ jobs:
         run: |
           sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' phpunit.coverage.xml
           sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' phpunit.test-report.xml
+      - name: Extract version number
+        run: |
+          echo "AVATAR_PRIVACY_VERSION=$(sed -n 's/^.*Version: \(.*\)$/\1/p' avatar-privacy.php)" >> $GITHUB_ENV
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v1.7
+        with:
+          args: >
+            -Dsonar.projectVersion=${{ env.AVATAR_PRIVACY_VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
