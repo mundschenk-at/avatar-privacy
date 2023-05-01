@@ -8,6 +8,8 @@
     256 characters on supported MySQL/MariaDB versions (as it was in 2.4.0).
 *   _Change_: The library `yzalis/identicon` has been removed as a dependency.
 *   _Bugfix_: Icons from Webmentions using Gravatar will get cached now.
+*   _Bugfix_: Uploading avatars for users with no role on the primary site
+    of a Multsite network now works as expected.
 
 ## 2.6.0 (2022-04-18)
 *   _Feature_: The size of uploaded images is now checked to make sure processing
