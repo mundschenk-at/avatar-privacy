@@ -129,7 +129,7 @@ class Hashes_Table extends Table {
 	protected function database_supports_large_index(): bool {
 		global $wpdb;
 
-		$innodb_version = $wpdb->get_var( $wpdb->prepare( 'SHOW VARIABLES LIKE "innodb_version"' ), 1 ) ?? '';  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQLPlaceholders.LikeWildcardsInQuery -- No caching necessary, no actual wildcards used.
+		$innodb_version = $wpdb->get_var( 'SHOW VARIABLES LIKE "innodb_version"', 1 ) ?? '';  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- No caching necessary, no actual wildcards used.
 
 		return \version_compare( $innodb_version, '5.7', '>=' );
 	}
