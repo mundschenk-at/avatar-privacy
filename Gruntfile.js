@@ -29,8 +29,6 @@ module.exports = function(grunt) {
 				"!build/vendor-scoped/**/partials",
 				// Prune PNG-based RingIcon.
 				"build/vendor-scoped/splitbrain/php-ringicon/src/RingIcon.php",
-				// Prune PNG-based Identicon generators.
-				"build/vendor-scoped/yzalis/identicon/src/Identicon/Generator/{GdGenerator,ImageMagickGenerator}.php"
 			],
 		},
 
@@ -135,11 +133,11 @@ module.exports = function(grunt) {
 					expand: true,
 					nonull: false,
 					src: [
-						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain,yzalis}/**/LICENSE*',
-						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain,yzalis}/**/README*',
-						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain,yzalis}/**/CREDITS*',
-						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain,yzalis}/**/COPYING*',
-						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain,yzalis}/**/CHANGE*',
+						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain}/**/LICENSE*',
+						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain}/**/README*',
+						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain}/**/CREDITS*',
+						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain}/**/COPYING*',
+						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain}/**/CHANGE*',
 						'!vendor/mundschenk-at/phpunit-cross-version/**',
 						'!vendor/composer/package-versions-deprecated/**',
 					],
