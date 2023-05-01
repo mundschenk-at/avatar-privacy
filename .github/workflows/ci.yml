@@ -95,7 +95,7 @@ jobs:
         run: |
           echo "AVATAR_PRIVACY_VERSION=$(sed -n 's/^.*Version: \(.*\)$/\1/p' avatar-privacy.php)" >> $GITHUB_ENV
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v1.7
+        uses: SonarSource/sonarcloud-github-action@v1.9
         with:
           args: >
             -Dsonar.projectVersion=${{ env.AVATAR_PRIVACY_VERSION }}
