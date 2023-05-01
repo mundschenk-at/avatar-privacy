@@ -29,6 +29,9 @@ module.exports = function(grunt) {
 				"!build/vendor-scoped/**/partials",
 				// Prune PNG-based RingIcon.
 				"build/vendor-scoped/splitbrain/php-ringicon/src/RingIcon.php",
+				// Prune PNG-based Jdenticon.
+				"build/vendor-scoped/jdenticon/jdenticon/src/Rendering/{ImagickRenderer.php,InternalPngRenderer.php}",
+				"build/vendor-scoped/jdenticon/jdenticon/src/Canvas",
 			],
 		},
 
