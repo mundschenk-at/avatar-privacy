@@ -64,12 +64,6 @@ return [
             ->notName( '/' . AVATAR_PRIVACY_EXCLUDED_FILES . '/' )
             ->exclude( AVATAR_PRIVACY_EXCLUDED_DIRS )
             ->in('vendor/splitbrain'),
-        Finder::create()
-            ->files()
-            ->ignoreVCS(true)
-            ->notName( '/' . AVATAR_PRIVACY_EXCLUDED_FILES . '/' )
-            ->exclude( AVATAR_PRIVACY_EXCLUDED_DIRS )
-            ->in('vendor/yzalis'),
         Finder::create()->append([
             'composer.json',
             'vendor/composer/installed.json',
