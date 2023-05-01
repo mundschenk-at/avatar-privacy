@@ -166,6 +166,16 @@ The default avatar image is set to the mystery man if you selected one of the ne
 
 == Changelog ==
 
+= 2.7.0 (2023-05-01) =
+* _Feature_: Avatar Privacy is now compatible with PHP 8.2.
+* _Feature_: The plugin now honors the `wp_delete_file` filter when deleting files.
+* _Change_: Requires at least PHP 7.4.
+* _Change_: Upgrades `identifier` column of `avatar_privacy_hashes` table to 256 characters on supported MySQL/MariaDB versions (as it was in 2.4.0).
+* _Change_: The library `yzalis/identicon` has been removed as a dependency.
+* _Change_: Avatar Privacy now honors the `wp_delete_file` filter hook.
+* _Bugfix_: Icons from Webmentions using Gravatar will get cached now.
+* _Bugfix_: Uploading avatars for users with no role on the primary site of a Multsite network now works as expected.
+
 = 2.6.0 (2022-04-18) =
 * _Feature_: The size of uploaded images is now checked to make sure processing does not overload the server. By default, all uploaded images have to be smaller than 2000×2000 pixels. The constraints can be adjusted with these new filter hooks:
   - `avatar_privacy_upload_min_width`
