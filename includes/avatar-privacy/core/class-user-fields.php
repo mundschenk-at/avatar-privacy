@@ -317,12 +317,16 @@ class User_Fields implements API {
 	 * @return bool
 	 */
 	protected function user_exists( $user_id ) {
-		return (bool) \get_users(
-			[
-				'include' => [ $user_id ],
-				'fields'  => 'ID',
-			]
-		);
+		$args = [
+			'include' => [ $user_id ],
+			'fields'  => 'ID',
+		];
+
+		if ( \is_network_admin() ) {
+			$args['blog_id'] = 0;
+		}
+
+		return (bool) \get_users( $args );
 	}
 
 	/**

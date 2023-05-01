@@ -455,35 +455,42 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Tests ::user_exists.
+	 * Provides data for testing ::user_exists.
 	 *
-	 * @covers ::user_exists
+	 * @return array<array{0: bool, 1: bool}>
 	 */
-	public function test_user_exists() {
-		$user_id = 42;
-
-		Functions\expect( 'get_users' )->once()->with( [
-			'include' => [ $user_id ],
-			'fields'  => 'ID',
-		] )->andReturn( [ $user_id ] );
-
-		$this->assertTrue( $this->sut->user_exists( $user_id ) );
+	public function provide_user_exists_data(): array {
+		return [
+			[ false, false ],
+			[ false, true ],
+			[ true, false ],
+			[ true, true ],
+		];
 	}
 
 	/**
 	 * Tests ::user_exists.
 	 *
 	 * @covers ::user_exists
+	 *
+	 * @dataProvider provide_user_exists_data
+	 *
+	 * @param bool $is_network_admin Whether the method is being called from the Network admin screen.
+	 * @param bool $result           The expected result.
 	 */
-	public function test_user_exists_does_not_exist() {
+	public function test_user_exists( bool $is_network_admin, bool $result ): void {
+		// Additional input data.
 		$user_id = 42;
 
-		Functions\expect( 'get_users' )->once()->with( [
+		Functions\expect( 'is_network_admin' )->once()->withNoArgs()->andReturn( $is_network_admin );
+
+		Functions\expect( 'get_users' )->once()->with( m::subset( [
 			'include' => [ $user_id ],
 			'fields'  => 'ID',
-		] )->andReturn( [] );
+		] ) )->andReturn( $result ? [ $user_id ] : [] );
 
-		$this->assertFalse( $this->sut->user_exists( $user_id ) );
+
+		$this->assertSame( $result, $this->sut->user_exists( $user_id ) );
 	}
 
 	/**
