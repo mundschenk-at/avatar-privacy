@@ -143,8 +143,7 @@ class Hashes_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		global $wpdb;
 		$wpdb = m::mock( \wpdb::class ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
-		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SHOW VARIABLES LIKE "innodb_version"',  )->andReturn( 'PREPARED_SQL' );
-		$wpdb->shouldReceive( 'get_var' )->once()->with( 'PREPARED_SQL', 1 )->andReturn( $innodb_version );
+		$wpdb->shouldReceive( 'get_var' )->once()->with( 'SHOW VARIABLES LIKE "innodb_version"', 1 )->andReturn( $innodb_version );
 
 		$this->assertSame( $result, $this->sut->database_supports_large_index() );
 	}
