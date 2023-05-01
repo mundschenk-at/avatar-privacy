@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.7.0 (unreleased)
+## 2.7.0 (2023-05-01)
 *   _Feature_: Avatar Privacy is now compatible with PHP 8.2.
 *   _Feature_: The plugin now honors the `wp_delete_file` filter when deleting files.
 *   _Change_: Requires at least PHP 7.4.
