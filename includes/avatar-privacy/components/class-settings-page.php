@@ -82,7 +82,7 @@ class Settings_Page implements Component {
 	private Template $template;
 
 	/**
-	 * Indiciates whether the settings page is buffering its output.
+	 * Indicates whether the settings page is buffering its output.
 	 *
 	 * @var bool
 	 */

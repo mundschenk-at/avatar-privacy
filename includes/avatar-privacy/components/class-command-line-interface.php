@@ -64,7 +64,7 @@ class Command_Line_Interface implements Component {
 	}
 
 	/**
-	 * Registeres all the different CLI commands.
+	 * Registers all the different CLI commands.
 	 *
 	 * @return void
 	 */

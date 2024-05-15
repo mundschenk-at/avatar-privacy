@@ -27,7 +27,7 @@
 namespace Avatar_Privacy\Exceptions;
 
 /**
- * An exception indicating that an error occured during a database operation.
+ * An exception indicating that an error occurred during a database operation.
  *
  * @since 2.4.0
  *

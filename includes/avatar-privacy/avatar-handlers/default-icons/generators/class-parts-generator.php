@@ -33,7 +33,7 @@ use Avatar_Privacy\Tools\Number_Generator;
 
 /**
  * A base class for parts-based icon generators independent of the used image
- * format. Part definitions are chached using WordPress' transient mechanism.
+ * format. Part definitions are cached using WordPress' transient mechanism.
  *
  * The algorithm for building icons is conceptually based on Andreas Gohr's
  * MonsterId library.
@@ -136,7 +136,7 @@ abstract class Parts_Generator implements Generator {
 			// Something went wrong but don't want to mess up blog layout.
 			return false;
 		} finally {
-			// Reset randomness to something unknonwn.
+			// Reset randomness to something unknown.
 			$this->number_generator->reset();
 		}
 	}

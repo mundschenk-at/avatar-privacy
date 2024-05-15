@@ -116,11 +116,11 @@ class Uninstall_Command extends Abstract_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *    # Remove all data from a non-multisite installatin.
+	 *    # Remove all data from a non-multisite installations.
 	 *    $ wp avatar-privacy uninstall
 	 *
 	 *    # Remove site-specific and global data from a multisite installation
-	 *    # (site-specific data needs to be deleted from each site seperately).
+	 *    # (site-specific data needs to be deleted from each site separately).
 	 *    $ wp avatar-privacy uninstall --global
 	 *
 	 * @global \wpdb $wpdb       The WordPress database.

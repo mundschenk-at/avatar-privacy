@@ -41,7 +41,7 @@ class Multisite {
 	 * Warning: This is potentially expensive.
 	 *
 	 * @param  callable $task       The task to execute. Should take the site ID as its parameter.
-	 * @param  int|null $network_id Optional. The network ID (`null` means the current netwrok). Default null.
+	 * @param  int|null $network_id Optional. The network ID (`null` means the current network). Default null.
 	 *
 	 * @return void
 	 */

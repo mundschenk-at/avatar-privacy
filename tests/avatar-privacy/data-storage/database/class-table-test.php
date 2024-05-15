@@ -458,14 +458,14 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Fake SQL queries.
 		$prepared_collation_query   = 'PREPARED COLLATION QUERY';
-		$prepared_colummns_query    = 'PREPARED COLUMNS QUERY';
+		$prepared_columns_query    = 'PREPARED COLUMNS QUERY';
 		$prepared_alter_table_query = 'PREPARED ALTER TABLE QUERY';
 
 		$wpdb->shouldReceive( 'prepare' )->once()->with( m::pattern( '/^SELECT table_collation FROM.*$/' ), $table_name )->andReturn( $prepared_collation_query );
 		$wpdb->shouldReceive( 'get_var' )->once()->with( $prepared_collation_query )->andReturn( $old_collation );
 
-		$wpdb->shouldReceive( 'prepare' )->once()->with( m::pattern( '/^SELECT column_name AS.*$/' ), $table_name, $old_collation )->andReturn( $prepared_colummns_query );
-		$wpdb->shouldReceive( 'get_results' )->once()->with( $prepared_colummns_query, \ARRAY_A )->andReturn( $columns );
+		$wpdb->shouldReceive( 'prepare' )->once()->with( m::pattern( '/^SELECT column_name AS.*$/' ), $table_name, $old_collation )->andReturn( $prepared_columns_query );
+		$wpdb->shouldReceive( 'get_results' )->once()->with( $prepared_columns_query, \ARRAY_A )->andReturn( $columns );
 
 		$wpdb->shouldReceive( 'prepare' )->once()->with( m::pattern( '/^ALTER TABLE.*$/' ), m::on( function ( $param ) {
 			// 1 for the table name, 2 for the number of columns with defined default values.
@@ -938,7 +938,7 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 				'use_gravatar' => 0,
 			],
 		];
-		$fields     = [ 'invalid_colummn' ];
+		$fields     = [ 'invalid_column' ];
 
 		$this->sut->shouldReceive( 'get_table_name' )->never();
 

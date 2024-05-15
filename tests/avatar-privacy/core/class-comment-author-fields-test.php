@@ -475,7 +475,7 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
-	 * Provides dat afor testing ::update_hash.
+	 * Provides data for testing ::update_hash.
 	 *
 	 * @return array
 	 */

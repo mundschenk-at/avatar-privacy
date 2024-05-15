@@ -106,7 +106,7 @@ Yes, it certainly can. You have to be careful though which plugin options you se
 
 = Can this plugin be used on a multisite installation? =
 
-Yes, the plugin can be used on a multisite installation. You can either activate it on individual blogs or do a network activation. As users are global to a multisite installation, their choice regarding Gravatar.com use will affect all sites in the network. So if a user comments on blog A and chooses to display gravatars, this decision will be followed on blog B and C too. On new installations, comment author (i.e. non-user) opt-in is recorded per site, not per network. If you first installed Avatar Privacy 0.4 or earlier, the global table `wp_avatar_privacy` continues to be used for all sites in the multisite network. This behavior can be overriden by the network admin via the filter hook `avatar_privacy_enable_global_table`.
+Yes, the plugin can be used on a multisite installation. You can either activate it on individual blogs or do a network activation. As users are global to a multisite installation, their choice regarding Gravatar.com use will affect all sites in the network. So if a user comments on blog A and chooses to display gravatars, this decision will be followed on blog B and C too. On new installations, comment author (i.e. non-user) opt-in is recorded per site, not per network. If you first installed Avatar Privacy 0.4 or earlier, the global table `wp_avatar_privacy` continues to be used for all sites in the multisite network. This behavior can be overridden by the network admin via the filter hook `avatar_privacy_enable_global_table`.
 
 = Won't spam comments flood the database table with useless entries for the checkbox in the comment form? =
 

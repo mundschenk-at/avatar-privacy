@@ -330,7 +330,7 @@ class Comment_Author_Table extends Table {
 	 *
 	 * @global \wpdb    $wpdb    The WordPress Database Access Abstraction.
 	 *
-	 * @param  string[] $emails  An array of email adresses.
+	 * @param  string[] $emails  An array of email addresses.
 	 * @param  string   $table   The table name.
 	 *
 	 * @return string|false      The prepared query, or false.

@@ -215,7 +215,7 @@ class Filesystem_Cache {
 			if ( $file->isWritable() ) {
 
 				if ( $file->isDir() ) {
-					\rmdir( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- Useing the WP_Filesystem API is not an option on the frontend.
+					\rmdir( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- Using the WP_Filesystem API is not an option on the frontend.
 				} else {
 					delete_file( $path );
 				}

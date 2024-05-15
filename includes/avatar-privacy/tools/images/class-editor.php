@@ -67,7 +67,7 @@ class Editor {
 	private string $stream_url;
 
 	/**
-	 * The stream implmentation to use.
+	 * The stream implementation to use.
 	 *
 	 * @since 2.1.0
 	 *
@@ -212,7 +212,7 @@ class Editor {
 			return '';
 		}
 
-		// Caculate the crop dimensions.
+		// Calculate the crop dimensions.
 		$current = $image->get_size();
 		$crop    = $this->get_crop_dimensions( $current['width'], $current['height'], $width, $height );
 
@@ -253,7 +253,7 @@ class Editor {
 		// with the same aspect ratio as the destination image.
 		$factor = \min( $orig_w / $dest_w, $orig_h / $dest_h );
 
-		// Caclulate the crop dimensions.
+		// Calculate the crop dimensions.
 		$crop_w = \round( $dest_w * $factor );
 		$crop_h = \round( $dest_h * $factor );
 

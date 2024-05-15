@@ -415,7 +415,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 			[ false, false, '', false ], // No validation.
 			[ true, false, '', true ], // No validation.
 			[ true, true, false, false ], // Failed validation.
-			[ true, true, 'image/png', true ], // Succesful validaton.
+			[ true, true, 'image/png', true ], // Successful validaton.
 		];
 	}
 

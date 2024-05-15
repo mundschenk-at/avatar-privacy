@@ -35,9 +35,9 @@ use Avatar_Privacy\Tools\Images\SVG;
  * @var string $bg_color  The background color as a CSS color string (e.g. `#80d8ff`).
  * @var string $body      The SVG elements making up the robot's body.
  * @var string $face      The SVG elements making up the robot's face.
- * @var string $eyes      The SVG elemenets making up the robot's eyes.
- * @var string $mouth     The SVG elemenets making up the robot's mouth.
- * @var string $accessory The SVG elemenets making up the robot's accessory.
+ * @var string $eyes      The SVG elements making up the robot's eyes.
+ * @var string $mouth     The SVG elements making up the robot's mouth.
+ * @var string $accessory The SVG elements making up the robot's accessory.
  */
 
 ?>

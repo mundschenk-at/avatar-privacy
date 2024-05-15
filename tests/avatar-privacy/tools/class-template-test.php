@@ -163,7 +163,7 @@ class Template_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @dataProvider provide_get_use_gravatar_label_data
 	 *
 	 * @param  string $context The context.
-	 * @param  bool   $success Whether the call is epxected to be successful.
+	 * @param  bool   $success Whether the call is expected to be successful.
 	 */
 	public function test_get_use_gravatar_label( $context, $success ) {
 		$result = $success ? 'Label with link' : '';

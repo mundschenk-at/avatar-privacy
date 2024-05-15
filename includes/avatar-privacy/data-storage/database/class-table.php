@@ -219,7 +219,7 @@ abstract class Table {
 
 			if ( ! $this->table_exists( $table_name ) ) {
 				// There was an error creating the table.
-				// TODO: Signal catastrophic error to the adminstrator.
+				// TODO: Signal catastrophic error to the administrator.
 				return false;
 			}
 

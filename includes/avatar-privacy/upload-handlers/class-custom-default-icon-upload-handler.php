@@ -176,7 +176,7 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	protected function handle_upload_errors( array $upload_result, array $args ) {
 		if ( empty( $upload_result['error'] ) ) {
 			$id      = self::ERROR_UNKNOWN;
-			$message = \__( 'An unknown error occured while uploading the avatar', 'avatar-privacy' );
+			$message = \__( 'An unknown error occurred while uploading the avatar', 'avatar-privacy' );
 		} elseif ( 'Sorry, this file type is not permitted for security reasons.' === $upload_result['error'] ) {
 			$id      = self::ERROR_INVALID_IMAGE;
 			$message = \__( 'Please upload a valid PNG, GIF or JPEG image for the avatar.', 'avatar-privacy' );

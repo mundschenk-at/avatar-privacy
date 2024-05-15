@@ -269,7 +269,7 @@ abstract class PNG_Parts_Generator extends Parts_Generator {
 	 * exchanging the provided images.
 	 *
 	 * @since 2.1.0 Visibility changed to protected.
-	 * @since 2.3.0 Moved to PNG_Parts_Generator class and paramter $text removed.
+	 * @since 2.3.0 Moved to PNG_Parts_Generator class and parameter $text removed.
 	 *              Use new method `get_parts_dimensions_as_text` to retrieve the
 	 *              human-readable array definition.
 	 *

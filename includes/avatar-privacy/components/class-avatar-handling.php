@@ -575,7 +575,7 @@ class Avatar_Handling implements Component {
 			 * Filters the default policy for showing gravatars.
 			 *
 			 * The result only applies if a user or comment author has not
-			 * explicitely set a value for `use_gravatar` (i.e. for comments
+			 * explicitly set a value for `use_gravatar` (i.e. for comments
 			 * created  before the plugin was installed).
 			 *
 			 * @param  bool              $show        Default false.

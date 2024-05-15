@@ -114,20 +114,20 @@ class Hasher {
 	 * Generates a salted SHA-256 hash for the given identifier (an e-mail address
 	 * in most cases).
 	 *
-	 * @param  string $identifer      The identifier. Whitespace on either side
+	 * @param  string $identifier      The identifier. Whitespace on either side
 	 *                                is ignored.
 	 * @param  bool   $case_sensitive Optional. Whether the identifier is case-sensitive
 	 *                                (e.g. an URL). Default false.
 	 *
 	 * @return string
 	 */
-	public function get_hash( $identifer, $case_sensitive = false ) {
-		$identifier = \trim( $identifer );
+	public function get_hash( $identifier, $case_sensitive = false ) {
+		$identifier = \trim( $identifier );
 
 		if ( ! $case_sensitive ) {
-			$identifer = \strtolower( $identifier );
+			$identifier = \strtolower( $identifier );
 		}
 
-		return \hash( 'sha256', "{$this->get_salt()}{$identifer}" );
+		return \hash( 'sha256', "{$this->get_salt()}{$identifier}" );
 	}
 }

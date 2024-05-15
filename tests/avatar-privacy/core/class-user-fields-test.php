@@ -814,7 +814,7 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param  int  $result       The expected result.
 	 * @param  bool $hash_del     Whether the email hash was deleted.
 	 * @param  bool $gravatar_del Whether the Gravatar usage policy was deleted.
-	 * @param  bool $anon_del     Whether the anoymous commenting policy was deleted.
+	 * @param  bool $anon_del     Whether the anonymous commenting policy was deleted.
 	 * @param  bool $avatar_del   Whether the local avatar was deleted.
 	 */
 	public function test_delete( $result, $hash_del, $gravatar_del, $anon_del, $avatar_del ) {
