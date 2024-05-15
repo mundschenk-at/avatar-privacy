@@ -191,7 +191,7 @@ class Setup implements Component {
 		// Update settings and database if necessary.
 		\add_action( 'plugins_loaded', [ $this, 'update_check' ] );
 
-		// Clean up uploaded files after deleting the refering metadata.
+		// Clean up uploaded files after deleting the referring metadata.
 		\add_action( 'deleted_user_meta', [ $this->registered_user, 'remove_orphaned_local_avatar' ], 10, 4 );
 	}
 

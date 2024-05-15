@@ -27,7 +27,7 @@
 namespace Avatar_Privacy\Exceptions;
 
 /**
- * An exception indicating that an error occured during image handling.
+ * An exception indicating that an error occurred during image handling.
  *
  * @since 2.4.0
  *

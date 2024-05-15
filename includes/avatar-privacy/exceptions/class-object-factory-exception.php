@@ -27,7 +27,7 @@
 namespace Avatar_Privacy\Exceptions;
 
 /**
- * An exception indicating that an error occured while setting up the object factory.
+ * An exception indicating that an error occurred while setting up the object factory.
  *
  * @since 2.5.1
  *

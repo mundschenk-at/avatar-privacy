@@ -159,7 +159,7 @@ class Core {
 	 */
 	public static function get_instance() {
 		if ( null === self::$instance ) {
-			throw new \BadMethodCallException( __METHOD__ . ' called without prior plugin intialization.' );
+			throw new \BadMethodCallException( __METHOD__ . ' called without prior plugin initialization.' );
 		}
 
 		return self::$instance;

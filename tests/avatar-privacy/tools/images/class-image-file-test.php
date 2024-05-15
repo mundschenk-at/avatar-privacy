@@ -350,7 +350,7 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 		$overrides_with_action           = $overrides;
 		$overrides_with_action['action'] = 'avatar_privacy_sideload';
 
-		$error_message = 'some error occured';
+		$error_message = 'some error occurred';
 		$result        = [
 			'bar'   => 'foo',
 			'file'  => '/my/path',

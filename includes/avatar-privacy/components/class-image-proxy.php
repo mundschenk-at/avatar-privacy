@@ -211,7 +211,7 @@ class Image_Proxy implements Component {
 	 * @since 2.1.0 Visibility changed to protected.
 	 *
 	 * @param  string $file         The full path to the image.
-	 * @param  int    $cache_time   The time the image should be cached by the brwoser (in seconds).
+	 * @param  int    $cache_time   The time the image should be cached by the browser (in seconds).
 	 * @param  string $content_type The content MIME type.
 	 *
 	 * @return void

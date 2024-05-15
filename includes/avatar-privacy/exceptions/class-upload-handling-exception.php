@@ -27,7 +27,7 @@
 namespace Avatar_Privacy\Exceptions;
 
 /**
- * An exception indicating that an error occured while processing the file upload.
+ * An exception indicating that an error occurred while processing the file upload.
  *
  * @since 2.4.0
  *

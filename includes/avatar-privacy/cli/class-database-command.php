@@ -265,7 +265,7 @@ class Database_Command extends Abstract_Command {
 		if ( $this->comment_author_table->maybe_create_table( '' ) ) {
 			WP_CLI::success( WP_CLI::colorize( "Table %B{$table_name}%n created/updated successfully." ) );
 		} else {
-			WP_CLI::error( WP_CLI::colorize( "An error occured while creating the table %B{$table_name}%n." ) );
+			WP_CLI::error( WP_CLI::colorize( "An error occurred while creating the table %B{$table_name}%n." ) );
 		}
 	}
 
@@ -309,7 +309,7 @@ class Database_Command extends Abstract_Command {
 
 		// Upgrade table structure.
 		if ( ! $this->comment_author_table->maybe_create_table( '' ) ) {
-			WP_CLI::error( WP_CLI::colorize( "An error occured while creating or updating the table %B{$table}%n." ) );
+			WP_CLI::error( WP_CLI::colorize( "An error occurred while creating or updating the table %B{$table}%n." ) );
 		}
 
 		// Upgrade data.

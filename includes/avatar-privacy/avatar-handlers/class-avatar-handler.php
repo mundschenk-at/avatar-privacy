@@ -41,7 +41,7 @@ interface Avatar_Handler {
 	/**
 	 * Retrieves the URL for the given default icon type.
 	 *
-	 * @since  2.7.0 Removed argument index 'type' as it is not required for all implemntations.
+	 * @since  2.7.0 Removed argument index 'type' as it is not required for all implementations.
 	 *
 	 * @param  string $url  The fallback image URL.
 	 * @param  string $hash The hashed mail address.

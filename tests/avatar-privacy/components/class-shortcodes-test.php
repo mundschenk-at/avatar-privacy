@@ -139,7 +139,7 @@ class Shortcodes_Test extends \Avatar_Privacy\Tests\TestCase {
 			'avatar_size' => 120,
 		];
 
-		// Systme state.
+		// System state.
 		$user_id = 42;
 
 		// Result.

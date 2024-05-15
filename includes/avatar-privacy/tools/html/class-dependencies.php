@@ -68,7 +68,7 @@ class Dependencies {
 	}
 
 	/**
-	 * Registeres a script for the block editor (using the generated asset file).
+	 * Registers a script for the block editor (using the generated asset file).
 	 *
 	 * @param  string $handle The name of the script. Should be unique.
 	 * @param  string $block  The path of the script relative to the plugin's

@@ -57,7 +57,7 @@ class User_Profile implements Component {
 	private $form;
 
 	/**
-	 * Indiciates whether the settings page is buffering its output.
+	 * Indicates whether the settings page is buffering its output.
 	 *
 	 * @var bool
 	 */

@@ -101,7 +101,7 @@ class Gravatar_Service {
 		);
 
 		if ( false === $this->editor->get_mime_type( $image ) ) {
-			// Propably a Varnish error, so we ignore the data.
+			// Probably a Varnish error, so we ignore the data.
 			$image = '';
 		}
 
@@ -280,7 +280,7 @@ class Gravatar_Service {
 		 *
 		 * @param int  $duration The validation interval. Default 1 week if the check was successful, less if not.
 		 * @param bool $result   The result of the validation check.
-		 * @param int  $age      The "age" (difference between now and the creation date) of a comment or post (in sceonds).
+		 * @param int  $age      The "age" (difference between now and the creation date) of a comment or post (in seconds).
 		 */
 		return \apply_filters( 'avatar_privacy_validate_gravatar_interval', $duration, ! empty( $result ), $age );
 	}

@@ -74,7 +74,7 @@ License URL: <https://creativecommons.org/licenses/by/4.0/>
 
 ## wavatars/*.png
 
-The Wavatars impelementation is based on the original WordPress plugin by Shamus Young.
+The Wavatars implementation is based on the original WordPress plugin by Shamus Young.
 
 Copyright: Shames Young (2007)\
 URL: <https://shamusyoung.com/twentysidedtale/?p=1462>

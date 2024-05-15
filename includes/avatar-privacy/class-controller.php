@@ -56,7 +56,7 @@ class Controller {
 	/**
 	 * Creates an instance of the plugin controller.
 	 *
-	 * @since 2.3.0 Component parameters replaced with factory-cofigured array.
+	 * @since 2.3.0 Component parameters replaced with factory-configured array.
 	 *
 	 * @param Core        $core       The core API.
 	 * @param Component[] $components An array of plugin components.
