@@ -123,8 +123,9 @@ class PNG {
 			}
 		} catch ( PNG_Image_Exception $e ) {
 			// Clean up and re-throw exception.
-			\imageDestroy( $image ); // @codeCoverageIgnoreStart
-			throw $e;                // @codeCoverageIgnoreEnd
+			// @phpstan-ignore argument.type
+			\imageDestroy( $image ); // @codeCoverageIgnore
+			throw $e;                // @codeCoverageIgnore
 		}
 
 		// Fix transparent background.

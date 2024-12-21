@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020-2023 Peter Putzer.
+ * Copyright 2020-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -95,7 +95,10 @@ class Image_File {
 	public function handle_upload( array $file, array $overrides ) {
 		// Enable front end support.
 		if ( ! function_exists( 'wp_handle_upload' ) ) {
+			// @phpstan-ignore requireOnce.fileNotFound
 			require_once \ABSPATH . 'wp-admin/includes/file.php'; // @codeCoverageIgnore
+		}
+
 		}
 
 		// Switch to primary site if this should be a global upload.
@@ -172,6 +175,7 @@ class Image_File {
 	public function handle_sideload( $image_url, array $overrides ) {
 		// Enable front end support.
 		if ( ! function_exists( 'wp_tempnam' ) ) {
+			// @phpstan-ignore requireOnce.fileNotFound
 			require_once \ABSPATH . 'wp-admin/includes/file.php'; // @codeCoverageIgnore
 		}
 
