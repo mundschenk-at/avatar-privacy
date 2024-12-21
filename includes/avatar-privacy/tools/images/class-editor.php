@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2023 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -151,9 +151,9 @@ class Editor {
 	 * @return \WP_Image_Editor|\WP_Error
 	 */
 	public function create_from_image_resource( $image ) {
-		if ( \is_gd_image( $image ) && \imagePNG( $image, $this->stream_url ) ) {
+		if ( \is_gd_image( $image ) && \imagePNG( $image, $this->stream_url ) ) { // @phpstan-ignore argument.type
 			// Clean up resource.
-			\imageDestroy( $image );
+			\imageDestroy( $image ); // @phpstan-ignore argument.type
 
 			// Create editor.
 			return $this->create_from_stream( $this->stream_url );

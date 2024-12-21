@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2023 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  * Copyright 2007-2014 Scott Sherrill-Mix.
  *
  * This program is free software; you can redistribute it and/or
@@ -374,7 +374,7 @@ class Monster_ID extends PNG_Parts_Generator {
 		// Ensure non-negative hue.
 		$hue = $this->color->normalize_hue( $hue );
 
-		\imageAlphaBlending( $image, false );
+		\imageAlphaBlending( $image, false ); // @phpstan-ignore argument.type
 		if ( isset( self::PART_OPTIMIZATION[ $file ] ) ) {
 			$xmin = self::PART_OPTIMIZATION[ $file ][0][0];
 			$xmax = self::PART_OPTIMIZATION[ $file ][0][1];
@@ -382,14 +382,14 @@ class Monster_ID extends PNG_Parts_Generator {
 			$ymax = self::PART_OPTIMIZATION[ $file ][1][1];
 		} else {
 			$xmin = 0;
-			$xmax = \imageSX( $image ) - 1;
+			$xmax = \imageSX( $image ) - 1; // @phpstan-ignore argument.type
 			$ymin = 0;
-			$ymax = \imageSY( $image ) - 1;
+			$ymax = \imageSY( $image ) - 1; // @phpstan-ignore argument.type
 		}
 
 		for ( $i = $xmin; $i <= $xmax; $i++ ) {
 			for ( $j = $ymin; $j <= $ymax; $j++ ) {
-				$rgb       = \imageColorAt( $image, $i, $j );
+				$rgb       = \imageColorAt( $image, $i, $j ); // @phpstan-ignore argument.type
 				$r         = ( $rgb >> 16 ) & 0xFF;
 				$g         = ( $rgb >> 8 ) & 0xFF;
 				$b         = $rgb & 0xFF;
@@ -400,14 +400,14 @@ class Monster_ID extends PNG_Parts_Generator {
 					list( $r, $g, $b ) = $this->color->hsl_to_rgb( $hue, $saturation, $lightness );
 
 					// Change color of pixel.
-					$color = \imageColorAllocateAlpha( $image, $r, $g, $b, $alpha );
+					$color = \imageColorAllocateAlpha( $image, $r, $g, $b, $alpha ); // @phpstan-ignore argument.type
 					if ( false !== $color ) {
-						\imageSetPixel( $image, $i, $j, $color );
+						\imageSetPixel( $image, $i, $j, $color ); // @phpstan-ignore argument.type
 					}
 				}
 			}
 		}
-		\imageAlphaBlending( $image, true );
+		\imageAlphaBlending( $image, true ); // @phpstan-ignore argument.type
 
 		return $image;
 	}
