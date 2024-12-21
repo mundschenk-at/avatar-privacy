@@ -21,7 +21,7 @@
     "require": {
         "php": ">=7.4.0",
         "ext-gd": "*",
-        "level-2/dice": "4.0.4",
+        "level-2/dice": "^4.0.4",
         "mundschenk-at/check-wp-requirements": "^2.0",
         "mundschenk-at/wp-data-storage": "^1.0",
         "mundschenk-at/wp-settings-ui": "^1.0",
@@ -30,10 +30,10 @@
         "splitbrain/php-ringicon": "^1.1"
     },
     "require-dev": {
-        "wp-coding-standards/wpcs": "dev-develop",
+        "wp-coding-standards/wpcs": "^3",
         "phpcompatibility/phpcompatibility-wp": "^2.0",
         "dealerdirect/phpcodesniffer-composer-installer": "^1",
-        "phpunit/phpunit": "9.*||10.*",
+        "phpunit/phpunit": "9.*||10.*||11.*",
         "mikey179/vfsstream": "~1",
         "roave/security-advisories": "dev-master",
         "humbug/php-scoper": "^0.18",
@@ -41,8 +41,11 @@
         "sirbrillig/phpcs-variable-analysis": "^2.8",
         "sirbrillig/phpcs-import-detection": "^1.2",
         "php-stubs/wp-cli-stubs": "^2.5",
-        "szepeviktor/phpstan-wordpress": "^1.1",
-        "sniccowp/php-scoper-wordpress-excludes": "^6"
+        "szepeviktor/phpstan-wordpress": "^2",
+        "sniccowp/php-scoper-wordpress-excludes": "^6",
+        "phpstan/phpstan-phpunit": "^2",
+        "phpstan/phpstan-mockery": "^2.0",
+        "shish/safe": "^2"
     },
 
     "autoload": {
