@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2023 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  * Copyright 2007-2014 Scott Sherrill-Mix.
  *
  * This program is free software; you can redistribute it and/or
@@ -233,7 +233,7 @@ abstract class PNG_Parts_Generator extends Parts_Generator {
 	 * @throws \RuntimeException The image could not be copied.
 	 */
 	protected function create_image( $type ) {
-		return $this->png->create( $type, $this->size, $this->size );
+		return $this->png->create( $type, $this->size, $this->size ); // @phpstan-ignore argument.type
 	}
 
 	/**
@@ -335,13 +335,13 @@ abstract class PNG_Parts_Generator extends Parts_Generator {
 	 * @phpstan-return array{ 0: BoundsTuple, 1: BoundsTuple }
 	 */
 	protected function get_image_bounds( $im ) {
-		$imgw    = \imageSX( $im );
-		$imgh    = \imageSY( $im );
+		$imgw    = \imageSX( $im ); // @phpstan-ignore argument.type
+		$imgh    = \imageSY( $im ); // @phpstan-ignore argument.type
 		$xbounds = [ 999999, 0 ];
 		$ybounds = [ 999999, 0 ];
 		for ( $i = 0;$i < $imgw;$i++ ) {
 			for ( $j = 0;$j < $imgh;$j++ ) {
-				$rgb       = \imageColorAt( $im, $i, $j );
+				$rgb       = \imageColorAt( $im, $i, $j ); // @phpstan-ignore argument.type
 				$r         = ( $rgb >> 16 ) & 0xFF;
 				$g         = ( $rgb >> 8 ) & 0xFF;
 				$b         = $rgb & 0xFF;

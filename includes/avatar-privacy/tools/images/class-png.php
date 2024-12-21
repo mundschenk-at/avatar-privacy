@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2023 Peter Putzer.
+ * Copyright 2019-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -88,7 +88,7 @@ class PNG {
 		 *
 		 * @var resource|GdImage $image The created GD image.
 		 */
-		$image = \imageCreateTrueColor( $width, $height );
+		$image = \imageCreateTrueColor( $width, $height ); // @phpstan-ignore varTag.nativeType
 
 		// Something went wrong, badly.
 		if ( ! \is_gd_image( $image ) ) {
@@ -96,18 +96,18 @@ class PNG {
 		}
 
 		// Don't do alpha blending for the initial fill operation.
-		\imageAlphaBlending( $image, false );
-		\imageSaveAlpha( $image, true );
+		\imageAlphaBlending( $image, false ); // @phpstan-ignore argument.type
+		\imageSaveAlpha( $image, true ); // @phpstan-ignore argument.type
 
 		try {
 			// Fill image with appropriate color.
 			switch ( $type ) {
 				case 'transparent':
-					$color = \imageColorAllocateAlpha( $image, 0, 0, 0, 127 );
+					$color = \imageColorAllocateAlpha( $image, 0, 0, 0, 127 ); // @phpstan-ignore argument.type
 					break;
 
 				case 'white':
-					$color = \imageColorAllocateAlpha( $image, 255, 255, 255, 0 );
+					$color = \imageColorAllocateAlpha( $image, 255, 255, 255, 0 ); // @phpstan-ignore argument.type
 					break;
 
 				case 'black':
@@ -118,18 +118,18 @@ class PNG {
 					throw new \InvalidArgumentException( "Invalid image type $type." );
 			}
 
-			if ( false === $color || ! \imageFilledRectangle( $image, 0, 0, $width, $height, $color ) ) {
+			if ( false === $color || ! \imageFilledRectangle( $image, 0, 0, $width, $height, $color ) ) { // @phpstan-ignore argument.type
 				throw new PNG_Image_Exception( "Error filling image of type $type." ); // @codeCoverageIgnore
 			}
 		} catch ( PNG_Image_Exception $e ) {
 			// Clean up and re-throw exception.
-			// @phpstan-ignore argument.type
+			/* @phpstan-ignore argument.type */
 			\imageDestroy( $image ); // @codeCoverageIgnore
 			throw $e;                // @codeCoverageIgnore
 		}
 
 		// Fix transparent background.
-		\imageAlphaBlending( $image, true );
+		\imageAlphaBlending( $image, true ); // @phpstan-ignore argument.type
 
 		return $image;
 	}
@@ -151,7 +151,7 @@ class PNG {
 		 *
 		 * @var resource|GdImage $image The created GD image.
 		 */
-		$image = @\imageCreateFromPNG( $file );
+		$image = @\imageCreateFromPNG( $file ); // @phpstan-ignore varTag.nativeType
 
 		// Something went wrong, badly.
 		if ( ! \is_gd_image( $image ) ) {
@@ -159,8 +159,8 @@ class PNG {
 		}
 
 		// Fix transparent background.
-		\imageAlphaBlending( $image, true );
-		\imageSaveAlpha( $image, true );
+		\imageAlphaBlending( $image, true ); // @phpstan-ignore argument.type
+		\imageSaveAlpha( $image, true ); // @phpstan-ignore argument.type
 
 		return $image;
 	}
@@ -189,10 +189,10 @@ class PNG {
 		}
 
 		// Copy the image to the base.
-		$result = \imageCopy( $base, $image, 0, 0, 0, 0, $width, $height );
+		$result = \imageCopy( $base, $image, 0, 0, 0, 0, $width, $height ); // @phpstan-ignore argument.type,argument.type
 
 		// Clean up.
-		\imageDestroy( $image );
+		\imageDestroy( $image ); // @phpstan-ignore argument.type
 
 		// Return copy success status.
 		if ( ! $result ) {
@@ -228,9 +228,9 @@ class PNG {
 		}
 
 		list( $red, $green, $blue ) = $this->color->hsl_to_rgb( $hue, $saturation, $lightness );
-		$color                      = \imageColorAllocate( $image, $red, $green, $blue );
+		$color                      = \imageColorAllocate( $image, $red, $green, $blue ); // @phpstan-ignore argument.type
 
-		if ( false === $color || ! \imageFill( $image, $x, $y, $color ) ) {
+		if ( false === $color || ! \imageFill( $image, $x, $y, $color ) ) { // @phpstan-ignore argument.type
 			throw new PNG_Image_Exception( "Error filling image with HSL ({$hue}, {$saturation}, {$lightness})." ); // @codeCoverageIgnore
 		}
 	}
