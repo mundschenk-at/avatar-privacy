@@ -111,7 +111,7 @@ class Simple_User_Avatar_Integration implements Plugin_Integration {
 	 * @phpstan-param  AvatarDefinition|null $avatar
 	 * @phpstan-return AvatarDefinition|null
 	 */
-	public function enable_user_avatars( array $avatar = null, $user_id ) {
+	public function enable_user_avatars( ?array $avatar, $user_id ) {
 		// Retrieve Simple Author Box image.
 		$local_avatar = $this->get_simple_user_avatar_avatar( $user_id );
 

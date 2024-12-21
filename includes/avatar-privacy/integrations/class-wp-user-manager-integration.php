@@ -111,7 +111,7 @@ class WP_User_Manager_Integration implements Plugin_Integration {
 	 * @phpstan-param  AvatarDefinition|null $avatar
 	 * @phpstan-return AvatarDefinition|null
 	 */
-	public function enable_wpusermanager_user_avatars( array $avatar = null, $user_id ) {
+	public function enable_wpusermanager_user_avatars( ?array $avatar, $user_id ) {
 		$file = \carbon_get_user_meta( $user_id, self::WP_USER_MANAGER_META_KEY );
 
 		if ( \is_string( $file ) && ! empty( $file ) ) {

@@ -152,7 +152,7 @@ class Ultimate_Member_Integration implements Plugin_Integration {
 	 * @phpstan-param  AvatarDefinition|null $avatar
 	 * @phpstan-return AvatarDefinition|null
 	 */
-	public function enable_ultimate_member_user_avatars( array $avatar = null, $user_id ) {
+	public function enable_ultimate_member_user_avatars( ?array $avatar, $user_id ) {
 		// Retrieve Ultimate Member user data.
 		\add_filter( 'um_filter_avatar_cache_time', '__return_null' );
 		$um_profile = \um_get_user_avatar_data( $user_id, 'original' );
