@@ -154,7 +154,7 @@ class BuddyPress_Integration implements Plugin_Integration {
 	 * @phpstan-param  AvatarDefinition|null $avatar
 	 * @phpstan-return AvatarDefinition|null
 	 */
-	public function enable_buddypress_user_avatars( array $avatar = null, $user_id ) {
+	public function enable_buddypress_user_avatars( ?array $avatar, $user_id ) {
 		// Prevent loops.
 		if ( \doing_filter( 'bp_core_default_avatar_user' ) ) {
 			return $avatar;
