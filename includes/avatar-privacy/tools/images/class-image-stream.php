@@ -450,14 +450,15 @@ class Image_Stream {
 	 * Triggers an error if the trigger condition is fulfilled.
 	 *
 	 * @since  2.4.0
+	 * @since  2.8.0 Default $error_level downgraded to `E_USER_WARNING` due to the PHP 8.4 deprecation of `E_USER_ERROR`.
 	 *
 	 * @param  bool   $condition   Whether the error should be triggered.
 	 * @param  string $message     The error message.
-	 * @param  int    $error_level Optional. Only the E_USER_* constants are valid. Default E_USER_ERROR.
+	 * @param  int    $error_level Optional. Only the E_USER_* constants are valid. Default `E_USER_WARNING`.
 	 *
 	 * @return void
 	 */
-	protected function maybe_trigger_error( $condition, $message, $error_level = \E_USER_ERROR ) {
+	protected function maybe_trigger_error( $condition, $message, $error_level = \E_USER_WARNING ) {
 		if ( $condition ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 			\trigger_error( \esc_html( $message ), $error_level );

@@ -801,13 +801,18 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		return [
 			[
 				true,
-				'My user error',
-				\E_USER_ERROR,
+				'My user notice',
+				\E_USER_NOTICE,
 			],
 			[
 				true,
 				'My user warning',
 				\E_USER_WARNING,
+			],
+			[
+				true,
+				'My user deprecation',
+				\E_USER_DEPRECATED,
 			],
 			[
 				false,
