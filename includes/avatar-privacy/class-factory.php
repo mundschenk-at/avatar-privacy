@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2023 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -286,7 +286,7 @@ class Factory extends Dice {
 	protected function get_plugin_version( $plugin_file ) {
 		// Load version from plugin data.
 		if ( ! \function_exists( 'get_plugin_data' ) ) {
-			require_once \ABSPATH . 'wp-admin/includes/plugin.php';
+			require_once \ABSPATH . 'wp-admin/includes/plugin.php'; // @phpstan-ignore requireOnce.fileNotFound
 		}
 
 		return \get_plugin_data( $plugin_file, false, false )['Version'];

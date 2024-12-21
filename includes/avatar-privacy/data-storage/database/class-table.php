@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2023 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -356,7 +356,7 @@ abstract class Table {
 	protected function db_delta( $queries, $execute = true ) {
 		if ( ! function_exists( 'dbDelta' ) ) {
 			// Load upgrade.php for the dbDelta function.
-			require_once \ABSPATH . 'wp-admin/includes/upgrade.php';
+			require_once \ABSPATH . 'wp-admin/includes/upgrade.php'; // @phpstan-ignore requireOnce.fileNotFound
 		}
 
 		return \dbDelta( $queries, $execute );
