@@ -50,6 +50,7 @@
         "php-stubs/wp-cli-stubs": "^2.5",
         "szepeviktor/phpstan-wordpress": "^2",
         "sniccowp/php-scoper-wordpress-excludes": "^6",
+        "phpstan/extension-installer": "^1.2",
         "phpstan/phpstan-phpunit": "^2",
         "phpstan/phpstan-mockery": "^2.0",
         "shish/safe": "^2"
@@ -73,7 +74,8 @@
         "platform-check": false,
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true,
-            "dangoodman/composer-for-wordpress": true
+            "dangoodman/composer-for-wordpress": true,
+            "phpstan/extension-installer": true
         }
     },
 
