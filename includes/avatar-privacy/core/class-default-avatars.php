@@ -226,7 +226,7 @@ class Default_Avatars implements API {
 	public function delete_custom_default_avatar_image_file() {
 		// Delete original upload if it exists.
 		$icon = $this->get_custom_default_avatar();
-		if ( empty( $icon['file'] ) || \file_exists( $icon['file'] ) && delete_file( $icon['file'] ) ) {
+		if ( empty( $icon['file'] ) || ( \file_exists( $icon['file'] ) && delete_file( $icon['file'] ) ) ) {
 			return true;
 		}
 
