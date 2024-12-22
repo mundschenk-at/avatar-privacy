@@ -128,19 +128,19 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 	 * Retrieves the relevant slice of the global $_FILES array.
 	 *
 	 * @since 2.4.0
+	 * @since 2.8.0 Parameter `$files` addded to reduce reliance on $_FILES superglobal.
 	 *
-	 * @global array $_FILES Uploaded files superglobal.
+	 * @param  mixed[] $files The $_FILES uploaded files superglobal.
+	 * @param  array   $args  Arguments passed from ::maybe_save_data().
 	 *
-	 * @param  array $args Arguments passed from ::maybe_save_data().
-	 *
-	 * @return array       A slice of the $_FILES array.
+	 * @return array          A slice of the $_FILES array.
 	 *
 	 * @phpstan-param  UploadArgs $args
 	 * @phpstan-return FileSlice|array{}
 	 */
-	protected function get_file_slice( array $args ) {
-		if ( ! empty( $_FILES[ $args['upload_field'] ] ) ) {
-			return (array) $_FILES[ $args['upload_field'] ]; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- $_FILES does not need wp_unslash.
+	protected function get_file_slice( array $files, array $args ): array {
+		if ( ! empty( $files[ $args['upload_field'] ] ) ) {
+			return (array) $files[ $args['upload_field'] ]; // $_FILES does not need wp_unslash.
 		}
 
 		return [];

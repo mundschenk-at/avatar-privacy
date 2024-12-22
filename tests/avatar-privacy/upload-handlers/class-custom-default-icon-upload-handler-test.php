@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -197,8 +197,6 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	 * @covers ::get_file_slice
 	 */
 	public function test_get_file_slice() {
-		global $_FILES;
-
 		$upload_field = 'my_upload_field';
 		$args         = [
 			'upload_field' => $upload_field,
@@ -220,12 +218,12 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 		];
 
 		// Set up fake request.
-		$_FILES = [ $upload_index => $uploaded_file ];
+		$files = [ $upload_index => $uploaded_file ];
 
 		$this->options->shouldReceive( 'get_name' )->once()->with( Settings::OPTION_NAME )->andReturn( $upload_index );
 		$this->sut->shouldReceive( 'normalize_files_array' )->once()->with( $uploaded_file )->andReturn( $normalized_files );
 
-		$this->assertSame( $result, $this->sut->get_file_slice( $args ) );
+		$this->assertSame( $result, $this->sut->get_file_slice( $files, $args ) );
 	}
 
 	/**
@@ -234,8 +232,6 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	 * @covers ::get_file_slice
 	 */
 	public function test_get_file_slice_empty_uploads() {
-		global $_FILES;
-
 		$upload_field = 'my_upload_field';
 		$args         = [
 			'upload_field' => $upload_field,
@@ -249,12 +245,12 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 		$upload_index  = 'some_file_index';
 
 		// Set up fake request.
-		$_FILES = [ $upload_index => $uploaded_file ];
+		$files = [ $upload_index => $uploaded_file ];
 
 		$this->options->shouldReceive( 'get_name' )->once()->with( Settings::OPTION_NAME )->andReturn( $upload_index );
 		$this->sut->shouldReceive( 'normalize_files_array' )->never();
 
-		$this->assertSame( [], $this->sut->get_file_slice( $args ) );
+		$this->assertSame( [], $this->sut->get_file_slice( $files, $args ) );
 	}
 
 	/**
@@ -263,8 +259,6 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	 * @covers ::get_file_slice
 	 */
 	public function test_get_file_slice_upload_field_missing() {
-		global $_FILES;
-
 		$upload_field = 'my_upload_field';
 		$args         = [
 			'upload_field' => $upload_field,
@@ -286,12 +280,12 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 		];
 
 		// Set up fake request.
-		$_FILES = [ $upload_index => $uploaded_file ];
+		$files = [ $upload_index => $uploaded_file ];
 
 		$this->options->shouldReceive( 'get_name' )->once()->with( Settings::OPTION_NAME )->andReturn( $upload_index );
 		$this->sut->shouldReceive( 'normalize_files_array' )->once()->with( $uploaded_file )->andReturn( $normalized_files );
 
-		$this->assertSame( [], $this->sut->get_file_slice( $args ) );
+		$this->assertSame( [], $this->sut->get_file_slice( $files, $args ) );
 	}
 
 	/**

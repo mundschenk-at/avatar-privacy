@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -152,23 +152,31 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_maybe_save_data() {
 		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		global $_FILES; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		// Input data.
-		$nonce        = 'my_nonce';
-		$nonce_value  = '12345';
-		$action       = 'my_action';
-		$upload_field = 'my-upload-field';
-		$erase_field  = 'my-erase-field';
-		$args         = [
+		$nonce         = 'my_nonce';
+		$nonce_value   = '12345';
+		$action        = 'my_action';
+		$upload_field  = 'my-upload-field';
+		$erase_field   = 'my-erase-field';
+		$args          = [
 			'nonce'        => $nonce,
 			'action'       => $action,
 			'upload_field' => $upload_field,
 			'erase_field'  => $erase_field,
 			'foo'          => 'bar',
 		];
+		$upload_field  = 'my_upload_field';
+		$uploaded_file = [
+			'name' => [ 'filename' ],
+			'type' => [ 'image/gif' ],
+			'foo'  => [ 'bar' ],
+		];
 
 		// Set up fake request.
 		$_POST[ $nonce ] = $nonce_value;
+		$_FILES          = [ $upload_field => $uploaded_file ];
 
 		// Intermediary data.
 		$file_slice    = [
@@ -185,7 +193,7 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'sanitize_key' )->once()->with( $nonce_value )->andReturn( 'sanitized_nonce' );
 		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', $action )->andReturn( true );
 
-		$this->sut->shouldReceive( 'get_file_slice' )->once()->with( $args )->andReturn( $file_slice );
+		$this->sut->shouldReceive( 'get_file_slice' )->once()->with( $_FILES, $args )->andReturn( $file_slice ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$this->sut->shouldReceive( 'upload' )->once()->with( $file_slice, $args )->andReturn( $upload_result );
 		$this->sut->shouldReceive( 'handle_upload_errors' )->never();
 		$this->sut->shouldReceive( 'store_file_data' )->once()->with( $upload_result, $args );
@@ -241,6 +249,7 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_maybe_save_data_upload_error() {
 		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		global $_FILES; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		// Input data.
 		$nonce        = 'my_nonce';
@@ -255,9 +264,15 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 			'erase_field'  => $erase_field,
 			'foo'          => 'bar',
 		];
+		$uploaded_file = [
+			'name' => [ 'filename' ],
+			'type' => [ 'image/gif' ],
+			'foo'  => [ 'bar' ],
+		];
 
 		// Set up fake request.
 		$_POST[ $nonce ] = $nonce_value;
+		$_FILES          = [ $upload_field => $uploaded_file ];
 
 		// Intermediary data.
 		$file_slice    = [
@@ -273,7 +288,7 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'sanitize_key' )->once()->with( $nonce_value )->andReturn( 'sanitized_nonce' );
 		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', $action )->andReturn( true );
 
-		$this->sut->shouldReceive( 'get_file_slice' )->once()->with( $args )->andReturn( $file_slice );
+		$this->sut->shouldReceive( 'get_file_slice' )->once()->with( $_FILES, $args )->andReturn( $file_slice ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$this->sut->shouldReceive( 'upload' )->once()->with( $file_slice, $args )->andReturn( $upload_result );
 		$this->sut->shouldReceive( 'handle_upload_errors' )->once()->with( $upload_result, $args );
 		$this->sut->shouldReceive( 'store_file_data' )->never();
@@ -369,6 +384,7 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_maybe_save_data_delete() {
 		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		global $_FILES; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		// Input data.
 		$nonce        = 'my_nonce';
@@ -383,10 +399,16 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 			'erase_field'  => $erase_field,
 			'foo'          => 'bar',
 		];
+		$uploaded_file = [
+			'name' => [ 'filename' ],
+			'type' => [ 'image/gif' ],
+			'foo'  => [ 'bar' ],
+		];
 
 		// Set up fake request.
 		$_POST[ $nonce ]       = $nonce_value;
 		$_POST[ $erase_field ] = 'true';
+		$_FILES                = [ $upload_field => $uploaded_file ];
 
 		// Intermediary data.
 		$file_slice = [
@@ -398,7 +420,7 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'sanitize_key' )->once()->with( $nonce_value )->andReturn( 'sanitized_nonce' );
 		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', $action )->andReturn( true );
 
-		$this->sut->shouldReceive( 'get_file_slice' )->once()->with( $args )->andReturn( $file_slice );
+		$this->sut->shouldReceive( 'get_file_slice' )->once()->with( $_FILES, $args )->andReturn( $file_slice ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$this->sut->shouldReceive( 'upload' )->never();
 		$this->sut->shouldReceive( 'handle_upload_errors' )->never();
 		$this->sut->shouldReceive( 'store_file_data' )->never();
@@ -415,6 +437,7 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_maybe_save_data_delete_incorrect_var() {
 		global $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		global $_FILES; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		// Input data.
 		$nonce        = 'my_nonce';
@@ -429,10 +452,16 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 			'erase_field'  => $erase_field,
 			'foo'          => 'bar',
 		];
+		$uploaded_file = [
+			'name' => [ 'filename' ],
+			'type' => [ 'image/gif' ],
+			'foo'  => [ 'bar' ],
+		];
 
 		// Set up fake request.
 		$_POST[ $nonce ]       = $nonce_value;
 		$_POST[ $erase_field ] = true; // This should be a string, not a boolean.
+		$_FILES                = [ $upload_field => $uploaded_file ];
 
 		// Intermediary data.
 		$file_slice = [
@@ -444,7 +473,7 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'sanitize_key' )->once()->with( $nonce_value )->andReturn( 'sanitized_nonce' );
 		Functions\expect( 'wp_verify_nonce' )->once()->with( 'sanitized_nonce', $action )->andReturn( true );
 
-		$this->sut->shouldReceive( 'get_file_slice' )->once()->with( $args )->andReturn( $file_slice );
+		$this->sut->shouldReceive( 'get_file_slice' )->once()->with( $_FILES, $args )->andReturn( $file_slice ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$this->sut->shouldReceive( 'upload' )->never();
 		$this->sut->shouldReceive( 'handle_upload_errors' )->never();
 		$this->sut->shouldReceive( 'store_file_data' )->never();
