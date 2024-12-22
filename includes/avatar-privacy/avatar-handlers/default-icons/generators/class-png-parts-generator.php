@@ -71,7 +71,7 @@ abstract class PNG_Parts_Generator extends Parts_Generator {
 	/**
 	 * The base size of the generated avatar.
 	 *
-	 * @var int
+	 * @var int<1,max>
 	 */
 	protected int $size;
 
@@ -94,7 +94,7 @@ abstract class PNG_Parts_Generator extends Parts_Generator {
 	 *
 	 * @param string           $parts_dir        The directory containing our image parts.
 	 * @param string[]         $part_types       The valid part types for this generator.
-	 * @param int              $size             The width and height of the generated image (in pixels).
+	 * @param int<1,max>       $size             The width and height of the generated image (in pixels).
 	 * @param Images\Editor    $editor           The image editing handler.
 	 * @param Images\PNG       $png              The PNG image helper.
 	 * @param Number_Generator $number_generator A pseudo-random number generator.

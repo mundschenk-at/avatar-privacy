@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2023 Peter Putzer.
+ * Copyright 2019-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -39,7 +39,7 @@ use Avatar_Privacy\Tools\HTML\User_Form;
  * @author Peter Putzer <github@mundschenk.at>
  *
  * @phpstan-type FormBlockAttributes array{ avatar_size: int, className: string }
- * @phpstan-type AvatarBlockAttributes array{ user_id: int, avatar_size: int, className: string }
+ * @phpstan-type AvatarBlockAttributes array{ user_id: int, avatar_size: int, className: string, align?: string }
  */
 class Block_Editor implements Component {
 
@@ -217,9 +217,10 @@ class Block_Editor implements Component {
 	 * @param  array $attributes {
 	 *     The `avatar-privacy/avatar` block attributes.
 	 *
-	 *     @type int    $user_id     The ID of the user whose avatar should be displayed.
-	 *     @type int    $avatar_size The width/height of the avatar preview image (in pixels).
-	 *     @type string $className   The additional classname defined in the Block Editor.
+	 *     @type int     $user_id     The ID of the user whose avatar should be displayed.
+	 *     @type int     $avatar_size The width/height of the avatar preview image (in pixels).
+	 *     @type string  $className   The additional classname defined in the Block Editor.
+	 *     @type ?string $align       Optional. The alignment for the avatar image.
 	 * }
 	 *
 	 * @return string
