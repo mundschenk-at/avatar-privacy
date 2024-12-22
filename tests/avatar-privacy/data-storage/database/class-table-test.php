@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2022 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -583,6 +583,7 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 		$expected = [ '%s', '%d', '%s' ];
 
+		Functions\expect( 'esc_html' )->once()->andReturnFirstArg();
 		$this->expectException( Database_Exception::class );
 
 		$this->assertSame( $expected, $this->sut->get_format( $columns ) );

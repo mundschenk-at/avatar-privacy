@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2023 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -284,7 +284,7 @@ class Settings implements API {
 		$all_settings = $this->get_all_settings( $force );
 
 		if ( ! isset( $all_settings[ $setting ] ) ) {
-			throw new \UnexpectedValueException( "Invalid setting name '{$setting}'." );
+			throw new \UnexpectedValueException( \esc_html( "Invalid setting name '{$setting}'." ) );
 		}
 
 		return $all_settings[ $setting ];
@@ -312,7 +312,7 @@ class Settings implements API {
 		$all_settings = $this->get_all_settings();
 
 		if ( ! isset( $all_settings[ $setting ] ) ) {
-			throw new \UnexpectedValueException( "Invalid setting name '{$setting}'." );
+			throw new \UnexpectedValueException( \esc_html( "Invalid setting name '{$setting}'." ) );
 		}
 
 		// Update DB.

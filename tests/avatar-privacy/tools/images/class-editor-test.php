@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2022 Peter Putzer.
+ * Copyright 2019-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -136,6 +136,7 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$mock = m::mock( Editor::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
+		Functions\expect( 'esc_html' )->once()->andReturnFirstArg();
 		$this->expect_exception( \InvalidArgumentException::class );
 
 		$this->stream->shouldReceive( 'get_handle_from_url' )->never();

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2023 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -95,7 +95,7 @@ class Filesystem_Cache {
 			$this->base_dir = "{$this->get_upload_dir()['basedir']}/" . self::CACHE_DIR;
 
 			if ( ! \wp_mkdir_p( $this->base_dir ) ) {
-				throw new Filesystem_Exception( "The cache directory {$this->base_dir} could not be created." );
+				throw new Filesystem_Exception( \esc_html( "The cache directory {$this->base_dir} could not be created." ) );
 			}
 		}
 

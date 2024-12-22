@@ -92,7 +92,7 @@ class PNG {
 
 		// Something went wrong, badly.
 		if ( ! \is_gd_image( $image ) ) {
-			throw new PNG_Image_Exception( "The image of type {$type} ($width x $height) could not be created." );  // @codeCoverageIgnore
+			throw new PNG_Image_Exception( \esc_html( "The image of type {$type} ($width x $height) could not be created." ) );  // @codeCoverageIgnore
 		}
 
 		// Don't do alpha blending for the initial fill operation.
@@ -155,7 +155,7 @@ class PNG {
 
 		// Something went wrong, badly.
 		if ( ! \is_gd_image( $image ) ) {
-			throw new PNG_Image_Exception( "The PNG image {$file} could not be read." );
+			throw new PNG_Image_Exception( \esc_html( "The PNG image {$file} could not be read." ) );
 		}
 
 		// Fix transparent background.
@@ -231,7 +231,7 @@ class PNG {
 		$color                      = \imageColorAllocate( $image, $red, $green, $blue ); // @phpstan-ignore argument.type
 
 		if ( false === $color || ! \imageFill( $image, $x, $y, $color ) ) { // @phpstan-ignore argument.type
-			throw new PNG_Image_Exception( "Error filling image with HSL ({$hue}, {$saturation}, {$lightness})." ); // @codeCoverageIgnore
+			throw new PNG_Image_Exception( \esc_html( "Error filling image with HSL ({$hue}, {$saturation}, {$lightness})." ) ); // @codeCoverageIgnore
 		}
 	}
 

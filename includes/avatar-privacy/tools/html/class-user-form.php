@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2023 Peter Putzer.
+ * Copyright 2019-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -425,7 +425,7 @@ class User_Form {
 	 */
 	protected function get_submitted_checkbox_value( $nonce, $action, $field_name ) {
 		if ( ! isset( $_POST[ $nonce ] ) && ! isset( $_POST[ $field_name ] ) ) {
-			throw new Form_Field_Not_Found_Exception( "Form field '{$field_name}' not found." );
+			throw new Form_Field_Not_Found_Exception( \esc_html( "Form field '{$field_name}' not found." ) );
 		}
 
 		// @phpstan-ignore-next-line -- super globals are all array<string,mixed>.

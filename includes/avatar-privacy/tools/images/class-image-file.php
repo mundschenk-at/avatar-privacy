@@ -181,7 +181,7 @@ class Image_File {
 		// Save the file.
 		$temp_file = \wp_tempnam( $image_url );
 		if ( ! @\copy( $image_url, $temp_file ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors -- We throw our own exception.
-			throw new Upload_Handling_Exception( "Error copying $image_url to $temp_file." );
+			throw new Upload_Handling_Exception( \esc_html( "Error copying $image_url to $temp_file." ) );
 		}
 
 		// Prepare file data.
@@ -211,7 +211,7 @@ class Image_File {
 			delete_file( $temp_file );
 
 			// Signal error.
-			throw new Upload_Handling_Exception( $sideloaded['error'] );
+			throw new Upload_Handling_Exception( \esc_html( $sideloaded['error'] ) );
 		}
 
 		return $sideloaded;

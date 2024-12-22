@@ -570,7 +570,7 @@ class Factory extends Dice {
 				break;
 
 			default:
-				throw new \InvalidArgumentException( "Invalid named instance {$instance}." );
+				throw new \InvalidArgumentException( \esc_html( "Invalid named instance {$instance}" ) );
 		}
 
 		return [ $use_gravatar, $allow_anonymous, $user_avatar ];

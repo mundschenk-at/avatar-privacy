@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2023 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -554,7 +554,7 @@ class Image_Stream {
 
 		// Validate results.
 		if ( empty( $parts ) ) {
-			throw new \InvalidArgumentException( "{$url} is not a valid stream URL" );
+			throw new \InvalidArgumentException( \esc_html( "{$url} is not a valid stream URL" ) );
 		}
 
 		$host = $parts['host'] ?? '';

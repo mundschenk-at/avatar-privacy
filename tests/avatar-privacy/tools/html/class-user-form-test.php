@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2021 Peter Putzer.
+ * Copyright 2019-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -546,6 +546,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 		}
 
 		if ( null === $verify && null === $checkbox ) {
+			Functions\expect( 'esc_html' )->once()->andReturnFirstArg();
 			$this->expect_exception( Form_Field_Not_Found_Exception::class );
 		} elseif ( ! $verify ) {
 			$this->expect_exception( Invalid_Nonce_Exception::class );

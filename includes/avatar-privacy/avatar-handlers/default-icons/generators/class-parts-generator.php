@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2023 Peter Putzer.
+ * Copyright 2019-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -285,7 +285,7 @@ abstract class Parts_Generator implements Generator {
 
 		// Raise an exception if there were no files found.
 		if ( $parts === $empty_parts ) {
-			throw new Part_Files_Not_Found_Exception( "Could not find parts images in {$this->parts_dir}" );
+			throw new Part_Files_Not_Found_Exception( \esc_html( "Could not find parts images in {$this->parts_dir}" ) );
 		}
 
 		return $this->sort_parts( $parts );
