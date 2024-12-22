@@ -20,3 +20,7 @@ parameters:
         - includes/
         - admin/partials/
         - public/partials/
+
+    excludePaths:
+        analyse:
+            - vendor/
