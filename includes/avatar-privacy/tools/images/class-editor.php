@@ -174,8 +174,7 @@ class Editor {
 		// Check for validity.
 		if (
 			$image instanceof \WP_Error ||
-			! isset( self::ALLOWED_IMAGE_FORMATS[ $format ] ) ||
-			! isset( Image_File::FILE_EXTENSION[ $format ] )
+			! isset( self::ALLOWED_IMAGE_FORMATS[ $format ] )
 		) {
 			return '';
 		}
