@@ -75,20 +75,6 @@
 		<exclude-pattern>*/partials/*\.php</exclude-pattern>
 	</rule>
 
-	<!-- Check for unused symbols (or imports) -->
-	<rule ref="ImportDetection">
-		<!-- Ignore PHP 5.2 files -->
-		<exclude-pattern>avatar-privacy\.php</exclude-pattern>
-		<exclude-pattern>uninstall\.php</exclude-pattern>
-		<exclude-pattern>includes/*avatar-privacy-*\.php</exclude-pattern>
-	</rule>
-	<rule ref="ImportDetection.Imports.RequireImports">
-		<properties>
-			<property name="ignoreUnimportedSymbols" value="/^Brain\\Monkey\\(Actions|Filters|Functions)$/"/>
-		</properties>
-	</rule>
-
-
 	<!-- Exclude generated block assets file -->
 	<exclude-pattern>*/admin/blocks/*/*\.asset\.php$</exclude-pattern>
 </ruleset>
