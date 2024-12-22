@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2023 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -336,7 +336,7 @@ class Setup implements Component {
 			// OK, let's try not to break anything.
 			$this->multisite->do_for_all_sites_in_network(
 				// We still need to disable our cron jobs, though.
-				function() {
+				function () {
 					\wp_unschedule_hook( Image_Proxy::CRON_JOB_ACTION );
 				}
 			);

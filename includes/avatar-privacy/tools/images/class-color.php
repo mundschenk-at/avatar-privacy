@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2021-2023 Peter Putzer.
+ * Copyright 2021-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -89,7 +89,7 @@ class Color {
 		 *
 		 * @return float  A floating point number between 0.0 and 1.0.
 		 */
-		$f = function( $n ) use ( $hue, $saturation, $lightness ) {
+		$f = function ( $n ) use ( $hue, $saturation, $lightness ) {
 			$k = \fmod( $n + $hue / 30, 12 );
 			$a = $saturation * \min( $lightness, 1 - $lightness );
 			return $lightness - $a * \max( -1, \min( $k - 3, 9 - $k, 1 ) );

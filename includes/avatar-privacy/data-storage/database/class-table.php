@@ -569,7 +569,7 @@ abstract class Table {
 
 			$rows          = $this->prepare_rows( $rows, $fields );
 			$columns       = \join( ',', $fields );
-			$values_clause = \join( ',', \array_map( function( $data ) {
+			$values_clause = \join( ',', \array_map( function ( $data ) {
 				return '(' . \join( ',', $this->get_format( $data ) ) . ')';
 			}, $rows ) );
 

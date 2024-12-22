@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2023 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -169,7 +169,7 @@ class User_Avatar_Upload_Handler extends Upload_Handler {
 			$error_message = \sprintf( '<strong>%s</strong> %s', \__( 'There was an error uploading the avatar:', 'avatar-privacy' ), \esc_attr( $upload_result['error'] ) );
 		}
 
-		\add_action( 'user_profile_update_errors', function( \WP_Error $errors ) use ( $error_message ) {
+		\add_action( 'user_profile_update_errors', function ( \WP_Error $errors ) use ( $error_message ) {
 			$errors->add( 'avatar_error', $error_message ); // @codeCoverageIgnore
 		} );
 	}
