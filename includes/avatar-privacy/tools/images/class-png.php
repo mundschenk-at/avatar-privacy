@@ -73,9 +73,9 @@ class PNG {
 	 *
 	 * @since  2.5.0 Returns a resource or GdImage instance, depending on the PHP version.
 	 *
-	 * @param  string $type   The type of background to create. Valid: 'white', 'black', 'transparent'.
-	 * @param  int    $width  Image width in pixels.
-	 * @param  int    $height Image height in pixels.
+	 * @param  string     $type   The type of background to create. Valid: 'white', 'black', 'transparent'.
+	 * @param  int<1,max> $width  Image width in pixels.
+	 * @param  int<1,max> $height Image height in pixels.
 	 *
 	 * @return resource|GdImage
 	 *

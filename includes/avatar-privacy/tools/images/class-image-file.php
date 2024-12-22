@@ -39,10 +39,10 @@ use function Avatar_Privacy\Tools\delete_file;
  *
  * @author Peter Putzer <github@mundschenk.at>
  *
- * @phpstan-type HandleUploadOverrides array{ upload_dir: string, upload_error_handler?: callable, unique_filename_callback?: callable, upload_error_strings?: string[], test_form?: bool, test_size?: bool, test_type?: bool, mimes?: string[]}
+ * @phpstan-type HandleUploadOverrides array{ upload_dir: string, upload_error_handler?: callable, unique_filename_callback?: callable, upload_error_strings?: string[], test_form?: bool, test_size?: bool, test_type?: bool, mimes?: string[], filename?:string}
  * @phpstan-type HandleUploadSuccess array{ file: string, url: string, type: string }
  * @phpstan-type HandleUploadError array{ error: string }
- * @phpstan-type FileSlice array{ name: string, type: string, tmp_name: string, error: int|string, size: int }
+ * @phpstan-type FileSlice array{ name: string, type: string, tmp_name: string, size: int, error?: int }
  */
 class Image_File {
 	const JPEG_IMAGE = 'image/jpeg';
@@ -88,7 +88,7 @@ class Image_File {
 	 *
 	 * @return string[]         Information about the uploaded file.
 	 *
-	 * @phpstan-param  FileSlice      $file
+	 * @phpstan-param  FileSlice             $file
 	 * @phpstan-param  HandleUploadOverrides $overrides
 	 * @phpstan-return HandleUploadSuccess|HandleUploadError
 	 */
