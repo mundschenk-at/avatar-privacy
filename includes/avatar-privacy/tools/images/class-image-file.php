@@ -337,7 +337,7 @@ class Image_File {
 						$min_height,
 						$image_width,
 						$image_height
-					)
+					),
 				];
 			} elseif ( $image_width > $max_width || $image_height > $max_height ) {
 				$file = [
@@ -348,7 +348,7 @@ class Image_File {
 						$max_height,
 						$image_width,
 						$image_height
-					)
+					),
 				];
 			}
 		}
