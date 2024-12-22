@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020-2023 Peter Putzer.
+ * Copyright 2020-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -147,13 +147,14 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 			'bar'  => 'foo',
 		];
 
+		$this->sut->shouldReceive( 'validate_image_size' )->once()->with( $file )->andReturn( $file );
+
 		$this->sut->shouldReceive( 'is_global_upload' )->once()->with( $overrides )->andReturn( false );
 		Functions\expect( 'get_main_site_id' )->never();
 		Functions\expect( 'switch_to_blog' )->never();
 		Functions\expect( 'restore_current_blog' )->never();
 
 		Filters\expectAdded( 'upload_dir' )->once()->with( m::type( 'Closure' ) );
-		$this->sut->shouldReceive( 'validate_image_size' )->once()->with( $file )->andReturn( $file );
 		$this->sut->shouldReceive( 'prepare_overrides' )->once()->with( $overrides )->andReturn( $prep_overrides );
 		Functions\expect( 'wp_handle_upload' )->once()->with( $file, $prep_overrides )->andReturn( $result );
 		Functions\expect( 'wp_normalize_path' )->never();
@@ -186,19 +187,50 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 		$normalized_result         = $result;
 		$normalized_result['file'] = '/my/normalized/path';
 
+		$this->sut->shouldReceive( 'validate_image_size' )->once()->with( $file )->andReturn( $file );
+
 		$this->sut->shouldReceive( 'is_global_upload' )->once()->with( $overrides )->andReturn( true );
 		Functions\expect( 'get_main_site_id' )->once()->andReturn( $main_site_id );
 		Functions\expect( 'switch_to_blog' )->once()->with( $main_site_id );
 		Functions\expect( 'restore_current_blog' )->once();
 
 		Filters\expectAdded( 'upload_dir' )->once()->with( m::type( 'Closure' ) );
-		$this->sut->shouldReceive( 'validate_image_size' )->once()->with( $file )->andReturn( $file );
 		$this->sut->shouldReceive( 'prepare_overrides' )->once()->with( $overrides )->andReturn( $prep_overrides );
 		Functions\expect( 'wp_handle_upload' )->once()->with( $file, $prep_overrides )->andReturn( $result );
 		Functions\expect( 'wp_normalize_path' )->once()->with( $result['file'] )->andReturn( $normalized_result['file'] );
 		Filters\expectRemoved( 'upload_dir' )->once()->with( m::type( 'Closure' ) );
 
 		$this->assertSame( $normalized_result, $this->sut->handle_upload( $file, $overrides ) );
+	}
+
+	/**
+	 * Tests ::handle_upload.
+	 *
+	 * @covers ::handle_upload
+	 */
+	public function test_handle_upload_invalid_size() {
+		$file           = [ 'foo' => 'bar' ];
+		$upload_dir     = '/some/upload/directory';
+		$overrides      = [
+			'upload_dir' => $upload_dir,
+		];
+		$result         = [
+			'error' => 'Invalid size',
+		];
+
+		$this->sut->shouldReceive( 'validate_image_size' )->once()->with( $file )->andReturn( $result );
+		$this->sut->shouldReceive( 'is_global_upload' )->never();
+		Functions\expect( 'get_main_site_id' )->never();
+		Functions\expect( 'switch_to_blog' )->never();
+		Functions\expect( 'restore_current_blog' )->never();
+
+		Filters\expectAdded( 'upload_dir' )->never();
+		$this->sut->shouldReceive( 'prepare_overrides' )->never();
+		Functions\expect( 'wp_handle_upload' )->never();
+		Functions\expect( 'wp_normalize_path' )->never();
+		Filters\expectRemoved( 'upload_dir' )->never();
+
+		$this->assertSame( $result, $this->sut->handle_upload( $file, $overrides ) );
 	}
 
 	/**

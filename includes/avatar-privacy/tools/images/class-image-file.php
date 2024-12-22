@@ -99,6 +99,14 @@ class Image_File {
 			require_once \ABSPATH . 'wp-admin/includes/file.php'; // @codeCoverageIgnore
 		}
 
+		/**
+		 * Check if the image size falls within the allowed minimum and maximum dimensions.
+		 *
+		 * @phpstan-var FileSlice|HandleUploadError
+		 */
+		$file = $this->validate_image_size( $file );
+		if ( isset( $file['error'] ) && ! \is_int( $file['error'] ) ) {
+			return $file;
 		}
 
 		// Switch to primary site if this should be a global upload.
@@ -118,22 +126,13 @@ class Image_File {
 			return $uploads;
 			// @codeCoverageIgnoreEnd
 		};
-
 		\add_filter( 'upload_dir', $upload_dir_filter );
-
-		// Move uploaded file.
-
-		/**
-		 * Check if the image size falls within the allowed minimum and maximum dimensions.
-		 *
-		 * @phpstan-var FileSlice
-		 */
-		$file = $this->validate_image_size( $file );
 
 		/**
 		 * Let WordPress handle the upload natively.
 		 *
-		 * @phpstan-var HandleUploadSuccess|HandleUploadError
+		 * @phpstan-var FileSlice $file
+		 * @phpstan-var HandleUploadSuccess|HandleUploadError $result
 		 */
 		$result = \wp_handle_upload( $file, $this->prepare_overrides( $overrides ) );
 
