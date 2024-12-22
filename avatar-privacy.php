@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2023 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +29,7 @@
  * Description: Adds options to enhance the privacy when using avatars.
  * Author: Peter Putzer
  * Author URI: https://code.mundschenk.at
- * Version: 2.7.0
+ * Version: 2.8.0-alpha.1
  * Requires at least: 5.6
  * Requires PHP: 7.4
  * License: GNU General Public License v2 or later
