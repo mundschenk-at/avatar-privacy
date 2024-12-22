@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -70,5 +70,4 @@ class Jdenticon implements Generator {
 
 		return $this->identicon->getImageData( 'svg' );
 	}
-
 }

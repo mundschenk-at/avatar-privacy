@@ -117,7 +117,7 @@ class Image_File {
 
 		// Ensure custom upload directory.
 		$upload_dir        = $overrides['upload_dir'];
-		$upload_dir_filter = function( array $uploads ) use ( $upload_dir ) {
+		$upload_dir_filter = function ( array $uploads ) use ( $upload_dir ) {
 			// @codeCoverageIgnoreStart
 			$uploads['path']   = \str_replace( $uploads['subdir'], $upload_dir, $uploads['path'] );
 			$uploads['url']    = \str_replace( $uploads['subdir'], $upload_dir, $uploads['url'] );
