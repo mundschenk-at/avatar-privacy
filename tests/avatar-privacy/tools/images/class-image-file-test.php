@@ -285,6 +285,7 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'wp_tempnam' )->once()->with( $image_url )->andReturn( $temp_file );
 
+		Functions\expect( 'esc_html' )->once()->andReturnFirstArg();
 		$this->expect_exception( Upload_Handling_Exception::class );
 
 		$this->sut->shouldReceive( 'handle_upload' )->never();
@@ -360,6 +361,7 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'handle_upload' )->once()->with( m::type( 'array' ), $overrides_with_action )->andReturn( $result );
 
+		Functions\expect( 'esc_html' )->once()->andReturnFirstArg();
 		$this->expect_exception( Upload_Handling_Exception::class );
 
 		$this->assertNull( $this->sut->handle_sideload( $image_url, $overrides ) );

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2023 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -123,6 +123,7 @@ class Filesystem_Cache_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'get_upload_dir' )->once()->andReturn( [ 'basedir' => $basedir ] );
 		Functions\expect( 'wp_mkdir_p' )->once()->with( m::type( 'string' ) )->andReturn( false );
 
+		Functions\expect( 'esc_html' )->once()->andReturnFirstArg();
 		$this->expectException( Filesystem_Exception::class );
 
 		$this->assertSame( $cachedir, $this->sut->get_base_dir() );

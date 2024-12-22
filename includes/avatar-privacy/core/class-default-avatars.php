@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020-2023 Peter Putzer.
+ * Copyright 2020-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -156,7 +156,7 @@ class Default_Avatars implements API {
 	public function set_custom_default_avatar( $image_url ) {
 		$filename = \parse_url( $image_url, \PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- we only support PHP 7.0 and higher.
 		if ( empty( $filename ) ) {
-			throw new \InvalidArgumentException( "Malformed URL {$image_url}" );
+			throw new \InvalidArgumentException( \esc_html( "Malformed URL {$image_url}" ) );
 		}
 
 		// Prepare arguments.
@@ -171,9 +171,9 @@ class Default_Avatars implements API {
 		if ( empty( $sideloaded_avatar['file'] ) ) {
 			throw new Upload_Handling_Exception( 'Missing upload file path' );
 		} elseif ( empty( $sideloaded_avatar['type'] ) ) {
-			throw new Upload_Handling_Exception( "Could not determine MIME type for {$image_url}" );
+			throw new Upload_Handling_Exception( \esc_html( "Could not determine MIME type for {$image_url}" ) );
 		} elseif ( ! isset( Image_File::FILE_EXTENSION[ $sideloaded_avatar['type'] ] ) ) {
-			throw new Upload_Handling_Exception( "Invalid MIME type {$sideloaded_avatar['type']}" );
+			throw new Upload_Handling_Exception( \esc_html( "Invalid MIME type {$sideloaded_avatar['type']}" ) );
 		}
 
 		$this->store_custom_default_avatar_data( $sideloaded_avatar );

@@ -398,7 +398,7 @@ abstract class Table {
 			if ( ! empty( $this->column_formats[ $key ] ) ) {
 				$format_strings[] = null === $value ? 'NULL' : $this->column_formats[ $key ];
 			} else {
-				throw new Database_Exception( "Invalid column name '{$key}'." );
+				throw new Database_Exception( \esc_html( "Invalid column name '{$key}'." ) );
 			}
 		}
 

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020-2023 Peter Putzer.
+ * Copyright 2020-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -238,6 +238,7 @@ class Default_Avatars_Test extends \Avatar_Privacy\Tests\TestCase {
 		$filename  = '/path/image.png';
 		$image_url = "https://?malformed.example.org{$filename}";
 
+		Functions\expect( 'esc_html' )->once()->andReturnFirstArg();
 		$this->expect_exception( \InvalidArgumentException::class );
 
 		$this->sut->shouldReceive( 'get_custom_default_avatar_filename' )->never();
@@ -288,6 +289,7 @@ class Default_Avatars_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'get_custom_default_avatar_filename' )->once()->with( $filename )->andReturn( $upload_filename );
 		$this->image_file->shouldReceive( 'handle_sideload' )->once()->with( $image_url, m::type( 'array' ) )->andReturn( $avatar );
 
+		Functions\expect( 'esc_html' )->once()->andReturnFirstArg();
 		$this->expect_exception( Upload_Handling_Exception::class );
 
 		$this->sut->shouldReceive( 'store_custom_default_avatar_data' )->never();
@@ -313,6 +315,7 @@ class Default_Avatars_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'get_custom_default_avatar_filename' )->once()->with( $filename )->andReturn( $upload_filename );
 		$this->image_file->shouldReceive( 'handle_sideload' )->once()->with( $image_url, m::type( 'array' ) )->andReturn( $avatar );
 
+		Functions\expect( 'esc_html' )->once()->andReturnFirstArg();
 		$this->expect_exception( Upload_Handling_Exception::class );
 
 		$this->sut->shouldReceive( 'store_custom_default_avatar_data' )->never();

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -317,6 +317,7 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_get_user_form_parameters( $instance, $valid ) {
 		if ( ! $valid ) {
+			Functions\expect( 'esc_html' )->once()->andReturnFirstArg();
 			$this->expect_exception( \InvalidArgumentException::class );
 		}
 

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2023 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -256,7 +256,7 @@ class User_Fields implements API {
 	public function set_local_avatar( $user_id, $image_url ) {
 		$filename = \parse_url( $image_url, \PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- we only support PHP 7.0 and higher.
 		if ( empty( $filename ) ) {
-			throw new \InvalidArgumentException( "Malformed URL {$image_url}" );
+			throw new \InvalidArgumentException( \esc_html( "Malformed URL {$image_url}" ) );
 		}
 
 		// Prepare arguments.
@@ -293,13 +293,13 @@ class User_Fields implements API {
 	 */
 	public function set_uploaded_local_avatar( $user_id, $uploaded_avatar ) {
 		if ( ! $this->user_exists( $user_id ) ) {
-			throw new \InvalidArgumentException( "Invalid user ID {$user_id}" );
+			throw new \InvalidArgumentException( \esc_html( "Invalid user ID {$user_id}" ) );
 		} elseif ( empty( $uploaded_avatar['file'] ) ) {
 			throw new \InvalidArgumentException( 'Missing upload file path' );
 		} elseif ( empty( $uploaded_avatar['type'] ) ) {
 			throw new \InvalidArgumentException( 'Missing image MIME type' );
 		} elseif ( ! isset( Image_File::FILE_EXTENSION[ $uploaded_avatar['type'] ] ) ) {
-			throw new \InvalidArgumentException( "Invalid MIME type {$uploaded_avatar['type']}" );
+			throw new \InvalidArgumentException( \esc_html( "Invalid MIME type {$uploaded_avatar['type']}" ) );
 		}
 
 		// Delete old images.

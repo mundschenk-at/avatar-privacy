@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2023 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -339,6 +339,7 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 		$user_id   = 666;
 		$image_url = 'https://?malformed.example.org';
 
+		Functions\expect( 'esc_html' )->once()->andReturnFirstArg();
 		$this->expect_exception( \InvalidArgumentException::class );
 
 		$this->sut->shouldReceive( 'get_local_avatar_filename' )->never();
@@ -385,6 +386,7 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'update_user_meta' )->never();
 
+		Functions\expect( 'esc_html' )->once()->andReturnFirstArg();
 		$this->expect_exception( \InvalidArgumentException::class );
 
 		$this->assertNull( $this->sut->set_uploaded_local_avatar( $user_id, $avatar ) );
@@ -449,6 +451,7 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'update_user_meta' )->never();
 
+		Functions\expect( 'esc_html' )->once()->andReturnFirstArg();
 		$this->expect_exception( \InvalidArgumentException::class );
 
 		$this->assertNull( $this->sut->set_uploaded_local_avatar( $user_id, $avatar ) );

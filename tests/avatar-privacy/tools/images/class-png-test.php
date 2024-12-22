@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2023 Peter Putzer.
+ * Copyright 2019-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -278,6 +278,7 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 		// We know this is not a GD image.
 		Functions\expect( 'is_gd_image' )->once()->andReturn( false );
 
+		Functions\expect( 'esc_html' )->once()->andReturnFirstArg();
 		$this->expectException( PNG_Image_Exception::class );
 
 		$this->assertNull( $this->sut->create_from_file( '/not/a/valid/PNG' ) );
@@ -460,6 +461,7 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 		Functions\expect( 'is_gd_image' )->with( $image )->once()->andReturn( true );
 
 		// Expect failure.
+		Functions\expect( 'esc_html' )->once()->andReturnFirstArg();
 		$this->expectException( PNG_Image_Exception::class );
 
 		$this->sut->fill_hsl( $image, $hue, $saturation, $lightness, $x, $y );

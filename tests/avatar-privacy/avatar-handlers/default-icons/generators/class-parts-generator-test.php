@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2021 Peter Putzer.
+ * Copyright 2019-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -442,6 +442,7 @@ class Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'read_parts_from_filesystem' )->once()->with( $empty_parts )->andReturn( $empty_parts );
 
+		Functions\expect( 'esc_html' )->once()->andReturnFirstArg();
 		$this->expectException( Part_Files_Not_Found_Exception::class );
 
 		$this->sut->shouldReceive( 'sort_parts' )->never();

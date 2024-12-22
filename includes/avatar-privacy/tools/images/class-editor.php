@@ -100,7 +100,7 @@ class Editor {
 		// Determine stream URL scheme.
 		$scheme = \parse_url( $url, \PHP_URL_SCHEME ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
 		if ( empty( $scheme ) ) {
-			throw new \InvalidArgumentException( "{$url} is not a valid stream URL" );
+			throw new \InvalidArgumentException( \esc_html( "{$url} is not a valid stream URL" ) );
 		}
 
 		// Also save the memory handle.

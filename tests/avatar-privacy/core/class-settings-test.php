@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -353,6 +353,8 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		$this->sut->shouldReceive( 'get_all_settings' )->once()->andReturn( $settings );
+
+		Functions\expect( 'esc_html' )->once()->andReturnFirstArg();
 		$this->expect_exception( \UnexpectedValueException::class );
 
 		$this->assertNull( $this->sut->get( 'invalid setting' ) );
@@ -438,6 +440,7 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'get_all_settings' )->once()->andReturn( $orig_settings );
 
+		Functions\expect( 'esc_html' )->once()->andReturnFirstArg();
 		$this->expect_exception( \UnexpectedValueException::class );
 
 		$this->options->shouldReceive( 'set' )->never();
