@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2023 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -134,21 +134,23 @@ class Custom_Default_Icon_Upload_Handler extends Upload_Handler {
 	 * Retrieves the relevant slice of the global $_FILES array.
 	 *
 	 * @since 2.4.0
+	 * @since 2.8.0 Parameter `$files` addded to reduce reliance on $_FILES superglobal.
 	 *
-	 * @param  array $args Arguments passed from ::maybe_save_data().
+	 * @param  mixed[] $files The $_FILES uploaded files superglobal.
+	 * @param  array   $args  Arguments passed from ::maybe_save_data().
 	 *
-	 * @return array       A slice of the $_FILES array.
+	 * @return array          A slice of the $_FILES array.
 	 *
 	 * @phpstan-param  UploadArgs $args
 	 * @phpstan-return FileSlice|array{}
 	 */
-	protected function get_file_slice( array $args ) {
+	protected function get_file_slice( array $files, array $args ): array {
 		$upload_index = $this->options->get_name( Settings::OPTION_NAME );
 
 		// @phpstan-ignore-next-line -- super globals are all array<string,mixed>.
-		if ( ! empty( $_FILES[ $upload_index ]['name'] ) ) {
+		if ( ! empty( $files[ $upload_index ]['name'] ) ) {
 			// @phpstan-ignore-next-line -- super globals are all array<string,mixed>.
-			$normalized_files = $this->normalize_files_array( $_FILES[ $upload_index ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- $_FILES does not need wp_unslash.
+			$normalized_files = $this->normalize_files_array( $files[ $upload_index ] ); // $_FILES does not need wp_unslash.
 
 			if ( ! empty( $normalized_files[ $args['upload_field'] ] ) ) {
 				return $normalized_files[ $args['upload_field'] ];

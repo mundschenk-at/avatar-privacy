@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2023 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -159,7 +159,7 @@ abstract class Upload_Handler {
 		}
 
 		// Verify a file was uploaded.
-		$file_slice = $this->get_file_slice( $args );
+		$file_slice = $this->get_file_slice( $_FILES, $args ); // $_FILES does not need wp_unslash.
 		if ( ! empty( $file_slice['name'] ) ) {
 
 			// Upload to our custom directory.
@@ -183,17 +183,17 @@ abstract class Upload_Handler {
 	 * Retrieves the relevant slice of the global $_FILES array.
 	 *
 	 * @since 2.4.0
+	 * @since 2.8.0 Parameter `$files` addded to reduce reliance on $_FILES superglobal.
 	 *
-	 * @global array $_FILES Uploaded files superglobal.
+	 * @param  mixed[] $files The $_FILES uploaded files superglobal.
+	 * @param  array   $args  Arguments passed from ::maybe_save_data().
 	 *
-	 * @param  array $args   Arguments passed from ::maybe_save_data().
-	 *
-	 * @return array         A slice of the $_FILES array.
+	 * @return array          A slice of the $_FILES array.
 	 *
 	 * @phpstan-param  UploadArgs $args
 	 * @phpstan-return FileSlice|array{}
 	 */
-	abstract protected function get_file_slice( array $args );
+	abstract protected function get_file_slice( array $files, array $args );
 
 	/**
 	 * Handles upload errors and prints appropriate notices.
