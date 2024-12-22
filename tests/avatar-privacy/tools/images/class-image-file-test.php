@@ -453,15 +453,7 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->validate_image_size( $file );
 
-		$this->assertArrayHasKey( 'name', $result );
-		$this->assertSame( $file['name'], $result['name'] );
-		$this->assertArrayHasKey( 'type', $result );
-		$this->assertSame( $file['type'], $result['type'] );
-		$this->assertArrayHasKey( 'tmp_name', $result );
-		$this->assertSame( $file['tmp_name'], $result['tmp_name'] );
-		$this->assertArrayHasKey( 'size', $result );
-		$this->assertSame( $file['size'], $result['size'] );
-
+		$this->assertCount( 1, $result );
 		$this->assertArrayHasKey( 'error', $result );
 		$this->assertStringStartsWith( 'Error reading dimensions of image file', $result['error'] );
 	}
@@ -488,15 +480,7 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->validate_image_size( $file );
 
-		$this->assertArrayHasKey( 'name', $result );
-		$this->assertSame( $file['name'], $result['name'] );
-		$this->assertArrayHasKey( 'type', $result );
-		$this->assertSame( $file['type'], $result['type'] );
-		$this->assertArrayHasKey( 'tmp_name', $result );
-		$this->assertSame( $file['tmp_name'], $result['tmp_name'] );
-		$this->assertArrayHasKey( 'size', $result );
-		$this->assertSame( $file['size'], $result['size'] );
-
+		$this->assertCount( 1, $result );
 		$this->assertArrayHasKey( 'error', $result );
 		$this->assertStringStartsWith( 'Image dimensions are too small.', $result['error'] );
 	}
@@ -523,15 +507,7 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = $this->sut->validate_image_size( $file );
 
-		$this->assertArrayHasKey( 'name', $result );
-		$this->assertSame( $file['name'], $result['name'] );
-		$this->assertArrayHasKey( 'type', $result );
-		$this->assertSame( $file['type'], $result['type'] );
-		$this->assertArrayHasKey( 'tmp_name', $result );
-		$this->assertSame( $file['tmp_name'], $result['tmp_name'] );
-		$this->assertArrayHasKey( 'size', $result );
-		$this->assertSame( $file['size'], $result['size'] );
-
+		$this->assertCount( 1, $result );
 		$this->assertArrayHasKey( 'error', $result );
 		$this->assertStringStartsWith( 'Image dimensions are too large.', $result['error'] );
 	}

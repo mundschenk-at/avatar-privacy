@@ -265,6 +265,7 @@ class Image_File {
 	 * Validates the image dimensions before uploading the file.
 	 *
 	 * @since 2.6.0
+	 * @since 2.8.0 Only return 'error' string in case of error.
 	 *
 	 * @param  array $file {
 	 *     Reference to a single element from $_FILES.
@@ -281,13 +282,13 @@ class Image_File {
 	 *               don't match the set limits.
 	 *
 	 * @phpstan-param  FileSlice $file
-	 * @phpstan-return FileSlice
+	 * @phpstan-return FileSlice|HandleUploadError
 	 */
 	public function validate_image_size( array $file ) {
 		$image_size = @\getimagesize( $file['tmp_name'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors -- prevent additional errors if the file cannot be read.
 		if ( ! $image_size || empty( $image_size[0] ) || empty( $image_size[1] ) ) {
 			/* translators: uploaded image file name */
-			$file['error'] = \sprintf( \__( 'Error reading dimensions of image file %s.', 'avatar-privacy' ), $file['tmp_name'] );
+			$file = [ 'error' => \sprintf( \__( 'Error reading dimensions of image file %s.', 'avatar-privacy' ), $file['tmp_name'] ) ];
 		} else {
 			$image_width  = $image_size[0];
 			$image_height = $image_size[1];
@@ -329,23 +330,27 @@ class Image_File {
 			$max_height = \apply_filters( 'avatar_privacy_upload_max_height', 2000 );
 
 			if ( $image_width < $min_width || $image_height < $min_height ) {
-				$file['error'] = \sprintf(
-					/* translators: 1: minimum upload width, 2: minimum upload height, 3: actual image width, 4: actual image height */
-					\__( 'Image dimensions are too small. Minimum size is %1$d×%2$d pixels. Uploaded image is %3$d×%4$d pixels.', 'avatar-privacy' ),
-					$min_width,
-					$min_height,
-					$image_width,
-					$image_height
-				);
+				$file = [
+					'error' => \sprintf(
+						/* translators: 1: minimum upload width, 2: minimum upload height, 3: actual image width, 4: actual image height */
+						\__( 'Image dimensions are too small. Minimum size is %1$d×%2$d pixels. Uploaded image is %3$d×%4$d pixels.', 'avatar-privacy' ),
+						$min_width,
+						$min_height,
+						$image_width,
+						$image_height
+					)
+				];
 			} elseif ( $image_width > $max_width || $image_height > $max_height ) {
-				$file['error'] = \sprintf(
-					/* translators: 1: maximum upload width, 2: maximum upload height, 3: actual image width, 4: actual image height */
-					\__( 'Image dimensions are too large. Maximum size is %1$d×%2$d pixels. Uploaded image is %3$d×%4$d pixels.', 'avatar-privacy' ),
-					$max_width,
-					$max_height,
-					$image_width,
-					$image_height
-				);
+				$file = [
+					'error' => \sprintf(
+						/* translators: 1: maximum upload width, 2: maximum upload height, 3: actual image width, 4: actual image height */
+						\__( 'Image dimensions are too large. Maximum size is %1$d×%2$d pixels. Uploaded image is %3$d×%4$d pixels.', 'avatar-privacy' ),
+						$max_width,
+						$max_height,
+						$image_width,
+						$image_height
+					)
+				];
 			}
 		}
 
