@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020-2021 Peter Putzer.
+ * Copyright 2020-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-// phpcs:disable WordPress.NamingConventions, Squiz.Commenting.ClassComment.Missing, Generic.Files.OneObjectStructurePerFile.MultipleFound, Squiz.Commenting.FunctionComment.InvalidNoReturn
+// phpcs:disable WordPress.NamingConventions, Squiz.Commenting.ClassComment.Missing, Generic.Files.OneObjectStructurePerFile.MultipleFound, Squiz.Commenting.FunctionComment.InvalidNoReturn, Universal.Namespaces.DisallowCurlyBraceSyntax.Forbidden, Universal.Namespaces.DisallowDeclarationWithoutName.Forbidden, Universal.Namespaces.OneDeclarationPerFile.MultipleFound
 
 // PHP 8.0 internal classes.
 namespace {
@@ -138,7 +138,7 @@ namespace {
 		 *
 		 * @return string|false
 		 */
-		public function replace_gravatar_image( $avatar, $id_or_email, $size, $default, $alt, $args = [] ) {}
+		public function replace_gravatar_image( $avatar, $id_or_email, $size, $default, $alt, $args = [] ) {} // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.defaultFound
 	}
 }
 

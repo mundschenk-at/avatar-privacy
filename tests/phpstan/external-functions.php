@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020-2021 Peter Putzer.
+ * Copyright 2020-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -85,7 +85,7 @@ function bp_get_version() {}
  *
  * @return mixed
  */
-function wpum_get_option( $key = '', $default = false ) {}
+function wpum_get_option( $key = '', $default = false ) {} // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.defaultFound
 /**
  * Stub for WP User Manager (Carbon Fields).
  *
@@ -144,4 +144,4 @@ function um_get_user_avatar_data( $user_id = '', $size = '96' ) {}
  *
  * @return string
  */
-function um_get_avatar( $avatar = '', $id_or_email = '', $size = '96', $avatar_class = '', $default = '', $alt = '' ) {}
+function um_get_avatar( $avatar = '', $id_or_email = '', $size = '96', $avatar_class = '', $default = '', $alt = '' ) {} // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.defaultFound
