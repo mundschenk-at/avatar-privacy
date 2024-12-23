@@ -196,7 +196,7 @@ class Shortcodes_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_sanitize_frontend_form_attributes( array $input, array $result ) {
 		Functions\expect( 'shortcode_atts' )->once()->with( Shortcodes::FRONTEND_FORM_ATTRIBUTES, $input, 'avatar-privacy-form' )->andReturnUsing(
-			function( $defaults, $atts ) {
+			function ( $defaults, $atts ) {
 				return \array_intersect_key( \array_merge( $defaults, $atts ), $defaults );
 			}
 		);

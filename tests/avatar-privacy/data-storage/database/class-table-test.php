@@ -59,7 +59,7 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 	const UPDATE_THRESHOLD = '0.5';
 
 	// Re-use actual fields from Column_Author_Table to keep test cases close to reality.
-	const COLUMN_FORMATS = [
+	const COLUMN_FORMATS   = [
 		'id'           => '%d',
 		'email'        => '%s',
 		'hash'         => '%s',
@@ -467,7 +467,7 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$wpdb->shouldReceive( 'prepare' )->once()->with( m::pattern( '/^SELECT column_name AS.*$/' ), $table_name, $old_collation )->andReturn( $prepared_colummns_query );
 		$wpdb->shouldReceive( 'get_results' )->once()->with( $prepared_colummns_query, \ARRAY_A )->andReturn( $columns );
 
-		$wpdb->shouldReceive( 'prepare' )->once()->with( m::pattern( '/^ALTER TABLE.*$/' ), m::on( function( $param ) {
+		$wpdb->shouldReceive( 'prepare' )->once()->with( m::pattern( '/^ALTER TABLE.*$/' ), m::on( function ( $param ) {
 			// 1 for the table name, 2 for the number of columns with defined default values.
 			return \is_array( $param ) && \count( $param ) === 3;
 		} ) )->andReturn( $prepared_alter_table_query );

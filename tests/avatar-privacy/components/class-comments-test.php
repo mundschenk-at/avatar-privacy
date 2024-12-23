@@ -335,7 +335,7 @@ class Comments_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'is_gravatar_prechecked' )->once()->andReturn( $is_checked );
 
-		$this->template->shouldReceive( 'get_partial' )->once()->with( $partial, m::on( function( $args ) use ( $is_checked ) {
+		$this->template->shouldReceive( 'get_partial' )->once()->with( $partial, m::on( function ( $args ) use ( $is_checked ) {
 			return (
 				! empty( $args['template'] ) && $args['template'] === $this->template &&
 				! empty( $args['is_checked'] ) && $args['is_checked'] === $is_checked

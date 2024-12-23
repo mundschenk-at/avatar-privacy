@@ -193,7 +193,6 @@ class Default_Avatars_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->settings->shouldReceive( 'get' )->once()->with( Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR )->andReturn( $avatar );
 
 		$this->assertSame( [], $this->sut->get_custom_default_avatar() );
-
 	}
 
 	/**
@@ -475,7 +474,7 @@ class Default_Avatars_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_get_custom_default_avatar_filename( $filename, $result, $blogname ) {
 		Functions\expect( 'sanitize_file_name' )->once()->with( m::type( 'string' ) )->andReturnUsing(
-			function( $arg ) {
+			function ( $arg ) {
 				return \strtr(
 					$arg,
 					[

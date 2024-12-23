@@ -223,7 +223,7 @@ class Ultimate_Member_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assertNull( $this->sut->enable_ultimate_member_user_avatars( null, $user_id ) );
 	}
 
-		/**
+	/**
 	 * Tests ::enable_ultimate_member_user_avatars.
 	 *
 	 * @covers ::enable_ultimate_member_user_avatars

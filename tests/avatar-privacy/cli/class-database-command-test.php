@@ -93,7 +93,7 @@ class Database_Command_Test extends TestCase {
 
 		// We don't care about colorize.
 		$this->wp_cli->shouldReceive( 'colorize' )->zeroOrMoreTimes()->with( m::type( 'string' ) )->andReturnUsing(
-			function( $arg ) {
+			function ( $arg ) {
 				return $arg;
 			}
 		);

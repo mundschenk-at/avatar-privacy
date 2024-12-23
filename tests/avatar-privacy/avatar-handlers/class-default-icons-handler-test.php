@@ -249,7 +249,7 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$default_url       = 'https://some/default';
 		$size              = 42;
 		$args              = [
-			'type'  => $default_icon_type,
+			'type'     => $default_icon_type,
 			'mimetype' => 'image/jpeg',
 			'force'    => $force,
 		];

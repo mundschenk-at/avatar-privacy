@@ -199,7 +199,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 			$partial,
 			m::type( 'array' )
 		)->andReturnUsing(
-			function() {
+			function () {
 				echo 'USE_GRAVATAR';
 			}
 		);
@@ -222,7 +222,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		$this->sut->shouldReceive( 'use_gravatar_checkbox' )->once()->with( $user_id, $args )->andReturnUsing(
-			function() {
+			function () {
 				echo 'USE_GRAVATAR';
 			}
 		);
@@ -258,7 +258,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 			$partial,
 			$args
 		)->andReturnUsing(
-			function() {
+			function () {
 				echo 'ALLOW_ANON';
 			}
 		);
@@ -281,7 +281,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		$this->sut->shouldReceive( 'allow_anonymous_checkbox' )->once()->with( $user_id, $args )->andReturnUsing(
-			function() {
+			function () {
 				echo 'ALLOW_ANON';
 			}
 		);
@@ -315,7 +315,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 				'avatar_size'       => 96,
 				'show_descriptions' => true,
 			]
-		)->andReturnUsing( function( $args, $defaults ) {
+		)->andReturnUsing( function ( $args, $defaults ) {
 			return \array_merge( $defaults, $args );
 		} );
 
@@ -337,7 +337,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 		];
 
 		$this->sut->shouldReceive( 'avatar_uploader' )->once()->with( $user_id, $args )->andReturnUsing(
-			function() {
+			function () {
 				echo 'UPLOADER';
 			}
 		);
@@ -361,7 +361,7 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 			'foo' => 'bar',
 		];
 
-		Functions\expect( 'wp_parse_args' )->once()->with( $args, [ 'show_descriptions' => true ] )->andReturnUsing( function( $args, $defaults ) {
+		Functions\expect( 'wp_parse_args' )->once()->with( $args, [ 'show_descriptions' => true ] )->andReturnUsing( function ( $args, $defaults ) {
 			return \array_merge( $defaults, $args );
 		} );
 

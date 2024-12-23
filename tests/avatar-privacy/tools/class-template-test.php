@@ -135,7 +135,7 @@ class Template_Test extends \Avatar_Privacy\Tests\TestCase {
 	public function test_get_uploader_description( $can_upload, $has_local_avatar, $result ) {
 		Functions\expect( '__' )->once()->with( m::type( 'string' ), 'avatar-privacy' )->andReturnFirstArg();
 
-		$this->sut->shouldReceive( 'fill_in_gravatar_url' )->atMost()->once()->with( m::type( 'string' ) )->andReturnUsing( function( $message ) {
+		$this->sut->shouldReceive( 'fill_in_gravatar_url' )->atMost()->once()->with( m::type( 'string' ) )->andReturnUsing( function ( $message ) {
 			return \sprintf( $message, 'https://en.gravatar.com/', 'noopener nofollow', '_self' );
 		} );
 
@@ -281,7 +281,7 @@ class Template_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$result = 'Some template output';
 
-		$this->sut->shouldReceive( 'print_partial' )->once()->with( $partial, $args )->andReturnUsing( function() use ( $result ) {
+		$this->sut->shouldReceive( 'print_partial' )->once()->with( $partial, $args )->andReturnUsing( function () use ( $result ) {
 			echo $result; // phpcs:ignore WordPress.Security.EscapeOutput
 		} );
 

@@ -238,7 +238,7 @@ class Robohash_Test extends \Avatar_Privacy\Tests\TestCase {
 			],
 		];
 
-		$files           = \array_filter( $result, function( $value ) {
+		$files           = \array_filter( $result, function ( $value ) {
 			return \is_array( $value ) && ! empty( $value );
 		} );
 		$number_of_files = \count( $files, \COUNT_RECURSIVE ) - \count( $files );
