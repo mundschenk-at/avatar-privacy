@@ -83,7 +83,10 @@
 
     "scripts": {
         "phpcs": [
-            "phpcs -p -s *.php includes/ admin/ public/ --extensions=php"
+            "phpcs -p -s *.php includes/ admin/ public/ tests/ --extensions=php --cache"
+        ],
+        "phpcs:fix": [
+            "phpcbf -p -s *.php includes/ admin/ public/ tests/ --extensions=php --cache"
         ],
         "test": [
             "phpunit --testsuite AvatarPrivacy"
