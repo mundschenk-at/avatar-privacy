@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2017-2021 Peter Putzer.
+ * Copyright 2017-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -37,15 +37,14 @@ abstract class TestCase extends \Mundschenk\PHPUnit_Cross_Version\TestCase {
 	 * Asserts the the argument is a valid GD image.
 	 *
 	 * @since  2.5.0
+	 * @since  2.8.0 Return type documentation fixed.
 	 *
 	 * @param  mixed $image The variable to assert.
 	 *
-	 * @return bool
-	 *
-	 * @phpstan-assert GdImage|resource $image
+	 * @phpstan-assert \GdImage|resource $image
 	 */
 	public function assert_is_gd_image( $image ) {
-		return $this->assertTrue( $this->is_gd_image( $image ) );
+		$this->assertTrue( $this->is_gd_image( $image ) );
 	}
 
 	/**
@@ -57,7 +56,7 @@ abstract class TestCase extends \Mundschenk\PHPUnit_Cross_Version\TestCase {
 	 * @return bool
 	 */
 	public function is_gd_image( $image ) {
-		return \is_resource( $image ) && 'gd' === \get_resource_type( $image ) ||
-			\is_object( $image ) && $image instanceof \GdImage;
+		return ( \is_resource( $image ) && 'gd' === \get_resource_type( $image ) ) ||
+			( \is_object( $image ) && $image instanceof \GdImage );
 	}
 }
