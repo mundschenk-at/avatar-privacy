@@ -47,7 +47,7 @@ class Factory_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Factory
+	 * @var Factory&m\MockInterface
 	 */
 	private $sut;
 

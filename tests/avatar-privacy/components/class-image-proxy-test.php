@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -69,42 +69,42 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Image_Proxy
+	 * @var Image_Proxy&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Site_Transients
+	 * @var Site_Transients&m\MockInterface
 	 */
 	private $site_transients;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Filesystem_Cache
+	 * @var Filesystem_Cache&m\MockInterface
 	 */
 	private $file_cache;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Gravatar_Cache_Handler
+	 * @var Gravatar_Cache_Handler&m\MockInterface
 	 */
 	private $gravatar;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var User_Avatar_Handler
+	 * @var User_Avatar_Handler&m\MockInterface
 	 */
 	private $user_avatar;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Default_Icons_Handler
+	 * @var Default_Icons_Handler&m\MockInterface
 	 */
 	private $default_icons;
 

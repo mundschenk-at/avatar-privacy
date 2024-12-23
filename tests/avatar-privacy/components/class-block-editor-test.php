@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -51,28 +51,28 @@ class Block_Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Block_Editor
+	 * @var Block_Editor&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * Mocked helper object.
 	 *
-	 * @var Dependencies
+	 * @var Dependencies&m\MockInterface
 	 */
 	private $dependencies;
 
 	/**
 	 * The Template alias mock.
 	 *
-	 * @var Template;
+	 * @var Template&m\MockInterface
 	 */
 	private $template;
 
 	/**
 	 * Mocked helper object.
 	 *
-	 * @var User_Form
+	 * @var User_Form&m\MockInterface
 	 */
 	private $form;
 

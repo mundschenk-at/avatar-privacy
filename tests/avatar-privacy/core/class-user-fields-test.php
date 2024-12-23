@@ -52,28 +52,28 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var User_Fields
+	 * @var User_Fields&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Hasher
+	 * @var Hasher&m\MockInterface
 	 */
 	private $hasher;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Filesystem_Cache
+	 * @var Filesystem_Cache&m\MockInterface
 	 */
 	private $file_cache;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Image_File
+	 * @var Image_File&m\MockInterface
 	 */
 	private $image_file;
 

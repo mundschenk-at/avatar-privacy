@@ -53,21 +53,21 @@ class User_Avatar_Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var User_Avatar_Upload_Handler
+	 * @var User_Avatar_Upload_Handler&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Image_File
+	 * @var Image_File&m\MockInterface
 	 */
 	private $image_file;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var User_Fields
+	 * @var User_Fields&m\MockInterface
 	 */
 	private $registered_user;
 

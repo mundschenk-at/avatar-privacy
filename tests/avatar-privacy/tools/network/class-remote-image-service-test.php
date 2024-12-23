@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020-2022 Peter Putzer.
+ * Copyright 2020-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -52,35 +52,35 @@ class Remote_Image_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Remote_Image_Service
+	 * @var Remote_Image_Service&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * Test fixture.
 	 *
-	 * @var Cache
+	 * @var Cache&m\MockInterface
 	 */
 	private $cache;
 
 	/**
 	 * Test fixture.
 	 *
-	 * @var Hasher
+	 * @var Hasher&m\MockInterface
 	 */
 	private $hasher;
 
 	/**
 	 * Test fixture.
 	 *
-	 * @var Editor
+	 * @var Editor&m\MockInterface
 	 */
 	private $editor;
 
 	/**
 	 * Test fixture.
 	 *
-	 * @var Hashes_Table
+	 * @var Hashes_Table&m\MockInterface
 	 */
 	private $table;
 

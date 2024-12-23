@@ -48,7 +48,7 @@ class Filesystem_Cache_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var \Avatar_Privacy\Data_Storage\Filesystem_Cache
+	 * @var Filesystem_Cache&m\MockInterface
 	 */
 	private $sut;
 

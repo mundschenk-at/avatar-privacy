@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -52,28 +52,28 @@ class Custom_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The filesystem cache handler.
 	 *
-	 * @var Filesystem_Cache
+	 * @var Filesystem_Cache&m\MockInterface
 	 */
 	private $file_cache;
 
 	/**
 	 * The custom default avatar handler.
 	 *
-	 * @var Default_Avatars
+	 * @var Default_Avatars&m\MockInterface
 	 */
 	private $default_avatars;
 
 	/**
 	 * The image editor support class.
 	 *
-	 * @var Images\Editor
+	 * @var Images\Editor&m\MockInterface
 	 */
 	private $images;
 
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Custom_Icon_Provider
+	 * @var Custom_Icon_Provider&m\MockInterface
 	 */
 	private $sut;
 

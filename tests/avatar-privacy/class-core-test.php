@@ -56,42 +56,42 @@ class Core_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var \Avatar_Privacy\Core
+	 * @var Core&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Settings
+	 * @var Settings&m\MockInterface
 	 */
 	private $settings;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Hasher
+	 * @var Hasher&m\MockInterface
 	 */
 	private $hasher;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Comment_Author_Fields
+	 * @var Comment_Author_Fields&m\MockInterface
 	 */
 	private $comment_author_fields;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var User_Fields
+	 * @var User_Fields&m\MockInterface
 	 */
 	private $user_fields;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Default_Avatars
+	 * @var Default_Avatars&m\MockInterface
 	 */
 	private $default_avatars;
 

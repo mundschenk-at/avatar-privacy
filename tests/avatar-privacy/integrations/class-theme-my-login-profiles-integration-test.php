@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -50,14 +50,14 @@ class Theme_My_Login_Profiles_Integration_Test extends \Avatar_Privacy\Tests\Tes
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Theme_My_Login_Profiles_Integration
+	 * @var Theme_My_Login_Profiles_Integration&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * A test fixture.
 	 *
-	 * @var User_Form
+	 * @var User_Form&m\MockInterface
 	 */
 	private $form;
 

@@ -51,21 +51,21 @@ class Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Parts_Generator
+	 * @var Parts_Generator&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * The Number_Generator mock.
 	 *
-	 * @var Number_Generator
+	 * @var Number_Generator&m\MockInterface
 	 */
 	private $number_generator;
 
 	/**
 	 * The site transients handler mock.
 	 *
-	 * @var Site_Transients
+	 * @var Site_Transients&m\MockInterface
 	 */
 	private $site_transients;
 

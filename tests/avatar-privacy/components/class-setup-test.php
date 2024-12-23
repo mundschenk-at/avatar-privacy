@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -63,77 +63,77 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The options handler.
 	 *
-	 * @var Options
+	 * @var Options&m\MockInterface
 	 */
 	private $options;
 
 	/**
 	 * The options handler.
 	 *
-	 * @var Network_Options
+	 * @var Network_Options&m\MockInterface
 	 */
 	private $network_options;
 
 	/**
 	 * The transients handler.
 	 *
-	 * @var Transients
+	 * @var Transients&m\MockInterface
 	 */
 	private $transients;
 
 	/**
 	 * The site transients handler.
 	 *
-	 * @var Site_Transients
+	 * @var Site_Transients&m\MockInterface
 	 */
 	private $site_transients;
 
 	/**
 	 * A database handler.
 	 *
-	 * @var Table
+	 * @var Table&m\MockInterface
 	 */
 	private $table_one;
 
 	/**
 	 * A database handler.
 	 *
-	 * @var Table
+	 * @var Table&m\MockInterface
 	 */
 	private $table_two;
 
 	/**
 	 * The multisite tools.
 	 *
-	 * @var Multisite
+	 * @var Multisite&m\MockInterface
 	 */
 	private $multisite;
 
 	/**
 	 * The settings API.
 	 *
-	 * @var Settings
+	 * @var Settings&m\MockInterface
 	 */
 	private $settings;
 
 	/**
 	 * The user fields API.
 	 *
-	 * @var User_Fields
+	 * @var User_Fields&m\MockInterface
 	 */
 	private $registered_user;
 
 	/**
 	 * The user fields API.
 	 *
-	 * @var Comment_Author_Fields
+	 * @var Comment_Author_Fields&m\MockInterface
 	 */
 	private $comment_author;
 
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Setup
+	 * @var Setup&m\MockInterface
 	 */
 	private $sut;
 

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2023 Peter Putzer.
+ * Copyright 2019-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -52,28 +52,28 @@ class Retro_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Retro
+	 * @var Retro&m\MockInterface
 	 */
 	private Retro $sut;
 
 	/**
 	 * Alias mock of Colors\RandomColor.
 	 *
-	 * @var \Colors\RandomColor
+	 * @var \Colors\RandomColor&m\MockInterface
 	 */
 	private RandomColor $random_color;
 
 	/**
 	 * The random number generator.
 	 *
-	 * @var Number_Generator
+	 * @var Number_Generator&m\MockInterface
 	 */
 	private Number_Generator $number_generator;
 
 	/**
 	 * The Template alias mock.
 	 *
-	 * @var Template;
+	 * @var Template&m\MockInterface
 	 */
 	private Template $template;
 

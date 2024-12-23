@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -43,14 +43,14 @@ class Functions_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The factory mock.
 	 *
-	 * @var Factory
+	 * @var Factory&m\MockInterface
 	 */
 	private $factory;
 
 	/**
 	 * The comments component mock.
 	 *
-	 * @var Comments
+	 * @var Comments&m\MockInterface
 	 */
 	private $comments;
 

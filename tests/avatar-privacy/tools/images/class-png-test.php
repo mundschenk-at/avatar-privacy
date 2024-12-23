@@ -57,14 +57,14 @@ class PNG_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var PNG
+	 * @var PNG&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * Necessary helper.
 	 *
-	 * @var Color
+	 * @var Color&m\MockInterface
 	 */
 	private $color;
 

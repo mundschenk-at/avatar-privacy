@@ -51,14 +51,14 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Settings
+	 * @var Settings&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Options
+	 * @var Options&m\MockInterface
 	 */
 	private $options;
 

@@ -47,7 +47,7 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Image_Stream
+	 * @var Image_Stream&m\MockInterface
 	 */
 	private $sut;
 

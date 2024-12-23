@@ -50,7 +50,7 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Image_File
+	 * @var Image_File&m\MockInterface
 	 */
 	private $sut;
 

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -49,7 +49,7 @@ class Shortcodes_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Shortcodes
+	 * @var Shortcodes&m\MockInterface
 	 */
 	private $sut;
 
@@ -57,7 +57,7 @@ class Shortcodes_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Mocked helper object.
 	 *
-	 * @var User_Form
+	 * @var User_Form&m\MockInterface
 	 */
 	private $form;
 

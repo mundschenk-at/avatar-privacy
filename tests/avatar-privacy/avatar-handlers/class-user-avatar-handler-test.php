@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2023 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -53,28 +53,28 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var User_Avatar_Handler
+	 * @var User_Avatar_Handler&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * The core API mock.
 	 *
-	 * @var User_Fields
+	 * @var User_Fields&m\MockInterface
 	 */
 	private $user_fields;
 
 	/**
 	 * The filesystem cache handler mock.
 	 *
-	 * @var Filesystem_Cache
+	 * @var Filesystem_Cache&m\MockInterface
 	 */
 	private $file_cache;
 
 	/**
 	 * The image editor support class.
 	 *
-	 * @var Images\Editor
+	 * @var Images\Editor&m\MockInterface
 	 */
 	private $images;
 

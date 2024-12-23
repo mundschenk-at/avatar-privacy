@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019 Peter Putzer.
+ * Copyright 2019-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -36,7 +36,7 @@ abstract class TestCase extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Alias mock for static WP_CLI methods.
 	 *
-	 * @var \WP_CLI
+	 * @var \WP_CLI&m\MockInterface
 	 */
 	protected $wp_cli;
 

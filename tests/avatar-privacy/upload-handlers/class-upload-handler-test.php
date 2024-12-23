@@ -51,14 +51,14 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Upload_Handler
+	 * @var Upload_Handler&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Image_File
+	 * @var Image_File&m\MockInterface
 	 */
 	private $image_file;
 

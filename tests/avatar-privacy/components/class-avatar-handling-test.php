@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -68,14 +68,14 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Avatar_Handling
+	 * @var Avatar_Handling&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Settings
+	 * @var Settings&m\MockInterface
 	 */
 	private $settings;
 
@@ -83,28 +83,28 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The user data helper.
 	 *
-	 * @var User_Fields
+	 * @var User_Fields&m\MockInterface
 	 */
 	private $registered_user;
 
 	/**
 	 * The comment author data helper.
 	 *
-	 * @var Comment_Author_Fields
+	 * @var Comment_Author_Fields&m\MockInterface
 	 */
 	private $comment_author;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Gravatar_Service
+	 * @var Gravatar_Service&m\MockInterface
 	 */
 	private $gravatar;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Remote_Image_Service
+	 * @var Remote_Image_Service&m\MockInterface
 	 */
 	private $remote_images;
 
@@ -120,7 +120,7 @@ class Avatar_Handling_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Ubiquitous functions.
 		Functions\when( '__' )->returnArg();
 		Functions\when( 'absint' )->alias(
-			function( $maybeint ) {
+			function ( $maybeint ) {
 				return \abs( \intval( $maybeint ) );
 			}
 		);

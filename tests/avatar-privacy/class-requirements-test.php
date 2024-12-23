@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2023 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -47,7 +47,7 @@ class Requirements_Test extends TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var \Avatar_Privacy\Requirements
+	 * @var \Avatar_Privacy\Requirements&m\MockInterface
 	 */
 	private $sut;
 

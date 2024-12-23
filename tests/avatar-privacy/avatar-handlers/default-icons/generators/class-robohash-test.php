@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -52,21 +52,21 @@ class Robohash_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Robohash
+	 * @var Robohash&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * The Number_Generator mock.
 	 *
-	 * @var Number_Generator
+	 * @var Number_Generator&m\MockInterface
 	 */
 	private $number_generator;
 
 	/**
 	 * The Template alias mock.
 	 *
-	 * @var Template;
+	 * @var Template&m\MockInterface
 	 */
 	private $template;
 

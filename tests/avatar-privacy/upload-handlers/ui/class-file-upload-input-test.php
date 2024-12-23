@@ -52,14 +52,14 @@ class File_Upload_Input_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var File_Upload_Input
+	 * @var File_Upload_Input&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * The options handler.
 	 *
-	 * @var Options
+	 * @var Options&m\MockInterface
 	 */
 	private $options;
 

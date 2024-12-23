@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2021 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -49,14 +49,14 @@ class Integrations_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Integrations
+	 * @var Integrations&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * An array of mocked integrations.
 	 *
-	 * @var Plugin_Integration[]
+	 * @var Plugin_Integration&m\MockInterface[]
 	 */
 	private $integrations;
 

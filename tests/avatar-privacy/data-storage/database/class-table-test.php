@@ -51,7 +51,7 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Table
+	 * @var Table&m\MockInterface
 	 */
 	private $sut;
 

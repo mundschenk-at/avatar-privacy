@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2023 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -59,49 +59,49 @@ class Uninstallation_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Uninstallation
+	 * @var Uninstallation&m\MockInterface
 	 */
 	private Uninstallation $sut;
 
 	/**
 	 * The options handler.
 	 *
-	 * @var Options
+	 * @var Options&m\MockInterface
 	 */
 	private Options $options;
 
 	/**
 	 * The options handler.
 	 *
-	 * @var Network_Options
+	 * @var Network_Options&m\MockInterface
 	 */
 	private Network_Options $network_options;
 
 	/**
 	 * The transients handler.
 	 *
-	 * @var Transients
+	 * @var Transients&m\MockInterface
 	 */
 	private Transients $transients;
 
 	/**
 	 * The site transients handler.
 	 *
-	 * @var Site_Transients
+	 * @var Site_Transients&m\MockInterface
 	 */
 	private Site_Transients $site_transients;
 
 	/**
 	 * The database handler.
 	 *
-	 * @var Database
+	 * @var Database&m\MockInterface
 	 */
 	private Database $database;
 
 	/**
 	 * The filesystem cache handler.
 	 *
-	 * @var Filesystem_Cache
+	 * @var Filesystem_Cache&m\MockInterface
 	 */
 	private Filesystem_Cache $file_cache;
 
