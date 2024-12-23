@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2021 Peter Putzer.
+ * Copyright 2021-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -48,14 +48,14 @@ class Simple_User_Avatar_Integration_Test extends \Avatar_Privacy\Tests\TestCase
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Simple_User_Avatar_Integration
+	 * @var Simple_User_Avatar_Integration&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * Mocked helper object.
 	 *
-	 * @var User_Fields
+	 * @var User_Fields&m\MockInterface
 	 */
 	private $user_fields;
 

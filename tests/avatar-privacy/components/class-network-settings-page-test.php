@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -54,49 +54,49 @@ class Network_Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Network_Settings_Page
+	 * @var Network_Settings_Page&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * Mocked helper object.
 	 *
-	 * @var Settings
+	 * @var Settings&m\MockInterface
 	 */
 	private $settings;
 
 	/**
 	 * Mocked helper object.
 	 *
-	 * @var Network_Options
+	 * @var Network_Options&m\MockInterface
 	 */
 	private $network_options;
 
 	/**
 	 * Mocked helper object.
 	 *
-	 * @var Transients
+	 * @var Transients&m\MockInterface
 	 */
 	private $transients;
 
 	/**
 	 * The multisite tools.
 	 *
-	 * @var Multisite
+	 * @var Multisite&m\MockInterface
 	 */
 	private $multisite;
 
 	/**
 	 * Mocked helper object.
 	 *
-	 * @var Dependencies
+	 * @var Dependencies&m\MockInterface
 	 */
 	private $dependencies;
 
 	/**
 	 * The Template alias mock.
 	 *
-	 * @var Template;
+	 * @var Template&m\MockInterface
 	 */
 	private $template;
 

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2021-2022 Peter Putzer.
+ * Copyright 2021-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -50,21 +50,21 @@ class Simple_Author_Box_Integration_Test extends \Avatar_Privacy\Tests\TestCase 
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Simple_Author_Box_Integration
+	 * @var Simple_Author_Box_Integration&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * Mocked helper object.
 	 *
-	 * @var User_Fields
+	 * @var User_Fields&m\MockInterface
 	 */
 	private $user_fields;
 
 	/**
 	 * Mocked helper object.
 	 *
-	 * @var Simple_Author_Box
+	 * @var Simple_Author_Box&m\MockInterface
 	 */
 	private $simple_author_box;
 

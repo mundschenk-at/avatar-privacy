@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -55,35 +55,35 @@ class PNG_Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var PNG_Parts_Generator
+	 * @var PNG_Parts_Generator&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * The Images\Editor mock.
 	 *
-	 * @var Editor
+	 * @var Editor&m\MockInterface
 	 */
 	private $editor;
 
 	/**
 	 * The Images\PNG mock.
 	 *
-	 * @var PNG
+	 * @var PNG&m\MockInterface
 	 */
 	private $png;
 
 	/**
 	 * The Number_Generator mock.
 	 *
-	 * @var Number_Generator
+	 * @var Number_Generator&m\MockInterface
 	 */
 	private $number_generator;
 
 	/**
 	 * The site transients handler mock.
 	 *
-	 * @var Site_Transients
+	 * @var Site_Transients&m\MockInterface
 	 */
 	private $site_transients;
 

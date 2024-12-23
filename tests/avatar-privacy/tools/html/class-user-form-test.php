@@ -69,28 +69,28 @@ class User_Form_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var User_Form
+	 * @var User_Form&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * The user avatar upload handler mock.
 	 *
-	 * @var Upload
+	 * @var Upload&m\MockInterface
 	 */
 	private $upload;
 
 	/**
 	 * THe user fields API mock.
 	 *
-	 * @var User_Fields
+	 * @var User_Fields&m\MockInterface
 	 */
 	private $registered_user;
 
 	/**
 	 * The Template alias mock.
 	 *
-	 * @var Template;
+	 * @var Template&m\MockInterface
 	 */
 	private $template;
 

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2022 Peter Putzer.
+ * Copyright 2019-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -52,21 +52,21 @@ class WPDiscuz_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var WPDiscuz_Integration
+	 * @var WPDiscuz_Integration&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * Mocked helper object.
 	 *
-	 * @var Dependencies
+	 * @var Dependencies&m\MockInterface
 	 */
 	private $dependencies;
 
 	/**
 	 * A test fixture.
 	 *
-	 * @var Comments
+	 * @var Comments&m\MockInterface
 	 */
 	private $comments;
 

@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020 Peter Putzer.
+ * Copyright 2020-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -50,14 +50,14 @@ class Default_Command_Test extends TestCase {
 	/**
 	 * The system under test.
 	 *
-	 * @var Default_Command
+	 * @var Default_Command&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Default_Avatars
+	 * @var Default_Avatars&m\MockInterface
 	 */
 	private $default_avatars;
 

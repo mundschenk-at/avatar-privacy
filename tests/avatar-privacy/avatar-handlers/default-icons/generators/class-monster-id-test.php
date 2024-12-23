@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2023 Peter Putzer.
+ * Copyright 2019-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -57,28 +57,28 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Monster_ID
+	 * @var Monster_ID&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * The Images\PNG mock.
 	 *
-	 * @var PNG
+	 * @var PNG&m\MockInterface
 	 */
 	private $png;
 
 	/**
 	 * The Images\Color mock.
 	 *
-	 * @var Color
+	 * @var Color&m\MockInterface
 	 */
 	private $color;
 
 	/**
 	 * The Number_Generator mock.
 	 *
-	 * @var Number_Generator
+	 * @var Number_Generator&m\MockInterface
 	 */
 	private $number_generator;
 

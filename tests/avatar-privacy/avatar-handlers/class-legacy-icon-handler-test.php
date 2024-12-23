@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020 Peter Putzer.
+ * Copyright 2020-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -52,21 +52,21 @@ class Legacy_Icon_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Legacy_Icon_Handler
+	 * @var Legacy_Icon_Handler&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * The filesystem cache handler mock.
 	 *
-	 * @var Filesystem_Cache
+	 * @var Filesystem_Cache&m\MockInterface
 	 */
 	private $file_cache;
 
 	/**
 	 * The image editor support class.
 	 *
-	 * @var Remote_Image_Service
+	 * @var Remote_Image_Service&m\MockInterface
 	 */
 	private $remote_images;
 

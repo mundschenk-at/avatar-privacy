@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -53,28 +53,28 @@ class Uninstall_Command_Test extends TestCase {
 	/**
 	 * The system under test.
 	 *
-	 * @var Uninstall_Command
+	 * @var Uninstall_Command&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * The setup API.
 	 *
-	 * @var Setup
+	 * @var Setup&m\MockInterface
 	 */
 	private $setup;
 
 	/**
 	 * The uninstall API.
 	 *
-	 * @var Uninstallation
+	 * @var Uninstallation&m\MockInterface
 	 */
 	private $uninstall;
 
 	/**
 	 * The database handler.
 	 *
-	 * @var Database
+	 * @var Database&m\MockInterface
 	 */
 	private $database;
 

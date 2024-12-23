@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -52,35 +52,35 @@ class Settings_Page_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Settings_Page
+	 * @var Settings_Page&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * Mocked helper object.
 	 *
-	 * @var Settings
+	 * @var Settings&m\MockInterface
 	 */
 	private $settings;
 
 	/**
 	 * The Template alias mock.
 	 *
-	 * @var Template;
+	 * @var Template&m\MockInterface
 	 */
 	private $template;
 
 	/**
 	 * Mocked helper object.
 	 *
-	 * @var Options
+	 * @var Options&m\MockInterface
 	 */
 	private $options;
 
 	/**
 	 * Mocked helper object.
 	 *
-	 * @var Custom_Default_Icon_Upload_Handler
+	 * @var Custom_Default_Icon_Upload_Handler&m\MockInterface
 	 */
 	private $upload;
 

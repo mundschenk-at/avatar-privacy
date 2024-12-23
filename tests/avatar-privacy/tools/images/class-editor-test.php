@@ -53,14 +53,14 @@ class Editor_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Editor
+	 * @var Editor&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * A mocked Image_Stream implementation.
 	 *
-	 * @var Image_Stream
+	 * @var Image_Stream&m\MockInterface
 	 */
 	private $stream;
 

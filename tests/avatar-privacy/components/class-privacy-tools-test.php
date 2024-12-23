@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -50,21 +50,21 @@ class Privacy_Tools_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Privacy_Tools
+	 * @var Privacy_Tools&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * The user fields API.
 	 *
-	 * @var User_Fields
+	 * @var User_Fields&m\MockInterface
 	 */
 	private $registered_user;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Comment_Author_Fields
+	 * @var Comment_Author_Fields&m\MockInterface
 	 */
 	private $comment_author;
 

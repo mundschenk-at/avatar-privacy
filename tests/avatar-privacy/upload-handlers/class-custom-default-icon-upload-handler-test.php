@@ -56,28 +56,28 @@ class Custom_Default_Icon_Upload_Handler_Test extends \Avatar_Privacy\Tests\Test
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Custom_Default_Icon_Upload_Handler
+	 * @var Custom_Default_Icon_Upload_Handler&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Default_Avatars
+	 * @var Default_Avatars&m\MockInterface
 	 */
 	private $default_avatars;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Image_File
+	 * @var Image_File&m\MockInterface
 	 */
 	private $image_file;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Options
+	 * @var Options&m\MockInterface
 	 */
 	private $options;
 

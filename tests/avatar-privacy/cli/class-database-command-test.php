@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2023 Peter Putzer.
+ * Copyright 2019-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -52,21 +52,21 @@ class Database_Command_Test extends TestCase {
 	/**
 	 * The system under test.
 	 *
-	 * @var Database_Command
+	 * @var Database_Command&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * The core API.
 	 *
-	 * @var Core
+	 * @var Core&m\MockInterface
 	 */
 	private $core;
 
 	/**
 	 * The table handler.
 	 *
-	 * @var Comment_Author_Table
+	 * @var Comment_Author_Table&m\MockInterface
 	 */
 	private $comment_author_table;
 

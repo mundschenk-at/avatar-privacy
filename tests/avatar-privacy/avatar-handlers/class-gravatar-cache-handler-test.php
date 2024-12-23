@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2020 Peter Putzer.
+ * Copyright 2019-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -54,35 +54,35 @@ class Gravatar_Cache_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Gravatar_Cache_Handler
+	 * @var Gravatar_Cache_Handler&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * The core API mock.
 	 *
-	 * @var Core
+	 * @var Core&m\MockInterface
 	 */
 	private $core;
 
 	/**
 	 * The options handler mock.
 	 *
-	 * @var Options
+	 * @var Options&m\MockInterface
 	 */
 	private $options;
 
 	/**
 	 * The filesystem cache handler mock.
 	 *
-	 * @var Filesystem_Cache
+	 * @var Filesystem_Cache&m\MockInterface
 	 */
 	private $file_cache;
 
 	/**
 	 * The image editor support class.
 	 *
-	 * @var Gravatar_Service
+	 * @var Gravatar_Service&m\MockInterface
 	 */
 	private $gravatar;
 

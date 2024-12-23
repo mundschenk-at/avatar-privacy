@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2022 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -52,28 +52,28 @@ class Gravatar_Service_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Gravatar_Service
+	 * @var Gravatar_Service&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Transients
+	 * @var Transients&m\MockInterface
 	 */
 	private $transients;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Site_Transients
+	 * @var Site_Transients&m\MockInterface
 	 */
 	private $site_transients;
 
 	/**
 	 * Required helper object.
 	 *
-	 * @var Editor
+	 * @var Editor&m\MockInterface
 	 */
 	private $editor;
 

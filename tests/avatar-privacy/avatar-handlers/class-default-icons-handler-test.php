@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2023 Peter Putzer.
+ * Copyright 2019-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -52,21 +52,21 @@ class Default_Icons_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * The system-under-test.
 	 *
-	 * @var Default_Icons_Handler
+	 * @var Default_Icons_Handler&m\MockInterface
 	 */
 	private $sut;
 
 	/**
 	 * The image editor support class.
 	 *
-	 * @var Remote_Image_Service
+	 * @var Remote_Image_Service&m\MockInterface
 	 */
 	private $remote_images;
 
 	/**
 	 * An array of icon provider mocks.
 	 *
-	 * @var Icon_Provider[]
+	 * @var Icon_Provider&m\MockInterface[]
 	 */
 	private $icon_providers;
 
