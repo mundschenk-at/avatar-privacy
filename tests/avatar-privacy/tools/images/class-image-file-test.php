@@ -209,12 +209,12 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::handle_upload
 	 */
 	public function test_handle_upload_invalid_size() {
-		$file           = [ 'foo' => 'bar' ];
-		$upload_dir     = '/some/upload/directory';
-		$overrides      = [
+		$file       = [ 'foo' => 'bar' ];
+		$upload_dir = '/some/upload/directory';
+		$overrides  = [
 			'upload_dir' => $upload_dir,
 		];
-		$result         = [
+		$result     = [
 			'error' => 'Invalid size',
 		];
 
@@ -320,7 +320,7 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'wp_tempnam' )->once()->with( $image_url )->andReturn( $temp_file );
 
-		$this->sut->shouldReceive( 'handle_upload' )->once()->with( m::on( function( $file_data ) use ( $temp_file, $new_filename ) {
+		$this->sut->shouldReceive( 'handle_upload' )->once()->with( m::on( function ( $file_data ) use ( $temp_file, $new_filename ) {
 			return (
 				! empty( $file_data['tmp_name'] ) && $file_data['tmp_name'] === $temp_file &&
 				! empty( $file_data['name'] ) && $file_data['name'] === $new_filename
@@ -418,7 +418,7 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 			'foo'           => 'bar',
 		];
 
-		Functions\expect( 'wp_parse_args' )->once()->andReturnUsing( function( $overrides, $defaults ) {
+		Functions\expect( 'wp_parse_args' )->once()->andReturnUsing( function ( $overrides, $defaults ) {
 			return \array_merge( $defaults, $overrides );
 		} );
 

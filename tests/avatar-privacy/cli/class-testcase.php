@@ -68,7 +68,6 @@ abstract class TestCase extends \Avatar_Privacy\Tests\TestCase {
 		}
 
 		$method->andThrow( \RuntimeException::class );
-
 	}
 
 	/**

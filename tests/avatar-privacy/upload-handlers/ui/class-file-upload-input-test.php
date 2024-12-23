@@ -73,7 +73,7 @@ class File_Upload_Input_Test extends \Avatar_Privacy\Tests\TestCase {
 		parent::set_up();
 
 		Functions\when( 'wp_parse_args' )->alias(
-			function( $args, $defaults ) {
+			function ( $args, $defaults ) {
 				return \array_merge( $defaults, $args );
 			}
 		);
@@ -142,7 +142,7 @@ class File_Upload_Input_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'current_user_can' )->once()->with( 'upload_files' )->andReturn( true );
 		Functions\expect( 'esc_attr' )->times( 3 )->andReturnUsing(
-			function( $arg ) {
+			function ( $arg ) {
 				return $arg;
 			}
 		);
@@ -189,7 +189,7 @@ class File_Upload_Input_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'current_user_can' )->once()->with( 'upload_files' )->andReturn( true );
 		Functions\expect( 'esc_attr' )->times( 3 )->andReturnUsing(
-			function( $arg ) {
+			function ( $arg ) {
 				return $arg;
 			}
 		);
@@ -235,7 +235,7 @@ class File_Upload_Input_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'current_user_can' )->once()->with( 'upload_files' )->andReturn( false );
 		Functions\expect( 'esc_attr' )->times( 3 )->andReturnUsing(
-			function( $arg ) {
+			function ( $arg ) {
 				return $arg;
 			}
 		);

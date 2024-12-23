@@ -158,7 +158,7 @@ class User_Avatar_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->file_cache->shouldReceive( 'get_base_dir' )->once()->andReturn( $basedir );
 
-		Functions\expect( 'wp_parse_args' )->once()->with( $args, m::type( 'array' ) )->andReturnUsing( function( $args, $defaults ) {
+		Functions\expect( 'wp_parse_args' )->once()->with( $args, m::type( 'array' ) )->andReturnUsing( function ( $args, $defaults ) {
 			return \array_merge( $defaults, $args );
 		} );
 		$this->sut->shouldReceive( 'get_sub_dir' )->once()->with( $hash )->andReturn( $subdir );

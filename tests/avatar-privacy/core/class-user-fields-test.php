@@ -492,7 +492,6 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 			'fields'  => 'ID',
 		] ) )->andReturn( $result ? [ $user_id ] : [] );
 
-
 		$this->assertSame( $result, $this->sut->user_exists( $user_id ) );
 	}
 
@@ -600,7 +599,7 @@ class User_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		Functions\expect( 'get_user_by' )->once()->with( 'id', $user_id )->andReturn( $user );
 		Functions\expect( 'sanitize_file_name' )->once()->with( m::type( 'string' ) )->andReturnUsing(
-			function( $arg ) {
+			function ( $arg ) {
 				return \strtr(
 					$arg,
 					[

@@ -136,7 +136,7 @@ class Legacy_Icon_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		$subdir    = 'a/b';
 		$icon      = 'fake image data';
 		$mimetype  = 'image/jpeg';
-		$args              = [
+		$args      = [
 			'mimetype' => $mimetype,
 			'force'    => $force,
 		];

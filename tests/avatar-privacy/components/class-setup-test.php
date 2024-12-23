@@ -286,7 +286,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->options->shouldReceive( 'set' )->once()->with(
 			Settings::OPTION_NAME,
 			m::on(
-				function( &$s ) use ( $version ) {
+				function ( &$s ) use ( $version ) {
 					$this->assertSame( $version, $s[ Options::INSTALLED_VERSION ] );
 
 					return \is_array( $s );
@@ -426,7 +426,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->multisite->shouldReceive( 'do_for_all_sites_in_network' )->once()->with(
 			m::on(
-				function( $task ) {
+				function ( $task ) {
 					Functions\expect( 'wp_unschedule_hook' )->once()->with( Image_Proxy::CRON_JOB_ACTION );
 					$task( null );
 

@@ -521,7 +521,7 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param  bool   $truncate A flag indicating the stream should be truncated.
 	 */
 	public function test_truncate_after_seek( $position, $data, $truncate ) {
-		$stream   = [
+		$stream = [
 			'data'  => $data,
 			'atime' => 123,
 			'mtime' => 456,
@@ -564,7 +564,7 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_stream_truncate( $data, $length, $result ) {
 		// Set up stream object.
-		$stream   = [
+		$stream = [
 			'data'  => $data,
 			'atime' => 123,
 			'mtime' => 456,
@@ -582,8 +582,8 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_stream_stat() {
 		// Initial state.
-		$data = 'a long and tedious string that is our stream';
-		$stream   = [
+		$data   = 'a long and tedious string that is our stream';
+		$stream = [
 			'data'  => $data,
 			'atime' => 123,
 			'mtime' => 456,
@@ -715,7 +715,6 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'get_data_reference' )->never();
 
 		$this->assertTrue( $this->sut->stream_metadata( $path, $option, $args ) );
-
 	}
 
 	/**
@@ -773,7 +772,6 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'delete_handle' )->once()->with( $handle );
 
 		$this->assertTrue( $this->sut->unlink( $path ) );
-
 	}
 
 	/**
@@ -789,7 +787,6 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'delete_handle' )->never();
 
 		$this->assertFalse( $this->sut->unlink( $path ) );
-
 	}
 
 	/**
@@ -900,7 +897,7 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$result = 'fake data';
 
 		$stream_ref = [
-			'data' => $result,
+			'data'  => $result,
 			'atime' => 0,
 			'mtime' => 0,
 		];
@@ -924,7 +921,7 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$result = 'fake data';
 
 		$stream_ref = [
-			'data' => $result,
+			'data'  => $result,
 			'atime' => 0,
 			'mtime' => 0,
 		];
@@ -1047,7 +1044,7 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$initial_data = 'Some random stream.';
 
 		// Wait a bit.
-		\sleep( 1 ) ;
+		\sleep( 1 );
 
 		// Copy data to stream implementation.
 		\file_put_contents( $stream_url, $initial_data ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
@@ -1067,7 +1064,7 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assertSame( $initial_data, \file_get_contents( $stream_url ) );
 
 		// Wait a bit.
-		\sleep( 1 ) ;
+		\sleep( 1 );
 
 		// Modify the file.
 		$additional_data = ' With another sentence tacked on.';
@@ -1076,7 +1073,7 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Check timestamps again.
 		\clearstatcache( false, $stream_url );
 		$second_access_time = \fileatime( $stream_url );
-		$second_mod_time = \filemtime( $stream_url );
+		$second_mod_time    = \filemtime( $stream_url );
 
 		$this->assertSame( $first_access_time, $second_access_time ); // We didn't read the stream.
 		$this->assertGreaterThan( $first_mod_time, $second_mod_time );

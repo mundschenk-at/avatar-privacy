@@ -71,7 +71,7 @@ class Requirements_Test extends TestCase {
 	public function test_constructor() {
 
 		Functions\expect( 'wp_parse_args' )->andReturnUsing(
-			function( $args, $defaults ) {
+			function ( $args, $defaults ) {
 				return \array_merge( $defaults, $args );
 			}
 		);

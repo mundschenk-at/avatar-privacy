@@ -252,12 +252,12 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		global $_FILES; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		// Input data.
-		$nonce        = 'my_nonce';
-		$nonce_value  = '12345';
-		$action       = 'my_action';
-		$upload_field = 'my-upload-field';
-		$erase_field  = 'my-erase-field';
-		$args         = [
+		$nonce         = 'my_nonce';
+		$nonce_value   = '12345';
+		$action        = 'my_action';
+		$upload_field  = 'my-upload-field';
+		$erase_field   = 'my-erase-field';
+		$args          = [
 			'nonce'        => $nonce,
 			'action'       => $action,
 			'upload_field' => $upload_field,
@@ -387,12 +387,12 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		global $_FILES; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		// Input data.
-		$nonce        = 'my_nonce';
-		$nonce_value  = '12345';
-		$action       = 'my_action';
-		$upload_field = 'my-upload-field';
-		$erase_field  = 'my-erase-field';
-		$args         = [
+		$nonce         = 'my_nonce';
+		$nonce_value   = '12345';
+		$action        = 'my_action';
+		$upload_field  = 'my-upload-field';
+		$erase_field   = 'my-erase-field';
+		$args          = [
 			'nonce'        => $nonce,
 			'action'       => $action,
 			'upload_field' => $upload_field,
@@ -440,12 +440,12 @@ class Upload_Handler_Test extends \Avatar_Privacy\Tests\TestCase {
 		global $_FILES; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		// Input data.
-		$nonce        = 'my_nonce';
-		$nonce_value  = '12345';
-		$action       = 'my_action';
-		$upload_field = 'my-upload-field';
-		$erase_field  = 'my-erase-field';
-		$args         = [
+		$nonce         = 'my_nonce';
+		$nonce_value   = '12345';
+		$action        = 'my_action';
+		$upload_field  = 'my-upload-field';
+		$erase_field   = 'my-erase-field';
+		$args          = [
 			'nonce'        => $nonce,
 			'action'       => $action,
 			'upload_field' => $upload_field,

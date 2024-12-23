@@ -480,7 +480,7 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'insert_or_update' )->once()->with(
 			[ 'email', 'hash', 'use_gravatar', 'last_updated', 'log_message' ],
 			m::on(
-				function( $a ) {
+				function ( $a ) {
 					return 3 === \count( $a );
 				}
 			),
@@ -489,7 +489,7 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'prepare_delete_query' )->once()->with(
 			m::on(
-				function( $a ) use ( $global_id_1, $global_id_2, $global_id_3, $global_id_4 ) {
+				function ( $a ) use ( $global_id_1, $global_id_2, $global_id_3, $global_id_4 ) {
 					// ID1 and ID4 exist, but only ID4 is old enough to not be migrated, so it comes first.
 					return [ $global_id_4, $global_id_1, $global_id_2, $global_id_3 ] === $a;
 				}
@@ -602,7 +602,7 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'insert_or_update' )->once()->with(
 			[ 'email', 'hash', 'use_gravatar', 'last_updated', 'log_message' ],
 			m::on(
-				function( $a ) {
+				function ( $a ) {
 					return 3 === \count( $a );
 				}
 			),
@@ -716,7 +716,7 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'insert_or_update' )->once()->with(
 			[ 'email', 'hash', 'use_gravatar', 'last_updated', 'log_message' ],
 			m::on(
-				function( $a ) {
+				function ( $a ) {
 					return 3 === \count( $a );
 				}
 			),
@@ -725,7 +725,7 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'prepare_delete_query' )->once()->with(
 			m::on(
-				function( $a ) use ( $global_id_1, $global_id_2, $global_id_3, $global_id_4 ) {
+				function ( $a ) use ( $global_id_1, $global_id_2, $global_id_3, $global_id_4 ) {
 					// ID1 and ID4 exist, but only ID4 is old enough to not be migrated, so it comes first.
 					return [ $global_id_4, $global_id_1, $global_id_2, $global_id_3 ] === $a;
 				}

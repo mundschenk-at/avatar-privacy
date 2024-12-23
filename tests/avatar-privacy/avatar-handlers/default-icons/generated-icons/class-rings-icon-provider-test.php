@@ -94,7 +94,7 @@ class Rings_Icon_Provider_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$sut = m::mock( Rings_Icon_Provider::class )->makePartial()->shouldAllowMockingProtectedMethods();
 
-		Functions\expect( '__' )->once()->with( m::type( 'string' ), 'avatar-privacy' )->andReturn( $translated ); 
+		Functions\expect( '__' )->once()->with( m::type( 'string' ), 'avatar-privacy' )->andReturn( $translated );
 
 		$this->assertSame( $translated, $sut->get_name() );
 	}
