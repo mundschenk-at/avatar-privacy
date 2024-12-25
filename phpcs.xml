@@ -37,6 +37,16 @@
 	</rule>
 
 	<!--
+	Disregard certain WordPress rules in tests.
+	-->
+	<rule ref="WordPress.WP.AlternativeFunctions">
+		<exclude-pattern>tests/**/*\.php</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.Security.EscapeOutput">
+		<exclude-pattern>tests/**/*\.php</exclude-pattern>
+	</rule>
+
+	<!--
 	To get the optimal benefits of using WPCS, we should add a couple of
 	custom properties.
 	Adjust the values of these properties to fit our needs.
