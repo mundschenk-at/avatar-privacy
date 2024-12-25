@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2023 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -181,11 +181,11 @@ class Image_Proxy implements Component {
 
 		list(, $type, $subdir, $hash, $size, $extension ) = $parts;
 
-		$file = "{$this->file_cache->get_base_dir()}{$type}/" . ( $subdir ?: '' ) . $hash . ( empty( $size ) ? '' : "-{$size}" ) . ".{$extension}";
+		$file = "{$this->file_cache->get_base_dir()}{$type}/{$subdir}{$hash}" . ( empty( $size ) ? '' : "-{$size}" ) . ".{$extension}";
 
 		if ( ! \file_exists( $file ) ) {
 			// Default size (for SVGs mainly, which ignore it).
-			$size = (int) $size ?: 100;
+			$size = (int) $size ?: 100; // phpcs:ignore Universal.Operators.DisallowShortTernary.Found -- Here it's the right tool.
 
 			if ( isset( $this->handlers[ $type ] ) ) {
 				$success = $this->handlers[ $type ]->cache_image( $type, $hash, $size, $subdir, $extension );

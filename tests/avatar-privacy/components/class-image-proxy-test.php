@@ -228,30 +228,59 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 	}
 
 	/**
+	 * Provides data for testing ::load_cached_avatar.
+	 *
+	 * @return array
+	 */
+	public function provide_load_cached_avatar_data(): array {
+		return [
+			'Default icon'            =>
+				[ 'ring', '1/9/', 'svg', Image_File::SVG_IMAGE, fn() => $this->default_icons ],
+			'Gravatar'                =>
+				[ 'gravatar', '2/8/', 'png', Image_File::PNG_IMAGE, fn() => $this->gravatar, 99 ],
+			'Gravatar without subdir' =>
+				[ 'gravatar', '', 'png', Image_File::PNG_IMAGE, fn() => $this->gravatar, 99 ],
+			'User avatar'             =>
+				[ 'user', '3/7/', 'png', Image_File::PNG_IMAGE, fn() => $this->user_avatar, 64 ],
+		];
+	}
+
+	/**
 	 * Tests ::load_cached_avatar.
 	 *
+	 * @dataProvider provide_load_cached_avatar_data
+	 *
 	 * @covers ::load_cached_avatar
+	 *
+	 * @param string   $type      The image type.
+	 * @param string   $subdir    The sub-directory.
+	 * @param string   $extension The file extension.
+	 * @param string   $mime_type The expected MIME type of the image.
+	 * @param \Closure $handler   The expected avatar handler mock encapsulated for late evaluation.
+	 * @param ?int     $size      The size in pixels (if part of the filename).
 	 */
-	public function test_load_cached_avatar_default_icon() {
+	public function test_load_cached_avatar( string $type, string $subdir, string $extension, string $mime_type, \Closure $handler, ?int $size = null ) {
 		// Input parameters.
-		$basedir   = '/base/dir/';
-		$type      = 'ring';
-		$hash      = '19b4a035996a6f641a10a02fac6d3c6be1dd2713dcc42914b3acc4128bbe9399';
-		$subdir    = '1/9/';
-		$extension = 'svg';
-		$size      = 100;
-		$file      = "{$type}/{$subdir}{$hash}.{$extension}";
+		$basedir  = '/base/dir/';
+		$hash     = '19b4a035996a6f641a10a02fac6d3c6be1dd2713dcc42914b3acc4128bbe9399';
+		$filename = $hash . ( $size ? "-$size" : '' );
+		$file     = "{$type}/{$subdir}{$filename}.{$extension}";
+		$size   ??= 100;
 
-		// Mock WP global.
-		$wp             = m::mock( 'WP' );
+		/**
+		 * Mock WP global.
+		 *
+		 * @var \WP&m\MockInterface $wp
+		 */
+		$wp             = m::mock( \WP::class );
 		$wp->query_vars = [
 			'avatar-privacy-file' => $file,
 		];
 
 		$this->file_cache->shouldReceive( 'get_base_dir' )->once()->andReturn( $basedir );
 
-		$this->default_icons->shouldReceive( 'cache_image' )->once()->with( $type, $hash, $size, $subdir, $extension )->andReturn( true );
-		$this->sut->shouldReceive( 'send_image' )->once()->with( "{$basedir}{$file}", \DAY_IN_SECONDS, Image_File::SVG_IMAGE );
+		$handler->bindTo( $this )()->shouldReceive( 'cache_image' )->once()->with( $type, $hash, $size, $subdir, $extension )->andReturn( true );
+		$this->sut->shouldReceive( 'send_image' )->once()->with( "{$basedir}{$file}", \DAY_IN_SECONDS, $mime_type );
 		$this->sut->shouldReceive( 'exit_request' )->once();
 
 		$this->assertNull( $this->sut->load_cached_avatar( $wp ) );
@@ -260,57 +289,38 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Tests ::load_cached_avatar.
 	 *
-	 * @covers ::load_cached_avatar
-	 */
-	public function test_load_cached_avatar_gravatar() {
-		// Input parameters.
-		$basedir   = '/base/dir/';
-		$type      = 'gravatar';
-		$hash      = '19b4a035996a6f641a10a02fac6d3c6be1dd2713dcc42914b3acc4128bbe9399';
-		$subdir    = '1/9/';
-		$extension = 'png';
-		$size      = 100;
-		$file      = "{$type}/{$subdir}{$hash}-{$size}.{$extension}";
-
-		// Mock WP global.
-		$wp             = m::mock( 'WP' );
-		$wp->query_vars = [
-			'avatar-privacy-file' => $file,
-		];
-
-		$this->file_cache->shouldReceive( 'get_base_dir' )->once()->andReturn( $basedir );
-
-		$this->gravatar->shouldReceive( 'cache_image' )->once()->with( $type, $hash, $size, $subdir, $extension )->andReturn( true );
-		$this->sut->shouldReceive( 'send_image' )->once()->with( "{$basedir}{$file}", \DAY_IN_SECONDS, Image_File::PNG_IMAGE );
-		$this->sut->shouldReceive( 'exit_request' )->once();
-
-		$this->assertNull( $this->sut->load_cached_avatar( $wp ) );
-	}
-
-	/**
-	 * Tests ::load_cached_avatar.
+	 * @dataProvider provide_load_cached_avatar_data
 	 *
 	 * @covers ::load_cached_avatar
+	 *
+	 * @param string   $type      The image type.
+	 * @param string   $subdir    The sub-directory.
+	 * @param string   $extension The file extension.
+	 * @param string   $mime_type The expected MIME type of the image.
+	 * @param \Closure $handler   The expected avatar handler mock encapsulated for late evaluation.
+	 * @param ?int     $size      The size in pixels (if part of the filename).
 	 */
-	public function test_load_cached_avatar_user_avatar_unsuccessful() {
+	public function test_load_cached_avatar_unsucessful( string $type, string $subdir, string $extension, string $mime_type, \Closure $handler, ?int $size = null ) {
 		// Input parameters.
-		$basedir   = '/base/dir/';
-		$type      = 'user';
-		$hash      = '19b4a035996a6f641a10a02fac6d3c6be1dd2713dcc42914b3acc4128bbe9399';
-		$subdir    = '1/9/';
-		$extension = 'png';
-		$size      = 100;
-		$file      = "{$type}/{$subdir}{$hash}-{$size}.{$extension}";
+		$basedir  = '/base/dir/';
+		$hash     = '19b4a035996a6f641a10a02fac6d3c6be1dd2713dcc42914b3acc4128bbe9399';
+		$filename = $hash . ( $size ? "-$size" : '' );
+		$file     = "{$type}/{$subdir}{$filename}.{$extension}";
+		$size   ??= 100;
 
-		// Mock WP global.
-		$wp             = m::mock( 'WP' );
+		/**
+		 * Mock WP global.
+		 *
+		 * @var \WP&m\MockInterface $wp
+		 */
+		$wp             = m::mock( \WP::class );
 		$wp->query_vars = [
 			'avatar-privacy-file' => $file,
 		];
 
 		$this->file_cache->shouldReceive( 'get_base_dir' )->once()->andReturn( $basedir );
 
-		$this->user_avatar->shouldReceive( 'cache_image' )->once()->with( $type, $hash, $size, $subdir, $extension )->andReturn( false );
+		$handler->bindTo( $this )()->shouldReceive( 'cache_image' )->once()->with( $type, $hash, $size, $subdir, $extension )->andReturn( false );
 		$this->sut->shouldReceive( 'send_image' )->never();
 		$this->sut->shouldReceive( 'exit_request' )->never();
 
@@ -328,8 +338,12 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::load_cached_avatar
 	 */
 	public function test_load_cached_avatar_no_query_var() {
-		// Mock WP global.
-		$wp             = m::mock( 'WP' );
+		/**
+		 * Mock WP global.
+		 *
+		 * @var \WP&m\MockInterface $wp
+		 */
+		$wp             = m::mock( \WP::class );
 		$wp->query_vars = [];
 
 		$this->file_cache->shouldReceive( 'get_base_dir' )->never();
@@ -345,25 +359,36 @@ class Image_Proxy_Test extends \Avatar_Privacy\Tests\TestCase {
 	/**
 	 * Tests ::load_cached_avatar.
 	 *
+	 * @dataProvider provide_load_cached_avatar_data
+	 *
 	 * @covers ::load_cached_avatar
+	 *
+	 * @param string   $type      The image type.
+	 * @param string   $subdir    The sub-directory.
+	 * @param string   $extension The file extension.
+	 * @param string   $mime_type The expected MIME type of the image.
+	 * @param \Closure $handler   The expected avatar handler mock encapsulated for late evaluation.
+	 * @param ?int     $size      The size in pixels (if part of the filename).
 	 */
-	public function test_load_cached_avatar_invalid_query_var() {
+	public function test_load_cached_avatar_invalid_query_var( string $type, string $subdir, string $extension, string $mime_type, \Closure $handler, ?int $size = null ) {
 		// Input parameters.
-		$type      = 'user';
-		$hash      = '19b4a035996a6f641a10a02faZ6d3c6be1dd2713dcc42914b3acc4128bbe9399'; // Invalid!
-		$subdir    = '1/9/';
-		$extension = 'png';
-		$size      = 100;
-		$file      = "{$type}/{$subdir}{$hash}-{$size}.{$extension}";
+		$hash     = '19b4a035996a6f641a10a02faZ6d3c6be1dd2713dcc42914b3acc4128bbe9399'; // Invalid!
+		$filename = $hash . ( $size ? "-$size" : '' );
+		$file     = "{$type}/{$subdir}{$filename}.{$extension}";
+		$size   ??= 100;
 
-		// Mock WP global.
-		$wp             = m::mock( 'WP' );
+		/**
+		 * Mock WP global.
+		 *
+		 * @var \WP&m\MockInterface $wp
+		 */
+		$wp             = m::mock( \WP::class );
 		$wp->query_vars = [
 			'avatar-privacy-file' => $file,
 		];
 
 		$this->file_cache->shouldReceive( 'get_base_dir' )->never();
-		$this->user_avatar->shouldReceive( 'cache_image' )->never();
+		$handler->bindTo( $this )()->shouldReceive( 'cache_image' )->never();
 		$this->sut->shouldReceive( 'send_image' )->never();
 		$this->sut->shouldReceive( 'exit_request' )->never();
 

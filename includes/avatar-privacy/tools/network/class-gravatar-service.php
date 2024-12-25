@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2022 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  * Copyright 2012-2013 Johannes Freudendahl.
  *
  * This program is free software; you can redistribute it and/or
@@ -204,7 +204,7 @@ class Gravatar_Service {
 			$this->validation_cache[ $hash ] = $result;
 		}
 
-		return $result ?: '';
+		return (string) $result;
 	}
 
 	/**
