@@ -378,7 +378,7 @@ class Image_File_Test extends \Avatar_Privacy\Tests\TestCase {
 			'No global upload, singlesite' => [ false, false, false ],
 			'No global upload, multisite'  => [ false, true, false ],
 			'Global upload, singlesite'    => [ true, false, false ],
-			'Global upload, singlesite'    => [ true, true, true ],
+			'Global upload, multisite'     => [ true, true, true ],
 		];
 	}
 
