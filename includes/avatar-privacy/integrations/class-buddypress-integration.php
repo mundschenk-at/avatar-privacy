@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2019-2023 Peter Putzer.
+ * Copyright 2019-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -233,7 +233,7 @@ class BuddyPress_Integration implements Plugin_Integration {
 		];
 		$default_avatar = \get_avatar_url( $params['item_id'], $args );
 
-		return $default_avatar ?: $original_default;
+		return $default_avatar ?: $original_default; // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
 	}
 
 	/**

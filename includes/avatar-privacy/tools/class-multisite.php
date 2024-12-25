@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2023 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -63,8 +63,8 @@ class Multisite {
 	 * @return int[]                An array of site IDs.
 	 */
 	public function get_site_ids( $network_id = null ) {
-		$network_id = $network_id ?: \get_current_network_id();
-		$query      = [
+		$network_id ??= \get_current_network_id();
+		$query        = [
 			'fields'     => 'ids',
 			'network_id' => $network_id,
 			'number'     => 0,
