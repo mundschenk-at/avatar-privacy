@@ -211,8 +211,6 @@ class Monster_ID_Test extends \Avatar_Privacy\Tests\TestCase {
 		$background   = \imageCreateTrueColor( 50, 50 );
 		$fake_image   = \imageCreateTrueColor( 50, 50 );
 
-		//$this->number_generator->shouldReceive( 'get' )->times( 4 )->with( m::type( 'int' ), m::type( 'int' ) )->andReturn( 8008000, 25500, 10000, 606000 );
-
 		$this->png->shouldReceive( 'create_from_file' )->once()->with( m::pattern( '/\bback\.png$/' ) )->andReturn( $background );
 		$this->png->shouldReceive( 'create_from_file' )->times( $parts_number )->with( m::type( 'string' ) )->andReturn( $fake_image );
 
