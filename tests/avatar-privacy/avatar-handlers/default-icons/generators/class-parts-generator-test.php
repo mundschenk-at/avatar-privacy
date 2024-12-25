@@ -288,9 +288,7 @@ class Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_randomize_parts() {
 		// Input data.
-		$basename = 'monster-id';
-		$path     = "/some/fake/path/$basename";
-		$parts    = [
+		$parts = [
 			'body'  => [
 				'body_1.png',
 				'body_2.png',
@@ -436,9 +434,7 @@ class Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::build_parts_array
 	 */
 	public function test_build_parts_array_error() {
-		$empty_parts  = \array_fill_keys( $this->get_value( $this->sut, 'part_types' ), [] );
-		$parts        = [ 'unsorted' => 'parts' ];
-		$sorted_parts = [ 'sorted' => 'parts' ];
+		$empty_parts = \array_fill_keys( $this->get_value( $this->sut, 'part_types' ), [] );
 
 		$this->sut->shouldReceive( 'read_parts_from_filesystem' )->once()->with( $empty_parts )->andReturn( $empty_parts );
 
@@ -448,6 +444,6 @@ class Parts_Generator_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'sort_parts' )->never();
 
 		// Run test.
-		$this->assertSame( $sorted_parts, $this->sut->build_parts_array() );
+		$this->assertNull( $this->sut->build_parts_array() );
 	}
 }
