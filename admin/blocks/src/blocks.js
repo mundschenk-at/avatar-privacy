@@ -7,7 +7,6 @@
  * @author   Peter Putzer <github@mundschenk.at>
  * @license	 GPL-2.0-or-later
  * @since    2.3.0
- * @requires Gutenberg 4.3
  */
 
 'use strict';
