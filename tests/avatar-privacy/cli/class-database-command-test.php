@@ -344,26 +344,26 @@ class Database_Command_Test extends TestCase {
 	 *
 	 * @dataProvider provide_create_data
 	 *
-	 * @param  bool $global       The --global flag.
+	 * @param  bool $global_flag  The --global flag.
 	 * @param  bool $multisite    Optional. Whether this is a multisite installation. Default false.
 	 * @param  bool $global_table Optional. Whether the installation uses the global table. Default true.
 	 */
-	public function test_create( $global, $multisite, $global_table ) {
+	public function test_create( $global_flag, $multisite, $global_table ) {
 		$args       = [];
 		$assoc_args = [
-			'global' => $global,
+			'global' => $global_flag,
 		];
 
 		// Intermediary data.
 		$table = 'fake_table';
 
-		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'global', false )->andReturn( $global );
+		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'global', false )->andReturn( $global_flag );
 		Functions\expect( 'is_multisite' )->once()->andReturn( $multisite );
 
 		// May not be triggered.
 		$this->comment_author_table->shouldReceive( 'use_global_table' )->zeroOrMoreTimes()->andReturn( $global_table );
 
-		if ( $global && ( ! $multisite || ! $global_table ) ) {
+		if ( $global_flag && ( ! $multisite || ! $global_table ) ) {
 			$this->expect_wp_cli_error();
 		} else {
 			// May not be triggered.
@@ -460,27 +460,27 @@ class Database_Command_Test extends TestCase {
 	 *
 	 * @dataProvider provide_create_data
 	 *
-	 * @param  bool $global       The --global flag.
+	 * @param  bool $global_flag  The --global flag.
 	 * @param  bool $multisite    Optional. Whether this is a multisite installation. Default false.
 	 * @param  bool $global_table Optional. Whether the installation uses the global table. Default true.
 	 */
-	public function test_upgrade( $global, $multisite, $global_table ) {
+	public function test_upgrade( $global_flag, $multisite, $global_table ) {
 		$args       = [];
 		$assoc_args = [
-			'global' => $global,
+			'global' => $global_flag,
 		];
 
 		// Intermediary data.
 		$table = 'fake_table';
 		$rows  = 6;
 
-		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'global', false )->andReturn( $global );
+		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'global', false )->andReturn( $global_flag );
 		Functions\expect( 'is_multisite' )->once()->andReturn( $multisite );
 
 		// May not be triggered.
 		$this->comment_author_table->shouldReceive( 'use_global_table' )->zeroOrMoreTimes()->andReturn( $global_table );
 
-		if ( $global && ( ! $multisite || ! $global_table ) ) {
+		if ( $global_flag && ( ! $multisite || ! $global_table ) ) {
 			$this->expect_wp_cli_error();
 		} else {
 			// May not be triggered.
