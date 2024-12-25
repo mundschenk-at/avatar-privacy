@@ -235,7 +235,6 @@ class Ultimate_Member_Integration_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Intermediary.
 		$file      = 'some/file';
 		$url       = "https://foobar/{$file}";
-		$type      = 'mime/type';
 		$um_avatar = [
 			'url'  => $url,
 			'type' => 'upload',

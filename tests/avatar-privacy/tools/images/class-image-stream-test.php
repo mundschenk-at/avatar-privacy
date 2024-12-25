@@ -250,11 +250,6 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$writable = false;
 		$data     = 'a long and tedious string that is our stream';
 		$position = 7;
-		$stream   = [
-			'data'  => $data,
-			'atime' => 123,
-			'mtime' => 456,
-		];
 
 		// Input.
 		$bytes_to_read = 3;
@@ -281,11 +276,6 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$writable = false;
 		$data     = 'a long and tedious string that is our stream';
 		$position = 7;
-		$stream   = [
-			'data'  => $data,
-			'atime' => 123,
-			'mtime' => 456,
-		];
 
 		// Input.
 		$bytes_to_read = 3;
@@ -312,11 +302,6 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$writable = true;
 		$data     = 'a long and tedious string that is our stream';
 		$position = 7;
-		$stream   = [
-			'data'  => $data,
-			'atime' => 123,
-			'mtime' => 456,
-		];
 
 		// Input.
 		$new_data = 'xxx';
@@ -347,11 +332,6 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$writable = false;
 		$data     = 'a long and tedious string that is our stream';
 		$position = 7;
-		$stream   = [
-			'data'  => $data,
-			'atime' => 123,
-			'mtime' => 456,
-		];
 
 		// Input.
 		$new_data = 'xxx';
@@ -379,11 +359,6 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		$writable = false;
 		$data     = 'a long and tedious string that is our stream';
 		$position = 7;
-		$stream   = [
-			'data'  => $data,
-			'atime' => 123,
-			'mtime' => 456,
-		];
 
 		// Set up stream object.
 		$this->set_value( $this->sut, 'read', $readable );
@@ -469,11 +444,6 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 		// Initial state.
 		$data     = 'a long and tedious string that is our stream';
 		$position = 12;
-		$stream   = [
-			'data'  => $data,
-			'atime' => 123,
-			'mtime' => 456,
-		];
 
 		// Expected results.
 		$new_position = $offset;
@@ -521,12 +491,6 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @param  bool   $truncate A flag indicating the stream should be truncated.
 	 */
 	public function test_truncate_after_seek( $position, $data, $truncate ) {
-		$stream = [
-			'data'  => $data,
-			'atime' => 123,
-			'mtime' => 456,
-		];
-
 		// Set up stream object.
 		$this->set_value( $this->sut, 'data', $data );
 		$this->set_value( $this->sut, 'position', $position );
@@ -564,11 +528,6 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_stream_truncate( $data, $length, $result ) {
 		// Set up stream object.
-		$stream = [
-			'data'  => $data,
-			'atime' => 123,
-			'mtime' => 456,
-		];
 		$this->set_value( $this->sut, 'data', $data );
 
 		$this->assertTrue( $this->sut->stream_truncate( $length ) );
@@ -582,12 +541,7 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_stream_stat() {
 		// Initial state.
-		$data   = 'a long and tedious string that is our stream';
-		$stream = [
-			'data'  => $data,
-			'atime' => 123,
-			'mtime' => 456,
-		];
+		$data = 'a long and tedious string that is our stream';
 
 		// Set up stream object.
 		$this->set_value( $this->sut, 'data', $data );
@@ -703,12 +657,10 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @covers ::stream_metadata
 	 */
-	public function test_stream_metadata_no_touching() {
+	public function test_stream_metadata_invalid_option() {
 		$path   = 'scheme://root/folder/filename.txt';
 		$option = 666;
 		$args   = [ 'foobar' ];
-
-		$handle = 'root/folder/filename.txt';
 
 		$this->sut->shouldReceive( 'get_handle_from_url' )->never();
 		$this->sut->shouldReceive( 'handle_exists' )->never();
@@ -740,11 +692,7 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Set up test.
 		$path      = 'imageStream://my/never/uses/test/stream';
-		$option    = \STREAM_META_TOUCH;
 		$new_mtime = 123;
-
-		$handle = 'root/folder/filename.txt';
-		$data   = 'something';
 
 		// Check timestamps - the "file" does not exist yet, so the stream wrapper reports 0.
 		$this->assertSame( 0, \fileatime( $path ) );
