@@ -773,8 +773,12 @@ class Image_Stream_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::maybe_trigger_error
 	 *
 	 * @dataProvider provide_maybe_trigger_error_data
+	 *
+	 * @param bool   $condition   If an error should be triggered.
+	 * @param string $message     The error message.
+	 * @param int    $error_level The error severity (PHP constant).
 	 */
-	public function test_maybe_trigger_error( $condition, $message, $error_level ) {
+	public function test_maybe_trigger_error( bool $condition, string $message, int $error_level ) {
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
 		\set_error_handler(
 			function ( $errno, $errstr ) {
