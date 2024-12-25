@@ -158,27 +158,27 @@ class Uninstall_Command_Test extends TestCase {
 	 *
 	 * @dataProvider provide_uninstall_data
 	 *
-	 * @param  bool $live         The --live flag.
-	 * @param  bool $global       The --global flag.
-	 * @param  bool $multi        Optional. Whether this is a multisite installation. Default false.
+	 * @param  bool $live_flag   The --live flag.
+	 * @param  bool $global_flag The --global flag.
+	 * @param  bool $multi       Optional. Whether this is a multisite installation. Default false.
 	 */
-	public function test_uninstall( $live, $global, $multi = false ) {
+	public function test_uninstall( $live_flag, $global_flag, $multi = false ) {
 		// Parameter arrays.
 		$args       = [];
 		$assoc_args = [
-			'live'   => $live,
-			'global' => $global,
+			'live'   => $live_flag,
+			'global' => $global_flag,
 		];
 
 		// Intermediary data.
 		$blog_id       = 1;
-		$remove_global = $global || ! $multi;
+		$remove_global = $global_flag || ! $multi;
 
-		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'live', false )->andReturn( $live );
-		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'global', false )->andReturn( $global );
+		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'live', false )->andReturn( $live_flag );
+		Functions\expect( 'WP_CLI\Utils\get_flag_value' )->once()->with( $assoc_args, 'global', false )->andReturn( $global_flag );
 		Functions\expect( 'is_multisite' )->once()->andReturn( $multi );
 
-		if ( $global && ! $multi ) {
+		if ( $global_flag && ! $multi ) {
 			// The script ends prematurely.
 			$this->expect_wp_cli_error( m::type( 'string' ) );
 
@@ -189,7 +189,7 @@ class Uninstall_Command_Test extends TestCase {
 
 			$this->sut->shouldReceive( 'print_data_to_delete' )->once()->with( m::type( 'string' ), $remove_global );
 
-			if ( ! $live ) {
+			if ( ! $live_flag ) {
 				// Dry run.
 				$this->wp_cli->shouldReceive( 'warning' )->once()->with( 'Starting dry run.' );
 				$this->expect_wp_cli_success( 'Dry run finished.' );
@@ -228,10 +228,10 @@ class Uninstall_Command_Test extends TestCase {
 	 *
 	 * @dataProvider provide_delete_data_data
 	 *
-	 * @param  bool $global The --global flag.
-	 * @param  bool $multi  Optional. Whether this is a multisite installation. Default false.
+	 * @param  bool $global_flag The --global flag.
+	 * @param  bool $multi       Optional. Whether this is a multisite installation. Default false.
 	 */
-	public function test_delete_data( $global, $multi = false ) {
+	public function test_delete_data( $global_flag, $multi = false ) {
 		// Input data.
 		$blog_id  = 1;
 		$for_site = $multi ? "for site {$blog_id}" : '';
@@ -241,7 +241,7 @@ class Uninstall_Command_Test extends TestCase {
 		$this->uninstall->shouldReceive( 'enqueue_cleanup_tasks' )->once();
 		Actions\expectDone( 'avatar_privacy_uninstallation_site' )->once()->with( $blog_id );
 
-		if ( $global ) {
+		if ( $global_flag ) {
 			Functions\expect( 'is_multisite' )->once()->andReturn( $multi );
 			Actions\expectDone( 'avatar_privacy_uninstallation_global' )->once();
 		} else {
@@ -253,7 +253,7 @@ class Uninstall_Command_Test extends TestCase {
 		$this->expect_wp_cli_success( m::type( 'string' ), true );
 
 		// Run test.
-		$this->assertNull( $this->sut->delete_data( $blog_id, $for_site, $global ) );
+		$this->assertNull( $this->sut->delete_data( $blog_id, $for_site, $global_flag ) );
 	}
 
 	/**
@@ -281,11 +281,11 @@ class Uninstall_Command_Test extends TestCase {
 	 *
 	 * @dataProvider provide_print_data_to_delete_data
 	 *
-	 * @param  bool $global       The --global flag.
+	 * @param  bool $global_flag  The --global flag.
 	 * @param  bool $multi        Optional. Whether this is a multisite installation. Default false.
 	 * @param  bool $global_table Optional. Whether the installation uses the global table. Default true.
 	 */
-	public function test_print_data_to_delete( $global, $multi = false, $global_table = true ) {
+	public function test_print_data_to_delete( $global_flag, $multi = false, $global_table = true ) {
 		// Input data.
 		$blog_id  = 1;
 		$for_site = $multi ? "for site {$blog_id}" : '';
@@ -293,7 +293,7 @@ class Uninstall_Command_Test extends TestCase {
 		// Intermediary data.
 		$table_name = 'fake_table';
 
-		if ( $global ) {
+		if ( $global_flag ) {
 			Functions\expect( 'is_multisite' )->once()->andReturn( $multi );
 		} else {
 			Functions\expect( 'is_multisite' )->never();
@@ -306,6 +306,6 @@ class Uninstall_Command_Test extends TestCase {
 		$this->wp_cli->shouldReceive( 'line' )->atLeast()->once()->with( m::type( 'string' ) );
 
 		// Run test.
-		$this->assertNull( $this->sut->print_data_to_delete( $for_site, $global ) );
+		$this->assertNull( $this->sut->print_data_to_delete( $for_site, $global_flag ) );
 	}
 }

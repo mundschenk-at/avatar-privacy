@@ -170,13 +170,13 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @dataProvider provide_comment_author_data
 	 *
-	 * @param mixed  $id_or_email         An ID or email (not really important here).
-	 * @param object $object              The result object.
-	 * @param bool   $use_gravatar        An expected result.
-	 * @param bool   $has_gravatar_policy An expected result.
+	 * @param mixed   $id_or_email         An ID or email (not really important here).
+	 * @param ?object $result_object       The result object.
+	 * @param bool    $use_gravatar        An expected result.
+	 * @param bool    $has_gravatar_policy An expected result.
 	 */
-	public function test_allows_gravatar_use( $id_or_email, $object, $use_gravatar, $has_gravatar_policy ) {
-		$this->sut->shouldReceive( 'load' )->once()->with( $id_or_email )->andReturn( $object );
+	public function test_allows_gravatar_use( $id_or_email, ?object $result_object, $use_gravatar, $has_gravatar_policy ) {
+		$this->sut->shouldReceive( 'load' )->once()->with( $id_or_email )->andReturn( $result_object );
 
 		$this->assertSame( $use_gravatar, $this->sut->allows_gravatar_use( $id_or_email ) );
 	}
@@ -188,13 +188,13 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @dataProvider provide_comment_author_data
 	 *
-	 * @param mixed  $id_or_email         An ID or email (not really important here).
-	 * @param object $object              The result object.
-	 * @param bool   $use_gravatar        An expected result.
-	 * @param bool   $has_gravatar_policy An expected result.
+	 * @param mixed   $id_or_email         An ID or email (not really important here).
+	 * @param ?object $result_object       The result object.
+	 * @param bool    $use_gravatar        An expected result.
+	 * @param bool    $has_gravatar_policy An expected result.
 	 */
-	public function test_has_gravatar_policy( $id_or_email, $object, $use_gravatar, $has_gravatar_policy ) {
-		$this->sut->shouldReceive( 'load' )->once()->with( $id_or_email )->andReturn( $object );
+	public function test_has_gravatar_policy( $id_or_email, ?object $result_object, $use_gravatar, $has_gravatar_policy ) {
+		$this->sut->shouldReceive( 'load' )->once()->with( $id_or_email )->andReturn( $result_object );
 
 		$this->assertSame( $has_gravatar_policy, $this->sut->has_gravatar_policy( $id_or_email ) );
 	}
@@ -218,12 +218,12 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @dataProvider provide_get_key_data
 	 *
-	 * @param mixed  $id_or_email         An ID or email (not really important here).
-	 * @param object $object              The result object.
-	 * @param int    $id                  The result.
+	 * @param mixed   $id_or_email   An ID or email (not really important here).
+	 * @param ?object $result_object The result object.
+	 * @param int     $id            The result.
 	 */
-	public function test_get_key( $id_or_email, $object, $id ) {
-		$this->sut->shouldReceive( 'load' )->once()->with( $id_or_email )->andReturn( $object );
+	public function test_get_key( $id_or_email, ?object $result_object, $id ) {
+		$this->sut->shouldReceive( 'load' )->once()->with( $id_or_email )->andReturn( $result_object );
 
 		$this->assertSame( $id, $this->sut->get_key( $id_or_email ) );
 	}
@@ -247,12 +247,12 @@ class Comment_Author_Fields_Test extends \Avatar_Privacy\Tests\TestCase {
 	 *
 	 * @dataProvider provide_get_email_data
 	 *
-	 * @param mixed  $hash   A hashed email.
-	 * @param object $object The result object.
-	 * @param int    $email  The retrieved email.
+	 * @param mixed   $hash          A hashed email.
+	 * @param ?object $result_object The result object.
+	 * @param int     $email         The retrieved email.
 	 */
-	public function test_get_email( $hash, $object, $email ) {
-		$this->sut->shouldReceive( 'load' )->once()->with( $hash )->andReturn( $object );
+	public function test_get_email( $hash, $result_object, $email ) {
+		$this->sut->shouldReceive( 'load' )->once()->with( $hash )->andReturn( $result_object );
 
 		$this->assertSame( $email, $this->sut->get_email( $hash ) );
 	}
