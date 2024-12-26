@@ -219,6 +219,7 @@ module.exports = function(grunt) {
 					outputStyle: 'compressed',
 					sourceComments: false,
 					sourcemap: 'none',
+					silenceDeprecations: ["legacy-js-api"],
 				},
 				files: [{
 						expand: true,
@@ -241,6 +242,7 @@ module.exports = function(grunt) {
 					outputStyle: 'expanded',
 					sourceComments: false,
 					sourceMapEmbed: true,
+					silenceDeprecations: ["legacy-js-api"],
 				},
 				files: [{
 						expand: true,
