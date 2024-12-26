@@ -48,7 +48,6 @@
     "grunt-wp-deploy": "^2.0.0",
     "jshint-stylish": "^2.2.1",
     "load-grunt-tasks": "^5.1.0",
-    "pixrem": "^5.0.0",
     "sass": "^1.49"
   },
   "scripts": {
