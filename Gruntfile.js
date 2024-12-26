@@ -81,10 +81,20 @@ module.exports = function(grunt) {
 			},
 			"composer-vendor-dir": {
 				options: {
-					replacements: [{
-						pattern: /"vendor-dir":\s*"vendor"/g,
-						replacement: '"vendor-dir": "vendor-scoped"'
-					}],
+                    replacements: [
+                        {
+                            pattern: /"vendor-dir":\s*"vendor"/g,
+                            replacement: '"vendor-dir": "vendor-scoped"'
+                        },
+                        {
+                            pattern: /"dealerdirect\\\/phpcodesniffer-composer-installer":\s*true/g,
+                            replacement: '"dealerdirect\/phpcodesniffer-composer-installer": false'
+                        },
+                        {
+                            pattern: /"phpstan\\\/extension-installer":\s*true/g,
+                            replacement: '"phpstan\/extension-installer": false'
+                        },
+                    ],
 				},
 				files: [{
 					expand: true,
@@ -136,11 +146,11 @@ module.exports = function(grunt) {
 					expand: true,
 					nonull: false,
 					src: [
-						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain}/**/LICENSE*',
-						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain}/**/README*',
-						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain}/**/CREDITS*',
-						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain}/**/COPYING*',
-						'vendor/{composer,mundschenk-at,level-2,mistic-100,jdenticon,splitbrain}/**/CHANGE*',
+						'vendor/{composer,mundschenk-at,level-2,mistic100,jdenticon,splitbrain}/**/LICENSE*',
+						'vendor/{composer,mundschenk-at,level-2,mistic100,jdenticon,splitbrain}/**/README*',
+						'vendor/{composer,mundschenk-at,level-2,mistic100,jdenticon,splitbrain}/**/CREDITS*',
+						'vendor/{composer,mundschenk-at,level-2,mistic100,jdenticon,splitbrain}/**/COPYING*',
+						'vendor/{composer,mundschenk-at,level-2,mistic100,jdenticon,splitbrain}/**/CHANGE*',
 						'!vendor/mundschenk-at/phpunit-cross-version/**',
 						'!vendor/composer/package-versions-deprecated/**',
 					],
@@ -371,16 +381,15 @@ module.exports = function(grunt) {
 		'build-js',
 		// Copy other files
 		'copy:main',
-		'exec:composer_build:build-wordpress',
+		'copy:meta',
 		// Use scoped dependencies
 		'string-replace:namespaces',
+		'exec:composer_build:build-wordpress',
 		// Clean up unused packages
-		'clean:vendor',
 		'clean:autoloader',
+		'clean:vendor',
 		'string-replace:vendor-dir',
 		'string-replace:autoloader',
-		// Copy documentation and license files
-		'copy:meta',
 	]);
 
 	grunt.registerTask('build-js', [
