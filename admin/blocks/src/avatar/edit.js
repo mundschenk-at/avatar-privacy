@@ -35,7 +35,7 @@ import {
 	SelectControl,
 } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
-import { InspectorControls } from '@wordpress/editor';
+import { InspectorControls } from '@wordpress/block-editor';
 import { Fragment } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
