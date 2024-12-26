@@ -264,7 +264,6 @@ module.exports = function(grunt) {
 			options: {
 				map: true, // inline sourcemaps.
 				processors: [
-					require('pixrem')(), // add fallbacks for rem units
 					require('autoprefixer')() // add vendor prefixes
 				]
 			},
