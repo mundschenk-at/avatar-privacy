@@ -25,14 +25,13 @@
 
 'use strict';
 
-/**
- * WordPress dependencies
- */
+// WordPress
 import { __ } from '@wordpress/i18n';
 
-/**
- * Internal dependencies
- */
+// Type checking
+import PropTypes from 'prop-types';
+
+// Block parts
 import edit from './edit';
 import metadata from './block.json';
 
@@ -51,6 +50,22 @@ export const settings = {
 	supports: {
 		align: [ 'left', 'center', 'right' ],
 		html: false,
+	},
+
+	propTypes: {
+		attributes: PropTypes.objectOf(
+			PropTypes.shape( {
+				user_id: PropTypes.number,
+				avatar_size: PropTypes.number.isRequired,
+				user: PropTypes.objectOf(
+					PropTypes.shape( {
+						name: PropTypes.string,
+						avatar_urls: PropTypes.array,
+					} ),
+				),
+			} )
+		).isRequired,
+		setAttributes: PropTypes.func.isRequired,
 	},
 
 	edit,

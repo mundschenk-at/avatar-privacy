@@ -103,7 +103,7 @@ export default withSelect(
 			</InspectorControls>
 			<img
 				width={ attributes.avatar_size }
-				src={ attributes.user.avatar_urls[ 96 ] }
+				src={ attributes.user.avatar_urls[ 96 ] } // Available pixel sizes: 24, 48, 96.
 				alt={ sprintf(
 					/* translators: user display name */
 					__( 'Avatar of %s', 'avatar-privacy' ),
