@@ -110,13 +110,18 @@ class Settings implements API {
 	const GRAVATAR_USE_DEFAULT = 'gravatar_use_default';
 
 	/**
-	 * The defaults array.
+	 * The defaults for the options array.
 	 *
-	 * @var array
+	 * @since 2.8.0
 	 *
+	 * @var array<string,mixed>
 	 * @phpstan-var SettingsFields
 	 */
-	private array $defaults;
+	private const DEFAULTS = [
+		self::UPLOAD_CUSTOM_DEFAULT_AVATAR => [],
+		self::GRAVATAR_USE_DEFAULT         => false,
+		Options::INSTALLED_VERSION         => '',
+	];
 
 	/**
 	 * The fields definition array.
@@ -236,11 +241,10 @@ class Settings implements API {
 	 */
 	protected function load_settings() {
 		$_settings = $this->options->get( self::OPTION_NAME );
-		$_defaults = $this->get_defaults();
 		$modified  = false;
 
 		if ( \is_array( $_settings ) ) {
-			foreach ( $_defaults as $name => $default_value ) {
+			foreach ( self::DEFAULTS as $name => $default_value ) {
 				if ( ! isset( $_settings[ $name ] ) ) {
 					$_settings[ $name ] = $default_value;
 					$modified           = true;
@@ -253,7 +257,7 @@ class Settings implements API {
 			 * @phpstan-var SettingsFields $_settings
 			 */
 		} else {
-			$_settings = $_defaults;
+			$_settings = self::DEFAULTS;
 			$modified  = true;
 		}
 
@@ -354,7 +358,7 @@ class Settings implements API {
 					'erase_checkbox' => Custom_Default_Icon_Upload_Handler::CHECKBOX_ERASE,
 					'action'         => Custom_Default_Icon_Upload_Handler::ACTION_UPLOAD,
 					'nonce'          => Custom_Default_Icon_Upload_Handler::NONCE_UPLOAD,
-					'default'        => 0,
+					'default'        => self::DEFAULTS[ self::UPLOAD_CUSTOM_DEFAULT_AVATAR ],
 					'attributes'     => [ 'accept' => 'image/*' ],
 					'settings_args'  => [ 'class' => 'avatar-settings' ],
 				],
@@ -372,7 +376,7 @@ class Settings implements API {
 					/* translators: 1: checkbox HTML */
 					'label'            => \__( '%1$s Display Gravatar images by default.', 'avatar-privacy' ),
 					'help_text'        => \__( 'Checking will ensure that gravatars are displayed when there is no explicit setting for the user or mail address (e.g. for comments made before installing Avatar Privacy). Please only enable this setting after careful consideration of the privacy implications.', 'avatar-privacy' ),
-					'default'          => 0,
+					'default'          => self::DEFAULTS[ self::GRAVATAR_USE_DEFAULT ],
 					'grouped_with'     => self::INFORMATION_HEADER,
 					'outer_attributes' => [ 'class' => 'avatar-settings-enabled' ],
 				], // @codeCoverageIgnoreEnd
@@ -392,31 +396,16 @@ class Settings implements API {
 	/**
 	 * Retrieves the default settings.
 	 *
+	 * @deprecated 2.8.0
+	 *
 	 * @return array
 	 *
 	 * @phpstan-return SettingsFields
 	 */
 	public function get_defaults() {
-		if ( ! isset( $this->defaults ) ) {
-			$_defaults = [];
-			foreach ( $this->get_fields() as $index => $field ) {
-				if ( isset( $field['default'] ) ) {
-					$_defaults[ $index ] = $field['default'];
-				}
-			}
+		\_deprecated_function( __METHOD__, '2.8.0' );
 
-			// Allow detection of new installations.
-			$_defaults[ Options::INSTALLED_VERSION ] = '';
-
-			/**
-			 * PHPStan type.
-			 *
-			 * @phpstan-var SettingsFields $_defaults
-			 */
-			$this->defaults = $_defaults;
-		}
-
-		return $this->defaults;
+		return self::DEFAULTS;
 	}
 
 	/**

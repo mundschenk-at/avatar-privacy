@@ -232,24 +232,15 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_load_settings() {
 		$setting1 = 'foo';
-		$setting2 = 'baz';
 		$settings = [
 			$setting1                  => 'barfoo',
 			Options::INSTALLED_VERSION => '1.2.3',
-		];
-		$defaults = [
-			$setting1 => 'bar',
-			$setting2 => 'foobar',
 		];
 
 		$this->options->shouldReceive( 'get' )
 			->once()
 			->with( Settings::OPTION_NAME )
 			->andReturn( $settings );
-
-		$this->sut->shouldReceive( 'get_defaults' )
-			->once()
-			->andReturn( $defaults );
 
 		$this->options->shouldReceive( 'set' )
 			->once()
@@ -260,9 +251,12 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->assert_is_array( $result );
 		$this->assertArrayHasKey( $setting1, $result );
 		$this->assertSame( 'barfoo', $result[ $setting1 ] );
-		$this->assertArrayHasKey( $setting2, $result );
-		$this->assertSame( 'foobar', $result[ $setting2 ] );
+		$this->assertArrayHasKey( Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR, $result );
+		$this->assertSame( [], $result[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] );
+		$this->assertArrayHasKey( Settings::GRAVATAR_USE_DEFAULT, $result );
+		$this->assertSame( false, $result[ Settings::GRAVATAR_USE_DEFAULT ] );
 		$this->assertArrayHasKey( Options::INSTALLED_VERSION, $result );
+		$this->assertSame( '1.2.3', $result[ Options::INSTALLED_VERSION ] );
 	}
 
 	/**
@@ -271,25 +265,24 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @covers ::load_settings
 	 */
 	public function test_load_settings_invalid_result() {
-		$defaults = [
-			'foo' => 'bar',
-			'baz' => 'foobar',
-		];
-
 		$this->options->shouldReceive( 'get' )
 			->once()
 			->with( Settings::OPTION_NAME )
 			->andReturn( false );
 
-		$this->sut->shouldReceive( 'get_defaults' )
-			->once()
-			->andReturn( $defaults );
-
 		$this->options->shouldReceive( 'set' )
 			->once()
 			->with( Settings::OPTION_NAME, m::type( 'array' ) );
 
-		$this->assertSame( $defaults, $this->sut->load_settings() );
+		$result = $this->sut->load_settings();
+
+		$this->assert_is_array( $result );
+		$this->assertArrayHasKey( Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR, $result );
+		$this->assertSame( [], $result[ Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR ] );
+		$this->assertArrayHasKey( Settings::GRAVATAR_USE_DEFAULT, $result );
+		$this->assertSame( false, $result[ Settings::GRAVATAR_USE_DEFAULT ] );
+		$this->assertArrayHasKey( Options::INSTALLED_VERSION, $result );
+		$this->assertSame( '', $result[ Options::INSTALLED_VERSION ] );
 	}
 
 	/**
@@ -299,22 +292,18 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 	 */
 	public function test_load_settings_everything_in_order() {
 		$settings = [
-			'foo' => 'barfoo',
-			'baz' => 'foo',
-		];
-		$defaults = [
-			'foo' => 'bar',
-			'baz' => 'foobar',
+			Settings::UPLOAD_CUSTOM_DEFAULT_AVATAR => [
+				'file' => '/some/avatar-image.png',
+				'type' => 'image/png',
+			],
+			Settings::GRAVATAR_USE_DEFAULT         => true,
+			Options::INSTALLED_VERSION             => '9.9.9',
 		];
 
 		$this->options->shouldReceive( 'get' )
 			->once()
 			->with( Settings::OPTION_NAME )
 			->andReturn( $settings );
-
-		$this->sut->shouldReceive( 'get_defaults' )
-			->once()
-			->andReturn( $defaults );
 
 		$this->options->shouldReceive( 'set' )->never();
 
@@ -473,6 +462,8 @@ class Settings_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @uses ::get_fields
 	 */
 	public function test_get_defaults() {
+		Functions\expect( '_deprecated_function' )->once()->with( m::type( 'string' ), '2.8.0' );
+
 		$result = $this->sut->get_defaults();
 
 		$this->assert_is_array( $result );
