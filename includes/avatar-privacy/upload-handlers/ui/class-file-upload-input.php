@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2023 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -36,6 +36,37 @@ use Mundschenk\Data_Storage\Options;
  * @since 2.0.0
  *
  * @author Peter Putzer <github@mundschenk.at>
+ *
+ * @phpstan-type Input_Arguments array{
+ *     tab_id: string,
+ *     section: string,
+ *     default: string|int,
+ *     short?: ?string,
+ *     label?: ?string,
+ *     help_text?: ?string,
+ *     inline_help?: bool,
+ *     attributes?: mixed[],
+ *     outer_attributes?: mixed[],
+ *     settings_args?: mixed[],
+ *     erase_checkbox?: string
+ * }
+ * @phpstan-type Prepared_Input_Arguments array{
+ *     tab_id: string,
+ *     section: string,
+ *     default: string|int,
+ *     short?: ?string,
+ *     label?: ?string,
+ *     help_text?: ?string,
+ *     inline_help?: bool,
+ *     attributes?: mixed[],
+ *     outer_attributes?: mixed[],
+ *     settings_args?: mixed[],
+ *     erase_checkbox: string,
+ *     action: string,
+ *     nonce: string,
+ *     help_no_file: string,
+ *     help_no_upload: string
+ * }
  */
 class File_Upload_Input extends Controls\Input {
 
@@ -84,9 +115,14 @@ class File_Upload_Input extends Controls\Input {
 	 *
 	 * @throws \InvalidArgumentException Missing argument.
 	 *
-	 * @phpstan-param array{ tab_id: string, section: string, default: string|int, short?: ?string, label?: ?string, help_text?: ?string, inline_help?: bool, attributes?: mixed[], outer_attributes?: mixed[], settings_args?: mixed[], erase_checkbox?: string } $args
+	 * @phpstan-param Input_Arguments $args
 	 */
 	public function __construct( Options $options, $options_key, $id, array $args ) {
+		/**
+		 * Check passed arguments.
+		 *
+		 * @phpstan-var Prepared_Input_Arguments $args
+		 */
 		$args               = $this->prepare_args( $args, [ 'erase_checkbox', 'action', 'nonce', 'help_no_file', 'help_no_upload' ] );
 		$args['input_type'] = 'file';
 
@@ -113,7 +149,7 @@ class File_Upload_Input extends Controls\Input {
 	 *
 	 * @return string
 	 */
-	protected function get_value_markup( $value ) {
+	protected function get_value_markup( $value ): string {
 		// Don't display file names.
 		return 'value="" ';
 	}
@@ -123,7 +159,7 @@ class File_Upload_Input extends Controls\Input {
 	 *
 	 * @return string
 	 */
-	protected function get_element_markup() {
+	protected function get_element_markup(): string {
 		$value           = $this->get_value();
 		$checkbox_markup = '';
 		$nonce_markup    = \wp_nonce_field( $this->action, $this->nonce . \get_current_blog_id(), true, false );
