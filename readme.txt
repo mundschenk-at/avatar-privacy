@@ -1,6 +1,6 @@
 === Avatar Privacy ===
 Contributors: pputzer, Ammaletu
-Tags: gravatar, avatar, privacy, caching, bbpress, buddypress
+Tags: gravatar, avatar, privacy, caching, buddypress
 Tested up to: 6.2
 Stable tag: 2.7.0
 License: GPLv2 or later
