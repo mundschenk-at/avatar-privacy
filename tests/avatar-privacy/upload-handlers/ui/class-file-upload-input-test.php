@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -112,6 +112,19 @@ class File_Upload_Input_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->set_value( $this->sut, 'erase_checkbox_id', 'erase-checkbox-id' );
 		$this->set_value( $this->sut, 'action', 'action-name' );
 		$this->set_value( $this->sut, 'nonce', 'nonce-name' );
+		$this->set_value( $this->sut, 'options', $this->options );
+		$this->set_value( $this->sut, 'options_key', 'my-options-key' );
+		$this->set_value( $this->sut, 'id', 'my-id' );
+		$this->set_value( $this->sut, 'tab_id', 'my-tab-id' );
+		$this->set_value( $this->sut, 'short', 'my-short' );
+		$this->set_value( $this->sut, 'label', 'my-label' );
+		$this->set_value( $this->sut, 'help_text', 'my-help-text' );
+		$this->set_value( $this->sut, 'inline_help', false );
+		$this->set_value( $this->sut, 'default', 'my-default' );
+		$this->set_value( $this->sut, 'attributes', [] );
+		$this->set_value( $this->sut, 'outer_attributes', [] );
+		$this->set_value( $this->sut, 'settings_args', [] );
+		$this->set_value( $this->sut, 'sanitize_callback', 'my-sanitize-callback' );
 	}
 
 	/**
@@ -122,6 +135,7 @@ class File_Upload_Input_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @uses Mundschenk\UI\Controls\Input::__construct
 	 */
 	public function test_constructor() {
+		// Input data.
 		$args = [
 			'erase_checkbox' => 'my_erase_checkbox_id',
 			'action'         => 'my_upload_action',
@@ -137,18 +151,26 @@ class File_Upload_Input_Test extends \Avatar_Privacy\Tests\TestCase {
 			'inline_help'    => false,
 		];
 
+		// Mocks.
 		$mock    = m::mock( File_Upload_Input::class )->makePartial()->shouldAllowMockingProtectedMethods();
 		$options = m::mock( Options::class );
 
-		Functions\expect( 'current_user_can' )->once()->with( 'upload_files' )->andReturn( true );
-		Functions\expect( 'esc_attr' )->times( 3 )->andReturnUsing(
-			function ( $arg ) {
-				return $arg;
-			}
-		);
+		// Intermediate data.
+		$input_args                         = $args;
+		$input_args['input_type']           = 'file';
+		$abstract_args                      = $input_args;
+		$abstract_args['sanitize_callback'] = 'sanitize_text_field';
+		$full_args                          = $abstract_args;
+		$full_args['attributes']            = [];
+		$full_args['outer_attributes']      = [];
+		$full_args['settings_args']         = [];
 
-		$mock->shouldReceive( 'prepare_args' )->once()->with( m::type( 'array' ), [ 'erase_checkbox', 'action', 'nonce', 'help_no_file', 'help_no_upload' ] )->andReturn( $args );
+		$mock->shouldReceive( 'prepare_args' )->once()->with( $args, [ 'erase_checkbox', 'action', 'nonce', 'help_no_file', 'help_no_upload' ] )->andReturn( $args );
+		$mock->shouldReceive( 'prepare_args' )->once()->with( $input_args, [ 'input_type', 'tab_id', 'default' ] )->andReturn( $input_args );
+		$mock->shouldReceive( 'prepare_args' )->once()->with( $abstract_args, [ 'tab_id', 'section', 'default' ] )->andReturn( $full_args );
+		Functions\expect( 'current_user_can' )->once()->with( 'upload_files' )->andReturn( true );
 		$mock->shouldReceive( 'get_value' )->atLeast()->once()->andReturn( 'foo' );
+		Functions\expect( 'esc_attr' )->times( 3 )->with( m::type( 'string' ) )->andReturnFirstArg();
 
 		// Let's go!
 		$mock->__construct( $options, 'my_options_key', 'my_control_id', $args );
@@ -168,6 +190,7 @@ class File_Upload_Input_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @uses Mundschenk\UI\Controls\Input::__construct
 	 */
 	public function test_constructor_no_value() {
+		// Input data.
 		$args = [
 			'erase_checkbox'   => 'my_erase_checkbox_id',
 			'action'           => 'my_upload_action',
@@ -184,18 +207,25 @@ class File_Upload_Input_Test extends \Avatar_Privacy\Tests\TestCase {
 			'outer_attributes' => [ 'foo' => 'bar' ],
 		];
 
+		// Mocks.
 		$mock    = m::mock( File_Upload_Input::class )->makePartial()->shouldAllowMockingProtectedMethods();
 		$options = m::mock( Options::class );
 
-		Functions\expect( 'current_user_can' )->once()->with( 'upload_files' )->andReturn( true );
-		Functions\expect( 'esc_attr' )->times( 3 )->andReturnUsing(
-			function ( $arg ) {
-				return $arg;
-			}
-		);
+		// Intermediate data.
+		$input_args                         = $args;
+		$input_args['input_type']           = 'file';
+		$abstract_args                      = $input_args;
+		$abstract_args['sanitize_callback'] = 'sanitize_text_field';
+		$full_args                          = $abstract_args;
+		$full_args['attributes']            = [];
+		$full_args['settings_args']         = [];
 
-		$mock->shouldReceive( 'prepare_args' )->once()->with( m::type( 'array' ), [ 'erase_checkbox', 'action', 'nonce', 'help_no_file', 'help_no_upload' ] )->andReturn( $args );
+		$mock->shouldReceive( 'prepare_args' )->once()->with( $args, [ 'erase_checkbox', 'action', 'nonce', 'help_no_file', 'help_no_upload' ] )->andReturn( $args );
+		$mock->shouldReceive( 'prepare_args' )->once()->with( $input_args, [ 'input_type', 'tab_id', 'default' ] )->andReturn( $input_args );
+		$mock->shouldReceive( 'prepare_args' )->once()->with( $abstract_args, [ 'tab_id', 'section', 'default' ] )->andReturn( $full_args );
+		Functions\expect( 'current_user_can' )->once()->with( 'upload_files' )->andReturn( true );
 		$mock->shouldReceive( 'get_value' )->atLeast()->once()->andReturn( false );
+		Functions\expect( 'esc_attr' )->times( 3 )->with( m::type( 'string' ) )->andReturnFirstArg();
 
 		// Let's go!
 		$mock->__construct( $options, 'my_options_key', 'my_control_id', $args );
@@ -215,6 +245,7 @@ class File_Upload_Input_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @uses Mundschenk\UI\Controls\Input::__construct
 	 */
 	public function test_constructor_cannot_upload() {
+		// Input data.
 		$args = [
 			'erase_checkbox' => 'my_erase_checkbox_id',
 			'action'         => 'my_upload_action',
@@ -230,18 +261,26 @@ class File_Upload_Input_Test extends \Avatar_Privacy\Tests\TestCase {
 			'inline_help'    => false,
 		];
 
+		// Mocks.
 		$mock    = m::mock( File_Upload_Input::class )->makePartial()->shouldAllowMockingProtectedMethods();
 		$options = m::mock( Options::class );
 
-		Functions\expect( 'current_user_can' )->once()->with( 'upload_files' )->andReturn( false );
-		Functions\expect( 'esc_attr' )->times( 3 )->andReturnUsing(
-			function ( $arg ) {
-				return $arg;
-			}
-		);
+		// Intermediate data.
+		$input_args                         = $args;
+		$input_args['input_type']           = 'file';
+		$abstract_args                      = $input_args;
+		$abstract_args['sanitize_callback'] = 'sanitize_text_field';
+		$full_args                          = $abstract_args;
+		$full_args['attributes']            = [];
+		$full_args['outer_attributes']      = [];
+		$full_args['settings_args']         = [];
 
-		$mock->shouldReceive( 'prepare_args' )->once()->with( m::type( 'array' ), [ 'erase_checkbox', 'action', 'nonce', 'help_no_file', 'help_no_upload' ] )->andReturn( $args );
+		$mock->shouldReceive( 'prepare_args' )->once()->with( $args, [ 'erase_checkbox', 'action', 'nonce', 'help_no_file', 'help_no_upload' ] )->andReturn( $args );
+		$mock->shouldReceive( 'prepare_args' )->once()->with( $input_args, [ 'input_type', 'tab_id', 'default' ] )->andReturn( $input_args );
+		$mock->shouldReceive( 'prepare_args' )->once()->with( $abstract_args, [ 'tab_id', 'section', 'default' ] )->andReturn( $full_args );
+		Functions\expect( 'current_user_can' )->once()->with( 'upload_files' )->andReturn( false );
 		$mock->shouldReceive( 'get_value' )->never();
+		Functions\expect( 'esc_attr' )->times( 3 )->with( m::type( 'string' ) )->andReturnFirstArg();
 
 		// Let's go!
 		$mock->__construct( $options, 'my_options_key', 'my_control_id', $args );
