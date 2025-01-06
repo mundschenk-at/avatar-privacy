@@ -470,7 +470,7 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'get_table_name' )->once()->with( $main_site_id )->andReturn( $global_table_name );
 
 		$wpdb->shouldReceive( 'esc_like' )->once()->with( $site_id )->andReturn( $site_id );
-		$wpdb->shouldReceive( 'prepare' )->once()->with( "SELECT * FROM `{$global_table_name}` WHERE log_message LIKE %s", "set with comment % (site: %, blog: {$site_id})" )->andReturn( 'SELECT_QUERY' );
+		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SELECT * FROM %i WHERE log_message LIKE %s', $global_table_name, "set with comment % (site: %, blog: {$site_id})" )->andReturn( 'SELECT_QUERY' );
 		$wpdb->shouldReceive( 'get_results' )->once()->with( 'SELECT_QUERY', \OBJECT_K )->andReturn( $rows_to_migrate );
 
 		Functions\expect( 'wp_list_pluck' )->once()->with( $rows_to_migrate, 'email', 'id' )->andReturn( $emails );
@@ -592,7 +592,7 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'get_table_name' )->once()->with( $main_site_id )->andReturn( $global_table_name );
 
 		$wpdb->shouldReceive( 'esc_like' )->once()->with( $site_id )->andReturn( $site_id );
-		$wpdb->shouldReceive( 'prepare' )->once()->with( "SELECT * FROM `{$global_table_name}` WHERE log_message LIKE %s", "set with comment % (site: %, blog: {$site_id})" )->andReturn( 'SELECT_QUERY' );
+		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SELECT * FROM %i WHERE log_message LIKE %s', $global_table_name, "set with comment % (site: %, blog: {$site_id})" )->andReturn( 'SELECT_QUERY' );
 		$wpdb->shouldReceive( 'get_results' )->once()->with( 'SELECT_QUERY', \OBJECT_K )->andReturn( $rows_to_migrate );
 
 		Functions\expect( 'wp_list_pluck' )->once()->with( $rows_to_migrate, 'email', 'id' )->andReturn( $emails );
@@ -706,7 +706,7 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$this->sut->shouldReceive( 'get_table_name' )->once()->with( $main_site_id )->andReturn( $global_table_name );
 
 		$wpdb->shouldReceive( 'esc_like' )->once()->with( $site_id )->andReturn( $site_id );
-		$wpdb->shouldReceive( 'prepare' )->once()->with( "SELECT * FROM `{$global_table_name}` WHERE log_message LIKE %s", "set with comment % (site: %, blog: {$site_id})" )->andReturn( 'SELECT_QUERY' );
+		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SELECT * FROM %i WHERE log_message LIKE %s', $global_table_name, "set with comment % (site: %, blog: {$site_id})" )->andReturn( 'SELECT_QUERY' );
 		$wpdb->shouldReceive( 'get_results' )->once()->with( 'SELECT_QUERY', \OBJECT_K )->andReturn( $rows_to_migrate );
 
 		Functions\expect( 'wp_list_pluck' )->once()->with( $rows_to_migrate, 'email', 'id' )->andReturn( $emails );
@@ -772,7 +772,9 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$table_name  = 'my_table';
 		$result      = 'EMAILS_QUERY';
 
-		$wpdb->shouldReceive( 'prepare' )->once()->with( m::pattern( "/SELECT \* FROM `{$table_name}` WHERE email IN \((%s,?){{$email_count}}\)/" ), $emails )->andReturn( $result );
+		$query_args = \array_merge( [ $table_name ], $emails );
+
+		$wpdb->shouldReceive( 'prepare' )->once()->with( m::pattern( "/SELECT \* FROM %i WHERE email IN \((%s,?){{$email_count}}\)/" ), $query_args )->andReturn( $result );
 
 		$this->assertSame( $result, $this->sut->prepare_email_query( $emails, $table_name ) );
 	}
@@ -824,7 +826,9 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 		$table_name = 'my_table';
 		$result     = 'DELETE_QUERY';
 
-		$wpdb->shouldReceive( 'prepare' )->once()->with( m::pattern( "/DELETE FROM `{$table_name}` WHERE id IN \((%d,?){{$id_count}}\)/" ), $ids )->andReturn( $result );
+		$query_args = \array_merge( [ $table_name ], $ids );
+
+		$wpdb->shouldReceive( 'prepare' )->once()->with( m::pattern( "/DELETE FROM %i WHERE id IN \((%d,?){{$id_count}}\)/" ), $query_args )->andReturn( $result );
 
 		$this->assertSame( $result, $this->sut->prepare_delete_query( $ids, $table_name ) );
 	}
@@ -890,10 +894,10 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'get_table_name' )->once()->andReturn( $table_name );
 
-		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SHOW COLUMNS FROM `%1$s` LIKE \'hash\'', $table_name )->andReturn( 'COLUMNS_QUERY' );
+		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SHOW COLUMNS FROM %i WHERE FIELD = %s', $table_name, 'hash' )->andReturn( 'COLUMNS_QUERY' );
 		$wpdb->shouldReceive( 'get_var' )->once()->with( 'COLUMNS_QUERY' )->andReturn( 'hash' );
 
-		$wpdb->shouldReceive( 'prepare' )->once()->with( 'ALTER TABLE `%1$s` DROP COLUMN hash', $table_name )->andReturn( 'ALTER_QUERY' );
+		$wpdb->shouldReceive( 'prepare' )->once()->with( 'ALTER TABLE %i DROP COLUMN hash', $table_name )->andReturn( 'ALTER_QUERY' );
 		$wpdb->shouldReceive( 'query' )->once()->with( 'ALTER_QUERY' )->andReturn( 1 );
 
 		$this->assertTrue( $this->sut->maybe_drop_hash_column() );
@@ -912,7 +916,7 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'get_table_name' )->once()->andReturn( $table_name );
 
-		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SHOW COLUMNS FROM `%1$s` LIKE \'hash\'', $table_name )->andReturn( 'COLUMNS_QUERY' );
+		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SHOW COLUMNS FROM %i WHERE FIELD = %s', $table_name, 'hash' )->andReturn( 'COLUMNS_QUERY' );
 		$wpdb->shouldReceive( 'get_var' )->once()->with( 'COLUMNS_QUERY' )->andReturn( false );
 
 		$wpdb->shouldReceive( 'prepare' )->never()->with( 'ALTER TABLE `%1$s` DROP COLUMN hash', $table_name );
@@ -938,10 +942,10 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'get_table_name' )->once()->andReturn( $table_name );
 
-		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SHOW COLUMNS FROM `%1$s` LIKE \'last_updated\'', $table_name )->andReturn( 'COLUMN_DEFINITION_QUERY' );
+		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SHOW COLUMNS FROM %i WHERE FIELD = %s', $table_name, 'last_updated' )->andReturn( 'COLUMN_DEFINITION_QUERY' );
 		$wpdb->shouldReceive( 'get_row' )->once()->with( 'COLUMN_DEFINITION_QUERY', \ARRAY_A )->andReturn( $column_def );
 
-		$wpdb->shouldReceive( 'prepare' )->once()->with( 'ALTER TABLE `%1$s` MODIFY COLUMN `last_updated` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL', $table_name )->andReturn( 'ALTER_QUERY' );
+		$wpdb->shouldReceive( 'prepare' )->once()->with( 'ALTER TABLE %i MODIFY COLUMN `last_updated` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL', $table_name )->andReturn( 'ALTER_QUERY' );
 		$wpdb->shouldReceive( 'query' )->once()->with( 'ALTER_QUERY' )->andReturn( 1 );
 
 		$this->assertTrue( $this->sut->maybe_fix_last_updated_column_default() );
@@ -964,10 +968,10 @@ class Comment_Author_Table_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		$this->sut->shouldReceive( 'get_table_name' )->once()->andReturn( $table_name );
 
-		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SHOW COLUMNS FROM `%1$s` LIKE \'last_updated\'', $table_name )->andReturn( 'COLUMN_DEFINITION_QUERY' );
+		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SHOW COLUMNS FROM %i WHERE FIELD = %s', $table_name, 'last_updated' )->andReturn( 'COLUMN_DEFINITION_QUERY' );
 		$wpdb->shouldReceive( 'get_row' )->once()->with( 'COLUMN_DEFINITION_QUERY', \ARRAY_A )->andReturn( $column_def );
 
-		$wpdb->shouldReceive( 'prepare' )->never()->with( 'ALTER TABLE `%1$s` MODIFY COLUMN `last_updated` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL', $table_name );
+		$wpdb->shouldReceive( 'prepare' )->never()->with( 'ALTER TABLE %i MODIFY COLUMN `last_updated` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL', $table_name );
 		$wpdb->shouldReceive( 'query' )->never()->with( 'ALTER_QUERY' );
 
 		$this->assertFalse( $this->sut->maybe_fix_last_updated_column_default() );

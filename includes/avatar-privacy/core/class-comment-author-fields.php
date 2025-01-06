@@ -187,8 +187,7 @@ class Comment_Author_Fields implements API {
 			// We need to query the database.
 			$data = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 				$wpdb->prepare(
-					// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder -- DB and column name.
-					'SELECT c.*, h.hash FROM `%1$s` c LEFT OUTER JOIN `%2$s` h ON c.email = h.identifier AND h.type = "comment" WHERE `%3$s` = "%4$s"',
+					'SELECT c.*, h.hash FROM %i c LEFT OUTER JOIN %i h ON c.email = h.identifier AND h.type = "comment" WHERE %i = %s',
 					$wpdb->avatar_privacy,
 					$wpdb->avatar_privacy_hashes,
 					$type,

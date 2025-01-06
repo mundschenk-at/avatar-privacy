@@ -463,7 +463,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$rows           = \count( $user_ids );
 
 		// Update meta keys.
-		$wpdb->shouldReceive( 'prepare' )->once()->with( "SELECT DISTINCT user_id FROM {$wpdb->usermeta} WHERE meta_key = %s", 'use_gravatar' )->andReturn( 'select_query' );
+		$wpdb->shouldReceive( 'prepare' )->once()->with( 'SELECT DISTINCT user_id FROM %i WHERE meta_key = %s', $wpdb->usermeta, 'use_gravatar' )->andReturn( 'select_query' );
 		$wpdb->shouldReceive( 'get_col' )->once()->with( 'select_query' )->andReturn( $user_ids );
 		$wpdb->shouldReceive( 'update' )->once()->with( $wpdb->usermeta, [ 'meta_key' => User_Fields::GRAVATAR_USE_META_KEY ], [ 'meta_key' => 'use_gravatar' ] )->andReturn( $rows ); // phpcs:ignore WordPress.DB.SlowDBQuery
 
@@ -586,7 +586,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$email_count = \count( $emails );
 
 		$wpdb->shouldReceive( 'prepare' )->once()->with(
-			'SELECT c.email FROM `%1$s` c LEFT OUTER JOIN `%2$s` h ON c.email = h.identifier AND h.type = "comment" AND h.hash IS NULL',
+			'SELECT c.email FROM %i c LEFT OUTER JOIN %i h ON c.email = h.identifier AND h.type = "comment" AND h.hash IS NULL',
 			$wpdb->avatar_privacy,
 			$wpdb->avatar_privacy_hashes
 		)->andReturn( 'EMAILS_QUERY' );
@@ -616,7 +616,7 @@ class Setup_Test extends \Avatar_Privacy\Tests\TestCase {
 		$emails = [];
 
 		$wpdb->shouldReceive( 'prepare' )->once()->with(
-			'SELECT c.email FROM `%1$s` c LEFT OUTER JOIN `%2$s` h ON c.email = h.identifier AND h.type = "comment" AND h.hash IS NULL',
+			'SELECT c.email FROM %i c LEFT OUTER JOIN %i h ON c.email = h.identifier AND h.type = "comment" AND h.hash IS NULL',
 			$wpdb->avatar_privacy,
 			$wpdb->avatar_privacy_hashes
 		)->andReturn( 'EMAILS_QUERY' );
