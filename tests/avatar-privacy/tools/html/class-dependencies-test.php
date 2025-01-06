@@ -292,7 +292,7 @@ class Dependencies_Test extends \Avatar_Privacy\Tests\TestCase {
 	 * @return array
 	 */
 	public function provide_maybe_add_file_modification_version_data() {
-		$relative_file = \strpos( $this->valid_file, self::PLUGIN_BASE_PATH ) === 0 ? \substr( $this->valid_file, \strlen( self::PLUGIN_BASE_PATH ) ) : $this->valid_file;
+		$relative_file = \str_starts_with( $this->valid_file, self::PLUGIN_BASE_PATH ) ? \substr( $this->valid_file, \strlen( self::PLUGIN_BASE_PATH ) ) : $this->valid_file;
 		return [
 			[ '2.3.0', 'foo/bar', '2.3.0' ],
 			[ null, 'foo/bar', null ],

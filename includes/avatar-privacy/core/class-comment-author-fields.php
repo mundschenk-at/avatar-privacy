@@ -179,7 +179,7 @@ class Comment_Author_Fields implements API {
 		}
 
 		// Check cache.
-		$type = ( false === \strpos( $email_or_hash, '@' ) ) ? 'hash' : 'email';
+		$type = ( ! \str_contains( $email_or_hash, '@' ) ) ? 'hash' : 'email';
 		$key  = $this->get_cache_key( $email_or_hash, $type );
 		$data = $this->cache->get( $key );
 
