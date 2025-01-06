@@ -647,7 +647,7 @@ class Avatar_Handling implements Component {
 	protected function is_valid_image_url( $url ) {
 		\_deprecated_function( __METHOD__, '2.7.0', 'Avatar_Privacy\Tools\Network\Remote_Image_Service::validate_image_url' );
 
-		return ( ! \strpos( $url, 'gravatar.com' ) && $this->remote_images->validate_image_url( $url, 'avatar' ) );
+		return ( ! \str_contains( $url, 'gravatar.com' ) && $this->remote_images->validate_image_url( $url, 'avatar' ) );
 	}
 
 	/**
