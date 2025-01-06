@@ -373,7 +373,7 @@ class Setup implements Component {
 		global $wpdb;
 
 		// Get all users with the `use_gravatar` meta key.
-		$affected_users = $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT user_id FROM {$wpdb->usermeta} WHERE meta_key = %s", 'use_gravatar' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$affected_users = $wpdb->get_col( $wpdb->prepare( 'SELECT DISTINCT user_id FROM %i WHERE meta_key = %s', $wpdb->usermeta, 'use_gravatar' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		if ( \count( $affected_users ) > 0 ) {
 			// Update the database table.
@@ -456,10 +456,9 @@ class Setup implements Component {
 		global $wpdb;
 
 		// Add hashes when they are missing.
-		$emails = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$emails      = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder -- DB and column name.
-				'SELECT c.email FROM `%1$s` c LEFT OUTER JOIN `%2$s` h ON c.email = h.identifier AND h.type = "comment" AND h.hash IS NULL',
+				'SELECT c.email FROM %i c LEFT OUTER JOIN %i h ON c.email = h.identifier AND h.type = "comment" AND h.hash IS NULL',
 				$wpdb->avatar_privacy,
 				$wpdb->avatar_privacy_hashes
 			)

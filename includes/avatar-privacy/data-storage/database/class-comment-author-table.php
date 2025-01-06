@@ -277,7 +277,8 @@ class Comment_Author_Table extends Table {
 		 */
 		$rows_to_migrate = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare(
-				"SELECT * FROM `{$global_table_name}` WHERE log_message LIKE %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				'SELECT * FROM %i WHERE log_message LIKE %s',
+				$global_table_name,
 				"set with comment % (site: %, blog: {$wpdb->esc_like( $site_id )})"
 			),
 			\OBJECT_K
@@ -344,8 +345,8 @@ class Comment_Author_Table extends Table {
 
 		$placeholders = \join( ',', \array_fill( 0, \count( $emails ), '%s' ) );
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-		return $wpdb->prepare( "SELECT * FROM `{$table}` WHERE email IN ({$placeholders})", $emails );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		return $wpdb->prepare( "SELECT * FROM %i WHERE email IN ({$placeholders})", \array_merge( [ $table ], $emails ) );
 	}
 
 	/**
@@ -367,8 +368,8 @@ class Comment_Author_Table extends Table {
 
 		$placeholders = \join( ',', \array_fill( 0, \count( $ids_to_delete ), '%d' ) );
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-		return $wpdb->prepare( "DELETE FROM `{$table}` WHERE id IN ({$placeholders})", $ids_to_delete );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		return $wpdb->prepare( "DELETE FROM %i WHERE id IN ({$placeholders})", \array_merge( [ $table ], $ids_to_delete ) );
 	}
 
 	/**
@@ -405,9 +406,9 @@ class Comment_Author_Table extends Table {
 
 		$table_name = $this->get_table_name();
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQLPlaceholders
-		if ( 'hash' === $wpdb->get_var( $wpdb->prepare( 'SHOW COLUMNS FROM `%1$s` LIKE \'hash\'', $table_name ) ) ) {
-			return (bool) $wpdb->query( $wpdb->prepare( 'ALTER TABLE `%1$s` DROP COLUMN hash', $table_name ) );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery
+		if ( 'hash' === $wpdb->get_var( $wpdb->prepare( 'SHOW COLUMNS FROM %i WHERE FIELD = %s', $table_name, 'hash' ) ) ) {
+			return (bool) $wpdb->query( $wpdb->prepare( 'ALTER TABLE %i DROP COLUMN hash', $table_name ) );
 		}
 		// phpcs:enable WordPress.DB
 
@@ -426,10 +427,10 @@ class Comment_Author_Table extends Table {
 
 		$table_name = $this->get_table_name();
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQLPlaceholders
-		$column_definition = $wpdb->get_row( $wpdb->prepare( 'SHOW COLUMNS FROM `%1$s` LIKE \'last_updated\'', $table_name ), \ARRAY_A );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery
+		$column_definition = $wpdb->get_row( $wpdb->prepare( 'SHOW COLUMNS FROM %i WHERE FIELD = %s', $table_name, 'last_updated' ), \ARRAY_A );
 		if ( 'CURRENT_TIMESTAMP' !== $column_definition['Default'] ) {
-			return (bool) $wpdb->query( $wpdb->prepare( 'ALTER TABLE `%1$s` MODIFY COLUMN `last_updated` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL', $table_name ) );
+			return (bool) $wpdb->query( $wpdb->prepare( 'ALTER TABLE %i MODIFY COLUMN `last_updated` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL', $table_name ) );
 		}
 		// phpcs:enable WordPress.DB
 
