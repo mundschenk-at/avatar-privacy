@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2022 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -109,7 +109,7 @@ class Comment_Author_Table extends Table {
 	 *
 	 * @return void
 	 */
-	public function setup( $previous_version ) {
+	public function setup( string $previous_version ): void {
 		parent::setup( $previous_version );
 
 		// The table is set up correctly, but maybe we need to migrate some data
@@ -126,7 +126,7 @@ class Comment_Author_Table extends Table {
 	 *
 	 * @return bool
 	 */
-	public function use_global_table() {
+	public function use_global_table(): bool {
 		$global_table = (bool) $this->network_options->get( Network_Options::USE_GLOBAL_TABLE, false );
 
 		/**
@@ -157,7 +157,7 @@ class Comment_Author_Table extends Table {
 	 *
 	 * @return string
 	 */
-	protected function get_table_definition( $table_name ) {
+	protected function get_table_definition( string $table_name ): string {
 		return "CREATE TABLE {$table_name} (
 				id mediumint(9) NOT NULL AUTO_INCREMENT,
 				email varchar(100) NOT NULL,
@@ -176,7 +176,7 @@ class Comment_Author_Table extends Table {
 	 *
 	 * @return void
 	 */
-	protected function maybe_prepare_migration_queue() {
+	protected function maybe_prepare_migration_queue(): void {
 		$queue = $this->network_options->get( Network_Options::START_GLOBAL_TABLE_MIGRATION );
 
 		if ( \is_array( $queue ) && $this->network_options->lock( Network_Options::GLOBAL_TABLE_MIGRATION ) ) {
@@ -202,7 +202,7 @@ class Comment_Author_Table extends Table {
 	 *
 	 * @return void
 	 */
-	protected function maybe_migrate_from_global_table() {
+	protected function maybe_migrate_from_global_table(): void {
 		if (
 			// The plugin is not network-activated (or not on a multisite installation).
 			! \is_plugin_active_for_network( \plugin_basename( \AVATAR_PRIVACY_PLUGIN_FILE ) ) ||
@@ -250,7 +250,7 @@ class Comment_Author_Table extends Table {
 	 *
 	 * @return int|false         The number of migrated rows or false on error.
 	 */
-	public function migrate_from_global_table( $site_id ) {
+	public function migrate_from_global_table( ?int $site_id ) {
 		global $wpdb;
 
 		// Get table names.
@@ -336,7 +336,7 @@ class Comment_Author_Table extends Table {
 	 *
 	 * @return string|false      The prepared query, or false.
 	 */
-	protected function prepare_email_query( array $emails, $table ) {
+	protected function prepare_email_query( array $emails, string $table ) {
 		global $wpdb;
 
 		if ( empty( $emails ) || empty( $table ) ) {
@@ -383,7 +383,7 @@ class Comment_Author_Table extends Table {
 	 *
 	 * @return bool                    True if the schema was modified, false otherwise.
 	 */
-	public function maybe_upgrade_schema( $previous_version ) {
+	public function maybe_upgrade_schema( string $previous_version ): bool {
 		$result = false;
 
 		if ( \version_compare( $previous_version, '2.4.0', '<' ) ) {
@@ -401,7 +401,7 @@ class Comment_Author_Table extends Table {
 	 *
 	 * @return bool
 	 */
-	protected function maybe_drop_hash_column() {
+	protected function maybe_drop_hash_column(): bool {
 		global $wpdb;
 
 		$table_name = $this->get_table_name();
@@ -422,7 +422,7 @@ class Comment_Author_Table extends Table {
 	 *
 	 * @return bool
 	 */
-	protected function maybe_fix_last_updated_column_default() {
+	protected function maybe_fix_last_updated_column_default(): bool {
 		global $wpdb;
 
 		$table_name = $this->get_table_name();
@@ -449,7 +449,7 @@ class Comment_Author_Table extends Table {
 	 *
 	 * @return int                      The number of upgraded rows.
 	 */
-	public function maybe_upgrade_data( $previous_version ) {
+	public function maybe_upgrade_data( string $previous_version ): int {
 		return 0;
 	}
 }

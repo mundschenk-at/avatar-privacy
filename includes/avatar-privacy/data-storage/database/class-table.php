@@ -97,7 +97,7 @@ abstract class Table {
 	 *
 	 * @phpstan-param ColumnFormats     $column_formats
 	 */
-	public function __construct( $table_basename, $update_threshold, array $column_formats, array $auto_update_cols ) {
+	public function __construct( string $table_basename, string $update_threshold, array $column_formats, array $auto_update_cols ) {
 		$this->table_basename   = $table_basename;
 		$this->update_threshold = $update_threshold;
 		$this->column_formats   = $column_formats;
@@ -114,7 +114,7 @@ abstract class Table {
 	 *
 	 * @return void
 	 */
-	public function setup( $previous_version ) {
+	public function setup( string $previous_version ): void {
 		if ( $this->maybe_create_table( $previous_version ) ) {
 			// We may need to fix the schema manually.
 			$this->maybe_upgrade_schema( $previous_version );
@@ -133,7 +133,7 @@ abstract class Table {
 	 *
 	 * @return string
 	 */
-	protected function get_table_prefix( $site_id = null ) {
+	protected function get_table_prefix( ?int $site_id = null ): string {
 		global $wpdb;
 
 		if ( ! $this->use_global_table() ) {
@@ -152,7 +152,7 @@ abstract class Table {
 	 *
 	 * @return string
 	 */
-	public function get_table_name( $site_id = null ) {
+	public function get_table_name( ?int $site_id = null ): string {
 		return $this->get_table_prefix( $site_id ) . $this->table_basename;
 	}
 
@@ -167,7 +167,7 @@ abstract class Table {
 	 *
 	 * @return bool
 	 */
-	public function table_exists( $table_name ) {
+	public function table_exists( string $table_name ): bool {
 		global $wpdb;
 
 		return $table_name === $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -182,7 +182,7 @@ abstract class Table {
 	 *
 	 * @return bool
 	 */
-	abstract public function use_global_table();
+	abstract public function use_global_table(): bool;
 
 	/**
 	 * Creates the plugin's database table if it doesn't already exist. The
@@ -195,7 +195,7 @@ abstract class Table {
 	 *
 	 * @return bool                    Returns true if the table was created/updated.
 	 */
-	public function maybe_create_table( $previous_version ) {
+	public function maybe_create_table( string $previous_version ): bool {
 		global $wpdb;
 
 		// Force DB update?
@@ -248,7 +248,7 @@ abstract class Table {
 	 *
 	 * @return string
 	 */
-	abstract protected function get_table_definition( $table_name );
+	abstract protected function get_table_definition( string $table_name ): string;
 
 	/**
 	 * Fixes the table schema when dbDelta cannot cope with the changes.
@@ -261,7 +261,7 @@ abstract class Table {
 	 *
 	 * @return bool                    True if the schema was modified, false otherwise.
 	 */
-	abstract public function maybe_upgrade_schema( $previous_version );
+	abstract public function maybe_upgrade_schema( string $previous_version ): bool;
 
 	/**
 	 * Sometimes, the table data needs to updated when upgrading.
@@ -272,7 +272,7 @@ abstract class Table {
 	 *
 	 * @return int                     The number of upgraded rows.
 	 */
-	abstract public function maybe_upgrade_data( $previous_version );
+	abstract public function maybe_upgrade_data( string $previous_version ): int;
 
 	/**
 	 * Registers the table with the given \wpdb instance.
@@ -282,7 +282,7 @@ abstract class Table {
 	 *
 	 * @return void
 	 */
-	protected function register_table( \wpdb $db, $table_name ) {
+	protected function register_table( \wpdb $db, string $table_name ): void {
 		$basename = $this->table_basename;
 
 		// Make sure that $wpdb knows about our table.
@@ -312,7 +312,7 @@ abstract class Table {
 	 *
 	 * @return bool               True if the collation was modified, false otherwise.
 	 */
-	protected function maybe_upgrade_charset_and_collation( $table_name ) {
+	protected function maybe_upgrade_charset_and_collation( string $table_name ): bool {
 		global $wpdb;
 
 		// Check if the charset and collation set for the table are the same as
@@ -353,7 +353,7 @@ abstract class Table {
 	 *
 	 * @return string[]                           Strings containing the results of the various update queries.
 	 */
-	protected function db_delta( $queries, $execute = true ) {
+	protected function db_delta( $queries, bool $execute = true ): array {
 		if ( ! function_exists( 'dbDelta' ) ) {
 			// Load upgrade.php for the dbDelta function.
 			require_once \ABSPATH . 'wp-admin/includes/upgrade.php'; // @phpstan-ignore requireOnce.fileNotFound
@@ -371,7 +371,7 @@ abstract class Table {
 	 *
 	 * @return void
 	 */
-	public function drop_table( $site_id = null ) {
+	public function drop_table( ?int $site_id = null ): void {
 		global $wpdb;
 
 		$table_name = $this->get_table_name( $site_id );
@@ -391,7 +391,7 @@ abstract class Table {
 	 *
 	 * @phpstan-param ColumnValueTuples $columns
 	 */
-	protected function get_format( array $columns ) {
+	protected function get_format( array $columns ): array {
 		$format_strings = [];
 
 		foreach ( $columns as $key => $value ) {
@@ -425,7 +425,7 @@ abstract class Table {
 	 *
 	 * @phpstan-param ColumnValueTuples $data
 	 */
-	public function insert( array $data, $site_id = null ) {
+	public function insert( array $data, ?int $site_id = null ) {
 		try {
 			global $wpdb;
 
@@ -457,7 +457,7 @@ abstract class Table {
 	 *
 	 * @phpstan-param ColumnValueTuples $data
 	 */
-	public function replace( array $data, $site_id = null ) {
+	public function replace( array $data, ?int $site_id = null ) {
 		try {
 			global $wpdb;
 
@@ -495,7 +495,7 @@ abstract class Table {
 	 * @phpstan-param ColumnValueTuples $data
 	 * @phpstan-param ColumnValueTuples $where
 	 */
-	public function update( array $data, array $where, $site_id = null ) {
+	public function update( array $data, array $where, ?int $site_id = null ) {
 		try {
 			global $wpdb;
 
@@ -531,7 +531,7 @@ abstract class Table {
 	 *
 	 * @phpstan-param ColumnValueTuples $where
 	 */
-	public function delete( array $where, $site_id = null ) {
+	public function delete( array $where, ?int $site_id = null ) {
 		try {
 			global $wpdb;
 
@@ -556,7 +556,7 @@ abstract class Table {
 	 *
 	 * @phpstan-param \stdClass[]|ColumnValueTuples[] $rows
 	 */
-	public function insert_or_update( array $fields, array $rows, $site_id = null ) {
+	public function insert_or_update( array $fields, array $rows, ?int $site_id = null ) {
 		try {
 			global $wpdb;
 
@@ -605,7 +605,7 @@ abstract class Table {
 	 *
 	 * @phpstan-param ColumnValueTuples $data
 	 */
-	public function insert_or_update_row( array $data, $site_id = null ) {
+	public function insert_or_update_row( array $data, ?int $site_id = null ) {
 		return $this->insert_or_update( \array_keys( $data ), [ $data ], $site_id );
 	}
 
@@ -618,7 +618,7 @@ abstract class Table {
 	 *
 	 * @return string
 	 */
-	protected function get_update_clause( array $fields ) {
+	protected function get_update_clause( array $fields ): string {
 
 		$updated_fields      = \array_flip( $fields );
 		$update_clause_parts = [];
@@ -649,7 +649,7 @@ abstract class Table {
 	 * @phpstan-param  \stdClass[]|ColumnValueTuples[] $rows
 	 * @phpstan-return ColumnValueTuples[]
 	 */
-	protected function prepare_rows( array $rows, array $fields ) {
+	protected function prepare_rows( array $rows, array $fields ): array {
 		$result = [];
 
 		foreach ( $rows as $data ) {
@@ -678,7 +678,7 @@ abstract class Table {
 	 * @phpstan-param  ColumnValueTuples[] $prepared_rows
 	 * @phpstan-return array<int|string>
 	 */
-	protected function prepare_values( array $prepared_rows ) {
+	protected function prepare_values( array $prepared_rows ): array {
 		$values = [];
 
 		foreach ( $prepared_rows as $row ) {

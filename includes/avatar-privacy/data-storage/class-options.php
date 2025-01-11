@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2020 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -62,7 +62,7 @@ class Options extends \Mundschenk\Data_Storage\Options {
 	 *
 	 * @return void
 	 */
-	public function reset_avatar_default() {
+	public function reset_avatar_default(): void {
 		switch ( $this->get( 'avatar_default', null, true ) ) {
 			case 'rings':
 			case 'comment':
