@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2020-2023 Peter Putzer.
+ * Copyright 2020-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -89,7 +89,7 @@ class Hashes_Table extends Table {
 	 *
 	 * @return bool
 	 */
-	public function use_global_table() {
+	public function use_global_table(): bool {
 		return false;
 	}
 
@@ -108,7 +108,7 @@ class Hashes_Table extends Table {
 	 *
 	 * @return string
 	 */
-	protected function get_table_definition( $table_name ) {
+	protected function get_table_definition( string $table_name ): string {
 		$identifier_length = $this->database_supports_large_index() ? 256 : 175;
 
 		return "CREATE TABLE {$table_name} (
@@ -143,7 +143,7 @@ class Hashes_Table extends Table {
 	 *
 	 * @return bool                    True if the schema was modified, false otherwise.
 	 */
-	public function maybe_upgrade_schema( $previous_version ) {
+	public function maybe_upgrade_schema( string $previous_version ): bool {
 		return false;
 	}
 
@@ -156,7 +156,7 @@ class Hashes_Table extends Table {
 	 *
 	 * @return int                     The number of upgraded rows.
 	 */
-	public function maybe_upgrade_data( $previous_version ) {
+	public function maybe_upgrade_data( string $previous_version ): int {
 		return 0;
 	}
 }

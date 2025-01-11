@@ -2,7 +2,7 @@
 /**
  * This file is part of Avatar Privacy.
  *
- * Copyright 2018-2019 Peter Putzer.
+ * Copyright 2018-2024 Peter Putzer.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -87,7 +87,7 @@ class Network_Options extends \Mundschenk\Data_Storage\Network_Options {
 	 *
 	 * @return string       The option name without the prefix, or '' if an invalid name was given.
 	 */
-	public function remove_prefix( $name ) {
+	public function remove_prefix( string $name ): string {
 		$parts = \explode( self::PREFIX, $name, 2 );
 		if ( '' === $parts[0] ) {
 			return $parts[1];
@@ -106,7 +106,7 @@ class Network_Options extends \Mundschenk\Data_Storage\Network_Options {
 	 *
 	 * @return bool             True if the option can be safely set, false otherwise.
 	 */
-	public function lock( $option ) {
+	public function lock( string $option ): bool {
 		$now    = \microtime( true );
 		$secret = \wp_hash( "{$option}|{$now}", 'nonce' );
 		$lock   = "{$option}_lock";
@@ -126,7 +126,7 @@ class Network_Options extends \Mundschenk\Data_Storage\Network_Options {
 	 *                          it was not lockedor because unlock was successful),
 	 *                          false otherwise.
 	 */
-	public function unlock( $option ) {
+	public function unlock( string $option ): bool {
 		$lock = "{$option}_lock";
 
 		return ! $this->get( $lock ) || $this->delete( $lock );

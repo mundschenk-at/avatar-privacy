@@ -90,7 +90,7 @@ class Filesystem_Cache {
 	 *
 	 * @return string
 	 */
-	public function get_base_dir() {
+	public function get_base_dir(): string {
 		if ( empty( $this->base_dir ) ) {
 			$this->base_dir = "{$this->get_upload_dir()['basedir']}/" . self::CACHE_DIR;
 
@@ -107,7 +107,7 @@ class Filesystem_Cache {
 	 *
 	 * @return string
 	 */
-	public function get_base_url() {
+	public function get_base_url(): string {
 		if ( empty( $this->base_url ) ) {
 			$this->base_url = "{$this->get_upload_dir()['baseurl']}/" . self::CACHE_DIR;
 		}
@@ -124,7 +124,7 @@ class Filesystem_Cache {
 	 *
 	 * @phpstan-return UploadDir
 	 */
-	protected function get_upload_dir() {
+	protected function get_upload_dir(): array {
 		if ( ! isset( $this->upload_dir ) ) {
 			$multisite = \is_multisite();
 
@@ -154,7 +154,7 @@ class Filesystem_Cache {
 	 *
 	 * @return bool             True if the file was successfully stored in the cache, false otherwise.
 	 */
-	public function set( $filename, $data, $force = false ) {
+	public function set( string $filename, string $data, bool $force = false ): bool {
 		$file = $this->get_base_dir() . $filename;
 
 		if ( \file_exists( $file ) && ! $force ) {
@@ -178,7 +178,7 @@ class Filesystem_Cache {
 	 *
 	 * @return string
 	 */
-	public function get_url( $filename ) {
+	public function get_url( string $filename ): string {
 		return $this->get_base_url() . $filename;
 	}
 
@@ -189,7 +189,7 @@ class Filesystem_Cache {
 	 *
 	 * @return bool             True if the file was successfully removed from the cache, false otherwise.
 	 */
-	public function delete( $filename ) {
+	public function delete( string $filename ): bool {
 		$file = $this->get_base_dir() . $filename;
 
 		return \wp_is_writable( $file ) && delete_file( $file );
@@ -203,7 +203,7 @@ class Filesystem_Cache {
 	 *
 	 * @return void
 	 */
-	public function invalidate( $subdir = '', $regex = '' ) {
+	public function invalidate( string $subdir = '', string $regex = '' ): void {
 		try {
 			$iterator = $this->get_recursive_file_iterator( $subdir, $regex );
 		} catch ( \UnexpectedValueException $e ) {
@@ -232,7 +232,7 @@ class Filesystem_Cache {
 	 *
 	 * @return void
 	 */
-	public function invalidate_files_older_than( $age, $subdir = '', $regex = '' ) {
+	public function invalidate_files_older_than( int $age, string $subdir = '', string $regex = '' ): void {
 		try {
 			$now      = \time();
 			$iterator = $this->get_recursive_file_iterator( $subdir, $regex );
@@ -258,7 +258,7 @@ class Filesystem_Cache {
 	 *
 	 * @return \OuterIterator<string,\SplFileInfo>
 	 */
-	protected function get_recursive_file_iterator( $subdir = '', $regex = '' ) {
+	protected function get_recursive_file_iterator( string $subdir = '', string $regex = '' ): \OuterIterator {
 		$files = new \RecursiveIteratorIterator(
 			new \RecursiveDirectoryIterator( "{$this->get_base_dir()}{$subdir}", \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS ),
 			\RecursiveIteratorIterator::CHILD_FIRST
