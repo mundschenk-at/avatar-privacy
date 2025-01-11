@@ -458,7 +458,7 @@ class Table_Test extends \Avatar_Privacy\Tests\TestCase {
 
 		// Fake SQL queries.
 		$prepared_collation_query   = 'PREPARED COLLATION QUERY';
-		$prepared_columns_query    = 'PREPARED COLUMNS QUERY';
+		$prepared_columns_query     = 'PREPARED COLUMNS QUERY';
 		$prepared_alter_table_query = 'PREPARED ALTER TABLE QUERY';
 
 		$wpdb->shouldReceive( 'prepare' )->once()->with( m::pattern( '/^SELECT table_collation FROM.*$/' ), $table_name )->andReturn( $prepared_collation_query );
